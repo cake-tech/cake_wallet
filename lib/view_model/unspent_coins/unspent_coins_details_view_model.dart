@@ -6,7 +6,11 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_switch_item.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,18 +25,23 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
       : items = <TransactionDetailsListItem>[],
         _type = unspentCoinsListViewModel.wallet.type,
         isFrozen = unspentCoinsItem.isFrozen,
+        isOctojoinSwapped = unspentCoinsItem.note.toLowerCase().contains('octojoin'),
         note = unspentCoinsItem.note {
     items = [
       StandartListItem(title: S.current.transaction_details_amount, value: unspentCoinsItem.amount),
       StandartListItem(
           title: S.current.transaction_details_transaction_id, value: unspentCoinsItem.hash),
       StandartListItem(title: S.current.widgets_address, value: formattedAddress),
-      TextFieldListItem(
-          title: S.current.note_tap_to_change,
-          value: note,
-          onSubmitted: (value) {
-            unspentCoinsItem.note = value;
-            unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
+      UnspentCoinsSwitchItem(
+          title: 'Octojoin (Swapped)',
+          value: '',
+          switchValue: () => isOctojoinSwapped,
+          onSwitchValueChange: (value) async {
+            isOctojoinSwapped = value;
+            final newNote = value ? 'octojoin' : '';
+            unspentCoinsItem.note = newNote;
+            note = newNote;
+            await unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
           }),
       UnspentCoinsSwitchItem(
           title: S.current.freeze,
@@ -92,6 +101,9 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
 
   @observable
   bool isFrozen;
+
+  @observable
+  bool isOctojoinSwapped;
 
   @observable
   String note;

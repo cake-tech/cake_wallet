@@ -20,6 +20,9 @@ class UnspentCoinsDetailsPage extends BasePage {
   @override
   String get title => S.current.unspent_coins_details_title;
 
+  @override
+  bool get resizeToAvoidBottomInset => false;
+
   final UnspentCoinsDetailsViewModel unspentCoinsDetailsViewModel;
 
   @override
@@ -36,12 +39,13 @@ class UnspentCoinsDetailsPage extends BasePage {
                 Clipboard.setData(ClipboardData(text: item.value));
                 showBar<void>(context, S.of(context).transaction_details_copied(item.title));
               },
-              child: ListRow(title: '${item.title}:', value: item.value),
+              child: ListRow(key: item.key, title: '${item.title}:', value: item.value),
             );
           }
 
           if (item is TextFieldListItem) {
             return TextFieldListRow(
+              key: item.key,
               title: item.title,
               value: item.value,
               onSubmitted: item.onSubmitted,
@@ -51,6 +55,7 @@ class UnspentCoinsDetailsPage extends BasePage {
           if (item is UnspentCoinsSwitchItem) {
             return Observer(
               builder: (_) => UnspentCoinsSwitchRow(
+                key: item.key,
                 title: item.title,
                 switchValue: item.switchValue(),
                 onSwitchValueChange: item.onSwitchValueChange,

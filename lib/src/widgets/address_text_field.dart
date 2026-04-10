@@ -38,6 +38,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.borderWidth = 1.0,
     this.contentPadding,
     this.copyImagePath,
+    this.maxLines = 1,
   });
 
   static const prefixIconWidth = 34.0;
@@ -64,6 +65,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final T? selectedCurrency;
   final Key? addressKey;
   final String? copyImagePath;
+  final int maxLines;
 
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
@@ -102,6 +104,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                   ),
           hintText: placeholder ?? S.current.widgets_address,
           validator: validator,
+          maxLines: maxLines,
         ),
         Positioned(
           top: 8,

@@ -110,6 +110,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final TextEditingController extractedAddressController;
   final FocusNode addressFocusNode;
 
+  int _octojoinFieldCount = 1;
+
   bool _effectsInstalled = false;
   BuildContext? loadingBottomSheetContext;
   bool _justHandledPasteButton = false;
@@ -139,6 +141,26 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         },
       );
     }
+
+    addressController.addListener(() {
+      if (sendViewModel.isOctojoin) {
+        final addresses = addressController.text.split(',').map((e) => e.replaceAll(RegExp(r'\s+'), '')).where((e) => e.isNotEmpty).toList();
+        
+        while (sendViewModel.octojoinAddresses.length < addresses.length) {
+          sendViewModel.octojoinAddresses.add('');
+        }
+        while (sendViewModel.octojoinAddresses.length > addresses.length) {
+          sendViewModel.octojoinAddresses.removeLast();
+        }
+        for (int i = 0; i < addresses.length; i++) {
+          sendViewModel.octojoinAddresses[i] = addresses[i];
+        }
+      } else {
+        if (sendViewModel.octojoinAddresses.isNotEmpty) {
+           sendViewModel.octojoinAddresses.clear();
+        }
+      }
+    });
   }
 
   @override
@@ -531,34 +553,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     super.build(context);
     _setEffects(context);
 
-    // return Stack(
-    //   children: [
-    // return KeyboardActions(
-    //   config: KeyboardActionsConfig(
-    //     keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-    //     keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
-    //     nextFocus: false,
-    //     actions: [
-    //       KeyboardActionsItem(
-    //         focusNode: cryptoAmountFocus,
-    //         toolbarButtons: [(_) => KeyboardDoneButton()],
-    //       ),
-    //       KeyboardActionsItem(
-    //         focusNode: fiatAmountFocus,
-    //         toolbarButtons: [(_) => KeyboardDoneButton()],
-    //       )
-    //     ],
-    //   ),
-    //   // child: Container(
-    //   //   height: 0,
-    //   //   color: Colors.transparent,
-    //   // ),      child:
-    //   child: SizedBox(
-    //     height: 100,
-    //     width: 100,
-    //     child: Text('Send Card'),
-    //   ),
-    // );
     return Container(
       decoration: responsiveLayoutUtil.shouldRenderMobileUI
           ? BoxDecoration(
@@ -576,31 +570,27 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           24,
           responsiveLayoutUtil.shouldRenderMobileUI ? 32 : 0,
         ),
-        child: Observer(
-          builder: (_) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Observer(builder: (_) {
-                final validator = output.isParsedAddress
-                    ? sendViewModel.textValidator
-                    : sendViewModel.addressValidator;
-
-                return AddressTextField(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Observer(
+              builder: (_) => Padding(
+                padding: EdgeInsets.zero,
+                child: AddressTextField(
                   contentPadding: EdgeInsets.symmetric(vertical: 8),
                   hasUnderlineBorder: true,
                   fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  addressKey: ValueKey('send_page_address_textfield_key'),
+                  addressKey: ValueKey('send_page_address_textfield_key_0'),
                   focusNode: addressFocusNode,
                   controller: addressController,
+                  maxLines: sendViewModel.isOctojoin ? 5 : 1,
                   onURIScanned: (uri) async {
                     output.resetParsedAddress();
                     await output.fetchParsedAddress(context);
-
-                    // Process the payment through the new flow
                     await _handlePaymentFlow(
-                      uri.toString(),
-                      PaymentRequest.fromUri(uri),
-                    );
+                        uri.toString(),
+                        PaymentRequest.fromUri(uri),
+                      );
                   },
                   options: [
                     AddressTextFieldOption.paste,
@@ -617,27 +607,25 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                   onPushPasteButton: (context) async {
-                    _justHandledPasteButton = true;
-                    try {
-                      output.resetParsedAddress();
-                      await output.fetchParsedAddress(context);
-
-                      final address =
-                          output.isParsedAddress ? output.extractedAddress : output.address;
-
-                      await _handlePaymentFlow(
-                        address,
-                        PaymentRequest(
+                      _justHandledPasteButton = true;
+                      try {
+                        output.resetParsedAddress();
+                        await output.fetchParsedAddress(context);
+                        final address =
+                            output.isParsedAddress ? output.extractedAddress : output.address;
+                        await _handlePaymentFlow(
                           address,
-                          cryptoAmountController.text,
-                          noteController.text,
-                          "",
-                          null,
-                        ),
-                      );
-                    } finally {
-                      _justHandledPasteButton = false;
-                    }
+                          PaymentRequest(
+                            address,
+                            cryptoAmountController.text,
+                            noteController.text,
+                            "",
+                            null,
+                          ),
+                        );
+                      } finally {
+                        _justHandledPasteButton = false;
+                      }
                   },
                   onPushAddressBookButton: (context) async {
                     output.resetParsedAddress();
@@ -645,27 +633,43 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   onSelectedContact: (contact) {
                     output.loadContact(contact);
                   },
-                  validator: validator,
+                  validator: (String? value) {
+                      if (sendViewModel.isOctojoin && value != null && value.contains(',')) {
+                        final addresses = value.split(',').map((e) => e.replaceAll(RegExp(r'\s+'), '')).where((e) => e.isNotEmpty).toList();
+                        for (final address in addresses) {
+                          final result = sendViewModel.addressValidator(address);
+                          if (result != null) return result;
+                        }
+                        if (addresses.isEmpty) return S.current.error_text_address;
+                        return null;
+                      }
+                      return output.isParsedAddress
+                          ? sendViewModel.textValidator(value)
+                          : sendViewModel.addressValidator(value);
+                  },
                   selectedCurrency: sendViewModel.selectedCryptoCurrency,
-                );
-              }),
-              if (output.isParsedAddress)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: BaseTextFormField(
-                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    controller: extractedAddressController,
-                    readOnly: true,
-                    enableInteractiveSelection: false,
-                    textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                    validator: sendViewModel.addressValidator,
-                  ),
                 ),
-              CurrencyAmountTextField(
+              ),
+            ),
+            Observer(
+              builder: (_) => output.isParsedAddress ? Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: BaseTextFormField(
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  controller: extractedAddressController,
+                  readOnly: true,
+                  enableInteractiveSelection: false,
+                  textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                  validator: sendViewModel.addressValidator,
+                ),
+              ) : const SizedBox(),
+            ),
+            Observer(
+              builder: (_) => CurrencyAmountTextField(
                 borderWidth: 0.0,
                 hasUnderlineBorder: true,
                 fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -680,6 +684,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
                 onTapPicker: () => _presentPicker(context),
+
                 isPickerEnable: sendViewModel.hasMultipleTokens,
                 tag: sendViewModel.selectedCryptoCurrency.tag,
                 allAmountButton:
@@ -690,8 +695,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 allAmountCallback: () async =>
                     output.setSendAll(await sendViewModel.sendingBalance),
               ),
-              Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
-              Observer(
+            ),
+            Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+            Observer(
                 builder: (_) {
                   // force rebuild on mobx
                   final _ = sendViewModel.coinTypeToSpendFrom;
@@ -880,6 +886,89 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                   ),
                 ),
+              if (sendViewModel.walletType == WalletType.bitcoin)
+                Observer(
+                  builder: (_) => Padding(
+                    padding: EdgeInsets.only(top: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            StandardCheckbox(
+                              caption: 'Enable Octojoin',
+                              captionColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                              borderColor: Theme.of(context).colorScheme.primary,
+                              iconColor: Theme.of(context).colorScheme.primary,
+                              value: sendViewModel.isOctojoin,
+                              onChanged: (bool value) async {
+                                sendViewModel.isOctojoin = value;
+
+                                if (value) {
+                                  await sendViewModel.initializeOctojoinAddresses();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        if (sendViewModel.isOctojoin)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, left: 32),
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Inputs:',
+                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                                SizedBox(width: 8),
+                                DropdownButton<int>(
+                                  value: sendViewModel.octojoinNumInputs,
+                                  onChanged: (int? newValue) {
+                                    if (newValue != null) sendViewModel.octojoinNumInputs = newValue;
+                                  },
+                                  dropdownColor: Theme.of(context).colorScheme.surface,
+                                  items: <int>[3, 4, 5, 6].map<DropdownMenuItem<int>>((int value) {
+                                    return DropdownMenuItem<int>(
+                                      value: value,
+                                      child: Text(value.toString(), style: Theme.of(context).textTheme.bodySmall),
+                                    );
+                                  }).toList(),
+                                ),
+                                SizedBox(width: 16),
+                                Text(
+                                  'Outputs:',
+                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                                SizedBox(width: 8),
+                                DropdownButton<int>(
+                                  value: sendViewModel.octojoinNumOutputs,
+                                  onChanged: (int? newValue) async {
+                                    if (newValue != null) {
+                                      sendViewModel.octojoinNumOutputs = newValue;
+                                    }
+                                  },
+                                  dropdownColor: Theme.of(context).colorScheme.surface,
+                                  items: <int>[2, 3, 4, 5].map<DropdownMenuItem<int>>((int value) {
+                                    return DropdownMenuItem<int>(
+                                      value: value,
+                                      child: Text(value.toString(), style: Theme.of(context).textTheme.bodySmall),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
               if (sendViewModel.isMwebAvailable)
                 Observer(
                   builder: (_) => Padding(
@@ -916,7 +1005,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -1018,6 +1106,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         if (SendViewModelBase.isNonZeroAmountLightningInvoice(address)) {
           sendViewModel.createTransaction();
         }
+      }
+
+      // Keep octojoin recipient 0 in sync with this field
+      if (sendViewModel.isOctojoin && sendViewModel.octojoinAddresses.isNotEmpty) {
+        sendViewModel.setOctojoinAddress(0, address);
       }
     });
 
