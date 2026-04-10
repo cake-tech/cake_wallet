@@ -1,17 +1,16 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class BridgeNetworkPage extends StatelessWidget {
-  const BridgeNetworkPage({super.key, required this.bridgeViewModel});
+  const BridgeNetworkPage(this.bridgeViewModel);
 
   final BridgeViewModel bridgeViewModel;
 
@@ -54,29 +53,20 @@ class BridgeNetworkPage extends StatelessWidget {
                       builder: (_) {
                         return NewListSections(
                           sections: {
-                            '': bridgeViewModel.availableDestinationChains
-                                .map(
-                                  (chain) {
-                                    final chainName = chain.name;
-                                    return ListItemRegularRow(
-                                    iconPath:
-                                        'assets/images/crypto/${chainName.toLowerCase()}.webp',
-                                    keyValue: chain.chainId.toString(),
-                                    label: chainName,
-                                    onTap: () {
-                                      bridgeViewModel.setDestinationChain(chain.chainId);
-                                      showMaterialModalBottomSheet(
-                                        context: context,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (ctx) => BridgeReceivingWalletPage(
-                                          bridgeViewModel: bridgeViewModel,
-                                        ),
-                                      );
-                                    },
-                                  );
+                            '': bridgeViewModel.availableDestinationChains.map(
+                              (chain) {
+                                final chainName = chain.name;
+                                return ListItemRegularRow(
+                                  iconPath: 'assets/images/crypto/${chainName.toLowerCase()}.webp',
+                                  keyValue: chain.chainId.toString(),
+                                  label: chainName,
+                                  onTap: () {
+                                    bridgeViewModel.setDestinationChain(chain.chainId);
+                                    Navigator.pushNamed(context, Routes.bridgeReceivingWalletPage, arguments: bridgeViewModel);
                                   },
-                                )
-                                .toList(),
+                                );
+                              },
+                            ).toList(),
                           },
                         );
                       },
@@ -91,8 +81,7 @@ class BridgeNetworkPage extends StatelessWidget {
                           isLastInSection: true,
                           keyValue: 'sending_from',
                           label: 'Sending from',
-                          trailingIconPath:
-                              'assets/new-ui/chain_badges/${src.toLowerCase()}.svg',
+                          trailingIconPath: 'assets/new-ui/chain_badges/${src.toLowerCase()}.svg',
                           trailingText: src.capitalized(),
                         );
                       },

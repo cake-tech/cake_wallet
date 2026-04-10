@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
+import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -142,6 +143,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       token,
     );
   }
+
+
+  DecimalAmountValidator get decimalAmountValidator => DecimalAmountValidator(
+        currency: selectedToken!,
+        isAutovalidate: true,
+      );
 
   @computed
   String get fiatAmountFormatted {

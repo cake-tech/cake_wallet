@@ -54,6 +54,8 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
@@ -1775,7 +1777,6 @@ Future<void> setup({
         bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
         appStore: getIt.get<AppStore>(),
       ));
-  getIt.registerFactory(() => BridgeHistoryPage(getIt.get<BridgeHistoryViewModel>()));
   getIt.registerFactoryParam<BridgeDetailsViewModel, BridgeTransfer, void>(
       (BridgeTransfer transfer, _) {
     final appStore = getIt.get<AppStore>();

@@ -1,7 +1,6 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
@@ -12,6 +11,7 @@ import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -113,13 +113,9 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
               title: 'Enter Amount',
               leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
               onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              trailingIcon: const Icon(Icons.history, size: 18),
+              trailingIcon: const Icon(Icons.calendar_month, size: 18),
               onTrailingPressed: () {
-                showMaterialModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  builder: (ctx) => getIt.get<BridgeHistoryPage>(param1: widget.bridgeHistoryViewModel),
-                );
+                Navigator.pushNamed(context, Routes.bridgeHistoryPage, arguments: widget.bridgeHistoryViewModel);
               },
             ),
             Expanded(
@@ -134,47 +130,66 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const Spacer(flex: 2),
-                          Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                IntrinsicWidth(
-                                  child: TextFormField(
-                                    controller: _amountController,
-                                    onChanged: (value) {
-                                      bridgeViewModel.setAmount(value);
-                                    },
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(decimal: true),
-                                    textAlign: TextAlign.center,
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      hintText: '0.00',
-                                      hintStyle: theme.textTheme.displayMedium?.copyWith(
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: (constraints.maxWidth - 200)
+                                            .clamp(40.0, constraints.maxWidth),
+                                        minWidth: 40,
+                                      ),
+                                      child: TextFormField(
+                                        controller: _amountController,
+                                        maxLines: 1,
+                                        onChanged: bridgeViewModel.setAmount,
+                                        autovalidateMode: AutovalidateMode.always,
+                                        validator: bridgeViewModel.decimalAmountValidator,
+                                        keyboardType: TextInputType.numberWithOptions(
+                                          signed: false,
+                                          decimal: true,
+                                        ),
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(
+                                            RegExp(r'^\d*[.,]?\d*$'),
+                                          ),
+                                        ],
+                                        textAlign: TextAlign.center,
+                                        decoration: InputDecoration(
+                                          isDense: true,
+                                          hintText: '0.00',
+                                          hintStyle: theme.textTheme.displayMedium?.copyWith(
+                                            fontWeight: FontWeight.w400,
+                                            color: theme.colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                        style: theme.textTheme.displayMedium?.copyWith(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 45,
+                                          color: theme.colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      bridgeViewModel.selectedToken?.title ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.displayMedium?.copyWith(
                                         fontWeight: FontWeight.w400,
+                                        fontSize: 45,
                                         color: theme.colorScheme.onSurfaceVariant,
                                       ),
                                     ),
-                                    style: theme.textTheme.displayMedium?.copyWith(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 45,
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  bridgeViewModel.selectedToken?.title ?? '',
-                                  style: theme.textTheme.displayMedium?.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 45,
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 12),
                           Center(
@@ -267,12 +282,8 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                   icon: Icon(Icons.arrow_forward, size: 25),
                                   onPressed: () {
                                     _amountController.clear();
-                                    showMaterialModalBottomSheet(
-                                      context: context,
-                                      backgroundColor: Colors.transparent,
-                                      builder: (ctx) =>
-                                          BridgeNetworkPage(bridgeViewModel: bridgeViewModel),
-                                    );
+                                    Navigator.pushNamed(
+                                        context, Routes.bridgeDestinationNetworkPage, arguments: bridgeViewModel);
                                   },
                                 ),
                               ),
@@ -291,3 +302,4 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
     );
   }
 }
+

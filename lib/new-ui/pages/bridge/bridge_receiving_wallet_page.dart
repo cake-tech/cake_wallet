@@ -11,7 +11,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class BridgeReceivingWalletPage extends StatefulWidget {
-  const BridgeReceivingWalletPage({super.key, required this.bridgeViewModel});
+  const BridgeReceivingWalletPage(this.bridgeViewModel);
 
   final BridgeViewModel bridgeViewModel;
 
@@ -62,7 +62,9 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                           Center(
                             child: CakeImageWidget(
                               borderRadius: 8,
-                              imageUrl: chainName.isNotEmpty ? 'assets/images/crypto/${chainName.toLowerCase()}.webp' : null,
+                              imageUrl: chainName.isNotEmpty
+                                  ? 'assets/images/crypto/${chainName.toLowerCase()}.webp'
+                                  : null,
                               width: 72,
                               height: 72,
                             ),
@@ -124,7 +126,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
             showMaterialModalBottomSheet<void>(
               context: context,
               backgroundColor: Colors.transparent,
-              builder: (ctx) => BridgeConfirmSheet(bridgeViewModel: bridgeViewModel),
+              builder: (ctx) => BridgeConfirmSheet(bridgeViewModel),
             );
           },
         ),

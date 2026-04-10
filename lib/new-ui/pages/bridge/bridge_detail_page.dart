@@ -5,9 +5,11 @@ import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/bridge_details_view_model.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -56,7 +58,6 @@ class BridgeDetailPage extends StatelessWidget {
                                 "": viewModel.items
                                     .where((item) => item is! TrackTradeListItem)
                                     .map((item) {
-                                  final isAddressListItem = item is AddressListItem;
                                   return ListItemRegularRow(
                                     onTap: () {
                                       Clipboard.setData(ClipboardData(text: item.value));
@@ -65,17 +66,8 @@ class BridgeDetailPage extends StatelessWidget {
                                     showArrow: false,
                                     keyValue: item.title,
                                     label: item.title,
-                                    trailingWidget: isAddressListItem
-                                        ? null
-                                        : Text(
-                                            item.value,
-                                            style: TextStyle(
-                                                color:
-                                                    Theme.of(context).colorScheme.onSurfaceVariant),
-                                          ),
-                                    bottomWidget: isAddressListItem
-                                        ? _buildBottomWidget(item, context)
-                                        : null,
+                                    trailingWidget: _buildTrailingWidget(item, context),
+                                    bottomWidget: _buildBottomWidget(item, context),
                                   );
                                 }).toList(),
                               },
@@ -111,17 +103,58 @@ class BridgeDetailPage extends StatelessWidget {
   }
 
   Widget _buildBottomWidget(TransactionDetailsListItem item, BuildContext context) {
-    return switch (item.runtimeType) {
-      AddressListItem => AddressFormatter.buildSegmentedAddress(
+    if (item is AddressListItem) {
+      return AddressFormatter.buildSegmentedAddress(
           address: item.value,
           evenTextStyle: TextStyle(
               fontSize: 12,
               fontFamily: "IBM Plex Mono",
-              color: Theme.of(context).colorScheme.onSurface)),
-      _ => Text(
-          item.value,
-          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        )
-    };
+              color: Theme.of(context).colorScheme.onSurface));
+    }
+
+    final isCompleted = item.value.contains("Completed");
+    final isInitiated = item.value.contains("initiated");
+    if (isCompleted || isInitiated) {
+      return Row(
+        children: [
+          Container(
+            height: 8,
+            width: 8,
+            decoration: BoxDecoration(
+              color: isCompleted ? CustomThemeColors.syncGreen : CustomThemeColors.syncYellow,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.surface,
+                width: 1.5,
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          Text(
+            item.value,
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+        ],
+      );
+    }
+
+    return SizedBox.shrink();
+  }
+
+  Widget _buildTrailingWidget(TransactionDetailsListItem item, BuildContext context) {
+    final isCompleted = item.value.contains("Completed");
+    final isInitiated = item.value.contains("initiated");
+    if (item is AddressListItem || isCompleted || isInitiated) {
+      return SizedBox.shrink();
+    }
+
+    return Text(
+      item.value.capitalized(),
+      style: TextStyle(
+        fontWeight: FontWeight.w400,
+        fontFamily: 'Wix Madefor Text',
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+    );
   }
 }

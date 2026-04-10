@@ -131,7 +131,7 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
                                     context: overlayCtx,
                                     backgroundColor: Colors.transparent,
                                     builder: (ctx) =>
-                                        BridgeConfirmSheet(bridgeViewModel: bridgeViewModel),
+                                        BridgeConfirmSheet(bridgeViewModel),
                                   );
                                 }
                               });

@@ -11,7 +11,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class BridgeConfirmSheet extends StatefulWidget {
-  const BridgeConfirmSheet({super.key, required this.bridgeViewModel});
+  const BridgeConfirmSheet(this.bridgeViewModel);
 
   final BridgeViewModel bridgeViewModel;
 
