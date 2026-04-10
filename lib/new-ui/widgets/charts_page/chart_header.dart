@@ -71,7 +71,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                           height: 36,
                           child: (s is ChartsLoaded)
                               ? ChangeDisplay(
-                                  changeData: s.changeDataFor(widget.currency), ticker: "USD")
+                                  changeData: s.changeDataFor(widget.currency), ticker: s.fiatTicker)
                               : SizedBox.shrink(),
                         ),
                         if (s is ChartsLoaded)
