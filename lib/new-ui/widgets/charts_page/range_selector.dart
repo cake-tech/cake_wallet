@@ -31,22 +31,31 @@ class ChartRangeSelector extends StatelessWidget {
             ),
             duration: switchDuration),
         Row(
-          spacing: optionPadding,
           children: ChartRange.ranges.map((item) {
             final selected = selectedRange == item;
+            final isFirst = ChartRange.ranges.indexOf(item) == 0;
             return GestureDetector(
-              onTap: () => onRangeSelected(item),
-              child: Container(
-                width: optionSize,
-                height: optionSize,
-                child: AnimatedDefaultTextStyle(
-                    duration: switchDuration,
-                    style: TextStyle(
-                        fontWeight: selected ? FontWeight.w400 : FontWeight.w500,
-                        color: selected
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurfaceVariant),
-                    child: Center(child: Text(item.displayText))),
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                if(!selected) {
+                  onRangeSelected(item);
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.only(right: optionPadding/2,
+                left: isFirst ? 0 : optionPadding/2),
+                child: Container(
+                  width: optionSize,
+                  height: optionSize,
+                  child: AnimatedDefaultTextStyle(
+                      duration: switchDuration,
+                      style: TextStyle(
+                          fontWeight: selected ? FontWeight.w400 : FontWeight.w500,
+                          color: selected
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurfaceVariant),
+                      child: Center(child: Text(item.displayText))),
+                ),
               ),
             );
           }).toList(),
