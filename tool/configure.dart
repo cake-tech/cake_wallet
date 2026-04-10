@@ -157,6 +157,7 @@ import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:mobx/mobx.dart';
 import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
+import 'package:cw_bitcoin/octojoin_transaction_builder.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """

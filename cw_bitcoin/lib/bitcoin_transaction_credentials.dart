@@ -9,6 +9,10 @@ class BitcoinTransactionCredentials {
     this.feeRate,
     this.coinTypeToSpendFrom = UnspentCoinType.any,
     this.payjoinUri,
+    this.isOctojoin = false,
+    this.octojoinNumInputs = 3,
+    this.octojoinNumOutputs = 2,
+    this.octojoinAddresses = const [],
   });
 
   final List<OutputInfo> outputs;
@@ -16,4 +20,8 @@ class BitcoinTransactionCredentials {
   final int? feeRate;
   final UnspentCoinType coinTypeToSpendFrom;
   final String? payjoinUri;
+  final bool isOctojoin;
+  final int octojoinNumInputs;
+  final int octojoinNumOutputs;
+  final List<String> octojoinAddresses;
 }

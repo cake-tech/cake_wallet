@@ -151,6 +151,49 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   UnspentCoinType coinTypeToSpendFrom;
 
+  @observable
+  bool isOctojoin = false;
+
+  @observable
+  int octojoinNumInputs = 3;
+
+  @observable
+  int octojoinNumOutputs = 2;
+
+  ObservableList<String> octojoinAddresses = ObservableList<String>();
+
+  @action
+  void _syncOctojoinAddresses() {
+    if (!isOctojoin) {
+      octojoinAddresses.clear();
+      return;
+    }
+    while (octojoinAddresses.length < octojoinNumOutputs) {
+      octojoinAddresses.add('');
+    }
+    while (octojoinAddresses.length > octojoinNumOutputs) {
+      octojoinAddresses.removeLast();
+    }
+  }
+
+  @action
+  void setOctojoinAddress(int index, String address) {
+    // Grow the list if needed
+    while (octojoinAddresses.length <= index) {
+      octojoinAddresses.add('');
+    }
+    octojoinAddresses[index] = address;
+  }
+
+  Future<void> initializeOctojoinAddresses() async {
+    while (octojoinAddresses.length < octojoinNumOutputs) {
+      octojoinAddresses.add('');
+    }
+    while (octojoinAddresses.length > octojoinNumOutputs) {
+      octojoinAddresses.removeLast();
+    }
+  }
+
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
@@ -487,8 +530,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get shouldDisplayTOTP2FAForSendsToInternalWallet =>
       _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
 
-  //* Still open to further optimize these checks
-  //* It works but can be made better
   @action
   bool checkThroughChecksToDisplayTOTP(String address) {
     final isContact = checkIfAddressIsAContact(address);
@@ -557,6 +598,32 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
+  void _explodeOctojoinOutputs() {
+    if (!isOctojoin || outputs.isEmpty) return;
+
+    final firstOutput = outputs.first;
+    final csvAddresses = firstOutput.address.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    if (csvAddresses.length < 2) return;
+
+    final totalAmount = firstOutput.formattedCryptoAmount;
+    if (totalAmount <= 0) return;
+
+    final distribution = bitcoin!.explodeOctojoinOutputs(totalAmount, csvAddresses);
+
+    outputs.clear();
+
+    distribution.forEach((address, amountSat) {
+      final newOutput = Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency);
+      newOutput.address = address;
+      
+      final cryptoAmount = amountParsingProxy.getDisplayCryptoString(amountSat, selectedCryptoCurrency);
+      newOutput.setCryptoAmount(cryptoAmount);
+      
+      outputs.add(newOutput);
+    });
+  }
+
+  @action
   Future<PendingTransaction?> createOpenCryptoPayTransaction(String uri) async {
     state = IsExecutingState();
 
@@ -616,6 +683,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
+
+      if (isOctojoin) {
+        _explodeOctojoinOutputs();
+      }
 
       if (wallet.isHardwareWallet) {
         state = IsAwaitingDeviceResponseState();
@@ -1159,6 +1230,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
           payjoinUri: _settingsStore.usePayjoin ? payjoinUri : null,
+          isOctojoin: isOctojoin,
+          octojoinNumInputs: isOctojoin && octojoinNumInputs < 3 ? 3 : octojoinNumInputs,
+          octojoinNumOutputs: octojoinNumOutputs,
+          octojoinAddresses: List<String>.from(octojoinAddresses),
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
