@@ -45,11 +45,15 @@ class PriceChart extends StatelessWidget {
           ],
           lineTouchData: LineTouchData(
               enabled: true,
+              getTouchLineStart: (barData, spotIndex) => -double.infinity,
+              getTouchLineEnd: (barData, spotIndex) => double.infinity,
               getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
                 return spotIndexes.map((index) {
                   return TouchedSpotIndicatorData(
                     FlLine(
-                      color: Colors.transparent,
+                      strokeWidth: 1,
+                      color: direction.color.withAlpha(80),
+                      dashArray: [4, 4],
                     ),
                     FlDotData(),
                   );
