@@ -12,7 +12,6 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -62,12 +61,9 @@ class BalanceRecord {
           .toString().withMaxDecimals(8);
 
   String get combinedFiatAvailableBalance =>
-      fiatCurrencyTicker +
-      " " +
       ((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
               (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
-          .toString()
-          .withMaxDecimals(8);
+          .toStringAsFixed(2);
 
   String get fiatAvailableBalanceRaw => fiatAvailableBalance.split(" ").last;
   String get fiatSecondAvailableBalanceRaw => fiatSecondAvailableBalance.split(" ").last;
@@ -251,7 +247,7 @@ abstract class BalanceViewModelBase with Store {
                 fiatAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatFrozenBalance: isFiatDisabled ? '' : '',
                 fiatSecondAvailableBalance:
-                    isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                    isFiatDisabled ? '' : '${fiatCurrency.toString()}',
                 fiatSecondAdditionalBalance:
                     isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
@@ -464,6 +460,10 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get combinedFiatBalance {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return "●●●●●";
+    }
+
     double ret = 0.0;
     for(final record in balances.values) {
       ret += double.tryParse(record.fiatAvailableBalanceRaw) ?? 0;
