@@ -172,18 +172,26 @@ class CakeFeaturesPage extends StatelessWidget {
           subTitle: S.of(context).nanogpt_subtitle,
           image: 'assets/images/nanogpt.png',
         ),
-        AppsWidget(
-          isWide: true,
-          onTap: () => _navigatorToGiftCardsPage(
-              context: context,
-              errorAlertContent: 'MoonPay Virtual Accounts unavailable',
-              route: Routes.moonPayVirtualAccountOnboarding),
-          title: "MoonPay Virtual Accounts",
-          subTitle:
-              "Get unique bank details to receive money and auto-convert it to USDC - ready to use instantly.",
-          image: 'assets/images/bank_dark.svg',
-        ),
-        const SizedBox(height: 12),
+        Observer(builder: (_) {
+          if (dashboardViewModel.type == WalletType.ethereum ||
+              dashboardViewModel.type == WalletType.solana ||
+              dashboardViewModel.type == WalletType.polygon ||
+              dashboardViewModel.type == WalletType.base ||
+              dashboardViewModel.type == WalletType.arbitrum) {
+            return AppsWidget(
+              isWide: true,
+              onTap: () => _navigatorToFeaturePage(
+                  context: context,
+                  errorAlertContent: 'MoonPay Virtual Accounts unavailable',
+                  route: Routes.moonPayVAOnboardingPage),
+              title: "Virtual Account (Iron)",
+              subTitle:
+              "Create a virtual bank account with Iron (by Moonpay) and receive funds directly in your wallet",
+              image: 'assets/images/iron_icon.svg',
+            );
+          }
+          return const SizedBox();
+        }),
         Observer(builder: (_) {
           if (dashboardViewModel.type == WalletType.ethereum) {
             return AppsWidget(
@@ -206,7 +214,7 @@ class CakeFeaturesPage extends StatelessWidget {
     if (Platform.isMacOS) {
       _launchUrl("buy.cakepay.com");
     } else {
-      _navigatorToGiftCardsPage(
+      _navigatorToFeaturePage(
           context: context,
           errorAlertContent: S.of(context).gift_cards_unavailable,
           route: Routes.cakePayCardsPage);
@@ -221,7 +229,7 @@ class CakeFeaturesPage extends StatelessWidget {
     }
   }
 
-  void _navigatorToGiftCardsPage(
+  void _navigatorToFeaturePage(
       {required BuildContext context, required String errorAlertContent, required String route}) {
     if (dashboardViewModel.type == WalletType.haven) {
       showPopUp<void>(

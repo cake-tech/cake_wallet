@@ -46,7 +46,8 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
-import 'package:cake_wallet/src/screens/integrations/moonpay/onboarding_moonpay_virtual_accounts_page.dart';
+import 'package:cake_wallet/src/screens/integrations/moonpay/screens/setup_moonpay_va_page.dart';
+import 'package:cake_wallet/src/screens/integrations/moonpay/screens/onboarding_moonpay_va_page.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -1036,9 +1037,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
         builder: (_) => getIt.get<DEuroSavingsPage>(),
       );
 
-    case Routes.moonPayVirtualAccountOnboarding:
+    case Routes.moonPayVAOnboardingPage:
       return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<OnboardingMoonPayVirtualAccountPage>(),
+        builder: (_) => getIt.get<MoonPayVAOnboardingPage>(),
+      );
+
+    case Routes.moonPayVASetupPage:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<SetupMoonPayVAPage>(),
       );
 
     default:

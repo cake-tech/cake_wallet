@@ -104,7 +104,8 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_s
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
-import 'package:cake_wallet/src/screens/integrations/moonpay/onboarding_moonpay_virtual_accounts_page.dart';
+import 'package:cake_wallet/src/screens/integrations/moonpay/screens/setup_moonpay_va_page.dart';
+import 'package:cake_wallet/src/screens/integrations/moonpay/screens/onboarding_moonpay_va_page.dart';
 import 'package:cake_wallet/src/screens/integrations/moonpay/services/moonpay_virtual_account_api.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
@@ -1763,9 +1764,12 @@ Future<void> setup({
   getIt.registerFactory(() => MoonPayVirtualAccountViewModel(
     moonPayVirtualAccountApi: getIt.get<MoonpayVirtualAccountApi>(),
     appStore: getIt.get<AppStore>(),
+    settingsStore: getIt.get<SettingsStore>(),
+    walletList: walletList
   ));
 
-  getIt.registerFactory(() => OnboardingMoonPayVirtualAccountPage(getIt<MoonPayVirtualAccountViewModel>()));
+  getIt.registerFactory(() => MoonPayVAOnboardingPage());
+  getIt.registerFactory(() => SetupMoonPayVAPage(getIt<MoonPayVirtualAccountViewModel>()));
 
   getIt.registerLazySingleton(() => NodeSwitchingService(
     appStore: getIt.get<AppStore>(),
