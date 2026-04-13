@@ -158,7 +158,6 @@ class LiveDemoClient {
 
     final out = Uint8List.fromList(all.sublist(0, count));
 
-    // Only put the remaining bytes back into the buffer
     if (all.length > count) {
       _buffer.add(all.sublist(count));
     }

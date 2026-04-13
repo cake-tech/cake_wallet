@@ -102,7 +102,6 @@ class _LiveDemoVideoOverlayState extends State<LiveDemoVideoOverlay> {
     final durationMs = controller.value.duration.inMilliseconds;
     if (durationMs <= 0) return;
 
-    // 1. Calculate true target accounting for the exact time elapsed since the message arrived
     final nowMs = DateTime.now().millisecondsSinceEpoch;
     final timeSinceReceive = nowMs - sync.clientReceiveTimeMs;
     final estimatedTargetMs = sync.positionMs + sync.latency + timeSinceReceive;
@@ -122,7 +121,6 @@ class _LiveDemoVideoOverlayState extends State<LiveDemoVideoOverlay> {
 
     final absDrift = driftMs.abs().toDouble();
 
-    // 2. Compensated Hard Seek
     if (hardSeek || (absDrift >= widget.seekThresholdMs && !widget.showingOverlay)) {
       printV("absdrift is $absDrift, hard-seeking");
 
