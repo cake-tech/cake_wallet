@@ -32,10 +32,10 @@ class AddressInfoPopup extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    Text('Index: ${walletAddressEditOrCreateViewModel.item?.id}'),
+                    Text('Index: ${walletAddressEditOrCreateViewModel.index}'),
                     SizedBox(height: 16),
                     Text(
-                        'Derivation Path: ${walletAddressEditOrCreateViewModel.item?.derivationPath}'),
+                        'Derivation Path: ${walletAddressEditOrCreateViewModel.derivationPath}'),
                   ],
                 ),
               ),

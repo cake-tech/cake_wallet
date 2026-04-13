@@ -451,12 +451,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       name: label,
       type: addressPageType,
       network: network,
-      derivationPath: _derivationPathFor(
-        index: newAddressIndex,
-        isHidden: false,
-        isLegacyDerivation: false,
-        type: addressPageType,
-      ),
     );
     Future.delayed(Duration.zero, () {
       _addresses.add(address);
@@ -764,12 +758,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           isLegacyDerivation: isLegacyDerivation,
           type: addrType,
           network: network,
-          derivationPath: _derivationPathFor(
-            index: i,
-            isHidden: isHidden,
-            isLegacyDerivation: isLegacyDerivation,
-            type: addrType,
-          ),
         );
         list.add(address);
       }
@@ -808,14 +796,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     _addresses.forEach((element) async {
       if (element.type == SegwitAddresType.mweb) {
         // this would add a ton of startup lag for mweb addresses since we have 1000 of them
-        element.derivationPath = _mwebDerivationPath();
         return;
       }
 
-      final mainHd =
-          _hdFor(isHidden: false, type: element.type, isLegacyDerivation: element.isLegacyDerivation);
-      final sideHd =
-          _hdFor(isHidden: true, type: element.type, isLegacyDerivation: element.isLegacyDerivation);
+      final mainHd = _hdFor(isHidden: false, type: element.type, isLegacyDerivation: element.isLegacyDerivation);
+      final sideHd = _hdFor(isHidden: true,  type: element.type, isLegacyDerivation: element.isLegacyDerivation);
       if (!element.isHidden &&
           element.address !=
               await getAddressAsync(index: element.index, hd: mainHd, addressType: element.type)) {
@@ -825,25 +810,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
               await getAddressAsync(index: element.index, hd: sideHd, addressType: element.type)) {
         element.isHidden = false;
       }
-    });
-
-
-    mwebAddresses.forEach((element) {
-      element.derivationPath = _mwebDerivationPath();
-    });
-
-    _addresses.forEach((element) {
-      if (element.type == SegwitAddresType.mweb) {
-        element.derivationPath = _mwebDerivationPath();
-        return;
-      }
-
-      element.derivationPath ??= _derivationPathFor(
-        index: element.index,
-        isHidden: element.isHidden,
-        isLegacyDerivation: element.isLegacyDerivation,
-        type: element.type,
-      );
     });
   }
 
@@ -887,59 +853,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final hd = map[type];
     if (hd == null) throw Exception("HD not found for type $type");
     return hd;
-  }
-
-  String _mwebDerivationPath() => "m/1000'";
-
-  int _purposeForType(BitcoinAddressType type) {
-    switch (type.value) {
-      case 'P2PKH':
-        return 44;
-      case 'P2SH/P2WPKH':
-        return 49;
-      case 'P2WPKH':
-        return 84;
-      case 'P2TR':
-        return 86;
-      case 'P2WSH':
-        return 48;
-      default:
-        return 84;
-    }
-  }
-
-  int _coinTypeForWallet() {
-    if (!network.isMainnet) return 1;
-
-    switch (walletInfo.type) {
-      case WalletType.bitcoin:
-        return 0;
-      case WalletType.litecoin:
-        return 2;
-      case WalletType.bitcoinCash:
-        return 145;
-      case WalletType.dogecoin:
-        return 3;
-      default:
-        return 0;
-    }
-  }
-
-  String _derivationPathFor({
-    required int index,
-    required bool isHidden,
-    required bool isLegacyDerivation,
-    required BitcoinAddressType type,
-  }) {
-    if (type == SegwitAddresType.mweb) {
-      return _mwebDerivationPath();
-    }
-
-    final accountPath = isLegacyDerivation
-        ? electrum_path
-        : "m/${_purposeForType(type)}'/${_coinTypeForWallet()}'/0'";
-    final chain = isHidden ? 1 : 0;
-    return "$accountPath/$chain/$index";
   }
   
   @action

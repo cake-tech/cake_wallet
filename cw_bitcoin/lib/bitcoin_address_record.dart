@@ -11,7 +11,6 @@ abstract class BaseBitcoinAddressRecord {
     required this.index,
     this.isHidden = false,
     this.isLegacyDerivation = false,
-    this.derivationPath,
     int txCount = 0,
     int balance = 0,
     String name = '',
@@ -35,7 +34,6 @@ abstract class BaseBitcoinAddressRecord {
   String _name;
   final Observable<bool> _isUsed;
   BasedUtxoNetwork? network;
-  String? derivationPath;
 
   int get txCount => _txCount;
 
@@ -56,6 +54,8 @@ abstract class BaseBitcoinAddressRecord {
 
   BitcoinAddressType type;
 
+  String get derivationPath;
+
   String toJSON();
 }
 
@@ -70,7 +70,6 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     super.name = '',
     super.isUsed = false,
     required super.type,
-    super.derivationPath,
     String? scriptHash,
     required super.network,
   })  {
@@ -115,12 +114,36 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       balance: decoded['balance'] as int? ?? 0,
       type: parsedType,
       scriptHash: decoded['scriptHash'] as String?,
-      derivationPath: decoded['derivationPath'] as String?,
       network: network,
     );
   }
 
   String? scriptHash;
+
+  static int _purposeForType(BitcoinAddressType type) {
+    if (type == P2pkhAddressType.p2pkh) return 44;
+    if (type == P2shAddressType.p2wpkhInP2sh) return 49;
+    if (type == SegwitAddresType.p2wsh) return 48;
+    if (type == SegwitAddresType.p2tr) return 86;
+    return 84;
+  }
+
+  int _coinTypeForNetwork() {
+    if (!(network?.isMainnet ?? true)) return 1;
+
+    switch (network) {
+      case BitcoinNetwork.mainnet:
+        return 0;
+      case LitecoinNetwork.mainnet:
+        return 2;
+      case BitcoinCashNetwork.mainnet:
+        return 145;
+      case DogecoinNetwork.mainnet:
+        return 3;
+      default:
+        return 0;
+    }
+  }
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
@@ -130,6 +153,21 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       return '';
     }
     return scriptHash!;
+  }
+  @override
+  String get derivationPath {
+    if (type == SegwitAddresType.mweb) {
+      return "m/1000'";
+    }
+
+    final coinType = _coinTypeForNetwork();
+    final purpose = _purposeForType(type);
+    final accountPath = isLegacyDerivation
+        ? electrum_path
+        : "m/$purpose'/$coinType'/0'";
+
+    final chain = isHidden ? 1 : 0;
+    return "$accountPath/$chain/$index";
   }
 
   @override
@@ -144,7 +182,6 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'balance': balance,
         'type': type.toString(),
         'scriptHash': scriptHash,
-        'derivationPath': derivationPath,
       });
 }
 
@@ -190,6 +227,9 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 
   final String? silentPaymentTweak;
   final String spendDerivationPath;
+
+  @override
+  String get derivationPath => SILENT_PAYMENTS_SPEND_PATH;
 
   @override
   String toJSON() => json.encode({

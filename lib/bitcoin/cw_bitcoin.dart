@@ -576,7 +576,7 @@ class CWBitcoin extends Bitcoin {
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isHidden,
-            derivationPath: addr.spendDerivationPath))
+            derivationPath: addr.derivationPath))
         .toList();
   }
 
@@ -592,7 +592,7 @@ class CWBitcoin extends Bitcoin {
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isHidden,
-            derivationPath: addr.spendDerivationPath))
+            derivationPath: addr.derivationPath))
         .toList();
   }
 

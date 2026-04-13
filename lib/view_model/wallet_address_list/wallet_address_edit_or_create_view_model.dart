@@ -31,7 +31,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
         label = item?.name ?? '',
-        item = item,
+        _item = item,
         _wallet = wallet;
 
   @observable
@@ -42,7 +42,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
 
   bool isEdit;
 
-  final WalletAddressListItem? item;
+  final WalletAddressListItem? _item;
   final WalletBase _wallet;
 
   bool get isElectrum =>
@@ -50,6 +50,9 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       _wallet.type == WalletType.bitcoinCash ||
       _wallet.type == WalletType.litecoin ||
       _wallet.type == WalletType.dogecoin;
+
+  String get derivationPath => _item?.derivationPath ?? '';
+  String get index => _item?.id.toString() ?? '';
 
   Future<void> save() async {
     try {
@@ -110,15 +113,15 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _update() async {
     final wallet = _wallet;
 
-    if (isElectrum) await bitcoin!.updateAddress(wallet, item!.address, label);
+    if (isElectrum) await bitcoin!.updateAddress(wallet, _item!.address, label);
 
     if (wallet.type == WalletType.decred) {
-      await decred!.updateAddress(wallet, item!.address, label);
+      await decred!.updateAddress(wallet, _item!.address, label);
       await wallet.save();
       return;
     }
 
-    final index = item?.id;
+    final index = _item?.id;
     if (index != null) {
       if (wallet.type == WalletType.monero) {
         await monero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
