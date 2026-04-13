@@ -610,6 +610,8 @@ Future<void> defaultSettingsMigration(
           break;
         case 63:
           await _addXaut0TokenToExistingSolanaWallets();
+          break;
+        case 64:
           await updateAllDefaultNodes(nodes: nodes);
           break;
         default:
@@ -1477,7 +1479,7 @@ Future<void> updateAllDefaultNodes(
 
       final defaultNodes = await loadAllDefaultNodes();
 
-      for (var node in [...nodes.values.toList()]) {
+      for (var node in nodes.values.toList()) {
         Node? defaultNode = defaultNodes.firstWhereOrNull((element) => element.uriRaw == node.uriRaw);
         if (defaultNode != null) {
           node.label = defaultNode.label;
