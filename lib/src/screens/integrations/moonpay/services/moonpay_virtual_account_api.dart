@@ -145,7 +145,7 @@ Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
       'Content-Type': 'application/json',
     });
 
-    final decoded = json.decode('{rrr:rrr}');
+    final decoded = json.decode(responseBody);
 
     if (decoded is List) return decoded;
     if (decoded is Map && decoded['data'] is List) {
