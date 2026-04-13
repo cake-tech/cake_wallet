@@ -130,10 +130,14 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                   BlendMode.srcIn),
                             )
                           else if (showArrow)
-                            CakeImageWidget(
-                                imageUrl: "assets/new-ui/arrow_forward.svg",
-                                height: 14,
-                                color: theme.colorScheme.onSurfaceVariant)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 7.0),
+                                child: CakeImageWidget(imageUrl:
+                                "assets/new-ui/arrow_forward.svg",
+                                    height: 14,
+                                    color: theme.colorScheme.onSurfaceVariant
+                                ),
+                              )
                         ],
                       ),
                     ],

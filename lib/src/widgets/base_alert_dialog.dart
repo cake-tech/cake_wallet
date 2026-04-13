@@ -210,45 +210,48 @@ class BaseAlertDialog extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: GestureDetector(
                   onTap: () => null,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          if (headerImageUrl != null) headerImage(context, headerImageUrl!),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              if (headerImageUrl != null) const SizedBox(height: 50),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  if (headerText?.isNotEmpty ?? false) headerTitle(context),
-                                  titleText != null
-                                      ? title(context)
-                                      : SizedBox(height: 16),
-                                  isDividerExists
-                                      ? Padding(
-                                          padding: EdgeInsets.only(top: 16, bottom: 8),
-                                          child: const HorizontalSectionDivider(),
-                                        )
-                                      : Offstage(),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 25),
-                                    child: content(context),
-                                  )
-                                ],
-                              ),
-                              // if (isBottomDividerExists) const HorizontalSectionDivider(),
-                              actionButtons(context)
-                            ],
-                          ),
-                        ],
+                  child: Material(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            if (headerImageUrl != null) headerImage(context, headerImageUrl!),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                if (headerImageUrl != null) const SizedBox(height: 50),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: <Widget>[
+                                    if (headerText?.isNotEmpty ?? false) headerTitle(context),
+                                    titleText != null
+                                        ? title(context)
+                                        : SizedBox(height: 16),
+                                    isDividerExists
+                                        ? Padding(
+                                            padding: EdgeInsets.only(top: 16, bottom: 8),
+                                            child: const HorizontalSectionDivider(),
+                                          )
+                                        : Offstage(),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 25),
+                                      child: content(context),
+                                    )
+                                  ],
+                                ),
+                                // if (isBottomDividerExists) const HorizontalSectionDivider(),
+                                actionButtons(context)
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

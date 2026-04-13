@@ -189,21 +189,24 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
   }
 
   Widget _buildTrailingWIdget(TransactionDetailsListItem item) {
-    return switch (item.runtimeType) {
-      ConfirmationsListItem => Row(
-          children: [
-            Text((item as ConfirmationsListItem).current.toString(),
-                style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-            if (item.needed > 0)
-              Text("/${item.needed}",
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))
-          ],
-        ),
-      _ => Text(
-          item.value,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        )
-    };
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: switch (item.runtimeType) {
+        ConfirmationsListItem => Row(
+            children: [
+              Text((item as ConfirmationsListItem).current.toString(),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+              if (item.needed > 0)
+                Text("/${item.needed}",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))
+            ],
+          ),
+        _ => Text(
+            item.value,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          )
+      },
+    );
   }
 
   Widget _buildBottomWidget(TransactionDetailsListItem item) {

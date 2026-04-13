@@ -128,6 +128,7 @@ import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
@@ -160,7 +161,7 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
 
-  class ElectrumSubAddress {
+class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
     required this.name,
@@ -168,13 +169,16 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
     required this.txCount,
     required this.balance,
     required this.isChange,
-    this.isLegacyDerivation = false});
+    this.derivationPath,
+    this.isLegacyDerivation = false
+  });
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final String? derivationPath;
   final bool isLegacyDerivation;
 }
 
@@ -1554,6 +1558,12 @@ abstract class EVM {
   
   bool hasPriorityFee(int chainId);
 
+
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  );
+
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
@@ -1575,6 +1585,18 @@ class ChainInfo {
 
   @override
   int get hashCode => chainId.hashCode;
+}
+
+class EvmWalletConnectFeeQuote {
+  const EvmWalletConnectFeeQuote({
+    required this.maxFeePerGasWei,
+    required this.maxPriorityFeePerGasWei,
+    this.latestBaseFeeWei,
+  });
+
+  final int maxFeePerGasWei;
+  final int maxPriorityFeePerGasWei;
+  final int? latestBaseFeeWei;
 }
   """;
 

@@ -185,7 +185,8 @@ class CWBitcoin extends Bitcoin {
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isHidden,
-            isLegacyDerivation: addr.isLegacyDerivation))
+            isLegacyDerivation: addr.isLegacyDerivation,
+        derivationPath: addr.derivationPath))
         .toList();
   }
 
@@ -574,7 +575,8 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isHidden,
+            derivationPath: addr.derivationPath))
         .toList();
   }
 
@@ -589,7 +591,8 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isHidden,
+            derivationPath: addr.derivationPath))
         .toList();
   }
 
@@ -838,11 +841,18 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as BitcoinWallet;
     final bitcoinTx = tx as ElectrumTransactionInfo;
 
+    final addresses = <String>[];
+
     if (bitcoinTx.unspents == null || bitcoinTx.unspents!.isEmpty) {
-      return null;
+      if(bitcoinTx.outputAddresses == null) return null;
+      for(final addr in bitcoinTx.outputAddresses!) {
+        if(bitcoinWallet.walletAddresses.allAddresses.firstWhereOrNull((item)=>item.address==addr) != null) {
+          addresses.add(addr);
+        }
+      }
+      return addresses;
     }
 
-    final addresses = <String>[];
     final labels = <String>[];
     try {
           bitcoinTx.unspents!.forEach((unspent) {
