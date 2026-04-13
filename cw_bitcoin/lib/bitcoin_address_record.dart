@@ -11,6 +11,7 @@ abstract class BaseBitcoinAddressRecord {
     required this.index,
     this.isHidden = false,
     this.isLegacyDerivation = false,
+    this.derivationPath,
     int txCount = 0,
     int balance = 0,
     String name = '',
@@ -34,6 +35,7 @@ abstract class BaseBitcoinAddressRecord {
   String _name;
   final Observable<bool> _isUsed;
   BasedUtxoNetwork? network;
+  String? derivationPath;
 
   int get txCount => _txCount;
 
@@ -68,6 +70,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     super.name = '',
     super.isUsed = false,
     required super.type,
+    super.derivationPath,
     String? scriptHash,
     required super.network,
   })  {
@@ -112,6 +115,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       balance: decoded['balance'] as int? ?? 0,
       type: parsedType,
       scriptHash: decoded['scriptHash'] as String?,
+      derivationPath: decoded['derivationPath'] as String?,
       network: network,
     );
   }
@@ -140,6 +144,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'balance': balance,
         'type': type.toString(),
         'scriptHash': scriptHash,
+        'derivationPath': derivationPath,
       });
 }
 
