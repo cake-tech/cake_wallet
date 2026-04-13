@@ -157,7 +157,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   @override
   String get derivationPath {
     if (type == SegwitAddresType.mweb) {
-      return "m/1000'";
+      return "m/1000'/$index";
     }
 
     final coinType = _coinTypeForNetwork();
