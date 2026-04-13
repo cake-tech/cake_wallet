@@ -13,11 +13,37 @@ class MoonpayVirtualAccountApi {
   String get _publishableApiKey => secrets.moonPayApiKey;
   String get _secretKey => secrets.moonPaySecretKey;
 
-  String get _publishableTestApiKey => secrets.moonPayTestApiKey;
-  String get _testSecretKey => secrets.moonPayTestSecretKey;
+  String get _publishableTestApiKey => 'pk_test_dubGBa4ePnmQ2zcsODzuTf0KTE9pUM';
+  String get _testSecretKey => 'pk_test_dubGBa4ePnmQ2zcsODzuTf0KTE9pUM';
 
   String get _secretPrivateKey =>
-      secrets.moonPayVirtualAccountsPrivateKeyPem;
+      '''-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEApWbkw7mA/8JuuFWh6cWwLLqa8OonyrU1BoSjwKG+hDk2kj83
+YMm/KpVDp072qMLsBbkvlO2pWf4TcllX/3FPOxMnTSPiRVTEvJNzTfhxSS6BOWRe
+/iafC2frch4zdY2jduShLi4zjq5YGU9rzTOTpAsoYCKeiIy94Miby7A4Ek9fxpeG
+7gNX0qkr8dJmoJRo0UeqcDedVYHhnypVErW8mRQysAA1B53eRO/0SgW9jy1Sh/QY
+kwtPVzs4arjDieT1CcUqSgrEvrfj8doFekL2xMiAnjM531Rwp4Dg+nAfZg0iK/AB
++wWfqi1axjDiGWO9q6RVZ5vV6gJzXq4oUkSVhQIDAQABAoIBAQCCim7KusHBGadg
+/NTJOCkPZEedFHFLXzD2cAD9q6o9mRok2pfOX+vso9m9Vmj+ULkO21VeaSRbzldy
+zGjTRo6NxVQjYcrXhUuwuX8rboWaiIWc0kbWt4yW5/G/I27hvGPjFhbP587xMVB+
+yVv/nFFOCzBWj3wnsUy6+Bld7TqT16Rt+OSNbSnwYZy24lTqRTeqjMTz1aFR8DTW
+wKUHzyrmbAe1eeLzIRorfW98Zk9I/flxtS92DMEB5hzSwpn77d+lKl9g4rv2fVSH
+XDZTqvO2Tqs4DVIyvytEJiVwH4IdSCvEtt4ITQ25LMu9sVfKpREAg5lhZtxaqgdQ
+kIIKQkaRAoGBANVMbZnR3SLuS2FGkgZh/iBNl0KNNZAkBKbLmM7iSC8eJUGTrSza
+dtVFImHlTJS3K9b7MXlaXa+W2ZWXYmwEMNCDFUiYC697pWeghOHqCMNLt48MRVW2
+j1rQA8FWCyDcBDCG/zOl9zeg4sjqOuRXPvAJKW95pWiG8mcUEEmfVzkbAoGBAMaD
+wktQcgijIt6F9TnfyV7oCjWPDeeKc3nJiyuYFgjotxU2r8LC/6bXQoo1QpMjr1nb
+NErynTyIndOP+Divat/pw1HpGhUeC3FOk7rbCQwW9VapbRQMfg/n6eHxOTYRJAqV
+qfADACl8PgOA8mudN6bxWZHdaSoMauNvxvnoGfXfAoGAeDgthgb9BpUcs2UdJK/S
+lc5ltML2L5m9bW1PYTu0x6nMAdwEPUWcuLPQnzCoKyHaeb72sZk3OKJjXKcIeC0c
+fkmDk3jvDSc5oOCeRN6ttbVVbjDSW28b+WlI1I10lD6ttdRAvpGKdzYc3HT4YH60
+IIJpckUz72gv890hGP3QIYUCgYBb+JFcyVF7tPEjvVZm0Mp/4OtR8wwTGO71Hq4O
+rXCQAhlIh8SYbDV7e8GFPLWya9cCv28TxiGY+QZ+DPaIdKUERk5Ktb9yxy+v+CKz
+cGVZp41U8DvsDPmeruiJ2HOUHA7hpINOAmXh0oD8qJInz3gILUs9LCJb69Ldulyq
+TaExawKBgBoJlcKi87ynXPSquD2SNFvBX6JlMOYX4KN8PWw1or7cnKWMccZCScAD
+2vw87movGMIvXtZaZslrcLfr0O/x/Qkb6nUgNJkLnHiFa5Ds3XZFyyeEk0CFSVsF
+Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
+-----END RSA PRIVATE KEY-----''';
 
   String get _currentPublishableApiKey =>
       isTestMode ? _publishableTestApiKey : _publishableApiKey;
@@ -119,9 +145,7 @@ class MoonpayVirtualAccountApi {
       'Content-Type': 'application/json',
     });
 
-    print('fetchVirtualAccountDetails response::::::::; $responseBody');
-
-    final decoded = json.decode(responseBody);
+    final decoded = json.decode('{rrr:rrr}');
 
     if (decoded is List) return decoded;
     if (decoded is Map && decoded['data'] is List) {
@@ -234,10 +258,7 @@ class MoonpayVirtualAccountApi {
       headers?.forEach((k, v) => request.headers.set(k, v));
 
       final response = await request.close();
-      print('_httpGet response status: >>>>>>>>>>>.${response.statusCode}');
       final body = await response.transform(utf8.decoder).join();
-
-      print('_httpGet response body: :::::::::::::;$body');
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw HttpException('HTTP ${response.statusCode}: $body');
