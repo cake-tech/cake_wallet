@@ -295,6 +295,7 @@ class ExceptionHandler {
     "core/key_service.dart:14",
     "Wallet is null",
     "Wrong Device Status: 0x5515 (UNKNOWN)",
+    "Command handling failed. With error: hostUnreachable",
     
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
