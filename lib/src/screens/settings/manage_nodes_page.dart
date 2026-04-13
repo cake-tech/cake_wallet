@@ -98,9 +98,16 @@ class ManageNodesPage extends BasePage {
                       } else {
                         isSelected = node.keyIndex == nodeListViewModel!.currentNode.keyIndex;
                       }
+
+                      final label = node.label == null
+                          ? null
+                          : node.isDefault == true
+                              ? '${node.label!} (Default)'
+                              : node.label;
+
                       final nodeListRow = NodeListRow(
                         title: node.uriRaw,
-                        subtitle: node.label == null ? null : node.label! + ((node.isDefault ?? false) ? ' (Default)' : ''),
+                        subtitle: label,
                         node: node,
                         isSelected: isSelected,
                         isPow: isPow,
