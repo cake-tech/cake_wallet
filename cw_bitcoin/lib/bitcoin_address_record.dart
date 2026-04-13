@@ -229,7 +229,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   final String spendDerivationPath;
 
   @override
-  String get derivationPath => SILENT_PAYMENTS_SPEND_PATH;
+  String get derivationPath => spendDerivationPath;
 
   @override
   String toJSON() => json.encode({
