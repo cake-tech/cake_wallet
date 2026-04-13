@@ -405,7 +405,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     switch (wallet.type) {
       case WalletType.monero:
-        return 'https://monero.com/tx/${txId}';
+        return 'https://monero.com/tx/${transactionInfo.txHash}';
       case WalletType.bitcoin:
         return 'https://mempool.cakewallet.com/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
