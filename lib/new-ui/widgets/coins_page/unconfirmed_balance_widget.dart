@@ -67,6 +67,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                           width: 20,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
+                                            backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(50),
                                             color: Theme.of(context).colorScheme.primary,
                                             value: dashboardViewModel.confirmationProgress,
                                           ),
