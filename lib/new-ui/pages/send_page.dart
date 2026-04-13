@@ -639,7 +639,7 @@ class _NewSendPageState extends State<NewSendPage> {
           output.setFiatAmount(amount);
         }
       } else {
-        final isAll = context.mounted && amount != S.of(context).all;
+        final isAll = mounted && amount != S.of(context).all;
         if (output.sendAll && isAll) {
           output.sendAll = false;
         }

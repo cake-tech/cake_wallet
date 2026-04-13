@@ -90,7 +90,6 @@ class EVMChainClient {
               if (totalNet < BigInt.zero) {
                 mergedMap[key]!['from'] = address;
               } else {
-
                 mergedMap[key]!['to'] = address;
                 mergedMap[key]!['from'] = '';
               }
@@ -118,7 +117,6 @@ class EVMChainClient {
     }
   }
 
-
   BigInt getNetFlow(Map<String, dynamic> txData, String address) {
     final val = BigInt.parse(txData['value'] ?? '0');
     final isIncoming = txData['to']?.toLowerCase() == address.toLowerCase();
@@ -128,7 +126,6 @@ class EVMChainClient {
     if (isOutgoing && !isIncoming) return -val;
     return BigInt.zero;
   }
-
 
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
@@ -544,16 +541,16 @@ class EVMChainClient {
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
     try {
-      final token = await getErcTokenInfoFromNode(contractAddress, chainName);
+      final token = await getErc20TokenFromMoralis(contractAddress, chainName);
 
       if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErc20TokenFromMoralis(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress, chainName);
       }
 
       return token;
     } catch (e) {
       try {
-        return await getErc20TokenFromMoralis(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress, chainName);
       } catch (e) {
         return null;
       }

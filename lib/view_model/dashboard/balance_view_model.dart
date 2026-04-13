@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -6,6 +7,9 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -57,11 +61,13 @@ class BalanceRecord {
           .toString().withMaxDecimals(8);
 
   String get combinedFiatAvailableBalance =>
-      fiatAvailableBalance.split(" ").first +
-      " " +
-      ((double.tryParse(fiatAvailableBalance.split(" ").last) ?? 0) +
-      (double.tryParse(fiatSecondAvailableBalance.split(" ").last) ?? 0))
-          .toString().withMaxDecimals(8);
+      ((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
+              (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
+          .toStringAsFixed(2);
+
+  String get fiatAvailableBalanceRaw => fiatAvailableBalance.split(" ").last;
+  String get fiatSecondAvailableBalanceRaw => fiatSecondAvailableBalance.split(" ").last;
+  String get fiatCurrencyTicker => fiatAvailableBalance.split(" ").first;
 }
 
 class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
@@ -241,7 +247,7 @@ abstract class BalanceViewModelBase with Store {
                 fiatAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatFrozenBalance: isFiatDisabled ? '' : '',
                 fiatSecondAvailableBalance:
-                    isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                    isFiatDisabled ? '' : '${fiatCurrency.toString()}',
                 fiatSecondAdditionalBalance:
                     isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
@@ -409,6 +415,62 @@ abstract class BalanceViewModelBase with Store {
 
     return balance;
   }
+
+  BalanceRecord? getMainBalanceRecord(bool lightningMode) {
+    if (lightningMode) {
+      return formattedBalances.elementAtOrNull(1);
+    }
+
+    if (wallet.walletInfo.favoriteTokenAddress != null) {
+      return formattedBalances.firstWhereOrNull((item) => (getTokenAddressBasedOnWallet(item.asset) ==
+                  wallet.walletInfo.favoriteTokenAddress)) ??
+          formattedBalances.elementAt(0);
+    }
+
+    return formattedBalances.elementAt(0);
+  }
+
+  String? getTokenAddressBasedOnWallet(CryptoCurrency asset) {
+    if (wallet.type == WalletType.tron) {
+      return tron!.getTokenAddress(asset);
+    }
+
+    if (wallet.type == WalletType.solana) {
+      return solana!.getTokenAddress(asset);
+    }
+
+    if (isEVMCompatibleChain(wallet.type) && asset is Erc20Token) {
+      return evm!.getTokenAddress(asset);
+    }
+
+    if (wallet.type == WalletType.zano) {
+      return zano!.getZanoAssetAddress(asset);
+    }
+
+    return null;
+  }
+
+  @computed
+  bool get showCombinedBalance {
+    if(wallet.type == WalletType.bitcoin) return false;
+    if(balances.values.length == 1) return false;
+
+    return wallet.walletInfo.showCombinedBalance;
+  }
+
+  @computed
+  String get combinedFiatBalance {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return "●●●●●";
+    }
+
+    double ret = 0.0;
+    for(final record in balances.values) {
+      ret += double.tryParse(record.fiatAvailableBalanceRaw) ?? 0;
+    }
+    return ret.toStringAsFixed(2);
+  }
+
 
   Balance _currencyBalance(CryptoCurrency cryptoCurrency) {
     final balance = wallet.balance[cryptoCurrency];

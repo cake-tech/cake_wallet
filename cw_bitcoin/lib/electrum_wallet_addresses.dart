@@ -704,7 +704,43 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-    Future<void> _generateInitialAddresses(
+  @action
+  Future<bool> discoverAddressesBatch(
+      List<BitcoinAddressRecord> addressList,
+      bool isHidden,
+      Future<Set<String>> Function(List<BitcoinAddressRecord>) getUsedAddresses, {
+        BitcoinAddressType type = SegwitAddresType.p2wpkh,
+      }) async {
+    final newAddresses = await _createNewAddresses(
+      gap,
+      startIndex: addressList.length,
+      isHidden: isHidden,
+      type: type,
+    );
+    addAddresses(newAddresses);
+
+    final usedAddresses = await getUsedAddresses(newAddresses);
+    final isLastAddressUsed =
+        newAddresses.isNotEmpty && usedAddresses.contains(newAddresses.last.address);
+
+    if (!isLastAddressUsed) {
+      return false;
+    }
+
+    final updatedAddressList = [...addressList, ...newAddresses];
+
+    await discoverAddressesBatch(
+      updatedAddressList,
+      isHidden,
+      getUsedAddresses,
+      type: type,
+    );
+
+    return true;
+  }
+
+
+  Future<void> _generateInitialAddresses(
         {BitcoinAddressType type = SegwitAddresType.p2wpkh,
           bool isLegacyDerivation = false }) async {
 
@@ -892,7 +928,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     } on SdkError_NetworkError catch (_) {
     } on SdkError_SparkError catch (e) {
-      if (!e.field0.contains("dns")) rethrow;
+      if (!e.field0.contains("dns") && !e.field0.contains("TimedOut")) rethrow;
     } finally {
       lightningAddress ??= lightningWallet!.cachedAddress;
     }

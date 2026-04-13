@@ -78,6 +78,7 @@ class LitecoinWalletFromKeysCredentials extends WalletCredentials {
     required this.scanSecret,
     required this.spendPubkey,
     WalletInfo? walletInfo,
+    super.hardwareWalletType
   }) : super(name: name, password: password, walletInfo: walletInfo);
 
   final String xpub;
