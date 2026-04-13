@@ -99,7 +99,8 @@ abstract class EVMChainWalletBase
         _isTransactionUpdating = false,
         _client = client,
         selectedChainId = initialChainId ?? _getInitialChainId(walletInfo.type),
-        walletAddresses = EVMChainWalletAddresses(walletInfo, initialChainId ?? _getInitialChainId(walletInfo.type)),
+        walletAddresses = EVMChainWalletAddresses(
+            walletInfo, initialChainId ?? _getInitialChainId(walletInfo.type)),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
@@ -779,27 +780,13 @@ abstract class EVMChainWalletBase
         throw EVMChainTransactionFeesException('Failed to retrieve gas price from node');
       }
 
-      int maxFeePerGas;
-      int adjustedGasPrice;
-
-      if (gasBaseFee != null && gasBaseFee > 0) {
-        // For chains with base fee, add priority fee (if supported) and a buffer to account for base fee increases
-        // Base fee can increase between estimation and transaction submission
-        final baseFeeWithPriority = gasBaseFee + priorityFee;
-
-        // For chains without priority fees (e.g., Arbitrum), use a 5% buffer
-        // For chains with priority fees (e.g., Ethereum), use a 15% buffer to account for base fee volatility
-        // Base fee can increase significantly during high network activity
-        final bufferMultiplier = hasPriorityFee ? 115 : 105;
-        final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ 100;
-        final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
-        maxFeePerGas = bufferPercent > bufferMin ? bufferPercent : bufferMin;
-      } else {
-        // Fallback to gasPrice if baseFee is not available
-        maxFeePerGas = gasPrice + priorityFee;
-      }
-
-      adjustedGasPrice = maxFeePerGas;
+      final maxFeePerGas = EVMChainUtils.computeBufferedMaxFeePerGasWei(
+        gasBaseFee: gasBaseFee,
+        gasPrice: gasPrice,
+        priorityFeeWei: priorityFee,
+        chainHasPriorityFee: hasPriorityFee,
+      );
+      final adjustedGasPrice = maxFeePerGas;
 
       final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
         contractAddress: contractAddress,
@@ -826,6 +813,39 @@ abstract class EVMChainWalletBase
       }
       throw EVMChainTransactionFeesException(
           'Failed to calculate transaction fees: ${e.toString()}');
+    }
+  }
+
+  Future<WalletConnectBufferedFeeData?> getWCBufferedFeeQuote(TransactionPriority priority) async {
+    try {
+      final gasBaseFee = await _client.getGasBaseFee();
+      final gasPrice = await _client.getGasUnitPrice();
+
+      if (gasPrice <= 0) {
+        printV('WC fee quote: invalid gas price $gasPrice');
+        return null;
+      }
+
+      int priorityFee = 0;
+      if (hasPriorityFee && priority is EVMChainTransactionPriority) {
+        priorityFee = getTotalPriorityFee(priority);
+      }
+
+      final maxFee = EVMChainUtils.computeBufferedMaxFeePerGasWei(
+        gasBaseFee: gasBaseFee,
+        gasPrice: gasPrice,
+        priorityFeeWei: priorityFee,
+        chainHasPriorityFee: hasPriorityFee,
+      );
+
+      return WalletConnectBufferedFeeData(
+        maxFeePerGasWei: maxFee,
+        maxPriorityFeePerGasWei: priorityFee,
+        latestBaseFeeWei: gasBaseFee,
+      );
+    } catch (e, s) {
+      printV('getWalletConnectBufferedFeeQuote: $e\n$s');
+      return null;
     }
   }
 
@@ -1048,15 +1068,14 @@ abstract class EVMChainWalletBase
   }
 
   Future<PendingTransaction> createCallDataTransaction(
-      String to,
-      String dataHex,
-      BigInt valueWei,
-      EVMChainTransactionPriority? priority,
-      String? sourceTokenAddress,
-      BigInt? sourceTokenAmount, {
-        bool useBlinkProtection = true,
-      }) async {
-
+    String to,
+    String dataHex,
+    BigInt valueWei,
+    EVMChainTransactionPriority? priority,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount, {
+    bool useBlinkProtection = true,
+  }) async {
     // Define Native Currency
     final nativeCurrency = switch (selectedChainId) {
       137 => CryptoCurrency.maticpoly,
@@ -1099,12 +1118,9 @@ abstract class EVMChainWalletBase
         cleanAddress == '0x0000000000000000000000000000000000000000';
 
     if (!isNativeSource && sourceTokenAmount != null && sourceTokenAmount > BigInt.zero) {
-
       // Filter list to find match.
-      final matchingTokens = balance.keys.where((k) =>
-      k is Erc20Token &&
-          k.contractAddress.toLowerCase() == cleanAddress
-      );
+      final matchingTokens = balance.keys
+          .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
 
       if (matchingTokens.isEmpty) {
         // Token is not in the wallet balance map -> Balance is 0
@@ -1262,9 +1278,7 @@ abstract class EVMChainWalletBase
 
       if (existingTxInfo == null) {
         result[transactionModel.hash] = newTxInfo;
-      }
-
-      else if (newTxInfo.direction == TransactionDirection.incoming &&
+      } else if (newTxInfo.direction == TransactionDirection.incoming &&
           existingTxInfo.direction == TransactionDirection.outgoing) {
         result[transactionModel.hash] = newTxInfo;
       }
@@ -1759,4 +1773,16 @@ class MoralisDiscoveryResult {
   const MoralisDiscoveryResult({required this.newTokens});
 
   static const MoralisDiscoveryResult empty = MoralisDiscoveryResult(newTokens: []);
+}
+
+class WalletConnectBufferedFeeData {
+  const WalletConnectBufferedFeeData({
+    required this.maxFeePerGasWei,
+    required this.maxPriorityFeePerGasWei,
+    this.latestBaseFeeWei,
+  });
+
+  final int maxFeePerGasWei;
+  final int maxPriorityFeePerGasWei;
+  final int? latestBaseFeeWei;
 }

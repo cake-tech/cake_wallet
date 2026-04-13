@@ -278,14 +278,31 @@ class WalletRestorePage extends BasePage {
 
       int derivationsWithHistory = 0;
       int derivationWithHistoryIndex = 0;
+      final List<String> derivationPathsWithHistory = [];
+
       for (int i = 0; i < derivations.length; i++) {
         if (derivations[i].transactionsCount > 0) {
           derivationsWithHistory++;
           derivationWithHistoryIndex = i;
+          final derivationPath = derivations[i].derivationPath;
+          if (derivationPath != null && derivationPath.isNotEmpty) {
+            derivationPathsWithHistory.add(derivationPath);
+          }
         }
       }
 
-      if (derivationsWithHistory > 1) {
+      final scanDerivationPaths = {
+        "m/84'/0'/0'",
+        "m/86'/0'/0'",
+        "m/44'/0'/0'",
+        "m/49'/0'/0'",
+      };
+
+      final shouldSkipChooseDerivationScreen =
+          derivationPathsWithHistory.isNotEmpty &&
+          derivationPathsWithHistory.every(scanDerivationPaths.contains);
+
+      if (derivationsWithHistory > 1 && !shouldSkipChooseDerivationScreen) {
         dInfo = await Navigator.of(context).pushNamed(
           Routes.restoreWalletChooseDerivation,
           arguments: derivations,
