@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'fiat_option_setup_moonpay_va_page.dart';
+import 'moonpay_account_info_page.dart';
 
 class SetupMoonPayVAPage extends BasePage {
   SetupMoonPayVAPage(this.moonPayVirtualAccountViewModel);
@@ -191,6 +192,34 @@ class _MoonPayVirtualAccountBodyState extends State<_MoonPayVirtualAccountBody> 
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,
                       isDisabled: !_isEmailValid,
+                    ),
+                    const SizedBox(height: 10),
+                    PrimaryButton(
+                      key: ValueKey('setup_moonpay_va_page_account_button_key'),
+                      onPressed: () async {
+                        try {
+                          final accountData = await widget.viewModel.fetchVirtualAccountDetails();
+
+                          if (!context.mounted) return;
+
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => MoonPayAccountInfoPage(
+                                rawData: accountData,
+                              ),
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to fetch account info: $e')),
+                          );
+                        }
+                      },
+                      text: 'Get Account Info',
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ],
                 ),

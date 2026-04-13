@@ -32,6 +32,7 @@ abstract class MoonPayVirtualAccountViewModelBase with Store {
             .key,
         selectedWalletType = appStore.wallet?.type;
 
+  final externalCustomerId = 'cw_va_123456789';
   final MoonpayVirtualAccountApi moonPayVirtualAccountApi;
   final AppStore appStore;
   final SettingsStore settingsStore;
@@ -117,12 +118,12 @@ abstract class MoonPayVirtualAccountViewModelBase with Store {
         throw StateError('No active wallet');
       }
 
-      final externalCustomerId = this.buildExternalCustomerId(wallet);
+      //final externalCustomerId = this.buildExternalCustomerId(wallet);
 
       return moonPayVirtualAccountApi.buildCreateAccountUrl(
           walletAddress: wallet.address,
           walletAddressIsPartnerGenerated: true,
-          externalCustomerId: externalCustomerId,
+          externalCustomerId: externalCustomerId, //externalCustomerId,
           theme: theme,
           email: email,
           sourceCurrencyCode: selectedFiatCurrency.name,
@@ -149,9 +150,7 @@ abstract class MoonPayVirtualAccountViewModelBase with Store {
   }
 
   /// Calls MoonPay Virtual Accounts API and returns raw details response
-  Future<List<dynamic>> fetchVirtualAccountDetails({
-    required String externalCustomerId,
-  }) async {
+  Future<List<dynamic>> fetchVirtualAccountDetails() async {
     try {
       final response = await moonPayVirtualAccountApi.fetchVirtualAccountDetails(
         externalCustomerId: externalCustomerId,
