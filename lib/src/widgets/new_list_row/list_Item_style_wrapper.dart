@@ -59,7 +59,7 @@ class ListItemStyleWrapper extends StatelessWidget {
                     child: InkWell(
                         onTap: onTap,
                         child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: height == null ? 12 : 0),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: height == null ? 11 : 0),
                             child: builder(context, textStyle, labelStyle))))),
             if(iconPath != null && isLastInSection == false) Container(
               color: theme.colorScheme.surfaceContainer,

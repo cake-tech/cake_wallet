@@ -66,7 +66,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         if (iconPath != null)
                           Padding(
                             padding: const EdgeInsets.only(right: 12.0),
-                            child: CakeImageWidget(imageUrl: iconPath!, width: 24,height: 24,)
+                            child: CakeImageWidget(imageUrl: iconPath!, width: 24, height: 24,)
                           ),
                         Flexible(
                           child: Column(
@@ -108,10 +108,13 @@ class ListItemRegularRowWidget extends StatelessWidget {
                           colorFilter: ColorFilter.mode(foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
                         )
                       else if (showArrow)
-                          CakeImageWidget(imageUrl:
-                          "assets/new-ui/arrow_forward.svg",
-                              height: 14,
-                              color: theme.colorScheme.onSurfaceVariant
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 7.0),
+                            child: CakeImageWidget(imageUrl:
+                            "assets/new-ui/arrow_forward.svg",
+                                height: 14,
+                                color: theme.colorScheme.onSurfaceVariant
+                            ),
                           )
                     ],
                   ),
