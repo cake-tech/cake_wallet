@@ -99,10 +99,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                   item.value.length > 25;
 
                                               return ListItemRegularRow(
-                                                  onTap: () {
-                                                    Clipboard.setData(
-                                                        ClipboardData(text: item.value));
-                                                  },
+                                                copyableText: item.value,
                                                   showArrow: false,
                                                   keyValue:
                                                       ((item.key as ValueKey?)?.value as String?) ??
