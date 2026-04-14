@@ -310,6 +310,7 @@ import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
+import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 
 final getIt = GetIt.instance;
@@ -879,6 +880,11 @@ Future<void> setup({
       AddressLabelInputPopup(
           walletAddressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
+  getIt.registerFactoryParam<AddressInfoPopup, dynamic, void>((dynamic item, _) =>
+      AddressInfoPopup(
+          walletAddressEditOrCreateViewModel:
+          getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactoryParam<ReceiveLabelModal, dynamic, void>((dynamic item, _) =>
       ReceiveLabelModal(
