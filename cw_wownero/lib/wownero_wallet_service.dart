@@ -138,7 +138,7 @@ class WowneroWalletService extends WalletService<
       }
 
       wallet = WowneroWallet(walletInfo: walletInfo, derivationInfo: await walletInfo.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: password);
-      throw Exception(wallet.seed);
+      throw Exception("support for coin removed, your seedphrase: ${wallet.seed}");
       
       final isValid = wallet.walletAddresses.validate();
 
