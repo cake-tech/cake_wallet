@@ -615,6 +615,9 @@ Future<void> defaultSettingsMigration(
         case 63:
           await _addXaut0TokenToExistingSolanaWallets();
           break;
+        case 64:
+          await _backupWowneroSeeds(havenSeedStore);
+          break;
         default:
           break;
       }

@@ -258,6 +258,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             balance: _appStore.amountParsingProxy
                 .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
+            derivationPath: address.derivationPath,
           );
         });
         addressList.addAll(addressItems);
@@ -275,6 +276,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
                 .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
             isChange: address.isChange,
             isOneTimeReceiveAddress: true,
+            derivationPath: address.derivationPath,
           );
         });
         addressList.addAll(receivedAddressItems);
@@ -291,7 +293,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               balance: _appStore.amountParsingProxy
                   .getDisplayCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
               isChange: subaddress.isChange,
-              isLegacyDerivation: subaddress.isLegacyDerivation);
+              isLegacyDerivation: subaddress.isLegacyDerivation,
+              derivationPath: subaddress.derivationPath);
         });
 
         // don't show all 1000+ mweb addresses:

@@ -6,6 +6,7 @@ class ListItemStyleWrapper extends StatelessWidget {
     required this.isFirstInSection,
     required this.isLastInSection,
     required this.builder,
+    this.backgroundColor,
     this.onTap,
     this.iconPath,
     this.height,
@@ -16,6 +17,7 @@ class ListItemStyleWrapper extends StatelessWidget {
   final bool isLastInSection;
   final double? height;
   final VoidCallback? onTap;
+  final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
 
   @override
@@ -52,14 +54,14 @@ class ListItemStyleWrapper extends StatelessWidget {
                   shape: RoundedSuperellipseBorder(
                     borderRadius: radius,
                   ),
-                  color: theme.colorScheme.surfaceContainer,
+                  color: backgroundColor ?? theme.colorScheme.surfaceContainer,
                 ),
                 child: Material(
                     color: Colors.transparent,
                     child: InkWell(
                         onTap: onTap,
                         child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: height == null ? 12 : 0),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: height == null ? 11 : 0),
                             child: builder(context, textStyle, labelStyle))))),
             if(iconPath != null && isLastInSection == false) Container(
               color: theme.colorScheme.surfaceContainer,
