@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,10 +9,12 @@ class CopyWrapper extends StatefulWidget {
   const CopyWrapper(
       {super.key,
       this.data,
+      this.isSensitive = false,
       required this.builder,
       this.duration = const Duration(milliseconds: 1200)});
 
   final ClipboardData? data;
+  final bool isSensitive;
   final Widget Function(BuildContext, bool) builder;
   final Duration duration;
 
@@ -24,7 +27,7 @@ class _CopyWrapperState extends State<CopyWrapper> {
 
   void handleCopy() async {
     if (widget.data == null) return;
-    Clipboard.setData(widget.data!);
+    ClipboardUtil.setSensitiveDataToClipboard(widget.data!, isSensitive: widget.isSensitive);
     if (await shouldShowCopied()) {
       setState(() => copied = true);
       Future.delayed(widget.duration, () {
