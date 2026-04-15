@@ -151,7 +151,7 @@ class CryptoCurrency extends EnumerableItem<int>
 
   // well technically not currencies but since we had them a long time ago and don't want to break
   // the app for users who had contacts saved for them
-  static const zcashCurrencies = [zec, zaddr, tzec];
+  static const zcashCurrencies = [ zec, zaddr, tzec ];
 
   // title, tag (if applicable), fullName (if unique), raw, name, iconPath
   static const xmr = CryptoCurrency(title: 'XMR', fullName: 'Monero', raw: 0, name: 'xmr', iconPath: 'assets/images/crypto/monero.webp', iconSvgPath: "assets/new-ui/crypto_full_icons/monero.svg", decimals: 12,flatIconPath: "assets/new-ui/balance_card_icons/monero.svg");
@@ -288,29 +288,29 @@ class CryptoCurrency extends EnumerableItem<int>
     ...havenCurrencies,
     ...zcashCurrencies
   ].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
-    acc.addAll({item.raw: item});
-    return acc;
-  });
+      acc.addAll({item.raw: item});
+      return acc;
+    });
 
   static final Map<String, CryptoCurrency> _nameCurrencyMap = [
     ...all,
     ...havenCurrencies,
     ...zcashCurrencies
   ].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
-    acc.addAll({item.name: item});
-    return acc;
-  });
+      acc.addAll({item.name: item});
+      return acc;
+    });
 
   static final Map<String, CryptoCurrency> _fullNameCurrencyMap = [
     ...all,
     ...havenCurrencies,
     ...zcashCurrencies
   ].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
-    if (item.fullName != null) {
-      acc.addAll({item.fullName!.toLowerCase(): item});
-    }
-    return acc;
-  });
+      if(item.fullName != null){
+        acc.addAll({item.fullName!.toLowerCase(): item});
+      }
+      return acc;
+    });
 
   // Scheme to currency mapping for URI scheme
   static final Map<String, CryptoCurrency> _schemeCurrencyMap = {
@@ -337,7 +337,7 @@ class CryptoCurrency extends EnumerableItem<int>
   static CryptoCurrency deserialize({required int raw}) {
     if (CryptoCurrency._rawCurrencyMap[raw] == null) {
       final s = 'Unexpected token: $raw for CryptoCurrency deserialize';
-      throw ArgumentError.value(raw, 'raw', s);
+      throw  ArgumentError.value(raw, 'raw', s);
     }
     return CryptoCurrency._rawCurrencyMap[raw]!;
   }
@@ -370,7 +370,7 @@ class CryptoCurrency extends EnumerableItem<int>
 
     if (CryptoCurrency._nameCurrencyMap[name.toLowerCase()] == null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromString';
-      throw ArgumentError.value(name, 'name', s);
+      throw  ArgumentError.value(name, 'name', s);
     }
 
     return CryptoCurrency._nameCurrencyMap[name.toLowerCase()]!;
@@ -381,25 +381,25 @@ class CryptoCurrency extends EnumerableItem<int>
             ._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()] ==
         null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
-      throw ArgumentError.value(name, 'Fullname', s);
+      throw  ArgumentError.value(name, 'Fullname', s);
     }
     return CryptoCurrency
         ._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
   }
 
   static CryptoCurrency? safeParseCurrencyFromString(
-    String? raw, {
-    String? tag,
-    CryptoCurrency? walletCurrency,
-  }) {
+      String? raw, {
+        String? tag,
+        CryptoCurrency? walletCurrency,
+      }) {
     if (raw == null || raw.isEmpty) return null;
 
-    if (tag?.toLowerCase() == "lightning") tag = "LN";
+    if(tag?.toLowerCase() == "lightning") tag = "LN";
 
     if (tag != null && tag.isNotEmpty) {
       final match = CryptoCurrency.all.firstWhereOrNull(
-        (e) =>
-            e.title.toUpperCase() == raw.toUpperCase() &&
+            (e) =>
+        e.title.toUpperCase() == raw.toUpperCase() &&
             e.tag?.toUpperCase() == tag?.toUpperCase(),
       );
       if (match != null) return match;
@@ -409,7 +409,7 @@ class CryptoCurrency extends EnumerableItem<int>
     // Try for native currency with same title and tag
     if (tag == null || tag.isEmpty) {
       final match = CryptoCurrency.all.firstWhereOrNull(
-        (e) =>
+            (e) =>
             e.title.toUpperCase() == raw.toUpperCase() &&
             (e.tag == raw.toUpperCase()),
       );

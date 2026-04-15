@@ -88,7 +88,7 @@ abstract class OutputBase with Store {
 
   @observable
   String note;
-
+  
   @observable
   String memo;
 
@@ -431,7 +431,7 @@ abstract class OutputBase with Store {
     final currency = cryptoCurrencyHandler();
     parsedAddress =
         await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    if (parsedAddress.name.isNotEmpty) {
+    if(parsedAddress.name.isNotEmpty) {
       displayName = parsedAddress.name;
     }
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);

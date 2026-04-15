@@ -116,18 +116,18 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                   keyValue: ((item.key
                                                               as ValueKey?)
                                                           ?.value as String?) ??
-                                                      item.title,
+                                                          item.title,
                                                   label: item.title,
                                                   trailingWidget:
                                                       shouldBuildBottomWidget
-                                                          ? null
+                                                      ? null
                                                           : _buildTrailingWIdget(
                                                               item),
                                                   bottomWidget:
                                                       shouldBuildBottomWidget
                                                           ? _buildBottomWidget(
                                                               item)
-                                                          : null);
+                                                      : null);
                                             })
                                             .whereType<ListItem>()
                                             .toList(),
@@ -206,11 +206,11 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                             arguments: [
                                                           widget
                                                               .transactionDetailsViewModel
-                                                              .transactionInfo,
+                                                          .transactionInfo,
                                                           widget
                                                               .transactionDetailsViewModel
-                                                              .rawTransaction
-                                                        ]);
+                                                          .rawTransaction
+                                                    ]);
                                                   })
                                             ]
                                         }),

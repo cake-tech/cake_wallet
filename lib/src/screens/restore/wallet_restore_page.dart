@@ -216,7 +216,7 @@ class WalletRestorePage extends BasePage {
       if (walletRestoreViewModel.hasBlockchainHeightSelector) {
         credentials['height'] = walletRestoreFromSeedFormKey
                 .currentState!.blockchainHeightKey.currentState?.height ??
-            -1;
+                -1;
       }
 
       credentials['passphrase'] = seedSettingsViewModel.passphrase;
@@ -327,7 +327,7 @@ class WalletRestorePage extends BasePage {
 
       final shouldSkipChooseDerivationScreen =
           derivationPathsWithHistory.isNotEmpty &&
-              derivationPathsWithHistory.every(scanDerivationPaths.contains);
+          derivationPathsWithHistory.every(scanDerivationPaths.contains);
 
       if (derivationsWithHistory > 1 && !shouldSkipChooseDerivationScreen) {
         dInfo = await Navigator.of(context).pushNamed(
@@ -574,7 +574,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
       },
       onViewKeyEntered: (bool entered) {
         if (widget.walletRestoreViewModel.onlyViewKeyRestore ||
-            walletRestoreViewModel.type == WalletType.litecoin) {
+        walletRestoreViewModel.type == WalletType.litecoin) {
           walletRestoreViewModel.isButtonEnabled = entered;
         }
       },

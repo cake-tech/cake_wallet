@@ -891,7 +891,7 @@ Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
   final currentPriority = await sharedPreferences
           .getInt(PreferencesKey.moneroTransactionPriority) ??
-      monero!.getDefaultTransactionPriority().serialize();
+          monero!.getDefaultTransactionPriority().serialize();
 
   // was set to automatic but automatic should be 0
   if (currentPriority == 1) {

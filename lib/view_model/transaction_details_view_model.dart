@@ -73,7 +73,7 @@ class TxDetailRowDefinition {
         valueGetter: (vm) => vm.transactionInfo.height.toString(),
         applicable: (vm) =>
             !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) &&
-                !isLightning(vm.transactionInfo))),
+            !isLightning(vm.transactionInfo))),
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_fee_key",
         title: S.current.transaction_details_fee,
@@ -372,7 +372,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final descriptionKey =
         '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
     final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+            (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
         orElse: () => TransactionDescription(id: descriptionKey));
 
     description.transactionNote = note;
@@ -388,8 +388,8 @@ abstract class TransactionDetailsViewModelBase with Store {
     final descriptionKey =
         '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
     final description = transactionDescriptionBox.values.firstWhereOrNull(
-        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash);
-    return description?.transactionNote ?? "";
+            (val) => val.id == descriptionKey || val.id == transactionInfo.txHash);
+    return description?.transactionNote??"";
   }
 
   final TransactionInfo transactionInfo;
@@ -757,7 +757,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   @computed
   String get pendingTransactionFiatAmountValueFormatted =>
       sendViewModel.isFiatDisabled
-          ? ''
+      ? ''
           : sendViewModel.pendingTransactionFiatAmount +
               ' ' +
               sendViewModel.fiat.title;
@@ -765,7 +765,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
       sendViewModel.isFiatDisabled
-          ? ''
+      ? ''
           : sendViewModel.pendingTransactionFeeFiatAmount +
               ' ' +
               sendViewModel.fiat.title;

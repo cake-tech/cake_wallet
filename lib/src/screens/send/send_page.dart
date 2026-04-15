@@ -179,129 +179,129 @@ class SendPage extends BasePage {
     _setEffects(context);
 
     return ValueListenableBuilder(
-        valueListenable: currentPage,
-        builder: (context, value, child) {
-          return Observer(builder: (_) {
-            List<Widget> sendCards = [];
-            List<KeyboardActionsItem> keyboardActions = [];
-            for (final output in sendViewModel.outputs) {
-              final isCurrent = sendViewModel.outputs.indexOf(output) == value;
-              sendCards.add(
-                SendCard(
-                  currentTheme: currentTheme,
-                  key: output.key,
-                  output: output,
-                  sendViewModel: sendViewModel,
-                  paymentViewModel: paymentViewModel,
-                  walletSwitcherViewModel: walletSwitcherViewModel,
-                  initialPaymentRequest: initialPaymentRequest,
-                  cryptoAmountFocus: isCurrent ? _cryptoAmountFocus : null,
-                  fiatAmountFocus: isCurrent ? _fiatAmountFocus : null,
+      valueListenable: currentPage,
+      builder: (context, value, child) {
+        return Observer(builder: (_) {
+          List<Widget> sendCards = [];
+          List<KeyboardActionsItem> keyboardActions = [];
+          for (final output in sendViewModel.outputs) {
+            final isCurrent = sendViewModel.outputs.indexOf(output) == value;
+            sendCards.add(
+              SendCard(
+                currentTheme: currentTheme,
+                key: output.key,
+                output: output,
+                sendViewModel: sendViewModel,
+                paymentViewModel: paymentViewModel,
+                walletSwitcherViewModel: walletSwitcherViewModel,
+                initialPaymentRequest: initialPaymentRequest,
+                cryptoAmountFocus: isCurrent ? _cryptoAmountFocus : null,
+                fiatAmountFocus: isCurrent ? _fiatAmountFocus : null,
+              ),
+            );
+            keyboardActions.add(
+              KeyboardActionsItem(
+                focusNode: _cryptoAmountFocus,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
+              ),
+            );
+            keyboardActions.add(
+              KeyboardActionsItem(
+                focusNode: _fiatAmountFocus,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
+              ),
+            );
+          }
+          return Stack(
+            children: [
+              KeyboardActions(
+                config: KeyboardActionsConfig(
+                  keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
+                  keyboardBarColor: Theme.of(context).colorScheme.surface,
+                  nextFocus: false,
+                  actions: keyboardActions,
                 ),
-              );
-              keyboardActions.add(
-                KeyboardActionsItem(
-                  focusNode: _cryptoAmountFocus,
-                  toolbarButtons: [(_) => KeyboardDoneButton()],
+                child: Container(
+                  height: 0,
+                  color: Colors.transparent,
                 ),
-              );
-              keyboardActions.add(
-                KeyboardActionsItem(
-                  focusNode: _fiatAmountFocus,
-                  toolbarButtons: [(_) => KeyboardDoneButton()],
-                ),
-              );
-            }
-            return Stack(
-              children: [
-                KeyboardActions(
-                  config: KeyboardActionsConfig(
-                    keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-                    keyboardBarColor: Theme.of(context).colorScheme.surface,
-                    nextFocus: false,
-                    actions: keyboardActions,
-                  ),
-                  child: Container(
-                    height: 0,
-                    color: Colors.transparent,
-                  ),
-                ),
-                GestureDetector(
+              ),
+              GestureDetector(
                   onLongPress: () =>
                       sendViewModel.balanceViewModel.isReversing =
-                          !sendViewModel.balanceViewModel.isReversing,
+                    !sendViewModel.balanceViewModel.isReversing,
                   onLongPressUp: () =>
                       sendViewModel.balanceViewModel.isReversing =
-                          !sendViewModel.balanceViewModel.isReversing,
-                  child: RepaintBoundary(
-                    child: Form(
-                      key: _formKey,
-                      child: ScrollableWithBottomSection(
-                          contentPadding: EdgeInsets.only(bottom: 24),
-                          content: FocusTraversalGroup(
-                            policy: OrderedTraversalPolicy(),
-                            child: Column(
-                              children: <Widget>[
-                                PageViewHeightAdaptable(
-                                  controller: controller,
-                                  children: sendCards,
-                                ),
-                                SizedBox(height: 10),
-                                Padding(
+                    !sendViewModel.balanceViewModel.isReversing,
+                child: RepaintBoundary(
+                  child: Form(
+                    key: _formKey,
+                    child: ScrollableWithBottomSection(
+                        contentPadding: EdgeInsets.only(bottom: 24),
+                        content: FocusTraversalGroup(
+                          policy: OrderedTraversalPolicy(),
+                          child: Column(
+                            children: <Widget>[
+                              PageViewHeightAdaptable(
+                                controller: controller,
+                                children: sendCards,
+                              ),
+                              SizedBox(height: 10),
+                              Padding(
                                   padding: EdgeInsets.only(
                                       left: 24, right: 24, bottom: 10),
-                                  child: Container(
-                                    height: 10,
-                                    child: Observer(
-                                      builder: (_) {
+                                child: Container(
+                                  height: 10,
+                                  child: Observer(
+                                    builder: (_) {
                                         final count =
                                             sendViewModel.outputs.length;
-
-                                        return count > 1
-                                            ? Semantics(
-                                                label: 'Page Indicator',
+                  
+                                      return count > 1
+                                          ? Semantics(
+                                              label: 'Page Indicator',
                                                 hint:
                                                     'Swipe to change receiver',
-                                                excludeSemantics: true,
-                                                child: SmoothPageIndicator(
-                                                  controller: controller,
-                                                  count: count,
-                                                  effect: ScrollingDotsEffect(
-                                                    spacing: 6.0,
-                                                    radius: 6.0,
-                                                    dotWidth: 6.0,
-                                                    dotHeight: 6.0,
-                                                    dotColor: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary
-                                                        .withAlpha(100),
+                                              excludeSemantics: true,
+                                              child: SmoothPageIndicator(
+                                                controller: controller,
+                                                count: count,
+                                                effect: ScrollingDotsEffect(
+                                                  spacing: 6.0,
+                                                  radius: 6.0,
+                                                  dotWidth: 6.0,
+                                                  dotHeight: 6.0,
+                                                  dotColor: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withAlpha(100),
                                                     activeDotColor:
                                                         Theme.of(context)
                                                             .colorScheme
                                                             .primary,
-                                                  ),
                                                 ),
-                                              )
-                                            : Offstage();
-                                      },
-                                    ),
+                                              ),
+                                            )
+                                          : Offstage();
+                                    },
                                   ),
                                 ),
-                                Container(
-                                  height: 40,
-                                  width: double.infinity,
-                                  padding: EdgeInsets.only(left: 24),
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Observer(
-                                      builder: (_) {
+                              ),
+                              Container(
+                                height: 40,
+                                width: double.infinity,
+                                padding: EdgeInsets.only(left: 24),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Observer(
+                                    builder: (_) {
                                         final templates =
                                             sendViewModel.templates;
-                                        final itemCount = templates.length;
-
-                                        return Row(
-                                          children: <Widget>[
-                                            AddTemplateButton(
+                                      final itemCount = templates.length;
+                  
+                                      return Row(
+                                        children: <Widget>[
+                                          AddTemplateButton(
                                               key: ValueKey(
                                                   'send_page_add_template_button_key'),
                                               onTap: () => Navigator.of(context)
@@ -309,19 +309,19 @@ class SendPage extends BasePage {
                                                       Routes.sendTemplate),
                                               currentTemplatesLength:
                                                   templates.length,
-                                            ),
-                                            ListView.builder(
-                                              scrollDirection: Axis.horizontal,
-                                              shrinkWrap: true,
+                                          ),
+                                          ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            shrinkWrap: true,
                                               physics:
                                                   NeverScrollableScrollPhysics(),
-                                              itemCount: itemCount,
-                                              itemBuilder: (context, index) {
+                                            itemCount: itemCount,
+                                            itemBuilder: (context, index) {
                                                 final template =
                                                     templates[index];
-                                                return TemplateTile(
-                                                  key: UniqueKey(),
-                                                  to: template.name,
+                                              return TemplateTile(
+                                                key: UniqueKey(),
+                                                to: template.name,
                                                   hasMultipleRecipients: template
                                                               .additionalRecipients !=
                                                           null &&
@@ -330,63 +330,63 @@ class SendPage extends BasePage {
                                                           1,
                                                   amount: template
                                                           .isCurrencySelected
-                                                      ? template.amount
-                                                      : template.amountFiat,
+                                                    ? template.amount
+                                                    : template.amountFiat,
                                                   from: template
                                                           .isCurrencySelected
-                                                      ? template.cryptoCurrency
-                                                      : template.fiatCurrency,
-                                                  onTap: () async {
+                                                    ? template.cryptoCurrency
+                                                    : template.fiatCurrency,
+                                                onTap: () async {
                                                     sendViewModel.state =
                                                         LoadingTemplateExecutingState();
                                                     if (template
                                                             .additionalRecipients
                                                             ?.isNotEmpty ??
-                                                        false) {
+                                                      false) {
                                                       sendViewModel
                                                           .clearOutputs();
-
-                                                      for (int i = 0;
+                  
+                                                    for (int i = 0;
                                                           i <
                                                               template
                                                                   .additionalRecipients!
                                                                   .length;
-                                                          i++) {
-                                                        Output output;
-                                                        try {
+                                                        i++) {
+                                                      Output output;
+                                                      try {
                                                           output = sendViewModel
                                                               .outputs[i];
-                                                        } catch (e) {
+                                                      } catch (e) {
                                                           sendViewModel
                                                               .addOutput();
                                                           output = sendViewModel
                                                               .outputs[i];
-                                                        }
-
-                                                        await _setInputsFromTemplate(
-                                                          context,
-                                                          output: output,
-                                                          template: template
-                                                              .additionalRecipients![i],
-                                                        );
                                                       }
-                                                    } else {
-                                                      final output =
-                                                          _defineCurrentOutput();
+                  
                                                       await _setInputsFromTemplate(
                                                         context,
                                                         output: output,
-                                                        template: template,
+                                                          template: template
+                                                              .additionalRecipients![i],
                                                       );
                                                     }
+                                                  } else {
+                                                      final output =
+                                                          _defineCurrentOutput();
+                                                    await _setInputsFromTemplate(
+                                                      context,
+                                                      output: output,
+                                                      template: template,
+                                                    );
+                                                  }
                                                     sendViewModel.state =
                                                         InitialExecutionState();
-                                                  },
-                                                  onRemove: () {
-                                                    showPopUp<void>(
-                                                      context: context,
-                                                      builder: (dialogContext) {
-                                                        return AlertWithTwoActions(
+                                                },
+                                                onRemove: () {
+                                                  showPopUp<void>(
+                                                    context: context,
+                                                    builder: (dialogContext) {
+                                                      return AlertWithTwoActions(
                                                             alertTitle: S
                                                                 .of(context)
                                                                 .template,
@@ -409,86 +409,86 @@ class SendPage extends BasePage {
                                                                   .removeTemplate(
                                                                       template:
                                                                           template);
-                                                            },
-                                                            actionLeftButton: () =>
+                                                          },
+                                                          actionLeftButton: () =>
                                                                 Navigator.of(
                                                                         dialogContext)
                                                                     .pop());
-                                                      },
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
+                                                    },
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
+                        ),
                           bottomSectionPadding:
                               EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                          bottomSection: Column(
-                            children: [
+                        bottomSection: Column(
+                          children: [
                               if (sendViewModel
                                   .sendTemplateViewModel.hasMultiRecipient)
-                                Padding(
-                                    padding: EdgeInsets.only(bottom: 12),
-                                    child: PrimaryButton(
+                              Padding(
+                                  padding: EdgeInsets.only(bottom: 12),
+                                  child: PrimaryButton(
                                       key: ValueKey(
                                           'send_page_add_receiver_button_key'),
-                                      onPressed: () {
-                                        sendViewModel.addOutput();
+                                    onPressed: () {
+                                      sendViewModel.addOutput();
                                         Future.delayed(
                                             const Duration(milliseconds: 250),
                                             () {
                                           controller.jumpToPage(
                                               sendViewModel.outputs.length - 1);
-                                        });
-                                      },
-                                      text: S.of(context).add_receiver,
-                                      color: Colors.transparent,
+                                      });
+                                    },
+                                    text: S.of(context).add_receiver,
+                                    color: Colors.transparent,
                                       textColor: Theme.of(context)
                                           .colorScheme
                                           .onSurfaceVariant,
-                                      isDottedBorder: true,
+                                    isDottedBorder: true,
                                       borderColor:
                                           Theme.of(context).colorScheme.outline,
-                                    )),
-                              Observer(
-                                builder: (_) {
-                                  return LoadingPrimaryButton(
-                                    key: ValueKey('send_page_send_button_key'),
-                                    onPressed: () async {
-                                      //Request dummy node to get the focus out of the text fields
+                                  )),
+                            Observer(
+                              builder: (_) {
+                                return LoadingPrimaryButton(
+                                  key: ValueKey('send_page_send_button_key'),
+                                  onPressed: () async {
+                                    //Request dummy node to get the focus out of the text fields
                                       FocusScope.of(context)
                                           .requestFocus(FocusNode());
-
+                  
                                       if (sendViewModel.state
                                           is IsExecutingState) return;
-                                      if (_formKey.currentState != null &&
-                                          !_formKey.currentState!.validate()) {
-                                        if (sendViewModel.outputs.length > 1) {
-                                          showErrorValidationAlert(context);
-                                        }
-
-                                        return;
+                                    if (_formKey.currentState != null &&
+                                        !_formKey.currentState!.validate()) {
+                                      if (sendViewModel.outputs.length > 1) {
+                                        showErrorValidationAlert(context);
                                       }
-
+                  
+                                      return;
+                                    }
+                  
                                       final hasInvalidItems =
                                           sendViewModel.outputs.any((item) =>
-                                              item.address.isEmpty ||
+                                    item.address.isEmpty ||
                                               (item.cryptoAmount.isEmpty &&
                                                   !item.sendAll));
-
-                                      if (hasInvalidItems) {
-                                        showErrorValidationAlert(context);
-                                        return;
-                                      }
-
+                  
+                                    if (hasInvalidItems) {
+                                      showErrorValidationAlert(context);
+                                      return;
+                                    }
+                  
                                       if (sendViewModel
                                               .hardwareWalletViewModel !=
                                           null) {
@@ -501,7 +501,7 @@ class SendPage extends BasePage {
                                                   ConnectDevicePageParams(
                                                 walletType:
                                                     sendViewModel.walletType,
-                                                hardwareWalletType:
+                                              hardwareWalletType:
                                                     sendViewModel
                                                         .wallet
                                                         .walletInfo
@@ -512,22 +512,22 @@ class SendPage extends BasePage {
                                                       .hardwareWalletViewModel!
                                                       .initWallet(
                                                           sendViewModel.wallet);
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ));
-                                        } else {
-                                          sendViewModel.hardwareWalletViewModel!
-                                              .initWallet(sendViewModel.wallet);
-                                        }
+                                                Navigator.of(context).pop();
+                                              },
+                                            ));
+                                      } else {
+                                        sendViewModel.hardwareWalletViewModel!
+                                            .initWallet(sendViewModel.wallet);
                                       }
-
+                                    }
+                  
                                       if (sendViewModel.wallet.type ==
                                           WalletType.monero) {
-                                        int amount = 0;
+                                      int amount = 0;
                                         for (var item
                                             in sendViewModel.outputs) {
-                                          amount += item.formattedCryptoAmount;
-                                        }
+                                        amount += item.formattedCryptoAmount;
+                                      }
                                         if (monero!.needExportOutputs(
                                             sendViewModel.wallet, amount)) {
                                           await Navigator.of(context).pushNamed(
@@ -541,24 +541,24 @@ class SendPage extends BasePage {
                                         }
                                         if (monero!.needExportOutputs(
                                             sendViewModel.wallet, amount)) {
-                                          return;
-                                        }
+                                        return;
                                       }
-
+                                    }
+                  
                                       final check =
                                           sendViewModel.shouldDisplayTotp();
-                                      authService.authenticateAction(
-                                        context,
-                                        conditionToDetermineIfToUse2FA: check,
-                                        onAuthSuccess: (value) async {
-                                          if (value) {
+                                    authService.authenticateAction(
+                                      context,
+                                      conditionToDetermineIfToUse2FA: check,
+                                      onAuthSuccess: (value) async {
+                                        if (value) {
                                             await sendViewModel
                                                 .createTransaction();
-                                          }
-                                        },
-                                      );
-                                    },
-                                    text: _sendButtonText(context),
+                                        }
+                                      },
+                                    );
+                                  },
+                                  text: _sendButtonText(context),
                                     color:
                                         Theme.of(context).colorScheme.primary,
                                     textColor:
@@ -574,17 +574,17 @@ class SendPage extends BasePage {
                                     isDisabled: !sendViewModel.isReadyForSend ||
                                         sendViewModel.state
                                             is ExecutedSuccessfullyState,
-                                  );
-                                },
-                              )
-                            ],
-                          )),
-                    ),
+                                );
+                              },
+                            )
+                          ],
+                        )),
                   ),
                 ),
-              ],
-            );
-          });
+              ),
+            ],
+          );
+        });
         });
   }
 
@@ -598,7 +598,7 @@ class SendPage extends BasePage {
       bitcoin!.updateFeeRates(sendViewModel.wallet);
     }
 
-    controller.addListener(() {
+    controller.addListener((){
       if (!controller.hasClients) return;
       currentPage.value = controller.page!.round();
     });
@@ -666,39 +666,39 @@ class SendPage extends BasePage {
               isScrollControlled: true,
               builder: (BuildContext bottomSheetContext) {
                 return Observer(
-                  builder: (_) => ConfirmSendingBottomSheet(
-                    key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
-                    titleText: S.of(bottomSheetContext).confirm_transaction,
+                    builder: (_) => ConfirmSendingBottomSheet(
+                  key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
                     accessibleNavigationModeSlideActionButtonText:
                         S.of(bottomSheetContext).send,
-                    footerType: FooterType.slideActionButton,
-                    isSlideActionEnabled: sendViewModel.isReadyForSend,
-                    walletType: sendViewModel.walletType,
+                  footerType: FooterType.slideActionButton,
+                  isSlideActionEnabled: sendViewModel.isReadyForSend,
+                  walletType: sendViewModel.walletType,
                     titleIconPath:
                         sendViewModel.selectedCryptoCurrency.iconPath,
-                    currency: sendViewModel.selectedCryptoCurrency,
-                    amount: S.of(bottomSheetContext).send_amount,
+                  currency: sendViewModel.selectedCryptoCurrency,
+                  amount: S.of(bottomSheetContext).send_amount,
                     amountValue: sendViewModel.amountParsingProxy
                         .getDisplayCryptoAmount(
-                            sendViewModel.pendingTransaction!.amountFormatted,
-                            sendViewModel.selectedCryptoCurrency),
+                      sendViewModel.pendingTransaction!.amountFormatted,
+                      sendViewModel.selectedCryptoCurrency),
                     fiatAmountValue:
                         sendViewModel.pendingTransactionFiatAmountFormatted,
-                    fee: isEVMCompatibleChain(sendViewModel.walletType)
-                        ? S.of(bottomSheetContext).send_estimated_fee
-                        : S.of(bottomSheetContext).send_fee,
+                  fee: isEVMCompatibleChain(sendViewModel.walletType)
+                      ? S.of(bottomSheetContext).send_estimated_fee
+                      : S.of(bottomSheetContext).send_fee,
                     feeValue:
                         "${sendViewModel.amountParsingProxy.getDisplayCryptoAmount(sendViewModel.pendingTransaction!.feeFormattedValue, sendViewModel.selectedCryptoCurrency)} ${sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.wallet.currency)}",
                     feeFiatAmount:
                         sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                    outputs: sendViewModel.outputs,
-                    onSlideActionComplete: () async {
-                      Navigator.of(bottomSheetContext).pop(true);
-                      sendViewModel.commitTransaction(context);
-                    },
-                    change: sendViewModel.pendingTransaction!.change,
-                    isOpenCryptoPay: sendViewModel.ocpRequest != null,
-                    amountParsingProxy: sendViewModel.amountParsingProxy,
+                  outputs: sendViewModel.outputs,
+                  onSlideActionComplete: () async {
+                    Navigator.of(bottomSheetContext).pop(true);
+                    sendViewModel.commitTransaction(context);
+                  },
+                  change: sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: sendViewModel.ocpRequest != null,
+                  amountParsingProxy: sendViewModel.amountParsingProxy,
                   ),
                 );
               },

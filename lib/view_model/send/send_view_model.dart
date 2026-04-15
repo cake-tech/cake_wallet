@@ -118,8 +118,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
         currencies = _appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency =
             coinTypeToSpendFrom == UnspentCoinType.lightning
-                ? CryptoCurrency.btcln
-                : _appStore.wallet!.currency,
+            ? CryptoCurrency.btcln
+            : _appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
             [
               WalletType.solana,
@@ -457,7 +457,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
   set fiatCurrency(FiatCurrency value) {
-    _settingsStore.fiatCurrency = value;
+      _settingsStore.fiatCurrency = value;
   }
 
   List<FiatCurrency> fiatCurrencies;
@@ -497,8 +497,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
   @computed
   List<WalletContact> get walletContactsToShow =>
       contactListViewModel.walletContacts
-          .where((element) => element.type == selectedCryptoCurrency)
-          .toList();
+      .where((element) => element.type == selectedCryptoCurrency)
+      .toList();
 
   @action
   bool checkIfAddressIsAContact(String address) => contactsToShow
@@ -721,9 +721,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
 
               final needsApproval =
                   tokenContract.isNotEmpty && requiredAmount > BigInt.zero
-                      ? await evm!.isApprovalRequired(
-                          wallet, tokenContract, routerTo, requiredAmount)
-                      : false;
+                  ? await evm!.isApprovalRequired(
+                  wallet, tokenContract, routerTo, requiredAmount)
+                  : false;
 
               printV(
                   '[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.from?.title} ${trade.from?.tag ?? ''} with amount $requiredAmount');
@@ -884,7 +884,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       // Regular flow
 
       final isSendAll = outputs.any((output) => output.sendAll);
-
+      
       if (!isSendAll) {
         final estimateTxAmountDouble = outputs.fold<double>(0,
             (acc, output) => acc + (double.tryParse(output.cryptoAmount) ?? 0));
@@ -1411,14 +1411,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
   }) async {
     final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
           (t) => t.contractAddress.toLowerCase() == tokenContract.toLowerCase(),
-          orElse: () => Erc20Token(
-            name: '',
-            symbol: '',
-            contractAddress: tokenContract,
-            decimal: sourceTokenDecimals ?? 18,
-            enabled: true,
-          ),
-        );
+      orElse: () => Erc20Token(
+        name: '',
+        symbol: '',
+        contractAddress: tokenContract,
+        decimal: sourceTokenDecimals ?? 18,
+        enabled: true,
+      ),
+    );
 
     return await evm!.createTokenApproval(
       wallet,
@@ -1617,9 +1617,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       return S.current.tx_invalid_input;
     }
 
-    if (wallet.type == WalletType.bitcoin) {
+    if(wallet.type == WalletType.bitcoin) {
       final lnError = getLightningErrorMessage(error);
-      if (lnError != null) return lnError;
+      if(lnError != null) return lnError;
     }
 
     return errorMessage;
@@ -1631,8 +1631,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       "insufficient funds": S.current.insufficient_funds_for_tx
     };
 
-    for (final pattern in errorPatterns.keys) {
-      if (error.toString().contains(pattern)) return errorPatterns[pattern]!;
+    for(final pattern in errorPatterns.keys) {
+      if(error.toString().contains(pattern)) return errorPatterns[pattern]!;
     }
 
     return null;

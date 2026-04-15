@@ -390,8 +390,8 @@ abstract class SettingsStoreBase with Store {
         (_) => disableAutomaticExchangeStatusUpdates,
         (bool disableAutomaticExchangeStatusUpdates) =>
             sharedPreferences.setBool(
-                PreferencesKey.disableAutomaticExchangeStatusUpdates,
-                disableAutomaticExchangeStatusUpdates));
+            PreferencesKey.disableAutomaticExchangeStatusUpdates,
+            disableAutomaticExchangeStatusUpdates));
 
     reaction(
         (_) => disableBulletin,
@@ -666,7 +666,7 @@ abstract class SettingsStoreBase with Store {
             secureStorage.write(
                 key:
                     SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
-                value: requireTOTP2FAForExchangesToInternalWallets.toString()));
+            value: requireTOTP2FAForExchangesToInternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForExchangesToExternalWallets,
@@ -674,7 +674,7 @@ abstract class SettingsStoreBase with Store {
             secureStorage.write(
                 key:
                     SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
-                value: requireTOTP2FAForExchangesToExternalWallets.toString()));
+            value: requireTOTP2FAForExchangesToExternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAddingContacts,
@@ -782,8 +782,8 @@ abstract class SettingsStoreBase with Store {
         (_) => decentralizedExchangesPromptDismissed,
         (bool decentralizedExchangesPromptDismissed) =>
             _sharedPreferences.setBool(
-                PreferencesKey.decentralizedExchangesPromptDismissed,
-                decentralizedExchangesPromptDismissed));
+            PreferencesKey.decentralizedExchangesPromptDismissed,
+            decentralizedExchangesPromptDismissed));
 
     reaction(
         (_) => balanceHideCounter,
@@ -1053,7 +1053,7 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool mwebCardDisplay;
-
+  
   @observable
   bool showZcashMissingFundsCard;
 
@@ -1430,7 +1430,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final mwebNodeUri =
         sharedPreferences.getString(PreferencesKey.mwebNodeUri) ??
-            "ltc-electrum.cakewallet.com:9333";
+        "ltc-electrum.cakewallet.com:9333";
     final enableAutomaticNodeSwitching = sharedPreferences
             .getBool(PreferencesKey.enableAutomaticNodeSwitching) ??
         true;
@@ -1444,7 +1444,7 @@ abstract class SettingsStoreBase with Store {
 
     final savedLanguageCode =
         sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
-            await LanguageService.localeDetection();
+        await LanguageService.localeDetection();
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId = sharedPreferences
         .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -1721,25 +1721,25 @@ abstract class SettingsStoreBase with Store {
         false;
     final shouldRequireTOTP2FAForSendsToInternalWallets =
         await SecureKey.getBool(
-              secureStorage: secureStorage,
-              sharedPreferences: sharedPreferences,
-              key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
-            ) ??
-            false;
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
+        ) ??
+        false;
     final shouldRequireTOTP2FAForExchangesToInternalWallets =
         await SecureKey.getBool(
-              secureStorage: secureStorage,
-              sharedPreferences: sharedPreferences,
-              key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
-            ) ??
-            false;
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
+        ) ??
+        false;
     final shouldRequireTOTP2FAForExchangesToExternalWallets =
         await SecureKey.getBool(
-              secureStorage: secureStorage,
-              sharedPreferences: sharedPreferences,
-              key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
-            ) ??
-            false;
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
+        ) ??
+        false;
     final shouldRequireTOTP2FAForAddingContacts = await SecureKey.getBool(
           secureStorage: secureStorage,
           sharedPreferences: sharedPreferences,
@@ -1754,12 +1754,12 @@ abstract class SettingsStoreBase with Store {
         false;
     final shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
         await SecureKey.getBool(
-              secureStorage: secureStorage,
-              sharedPreferences: sharedPreferences,
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
               key:
                   SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-            ) ??
-            false;
+        ) ??
+        false;
     final useTOTP2FA = await SecureKey.getBool(
           secureStorage: secureStorage,
           sharedPreferences: sharedPreferences,
@@ -1776,7 +1776,7 @@ abstract class SettingsStoreBase with Store {
     final mwebAdDismissed =
         await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ??
             false;
-
+    
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
@@ -2039,7 +2039,7 @@ abstract class SettingsStoreBase with Store {
             .getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress = sharedPreferences
             .getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
-        shouldSaveRecipientAddress;
+            shouldSaveRecipientAddress;
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ??
             numberOfFailedTokenTrials;
@@ -2050,7 +2050,7 @@ abstract class SettingsStoreBase with Store {
             disableTradeOption;
     disableAutomaticExchangeStatusUpdates = sharedPreferences
             .getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ??
-        disableAutomaticExchangeStatusUpdates;
+            disableAutomaticExchangeStatusUpdates;
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ??
             disableBulletin;
@@ -2064,7 +2064,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     shouldShowMarketPlaceInDashboard = sharedPreferences
             .getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
-        shouldShowMarketPlaceInDashboard;
+            shouldShowMarketPlaceInDashboard;
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
@@ -2080,7 +2080,7 @@ abstract class SettingsStoreBase with Store {
             defaultActionsMode));
     enableAutomaticNodeSwitching = sharedPreferences
             .getBool(PreferencesKey.enableAutomaticNodeSwitching) ??
-        enableAutomaticNodeSwitching;
+            enableAutomaticNodeSwitching;
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -2386,12 +2386,12 @@ abstract class SettingsStoreBase with Store {
         false;
     shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
         await SecureKey.getBool(
-              secureStorage: _secureStorage,
-              sharedPreferences: sharedPreferences,
+          secureStorage: _secureStorage,
+          sharedPreferences: sharedPreferences,
               key:
                   SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-            ) ??
-            false;
+        ) ??
+        false;
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {

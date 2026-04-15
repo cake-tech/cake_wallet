@@ -392,7 +392,7 @@ class Node extends HiveObject with Keyable {
           },
         ),
       );
-
+      
       final data = jsonDecode(response.body);
       if (response.statusCode != 200 ||
           data["error"] != null ||
@@ -414,7 +414,7 @@ class Node extends HiveObject with Keyable {
           .getUrl(
             uri,
           )
-          .timeout(Duration(seconds: 15));
+        .timeout(Duration(seconds: 15));
       final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
@@ -425,12 +425,12 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestDecredNode() async {
-    if (uri.host == "default-spv-nodes") {
-      // Just show default port as ok. The wallet will connect to a list of known
-      // nodes automatically.
-      return true;
-    }
-    try {
+  if (uri.host == "default-spv-nodes") {
+    // Just show default port as ok. The wallet will connect to a list of known
+    // nodes automatically.
+    return true;
+  }
+  try {
       final socket = await Socket.connect(uri.host, uri.port,
           timeout: Duration(seconds: 5));
       socket.destroy();

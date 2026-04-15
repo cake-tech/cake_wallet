@@ -30,7 +30,7 @@ class _SignPageState extends State<SignPage> {
   final List<Widget> _pages = [];
   final signFormKey = GlobalKey<SignFormState>();
   final verifyFormKey = GlobalKey<VerifyFormState>();
-  final PageController _controller = PageController(initialPage: 0);
+  final PageController _controller = PageController(initialPage: 0) ;
 
   bool _isEffectsInstalled = false;
 
@@ -56,7 +56,7 @@ class _SignPageState extends State<SignPage> {
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
-        top: false,
+        top:false,
         child: Column(
           children: [
             ModalTopBar(
@@ -224,7 +224,7 @@ class _SignPageState extends State<SignPage> {
           widget.signViewModel.state = FailureState(e.toString());
         }
       } else {
-        await widget.signViewModel.sign(message, address: address);
+      await widget.signViewModel.sign(message, address: address);
       }
     } else {
       String message = verifyFormKey.currentState!.messageController.text;

@@ -308,8 +308,8 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
       Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions =
       await CakeHive.openBox<TransactionDescription>(
-          TransactionDescription.boxName,
-          encryptionKey: transactionDescriptionsBoxKey);
+      TransactionDescription.boxName,
+      encryptionKey: transactionDescriptionsBoxKey);
   final trades =
       await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders =
@@ -430,10 +430,10 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute =
             authenticationStore.state == AuthenticationState.uninitialized
-                ? Routes.welcome
-                : settingsStore.currentBuiltinTor
-                    ? Routes.startTor
-                    : Routes.login;
+            ? Routes.welcome
+            : settingsStore.currentBuiltinTor
+                ? Routes.startTor
+                : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
         final statusBarBrightness = currentTheme.type == currentTheme.isDark
             ? Brightness.light

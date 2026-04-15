@@ -251,29 +251,29 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
               widget.restoredWallet?.privateKey == null &&
               widget.restoredWallet?.publicKey != null;
       return Column(children: [
-        AddressTextField(
+          AddressTextField(
           addressKey:
               ValueKey('wallet_restore_from_key_private_key_textfield_key'),
-          controller: privateKeyController,
+            controller: privateKeyController,
           placeholder: nanoBased
               ? S.of(context).seed_hex_form
               : isStarknetPublicKeyRestore
                   ? S.of(context).public_key
                   : S.of(context).private_key,
-          options: [AddressTextFieldOption.paste],
-          onPushPasteButton: (_) {
-            _pasteText();
-          },
-        ),
-        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
-          BlockchainHeightWidget(
-            key: blockchainHeightKey,
+            options: [AddressTextFieldOption.paste],
+            onPushPasteButton: (_) {
+              _pasteText();
+            },
+          ),
+          if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+            BlockchainHeightWidget(
+              key: blockchainHeightKey,
             hasDatePicker:
                 widget.walletRestoreViewModel.type != WalletType.haven,
-            onHeightChange: (_) => null,
-            onHeightOrDateEntered: widget.onHeightOrDateEntered,
-            walletType: widget.walletRestoreViewModel.type,
-          ),
+              onHeightChange: (_) => null,
+              onHeightOrDateEntered: widget.onHeightOrDateEntered,
+              walletType: widget.walletRestoreViewModel.type,
+            ),
       ]);
     }
 

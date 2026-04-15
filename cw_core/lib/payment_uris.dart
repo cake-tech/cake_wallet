@@ -402,8 +402,8 @@ class ERC681URI extends PaymentURI {
 
   static int _getChainID(String path) {
     return int.parse(RegExp(
-          r'@\d*',
-        ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
+      r'@\d*',
+    ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
         "1");
   }
 

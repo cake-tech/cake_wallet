@@ -311,7 +311,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                 size: 36,
                                 icon: CakeImageWidget(
                                   imageUrl:
-                                      "assets/new-ui/remove_recipient.svg",
+                                  "assets/new-ui/remove_recipient.svg",
                                   colorFilter: ColorFilter.mode(
                                     Theme.of(context).colorScheme.primary,
                                     BlendMode.srcIn,
@@ -421,7 +421,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             output.loadContact(contact);
                                           },
                                           onPushPasteButton: (context) async {
-                                            if (_justHandledPasteButton) return;
+                                            if(_justHandledPasteButton) return;
                                             _justHandledPasteButton = true;
                                             try {
                                               output.resetParsedAddress();
@@ -430,8 +430,8 @@ class _NewSendPageState extends State<NewSendPage> {
 
                                               final address =
                                                   output.isParsedAddress
-                                                      ? output.extractedAddress
-                                                      : output.address;
+                                                  ? output.extractedAddress
+                                                  : output.address;
 
                                               await _handlePaymentFlow(
                                                 address,
@@ -495,7 +495,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                         fiatInputMode: _fiatInputMode,
                                         onSwitchButtonPressed: () {
                                           setState(() {
-                                            if (!_fiatInputMode) {
+                                            if(!_fiatInputMode) {
                                               widget
                                                       .sendViewModel
                                                       .outputs[_selectedOutput]
@@ -550,7 +550,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       onChanged: (value) => widget.sendViewModel
                                           .setAllowMwebCoins(value),
                                     ),
-                                  if (widget.sendViewModel.hasMemos)
+                                  if(widget.sendViewModel.hasMemos)
                                     Observer(
                                         builder: (_) => NewSendMemoInput(
                                               memoController: _memoControllers[
@@ -636,19 +636,19 @@ class _NewSendPageState extends State<NewSendPage> {
                                                       Material(
                                                           child:
                                                               L2ActionWalletSelector(
-                                                        showOtherWallets: false,
+                                                    showOtherWallets: false,
                                                         action:
                                                             l2actions.deposit,
                                                         sendViewModel: widget
                                                             .sendViewModel,
                                                         contactListViewModel: widget
                                                             .contactListViewModel,
-                                                        walletSwitcherViewModel:
+                                                    walletSwitcherViewModel:
                                                             widget
                                                                 .walletSwitcherViewModel,
                                                         onSendInitiated:
                                                             _handleSend,
-                                                      ))));
+                                                  ))));
                                         } else if (widget.mode ==
                                                 SendPageModes
                                                     .lightningWithdrawal ||
@@ -660,19 +660,19 @@ class _NewSendPageState extends State<NewSendPage> {
                                                       Material(
                                                           child:
                                                               L2ActionWalletSelector(
-                                                        showOtherWallets: false,
+                                                    showOtherWallets: false,
                                                         action:
                                                             l2actions.withdraw,
                                                         sendViewModel: widget
                                                             .sendViewModel,
                                                         contactListViewModel: widget
                                                             .contactListViewModel,
-                                                        walletSwitcherViewModel:
+                                                    walletSwitcherViewModel:
                                                             widget
                                                                 .walletSwitcherViewModel,
                                                         onSendInitiated:
                                                             _handleSend,
-                                                      ))));
+                                                  ))));
                                         }
                                       },
                                       text: S.of(context).continue_text,
@@ -807,8 +807,8 @@ class _NewSendPageState extends State<NewSendPage> {
         } else {
           final amount = widget.sendViewModel.amountParsingProxy
               .getCanonicalCryptoAmount(
-                  _amountControllers[i].text.replaceAll(",", "."),
-                  widget.sendViewModel.selectedCryptoCurrency);
+              _amountControllers[i].text.replaceAll(",", "."),
+              widget.sendViewModel.selectedCryptoCurrency);
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
       }
@@ -1320,7 +1320,7 @@ class _NewSendPageState extends State<NewSendPage> {
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
-      try {
+      try{
         _amountControllers[_selectedOutput].text =
             widget.sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
                 paymentRequest.amount,
@@ -1510,7 +1510,7 @@ class SendHelpPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CakeImageWidget(imageUrl: content.imagePath),
+                CakeImageWidget(imageUrl:content.imagePath),
                 Text(
                   content.description,
                   textAlign: TextAlign.center,
