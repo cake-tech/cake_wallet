@@ -618,6 +618,11 @@ Future<void> defaultSettingsMigration(
             providerName: "LetsExchange",
             enabled: false,
           );
+          await _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: true,
+          );
           break;
         default:
           break;
