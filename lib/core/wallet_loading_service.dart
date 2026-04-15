@@ -72,15 +72,18 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
-      if (type == WalletType.wownero) rethrow;
-      await ExceptionHandler.resetLastPopupDate();
-      final isLedgerError = await ExceptionHandler.isLedgerError(error);
-      if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
-      await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
-
+      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
+      
+      if ([WalletType.wownero, WalletType.haven].contains(type)) {
+        corruptedWalletsSeeds += "\n\n$type $name: $error";
+      } else {
+        await ExceptionHandler.resetLastPopupDate();
+        final isLedgerError = await ExceptionHandler.isLedgerError(error);
+        if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
+        await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      }
 
       // try fetching the seeds of the corrupted wallet to show it to the user
-      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
       try {
         corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
       } catch (e) {
