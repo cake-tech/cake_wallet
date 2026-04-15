@@ -390,6 +390,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
     final isCurrentTypeWallet = exchangeViewModel.useSameWalletAddress(currency);
 
     if (key == depositKey && !isCurrentTypeWallet) exchangeViewModel.isSendFromExternal = true;
+    if (key == depositKey && isCurrentTypeWallet) exchangeViewModel.isSendFromExternal = false;
+
 
     key.currentState!.changeSelectedCurrency(currency);
 

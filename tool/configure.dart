@@ -161,7 +161,7 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
 
-  class ElectrumSubAddress {
+class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
     required this.name,
@@ -169,13 +169,16 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
     required this.txCount,
     required this.balance,
     required this.isChange,
-    this.isLegacyDerivation = false});
+    this.derivationPath,
+    this.isLegacyDerivation = false
+  });
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final String? derivationPath;
   final bool isLegacyDerivation;
 }
 

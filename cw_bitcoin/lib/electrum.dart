@@ -144,7 +144,7 @@ class ElectrumClient {
 
   void _parseResponse(String message) {
     try {
-      final response = json.decode(message) as Map<String, dynamic>;
+      final response = json.decode(message);
       _handleResponse(response);
     } on FormatException catch (e) {
       final msg = e.message.toLowerCase();
@@ -159,7 +159,7 @@ class ElectrumClient {
       }
 
       if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString) as Map<String, dynamic>;
+        final response = json.decode(unterminatedString);
         _handleResponse(response);
         unterminatedString = '';
       }
@@ -172,8 +172,7 @@ class ElectrumClient {
       unterminatedString += message;
 
       if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString) as Map<String, dynamic>;
-        _handleResponse(response);
+        final response = json.decode(unterminatedString);
         // unterminatedString = null;
         unterminatedString = '';
       }
@@ -302,6 +301,137 @@ class ElectrumClient {
 
         return '';
       });
+
+  Future<Map<String, List<Map<String, dynamic>>>> getBatchHistory(
+      List<String> scriptHashes, {
+        int timeout = 10000,
+      }) async {
+    final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
+
+    final batchResults = await callBatchWithTimeout(
+      method: 'blockchain.scripthash.get_history',
+      paramsList: paramsList,
+      timeout: timeout,
+    );
+
+    final historyMap = <String, List<Map<String, dynamic>>>{};
+
+    for (int i = 0; i < scriptHashes.length; i++) {
+      final sh = scriptHashes[i];
+
+      if (i >= batchResults.length) {
+        historyMap[sh] = const [];
+        continue;
+      }
+
+      final result = batchResults[i];
+
+      if (result is List) {
+        historyMap[sh] = result
+            .whereType<Map<dynamic, dynamic>>()
+            .map((m) => m.map((k, v) => MapEntry(k.toString(), v)))
+            .cast<Map<String, dynamic>>()
+            .toList();
+      } else {
+        historyMap[sh] = const [];
+      }
+    }
+
+    return historyMap;
+  }
+
+  Future<Map<String, Map<String, dynamic>>> getBatchTransactionVerbose(
+      List<String> hashes, {
+        int timeout = 10000,
+      }) async {
+    final result = <String, Map<String, dynamic>>{};
+    if (hashes.isEmpty) return result;
+
+    final paramsList = hashes.map((h) => <Object>[h, true]).toList(growable: false);
+    final batchResults = await callBatchWithTimeout(
+      method: 'blockchain.transaction.get',
+      paramsList: paramsList,
+      timeout: timeout,
+    );
+
+    for (var i = 0; i < hashes.length; i++) {
+      final txid = hashes[i];
+      final r = (i < batchResults.length) ? batchResults[i] : null;
+      if (r is Map<String, dynamic>) {
+        result[txid] = r;
+      } else {
+        result[txid] = <String, dynamic>{};
+      }
+    }
+
+    return result;
+  }
+
+  Future<Map<String, String?>> getBatchTransactionHex(
+      List<String> hashes, {
+        int timeout = 10000,
+      }) async {
+    final result = <String, String?>{};
+    if (hashes.isEmpty) return result;
+
+    final paramsList = hashes.map((h) => <Object>[h]).toList(growable: false);
+    final batchResults = await callBatchWithTimeout(
+      method: 'blockchain.transaction.get',
+      paramsList: paramsList,
+      timeout: timeout,
+    );
+
+    for (var i = 0; i < hashes.length; i++) {
+      final txid = hashes[i];
+      final r = (i < batchResults.length) ? batchResults[i] : null;
+      if (r is String && r.isNotEmpty) {
+        result[txid] = r;
+      } else {
+        result[txid] = null;
+      }
+    }
+
+    return result;
+  }
+
+  Future<List<dynamic>> callBatchWithTimeout({
+    required String method,
+    required List<List<Object>> paramsList,
+    int timeout = 10000,
+  }) async {
+    if (!isConnected) return [];
+
+    final completer = Completer<List<dynamic>>();
+    final int batchBaseId = _id += 1;
+    final String internalBatchKey = "batch_$batchBaseId";
+
+    // Build the Batch Array
+    final List<Map<String, dynamic>> batchPayload = [];
+    for (int i = 0; i < paramsList.length; i++) {
+      batchPayload.add({
+        "jsonrpc": "2.0",
+        "method": method,
+        "params": paramsList[i],
+        "id": "$batchBaseId-$i"
+      });
+    }
+
+    // Register the task
+    _tasks[internalBatchKey] = SocketTask(completer: completer, isSubscription: false);
+
+    // Write to socket
+    socket!.write(json.encode(batchPayload) + "\n");
+
+    // Timeout Logic
+    Timer(Duration(milliseconds: timeout), () {
+      if (!completer.isCompleted) {
+        _tasks.remove(internalBatchKey);
+        completer.completeError(RequestFailedTimeoutException("BATCH_$method", batchBaseId));
+      }
+    });
+
+    return completer.future;
+  }
 
   Future<String> broadcastTransaction(
           {required String transactionRaw,
@@ -569,35 +699,73 @@ class ElectrumClient {
     }
   }
 
-  void _handleResponse(Map<String, dynamic> response) {
-    final method = response['method'];
-    final id = response['id'] as String?;
-    final result = response['result'];
+  void _handleResponse(dynamic response) {
 
-    try {
-      final error = response['error'] as Map<String, dynamic>?;
-      if (error != null) {
-        final errorMessage = error['message'] as String?;
-        if (errorMessage != null) {
-          _errors[id!] = errorMessage;
+    // Handle batch response
+    if (response is List) {
+      if (response.isEmpty) return;
+
+      // Sort responses by ID to ensure correct order for batch processing
+      response.sort((a, b) {
+        try {
+          final idA = int.parse(a['id'].toString().split('-').last);
+          final idB = int.parse(b['id'].toString().split('-').last);
+          return idA.compareTo(idB);
+        } catch (_) {
+          return 0;
         }
-      }
-    } catch (_) {}
+      });
 
-    try {
-      final error = response['error'] as String?;
-      if (error != null) {
-        _errors[id!] = error;
-      }
-    } catch (_) {}
+      final firstItem = response.first as Map<String, dynamic>;
+      final String firstIdAttr = firstItem['id'].toString();
 
-    if (method is String) {
-      _methodHandler(method: method, request: response);
+      final String batchKey = firstIdAttr.contains('-')
+          ? "batch_${firstIdAttr.split('-')[0].replaceAll('batch_', '')}"
+          : firstIdAttr;
+
+      // Extract the results from each item in the batch
+      final results = response.map((item) {
+        if (item is Map) {
+          return item['result'] ?? item['error'];
+        }
+        return null;
+      }).toList();
+
+      _finish(batchKey, results);
       return;
     }
 
-    if (id != null) {
-      _finish(id, result);
+    // Handle single response
+    if (response is Map<String, dynamic>) {
+      final method = response['method'];
+      final id = response['id'] as String?;
+      final result = response['result'];
+
+      try {
+        final error = response['error'] as Map<String, dynamic>?;
+        if (error != null) {
+          final errorMessage = error['message'] as String?;
+          if (errorMessage != null) {
+            _errors[id!] = errorMessage;
+          }
+        }
+      } catch (_) {}
+
+      try {
+        final error = response['error'] as String?;
+        if (error != null) {
+          _errors[id!] = error;
+        }
+      } catch (_) {}
+
+      if (method is String) {
+        _methodHandler(method: method, request: response);
+        return;
+      }
+
+      if (id != null) {
+        _finish(id, result);
+      }
     }
   }
 

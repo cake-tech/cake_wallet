@@ -14,6 +14,7 @@ class WalletAddressListItem extends ListItem {
     this.isHidden = false,
     this.isManual = false,
     this.isLegacyDerivation = false,
+    this.derivationPath
   }) : super();
 
   final int? id;
@@ -26,6 +27,7 @@ class WalletAddressListItem extends ListItem {
   bool isHidden;
   bool isManual;
   bool isLegacyDerivation;
+  String? derivationPath;
   final bool? isOneTimeReceiveAddress;
 
   @override
