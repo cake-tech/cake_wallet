@@ -164,8 +164,12 @@ class WalletManager {
   }
 
   String? getGroupName(WalletInfo walletInfo) {
-    final groupKey = _resolveGroupKey(walletInfo);
-    final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
-    return group.groupName;
+    try {
+        final groupKey = _resolveGroupKey(walletInfo);
+        final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
+        return group.groupName;
+    } catch (_) {
+        return null;
+    }
   }
 }
