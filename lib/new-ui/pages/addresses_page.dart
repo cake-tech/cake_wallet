@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/long_press_popup.dart';
+import 'package:cake_wallet/new-ui/widgets/addresses_page/address_info.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/long_press_menu.dart';
@@ -355,6 +356,15 @@ class AddressRow extends StatelessWidget {
                     onAddressHidden();
                   },
                   color: Theme.of(context).colorScheme.error),
+              LongPressMenuItem(
+                  label: 'Info',
+                  iconPath: "assets/images/info_icon.svg",
+                  onSelected: () async {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    await showPopUp(
+                        context: context,
+                        builder: (context) => getIt.get<AddressInfoPopup>(param1: item));
+                  }),
             ],
           ),
           child: AnimatedContainer(
