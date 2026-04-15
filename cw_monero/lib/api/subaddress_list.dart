@@ -65,7 +65,8 @@ int lastWptr = 0;
 int lastTxCount = 0;
 List<TinyTransactionDetails> ttDetails = [];
 
-List<Subaddress> getAllSubaddresses() {
+Future<List<Subaddress>> getAllSubaddresses() async {
+  await txHistoryMutex.acquire();
   txhistory = currentWallet!.history();
   final txCount = txhistory!.count();
   if (lastTxCount != txCount && lastWptr != currentWallet!.ffiAddress()) {
@@ -85,6 +86,7 @@ List<Subaddress> getAllSubaddresses() {
     ttDetails.clear();
     ttDetails.addAll(newttDetails);
   }
+  txHistoryMutex.release();
   final size = currentWallet!.numSubaddresses(accountIndex: subaddress!.accountIndex);
   final list = List.generate(size, (index) {
     final ttDetailsLocal = ttDetails.where((element) {
