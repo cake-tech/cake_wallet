@@ -115,3 +115,23 @@ List<rust_api.TransferHistoryItem> unwrapTransferHistoryResponse(
 
   return response.items;
 }
+
+rust_api.StarknetTokenMetadata unwrapTokenMetadataResponse(
+        rust_api.TokenMetadataResponse response) =>
+    _unwrapValue(response.value, response.error, 'token metadata');
+
+rust_api.StarknetFeeQuote unwrapFeeQuoteResponse(
+        rust_api.FeeQuoteResponse response) =>
+    _unwrapValue(response.value, response.error, 'fee quote');
+
+rust_api.StarknetExecutionPlanData unwrapExecutionPlanResponse(
+        rust_api.ExecutionPlanResponse response) =>
+    _unwrapValue(response.value, response.error, 'execution plan');
+
+List<String> unwrapStringListResponse(rust_api.StringListResponse response) {
+  if (response.error != null && response.error!.isNotEmpty) {
+    throw Exception(response.error);
+  }
+
+  return response.items;
+}

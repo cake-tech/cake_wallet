@@ -97,20 +97,37 @@ class WalletKeysData {
   final String? mnemonic;
   final String? altMnemonic;
   final String? passphrase;
+  final String? publicKey;
+  final String? derivationPath;
   final String? xPub;
   final String? scanSecret;
   final String? spendPubkey;
+  final String? accountClassHashHex;
 
-  WalletKeysData({this.privateKey, this.mnemonic, this.altMnemonic, this.passphrase, this.xPub, this.scanSecret, this.spendPubkey});
+  WalletKeysData({
+    this.privateKey,
+    this.mnemonic,
+    this.altMnemonic,
+    this.passphrase,
+    this.publicKey,
+    this.derivationPath,
+    this.xPub,
+    this.scanSecret,
+    this.spendPubkey,
+    this.accountClassHashHex,
+  });
 
   String toJSON() => jsonEncode({
         "privateKey": privateKey,
         "mnemonic": mnemonic,
         if (altMnemonic != null) "altMnemonic": altMnemonic,
         if (passphrase != null) "passphrase": passphrase,
+        if (publicKey != null) "publicKey": publicKey,
+        if (derivationPath != null) "derivationPath": derivationPath,
         if (xPub != null) "xPub": xPub,
         if (scanSecret != null) "scanSecret": scanSecret,
         if (spendPubkey != null) "spendPubkey": spendPubkey,
+        if (accountClassHashHex != null) "accountClassHashHex": accountClassHashHex,
       });
 
   static WalletKeysData fromJSON(Map<String, dynamic> json) => WalletKeysData(
@@ -118,8 +135,11 @@ class WalletKeysData {
         mnemonic: json["mnemonic"] as String?,
         altMnemonic: json["altMnemonic"] as String?,
         passphrase: json["passphrase"] as String?,
+        publicKey: json["publicKey"] as String?,
+        derivationPath: json["derivationPath"] as String?,
         xPub: json["xPub"] as String?,
         scanSecret: json["scanSecret"] as String?,
         spendPubkey: json["spendPubkey"] as String?,
+        accountClassHashHex: json["accountClassHashHex"] as String?,
       );
 }

@@ -104,7 +104,7 @@ class VerifyBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: const BorderRadius.all(Radius.circular(12.0)),
           ),
           child: Column(

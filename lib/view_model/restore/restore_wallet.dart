@@ -21,7 +21,9 @@ class RestoredWallet {
       this.txDescription,
       this.recipientName,
       this.height,
-      this.privateKey});
+      this.privateKey,
+      this.publicKey,
+      this.accountClassHashHex});
 
   final WalletRestoreMode restoreMode;
   final WalletType type;
@@ -39,6 +41,8 @@ class RestoredWallet {
   final String? recipientName;
   final int? height;
   final String? privateKey;
+  final String? publicKey;
+  final String? accountClassHashHex;
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
     try {
@@ -74,6 +78,9 @@ class RestoredWallet {
       spendPubkey: json['spend_pubkey'] as String?,
       height: height != null ? int.tryParse(height) ?? 0 : 0,
       privateKey: json['private_key'] as String?,
+      publicKey: json['public_key'] as String?,
+      accountClassHashHex: json['account_class_hash_hex'] as String? ??
+          json['account_class_hash'] as String?,
     );
   }
 

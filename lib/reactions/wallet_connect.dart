@@ -2,6 +2,8 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/et
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_supported_methods.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/starknet/starknet_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/starknet/starknet_supported_methods.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/evm/evm.dart';
 
@@ -80,6 +82,8 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chai
       return EVMChainId.bsc.chain();
     case WalletType.solana:
       return SolanaChainId.mainnet.chain();
+    case WalletType.starknet:
+      return StarknetChainId.mainnet.chain();
     default:
       return '';
   }
@@ -95,6 +99,8 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
       return EVMSupportedMethods.values.map((e) => e.name).toList();
     case WalletType.solana:
       return SolanaSupportedMethods.values.map((e) => e.name).toList();
+    case WalletType.starknet:
+      return StarknetSupportedMethods.values.map((e) => e.name).toList();
     default:
       return [];
   }
@@ -102,6 +108,10 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
 
 String getChainNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
+    return 'mainnet';
+  }
+
+  if (walletType == WalletType.starknet) {
     return 'mainnet';
   }
 
@@ -115,6 +125,10 @@ String getChainNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
 String getTokenNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
     return 'SOL';
+  }
+
+  if (walletType == WalletType.starknet) {
+    return 'STRK';
   }
 
   if (chainId != null) {

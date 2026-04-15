@@ -4,22 +4,27 @@ use std::{
     time::Duration,
 };
 
+use async_trait::async_trait;
 use bip39::{Language, Mnemonic};
 use hmac::{Hmac, Mac};
 use num_bigint::BigUint;
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 use starknet_rust::{
     accounts::{
-        Account, AccountFactory, ExecutionEncoding, OpenZeppelinAccountFactory, SingleOwnerAccount,
+        Account, AccountFactory, ConnectedAccount, ExecutionEncoding, OpenZeppelinAccountFactory,
+        SingleOwnerAccount,
     },
     core::{
         chain_id,
+        codec::Decode,
         crypto::Signature,
         types::{
-            AddressFilter, BlockId, BlockTag, Call, EmittedEvent, EventFilter, ExecutionResult,
-            Felt, FunctionCall, MaybePreConfirmedBlockWithTxHashes, StarknetError,
-            TransactionReceipt,
+            AddressFilter, BlockId, BlockTag, BroadcastedTransaction, ByteArray, Call,
+            EmittedEvent, EventFilter, ExecutionResult, Felt, FunctionCall,
+            MaybePreConfirmedBlockWithTxHashes, SimulationFlagForEstimateFee, StarknetError,
+            TransactionReceipt, TypedData,
         },
         utils::{get_contract_address, get_selector_from_name},
     },
@@ -27,7 +32,9 @@ use starknet_rust::{
         jsonrpc::{HttpTransport, JsonRpcClient},
         Provider, ProviderError, Url,
     },
-    signers::{LocalWallet, SigningKey, VerifyingKey},
+    signers::{
+        LocalWallet, Signer, SignerInteractivityContext, SigningKey, VerifyingKey,
+    },
 };
 use starknet_rust_curve::curve_params::EC_ORDER;
 use tokio::runtime::{Builder, Runtime};
@@ -40,6 +47,8 @@ const DEFAULT_PAGE_SIZE: u64 = 100;
 const DEFAULT_MAX_EVENT_PAGES: usize = 10;
 const WAIT_FOR_TRANSACTION_POLL_INTERVAL: Duration = Duration::from_secs(3);
 const WAIT_FOR_TRANSACTION_TIMEOUT: Duration = Duration::from_secs(300);
+const DEFAULT_OPENZEPPELIN_ACCOUNT_CLASS_HASH_HEX: &str =
+    "0x01d1777db36cdd06dd62cfde77b1b6ae06412af95d57a13dc40ac77b8a702381";
 
 static TOKIO_RUNTIME: Lazy<Runtime> = Lazy::new(|| {
     Builder::new_multi_thread()
@@ -66,14 +75,48 @@ pub struct StarknetSignatureData {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TransferHistoryItem {
     pub transaction_hash: String,
+    pub event_id: String,
+    pub event_index: i64,
     pub block_number: Option<i64>,
     pub from: String,
     pub to: String,
     pub amount_wei: String,
     pub is_outgoing: bool,
     pub token_symbol: String,
+    pub token_address_hex: String,
     pub block_timestamp: Option<i64>,
     pub tx_fee_wei: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StarknetTokenMetadata {
+    pub token_address_hex: String,
+    pub name: String,
+    pub symbol: String,
+    pub decimals: i32,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct StarknetCallInput {
+    pub contract_address_hex: String,
+    pub entrypoint: String,
+    pub calldata_hex: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StarknetFeeQuote {
+    pub overall_fee_wei: String,
+    pub execution_fee_wei: String,
+    pub deploy_account_fee_wei: Option<String>,
+    pub account_deployment_required: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StarknetExecutionPlanData {
+    pub invoke_transaction_hash_hex: String,
+    pub deploy_account_transaction_hash_hex: Option<String>,
+    pub account_deployment_required: bool,
+    pub plan_json: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -112,15 +155,92 @@ pub struct TransferHistoryResponse {
     pub error: Option<String>,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TokenMetadataResponse {
+    pub value: Option<StarknetTokenMetadata>,
+    pub error: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FeeQuoteResponse {
+    pub value: Option<StarknetFeeQuote>,
+    pub error: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ExecutionPlanResponse {
+    pub value: Option<StarknetExecutionPlanData>,
+    pub error: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StringListResponse {
+    pub items: Vec<String>,
+    pub error: Option<String>,
+}
+
 #[derive(Clone, Debug)]
 struct TransferEventRecord {
     transaction_hash: Felt,
+    event_index: u64,
     block_number: Option<u64>,
     from: String,
     to: String,
     amount_wei: String,
     is_outgoing: bool,
     token_symbol: String,
+    token_address_hex: String,
+}
+
+#[derive(Clone, Debug)]
+struct ExternalSignerError(String);
+
+#[derive(Clone, Debug)]
+struct PublicKeyOnlySigner {
+    public_key: Felt,
+}
+
+#[derive(Clone, Debug)]
+struct PreparedTransactionParams {
+    nonce: Felt,
+    l1_gas: u64,
+    l1_gas_price: u128,
+    l2_gas: u64,
+    l2_gas_price: u128,
+    l1_data_gas: u64,
+    l1_data_gas_price: u128,
+    tip: u64,
+}
+
+#[derive(Clone, Debug)]
+struct PreparedExternalExecution {
+    fee_quote: StarknetFeeQuote,
+    invoke_transaction_hash: Felt,
+    deploy_account_transaction_hash: Option<Felt>,
+    serialized_plan: SerializedExternalExecutionPlan,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+struct SerializedPreparedTransactionParams {
+    nonce_hex: String,
+    l1_gas: u64,
+    l1_gas_price_wei: String,
+    l2_gas: u64,
+    l2_gas_price_wei: String,
+    l1_data_gas: u64,
+    l1_data_gas_price_wei: String,
+    tip: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+struct SerializedExternalExecutionPlan {
+    public_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    chain_id_hex: String,
+    calls: Vec<StarknetCallInput>,
+    invoke: SerializedPreparedTransactionParams,
+    deploy: Option<SerializedPreparedTransactionParams>,
 }
 
 impl DerivedAccountDataResponse {
@@ -170,6 +290,104 @@ impl TransferHistoryResponse {
     }
 }
 
+impl TokenMetadataResponse {
+    fn from_result(result: ApiResult<StarknetTokenMetadata>) -> Self {
+        let (value, error) = split_result(result);
+        Self { value, error }
+    }
+}
+
+impl FeeQuoteResponse {
+    fn from_result(result: ApiResult<StarknetFeeQuote>) -> Self {
+        let (value, error) = split_result(result);
+        Self { value, error }
+    }
+}
+
+impl ExecutionPlanResponse {
+    fn from_result(result: ApiResult<StarknetExecutionPlanData>) -> Self {
+        let (value, error) = split_result(result);
+        Self { value, error }
+    }
+}
+
+impl StringListResponse {
+    fn from_result(result: ApiResult<Vec<String>>) -> Self {
+        match result {
+            Ok(items) => Self { items, error: None },
+            Err(error) => Self {
+                items: Vec::new(),
+                error: Some(error),
+            },
+        }
+    }
+}
+
+impl std::fmt::Display for ExternalSignerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for ExternalSignerError {}
+
+#[async_trait]
+impl Signer for PublicKeyOnlySigner {
+    type GetPublicKeyError = ExternalSignerError;
+    type SignError = ExternalSignerError;
+
+    async fn get_public_key(&self) -> Result<VerifyingKey, Self::GetPublicKeyError> {
+        Ok(VerifyingKey::from_scalar(self.public_key))
+    }
+
+    async fn sign_hash(&self, _hash: &Felt) -> Result<Signature, Self::SignError> {
+        Err(ExternalSignerError(
+            "This Starknet signer only exposes public-key operations".to_string(),
+        ))
+    }
+
+    fn is_interactive(&self, _context: SignerInteractivityContext<'_>) -> bool {
+        true
+    }
+}
+
+impl SerializedPreparedTransactionParams {
+    fn from_prepared(params: &PreparedTransactionParams) -> Self {
+        Self {
+            nonce_hex: felt_to_hex(params.nonce),
+            l1_gas: params.l1_gas,
+            l1_gas_price_wei: params.l1_gas_price.to_string(),
+            l2_gas: params.l2_gas,
+            l2_gas_price_wei: params.l2_gas_price.to_string(),
+            l1_data_gas: params.l1_data_gas,
+            l1_data_gas_price_wei: params.l1_data_gas_price.to_string(),
+            tip: params.tip,
+        }
+    }
+
+    fn to_prepared(&self, label: &str) -> ApiResult<PreparedTransactionParams> {
+        Ok(PreparedTransactionParams {
+            nonce: parse_felt_hex(&self.nonce_hex, &format!("{label}.nonce_hex"))?,
+            l1_gas: self.l1_gas,
+            l1_gas_price: parse_u128_decimal(
+                &self.l1_gas_price_wei,
+                &format!("{label}.l1_gas_price_wei"),
+            )?,
+            l2_gas: self.l2_gas,
+            l2_gas_price: parse_u128_decimal(
+                &self.l2_gas_price_wei,
+                &format!("{label}.l2_gas_price_wei"),
+            )?,
+            l1_data_gas: self.l1_data_gas,
+            l1_data_gas_price: parse_u128_decimal(
+                &self.l1_data_gas_price_wei,
+                &format!("{label}.l1_data_gas_price_wei"),
+            )?,
+            tip: self.tip,
+        })
+    }
+}
+
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
@@ -185,6 +403,16 @@ pub fn derive_account(
         mnemonic,
         passphrase,
         private_key_hex,
+        account_class_hash_hex,
+    ))
+}
+
+pub fn derive_account_from_public_key(
+    public_key_hex: String,
+    account_class_hash_hex: String,
+) -> DerivedAccountDataResponse {
+    DerivedAccountDataResponse::from_result(derive_account_from_public_key_inner(
+        public_key_hex,
         account_class_hash_hex,
     ))
 }
@@ -216,6 +444,24 @@ pub fn get_token_balance(
     }))
 }
 
+pub fn get_token_metadata(node_url: String, token_address_hex: String) -> TokenMetadataResponse {
+    TokenMetadataResponse::from_result(run_async(async move {
+        let provider = make_provider(&node_url)?;
+        let token_address = parse_felt_hex(&token_address_hex, "token_address_hex")?;
+
+        let name = call_token_string(&provider, token_address, "name").await?;
+        let symbol = call_token_string(&provider, token_address, "symbol").await?;
+        let decimals = call_token_decimals(&provider, token_address).await?;
+
+        Ok(StarknetTokenMetadata {
+            token_address_hex: felt_to_hex(token_address),
+            name,
+            symbol,
+            decimals,
+        })
+    }))
+}
+
 pub fn is_account_deployed(node_url: String, account_address_hex: String) -> BoolResponse {
     BoolResponse::from_result(run_async(async move {
         let provider = make_provider(&node_url)?;
@@ -234,32 +480,21 @@ pub fn estimate_transfer_fee(
     chain_id_hex: Option<String>,
 ) -> StringResponse {
     StringResponse::from_result(run_async(async move {
-        let provider = make_provider(&node_url)?;
-        let private_key = parse_private_key(&private_key_hex)?;
-        let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
-        let recipient_address = parse_felt_hex(&recipient_address_hex, "recipient_address_hex")?;
-        let token_address = parse_felt_hex(&token_address_hex, "token_address_hex")?;
-        let chain_id = parse_chain_id(chain_id_hex.as_deref())?;
-        let calldata = transfer_calldata(recipient_address, &amount_wei)?;
-        let call = transfer_call(token_address, calldata)?;
+        let quote = estimate_execute_fee_inner(
+            node_url,
+            private_key_hex,
+            account_address_hex,
+            DEFAULT_OPENZEPPELIN_ACCOUNT_CLASS_HASH_HEX.to_string(),
+            vec![StarknetCallInput {
+                contract_address_hex: token_address_hex,
+                entrypoint: "transfer".to_string(),
+                calldata_hex: transfer_calldata_hex(recipient_address_hex, amount_wei)?,
+            }],
+            chain_id_hex,
+        )
+        .await?;
 
-        let account = SingleOwnerAccount::new(
-            provider,
-            LocalWallet::from(SigningKey::from_secret_scalar(private_key)),
-            account_address,
-            chain_id,
-            ExecutionEncoding::New,
-        );
-
-        let fee = account
-            .execute_v3(vec![call])
-            .gas_estimate_multiplier(1.5)
-            .gas_price_estimate_multiplier(1.5)
-            .estimate_fee()
-            .await
-            .map_err(format_account_error)?;
-
-        Ok(fee.overall_fee.to_string())
+        Ok(quote.overall_fee_wei)
     }))
 }
 
@@ -292,57 +527,131 @@ pub fn send_transfer(
     chain_id_hex: Option<String>,
 ) -> StringResponse {
     StringResponse::from_result(run_async(async move {
-        let private_key = parse_private_key(&private_key_hex)?;
-        let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
-        let recipient_address = parse_felt_hex(&recipient_address_hex, "recipient_address_hex")?;
-        let token_address = parse_felt_hex(&token_address_hex, "token_address_hex")?;
-        let account_class_hash =
-            parse_felt_hex(&account_class_hash_hex, "account_class_hash_hex")?;
-        let chain_id = parse_chain_id(chain_id_hex.as_deref())?;
-        let signing_key = SigningKey::from_secret_scalar(private_key);
-        let public_key = signing_key.verifying_key().scalar();
-
-        let provider = make_provider(&node_url)?;
-        if !is_account_deployed_with_provider(&provider, account_address).await? {
-            let factory = OpenZeppelinAccountFactory::new(
-                account_class_hash,
-                chain_id,
-                LocalWallet::from(signing_key.clone()),
-                provider,
-            )
-            .await
-            .map_err(|_| "failed to derive Starknet public key".to_string())?;
-            let deployment = factory
-                .deploy_v3(public_key)
-                .gas_estimate_multiplier(1.5)
-                .gas_price_estimate_multiplier(1.5);
-
-            let deployment_result = deployment.send().await.map_err(format_account_error)?;
-            wait_for_transaction(&node_url, deployment_result.transaction_hash).await?;
-        }
-
-        let transfer_provider = make_provider(&node_url)?;
-        let calldata = transfer_calldata(recipient_address, &amount_wei)?;
-        let call = transfer_call(token_address, calldata)?;
-        let account = SingleOwnerAccount::new(
-            transfer_provider,
-            LocalWallet::from(signing_key),
-            account_address,
-            chain_id,
-            ExecutionEncoding::New,
-        );
-
-        let invoke_result = account
-            .execute_v3(vec![call])
-            .gas_estimate_multiplier(1.5)
-            .gas_price_estimate_multiplier(1.5)
-            .send()
-            .await
-            .map_err(format_account_error)?;
-
-        wait_for_transaction(&node_url, invoke_result.transaction_hash).await?;
-        Ok(felt_to_hex(invoke_result.transaction_hash))
+        execute_calls_inner(
+            node_url,
+            private_key_hex,
+            account_address_hex,
+            account_class_hash_hex,
+            vec![StarknetCallInput {
+                contract_address_hex: token_address_hex,
+                entrypoint: "transfer".to_string(),
+                calldata_hex: transfer_calldata_hex(recipient_address_hex, amount_wei)?,
+            }],
+            chain_id_hex,
+        )
+        .await
     }))
+}
+
+pub fn estimate_execute_fee(
+    node_url: String,
+    private_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    calls: Vec<StarknetCallInput>,
+    chain_id_hex: Option<String>,
+) -> FeeQuoteResponse {
+    FeeQuoteResponse::from_result(run_async(estimate_execute_fee_inner(
+        node_url,
+        private_key_hex,
+        account_address_hex,
+        account_class_hash_hex,
+        calls,
+        chain_id_hex,
+    )))
+}
+
+pub fn estimate_execute_fee_external_signer(
+    node_url: String,
+    public_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    calls: Vec<StarknetCallInput>,
+    chain_id_hex: Option<String>,
+) -> FeeQuoteResponse {
+    FeeQuoteResponse::from_result(run_async(async move {
+        Ok(
+            prepare_external_execution_inner(
+                node_url,
+                public_key_hex,
+                account_address_hex,
+                account_class_hash_hex,
+                calls,
+                chain_id_hex,
+            )
+            .await?
+            .fee_quote,
+        )
+    }))
+}
+
+pub fn execute_calls(
+    node_url: String,
+    private_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    calls: Vec<StarknetCallInput>,
+    chain_id_hex: Option<String>,
+) -> StringResponse {
+    StringResponse::from_result(run_async(execute_calls_inner(
+        node_url,
+        private_key_hex,
+        account_address_hex,
+        account_class_hash_hex,
+        calls,
+        chain_id_hex,
+    )))
+}
+
+pub fn get_execute_transaction_hashes_external_signer(
+    node_url: String,
+    public_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    calls: Vec<StarknetCallInput>,
+    chain_id_hex: Option<String>,
+) -> ExecutionPlanResponse {
+    ExecutionPlanResponse::from_result(run_async(async move {
+        let prepared = prepare_external_execution_inner(
+            node_url,
+            public_key_hex,
+            account_address_hex,
+            account_class_hash_hex,
+            calls,
+            chain_id_hex,
+        )
+        .await?;
+
+        Ok(StarknetExecutionPlanData {
+            invoke_transaction_hash_hex: felt_to_hex(prepared.invoke_transaction_hash),
+            deploy_account_transaction_hash_hex: prepared
+                .deploy_account_transaction_hash
+                .map(felt_to_hex),
+            account_deployment_required: prepared
+                .fee_quote
+                .account_deployment_required,
+            plan_json: serde_json::to_string(&prepared.serialized_plan)
+                .map_err(|err| format!("Failed to serialize Starknet execution plan: {err}"))?,
+        })
+    }))
+}
+
+pub fn execute_calls_external_signer(
+    node_url: String,
+    plan_json: String,
+    invoke_r_hex: String,
+    invoke_s_hex: String,
+    deploy_r_hex: Option<String>,
+    deploy_s_hex: Option<String>,
+) -> StringResponse {
+    StringResponse::from_result(run_async(execute_calls_external_signer_inner(
+        node_url,
+        plan_json,
+        invoke_r_hex,
+        invoke_s_hex,
+        deploy_r_hex,
+        deploy_s_hex,
+    )))
 }
 
 pub fn fetch_transfer_history(
@@ -402,9 +711,15 @@ pub fn fetch_transfer_history(
         let mut deduped = Vec::new();
         let mut seen = HashSet::new();
         for event in events {
-            let dedupe_key = format!("{:#x}_{}", event.transaction_hash, event.is_outgoing);
-            if seen.insert(dedupe_key) {
+            let dedupe_key = format!("{:#x}_{}", event.transaction_hash, event.event_index);
+            if seen.insert(dedupe_key.clone()) {
                 deduped.push(event);
+            } else if event.is_outgoing {
+                if let Some(existing) = deduped.iter_mut().find(|item| {
+                    format!("{:#x}_{}", item.transaction_hash, item.event_index) == dedupe_key
+                }) {
+                    existing.is_outgoing = true;
+                }
             }
         }
 
@@ -433,12 +748,20 @@ pub fn fetch_transfer_history(
             .into_iter()
             .map(|event| TransferHistoryItem {
                 transaction_hash: felt_to_hex(event.transaction_hash),
+                event_id: format!(
+                    "{}:{}:{}",
+                    felt_to_hex(event.transaction_hash),
+                    event.token_address_hex,
+                    event.event_index
+                ),
+                event_index: i64::try_from(event.event_index).unwrap_or(i64::MAX),
                 block_number: event.block_number.and_then(|value| i64::try_from(value).ok()),
                 from: event.from,
                 to: event.to,
                 amount_wei: event.amount_wei,
                 is_outgoing: event.is_outgoing,
                 token_symbol: event.token_symbol,
+                token_address_hex: event.token_address_hex,
                 block_timestamp: event
                     .block_number
                     .and_then(|value| block_timestamps.get(&value).copied().flatten()),
@@ -477,6 +800,28 @@ pub fn verify_message_hash_signature(
         message_hash_hex,
         r_hex,
         s_hex,
+    ))
+}
+
+pub fn sign_typed_data(
+    private_key_hex: String,
+    account_address_hex: String,
+    typed_data_json: String,
+) -> StringListResponse {
+    StringListResponse::from_result(sign_typed_data_inner(
+        private_key_hex,
+        account_address_hex,
+        typed_data_json,
+    ))
+}
+
+pub fn get_typed_data_message_hash(
+    account_address_hex: String,
+    typed_data_json: String,
+) -> StringResponse {
+    StringResponse::from_result(get_typed_data_message_hash_inner(
+        account_address_hex,
+        typed_data_json,
     ))
 }
 
@@ -520,6 +865,22 @@ fn derive_account_inner(
     })
 }
 
+fn derive_account_from_public_key_inner(
+    public_key_hex: String,
+    account_class_hash_hex: String,
+) -> ApiResult<DerivedAccountData> {
+    let public_key = parse_felt_hex(&public_key_hex, "public_key_hex")?;
+    let account_class_hash = parse_felt_hex(&account_class_hash_hex, "account_class_hash_hex")?;
+    let account_address =
+        derive_account_address_from_public_key(public_key, account_class_hash);
+
+    Ok(DerivedAccountData {
+        private_key_hex: String::new(),
+        public_key_hex: felt_to_hex(public_key),
+        account_address_hex: felt_to_hex(account_address),
+    })
+}
+
 fn sign_message_hash_inner(
     private_key_hex: String,
     message_hash_hex: String,
@@ -554,6 +915,467 @@ fn verify_message_hash_signature_inner(
         .map_err(|err| err.to_string())
 }
 
+fn sign_typed_data_inner(
+    private_key_hex: String,
+    account_address_hex: String,
+    typed_data_json: String,
+) -> ApiResult<Vec<String>> {
+    let private_key = parse_private_key(&private_key_hex)?;
+    let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
+    let typed_data: TypedData =
+        serde_json::from_str(&typed_data_json).map_err(|err| format!("Invalid typedData: {err}"))?;
+    let message_hash = typed_data
+        .message_hash(account_address)
+        .map_err(|err| format!("Invalid typedData: {err}"))?;
+    let signature = SigningKey::from_secret_scalar(private_key)
+        .sign(&message_hash)
+        .map_err(|err| err.to_string())?;
+
+    Ok(vec![felt_to_hex(signature.r), felt_to_hex(signature.s)])
+}
+
+fn get_typed_data_message_hash_inner(
+    account_address_hex: String,
+    typed_data_json: String,
+) -> ApiResult<String> {
+    let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
+    let typed_data: TypedData =
+        serde_json::from_str(&typed_data_json).map_err(|err| format!("Invalid typedData: {err}"))?;
+    let message_hash = typed_data
+        .message_hash(account_address)
+        .map_err(|err| format!("Invalid typedData: {err}"))?;
+
+    Ok(felt_to_hex(message_hash))
+}
+
+async fn estimate_execute_fee_inner(
+    node_url: String,
+    private_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    calls: Vec<StarknetCallInput>,
+    chain_id_hex: Option<String>,
+) -> ApiResult<StarknetFeeQuote> {
+    let provider = make_provider(&node_url)?;
+    let private_key = parse_private_key(&private_key_hex)?;
+    let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
+    let account_class_hash = parse_felt_hex(&account_class_hash_hex, "account_class_hash_hex")?;
+    let chain_id = parse_chain_id(chain_id_hex.as_deref())?;
+    let signing_key = SigningKey::from_secret_scalar(private_key);
+    let public_key = signing_key.verifying_key().scalar();
+    let call_inputs = build_execution_calls(calls)?;
+    let is_deployed = is_account_deployed_with_provider(&provider, account_address).await?;
+
+    if is_deployed {
+        let account = make_single_owner_account(
+            provider,
+            LocalWallet::from(signing_key),
+            account_address,
+            chain_id,
+        );
+        let fee = account
+            .execute_v3(call_inputs)
+            .gas_estimate_multiplier(1.5)
+            .gas_price_estimate_multiplier(1.5)
+            .estimate_fee()
+            .await
+            .map_err(format_account_error)?;
+
+        return Ok(StarknetFeeQuote {
+            overall_fee_wei: fee.overall_fee.to_string(),
+            execution_fee_wei: fee.overall_fee.to_string(),
+            deploy_account_fee_wei: None,
+            account_deployment_required: false,
+        });
+    }
+
+    let factory = OpenZeppelinAccountFactory::new(
+        account_class_hash,
+        chain_id,
+        LocalWallet::from(signing_key.clone()),
+        provider.clone(),
+    )
+    .await
+    .map_err(|_| "failed to derive Starknet public key".to_string())?;
+
+    let deploy_request = factory
+        .deploy_v3(public_key)
+        .nonce(Felt::ZERO)
+        .l1_gas(0)
+        .l1_gas_price(0)
+        .l2_gas(0)
+        .l2_gas_price(0)
+        .l1_data_gas(0)
+        .l1_data_gas_price(0)
+        .tip(0)
+        .prepared()
+        .map_err(|_| "failed to prepare deploy account request".to_string())?
+        .get_deploy_request(true, false)
+        .await
+        .map_err(format_account_error)?;
+
+    let account = make_single_owner_account(
+        provider.clone(),
+        LocalWallet::from(signing_key),
+        account_address,
+        chain_id,
+    );
+
+    let invoke_request = account
+        .execute_v3(call_inputs)
+        .nonce(Felt::ONE)
+        .l1_gas(0)
+        .l1_gas_price(0)
+        .l2_gas(0)
+        .l2_gas_price(0)
+        .l1_data_gas(0)
+        .l1_data_gas_price(0)
+        .tip(0)
+        .prepared()
+        .map_err(|_| "failed to prepare invoke request".to_string())?
+        .get_invoke_request(true, false)
+        .await
+        .map_err(format_account_error)?;
+
+    let fee_estimates = provider
+        .estimate_fee(
+            [
+                starknet_rust::core::types::BroadcastedTransaction::DeployAccount(deploy_request),
+                starknet_rust::core::types::BroadcastedTransaction::Invoke(invoke_request),
+            ],
+            Vec::<starknet_rust::core::types::SimulationFlagForEstimateFee>::new(),
+            BlockId::Tag(BlockTag::Latest),
+        )
+        .await
+        .map_err(format_provider_error)?;
+
+    if fee_estimates.len() != 2 {
+        return Err(format!(
+            "Unexpected Starknet fee estimate response length: {}",
+            fee_estimates.len()
+        ));
+    }
+
+    let deploy_fee = fee_estimates[0].overall_fee;
+    let execution_fee = fee_estimates[1].overall_fee;
+    Ok(StarknetFeeQuote {
+        overall_fee_wei: (BigUint::from(deploy_fee) + BigUint::from(execution_fee)).to_string(),
+        execution_fee_wei: execution_fee.to_string(),
+        deploy_account_fee_wei: Some(deploy_fee.to_string()),
+        account_deployment_required: true,
+    })
+}
+
+async fn prepare_external_execution_inner(
+    node_url: String,
+    public_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    calls: Vec<StarknetCallInput>,
+    chain_id_hex: Option<String>,
+) -> ApiResult<PreparedExternalExecution> {
+    let provider = make_provider(&node_url)?;
+    let public_key = parse_felt_hex(&public_key_hex, "public_key_hex")?;
+    let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
+    let account_class_hash = parse_felt_hex(&account_class_hash_hex, "account_class_hash_hex")?;
+    let chain_id = parse_chain_id(chain_id_hex.as_deref())?;
+    let signer = PublicKeyOnlySigner { public_key };
+
+    validate_derived_account_address(public_key, account_class_hash, account_address)?;
+
+    let execution_calls = build_execution_calls(calls.clone())?;
+    let account = make_single_owner_account(
+        provider.clone(),
+        signer.clone(),
+        account_address,
+        chain_id,
+    );
+
+    if is_account_deployed_with_provider(&provider, account_address).await? {
+        let nonce = account.get_nonce().await.map_err(format_provider_error)?;
+        let invoke_params = prepare_transaction_params_from_fee_estimate(
+            &provider,
+            nonce,
+            account
+                .execute_v3(execution_calls.clone())
+                .nonce(nonce)
+                .estimate_fee()
+                .await
+                .map_err(format_account_error)?,
+        )
+        .await?;
+        let invoke_hash = build_invoke_transaction_hash(
+            &account,
+            execution_calls,
+            &invoke_params,
+        )?;
+
+        return Ok(PreparedExternalExecution {
+            fee_quote: StarknetFeeQuote {
+                overall_fee_wei: calculate_overall_fee_from_params(&invoke_params).to_string(),
+                execution_fee_wei: calculate_overall_fee_from_params(&invoke_params).to_string(),
+                deploy_account_fee_wei: None,
+                account_deployment_required: false,
+            },
+            invoke_transaction_hash: invoke_hash,
+            deploy_account_transaction_hash: None,
+            serialized_plan: SerializedExternalExecutionPlan {
+                public_key_hex: felt_to_hex(public_key),
+                account_address_hex: felt_to_hex(account_address),
+                account_class_hash_hex: felt_to_hex(account_class_hash),
+                chain_id_hex: felt_to_hex(chain_id),
+                calls,
+                invoke: SerializedPreparedTransactionParams::from_prepared(&invoke_params),
+                deploy: None,
+            },
+        });
+    }
+
+    let factory = OpenZeppelinAccountFactory::new(
+        account_class_hash,
+        chain_id,
+        signer,
+        provider.clone(),
+    )
+    .await
+    .map_err(|err| err.to_string())?;
+
+    let zero_deploy_request = factory
+        .deploy_v3(public_key)
+        .nonce(Felt::ZERO)
+        .l1_gas(0)
+        .l1_gas_price(0)
+        .l2_gas(0)
+        .l2_gas_price(0)
+        .l1_data_gas(0)
+        .l1_data_gas_price(0)
+        .tip(0)
+        .prepared()
+        .map_err(|_| "failed to prepare deploy account request".to_string())?
+        .get_deploy_request(true, true)
+        .await
+        .map_err(format_account_error)?;
+
+    let zero_invoke_request = account
+        .execute_v3(execution_calls.clone())
+        .nonce(Felt::ONE)
+        .l1_gas(0)
+        .l1_gas_price(0)
+        .l2_gas(0)
+        .l2_gas_price(0)
+        .l1_data_gas(0)
+        .l1_data_gas_price(0)
+        .tip(0)
+        .prepared()
+        .map_err(|_| "failed to prepare invoke request".to_string())?
+        .get_invoke_request(true, true)
+        .await
+        .map_err(format_account_error)?;
+
+    let fee_estimates = provider
+        .estimate_fee(
+            [
+                BroadcastedTransaction::DeployAccount(zero_deploy_request),
+                BroadcastedTransaction::Invoke(zero_invoke_request),
+            ],
+            vec![SimulationFlagForEstimateFee::SkipValidate],
+            BlockId::Tag(BlockTag::Latest),
+        )
+        .await
+        .map_err(format_provider_error)?;
+
+    if fee_estimates.len() != 2 {
+        return Err(format!(
+            "Unexpected Starknet fee estimate response length: {}",
+            fee_estimates.len()
+        ));
+    }
+
+    let tip = fetch_latest_block_tip(&provider).await?;
+    let deploy_params =
+        prepare_transaction_params_from_estimate_with_tip(Felt::ZERO, &fee_estimates[0], tip)?;
+    let invoke_params =
+        prepare_transaction_params_from_estimate_with_tip(Felt::ONE, &fee_estimates[1], tip)?;
+    let deploy_hash = build_deploy_transaction_hash(&factory, public_key, &deploy_params)?;
+    let invoke_hash =
+        build_invoke_transaction_hash(&account, execution_calls, &invoke_params)?;
+    let deploy_fee = calculate_overall_fee_from_params(&deploy_params);
+    let execution_fee = calculate_overall_fee_from_params(&invoke_params);
+
+    Ok(PreparedExternalExecution {
+        fee_quote: StarknetFeeQuote {
+            overall_fee_wei: (deploy_fee.clone() + execution_fee.clone()).to_string(),
+            execution_fee_wei: execution_fee.to_string(),
+            deploy_account_fee_wei: Some(deploy_fee.to_string()),
+            account_deployment_required: true,
+        },
+        invoke_transaction_hash: invoke_hash,
+        deploy_account_transaction_hash: Some(deploy_hash),
+        serialized_plan: SerializedExternalExecutionPlan {
+            public_key_hex: felt_to_hex(public_key),
+            account_address_hex: felt_to_hex(account_address),
+            account_class_hash_hex: felt_to_hex(account_class_hash),
+            chain_id_hex: felt_to_hex(chain_id),
+            calls,
+            invoke: SerializedPreparedTransactionParams::from_prepared(&invoke_params),
+            deploy: Some(SerializedPreparedTransactionParams::from_prepared(
+                &deploy_params,
+            )),
+        },
+    })
+}
+
+async fn execute_calls_external_signer_inner(
+    node_url: String,
+    plan_json: String,
+    invoke_r_hex: String,
+    invoke_s_hex: String,
+    deploy_r_hex: Option<String>,
+    deploy_s_hex: Option<String>,
+) -> ApiResult<String> {
+    let plan: SerializedExternalExecutionPlan = serde_json::from_str(&plan_json)
+        .map_err(|err| format!("Invalid Starknet execution plan: {err}"))?;
+    let provider = make_provider(&node_url)?;
+    let public_key = parse_felt_hex(&plan.public_key_hex, "plan.public_key_hex")?;
+    let account_address = parse_felt_hex(&plan.account_address_hex, "plan.account_address_hex")?;
+    let account_class_hash =
+        parse_felt_hex(&plan.account_class_hash_hex, "plan.account_class_hash_hex")?;
+    let chain_id = parse_felt_hex(&plan.chain_id_hex, "plan.chain_id_hex")?;
+    let invoke_params = plan.invoke.to_prepared("plan.invoke")?;
+
+    validate_derived_account_address(public_key, account_class_hash, account_address)?;
+
+    let execution_calls = build_execution_calls(plan.calls.clone())?;
+    let account = make_single_owner_account(
+        provider.clone(),
+        PublicKeyOnlySigner { public_key },
+        account_address,
+        chain_id,
+    );
+
+    if let Some(deploy_plan) = plan.deploy {
+        let deploy_r_hex = deploy_r_hex.ok_or_else(|| {
+            "Missing deploy_account signature for undeployed Starknet account".to_string()
+        })?;
+        let deploy_s_hex = deploy_s_hex.ok_or_else(|| {
+            "Missing deploy_account signature for undeployed Starknet account".to_string()
+        })?;
+        let deploy_signature = parse_signature_hex(&deploy_r_hex, &deploy_s_hex, "deploy")?;
+        let deploy_params = deploy_plan.to_prepared("plan.deploy")?;
+        let factory = OpenZeppelinAccountFactory::new(
+            account_class_hash,
+            chain_id,
+            PublicKeyOnlySigner { public_key },
+            provider.clone(),
+        )
+        .await
+        .map_err(|err| err.to_string())?;
+        let deployment = factory
+            .deploy_v3(public_key)
+            .nonce(deploy_params.nonce)
+            .l1_gas(deploy_params.l1_gas)
+            .l1_gas_price(deploy_params.l1_gas_price)
+            .l2_gas(deploy_params.l2_gas)
+            .l2_gas_price(deploy_params.l2_gas_price)
+            .l1_data_gas(deploy_params.l1_data_gas)
+            .l1_data_gas_price(deploy_params.l1_data_gas_price)
+            .tip(deploy_params.tip)
+            .prepared()
+            .map_err(|_| "failed to prepare deploy account request".to_string())?;
+        let mut deploy_request = deployment
+            .get_deploy_request(false, true)
+            .await
+            .map_err(format_account_error)?;
+        deploy_request.signature = vec![deploy_signature.r, deploy_signature.s];
+        let deploy_result = provider
+            .add_deploy_account_transaction(deploy_request)
+            .await
+            .map_err(format_provider_error)?;
+        wait_for_transaction(&node_url, deploy_result.transaction_hash).await?;
+    }
+
+    let invoke_signature = parse_signature_hex(&invoke_r_hex, &invoke_s_hex, "invoke")?;
+    let invocation = account
+        .execute_v3(execution_calls)
+        .nonce(invoke_params.nonce)
+        .l1_gas(invoke_params.l1_gas)
+        .l1_gas_price(invoke_params.l1_gas_price)
+        .l2_gas(invoke_params.l2_gas)
+        .l2_gas_price(invoke_params.l2_gas_price)
+        .l1_data_gas(invoke_params.l1_data_gas)
+        .l1_data_gas_price(invoke_params.l1_data_gas_price)
+        .tip(invoke_params.tip)
+        .prepared()
+        .map_err(|_| "failed to prepare invoke request".to_string())?;
+    let mut invoke_request = invocation
+        .get_invoke_request(false, true)
+        .await
+        .map_err(format_account_error)?;
+    invoke_request.broadcasted_invoke_txn_v3.signature =
+        vec![invoke_signature.r, invoke_signature.s];
+    let invoke_result = provider
+        .add_invoke_transaction(invoke_request)
+        .await
+        .map_err(format_provider_error)?;
+
+    wait_for_transaction(&node_url, invoke_result.transaction_hash).await?;
+    Ok(felt_to_hex(invoke_result.transaction_hash))
+}
+
+async fn execute_calls_inner(
+    node_url: String,
+    private_key_hex: String,
+    account_address_hex: String,
+    account_class_hash_hex: String,
+    calls: Vec<StarknetCallInput>,
+    chain_id_hex: Option<String>,
+) -> ApiResult<String> {
+    let private_key = parse_private_key(&private_key_hex)?;
+    let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
+    let account_class_hash = parse_felt_hex(&account_class_hash_hex, "account_class_hash_hex")?;
+    let chain_id = parse_chain_id(chain_id_hex.as_deref())?;
+    let signing_key = SigningKey::from_secret_scalar(private_key);
+    let public_key = signing_key.verifying_key().scalar();
+    let call_inputs = build_execution_calls(calls)?;
+
+    let provider = make_provider(&node_url)?;
+    if !is_account_deployed_with_provider(&provider, account_address).await? {
+        let factory = OpenZeppelinAccountFactory::new(
+            account_class_hash,
+            chain_id,
+            LocalWallet::from(signing_key.clone()),
+            provider,
+        )
+        .await
+        .map_err(|_| "failed to derive Starknet public key".to_string())?;
+        let deployment = factory
+            .deploy_v3(public_key)
+            .gas_estimate_multiplier(1.5)
+            .gas_price_estimate_multiplier(1.5);
+
+        let deployment_result = deployment.send().await.map_err(format_account_error)?;
+        wait_for_transaction(&node_url, deployment_result.transaction_hash).await?;
+    }
+
+    let execute_provider = make_provider(&node_url)?;
+    let account = make_single_owner_account(
+        execute_provider,
+        LocalWallet::from(signing_key),
+        account_address,
+        chain_id,
+    );
+    let invoke_result = account
+        .execute_v3(call_inputs)
+        .gas_estimate_multiplier(1.5)
+        .gas_price_estimate_multiplier(1.5)
+        .send()
+        .await
+        .map_err(format_account_error)?;
+
+    wait_for_transaction(&node_url, invoke_result.transaction_hash).await?;
+    Ok(felt_to_hex(invoke_result.transaction_hash))
+}
+
 fn run_async<F, T>(future: F) -> ApiResult<T>
 where
     F: Future<Output = ApiResult<T>>,
@@ -582,6 +1404,12 @@ fn parse_chain_id(chain_id_hex: Option<&str>) -> ApiResult<Felt> {
         Some(value) => parse_felt_hex(value, "chain_id_hex"),
         None => Ok(chain_id::MAINNET),
     }
+}
+
+fn parse_u128_decimal(value: &str, field_name: &str) -> ApiResult<u128> {
+    value
+        .parse::<u128>()
+        .map_err(|_| format!("Invalid decimal {field_name} `{value}`"))
 }
 
 fn normalize_hex(value: &str) -> String {
@@ -632,12 +1460,194 @@ fn derive_private_key_from_mnemonic(mnemonic: &str, passphrase: Option<&str>) ->
     Err("Failed to derive valid Stark private key".to_string())
 }
 
-fn transfer_call(token_address: Felt, calldata: Vec<Felt>) -> ApiResult<Call> {
-    Ok(Call {
-        to: token_address,
-        selector: get_selector_from_name("transfer").map_err(|err| err.to_string())?,
-        calldata,
+fn make_single_owner_account<S>(
+    provider: JsonRpcClient<HttpTransport>,
+    signer: S,
+    account_address: Felt,
+    chain_id: Felt,
+) -> SingleOwnerAccount<JsonRpcClient<HttpTransport>, S>
+where
+    S: Signer + Sync + Send,
+{
+    SingleOwnerAccount::new(
+        provider,
+        signer,
+        account_address,
+        chain_id,
+        ExecutionEncoding::New,
+    )
+}
+
+fn derive_account_address_from_public_key(public_key: Felt, account_class_hash: Felt) -> Felt {
+    get_contract_address(public_key, account_class_hash, &[public_key], Felt::ZERO)
+}
+
+fn validate_derived_account_address(
+    public_key: Felt,
+    account_class_hash: Felt,
+    account_address: Felt,
+) -> ApiResult<()> {
+    let expected_address = derive_account_address_from_public_key(public_key, account_class_hash);
+
+    if expected_address != account_address {
+        return Err(format!(
+            "Account address {} does not match Starknet public key {} for class hash {} (expected {})",
+            felt_to_hex(account_address),
+            felt_to_hex(public_key),
+            felt_to_hex(account_class_hash),
+            felt_to_hex(expected_address),
+        ));
+    }
+
+    Ok(())
+}
+
+async fn fetch_latest_block_tip(provider: &JsonRpcClient<HttpTransport>) -> ApiResult<u64> {
+    Ok(provider
+        .get_block_with_txs(BlockId::Tag(BlockTag::Latest), None)
+        .await
+        .map_err(format_provider_error)?
+        .median_tip())
+}
+
+fn adjust_gas_amount(value: u64) -> u64 {
+    ((value as f64) * 1.5) as u64
+}
+
+fn adjust_gas_price(value: u128) -> ApiResult<u128> {
+    Ok(((TryInto::<u64>::try_into(value)
+        .map_err(|_| "fee calculation overflow".to_string())? as f64)
+        * 1.5) as u128)
+}
+
+fn prepare_transaction_params_from_estimate_with_tip(
+    nonce: Felt,
+    fee_estimate: &starknet_rust::core::types::FeeEstimate,
+    tip: u64,
+) -> ApiResult<PreparedTransactionParams> {
+    Ok(PreparedTransactionParams {
+        nonce,
+        l1_gas: adjust_gas_amount(fee_estimate.l1_gas_consumed),
+        l1_gas_price: adjust_gas_price(fee_estimate.l1_gas_price)?,
+        l2_gas: adjust_gas_amount(fee_estimate.l2_gas_consumed),
+        l2_gas_price: adjust_gas_price(fee_estimate.l2_gas_price)?,
+        l1_data_gas: adjust_gas_amount(fee_estimate.l1_data_gas_consumed),
+        l1_data_gas_price: adjust_gas_price(fee_estimate.l1_data_gas_price)?,
+        tip,
     })
+}
+
+async fn prepare_transaction_params_from_fee_estimate(
+    provider: &JsonRpcClient<HttpTransport>,
+    nonce: Felt,
+    fee_estimate: starknet_rust::core::types::FeeEstimate,
+) -> ApiResult<PreparedTransactionParams> {
+    let tip = fetch_latest_block_tip(provider).await?;
+    prepare_transaction_params_from_estimate_with_tip(nonce, &fee_estimate, tip)
+}
+
+fn calculate_overall_fee_from_params(params: &PreparedTransactionParams) -> BigUint {
+    (BigUint::from(params.l1_gas) * BigUint::from(params.l1_gas_price))
+        + (BigUint::from(params.l2_gas) * BigUint::from(params.l2_gas_price))
+        + (BigUint::from(params.l1_data_gas) * BigUint::from(params.l1_data_gas_price))
+}
+
+fn build_invoke_transaction_hash<S>(
+    account: &SingleOwnerAccount<JsonRpcClient<HttpTransport>, S>,
+    calls: Vec<Call>,
+    params: &PreparedTransactionParams,
+) -> ApiResult<Felt>
+where
+    S: Signer + Sync + Send,
+{
+    let invocation = account
+        .execute_v3(calls)
+        .nonce(params.nonce)
+        .l1_gas(params.l1_gas)
+        .l1_gas_price(params.l1_gas_price)
+        .l2_gas(params.l2_gas)
+        .l2_gas_price(params.l2_gas_price)
+        .l1_data_gas(params.l1_data_gas)
+        .l1_data_gas_price(params.l1_data_gas_price)
+        .tip(params.tip)
+        .prepared()
+        .map_err(|_| "failed to prepare invoke request".to_string())?;
+
+    Ok(invocation.transaction_hash(false))
+}
+
+fn build_deploy_transaction_hash<S>(
+    factory: &OpenZeppelinAccountFactory<S, JsonRpcClient<HttpTransport>>,
+    public_key: Felt,
+    params: &PreparedTransactionParams,
+) -> ApiResult<Felt>
+where
+    S: Signer + Sync + Send,
+{
+    let deployment = factory
+        .deploy_v3(public_key)
+        .nonce(params.nonce)
+        .l1_gas(params.l1_gas)
+        .l1_gas_price(params.l1_gas_price)
+        .l2_gas(params.l2_gas)
+        .l2_gas_price(params.l2_gas_price)
+        .l1_data_gas(params.l1_data_gas)
+        .l1_data_gas_price(params.l1_data_gas_price)
+        .tip(params.tip)
+        .prepared()
+        .map_err(|_| "failed to prepare deploy account request".to_string())?;
+
+    Ok(deployment.transaction_hash(false))
+}
+
+fn parse_signature_hex(r_hex: &str, s_hex: &str, label: &str) -> ApiResult<Signature> {
+    Ok(Signature {
+        r: parse_felt_hex(r_hex, &format!("{label}_r_hex"))?,
+        s: parse_felt_hex(s_hex, &format!("{label}_s_hex"))?,
+    })
+}
+
+fn build_execution_calls(calls: Vec<StarknetCallInput>) -> ApiResult<Vec<Call>> {
+    calls
+        .into_iter()
+        .enumerate()
+        .map(|(index, call)| {
+            let contract_address =
+                parse_felt_hex(&call.contract_address_hex, &format!("calls[{index}].contractAddress"))?;
+            let selector = parse_entrypoint_selector(&call.entrypoint, index)?;
+            let calldata = call
+                .calldata_hex
+                .iter()
+                .enumerate()
+                .map(|(calldata_index, value)| {
+                    parse_felt_hex(value, &format!("calls[{index}].calldata[{calldata_index}]"))
+                })
+                .collect::<ApiResult<Vec<_>>>()?;
+
+            Ok(Call {
+                to: contract_address,
+                selector,
+                calldata,
+            })
+        })
+        .collect()
+}
+
+fn parse_entrypoint_selector(value: &str, index: usize) -> ApiResult<Felt> {
+    if value.starts_with("0x") || value.starts_with("0X") {
+        parse_felt_hex(value, &format!("calls[{index}].entrypoint"))
+    } else {
+        get_selector_from_name(value)
+            .map_err(|err| format!("Invalid calls[{index}].entrypoint `{value}`: {err}"))
+    }
+}
+
+fn transfer_calldata_hex(recipient_address_hex: String, amount_wei: String) -> ApiResult<Vec<String>> {
+    let recipient_address = parse_felt_hex(&recipient_address_hex, "recipient_address_hex")?;
+    Ok(transfer_calldata(recipient_address, &amount_wei)?
+        .into_iter()
+        .map(felt_to_hex)
+        .collect())
 }
 
 fn transfer_calldata(recipient_address: Felt, amount_wei: &str) -> ApiResult<Vec<Felt>> {
@@ -678,6 +1688,75 @@ fn uint256_from_words(low: Felt, high: Felt) -> BigUint {
 
 fn felt_to_biguint(value: Felt) -> BigUint {
     BigUint::from_bytes_be(&value.to_bytes_be())
+}
+
+fn felt_to_short_string(value: Felt) -> String {
+    let bytes = value.to_bytes_be();
+    let start = bytes.iter().position(|byte| *byte != 0).unwrap_or(bytes.len());
+    String::from_utf8_lossy(&bytes[start..]).trim_matches('\u{0}').to_string()
+}
+
+async fn call_token_string(
+    provider: &JsonRpcClient<HttpTransport>,
+    token_address: Felt,
+    entrypoint: &str,
+) -> ApiResult<String> {
+    let selector = get_selector_from_name(entrypoint).map_err(|err| err.to_string())?;
+    let result = provider
+        .call(
+            FunctionCall {
+                contract_address: token_address,
+                entry_point_selector: selector,
+                calldata: vec![],
+            },
+            BlockId::Tag(BlockTag::Latest),
+        )
+        .await
+        .map_err(format_provider_error)?;
+
+    if let Ok(value) = ByteArray::decode(&result).and_then(|value| {
+        String::try_from(value).map_err(|err| {
+            starknet_rust::core::codec::Error::custom(format!("Invalid UTF-8 token string: {err}"))
+        })
+    }) {
+        if !value.is_empty() {
+            return Ok(value);
+        }
+    }
+
+    result
+        .first()
+        .copied()
+        .map(felt_to_short_string)
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| format!("Missing token {entrypoint} response"))
+}
+
+async fn call_token_decimals(
+    provider: &JsonRpcClient<HttpTransport>,
+    token_address: Felt,
+) -> ApiResult<i32> {
+    let selector = get_selector_from_name("decimals").map_err(|err| err.to_string())?;
+    let result = provider
+        .call(
+            FunctionCall {
+                contract_address: token_address,
+                entry_point_selector: selector,
+                calldata: vec![],
+            },
+            BlockId::Tag(BlockTag::Latest),
+        )
+        .await
+        .map_err(format_provider_error)?;
+
+    let decimals = result
+        .first()
+        .copied()
+        .ok_or_else(|| "Missing token decimals response".to_string())?;
+    felt_to_biguint(decimals)
+        .to_string()
+        .parse::<i32>()
+        .map_err(|_| "Token decimals do not fit in i32".to_string())
 }
 
 async fn is_account_deployed_with_provider(
@@ -737,12 +1816,14 @@ fn parse_transfer_event(
 
     TransferEventRecord {
         transaction_hash: event.transaction_hash,
+        event_index: event.event_index,
         block_number: event.block_number,
         from: event.keys.get(1).copied().map(felt_to_hex).unwrap_or_default(),
         to: event.keys.get(2).copied().map(felt_to_hex).unwrap_or_default(),
         amount_wei: uint256_from_words(low, high).to_string(),
         is_outgoing,
         token_symbol,
+        token_address_hex: felt_to_hex(event.from_address),
     }
 }
 
@@ -818,7 +1899,7 @@ async fn wait_for_transaction(node_url: &str, tx_hash: Felt) -> ApiResult<()> {
 fn format_provider_error(error: ProviderError) -> String {
     match error {
         ProviderError::StarknetError(error) => format_starknet_error(error),
-        other => other.to_string(),
+        other => format!("{other:?}"),
     }
 }
 

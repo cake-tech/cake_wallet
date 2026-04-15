@@ -67,6 +67,14 @@ packages:
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
     version: "3.3.0"
+  bluez:
+    dependency: transitive
+    description:
+      name: bluez
+      sha256: "61a7204381925896a374301498f2f5399e59827c6498ae1e924aaa598751b545"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -227,6 +235,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: d0c98dcd4f5169878b6cf8f6e0a52403a9dff371a3e2f019697accbf6f44a270
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.12"
   decimal:
     dependency: transitive
     description:
@@ -314,6 +330,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_bluetooth:
+    dependency: transitive
+    description:
+      name: flutter_web_bluetooth
+      sha256: ad26a1b3fef95b86ea5f63793b9a0cdc1a33490f35d754e4e711046cae3ebbf8
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
@@ -436,6 +460,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  ledger_flutter_plus:
+    dependency: "direct main"
+    description:
+      name: ledger_flutter_plus
+      sha256: "59c5a6062505c721c2ca909fa085c52cffe93de995174b8418b54a6acf52eb70"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.6"
+  ledger_usb_plus:
+    dependency: transitive
+    description:
+      name: ledger_usb_plus
+      sha256: "911df2d1d55cdae612ff2c9db140cf71a9b28a67ba16adfdc4983cd9f02c531e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   lints:
     dependency: transitive
     description:
@@ -581,6 +621,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      sha256: "91bd59303e9f769f108f8df05e371341b15d59e995e6806aefab827b58336675"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.2"
   platform:
     dependency: transitive
     description:
@@ -653,6 +701,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.3"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
   shelf:
     dependency: transitive
     description:
@@ -859,6 +915,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  universal_ble:
+    dependency: transitive
+    description:
+      name: universal_ble
+      sha256: "8325ca9f5cce2fba2b4efef74a4fcfe7144f303b409d6fc6ed16197b00a1a241"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   unorm_dart:
     dependency: transitive
     description:
@@ -867,6 +939,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.2"
+  ur:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "5738f70d0ec3d50977ac3dd01fed62939600238b"
+      resolved-ref: "5738f70d0ec3d50977ac3dd01fed62939600238b"
+      url: "https://github.com/bukata-sa/bc-ur-dart"
+    source: git
+    version: "0.1.0"
   vector_math:
     dependency: transitive
     description:
@@ -931,6 +1012,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.6.1"
   yaml:
     dependency: transitive
     description:

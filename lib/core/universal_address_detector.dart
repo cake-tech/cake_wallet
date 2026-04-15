@@ -172,7 +172,13 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.bch,
       ),
 
-      // Ethereum
+      // Starknet (0x + 50-66 hex chars — longer than Ethereum's 40, must come first)
+      _DetectionPattern(
+        pattern: RegExp(r'^0x[a-fA-F0-9]{50,66}$'),
+        currency: CryptoCurrency.strk,
+      ),
+
+      // Ethereum (0x + exactly 40 hex chars)
       _DetectionPattern(
         pattern: RegExp(r'^0x[a-fA-F0-9]{40}$'),
         currency: CryptoCurrency.eth,

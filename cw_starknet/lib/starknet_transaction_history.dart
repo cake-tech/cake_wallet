@@ -27,7 +27,7 @@ abstract class StarknetTransactionHistoryBase
 
   final WalletInfo walletInfo;
   final EncryptionFileUtils encryptionFileUtils;
-  final String _password;
+  String _password;
 
   Future<void> init() async {
     clear();
@@ -50,6 +50,16 @@ abstract class StarknetTransactionHistoryBase
           'Error while saving starknet transaction history: ${e.toString()}');
       printV(s);
     }
+  }
+
+  Future<void> changePassword(String password) async {
+    _password = password;
+    await save();
+  }
+
+  Future<void> reset() async {
+    clear();
+    await save();
   }
 
   @override

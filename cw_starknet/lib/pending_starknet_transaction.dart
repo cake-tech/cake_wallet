@@ -1,31 +1,33 @@
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_starknet/starknet_balance.dart';
 
 class PendingStarknetTransaction with PendingTransaction {
-  final double amount;
+  PendingStarknetTransaction({
+    required this.amountWei,
+    required this.amountDecimals,
+    required this.amountSymbol,
+    required this.destinationAddress,
+    required this.sendTransaction,
+    required this.feeWei,
+    this.transactionHash = '',
+    this.buildUnsignedTransactionUr,
+  });
+
+  final String amountWei;
+  final int amountDecimals;
+  final String amountSymbol;
   final String transactionHash;
   final String destinationAddress;
   final Future<String> Function() sendTransaction;
-  final double fee;
+  final String feeWei;
+  final Future<Map<String, String>> Function()? buildUnsignedTransactionUr;
   String? _txHash;
 
-  PendingStarknetTransaction({
-    required this.fee,
-    required this.amount,
-    required this.transactionHash,
-    required this.destinationAddress,
-    required this.sendTransaction,
-  });
-
   @override
-  String get amountFormatted {
-    String stringifiedAmount = amount.toString();
-
-    if (stringifiedAmount.length >= 12) {
-      stringifiedAmount = stringifiedAmount.substring(0, 12);
-    }
-
-    return stringifiedAmount;
-  }
+  String get amountFormatted => truncateDecimalString(
+        formatFixed(BigInt.parse(amountWei), amountDecimals, fractionalDigits: amountDecimals),
+      );
 
   @override
   Future<void> commit() async {
@@ -33,19 +35,24 @@ class PendingStarknetTransaction with PendingTransaction {
   }
 
   @override
-  String get feeFormatted => "$feeFormattedValue STRK";
+  String get feeFormatted => '$feeFormattedValue STRK';
 
   @override
-  String get feeFormattedValue => fee.toString();
+  String get feeFormattedValue =>
+      truncateDecimalString(formatFixed(BigInt.parse(feeWei), 18, fractionalDigits: 18));
 
   @override
   String get hex => transactionHash;
 
   @override
-  String get id => _txHash ?? '';
+  String get id => _txHash ?? transactionHash;
 
   @override
-  Future<Map<String, String>> commitUR() {
-    throw UnimplementedError();
-  }
+  bool shouldCommitUR() => buildUnsignedTransactionUr != null;
+
+  @override
+  Future<Map<String, String>> commitUR() async =>
+      await buildUnsignedTransactionUr?.call() ??
+      (throw UnsupportedError(
+          'Offline UR signing is not configured for this Starknet transaction.'));
 }

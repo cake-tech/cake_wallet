@@ -5,6 +5,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/starknet_token.dart';
 
 const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
@@ -40,6 +41,9 @@ class AddressValidator extends TextValidator {
     var pattern = "";
     if (type is Erc20Token) {
       pattern = '0x[0-9a-zA-Z]+';
+    }
+    if (type is StarknetToken) {
+      pattern = '0x[0-9a-fA-F]{50,66}';
     }
     switch (type) {
       case CryptoCurrency.xmr:
@@ -175,6 +179,8 @@ class AddressValidator extends TextValidator {
         pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.doge:
         pattern = r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}';
+      case CryptoCurrency.strk:
+        pattern = '0x[0-9a-fA-F]{50,66}';
       default:
         return '';
     }
@@ -185,6 +191,10 @@ class AddressValidator extends TextValidator {
   static List<int>? getLength(CryptoCurrency type) {
     if (type is Erc20Token) {
       return [42];
+    }
+
+    if (type is StarknetToken) {
+      return null;
     }
 
     if (solana != null) {
@@ -312,6 +322,8 @@ class AddressValidator extends TextValidator {
         return [45];
       case CryptoCurrency.near:
         return [64];
+      case CryptoCurrency.strk:
+        return null;
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
       case CryptoCurrency.zano:
@@ -377,6 +389,8 @@ class AddressValidator extends TextValidator {
             '|zxviews[a-z0-9]{278}'
             '|u1[a-z0-9]{1,300}'
             ')';
+      case CryptoCurrency.strk:
+        pattern = '0x[0-9a-fA-F]{50,66}';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]+';

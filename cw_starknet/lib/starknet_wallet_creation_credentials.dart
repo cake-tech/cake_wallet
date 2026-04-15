@@ -1,3 +1,4 @@
+import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 
@@ -40,7 +41,33 @@ class StarknetRestoreWalletFromPrivateKey extends WalletCredentials {
     required String password,
     required this.privateKey,
     WalletInfo? walletInfo,
-  }) : super(name: name, password: password, walletInfo: walletInfo);
+  })  : publicKey = null,
+        accountClassHashHex = null,
+        super(name: name, password: password, walletInfo: walletInfo);
 
-  final String privateKey;
+  StarknetRestoreWalletFromPrivateKey.publicKey({
+    required String name,
+    required String password,
+    required this.publicKey,
+    this.accountClassHashHex,
+    WalletInfo? walletInfo,
+  })  : privateKey = null,
+        super(name: name, password: password, walletInfo: walletInfo);
+
+  final String? privateKey;
+  final String? publicKey;
+  final String? accountClassHashHex;
+}
+
+class StarknetRestoreWalletFromHardware extends WalletCredentials {
+  StarknetRestoreWalletFromHardware({
+    required String name,
+    required this.hwAccountData,
+    String? password,
+    WalletInfo? walletInfo,
+    this.accountClassHashHex,
+  }) : super(name: name, walletInfo: walletInfo, password: password);
+
+  final HardwareAccountData hwAccountData;
+  final String? accountClassHashHex;
 }

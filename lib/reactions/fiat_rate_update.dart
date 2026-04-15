@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -47,6 +48,12 @@ Future<void> startFiatRateUpdate(
       if (appStore.wallet!.type == WalletType.tron) {
         currencies =
             tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+      if (appStore.wallet!.type == WalletType.starknet) {
+        currencies = starknet!
+            .getStarknetTokenCurrencies(appStore.wallet!)
+            .where((element) => element.enabled);
       }
 
       if (currencies != null) {

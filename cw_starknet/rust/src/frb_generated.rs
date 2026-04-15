@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 301082975;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1087241512;
 
 // Section: executor
 
@@ -81,6 +81,139 @@ fn wire__crate__api__starknet__derive_account_impl(
                         api_private_key_hex,
                         api_account_class_hash_hex,
                     ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__starknet__derive_account_from_public_key_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "derive_account_from_public_key",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_public_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_class_hash_hex = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::starknet::derive_account_from_public_key(
+                            api_public_key_hex,
+                            api_account_class_hash_hex,
+                        ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__starknet__estimate_execute_fee_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "estimate_execute_fee",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_node_url = <String>::sse_decode(&mut deserializer);
+            let api_private_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_address_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_class_hash_hex = <String>::sse_decode(&mut deserializer);
+            let api_calls =
+                <Vec<crate::api::starknet::StarknetCallInput>>::sse_decode(&mut deserializer);
+            let api_chain_id_hex = <Option<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::starknet::estimate_execute_fee(
+                            api_node_url,
+                            api_private_key_hex,
+                            api_account_address_hex,
+                            api_account_class_hash_hex,
+                            api_calls,
+                            api_chain_id_hex,
+                        ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__starknet__estimate_execute_fee_external_signer_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "estimate_execute_fee_external_signer",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_node_url = <String>::sse_decode(&mut deserializer);
+            let api_public_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_address_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_class_hash_hex = <String>::sse_decode(&mut deserializer);
+            let api_calls =
+                <Vec<crate::api::starknet::StarknetCallInput>>::sse_decode(&mut deserializer);
+            let api_chain_id_hex = <Option<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::starknet::estimate_execute_fee_external_signer(
+                            api_node_url,
+                            api_public_key_hex,
+                            api_account_address_hex,
+                            api_account_class_hash_hex,
+                            api_calls,
+                            api_chain_id_hex,
+                        ),
+                    )?;
                     Ok(output_ok)
                 })())
             }
@@ -179,6 +312,98 @@ fn wire__crate__api__starknet__estimate_transfer_fee_impl(
         },
     )
 }
+fn wire__crate__api__starknet__execute_calls_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "execute_calls",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_node_url = <String>::sse_decode(&mut deserializer);
+            let api_private_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_address_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_class_hash_hex = <String>::sse_decode(&mut deserializer);
+            let api_calls =
+                <Vec<crate::api::starknet::StarknetCallInput>>::sse_decode(&mut deserializer);
+            let api_chain_id_hex = <Option<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::starknet::execute_calls(
+                        api_node_url,
+                        api_private_key_hex,
+                        api_account_address_hex,
+                        api_account_class_hash_hex,
+                        api_calls,
+                        api_chain_id_hex,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__starknet__execute_calls_external_signer_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "execute_calls_external_signer",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_node_url = <String>::sse_decode(&mut deserializer);
+            let api_plan_json = <String>::sse_decode(&mut deserializer);
+            let api_invoke_r_hex = <String>::sse_decode(&mut deserializer);
+            let api_invoke_s_hex = <String>::sse_decode(&mut deserializer);
+            let api_deploy_r_hex = <Option<String>>::sse_decode(&mut deserializer);
+            let api_deploy_s_hex = <Option<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::starknet::execute_calls_external_signer(
+                            api_node_url,
+                            api_plan_json,
+                            api_invoke_r_hex,
+                            api_invoke_s_hex,
+                            api_deploy_r_hex,
+                            api_deploy_s_hex,
+                        ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__starknet__fetch_transfer_history_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -259,6 +484,54 @@ fn wire__crate__api__starknet__get_block_number_impl(
         },
     )
 }
+fn wire__crate__api__starknet__get_execute_transaction_hashes_external_signer_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_execute_transaction_hashes_external_signer",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_node_url = <String>::sse_decode(&mut deserializer);
+            let api_public_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_address_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_class_hash_hex = <String>::sse_decode(&mut deserializer);
+            let api_calls =
+                <Vec<crate::api::starknet::StarknetCallInput>>::sse_decode(&mut deserializer);
+            let api_chain_id_hex = <Option<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::starknet::get_execute_transaction_hashes_external_signer(
+                            api_node_url,
+                            api_public_key_hex,
+                            api_account_address_hex,
+                            api_account_class_hash_hex,
+                            api_calls,
+                            api_chain_id_hex,
+                        ),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__starknet__get_token_balance_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -292,6 +565,81 @@ fn wire__crate__api__starknet__get_token_balance_impl(
                         api_account_address_hex,
                         api_token_address_hex,
                     ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__starknet__get_token_metadata_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_token_metadata",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_node_url = <String>::sse_decode(&mut deserializer);
+            let api_token_address_hex = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::starknet::get_token_metadata(
+                        api_node_url,
+                        api_token_address_hex,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__starknet__get_typed_data_message_hash_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_typed_data_message_hash",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_account_address_hex = <String>::sse_decode(&mut deserializer);
+            let api_typed_data_json = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::starknet::get_typed_data_message_hash(
+                            api_account_address_hex,
+                            api_typed_data_json,
+                        ))?;
                     Ok(output_ok)
                 })())
             }
@@ -456,6 +804,45 @@ fn wire__crate__api__starknet__sign_message_hash_impl(
         },
     )
 }
+fn wire__crate__api__starknet__sign_typed_data_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "sign_typed_data",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_private_key_hex = <String>::sse_decode(&mut deserializer);
+            let api_account_address_hex = <String>::sse_decode(&mut deserializer);
+            let api_typed_data_json = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::starknet::sign_typed_data(
+                        api_private_key_hex,
+                        api_account_address_hex,
+                        api_typed_data_json,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__starknet__verify_message_hash_signature_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -555,6 +942,32 @@ impl SseDecode for crate::api::starknet::DerivedAccountDataResponse {
     }
 }
 
+impl SseDecode for crate::api::starknet::ExecutionPlanResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_value =
+            <Option<crate::api::starknet::StarknetExecutionPlanData>>::sse_decode(deserializer);
+        let mut var_error = <Option<String>>::sse_decode(deserializer);
+        return crate::api::starknet::ExecutionPlanResponse {
+            value: var_value,
+            error: var_error,
+        };
+    }
+}
+
+impl SseDecode for crate::api::starknet::FeeQuoteResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_value =
+            <Option<crate::api::starknet::StarknetFeeQuote>>::sse_decode(deserializer);
+        let mut var_error = <Option<String>>::sse_decode(deserializer);
+        return crate::api::starknet::FeeQuoteResponse {
+            value: var_value,
+            error: var_error,
+        };
+    }
+}
+
 impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -581,6 +994,18 @@ impl SseDecode for crate::api::starknet::I64Response {
     }
 }
 
+impl SseDecode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -588,6 +1013,20 @@ impl SseDecode for Vec<u8> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<u8>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::starknet::StarknetCallInput> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::starknet::StarknetCallInput>::sse_decode(
+                deserializer,
+            ));
         }
         return ans_;
     }
@@ -664,6 +1103,32 @@ impl SseDecode for Option<i64> {
     }
 }
 
+impl SseDecode for Option<crate::api::starknet::StarknetExecutionPlanData> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(
+                <crate::api::starknet::StarknetExecutionPlanData>::sse_decode(deserializer),
+            );
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::starknet::StarknetFeeQuote> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::starknet::StarknetFeeQuote>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::api::starknet::StarknetSignatureData> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -674,6 +1139,65 @@ impl SseDecode for Option<crate::api::starknet::StarknetSignatureData> {
         } else {
             return None;
         }
+    }
+}
+
+impl SseDecode for Option<crate::api::starknet::StarknetTokenMetadata> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::starknet::StarknetTokenMetadata>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for crate::api::starknet::StarknetCallInput {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_contractAddressHex = <String>::sse_decode(deserializer);
+        let mut var_entrypoint = <String>::sse_decode(deserializer);
+        let mut var_calldataHex = <Vec<String>>::sse_decode(deserializer);
+        return crate::api::starknet::StarknetCallInput {
+            contract_address_hex: var_contractAddressHex,
+            entrypoint: var_entrypoint,
+            calldata_hex: var_calldataHex,
+        };
+    }
+}
+
+impl SseDecode for crate::api::starknet::StarknetExecutionPlanData {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_invokeTransactionHashHex = <String>::sse_decode(deserializer);
+        let mut var_deployAccountTransactionHashHex = <Option<String>>::sse_decode(deserializer);
+        let mut var_accountDeploymentRequired = <bool>::sse_decode(deserializer);
+        let mut var_planJson = <String>::sse_decode(deserializer);
+        return crate::api::starknet::StarknetExecutionPlanData {
+            invoke_transaction_hash_hex: var_invokeTransactionHashHex,
+            deploy_account_transaction_hash_hex: var_deployAccountTransactionHashHex,
+            account_deployment_required: var_accountDeploymentRequired,
+            plan_json: var_planJson,
+        };
+    }
+}
+
+impl SseDecode for crate::api::starknet::StarknetFeeQuote {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_overallFeeWei = <String>::sse_decode(deserializer);
+        let mut var_executionFeeWei = <String>::sse_decode(deserializer);
+        let mut var_deployAccountFeeWei = <Option<String>>::sse_decode(deserializer);
+        let mut var_accountDeploymentRequired = <bool>::sse_decode(deserializer);
+        return crate::api::starknet::StarknetFeeQuote {
+            overall_fee_wei: var_overallFeeWei,
+            execution_fee_wei: var_executionFeeWei,
+            deploy_account_fee_wei: var_deployAccountFeeWei,
+            account_deployment_required: var_accountDeploymentRequired,
+        };
     }
 }
 
@@ -702,6 +1226,34 @@ impl SseDecode for crate::api::starknet::StarknetSignatureDataResponse {
     }
 }
 
+impl SseDecode for crate::api::starknet::StarknetTokenMetadata {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_tokenAddressHex = <String>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_symbol = <String>::sse_decode(deserializer);
+        let mut var_decimals = <i32>::sse_decode(deserializer);
+        return crate::api::starknet::StarknetTokenMetadata {
+            token_address_hex: var_tokenAddressHex,
+            name: var_name,
+            symbol: var_symbol,
+            decimals: var_decimals,
+        };
+    }
+}
+
+impl SseDecode for crate::api::starknet::StringListResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_items = <Vec<String>>::sse_decode(deserializer);
+        let mut var_error = <Option<String>>::sse_decode(deserializer);
+        return crate::api::starknet::StringListResponse {
+            items: var_items,
+            error: var_error,
+        };
+    }
+}
+
 impl SseDecode for crate::api::starknet::StringResponse {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -714,26 +1266,45 @@ impl SseDecode for crate::api::starknet::StringResponse {
     }
 }
 
+impl SseDecode for crate::api::starknet::TokenMetadataResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_value =
+            <Option<crate::api::starknet::StarknetTokenMetadata>>::sse_decode(deserializer);
+        let mut var_error = <Option<String>>::sse_decode(deserializer);
+        return crate::api::starknet::TokenMetadataResponse {
+            value: var_value,
+            error: var_error,
+        };
+    }
+}
+
 impl SseDecode for crate::api::starknet::TransferHistoryItem {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_transactionHash = <String>::sse_decode(deserializer);
+        let mut var_eventId = <String>::sse_decode(deserializer);
+        let mut var_eventIndex = <i64>::sse_decode(deserializer);
         let mut var_blockNumber = <Option<i64>>::sse_decode(deserializer);
         let mut var_from = <String>::sse_decode(deserializer);
         let mut var_to = <String>::sse_decode(deserializer);
         let mut var_amountWei = <String>::sse_decode(deserializer);
         let mut var_isOutgoing = <bool>::sse_decode(deserializer);
         let mut var_tokenSymbol = <String>::sse_decode(deserializer);
+        let mut var_tokenAddressHex = <String>::sse_decode(deserializer);
         let mut var_blockTimestamp = <Option<i64>>::sse_decode(deserializer);
         let mut var_txFeeWei = <Option<String>>::sse_decode(deserializer);
         return crate::api::starknet::TransferHistoryItem {
             transaction_hash: var_transactionHash,
+            event_id: var_eventId,
+            event_index: var_eventIndex,
             block_number: var_blockNumber,
             from: var_from,
             to: var_to,
             amount_wei: var_amountWei,
             is_outgoing: var_isOutgoing,
             token_symbol: var_tokenSymbol,
+            token_address_hex: var_tokenAddressHex,
             block_timestamp: var_blockTimestamp,
             tx_fee_wei: var_txFeeWei,
         };
@@ -775,33 +1346,71 @@ fn pde_ffi_dispatcher_primary_impl(
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
         1 => wire__crate__api__starknet__derive_account_impl(port, ptr, rust_vec_len, data_len),
-        2 => wire__crate__api__starknet__estimate_standard_transfer_fee_impl(
+        2 => wire__crate__api__starknet__derive_account_from_public_key_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        3 => wire__crate__api__starknet__estimate_transfer_fee_impl(
+        3 => {
+            wire__crate__api__starknet__estimate_execute_fee_impl(port, ptr, rust_vec_len, data_len)
+        }
+        4 => wire__crate__api__starknet__estimate_execute_fee_external_signer_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        4 => wire__crate__api__starknet__fetch_transfer_history_impl(
+        5 => wire__crate__api__starknet__estimate_standard_transfer_fee_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        5 => wire__crate__api__starknet__get_block_number_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__starknet__get_token_balance_impl(port, ptr, rust_vec_len, data_len),
-        7 => wire__crate__api__starknet__init_app_impl(port, ptr, rust_vec_len, data_len),
-        8 => {
+        6 => wire__crate__api__starknet__estimate_transfer_fee_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        7 => wire__crate__api__starknet__execute_calls_impl(port, ptr, rust_vec_len, data_len),
+        8 => wire__crate__api__starknet__execute_calls_external_signer_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        9 => wire__crate__api__starknet__fetch_transfer_history_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        10 => wire__crate__api__starknet__get_block_number_impl(port, ptr, rust_vec_len, data_len),
+        11 => wire__crate__api__starknet__get_execute_transaction_hashes_external_signer_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        12 => wire__crate__api__starknet__get_token_balance_impl(port, ptr, rust_vec_len, data_len),
+        13 => {
+            wire__crate__api__starknet__get_token_metadata_impl(port, ptr, rust_vec_len, data_len)
+        }
+        14 => wire__crate__api__starknet__get_typed_data_message_hash_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        15 => wire__crate__api__starknet__init_app_impl(port, ptr, rust_vec_len, data_len),
+        16 => {
             wire__crate__api__starknet__is_account_deployed_impl(port, ptr, rust_vec_len, data_len)
         }
-        9 => wire__crate__api__starknet__send_transfer_impl(port, ptr, rust_vec_len, data_len),
-        10 => wire__crate__api__starknet__sign_message_hash_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__api__starknet__verify_message_hash_signature_impl(
+        17 => wire__crate__api__starknet__send_transfer_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__starknet__sign_message_hash_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__api__starknet__sign_typed_data_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__api__starknet__verify_message_hash_signature_impl(
             port,
             ptr,
             rust_vec_len,
@@ -890,6 +1499,48 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::DerivedAccountDataR
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::ExecutionPlanResponse {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.value.into_into_dart().into_dart(),
+            self.error.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::ExecutionPlanResponse
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::ExecutionPlanResponse>
+    for crate::api::starknet::ExecutionPlanResponse
+{
+    fn into_into_dart(self) -> crate::api::starknet::ExecutionPlanResponse {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::FeeQuoteResponse {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.value.into_into_dart().into_dart(),
+            self.error.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::FeeQuoteResponse
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::FeeQuoteResponse>
+    for crate::api::starknet::FeeQuoteResponse
+{
+    fn into_into_dart(self) -> crate::api::starknet::FeeQuoteResponse {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::starknet::I64Response {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -907,6 +1558,82 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::I64Response>
     for crate::api::starknet::I64Response
 {
     fn into_into_dart(self) -> crate::api::starknet::I64Response {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::StarknetCallInput {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.contract_address_hex.into_into_dart().into_dart(),
+            self.entrypoint.into_into_dart().into_dart(),
+            self.calldata_hex.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::StarknetCallInput
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::StarknetCallInput>
+    for crate::api::starknet::StarknetCallInput
+{
+    fn into_into_dart(self) -> crate::api::starknet::StarknetCallInput {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::StarknetExecutionPlanData {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.invoke_transaction_hash_hex
+                .into_into_dart()
+                .into_dart(),
+            self.deploy_account_transaction_hash_hex
+                .into_into_dart()
+                .into_dart(),
+            self.account_deployment_required
+                .into_into_dart()
+                .into_dart(),
+            self.plan_json.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::StarknetExecutionPlanData
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::StarknetExecutionPlanData>
+    for crate::api::starknet::StarknetExecutionPlanData
+{
+    fn into_into_dart(self) -> crate::api::starknet::StarknetExecutionPlanData {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::StarknetFeeQuote {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.overall_fee_wei.into_into_dart().into_dart(),
+            self.execution_fee_wei.into_into_dart().into_dart(),
+            self.deploy_account_fee_wei.into_into_dart().into_dart(),
+            self.account_deployment_required
+                .into_into_dart()
+                .into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::StarknetFeeQuote
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::StarknetFeeQuote>
+    for crate::api::starknet::StarknetFeeQuote
+{
+    fn into_into_dart(self) -> crate::api::starknet::StarknetFeeQuote {
         self
     }
 }
@@ -953,6 +1680,50 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::StarknetSignatureDa
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::StarknetTokenMetadata {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.token_address_hex.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.symbol.into_into_dart().into_dart(),
+            self.decimals.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::StarknetTokenMetadata
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::StarknetTokenMetadata>
+    for crate::api::starknet::StarknetTokenMetadata
+{
+    fn into_into_dart(self) -> crate::api::starknet::StarknetTokenMetadata {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::StringListResponse {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.items.into_into_dart().into_dart(),
+            self.error.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::StringListResponse
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::StringListResponse>
+    for crate::api::starknet::StringListResponse
+{
+    fn into_into_dart(self) -> crate::api::starknet::StringListResponse {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::starknet::StringResponse {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -974,16 +1745,40 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::StringResponse>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::starknet::TokenMetadataResponse {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.value.into_into_dart().into_dart(),
+            self.error.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::starknet::TokenMetadataResponse
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::starknet::TokenMetadataResponse>
+    for crate::api::starknet::TokenMetadataResponse
+{
+    fn into_into_dart(self) -> crate::api::starknet::TokenMetadataResponse {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::starknet::TransferHistoryItem {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.transaction_hash.into_into_dart().into_dart(),
+            self.event_id.into_into_dart().into_dart(),
+            self.event_index.into_into_dart().into_dart(),
             self.block_number.into_into_dart().into_dart(),
             self.from.into_into_dart().into_dart(),
             self.to.into_into_dart().into_dart(),
             self.amount_wei.into_into_dart().into_dart(),
             self.is_outgoing.into_into_dart().into_dart(),
             self.token_symbol.into_into_dart().into_dart(),
+            self.token_address_hex.into_into_dart().into_dart(),
             self.block_timestamp.into_into_dart().into_dart(),
             self.tx_fee_wei.into_into_dart().into_dart(),
         ]
@@ -1062,6 +1857,24 @@ impl SseEncode for crate::api::starknet::DerivedAccountDataResponse {
     }
 }
 
+impl SseEncode for crate::api::starknet::ExecutionPlanResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<crate::api::starknet::StarknetExecutionPlanData>>::sse_encode(
+            self.value, serializer,
+        );
+        <Option<String>>::sse_encode(self.error, serializer);
+    }
+}
+
+impl SseEncode for crate::api::starknet::FeeQuoteResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<crate::api::starknet::StarknetFeeQuote>>::sse_encode(self.value, serializer);
+        <Option<String>>::sse_encode(self.error, serializer);
+    }
+}
+
 impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1084,12 +1897,32 @@ impl SseEncode for crate::api::starknet::I64Response {
     }
 }
 
+impl SseEncode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <String>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <u8>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::starknet::StarknetCallInput> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::starknet::StarknetCallInput>::sse_encode(item, serializer);
         }
     }
 }
@@ -1154,6 +1987,26 @@ impl SseEncode for Option<i64> {
     }
 }
 
+impl SseEncode for Option<crate::api::starknet::StarknetExecutionPlanData> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::starknet::StarknetExecutionPlanData>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::starknet::StarknetFeeQuote> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::starknet::StarknetFeeQuote>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::api::starknet::StarknetSignatureData> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1161,6 +2014,45 @@ impl SseEncode for Option<crate::api::starknet::StarknetSignatureData> {
         if let Some(value) = self {
             <crate::api::starknet::StarknetSignatureData>::sse_encode(value, serializer);
         }
+    }
+}
+
+impl SseEncode for Option<crate::api::starknet::StarknetTokenMetadata> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::starknet::StarknetTokenMetadata>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::api::starknet::StarknetCallInput {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.contract_address_hex, serializer);
+        <String>::sse_encode(self.entrypoint, serializer);
+        <Vec<String>>::sse_encode(self.calldata_hex, serializer);
+    }
+}
+
+impl SseEncode for crate::api::starknet::StarknetExecutionPlanData {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.invoke_transaction_hash_hex, serializer);
+        <Option<String>>::sse_encode(self.deploy_account_transaction_hash_hex, serializer);
+        <bool>::sse_encode(self.account_deployment_required, serializer);
+        <String>::sse_encode(self.plan_json, serializer);
+    }
+}
+
+impl SseEncode for crate::api::starknet::StarknetFeeQuote {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.overall_fee_wei, serializer);
+        <String>::sse_encode(self.execution_fee_wei, serializer);
+        <Option<String>>::sse_encode(self.deploy_account_fee_wei, serializer);
+        <bool>::sse_encode(self.account_deployment_required, serializer);
     }
 }
 
@@ -1180,6 +2072,24 @@ impl SseEncode for crate::api::starknet::StarknetSignatureDataResponse {
     }
 }
 
+impl SseEncode for crate::api::starknet::StarknetTokenMetadata {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.token_address_hex, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <String>::sse_encode(self.symbol, serializer);
+        <i32>::sse_encode(self.decimals, serializer);
+    }
+}
+
+impl SseEncode for crate::api::starknet::StringListResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<String>>::sse_encode(self.items, serializer);
+        <Option<String>>::sse_encode(self.error, serializer);
+    }
+}
+
 impl SseEncode for crate::api::starknet::StringResponse {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1188,16 +2098,27 @@ impl SseEncode for crate::api::starknet::StringResponse {
     }
 }
 
+impl SseEncode for crate::api::starknet::TokenMetadataResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<crate::api::starknet::StarknetTokenMetadata>>::sse_encode(self.value, serializer);
+        <Option<String>>::sse_encode(self.error, serializer);
+    }
+}
+
 impl SseEncode for crate::api::starknet::TransferHistoryItem {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.transaction_hash, serializer);
+        <String>::sse_encode(self.event_id, serializer);
+        <i64>::sse_encode(self.event_index, serializer);
         <Option<i64>>::sse_encode(self.block_number, serializer);
         <String>::sse_encode(self.from, serializer);
         <String>::sse_encode(self.to, serializer);
         <String>::sse_encode(self.amount_wei, serializer);
         <bool>::sse_encode(self.is_outgoing, serializer);
         <String>::sse_encode(self.token_symbol, serializer);
+        <String>::sse_encode(self.token_address_hex, serializer);
         <Option<i64>>::sse_encode(self.block_timestamp, serializer);
         <Option<String>>::sse_encode(self.tx_fee_wei, serializer);
     }

@@ -48,6 +48,7 @@ class TransactionListItem extends ActionListItem with Keyable {
   bool get hasTokens =>
       isEVMCompatibleChain(balanceViewModel.wallet.type) ||
       balanceViewModel.wallet.type == WalletType.solana ||
+      balanceViewModel.wallet.type == WalletType.starknet ||
       balanceViewModel.wallet.type == WalletType.tron;
 
   String get formattedCryptoAmount {

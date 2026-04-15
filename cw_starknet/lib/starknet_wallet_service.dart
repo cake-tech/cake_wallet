@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_starknet/starknet_exceptions.dart';
 import 'package:cw_starknet/starknet_mnemonics.dart';
 import 'package:cw_starknet/starknet_wallet.dart';
 import 'package:cw_starknet/starknet_wallet_creation_credentials.dart';
@@ -18,18 +19,16 @@ class StarknetWalletService extends WalletService<
     StarknetNewWalletCredentials,
     StarknetRestoreWalletFromSeedCredentials,
     StarknetRestoreWalletFromPrivateKey,
-    StarknetNewWalletCredentials> {
+    StarknetRestoreWalletFromHardware> {
   StarknetWalletService(this.isDirect);
 
   final bool isDirect;
 
   @override
-  Future<StarknetWallet> create(StarknetNewWalletCredentials credentials,
-      {bool? isTestnet}) async {
+  Future<StarknetWallet> create(StarknetNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
-    final mnemonic =
-        credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
+    final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
 
     final wallet = StarknetWallet(
       walletInfo: credentials.walletInfo!,
@@ -56,7 +55,7 @@ class StarknetWalletService extends WalletService<
   Future<StarknetWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw StarknetTransactionCreationException.fromMessage('Wallet "$name" not found');
     }
 
     try {
@@ -69,8 +68,7 @@ class StarknetWalletService extends WalletService<
     }
   }
 
-  Future<StarknetWallet> _openAndInit(
-      String name, String password, WalletInfo walletInfo) async {
+  Future<StarknetWallet> _openAndInit(String name, String password, WalletInfo walletInfo) async {
     final wallet = await StarknetWalletBase.open(
       name: name,
       password: password,
@@ -84,19 +82,33 @@ class StarknetWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType()))
-        .delete(recursive: true);
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw StarknetTransactionCreationException.fromMessage('Wallet "$wallet" not found');
     }
     await WalletInfo.delete(walletInfo);
   }
 
   @override
-  Future<StarknetWallet> restoreFromKeys(
-      StarknetRestoreWalletFromPrivateKey credentials,
+  Future<StarknetWallet> restoreFromKeys(StarknetRestoreWalletFromPrivateKey credentials,
       {bool? isTestnet}) async {
+    if (credentials.publicKey != null && credentials.privateKey == null) {
+      final wallet = StarknetWallet(
+        password: credentials.password!,
+        walletInfo: credentials.walletInfo!,
+        derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        hardwarePublicKeyHex: credentials.publicKey,
+        accountClassHashHex: credentials.accountClassHashHex,
+      );
+
+      await wallet.init();
+      await wallet.save();
+
+      return wallet;
+    }
+
     final wallet = StarknetWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -112,8 +124,7 @@ class StarknetWalletService extends WalletService<
   }
 
   @override
-  Future<StarknetWallet> restoreFromSeed(
-      StarknetRestoreWalletFromSeedCredentials credentials,
+  Future<StarknetWallet> restoreFromSeed(StarknetRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw StarknetMnemonicIsIncorrectException();
@@ -135,11 +146,10 @@ class StarknetWalletService extends WalletService<
   }
 
   @override
-  Future<void> rename(
-      String currentName, String password, String newName) async {
+  Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw StarknetTransactionCreationException.fromMessage('Wallet "$currentName" not found');
     }
     final currentWallet = await StarknetWalletBase.open(
       password: password,
@@ -159,10 +169,31 @@ class StarknetWalletService extends WalletService<
   }
 
   @override
-  Future<
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-          TransactionInfo>> restoreFromHardwareWallet(
-      StarknetNewWalletCredentials credentials) {
-    throw UnimplementedError();
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+      restoreFromHardwareWallet(StarknetRestoreWalletFromHardware credentials) async {
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationType = DerivationType.bip39;
+    derivationInfo.derivationPath = credentials.hwAccountData.derivationPath;
+    await derivationInfo.save();
+
+    final walletInfo = credentials.walletInfo!;
+    walletInfo.hardwareWalletType = credentials.hardwareWalletType;
+    walletInfo.address = credentials.hwAccountData.address;
+    await walletInfo.save();
+
+    final wallet = StarknetWallet(
+      password: credentials.password!,
+      walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      hardwarePublicKeyHex: credentials.hwAccountData.publicKey,
+      hardwareDerivationPath: credentials.hwAccountData.derivationPath,
+      accountClassHashHex: credentials.accountClassHashHex,
+    );
+
+    await wallet.init();
+    await wallet.save();
+
+    return wallet;
   }
 }

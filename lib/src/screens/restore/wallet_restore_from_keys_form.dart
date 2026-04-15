@@ -35,8 +35,10 @@ class WalletRestoreFromKeysForm extends StatefulWidget {
   final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromKeysFormState createState() => WalletRestoreFromKeysFormState(
-      displayWalletPassword: displayWalletPassword, restoredWallet: restoredWallet);
+  WalletRestoreFromKeysFormState createState() =>
+      WalletRestoreFromKeysFormState(
+          displayWalletPassword: displayWalletPassword,
+          restoredWallet: restoredWallet);
 }
 
 class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
@@ -63,12 +65,18 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             ? TextEditingController(text: restoredWallet.spendPubkey)
             : TextEditingController(),
         privateKeyController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.privateKey)
+            ? TextEditingController(
+                text: restoredWallet.privateKey ??
+                    (restoredWallet.type == WalletType.starknet
+                        ? restoredWallet.publicKey
+                        : null),
+              )
             : TextEditingController(),
         nameTextEditingController = restoredWallet != null
             ? TextEditingController(text: restoredWallet.name)
             : TextEditingController(),
-        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
+        passwordTextEditingController =
+            displayWalletPassword ? TextEditingController() : null,
         repeatedPasswordTextEditingController =
             displayWalletPassword ? TextEditingController() : null;
 
@@ -90,14 +98,16 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   @override
   void initState() {
     if (passwordTextEditingController != null) {
-      passwordListener = () => widget.onPasswordChange?.call(passwordTextEditingController!.text);
+      passwordListener = () =>
+          widget.onPasswordChange?.call(passwordTextEditingController!.text);
       passwordTextEditingController?.addListener(passwordListener!);
     }
 
     if (repeatedPasswordTextEditingController != null) {
-      repeatedPasswordListener =
-          () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
-      repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
+      repeatedPasswordListener = () => widget.onRepeatedPasswordChange
+          ?.call(repeatedPasswordTextEditingController!.text);
+      repeatedPasswordTextEditingController
+          ?.addListener(repeatedPasswordListener!);
     }
     super.initState();
 
@@ -135,7 +145,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
     }
 
     if (repeatedPasswordListener != null) {
-      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
+      repeatedPasswordTextEditingController
+          ?.removeListener(repeatedPasswordListener!);
     }
     super.dispose();
   }
@@ -150,20 +161,23 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
           children: <Widget>[
             SizedBox(height: 8),
             BaseTextFormField(
-              key: ValueKey('wallet_restore_from_keys_wallet_name_textfield_key'),
+              key: ValueKey(
+                  'wallet_restore_from_keys_wallet_name_textfield_key'),
               controller: nameTextEditingController,
               hintText: S.of(context).wallet_name,
               validator: WalletNameValidator(),
               suffixIcon: IconButton(
-                key: ValueKey('wallet_restore_from_keys_wallet_name_refresh_button_key'),
+                key: ValueKey(
+                    'wallet_restore_from_keys_wallet_name_refresh_button_key'),
                 onPressed: () async {
                   final rName = await generateName();
                   FocusManager.instance.primaryFocus?.unfocus();
 
                   setState(() {
                     nameTextEditingController.text = rName;
-                    nameTextEditingController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: nameTextEditingController.text.length));
+                    nameTextEditingController.selection =
+                        TextSelection.fromPosition(TextPosition(
+                            offset: nameTextEditingController.text.length));
                   });
                 },
                 icon: Container(
@@ -232,27 +246,35 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
       bool nanoBased = widget.walletRestoreViewModel.type == WalletType.nano ||
           widget.walletRestoreViewModel.type == WalletType.banano;
-      return Column(
-        children: [
-          AddressTextField(
-            addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
-            controller: privateKeyController,
-            placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
-            options: [AddressTextFieldOption.paste],
-            onPushPasteButton: (_) {
-              _pasteText();
-            },
+      final isStarknetPublicKeyRestore =
+          widget.walletRestoreViewModel.type == WalletType.starknet &&
+              widget.restoredWallet?.privateKey == null &&
+              widget.restoredWallet?.publicKey != null;
+      return Column(children: [
+        AddressTextField(
+          addressKey:
+              ValueKey('wallet_restore_from_key_private_key_textfield_key'),
+          controller: privateKeyController,
+          placeholder: nanoBased
+              ? S.of(context).seed_hex_form
+              : isStarknetPublicKeyRestore
+                  ? S.of(context).public_key
+                  : S.of(context).private_key,
+          options: [AddressTextFieldOption.paste],
+          onPushPasteButton: (_) {
+            _pasteText();
+          },
+        ),
+        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+          BlockchainHeightWidget(
+            key: blockchainHeightKey,
+            hasDatePicker:
+                widget.walletRestoreViewModel.type != WalletType.haven,
+            onHeightChange: (_) => null,
+            onHeightOrDateEntered: widget.onHeightOrDateEntered,
+            walletType: widget.walletRestoreViewModel.type,
           ),
-          if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
-            BlockchainHeightWidget(
-              key: blockchainHeightKey,
-              hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
-              onHeightChange: (_) => null,
-              onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              walletType: widget.walletRestoreViewModel.type,
-            ),
-        ]
-      );
+      ]);
     }
 
     return Column(
@@ -299,7 +321,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
           BlockchainHeightWidget(
             key: blockchainHeightKey,
-            hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
+            hasDatePicker:
+                widget.walletRestoreViewModel.type != WalletType.haven,
             onHeightChange: (_) => null,
             onHeightOrDateEntered: widget.onHeightOrDateEntered,
             walletType: widget.walletRestoreViewModel.type,

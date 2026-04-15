@@ -49,6 +49,7 @@ import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/starknet_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -287,6 +288,10 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 
   if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
     CakeHive.registerAdapter(TronTokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(StarknetToken.typeId)) {
+    CakeHive.registerAdapter(StarknetTokenAdapter());
   }
   await performHiveMigration();
 

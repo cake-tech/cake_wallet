@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
@@ -126,6 +127,15 @@ abstract class HomeSettingsViewModelBase with Store {
         await tron!.addTronToken(_balanceViewModel.wallet, tronToken, contractAddress);
       }
 
+      if (_balanceViewModel.wallet.type == WalletType.starknet) {
+        final starknetToken = token.copyWith(enabled: true);
+        await starknet!.addStarknetToken(
+          _balanceViewModel.wallet,
+          starknetToken,
+          contractAddress,
+        );
+      }
+
       if (_balanceViewModel.wallet.type == WalletType.zano) {
         await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
       }
@@ -153,6 +163,12 @@ abstract class HomeSettingsViewModelBase with Store {
       return tron!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.starknet) {
+      return starknet!.getStarknetTokenCurrencies(_balanceViewModel.wallet).any(
+            (token) => token.contractAddress.toLowerCase() == contractAddress.toLowerCase(),
+          );
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.zano) {
       return zano!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
     }
@@ -174,6 +190,9 @@ abstract class HomeSettingsViewModelBase with Store {
 
       if (_balanceViewModel.wallet.type == WalletType.tron) {
         await tron!.deleteTronToken(_balanceViewModel.wallet, token);
+      }
+      if (_balanceViewModel.wallet.type == WalletType.starknet) {
+        await starknet!.deleteStarknetToken(_balanceViewModel.wallet, token);
       }
       if (_balanceViewModel.wallet.type == WalletType.zano) {
         await zano!.deleteZanoAsset(_balanceViewModel.wallet, token);
@@ -229,6 +248,12 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.tron:
         defaultTokenAddresses = tron!.getDefaultTokenContractAddresses();
         break;
+      case WalletType.starknet:
+        defaultTokenAddresses = starknet!
+            .getStarknetTokenCurrencies(_balanceViewModel.wallet)
+            .map((token) => token.contractAddress)
+            .toList();
+        break;
       case WalletType.zano:
       case WalletType.banano:
       case WalletType.monero:
@@ -237,7 +262,6 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.haven:
       case WalletType.nano:
-      case WalletType.starknet:
       case WalletType.wownero:
       case WalletType.bitcoinCash:
       case WalletType.decred:
@@ -271,6 +295,12 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.tron:
         defaultTokenSymbols = tron!.getDefaultTokenSymbols();
         break;
+      case WalletType.starknet:
+        defaultTokenSymbols = starknet!
+            .getStarknetTokenCurrencies(_balanceViewModel.wallet)
+            .map((token) => token.symbol.toUpperCase())
+            .toList();
+        break;
       case WalletType.zano:
       case WalletType.banano:
       case WalletType.monero:
@@ -279,7 +309,6 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.haven:
       case WalletType.nano:
-      case WalletType.starknet:
       case WalletType.wownero:
       case WalletType.bitcoinCash:
       case WalletType.decred:
@@ -403,6 +432,10 @@ abstract class HomeSettingsViewModelBase with Store {
       return await tron!.getTronToken(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.starknet) {
+      return await starknet!.getStarknetToken(_balanceViewModel.wallet, contractAddress);
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.zano) {
       return await zano!.getZanoAsset(_balanceViewModel.wallet, contractAddress);
     }
@@ -439,6 +472,11 @@ abstract class HomeSettingsViewModelBase with Store {
     if (_balanceViewModel.wallet.type == WalletType.tron) {
       final address = tron!.getTokenAddress(token);
       tron!.addTronToken(_balanceViewModel.wallet, token, address);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.starknet) {
+      final address = starknet!.getTokenAddress(token);
+      starknet!.addStarknetToken(_balanceViewModel.wallet, token, address);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.zano) {
@@ -487,6 +525,14 @@ abstract class HomeSettingsViewModelBase with Store {
     if (_balanceViewModel.wallet.type == WalletType.tron) {
       tokens.addAll(tron!
           .getTronTokenCurrencies(_balanceViewModel.wallet)
+          .where((element) => _matchesSearchText(element))
+          .toList()
+        ..sort(_sortFunc));
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.starknet) {
+      tokens.addAll(starknet!
+          .getStarknetTokenCurrencies(_balanceViewModel.wallet)
           .where((element) => _matchesSearchText(element))
           .toList()
         ..sort(_sortFunc));
@@ -572,6 +618,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       return solana!.getTokenAddress(asset);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.starknet) {
+      return starknet!.getTokenAddress(asset);
     }
 
     if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {

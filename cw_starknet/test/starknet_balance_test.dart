@@ -3,44 +3,49 @@ import 'package:cw_starknet/starknet_balance.dart';
 
 void main() {
   group('StarknetBalance', () {
-    test('creates balance from double', () {
-      final balance = StarknetBalance(1.5);
+    test('creates balance from raw units', () {
+      final balance = StarknetBalance(BigInt.from(1500), decimals: 3);
       expect(balance.balance, 1.5);
     });
 
     test('zero balance', () {
-      final balance = StarknetBalance(0.0);
+      final balance = StarknetBalance.zero();
       expect(balance.balance, 0.0);
-      expect(balance.formattedAvailableBalance, '0.0');
+      expect(balance.formattedAvailableBalance, '0');
     });
 
     test('formattedAvailableBalance truncates long strings', () {
-      final balance = StarknetBalance(1.123456789012345);
+      final balance = StarknetBalance(
+        BigInt.parse('1123456789012345678'),
+        decimals: 18,
+      );
       final formatted = balance.formattedAvailableBalance;
       expect(formatted.length, lessThanOrEqualTo(12));
     });
 
     test('formattedAdditionalBalance equals formattedAvailableBalance', () {
-      final balance = StarknetBalance(2.5);
+      final balance = StarknetBalance(BigInt.from(2500), decimals: 3);
       expect(balance.formattedAdditionalBalance,
           balance.formattedAvailableBalance);
     });
 
     group('JSON serialization', () {
       test('toJSON produces valid JSON', () {
-        final balance = StarknetBalance(1.25);
+        final balance = StarknetBalance(BigInt.from(1250), decimals: 3);
         final json = balance.toJSON();
-        expect(json.contains('balance'), true);
-        expect(json.contains('1.25'), true);
+        expect(json.contains('raw_balance'), true);
+        expect(json.contains('1250'), true);
       });
 
       test('fromJSON round-trips correctly', () {
-        final original = StarknetBalance(3.14159);
+        final original = StarknetBalance(BigInt.parse('314159'), decimals: 5);
         final json = original.toJSON();
         final restored = StarknetBalance.fromJSON(json);
 
         expect(restored, isNotNull);
         expect(restored!.balance, closeTo(original.balance, 0.0001));
+        expect(restored.rawBalance, original.rawBalance);
+        expect(restored.decimals, original.decimals);
       });
 
       test('fromJSON returns null for null input', () {
@@ -49,13 +54,14 @@ void main() {
       });
 
       test('fromJSON returns zero for malformed input', () {
-        final result = StarknetBalance.fromJSON('{"balance": "not_a_number"}');
+        final result = StarknetBalance.fromJSON('{"raw_balance": "not_a_number"}');
         // Should not crash; returns 0.0 on parse failure
         expect(result, isNotNull);
+        expect(result!.rawBalance, BigInt.zero);
       });
 
       test('fromJSON handles integer balance', () {
-        final result = StarknetBalance.fromJSON('{"balance": "5"}');
+        final result = StarknetBalance.fromJSON('{"raw_balance": "5", "decimals": 0}');
         expect(result, isNotNull);
         expect(result!.balance, 5.0);
       });
@@ -63,13 +69,14 @@ void main() {
 
     group('Large and small values', () {
       test('very small balance', () {
-        final balance = StarknetBalance(0.000000000000000001);
+        final balance = StarknetBalance(BigInt.one, decimals: 18);
         expect(balance.balance, greaterThanOrEqualTo(0));
       });
 
       test('large balance', () {
-        final balance = StarknetBalance(1000000.123456);
-        expect(balance.balance, 1000000.123456);
+        final balance = StarknetBalance(BigInt.parse('1000000123456'), decimals: 6);
+        expect(balance.formattedAvailableBalance, '1000000.1234');
+        expect(balance.balance, 1000000.1234);
       });
     });
   });

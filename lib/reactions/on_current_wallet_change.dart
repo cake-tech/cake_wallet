@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -141,6 +142,11 @@ void startCurrentWalletChangeReaction(
       if (wallet.type == WalletType.tron) {
         currencies =
             tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+      }
+      if (wallet.type == WalletType.starknet) {
+        currencies = starknet!
+            .getStarknetTokenCurrencies(appStore.wallet!)
+            .where((element) => element.enabled);
       }
 
       if (currencies != null) {

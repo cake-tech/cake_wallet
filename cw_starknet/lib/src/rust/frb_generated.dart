@@ -70,7 +70,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 301082975;
+  int get rustContentHash => 1087241512;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -88,6 +88,25 @@ abstract class RustLibApi extends BaseApi {
       String? privateKeyHex,
       required String accountClassHashHex});
 
+  Future<DerivedAccountDataResponse> crateApiStarknetDeriveAccountFromPublicKey(
+      {required String publicKeyHex, required String accountClassHashHex});
+
+  Future<FeeQuoteResponse> crateApiStarknetEstimateExecuteFee(
+      {required String nodeUrl,
+      required String privateKeyHex,
+      required String accountAddressHex,
+      required String accountClassHashHex,
+      required List<StarknetCallInput> calls,
+      String? chainIdHex});
+
+  Future<FeeQuoteResponse> crateApiStarknetEstimateExecuteFeeExternalSigner(
+      {required String nodeUrl,
+      required String publicKeyHex,
+      required String accountAddressHex,
+      required String accountClassHashHex,
+      required List<StarknetCallInput> calls,
+      String? chainIdHex});
+
   Future<StringResponse> crateApiStarknetEstimateStandardTransferFee(
       {required String nodeUrl,
       required String privateKeyHex,
@@ -104,6 +123,22 @@ abstract class RustLibApi extends BaseApi {
       required String amountWei,
       String? chainIdHex});
 
+  Future<StringResponse> crateApiStarknetExecuteCalls(
+      {required String nodeUrl,
+      required String privateKeyHex,
+      required String accountAddressHex,
+      required String accountClassHashHex,
+      required List<StarknetCallInput> calls,
+      String? chainIdHex});
+
+  Future<StringResponse> crateApiStarknetExecuteCallsExternalSigner(
+      {required String nodeUrl,
+      required String planJson,
+      required String invokeRHex,
+      required String invokeSHex,
+      String? deployRHex,
+      String? deploySHex});
+
   Future<TransferHistoryResponse> crateApiStarknetFetchTransferHistory(
       {required String nodeUrl,
       required String accountAddressHex,
@@ -114,10 +149,25 @@ abstract class RustLibApi extends BaseApi {
 
   Future<I64Response> crateApiStarknetGetBlockNumber({required String nodeUrl});
 
+  Future<ExecutionPlanResponse>
+      crateApiStarknetGetExecuteTransactionHashesExternalSigner(
+          {required String nodeUrl,
+          required String publicKeyHex,
+          required String accountAddressHex,
+          required String accountClassHashHex,
+          required List<StarknetCallInput> calls,
+          String? chainIdHex});
+
   Future<StringResponse> crateApiStarknetGetTokenBalance(
       {required String nodeUrl,
       required String accountAddressHex,
       required String tokenAddressHex});
+
+  Future<TokenMetadataResponse> crateApiStarknetGetTokenMetadata(
+      {required String nodeUrl, required String tokenAddressHex});
+
+  Future<StringResponse> crateApiStarknetGetTypedDataMessageHash(
+      {required String accountAddressHex, required String typedDataJson});
 
   Future<void> crateApiStarknetInitApp();
 
@@ -136,6 +186,11 @@ abstract class RustLibApi extends BaseApi {
 
   Future<StarknetSignatureDataResponse> crateApiStarknetSignMessageHash(
       {required String privateKeyHex, required String messageHashHex});
+
+  Future<StringListResponse> crateApiStarknetSignTypedData(
+      {required String privateKeyHex,
+      required String accountAddressHex,
+      required String typedDataJson});
 
   Future<BoolResponse> crateApiStarknetVerifyMessageHashSignature(
       {required String publicKeyHex,
@@ -190,6 +245,134 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<DerivedAccountDataResponse> crateApiStarknetDeriveAccountFromPublicKey(
+      {required String publicKeyHex, required String accountClassHashHex}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(publicKeyHex, serializer);
+        sse_encode_String(accountClassHashHex, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 2, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_derived_account_data_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetDeriveAccountFromPublicKeyConstMeta,
+      argValues: [publicKeyHex, accountClassHashHex],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiStarknetDeriveAccountFromPublicKeyConstMeta =>
+      const TaskConstMeta(
+        debugName: "derive_account_from_public_key",
+        argNames: ["publicKeyHex", "accountClassHashHex"],
+      );
+
+  @override
+  Future<FeeQuoteResponse> crateApiStarknetEstimateExecuteFee(
+      {required String nodeUrl,
+      required String privateKeyHex,
+      required String accountAddressHex,
+      required String accountClassHashHex,
+      required List<StarknetCallInput> calls,
+      String? chainIdHex}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(nodeUrl, serializer);
+        sse_encode_String(privateKeyHex, serializer);
+        sse_encode_String(accountAddressHex, serializer);
+        sse_encode_String(accountClassHashHex, serializer);
+        sse_encode_list_starknet_call_input(calls, serializer);
+        sse_encode_opt_String(chainIdHex, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 3, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_fee_quote_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetEstimateExecuteFeeConstMeta,
+      argValues: [
+        nodeUrl,
+        privateKeyHex,
+        accountAddressHex,
+        accountClassHashHex,
+        calls,
+        chainIdHex
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiStarknetEstimateExecuteFeeConstMeta =>
+      const TaskConstMeta(
+        debugName: "estimate_execute_fee",
+        argNames: [
+          "nodeUrl",
+          "privateKeyHex",
+          "accountAddressHex",
+          "accountClassHashHex",
+          "calls",
+          "chainIdHex"
+        ],
+      );
+
+  @override
+  Future<FeeQuoteResponse> crateApiStarknetEstimateExecuteFeeExternalSigner(
+      {required String nodeUrl,
+      required String publicKeyHex,
+      required String accountAddressHex,
+      required String accountClassHashHex,
+      required List<StarknetCallInput> calls,
+      String? chainIdHex}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(nodeUrl, serializer);
+        sse_encode_String(publicKeyHex, serializer);
+        sse_encode_String(accountAddressHex, serializer);
+        sse_encode_String(accountClassHashHex, serializer);
+        sse_encode_list_starknet_call_input(calls, serializer);
+        sse_encode_opt_String(chainIdHex, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 4, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_fee_quote_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetEstimateExecuteFeeExternalSignerConstMeta,
+      argValues: [
+        nodeUrl,
+        publicKeyHex,
+        accountAddressHex,
+        accountClassHashHex,
+        calls,
+        chainIdHex
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta
+      get kCrateApiStarknetEstimateExecuteFeeExternalSignerConstMeta =>
+          const TaskConstMeta(
+            debugName: "estimate_execute_fee_external_signer",
+            argNames: [
+              "nodeUrl",
+              "publicKeyHex",
+              "accountAddressHex",
+              "accountClassHashHex",
+              "calls",
+              "chainIdHex"
+            ],
+          );
+
+  @override
   Future<StringResponse> crateApiStarknetEstimateStandardTransferFee(
       {required String nodeUrl,
       required String privateKeyHex,
@@ -205,7 +388,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(tokenAddressHex, serializer);
         sse_encode_opt_String(chainIdHex, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 2, port: port_);
+            funcId: 5, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_string_response,
@@ -255,7 +438,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(amountWei, serializer);
         sse_encode_opt_String(chainIdHex, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 3, port: port_);
+            funcId: 6, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_string_response,
@@ -290,6 +473,106 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<StringResponse> crateApiStarknetExecuteCalls(
+      {required String nodeUrl,
+      required String privateKeyHex,
+      required String accountAddressHex,
+      required String accountClassHashHex,
+      required List<StarknetCallInput> calls,
+      String? chainIdHex}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(nodeUrl, serializer);
+        sse_encode_String(privateKeyHex, serializer);
+        sse_encode_String(accountAddressHex, serializer);
+        sse_encode_String(accountClassHashHex, serializer);
+        sse_encode_list_starknet_call_input(calls, serializer);
+        sse_encode_opt_String(chainIdHex, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 7, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_string_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetExecuteCallsConstMeta,
+      argValues: [
+        nodeUrl,
+        privateKeyHex,
+        accountAddressHex,
+        accountClassHashHex,
+        calls,
+        chainIdHex
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiStarknetExecuteCallsConstMeta =>
+      const TaskConstMeta(
+        debugName: "execute_calls",
+        argNames: [
+          "nodeUrl",
+          "privateKeyHex",
+          "accountAddressHex",
+          "accountClassHashHex",
+          "calls",
+          "chainIdHex"
+        ],
+      );
+
+  @override
+  Future<StringResponse> crateApiStarknetExecuteCallsExternalSigner(
+      {required String nodeUrl,
+      required String planJson,
+      required String invokeRHex,
+      required String invokeSHex,
+      String? deployRHex,
+      String? deploySHex}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(nodeUrl, serializer);
+        sse_encode_String(planJson, serializer);
+        sse_encode_String(invokeRHex, serializer);
+        sse_encode_String(invokeSHex, serializer);
+        sse_encode_opt_String(deployRHex, serializer);
+        sse_encode_opt_String(deploySHex, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 8, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_string_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetExecuteCallsExternalSignerConstMeta,
+      argValues: [
+        nodeUrl,
+        planJson,
+        invokeRHex,
+        invokeSHex,
+        deployRHex,
+        deploySHex
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiStarknetExecuteCallsExternalSignerConstMeta =>
+      const TaskConstMeta(
+        debugName: "execute_calls_external_signer",
+        argNames: [
+          "nodeUrl",
+          "planJson",
+          "invokeRHex",
+          "invokeSHex",
+          "deployRHex",
+          "deploySHex"
+        ],
+      );
+
+  @override
   Future<TransferHistoryResponse> crateApiStarknetFetchTransferHistory(
       {required String nodeUrl,
       required String accountAddressHex,
@@ -307,7 +590,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_opt_box_autoadd_i_64(fromBlock, serializer);
         sse_encode_opt_box_autoadd_i_32(maxPages, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 4, port: port_);
+            funcId: 9, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_transfer_history_response,
@@ -347,7 +630,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(nodeUrl, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 5, port: port_);
+            funcId: 10, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_i_64_response,
@@ -366,6 +649,59 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<ExecutionPlanResponse>
+      crateApiStarknetGetExecuteTransactionHashesExternalSigner(
+          {required String nodeUrl,
+          required String publicKeyHex,
+          required String accountAddressHex,
+          required String accountClassHashHex,
+          required List<StarknetCallInput> calls,
+          String? chainIdHex}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(nodeUrl, serializer);
+        sse_encode_String(publicKeyHex, serializer);
+        sse_encode_String(accountAddressHex, serializer);
+        sse_encode_String(accountClassHashHex, serializer);
+        sse_encode_list_starknet_call_input(calls, serializer);
+        sse_encode_opt_String(chainIdHex, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 11, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_execution_plan_response,
+        decodeErrorData: null,
+      ),
+      constMeta:
+          kCrateApiStarknetGetExecuteTransactionHashesExternalSignerConstMeta,
+      argValues: [
+        nodeUrl,
+        publicKeyHex,
+        accountAddressHex,
+        accountClassHashHex,
+        calls,
+        chainIdHex
+      ],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta
+      get kCrateApiStarknetGetExecuteTransactionHashesExternalSignerConstMeta =>
+          const TaskConstMeta(
+            debugName: "get_execute_transaction_hashes_external_signer",
+            argNames: [
+              "nodeUrl",
+              "publicKeyHex",
+              "accountAddressHex",
+              "accountClassHashHex",
+              "calls",
+              "chainIdHex"
+            ],
+          );
+
+  @override
   Future<StringResponse> crateApiStarknetGetTokenBalance(
       {required String nodeUrl,
       required String accountAddressHex,
@@ -377,7 +713,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(accountAddressHex, serializer);
         sse_encode_String(tokenAddressHex, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 6, port: port_);
+            funcId: 12, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_string_response,
@@ -396,12 +732,66 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<TokenMetadataResponse> crateApiStarknetGetTokenMetadata(
+      {required String nodeUrl, required String tokenAddressHex}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(nodeUrl, serializer);
+        sse_encode_String(tokenAddressHex, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 13, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_token_metadata_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetGetTokenMetadataConstMeta,
+      argValues: [nodeUrl, tokenAddressHex],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiStarknetGetTokenMetadataConstMeta =>
+      const TaskConstMeta(
+        debugName: "get_token_metadata",
+        argNames: ["nodeUrl", "tokenAddressHex"],
+      );
+
+  @override
+  Future<StringResponse> crateApiStarknetGetTypedDataMessageHash(
+      {required String accountAddressHex, required String typedDataJson}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(accountAddressHex, serializer);
+        sse_encode_String(typedDataJson, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 14, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_string_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetGetTypedDataMessageHashConstMeta,
+      argValues: [accountAddressHex, typedDataJson],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiStarknetGetTypedDataMessageHashConstMeta =>
+      const TaskConstMeta(
+        debugName: "get_typed_data_message_hash",
+        argNames: ["accountAddressHex", "typedDataJson"],
+      );
+
+  @override
   Future<void> crateApiStarknetInitApp() {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 7, port: port_);
+            funcId: 15, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -427,7 +817,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(nodeUrl, serializer);
         sse_encode_String(accountAddressHex, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 8, port: port_);
+            funcId: 16, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_bool_response,
@@ -467,7 +857,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(accountClassHashHex, serializer);
         sse_encode_opt_String(chainIdHex, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 9, port: port_);
+            funcId: 17, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_string_response,
@@ -512,7 +902,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(privateKeyHex, serializer);
         sse_encode_String(messageHashHex, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 10, port: port_);
+            funcId: 18, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_starknet_signature_data_response,
@@ -531,6 +921,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<StringListResponse> crateApiStarknetSignTypedData(
+      {required String privateKeyHex,
+      required String accountAddressHex,
+      required String typedDataJson}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(privateKeyHex, serializer);
+        sse_encode_String(accountAddressHex, serializer);
+        sse_encode_String(typedDataJson, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 19, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_string_list_response,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiStarknetSignTypedDataConstMeta,
+      argValues: [privateKeyHex, accountAddressHex, typedDataJson],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiStarknetSignTypedDataConstMeta =>
+      const TaskConstMeta(
+        debugName: "sign_typed_data",
+        argNames: ["privateKeyHex", "accountAddressHex", "typedDataJson"],
+      );
+
+  @override
   Future<BoolResponse> crateApiStarknetVerifyMessageHashSignature(
       {required String publicKeyHex,
       required String messageHashHex,
@@ -544,7 +964,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(rHex, serializer);
         sse_encode_String(sHex, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 11, port: port_);
+            funcId: 20, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_bool_response,
@@ -611,10 +1031,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  StarknetExecutionPlanData dco_decode_box_autoadd_starknet_execution_plan_data(
+      dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_starknet_execution_plan_data(raw);
+  }
+
+  @protected
+  StarknetFeeQuote dco_decode_box_autoadd_starknet_fee_quote(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_starknet_fee_quote(raw);
+  }
+
+  @protected
   StarknetSignatureData dco_decode_box_autoadd_starknet_signature_data(
       dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_starknet_signature_data(raw);
+  }
+
+  @protected
+  StarknetTokenMetadata dco_decode_box_autoadd_starknet_token_metadata(
+      dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_starknet_token_metadata(raw);
   }
 
   @protected
@@ -644,6 +1084,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ExecutionPlanResponse dco_decode_execution_plan_response(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return ExecutionPlanResponse(
+      value: dco_decode_opt_box_autoadd_starknet_execution_plan_data(arr[0]),
+      error: dco_decode_opt_String(arr[1]),
+    );
+  }
+
+  @protected
+  FeeQuoteResponse dco_decode_fee_quote_response(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return FeeQuoteResponse(
+      value: dco_decode_opt_box_autoadd_starknet_fee_quote(arr[0]),
+      error: dco_decode_opt_String(arr[1]),
+    );
+  }
+
+  @protected
   int dco_decode_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -668,9 +1132,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_String).toList();
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  List<StarknetCallInput> dco_decode_list_starknet_call_input(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_starknet_call_input).toList();
   }
 
   @protected
@@ -715,12 +1191,78 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  StarknetExecutionPlanData?
+      dco_decode_opt_box_autoadd_starknet_execution_plan_data(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null
+        ? null
+        : dco_decode_box_autoadd_starknet_execution_plan_data(raw);
+  }
+
+  @protected
+  StarknetFeeQuote? dco_decode_opt_box_autoadd_starknet_fee_quote(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_starknet_fee_quote(raw);
+  }
+
+  @protected
   StarknetSignatureData? dco_decode_opt_box_autoadd_starknet_signature_data(
       dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null
         ? null
         : dco_decode_box_autoadd_starknet_signature_data(raw);
+  }
+
+  @protected
+  StarknetTokenMetadata? dco_decode_opt_box_autoadd_starknet_token_metadata(
+      dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null
+        ? null
+        : dco_decode_box_autoadd_starknet_token_metadata(raw);
+  }
+
+  @protected
+  StarknetCallInput dco_decode_starknet_call_input(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return StarknetCallInput(
+      contractAddressHex: dco_decode_String(arr[0]),
+      entrypoint: dco_decode_String(arr[1]),
+      calldataHex: dco_decode_list_String(arr[2]),
+    );
+  }
+
+  @protected
+  StarknetExecutionPlanData dco_decode_starknet_execution_plan_data(
+      dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return StarknetExecutionPlanData(
+      invokeTransactionHashHex: dco_decode_String(arr[0]),
+      deployAccountTransactionHashHex: dco_decode_opt_String(arr[1]),
+      accountDeploymentRequired: dco_decode_bool(arr[2]),
+      planJson: dco_decode_String(arr[3]),
+    );
+  }
+
+  @protected
+  StarknetFeeQuote dco_decode_starknet_fee_quote(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return StarknetFeeQuote(
+      overallFeeWei: dco_decode_String(arr[0]),
+      executionFeeWei: dco_decode_String(arr[1]),
+      deployAccountFeeWei: dco_decode_opt_String(arr[2]),
+      accountDeploymentRequired: dco_decode_bool(arr[3]),
+    );
   }
 
   @protected
@@ -749,6 +1291,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  StarknetTokenMetadata dco_decode_starknet_token_metadata(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return StarknetTokenMetadata(
+      tokenAddressHex: dco_decode_String(arr[0]),
+      name: dco_decode_String(arr[1]),
+      symbol: dco_decode_String(arr[2]),
+      decimals: dco_decode_i_32(arr[3]),
+    );
+  }
+
+  @protected
+  StringListResponse dco_decode_string_list_response(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return StringListResponse(
+      items: dco_decode_list_String(arr[0]),
+      error: dco_decode_opt_String(arr[1]),
+    );
+  }
+
+  @protected
   StringResponse dco_decode_string_response(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -761,21 +1329,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  TokenMetadataResponse dco_decode_token_metadata_response(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return TokenMetadataResponse(
+      value: dco_decode_opt_box_autoadd_starknet_token_metadata(arr[0]),
+      error: dco_decode_opt_String(arr[1]),
+    );
+  }
+
+  @protected
   TransferHistoryItem dco_decode_transfer_history_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 9)
-      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
+    if (arr.length != 12)
+      throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
     return TransferHistoryItem(
       transactionHash: dco_decode_String(arr[0]),
-      blockNumber: dco_decode_opt_box_autoadd_i_64(arr[1]),
-      from: dco_decode_String(arr[2]),
-      to: dco_decode_String(arr[3]),
-      amountWei: dco_decode_String(arr[4]),
-      isOutgoing: dco_decode_bool(arr[5]),
-      tokenSymbol: dco_decode_String(arr[6]),
-      blockTimestamp: dco_decode_opt_box_autoadd_i_64(arr[7]),
-      txFeeWei: dco_decode_opt_String(arr[8]),
+      eventId: dco_decode_String(arr[1]),
+      eventIndex: dco_decode_i_64(arr[2]),
+      blockNumber: dco_decode_opt_box_autoadd_i_64(arr[3]),
+      from: dco_decode_String(arr[4]),
+      to: dco_decode_String(arr[5]),
+      amountWei: dco_decode_String(arr[6]),
+      isOutgoing: dco_decode_bool(arr[7]),
+      tokenSymbol: dco_decode_String(arr[8]),
+      tokenAddressHex: dco_decode_String(arr[9]),
+      blockTimestamp: dco_decode_opt_box_autoadd_i_64(arr[10]),
+      txFeeWei: dco_decode_opt_String(arr[11]),
     );
   }
 
@@ -850,10 +1433,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  StarknetExecutionPlanData sse_decode_box_autoadd_starknet_execution_plan_data(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_starknet_execution_plan_data(deserializer));
+  }
+
+  @protected
+  StarknetFeeQuote sse_decode_box_autoadd_starknet_fee_quote(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_starknet_fee_quote(deserializer));
+  }
+
+  @protected
   StarknetSignatureData sse_decode_box_autoadd_starknet_signature_data(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_starknet_signature_data(deserializer));
+  }
+
+  @protected
+  StarknetTokenMetadata sse_decode_box_autoadd_starknet_token_metadata(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_starknet_token_metadata(deserializer));
   }
 
   @protected
@@ -880,6 +1484,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ExecutionPlanResponse sse_decode_execution_plan_response(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_value =
+        sse_decode_opt_box_autoadd_starknet_execution_plan_data(deserializer);
+    var var_error = sse_decode_opt_String(deserializer);
+    return ExecutionPlanResponse(value: var_value, error: var_error);
+  }
+
+  @protected
+  FeeQuoteResponse sse_decode_fee_quote_response(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_value = sse_decode_opt_box_autoadd_starknet_fee_quote(deserializer);
+    var var_error = sse_decode_opt_String(deserializer);
+    return FeeQuoteResponse(value: var_value, error: var_error);
+  }
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
@@ -900,10 +1522,35 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <String>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_String(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  List<StarknetCallInput> sse_decode_list_starknet_call_input(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <StarknetCallInput>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_starknet_call_input(deserializer));
+    }
+    return ans_;
   }
 
   @protected
@@ -976,6 +1623,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  StarknetExecutionPlanData?
+      sse_decode_opt_box_autoadd_starknet_execution_plan_data(
+          SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_starknet_execution_plan_data(
+          deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  StarknetFeeQuote? sse_decode_opt_box_autoadd_starknet_fee_quote(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_starknet_fee_quote(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   StarknetSignatureData? sse_decode_opt_box_autoadd_starknet_signature_data(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -985,6 +1658,61 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     } else {
       return null;
     }
+  }
+
+  @protected
+  StarknetTokenMetadata? sse_decode_opt_box_autoadd_starknet_token_metadata(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_starknet_token_metadata(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  StarknetCallInput sse_decode_starknet_call_input(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_contractAddressHex = sse_decode_String(deserializer);
+    var var_entrypoint = sse_decode_String(deserializer);
+    var var_calldataHex = sse_decode_list_String(deserializer);
+    return StarknetCallInput(
+        contractAddressHex: var_contractAddressHex,
+        entrypoint: var_entrypoint,
+        calldataHex: var_calldataHex);
+  }
+
+  @protected
+  StarknetExecutionPlanData sse_decode_starknet_execution_plan_data(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_invokeTransactionHashHex = sse_decode_String(deserializer);
+    var var_deployAccountTransactionHashHex =
+        sse_decode_opt_String(deserializer);
+    var var_accountDeploymentRequired = sse_decode_bool(deserializer);
+    var var_planJson = sse_decode_String(deserializer);
+    return StarknetExecutionPlanData(
+        invokeTransactionHashHex: var_invokeTransactionHashHex,
+        deployAccountTransactionHashHex: var_deployAccountTransactionHashHex,
+        accountDeploymentRequired: var_accountDeploymentRequired,
+        planJson: var_planJson);
+  }
+
+  @protected
+  StarknetFeeQuote sse_decode_starknet_fee_quote(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_overallFeeWei = sse_decode_String(deserializer);
+    var var_executionFeeWei = sse_decode_String(deserializer);
+    var var_deployAccountFeeWei = sse_decode_opt_String(deserializer);
+    var var_accountDeploymentRequired = sse_decode_bool(deserializer);
+    return StarknetFeeQuote(
+        overallFeeWei: var_overallFeeWei,
+        executionFeeWei: var_executionFeeWei,
+        deployAccountFeeWei: var_deployAccountFeeWei,
+        accountDeploymentRequired: var_accountDeploymentRequired);
   }
 
   @protected
@@ -1007,6 +1735,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  StarknetTokenMetadata sse_decode_starknet_token_metadata(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_tokenAddressHex = sse_decode_String(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    var var_symbol = sse_decode_String(deserializer);
+    var var_decimals = sse_decode_i_32(deserializer);
+    return StarknetTokenMetadata(
+        tokenAddressHex: var_tokenAddressHex,
+        name: var_name,
+        symbol: var_symbol,
+        decimals: var_decimals);
+  }
+
+  @protected
+  StringListResponse sse_decode_string_list_response(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_items = sse_decode_list_String(deserializer);
+    var var_error = sse_decode_opt_String(deserializer);
+    return StringListResponse(items: var_items, error: var_error);
+  }
+
+  @protected
   StringResponse sse_decode_string_response(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_value = sse_decode_opt_String(deserializer);
@@ -1015,26 +1767,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  TokenMetadataResponse sse_decode_token_metadata_response(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_value =
+        sse_decode_opt_box_autoadd_starknet_token_metadata(deserializer);
+    var var_error = sse_decode_opt_String(deserializer);
+    return TokenMetadataResponse(value: var_value, error: var_error);
+  }
+
+  @protected
   TransferHistoryItem sse_decode_transfer_history_item(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_transactionHash = sse_decode_String(deserializer);
+    var var_eventId = sse_decode_String(deserializer);
+    var var_eventIndex = sse_decode_i_64(deserializer);
     var var_blockNumber = sse_decode_opt_box_autoadd_i_64(deserializer);
     var var_from = sse_decode_String(deserializer);
     var var_to = sse_decode_String(deserializer);
     var var_amountWei = sse_decode_String(deserializer);
     var var_isOutgoing = sse_decode_bool(deserializer);
     var var_tokenSymbol = sse_decode_String(deserializer);
+    var var_tokenAddressHex = sse_decode_String(deserializer);
     var var_blockTimestamp = sse_decode_opt_box_autoadd_i_64(deserializer);
     var var_txFeeWei = sse_decode_opt_String(deserializer);
     return TransferHistoryItem(
         transactionHash: var_transactionHash,
+        eventId: var_eventId,
+        eventIndex: var_eventIndex,
         blockNumber: var_blockNumber,
         from: var_from,
         to: var_to,
         amountWei: var_amountWei,
         isOutgoing: var_isOutgoing,
         tokenSymbol: var_tokenSymbol,
+        tokenAddressHex: var_tokenAddressHex,
         blockTimestamp: var_blockTimestamp,
         txFeeWei: var_txFeeWei);
   }
@@ -1105,10 +1873,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_starknet_execution_plan_data(
+      StarknetExecutionPlanData self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_starknet_execution_plan_data(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_starknet_fee_quote(
+      StarknetFeeQuote self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_starknet_fee_quote(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_starknet_signature_data(
       StarknetSignatureData self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_starknet_signature_data(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_starknet_token_metadata(
+      StarknetTokenMetadata self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_starknet_token_metadata(self, serializer);
   }
 
   @protected
@@ -1125,6 +1914,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       DerivedAccountDataResponse self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_opt_box_autoadd_derived_account_data(self.value, serializer);
+    sse_encode_opt_String(self.error, serializer);
+  }
+
+  @protected
+  void sse_encode_execution_plan_response(
+      ExecutionPlanResponse self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_box_autoadd_starknet_execution_plan_data(
+        self.value, serializer);
+    sse_encode_opt_String(self.error, serializer);
+  }
+
+  @protected
+  void sse_encode_fee_quote_response(
+      FeeQuoteResponse self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_box_autoadd_starknet_fee_quote(self.value, serializer);
     sse_encode_opt_String(self.error, serializer);
   }
 
@@ -1148,11 +1954,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_String(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_list_starknet_call_input(
+      List<StarknetCallInput> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_starknet_call_input(item, serializer);
+    }
   }
 
   @protected
@@ -1218,6 +2043,28 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_starknet_execution_plan_data(
+      StarknetExecutionPlanData? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_starknet_execution_plan_data(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_fee_quote(
+      StarknetFeeQuote? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_starknet_fee_quote(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_starknet_signature_data(
       StarknetSignatureData? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -1226,6 +2073,46 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     if (self != null) {
       sse_encode_box_autoadd_starknet_signature_data(self, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_token_metadata(
+      StarknetTokenMetadata? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_starknet_token_metadata(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_starknet_call_input(
+      StarknetCallInput self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.contractAddressHex, serializer);
+    sse_encode_String(self.entrypoint, serializer);
+    sse_encode_list_String(self.calldataHex, serializer);
+  }
+
+  @protected
+  void sse_encode_starknet_execution_plan_data(
+      StarknetExecutionPlanData self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.invokeTransactionHashHex, serializer);
+    sse_encode_opt_String(self.deployAccountTransactionHashHex, serializer);
+    sse_encode_bool(self.accountDeploymentRequired, serializer);
+    sse_encode_String(self.planJson, serializer);
+  }
+
+  @protected
+  void sse_encode_starknet_fee_quote(
+      StarknetFeeQuote self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.overallFeeWei, serializer);
+    sse_encode_String(self.executionFeeWei, serializer);
+    sse_encode_opt_String(self.deployAccountFeeWei, serializer);
+    sse_encode_bool(self.accountDeploymentRequired, serializer);
   }
 
   @protected
@@ -1245,6 +2132,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_starknet_token_metadata(
+      StarknetTokenMetadata self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.tokenAddressHex, serializer);
+    sse_encode_String(self.name, serializer);
+    sse_encode_String(self.symbol, serializer);
+    sse_encode_i_32(self.decimals, serializer);
+  }
+
+  @protected
+  void sse_encode_string_list_response(
+      StringListResponse self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_String(self.items, serializer);
+    sse_encode_opt_String(self.error, serializer);
+  }
+
+  @protected
   void sse_encode_string_response(
       StringResponse self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -1253,16 +2158,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_token_metadata_response(
+      TokenMetadataResponse self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_box_autoadd_starknet_token_metadata(self.value, serializer);
+    sse_encode_opt_String(self.error, serializer);
+  }
+
+  @protected
   void sse_encode_transfer_history_item(
       TransferHistoryItem self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.transactionHash, serializer);
+    sse_encode_String(self.eventId, serializer);
+    sse_encode_i_64(self.eventIndex, serializer);
     sse_encode_opt_box_autoadd_i_64(self.blockNumber, serializer);
     sse_encode_String(self.from, serializer);
     sse_encode_String(self.to, serializer);
     sse_encode_String(self.amountWei, serializer);
     sse_encode_bool(self.isOutgoing, serializer);
     sse_encode_String(self.tokenSymbol, serializer);
+    sse_encode_String(self.tokenAddressHex, serializer);
     sse_encode_opt_box_autoadd_i_64(self.blockTimestamp, serializer);
     sse_encode_opt_String(self.txFeeWei, serializer);
   }

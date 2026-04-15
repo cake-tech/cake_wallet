@@ -1,6 +1,7 @@
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -26,6 +27,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
         return evm!.getPrivateKey(wallet);
       case WalletType.solana:
         return solana!.getPrivateKey(wallet);
+      case WalletType.starknet:
+        return starknet!.getPrivateKey(wallet);
       default:
         return '';
     }
@@ -41,6 +44,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
         return evm!.getPublicKey(wallet);
       case WalletType.solana:
         return solana!.getPublicKey(wallet);
+      case WalletType.starknet:
+        return starknet!.getAddress(wallet);
       default:
         return '';
     }
@@ -67,6 +72,11 @@ class KeyServiceImpl implements WalletConnectKeyService {
           'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // main-net
           'solana:8E9rvCKLFQia2Y35HXjjpWzj8weVo44K', // test-net
         ],
+        privateKey: _getPrivateKeyForWallet(wallet),
+        publicKey: _getPublicKeyForWallet(wallet),
+      ),
+      ChainKeyModel(
+        chains: const ['starknet:SN_MAIN'],
         privateKey: _getPrivateKeyForWallet(wallet),
         publicKey: _getPublicKeyForWallet(wallet),
       ),

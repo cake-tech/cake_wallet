@@ -221,7 +221,10 @@ abstract class OutputBase with Store {
           estimatedFee = solana!.getEstimateFees(_wallet).toString();
           break;
         case WalletType.starknet:
-          estimatedFee = (starknet!.getEstimateFees(_wallet) ?? 0).toString();
+          estimatedFee = (starknet!
+                      .getEstimateFees(_wallet, currency: cryptoCurrencyHandler()) ??
+                  0)
+              .toString();
           break;
         case WalletType.zano:
           estimatedFee = zano!

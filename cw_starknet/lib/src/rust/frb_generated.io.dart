@@ -40,7 +40,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw);
 
   @protected
+  StarknetExecutionPlanData dco_decode_box_autoadd_starknet_execution_plan_data(
+      dynamic raw);
+
+  @protected
+  StarknetFeeQuote dco_decode_box_autoadd_starknet_fee_quote(dynamic raw);
+
+  @protected
   StarknetSignatureData dco_decode_box_autoadd_starknet_signature_data(
+      dynamic raw);
+
+  @protected
+  StarknetTokenMetadata dco_decode_box_autoadd_starknet_token_metadata(
       dynamic raw);
 
   @protected
@@ -49,6 +60,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   DerivedAccountDataResponse dco_decode_derived_account_data_response(
       dynamic raw);
+
+  @protected
+  ExecutionPlanResponse dco_decode_execution_plan_response(dynamic raw);
+
+  @protected
+  FeeQuoteResponse dco_decode_fee_quote_response(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
@@ -60,7 +77,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   I64Response dco_decode_i_64_response(dynamic raw);
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<StarknetCallInput> dco_decode_list_starknet_call_input(dynamic raw);
 
   @protected
   List<TransferHistoryItem> dco_decode_list_transfer_history_item(dynamic raw);
@@ -82,8 +105,29 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw);
 
   @protected
+  StarknetExecutionPlanData?
+      dco_decode_opt_box_autoadd_starknet_execution_plan_data(dynamic raw);
+
+  @protected
+  StarknetFeeQuote? dco_decode_opt_box_autoadd_starknet_fee_quote(dynamic raw);
+
+  @protected
   StarknetSignatureData? dco_decode_opt_box_autoadd_starknet_signature_data(
       dynamic raw);
+
+  @protected
+  StarknetTokenMetadata? dco_decode_opt_box_autoadd_starknet_token_metadata(
+      dynamic raw);
+
+  @protected
+  StarknetCallInput dco_decode_starknet_call_input(dynamic raw);
+
+  @protected
+  StarknetExecutionPlanData dco_decode_starknet_execution_plan_data(
+      dynamic raw);
+
+  @protected
+  StarknetFeeQuote dco_decode_starknet_fee_quote(dynamic raw);
 
   @protected
   StarknetSignatureData dco_decode_starknet_signature_data(dynamic raw);
@@ -93,7 +137,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       dynamic raw);
 
   @protected
+  StarknetTokenMetadata dco_decode_starknet_token_metadata(dynamic raw);
+
+  @protected
+  StringListResponse dco_decode_string_list_response(dynamic raw);
+
+  @protected
   StringResponse dco_decode_string_response(dynamic raw);
+
+  @protected
+  TokenMetadataResponse dco_decode_token_metadata_response(dynamic raw);
 
   @protected
   TransferHistoryItem dco_decode_transfer_history_item(dynamic raw);
@@ -130,7 +183,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer);
 
   @protected
+  StarknetExecutionPlanData sse_decode_box_autoadd_starknet_execution_plan_data(
+      SseDeserializer deserializer);
+
+  @protected
+  StarknetFeeQuote sse_decode_box_autoadd_starknet_fee_quote(
+      SseDeserializer deserializer);
+
+  @protected
   StarknetSignatureData sse_decode_box_autoadd_starknet_signature_data(
+      SseDeserializer deserializer);
+
+  @protected
+  StarknetTokenMetadata sse_decode_box_autoadd_starknet_token_metadata(
       SseDeserializer deserializer);
 
   @protected
@@ -142,6 +207,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       SseDeserializer deserializer);
 
   @protected
+  ExecutionPlanResponse sse_decode_execution_plan_response(
+      SseDeserializer deserializer);
+
+  @protected
+  FeeQuoteResponse sse_decode_fee_quote_response(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
@@ -151,7 +223,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   I64Response sse_decode_i_64_response(SseDeserializer deserializer);
 
   @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<StarknetCallInput> sse_decode_list_starknet_call_input(
+      SseDeserializer deserializer);
 
   @protected
   List<TransferHistoryItem> sse_decode_list_transfer_history_item(
@@ -174,8 +253,32 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer);
 
   @protected
+  StarknetExecutionPlanData?
+      sse_decode_opt_box_autoadd_starknet_execution_plan_data(
+          SseDeserializer deserializer);
+
+  @protected
+  StarknetFeeQuote? sse_decode_opt_box_autoadd_starknet_fee_quote(
+      SseDeserializer deserializer);
+
+  @protected
   StarknetSignatureData? sse_decode_opt_box_autoadd_starknet_signature_data(
       SseDeserializer deserializer);
+
+  @protected
+  StarknetTokenMetadata? sse_decode_opt_box_autoadd_starknet_token_metadata(
+      SseDeserializer deserializer);
+
+  @protected
+  StarknetCallInput sse_decode_starknet_call_input(
+      SseDeserializer deserializer);
+
+  @protected
+  StarknetExecutionPlanData sse_decode_starknet_execution_plan_data(
+      SseDeserializer deserializer);
+
+  @protected
+  StarknetFeeQuote sse_decode_starknet_fee_quote(SseDeserializer deserializer);
 
   @protected
   StarknetSignatureData sse_decode_starknet_signature_data(
@@ -186,7 +289,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       SseDeserializer deserializer);
 
   @protected
+  StarknetTokenMetadata sse_decode_starknet_token_metadata(
+      SseDeserializer deserializer);
+
+  @protected
+  StringListResponse sse_decode_string_list_response(
+      SseDeserializer deserializer);
+
+  @protected
   StringResponse sse_decode_string_response(SseDeserializer deserializer);
+
+  @protected
+  TokenMetadataResponse sse_decode_token_metadata_response(
+      SseDeserializer deserializer);
 
   @protected
   TransferHistoryItem sse_decode_transfer_history_item(
@@ -226,8 +341,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       PlatformInt64 self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_starknet_execution_plan_data(
+      StarknetExecutionPlanData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_starknet_fee_quote(
+      StarknetFeeQuote self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_starknet_signature_data(
       StarknetSignatureData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_starknet_token_metadata(
+      StarknetTokenMetadata self, SseSerializer serializer);
 
   @protected
   void sse_encode_derived_account_data(
@@ -236,6 +363,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_derived_account_data_response(
       DerivedAccountDataResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_execution_plan_response(
+      ExecutionPlanResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_fee_quote_response(
+      FeeQuoteResponse self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
@@ -247,8 +382,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_i_64_response(I64Response self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_starknet_call_input(
+      List<StarknetCallInput> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_transfer_history_item(
@@ -272,8 +414,32 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       PlatformInt64? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_starknet_execution_plan_data(
+      StarknetExecutionPlanData? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_fee_quote(
+      StarknetFeeQuote? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_starknet_signature_data(
       StarknetSignatureData? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_token_metadata(
+      StarknetTokenMetadata? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_call_input(
+      StarknetCallInput self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_execution_plan_data(
+      StarknetExecutionPlanData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_fee_quote(
+      StarknetFeeQuote self, SseSerializer serializer);
 
   @protected
   void sse_encode_starknet_signature_data(
@@ -284,8 +450,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       StarknetSignatureDataResponse self, SseSerializer serializer);
 
   @protected
+  void sse_encode_starknet_token_metadata(
+      StarknetTokenMetadata self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_string_list_response(
+      StringListResponse self, SseSerializer serializer);
+
+  @protected
   void sse_encode_string_response(
       StringResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_token_metadata_response(
+      TokenMetadataResponse self, SseSerializer serializer);
 
   @protected
   void sse_encode_transfer_history_item(

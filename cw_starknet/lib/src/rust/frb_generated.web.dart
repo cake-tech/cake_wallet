@@ -3,7 +3,6 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
-
 // Static analysis wrongly picks the IO variant, thus ignore this
 // ignore_for_file: argument_type_not_assignable
 
@@ -13,200 +12,485 @@ import 'dart:convert';
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
 
+abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
+  RustLibApiImplPlatform({
+    required super.handler,
+    required super.wire,
+    required super.generalizedFrbRustBinding,
+    required super.portManager,
+  });
 
+  @protected
+  String dco_decode_String(dynamic raw);
 
+  @protected
+  bool dco_decode_bool(dynamic raw);
 
-                abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
-                  RustLibApiImplPlatform({
-                    required super.handler,
-                    required super.wire,
-                    required super.generalizedFrbRustBinding,
-                    required super.portManager,
-                  });
+  @protected
+  BoolResponse dco_decode_bool_response(dynamic raw);
 
-                  
+  @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw);
 
-                  @protected String dco_decode_String(dynamic raw);
+  @protected
+  DerivedAccountData dco_decode_box_autoadd_derived_account_data(dynamic raw);
 
-@protected bool dco_decode_bool(dynamic raw);
+  @protected
+  int dco_decode_box_autoadd_i_32(dynamic raw);
 
-@protected BoolResponse dco_decode_bool_response(dynamic raw);
+  @protected
+  PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw);
 
-@protected bool dco_decode_box_autoadd_bool(dynamic raw);
+  @protected
+  StarknetExecutionPlanData dco_decode_box_autoadd_starknet_execution_plan_data(
+      dynamic raw);
 
-@protected DerivedAccountData dco_decode_box_autoadd_derived_account_data(dynamic raw);
+  @protected
+  StarknetFeeQuote dco_decode_box_autoadd_starknet_fee_quote(dynamic raw);
 
-@protected int dco_decode_box_autoadd_i_32(dynamic raw);
+  @protected
+  StarknetSignatureData dco_decode_box_autoadd_starknet_signature_data(
+      dynamic raw);
 
-@protected PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw);
+  @protected
+  StarknetTokenMetadata dco_decode_box_autoadd_starknet_token_metadata(
+      dynamic raw);
 
-@protected StarknetSignatureData dco_decode_box_autoadd_starknet_signature_data(dynamic raw);
+  @protected
+  DerivedAccountData dco_decode_derived_account_data(dynamic raw);
 
-@protected DerivedAccountData dco_decode_derived_account_data(dynamic raw);
+  @protected
+  DerivedAccountDataResponse dco_decode_derived_account_data_response(
+      dynamic raw);
 
-@protected DerivedAccountDataResponse dco_decode_derived_account_data_response(dynamic raw);
+  @protected
+  ExecutionPlanResponse dco_decode_execution_plan_response(dynamic raw);
 
-@protected int dco_decode_i_32(dynamic raw);
+  @protected
+  FeeQuoteResponse dco_decode_fee_quote_response(dynamic raw);
 
-@protected PlatformInt64 dco_decode_i_64(dynamic raw);
+  @protected
+  int dco_decode_i_32(dynamic raw);
 
-@protected I64Response dco_decode_i_64_response(dynamic raw);
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw);
 
-@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+  @protected
+  I64Response dco_decode_i_64_response(dynamic raw);
 
-@protected List<TransferHistoryItem> dco_decode_list_transfer_history_item(dynamic raw);
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
 
-@protected String? dco_decode_opt_String(dynamic raw);
+  @protected
+  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-@protected bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
+  @protected
+  List<StarknetCallInput> dco_decode_list_starknet_call_input(dynamic raw);
 
-@protected DerivedAccountData? dco_decode_opt_box_autoadd_derived_account_data(dynamic raw);
+  @protected
+  List<TransferHistoryItem> dco_decode_list_transfer_history_item(dynamic raw);
 
-@protected int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
+  @protected
+  String? dco_decode_opt_String(dynamic raw);
 
-@protected PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw);
+  @protected
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
-@protected StarknetSignatureData? dco_decode_opt_box_autoadd_starknet_signature_data(dynamic raw);
+  @protected
+  DerivedAccountData? dco_decode_opt_box_autoadd_derived_account_data(
+      dynamic raw);
 
-@protected StarknetSignatureData dco_decode_starknet_signature_data(dynamic raw);
+  @protected
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
 
-@protected StarknetSignatureDataResponse dco_decode_starknet_signature_data_response(dynamic raw);
+  @protected
+  PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw);
 
-@protected StringResponse dco_decode_string_response(dynamic raw);
+  @protected
+  StarknetExecutionPlanData?
+      dco_decode_opt_box_autoadd_starknet_execution_plan_data(dynamic raw);
 
-@protected TransferHistoryItem dco_decode_transfer_history_item(dynamic raw);
+  @protected
+  StarknetFeeQuote? dco_decode_opt_box_autoadd_starknet_fee_quote(dynamic raw);
 
-@protected TransferHistoryResponse dco_decode_transfer_history_response(dynamic raw);
+  @protected
+  StarknetSignatureData? dco_decode_opt_box_autoadd_starknet_signature_data(
+      dynamic raw);
 
-@protected int dco_decode_u_8(dynamic raw);
+  @protected
+  StarknetTokenMetadata? dco_decode_opt_box_autoadd_starknet_token_metadata(
+      dynamic raw);
 
-@protected void dco_decode_unit(dynamic raw);
+  @protected
+  StarknetCallInput dco_decode_starknet_call_input(dynamic raw);
 
-@protected String sse_decode_String(SseDeserializer deserializer);
+  @protected
+  StarknetExecutionPlanData dco_decode_starknet_execution_plan_data(
+      dynamic raw);
 
-@protected bool sse_decode_bool(SseDeserializer deserializer);
+  @protected
+  StarknetFeeQuote dco_decode_starknet_fee_quote(dynamic raw);
 
-@protected BoolResponse sse_decode_bool_response(SseDeserializer deserializer);
+  @protected
+  StarknetSignatureData dco_decode_starknet_signature_data(dynamic raw);
 
-@protected bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
+  @protected
+  StarknetSignatureDataResponse dco_decode_starknet_signature_data_response(
+      dynamic raw);
 
-@protected DerivedAccountData sse_decode_box_autoadd_derived_account_data(SseDeserializer deserializer);
+  @protected
+  StarknetTokenMetadata dco_decode_starknet_token_metadata(dynamic raw);
 
-@protected int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
+  @protected
+  StringListResponse dco_decode_string_list_response(dynamic raw);
 
-@protected PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer);
+  @protected
+  StringResponse dco_decode_string_response(dynamic raw);
 
-@protected StarknetSignatureData sse_decode_box_autoadd_starknet_signature_data(SseDeserializer deserializer);
+  @protected
+  TokenMetadataResponse dco_decode_token_metadata_response(dynamic raw);
 
-@protected DerivedAccountData sse_decode_derived_account_data(SseDeserializer deserializer);
+  @protected
+  TransferHistoryItem dco_decode_transfer_history_item(dynamic raw);
 
-@protected DerivedAccountDataResponse sse_decode_derived_account_data_response(SseDeserializer deserializer);
+  @protected
+  TransferHistoryResponse dco_decode_transfer_history_response(dynamic raw);
 
-@protected int sse_decode_i_32(SseDeserializer deserializer);
+  @protected
+  int dco_decode_u_8(dynamic raw);
 
-@protected PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
+  @protected
+  void dco_decode_unit(dynamic raw);
 
-@protected I64Response sse_decode_i_64_response(SseDeserializer deserializer);
+  @protected
+  String sse_decode_String(SseDeserializer deserializer);
 
-@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+  @protected
+  bool sse_decode_bool(SseDeserializer deserializer);
 
-@protected List<TransferHistoryItem> sse_decode_list_transfer_history_item(SseDeserializer deserializer);
+  @protected
+  BoolResponse sse_decode_bool_response(SseDeserializer deserializer);
 
-@protected String? sse_decode_opt_String(SseDeserializer deserializer);
+  @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
-@protected bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
+  @protected
+  DerivedAccountData sse_decode_box_autoadd_derived_account_data(
+      SseDeserializer deserializer);
 
-@protected DerivedAccountData? sse_decode_opt_box_autoadd_derived_account_data(SseDeserializer deserializer);
+  @protected
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
-@protected int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
+  @protected
+  PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer);
 
-@protected PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer);
+  @protected
+  StarknetExecutionPlanData sse_decode_box_autoadd_starknet_execution_plan_data(
+      SseDeserializer deserializer);
 
-@protected StarknetSignatureData? sse_decode_opt_box_autoadd_starknet_signature_data(SseDeserializer deserializer);
+  @protected
+  StarknetFeeQuote sse_decode_box_autoadd_starknet_fee_quote(
+      SseDeserializer deserializer);
 
-@protected StarknetSignatureData sse_decode_starknet_signature_data(SseDeserializer deserializer);
+  @protected
+  StarknetSignatureData sse_decode_box_autoadd_starknet_signature_data(
+      SseDeserializer deserializer);
 
-@protected StarknetSignatureDataResponse sse_decode_starknet_signature_data_response(SseDeserializer deserializer);
+  @protected
+  StarknetTokenMetadata sse_decode_box_autoadd_starknet_token_metadata(
+      SseDeserializer deserializer);
 
-@protected StringResponse sse_decode_string_response(SseDeserializer deserializer);
+  @protected
+  DerivedAccountData sse_decode_derived_account_data(
+      SseDeserializer deserializer);
 
-@protected TransferHistoryItem sse_decode_transfer_history_item(SseDeserializer deserializer);
+  @protected
+  DerivedAccountDataResponse sse_decode_derived_account_data_response(
+      SseDeserializer deserializer);
 
-@protected TransferHistoryResponse sse_decode_transfer_history_response(SseDeserializer deserializer);
+  @protected
+  ExecutionPlanResponse sse_decode_execution_plan_response(
+      SseDeserializer deserializer);
 
-@protected int sse_decode_u_8(SseDeserializer deserializer);
+  @protected
+  FeeQuoteResponse sse_decode_fee_quote_response(SseDeserializer deserializer);
 
-@protected void sse_decode_unit(SseDeserializer deserializer);
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
 
-@protected void sse_encode_String(String self, SseSerializer serializer);
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
-@protected void sse_encode_bool(bool self, SseSerializer serializer);
+  @protected
+  I64Response sse_decode_i_64_response(SseDeserializer deserializer);
 
-@protected void sse_encode_bool_response(BoolResponse self, SseSerializer serializer);
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
 
-@protected void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
+  @protected
+  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
-@protected void sse_encode_box_autoadd_derived_account_data(DerivedAccountData self, SseSerializer serializer);
+  @protected
+  List<StarknetCallInput> sse_decode_list_starknet_call_input(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+  @protected
+  List<TransferHistoryItem> sse_decode_list_transfer_history_item(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_box_autoadd_i_64(PlatformInt64 self, SseSerializer serializer);
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
 
-@protected void sse_encode_box_autoadd_starknet_signature_data(StarknetSignatureData self, SseSerializer serializer);
+  @protected
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
 
-@protected void sse_encode_derived_account_data(DerivedAccountData self, SseSerializer serializer);
+  @protected
+  DerivedAccountData? sse_decode_opt_box_autoadd_derived_account_data(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_derived_account_data_response(DerivedAccountDataResponse self, SseSerializer serializer);
+  @protected
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
 
-@protected void sse_encode_i_32(int self, SseSerializer serializer);
+  @protected
+  PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer);
 
-@protected void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
+  @protected
+  StarknetExecutionPlanData?
+      sse_decode_opt_box_autoadd_starknet_execution_plan_data(
+          SseDeserializer deserializer);
 
-@protected void sse_encode_i_64_response(I64Response self, SseSerializer serializer);
+  @protected
+  StarknetFeeQuote? sse_decode_opt_box_autoadd_starknet_fee_quote(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
+  @protected
+  StarknetSignatureData? sse_decode_opt_box_autoadd_starknet_signature_data(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_list_transfer_history_item(List<TransferHistoryItem> self, SseSerializer serializer);
+  @protected
+  StarknetTokenMetadata? sse_decode_opt_box_autoadd_starknet_token_metadata(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
+  @protected
+  StarknetCallInput sse_decode_starknet_call_input(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+  @protected
+  StarknetExecutionPlanData sse_decode_starknet_execution_plan_data(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_opt_box_autoadd_derived_account_data(DerivedAccountData? self, SseSerializer serializer);
+  @protected
+  StarknetFeeQuote sse_decode_starknet_fee_quote(SseDeserializer deserializer);
 
-@protected void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
+  @protected
+  StarknetSignatureData sse_decode_starknet_signature_data(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_opt_box_autoadd_i_64(PlatformInt64? self, SseSerializer serializer);
+  @protected
+  StarknetSignatureDataResponse sse_decode_starknet_signature_data_response(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_opt_box_autoadd_starknet_signature_data(StarknetSignatureData? self, SseSerializer serializer);
+  @protected
+  StarknetTokenMetadata sse_decode_starknet_token_metadata(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_starknet_signature_data(StarknetSignatureData self, SseSerializer serializer);
+  @protected
+  StringListResponse sse_decode_string_list_response(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_starknet_signature_data_response(StarknetSignatureDataResponse self, SseSerializer serializer);
+  @protected
+  StringResponse sse_decode_string_response(SseDeserializer deserializer);
 
-@protected void sse_encode_string_response(StringResponse self, SseSerializer serializer);
+  @protected
+  TokenMetadataResponse sse_decode_token_metadata_response(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_transfer_history_item(TransferHistoryItem self, SseSerializer serializer);
+  @protected
+  TransferHistoryItem sse_decode_transfer_history_item(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_transfer_history_response(TransferHistoryResponse self, SseSerializer serializer);
+  @protected
+  TransferHistoryResponse sse_decode_transfer_history_response(
+      SseDeserializer deserializer);
 
-@protected void sse_encode_u_8(int self, SseSerializer serializer);
+  @protected
+  int sse_decode_u_8(SseDeserializer deserializer);
 
-@protected void sse_encode_unit(void self, SseSerializer serializer);
-                }
-                
+  @protected
+  void sse_decode_unit(SseDeserializer deserializer);
 
+  @protected
+  void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_bool_response(BoolResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_derived_account_data(
+      DerivedAccountData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_i_64(
+      PlatformInt64 self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_starknet_execution_plan_data(
+      StarknetExecutionPlanData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_starknet_fee_quote(
+      StarknetFeeQuote self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_starknet_signature_data(
+      StarknetSignatureData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_starknet_token_metadata(
+      StarknetTokenMetadata self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_derived_account_data(
+      DerivedAccountData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_derived_account_data_response(
+      DerivedAccountDataResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_execution_plan_response(
+      ExecutionPlanResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_fee_quote_response(
+      FeeQuoteResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_64_response(I64Response self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_prim_u_8_strict(
+      Uint8List self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_starknet_call_input(
+      List<StarknetCallInput> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_transfer_history_item(
+      List<TransferHistoryItem> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_derived_account_data(
+      DerivedAccountData? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_64(
+      PlatformInt64? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_execution_plan_data(
+      StarknetExecutionPlanData? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_fee_quote(
+      StarknetFeeQuote? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_signature_data(
+      StarknetSignatureData? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_starknet_token_metadata(
+      StarknetTokenMetadata? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_call_input(
+      StarknetCallInput self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_execution_plan_data(
+      StarknetExecutionPlanData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_fee_quote(
+      StarknetFeeQuote self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_signature_data(
+      StarknetSignatureData self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_signature_data_response(
+      StarknetSignatureDataResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_starknet_token_metadata(
+      StarknetTokenMetadata self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_string_list_response(
+      StringListResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_string_response(
+      StringResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_token_metadata_response(
+      TokenMetadataResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_transfer_history_item(
+      TransferHistoryItem self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_transfer_history_response(
+      TransferHistoryResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_8(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_unit(void self, SseSerializer serializer);
+}
 
 // Section: wire_class
 
 class RustLibWire implements BaseWire {
-            RustLibWire.fromExternalLibrary(ExternalLibrary lib);
+  RustLibWire.fromExternalLibrary(ExternalLibrary lib);
+}
 
-            
-        }
-        @JS('wasm_bindgen') external RustLibWasmModule get wasmModule;
+@JS('wasm_bindgen')
+external RustLibWasmModule get wasmModule;
 
-        @JS() @anonymous extension type RustLibWasmModule._(JSObject _) implements JSObject {
-            
-        }
-        
+@JS()
+@anonymous
+extension type RustLibWasmModule._(JSObject _) implements JSObject {}

@@ -6,9 +6,9 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `actual_fee_from_receipt`, `biguint_to_uint256_words`, `derive_account_inner`, `derive_private_key_from_mnemonic`, `felt_to_biguint`, `felt_to_hex`, `fetch_block_timestamp`, `fetch_paginated_transfer_events`, `fetch_transaction_fee`, `format_account_error`, `format_account_factory_error`, `format_provider_error`, `format_starknet_error`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `is_account_deployed_with_provider`, `make_provider`, `normalize_hex`, `parse_chain_id`, `parse_decimal_biguint`, `parse_felt_hex`, `parse_private_key`, `parse_transfer_event`, `run_async`, `sign_message_hash_inner`, `split_result`, `transfer_call`, `transfer_calldata`, `uint256_from_call_result`, `uint256_from_words`, `validate_private_key`, `verify_message_hash_signature_inner`, `wait_for_transaction`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `TransferEventRecord`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `actual_fee_from_receipt`, `adjust_gas_amount`, `adjust_gas_price`, `biguint_to_uint256_words`, `build_deploy_transaction_hash`, `build_execution_calls`, `build_invoke_transaction_hash`, `calculate_overall_fee_from_params`, `call_token_decimals`, `call_token_string`, `derive_account_address_from_public_key`, `derive_account_from_public_key_inner`, `derive_account_inner`, `derive_private_key_from_mnemonic`, `estimate_execute_fee_inner`, `execute_calls_external_signer_inner`, `execute_calls_inner`, `felt_to_biguint`, `felt_to_hex`, `felt_to_short_string`, `fetch_block_timestamp`, `fetch_latest_block_tip`, `fetch_paginated_transfer_events`, `fetch_transaction_fee`, `format_account_error`, `format_provider_error`, `format_starknet_error`, `from_prepared`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `get_typed_data_message_hash_inner`, `is_account_deployed_with_provider`, `make_provider`, `make_single_owner_account`, `normalize_hex`, `parse_chain_id`, `parse_decimal_biguint`, `parse_entrypoint_selector`, `parse_felt_hex`, `parse_private_key`, `parse_signature_hex`, `parse_transfer_event`, `parse_u128_decimal`, `prepare_external_execution_inner`, `prepare_transaction_params_from_estimate_with_tip`, `prepare_transaction_params_from_fee_estimate`, `run_async`, `sign_message_hash_inner`, `sign_typed_data_inner`, `split_result`, `to_prepared`, `transfer_calldata_hex`, `transfer_calldata`, `uint256_from_call_result`, `uint256_from_words`, `validate_derived_account_address`, `validate_private_key`, `verify_message_hash_signature_inner`, `wait_for_transaction`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `ExternalSignerError`, `PreparedExternalExecution`, `PreparedTransactionParams`, `PublicKeyOnlySigner`, `SerializedExternalExecutionPlan`, `SerializedPreparedTransactionParams`, `TransferEventRecord`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `get_public_key`, `is_interactive`, `sign_hash`
 
 Future<DerivedAccountDataResponse> deriveAccount(
         {String? mnemonic,
@@ -21,6 +21,11 @@ Future<DerivedAccountDataResponse> deriveAccount(
         privateKeyHex: privateKeyHex,
         accountClassHashHex: accountClassHashHex);
 
+Future<DerivedAccountDataResponse> deriveAccountFromPublicKey(
+        {required String publicKeyHex, required String accountClassHashHex}) =>
+    RustLib.instance.api.crateApiStarknetDeriveAccountFromPublicKey(
+        publicKeyHex: publicKeyHex, accountClassHashHex: accountClassHashHex);
+
 Future<StringResponse> getTokenBalance(
         {required String nodeUrl,
         required String accountAddressHex,
@@ -29,6 +34,11 @@ Future<StringResponse> getTokenBalance(
         nodeUrl: nodeUrl,
         accountAddressHex: accountAddressHex,
         tokenAddressHex: tokenAddressHex);
+
+Future<TokenMetadataResponse> getTokenMetadata(
+        {required String nodeUrl, required String tokenAddressHex}) =>
+    RustLib.instance.api.crateApiStarknetGetTokenMetadata(
+        nodeUrl: nodeUrl, tokenAddressHex: tokenAddressHex);
 
 Future<BoolResponse> isAccountDeployed(
         {required String nodeUrl, required String accountAddressHex}) =>
@@ -84,6 +94,82 @@ Future<StringResponse> sendTransfer(
         accountClassHashHex: accountClassHashHex,
         chainIdHex: chainIdHex);
 
+Future<FeeQuoteResponse> estimateExecuteFee(
+        {required String nodeUrl,
+        required String privateKeyHex,
+        required String accountAddressHex,
+        required String accountClassHashHex,
+        required List<StarknetCallInput> calls,
+        String? chainIdHex}) =>
+    RustLib.instance.api.crateApiStarknetEstimateExecuteFee(
+        nodeUrl: nodeUrl,
+        privateKeyHex: privateKeyHex,
+        accountAddressHex: accountAddressHex,
+        accountClassHashHex: accountClassHashHex,
+        calls: calls,
+        chainIdHex: chainIdHex);
+
+Future<FeeQuoteResponse> estimateExecuteFeeExternalSigner(
+        {required String nodeUrl,
+        required String publicKeyHex,
+        required String accountAddressHex,
+        required String accountClassHashHex,
+        required List<StarknetCallInput> calls,
+        String? chainIdHex}) =>
+    RustLib.instance.api.crateApiStarknetEstimateExecuteFeeExternalSigner(
+        nodeUrl: nodeUrl,
+        publicKeyHex: publicKeyHex,
+        accountAddressHex: accountAddressHex,
+        accountClassHashHex: accountClassHashHex,
+        calls: calls,
+        chainIdHex: chainIdHex);
+
+Future<StringResponse> executeCalls(
+        {required String nodeUrl,
+        required String privateKeyHex,
+        required String accountAddressHex,
+        required String accountClassHashHex,
+        required List<StarknetCallInput> calls,
+        String? chainIdHex}) =>
+    RustLib.instance.api.crateApiStarknetExecuteCalls(
+        nodeUrl: nodeUrl,
+        privateKeyHex: privateKeyHex,
+        accountAddressHex: accountAddressHex,
+        accountClassHashHex: accountClassHashHex,
+        calls: calls,
+        chainIdHex: chainIdHex);
+
+Future<ExecutionPlanResponse> getExecuteTransactionHashesExternalSigner(
+        {required String nodeUrl,
+        required String publicKeyHex,
+        required String accountAddressHex,
+        required String accountClassHashHex,
+        required List<StarknetCallInput> calls,
+        String? chainIdHex}) =>
+    RustLib.instance.api
+        .crateApiStarknetGetExecuteTransactionHashesExternalSigner(
+            nodeUrl: nodeUrl,
+            publicKeyHex: publicKeyHex,
+            accountAddressHex: accountAddressHex,
+            accountClassHashHex: accountClassHashHex,
+            calls: calls,
+            chainIdHex: chainIdHex);
+
+Future<StringResponse> executeCallsExternalSigner(
+        {required String nodeUrl,
+        required String planJson,
+        required String invokeRHex,
+        required String invokeSHex,
+        String? deployRHex,
+        String? deploySHex}) =>
+    RustLib.instance.api.crateApiStarknetExecuteCallsExternalSigner(
+        nodeUrl: nodeUrl,
+        planJson: planJson,
+        invokeRHex: invokeRHex,
+        invokeSHex: invokeSHex,
+        deployRHex: deployRHex,
+        deploySHex: deploySHex);
+
 Future<TransferHistoryResponse> fetchTransferHistory(
         {required String nodeUrl,
         required String accountAddressHex,
@@ -117,6 +203,20 @@ Future<BoolResponse> verifyMessageHashSignature(
         messageHashHex: messageHashHex,
         rHex: rHex,
         sHex: sHex);
+
+Future<StringListResponse> signTypedData(
+        {required String privateKeyHex,
+        required String accountAddressHex,
+        required String typedDataJson}) =>
+    RustLib.instance.api.crateApiStarknetSignTypedData(
+        privateKeyHex: privateKeyHex,
+        accountAddressHex: accountAddressHex,
+        typedDataJson: typedDataJson);
+
+Future<StringResponse> getTypedDataMessageHash(
+        {required String accountAddressHex, required String typedDataJson}) =>
+    RustLib.instance.api.crateApiStarknetGetTypedDataMessageHash(
+        accountAddressHex: accountAddressHex, typedDataJson: typedDataJson);
 
 class BoolResponse {
   final bool? value;
@@ -187,6 +287,48 @@ class DerivedAccountDataResponse {
           error == other.error;
 }
 
+class ExecutionPlanResponse {
+  final StarknetExecutionPlanData? value;
+  final String? error;
+
+  const ExecutionPlanResponse({
+    this.value,
+    this.error,
+  });
+
+  @override
+  int get hashCode => value.hashCode ^ error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExecutionPlanResponse &&
+          runtimeType == other.runtimeType &&
+          value == other.value &&
+          error == other.error;
+}
+
+class FeeQuoteResponse {
+  final StarknetFeeQuote? value;
+  final String? error;
+
+  const FeeQuoteResponse({
+    this.value,
+    this.error,
+  });
+
+  @override
+  int get hashCode => value.hashCode ^ error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FeeQuoteResponse &&
+          runtimeType == other.runtimeType &&
+          value == other.value &&
+          error == other.error;
+}
+
 class I64Response {
   final PlatformInt64? value;
   final String? error;
@@ -206,6 +348,94 @@ class I64Response {
           runtimeType == other.runtimeType &&
           value == other.value &&
           error == other.error;
+}
+
+class StarknetCallInput {
+  final String contractAddressHex;
+  final String entrypoint;
+  final List<String> calldataHex;
+
+  const StarknetCallInput({
+    required this.contractAddressHex,
+    required this.entrypoint,
+    required this.calldataHex,
+  });
+
+  @override
+  int get hashCode =>
+      contractAddressHex.hashCode ^ entrypoint.hashCode ^ calldataHex.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StarknetCallInput &&
+          runtimeType == other.runtimeType &&
+          contractAddressHex == other.contractAddressHex &&
+          entrypoint == other.entrypoint &&
+          calldataHex == other.calldataHex;
+}
+
+class StarknetExecutionPlanData {
+  final String invokeTransactionHashHex;
+  final String? deployAccountTransactionHashHex;
+  final bool accountDeploymentRequired;
+  final String planJson;
+
+  const StarknetExecutionPlanData({
+    required this.invokeTransactionHashHex,
+    this.deployAccountTransactionHashHex,
+    required this.accountDeploymentRequired,
+    required this.planJson,
+  });
+
+  @override
+  int get hashCode =>
+      invokeTransactionHashHex.hashCode ^
+      deployAccountTransactionHashHex.hashCode ^
+      accountDeploymentRequired.hashCode ^
+      planJson.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StarknetExecutionPlanData &&
+          runtimeType == other.runtimeType &&
+          invokeTransactionHashHex == other.invokeTransactionHashHex &&
+          deployAccountTransactionHashHex ==
+              other.deployAccountTransactionHashHex &&
+          accountDeploymentRequired == other.accountDeploymentRequired &&
+          planJson == other.planJson;
+}
+
+class StarknetFeeQuote {
+  final String overallFeeWei;
+  final String executionFeeWei;
+  final String? deployAccountFeeWei;
+  final bool accountDeploymentRequired;
+
+  const StarknetFeeQuote({
+    required this.overallFeeWei,
+    required this.executionFeeWei,
+    this.deployAccountFeeWei,
+    required this.accountDeploymentRequired,
+  });
+
+  @override
+  int get hashCode =>
+      overallFeeWei.hashCode ^
+      executionFeeWei.hashCode ^
+      deployAccountFeeWei.hashCode ^
+      accountDeploymentRequired.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StarknetFeeQuote &&
+          runtimeType == other.runtimeType &&
+          overallFeeWei == other.overallFeeWei &&
+          executionFeeWei == other.executionFeeWei &&
+          deployAccountFeeWei == other.deployAccountFeeWei &&
+          accountDeploymentRequired == other.accountDeploymentRequired;
 }
 
 class StarknetSignatureData {
@@ -250,6 +480,58 @@ class StarknetSignatureDataResponse {
           error == other.error;
 }
 
+class StarknetTokenMetadata {
+  final String tokenAddressHex;
+  final String name;
+  final String symbol;
+  final int decimals;
+
+  const StarknetTokenMetadata({
+    required this.tokenAddressHex,
+    required this.name,
+    required this.symbol,
+    required this.decimals,
+  });
+
+  @override
+  int get hashCode =>
+      tokenAddressHex.hashCode ^
+      name.hashCode ^
+      symbol.hashCode ^
+      decimals.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StarknetTokenMetadata &&
+          runtimeType == other.runtimeType &&
+          tokenAddressHex == other.tokenAddressHex &&
+          name == other.name &&
+          symbol == other.symbol &&
+          decimals == other.decimals;
+}
+
+class StringListResponse {
+  final List<String> items;
+  final String? error;
+
+  const StringListResponse({
+    required this.items,
+    this.error,
+  });
+
+  @override
+  int get hashCode => items.hashCode ^ error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StringListResponse &&
+          runtimeType == other.runtimeType &&
+          items == other.items &&
+          error == other.error;
+}
+
 class StringResponse {
   final String? value;
   final String? error;
@@ -271,25 +553,52 @@ class StringResponse {
           error == other.error;
 }
 
+class TokenMetadataResponse {
+  final StarknetTokenMetadata? value;
+  final String? error;
+
+  const TokenMetadataResponse({
+    this.value,
+    this.error,
+  });
+
+  @override
+  int get hashCode => value.hashCode ^ error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TokenMetadataResponse &&
+          runtimeType == other.runtimeType &&
+          value == other.value &&
+          error == other.error;
+}
+
 class TransferHistoryItem {
   final String transactionHash;
+  final String eventId;
+  final PlatformInt64 eventIndex;
   final PlatformInt64? blockNumber;
   final String from;
   final String to;
   final String amountWei;
   final bool isOutgoing;
   final String tokenSymbol;
+  final String tokenAddressHex;
   final PlatformInt64? blockTimestamp;
   final String? txFeeWei;
 
   const TransferHistoryItem({
     required this.transactionHash,
+    required this.eventId,
+    required this.eventIndex,
     this.blockNumber,
     required this.from,
     required this.to,
     required this.amountWei,
     required this.isOutgoing,
     required this.tokenSymbol,
+    required this.tokenAddressHex,
     this.blockTimestamp,
     this.txFeeWei,
   });
@@ -297,12 +606,15 @@ class TransferHistoryItem {
   @override
   int get hashCode =>
       transactionHash.hashCode ^
+      eventId.hashCode ^
+      eventIndex.hashCode ^
       blockNumber.hashCode ^
       from.hashCode ^
       to.hashCode ^
       amountWei.hashCode ^
       isOutgoing.hashCode ^
       tokenSymbol.hashCode ^
+      tokenAddressHex.hashCode ^
       blockTimestamp.hashCode ^
       txFeeWei.hashCode;
 
@@ -312,12 +624,15 @@ class TransferHistoryItem {
       other is TransferHistoryItem &&
           runtimeType == other.runtimeType &&
           transactionHash == other.transactionHash &&
+          eventId == other.eventId &&
+          eventIndex == other.eventIndex &&
           blockNumber == other.blockNumber &&
           from == other.from &&
           to == other.to &&
           amountWei == other.amountWei &&
           isOutgoing == other.isOutgoing &&
           tokenSymbol == other.tokenSymbol &&
+          tokenAddressHex == other.tokenAddressHex &&
           blockTimestamp == other.blockTimestamp &&
           txFeeWei == other.txFeeWei;
 }

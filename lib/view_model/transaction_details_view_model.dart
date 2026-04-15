@@ -1,5 +1,6 @@
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -29,7 +30,6 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -297,6 +297,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     return switch (wallet.type) {
       WalletType.solana => solana!.assetOfTransaction(wallet, transactionInfo),
+      WalletType.starknet => starknet!.assetOfTransaction(wallet, transactionInfo),
       WalletType.tron => tron!.assetOfTransaction(wallet, transactionInfo),
       WalletType.zano => zano!.assetOfTransaction(wallet, transactionInfo) ??
           CryptoCurrency.zano,

@@ -29,12 +29,17 @@ import 'package:mobx/mobx.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
-class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreViewModel;
+class WalletRestoreViewModel = WalletRestoreViewModelBase
+    with _$WalletRestoreViewModel;
 
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
-  WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
+  WalletRestoreViewModelBase(
+      AppStore appStore,
+      WalletCreationService walletCreationService,
       SeedSettingsViewModel seedSettingsViewModel,
-      {required WalletType type, this.restoredWallet, this.hardwareWalletType})
+      {required WalletType type,
+      this.restoredWallet,
+      this.hardwareWalletType})
       : isButtonEnabled = restoredWallet != null,
         hasPassphrase = false,
         mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
@@ -85,8 +90,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   late final bool hasSeedLanguageSelector =
       [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
-  late final bool hasBlockchainHeightSelector =
-      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.zcash].contains(type);
+  late final bool hasBlockchainHeightSelector = [
+    WalletType.monero,
+    WalletType.haven,
+    WalletType.wownero,
+    WalletType.zcash
+  ].contains(type);
 
   late final bool hasRestoreFromPrivateKey = [
     WalletType.ethereum,
@@ -102,8 +111,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.zcash,
   ].contains(type);
 
-  late final bool onlyViewKeyRestore =
-      [if (FeatureFlag.hasBitcoinViewOnly) WalletType.bitcoin, WalletType.decred].contains(type);
+  late final bool onlyViewKeyRestore = [
+    if (FeatureFlag.hasBitcoinViewOnly) WalletType.bitcoin,
+    WalletType.decred
+  ].contains(type);
 
   final RestoredWallet? restoredWallet;
   final HardwareWalletType? hardwareWalletType;
@@ -123,7 +134,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     String? passphrase = options['passphrase'] as String?;
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
-    DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
+    DerivationInfo? derivationInfo =
+        options["derivationInfo"] as DerivationInfo?;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
@@ -265,15 +277,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromKeysCredentials(
-            name: name,
-            height: height,
-            spendKey: spendKey!,
-            viewKey: viewKey!,
-            address: address!,
-            password: password,
-            language: 'English',
-            hardwareWalletType: hardwareWalletType
-          );
+              name: name,
+              height: height,
+              spendKey: spendKey!,
+              viewKey: viewKey!,
+              address: address!,
+              password: password,
+              language: 'English',
+              hardwareWalletType: hardwareWalletType);
 
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromKeysCredentials(
@@ -299,6 +310,19 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             privateKey: options['private_key'] as String,
           );
         case WalletType.starknet:
+          final publicKey = options['public_key'] as String?;
+          if (publicKey != null && publicKey.isNotEmpty) {
+            final credentials =
+                starknet!.createStarknetRestoreWalletFromPublicKey(
+              name: name,
+              password: password,
+              publicKey: publicKey,
+              accountClassHashHex: options['account_class_hash_hex'] as String?,
+            );
+            credentials.hardwareWalletType = hardwareWalletType;
+            return credentials;
+          }
+
           return starknet!.createStarknetRestoreWalletFromPrivateKey(
             name: name,
             password: password,
@@ -328,11 +352,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.zcash:
           return zcash!.createZcashRestoreWalletFromPrivateKey(
-            name: name,
-            privateKey: options['private_key'] as String,
-            password: password,
-            height: height
-          );
+              name: name,
+              privateKey: options['private_key'] as String,
+              password: password,
+              height: height);
         default:
           break;
       }
@@ -354,7 +377,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       chainId ??= evm!.getChainIdByWalletType(walletType);
     }
 
-    var node = appStore.settingsStore.getCurrentNode(walletType, chainId: chainId);
+    var node =
+        appStore.settingsStore.getCurrentNode(walletType, chainId: chainId);
 
     switch (walletType) {
       case WalletType.bitcoin:
@@ -384,8 +408,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     if (mode == WalletRestoreMode.keys) {
-      return walletCreationService.restoreFromKeys(credentials, isTestnet: useTestnet);
+      return walletCreationService.restoreFromKeys(credentials,
+          isTestnet: useTestnet);
     }
-    return walletCreationService.restoreFromSeed(credentials, isTestnet: useTestnet);
+    return walletCreationService.restoreFromSeed(credentials,
+        isTestnet: useTestnet);
   }
 }

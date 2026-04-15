@@ -16,8 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 
 part 'wallet_keys_view_model.g.dart';
 
@@ -172,9 +171,28 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.arbitrum:
       case WalletType.bsc:
       case WalletType.solana:
-      case WalletType.starknet:
       case WalletType.tron:
         items.addAll([
+          if (_wallet.privateKey != null)
+            StandartListItem(
+              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              title: S.current.private_key,
+              value: _wallet.privateKey!,
+            ),
+        ]);
+        break;
+      case WalletType.starknet:
+        items.addAll([
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_address_item_key'),
+            title: S.current.address,
+            value: starknet!.getAddress(_wallet),
+          ),
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_public_key_item_key'),
+            title: S.current.public_key,
+            value: starknet!.getPublicKey(_wallet),
+          ),
           if (_wallet.privateKey != null)
             StandartListItem(
               key: ValueKey('${_walletName}_wallet_private_key_item_key'),

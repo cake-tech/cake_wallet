@@ -100,6 +100,15 @@ abstract class PaymentViewModelBase with Store {
         );
       }
 
+      if (detectedWalletType == WalletType.starknet) {
+        final compatibleWallets = await getWalletsByType(WalletType.starknet);
+        return PaymentFlowResult.starknetTokenSelection(
+          detectionResult,
+          compatibleWallets: compatibleWallets,
+          wallet: compatibleWallets.isNotEmpty ? compatibleWallets.first : null,
+        );
+      }
+
       if (isEVMCompatibleChain(detectedWalletType!)) {
         return PaymentFlowResult.evmNetworkSelection(detectionResult);
       }
@@ -214,6 +223,20 @@ class PaymentFlowResult {
         wallet: wallet,
       );
 
+  /// Starknet address detected - needs token selection
+  factory PaymentFlowResult.starknetTokenSelection(
+    AddressDetectionResult addressDetectionResult, {
+    List<WalletInfo>? compatibleWallets,
+    WalletInfo? wallet,
+  }) =>
+      PaymentFlowResult._(
+        type: PaymentFlowType.starknetTokenSelection,
+        addressDetectionResult: addressDetectionResult,
+        walletType: WalletType.starknet,
+        wallets: compatibleWallets ?? [],
+        wallet: wallet,
+      );
+
   /// Current wallet is compatible
   factory PaymentFlowResult.currentWalletCompatible() =>
       PaymentFlowResult._(type: PaymentFlowType.currentWalletCompatible);
@@ -294,7 +317,8 @@ class PaymentFlowResult {
   CryptoCurrency? get detectedCurrency {
     if (type == PaymentFlowType.evmNetworkSelection ||
         type == PaymentFlowType.solanaTokenSelection ||
-        type == PaymentFlowType.tronTokenSelection) {
+        type == PaymentFlowType.tronTokenSelection ||
+        type == PaymentFlowType.starknetTokenSelection) {
       return addressDetectionResult?.detectedCurrency;
     }
     if (walletType != null) {
@@ -316,6 +340,7 @@ enum PaymentFlowType {
   evmNetworkSelection,
   solanaTokenSelection,
   tronTokenSelection,
+  starknetTokenSelection,
   error,
   incompatible,
 }

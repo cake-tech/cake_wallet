@@ -5,6 +5,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ur/widgets/urqr.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -18,27 +19,38 @@ class AnimatedURPage extends BasePage {
   final bool isAll;
   AnimatedURPage(
     this.animatedURmodel, {
-    required Map<String, String> this.urQr,
+    required Map<String, String> urQr,
     this.isAll = false,
-  }) {
-    if (urQr.keys.first.startsWith("export-outputs") &&
+  }) : urQr = _sanitizeUrQr(animatedURmodel, urQr);
+
+  static Map<String, String> _sanitizeUrQr(
+    AnimatedURModel animatedURmodel,
+    Map<String, String> source,
+  ) {
+    final sanitized = Map<String, String>.from(source);
+
+    if (sanitized.isNotEmpty &&
+        sanitized.keys.first.startsWith("export-outputs") &&
         animatedURmodel.wallet.type == WalletType.monero) {
-      if (animatedURmodel.wallet.type == WalletType.monero) {
-        urQr = monero!.exportOutputsUR(animatedURmodel.wallet);
-      } else {
-        throw UnimplementedError("unable to handle UR: ${urQr.keys.first}");
-      }
+      sanitized
+        ..clear()
+        ..addAll(monero!.exportOutputsUR(animatedURmodel.wallet));
     }
-    for (var key in urQr.keys) {
-      if (key.isEmpty || urQr[key]!.isEmpty) {
-        urQr.remove(key);
+
+    final result = <String, String>{};
+    for (final entry in sanitized.entries) {
+      final key = entry.key.trim();
+      final value = entry.value.trim();
+      if (key.isEmpty || value.isEmpty) {
         continue;
       }
-      urQr[key] = urQr[key]!.trim();
+      result[key] = value;
     }
+
+    return result;
   }
 
-  Map<String, String> urQr = {};
+  final Map<String, String> urQr;
 
   final AnimatedURModel animatedURmodel;
 
@@ -64,8 +76,13 @@ class AnimatedURPage extends BasePage {
             hardwareWalletType: animatedURmodel.wallet.hardwareWalletType,
           ),
         ),
-        if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header]
-            .contains(urQrType)) ...{
+        if ([
+          "ur:xmr-txunsigned",
+          "ur:xmr-output",
+          "ur:psbt",
+          "ur:starknet-sign-request",
+          BBQR.header
+        ].contains(urQrType)) ...{
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
@@ -110,6 +127,16 @@ class AnimatedURPage extends BasePage {
           await bitcoin!
               .commitPsbtUR(animatedURmodel.wallet, ur.trim().split("\n"));
           Navigator.of(context).pop(true);
+          break;
+        case "ur:starknet-sign-request":
+          final ur = await presentQRScanner(context);
+          if (ur == null) return;
+          final result =
+              await starknet!.commitTransactionUR(animatedURmodel.wallet, ur);
+          if (result) {
+            Navigator.of(context).pop(true);
+          }
+          break;
         default:
           throw UnimplementedError("unable to handle UR: ${urQrType}");
       }
