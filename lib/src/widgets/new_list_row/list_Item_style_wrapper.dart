@@ -9,6 +9,7 @@ class ListItemStyleWrapper extends StatelessWidget {
     this.backgroundColor,
     this.onTap,
     this.iconPath,
+    this.contentPadding,
     this.height,
   });
 
@@ -19,10 +20,10 @@ class ListItemStyleWrapper extends StatelessWidget {
   final VoidCallback? onTap;
   final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
+  final EdgeInsets? contentPadding;
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
 
     final textStyle = TextStyle(
@@ -70,15 +71,16 @@ class ListItemStyleWrapper extends StatelessWidget {
                 child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )
-            else if(!isLastInSection) Container(
+          else if (!isLastInSection)
+            Container(
               color: theme.colorScheme.surfaceContainer,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )
-          ],
-            ),
-      );
+        ],
+      ),
+    );
   }
 }

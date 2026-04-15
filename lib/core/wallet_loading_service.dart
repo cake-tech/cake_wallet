@@ -72,6 +72,7 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
+      if (type == WalletType.wownero) rethrow;
       await ExceptionHandler.resetLastPopupDate();
       final isLedgerError = await ExceptionHandler.isLedgerError(error);
       if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
