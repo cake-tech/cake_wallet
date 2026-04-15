@@ -14,6 +14,7 @@ class AssetTile extends StatelessWidget {
       required this.balance,
       required this.chainIconPath,
       this.showSecondary = false,
+      this.showBridgeButton = false,
       this.title,
       this.trailingText,
       this.modalMode = AssetDetailsModalModes.normal,
@@ -22,6 +23,7 @@ class AssetTile extends StatelessWidget {
   final BalanceRecord balance;
   final bool showSecondary;
   final bool showSwap;
+  final bool showBridgeButton;
   final String chainIconPath;
   final String? title;
   final String? trailingText;
@@ -42,6 +44,7 @@ class AssetTile extends StatelessWidget {
             builder: (context) {
               return AssetDetailsModal(
                 showSwap: showSwap,
+                showBridgeButton: showBridgeButton,
                 asset: balance.asset,
                 title: title ?? balance.asset.fullName ?? balance.asset.name,
                 chainTitle: "",
