@@ -69,12 +69,12 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
             doubleActionLeftButtonText: S.of(bottomSheetContext).close,
             doubleActionRightButtonText: 'View history',
             onLeftActionButtonPressed: () {
-              bridgeViewModel.clearBridgeSuccess();
+              bridgeViewModel.clearOnBridgeSuccess();
               Navigator.of(context, rootNavigator: true).pop();
               RequestReviewHandler.requestReview();
             },
             onRightActionButtonPressed: () {
-              bridgeViewModel.clearBridgeSuccess();
+              bridgeViewModel.clearOnBridgeSuccess();
               Navigator.of(context).popUntil((route) => route.isFirst);
               showMaterialModalBottomSheet(
                 context: context,
@@ -115,7 +115,8 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
               onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
               trailingIcon: const Icon(Icons.calendar_month, size: 18),
               onTrailingPressed: () {
-                Navigator.pushNamed(context, Routes.bridgeHistoryPage, arguments: widget.bridgeHistoryViewModel);
+                Navigator.pushNamed(context, Routes.bridgeHistoryPage,
+                    arguments: widget.bridgeHistoryViewModel);
               },
             ),
             Expanded(
@@ -283,7 +284,10 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                   onPressed: () {
                                     _amountController.clear();
                                     Navigator.pushNamed(
-                                        context, Routes.bridgeDestinationNetworkPage, arguments: bridgeViewModel);
+                                      context,
+                                      Routes.bridgeDestinationNetworkPage,
+                                      arguments: bridgeViewModel,
+                                    );
                                   },
                                 ),
                               ),
@@ -302,4 +306,3 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
     );
   }
 }
-
