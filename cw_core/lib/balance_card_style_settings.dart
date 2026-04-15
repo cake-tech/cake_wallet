@@ -57,11 +57,14 @@ class BalanceCardStyleSettings {
       int cardOrder,
       CardDesign design, {
       int iconStyleIndex = 0,
+      int? gradientIndexOverride,
   }) {
+    final int gradientIndex = gradientIndexOverride ??
+        CardDesign.allGradients.indexOf(design.gradient);
     return BalanceCardStyleSettings(
       walletInfoId: walletInfoId,
       accountIndex: accountIndex,
-      gradientIndex: CardDesign.allGradients.indexOf(design.gradient),
+      gradientIndex: gradientIndex,
       useSpecialDesign:
           design.backgroundType == CardDesignBackgroundTypes.svgFull,
       backgroundImagePath:

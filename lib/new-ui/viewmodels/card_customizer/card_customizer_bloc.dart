@@ -131,10 +131,12 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
     final newColors = _updateAvailableColors(state.availableDesigns[event.newDesignIndex]);
     late final int newColorIndex;
-    if (newColors.length < state.availableColors.length) {
+    if (newColors.isEmpty) {
+      newColorIndex = 0;
+    } else if (newColors.length < state.availableColors.length) {
       newColorIndex = 0;
     } else {
-      newColorIndex = state.selectedColorIndex;
+      newColorIndex = state.selectedColorIndex.clamp(0, newColors.length - 1);
     }
 
     emit(state.copyWith(
@@ -162,7 +164,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
             state.accountIndex,
             state.cardOrder,
             state.selectedDesign,
-            iconStyleIndex: state.selectedIconIndex)
+            iconStyleIndex: state.selectedIconIndex,
+            gradientIndexOverride: state.selectedColorIndex)
         .insert()
         .then((value) {
       emit(CardCustomizerSaved(

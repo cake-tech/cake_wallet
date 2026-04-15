@@ -592,6 +592,21 @@ class CardDesign {
     return design.withImagePath(paths[clampedIndex]);
   }
 
+  static Gradient gradientForStoredIndex(
+    int gradientIndex,
+    CryptoCurrency walletCurrency,
+  ) {
+    final n = CardDesign.allGradients.length;
+    final special = specialDesignsForCurrencies[walletCurrency];
+    if (gradientIndex >= 0 && gradientIndex < n) {
+      return CardDesign.allGradients[gradientIndex];
+    }
+    if (gradientIndex == n && special != null) {
+      return special.gradient;
+    }
+    return gradientBlue;
+  }
+
   static CardDesign fromStyleSettings(
       BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
     if (setting == null) {
@@ -599,10 +614,9 @@ class CardDesign {
     }
 
     if (setting.isGradientOnly) {
-      final gradient = setting.gradientIndex != -1
-          ? CardDesign.allGradients[setting.gradientIndex]
-          : gradientBlue;
-      return gradientOnlyDesign.withGradient(gradient);
+      return gradientOnlyDesign.withGradient(
+        gradientForStoredIndex(setting.gradientIndex, walletCurrency),
+      );
     }
 
     if (setting.backgroundImagePath.isNotEmpty) {
@@ -610,8 +624,9 @@ class CardDesign {
     }
 
     if (setting.useSpecialDesign && setting.gradientIndex != -1) {
-      return CardDesign.forCurrencySpecial(walletCurrency)
-          .withGradient(CardDesign.allGradients[setting.gradientIndex]);
+      return CardDesign.forCurrencySpecial(walletCurrency).withGradient(
+        gradientForStoredIndex(setting.gradientIndex, walletCurrency),
+      );
     }
 
     if (!setting.useSpecialDesign && setting.gradientIndex == -1) {
@@ -631,8 +646,9 @@ class CardDesign {
     }
     if (setting.gradientIndex != -1) {
       final baseIcon = CardDesign.forCurrencyIcon(walletCurrency);
-      final withGradient =
-          baseIcon.withGradient(CardDesign.allGradients[setting.gradientIndex]);
+      final withGradient = baseIcon.withGradient(
+        gradientForStoredIndex(setting.gradientIndex, walletCurrency),
+      );
       return _applyIconStyleIndex(
         withGradient,
         setting.iconStyleIndex,

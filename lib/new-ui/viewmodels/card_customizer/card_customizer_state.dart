@@ -49,7 +49,13 @@ sealed class CardCustomizerState {
     int? selectedIconIndex,
   });
 
-  Gradient get selectedColor => availableColors[selectedColorIndex];
+  Gradient get selectedColor {
+    if (availableColors.isEmpty) {
+      return CardDesign.gradientBlue;
+    }
+    final i = selectedColorIndex.clamp(0, availableColors.length - 1);
+    return availableColors[i];
+  }
 }
 
 final class CardCustomizerNotLoaded extends CardCustomizerState {

@@ -57,13 +57,27 @@ class _CardCustomizerState extends State<CardCustomizer> {
         state.availableIconPaths.isNotEmpty;
   }
 
+  CardDesign _cardStylePreviewDesign(CardCustomizerState state, int index) {
+    if (index >= state.availableDesigns.length) {
+      return state.availableDesigns.isNotEmpty
+          ? state.availableDesigns.first.withGradient(state.selectedColor)
+          : CardDesign.genericDefault;
+    }
+    var design = state.availableDesigns[index].withGradient(state.selectedColor);
+    if (design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
+        state.availableIconPaths.isNotEmpty) {
+      final clamped = state.selectedIconIndex.clamp(0, state.availableIconPaths.length - 1);
+      design = design.withImagePath(state.availableIconPaths[clamped]);
+    }
+    return design;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<CardCustomizerBloc, CardCustomizerState>(
-      listenWhen: (previous, current) =>
-      previous.accountName != current.accountName,
+      listenWhen: (previous, current) => previous.accountName != current.accountName,
       listener: (context, state) {
-        if(accountNameController.text != state.accountName) {
+        if (accountNameController.text != state.accountName) {
           accountNameController.text = state.accountName;
         }
       },
@@ -172,8 +186,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                       selected: false,
                                                       designSwitchDuration:
                                                           Duration(milliseconds: 300),
-                                                      design: state.availableDesigns[index],
-                                                      gradient: state.selectedDesign.gradient,
+                                                      design: _cardStylePreviewDesign(state, index),
                                                     ),
                                                   ),
                                                 ),
