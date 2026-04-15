@@ -120,13 +120,16 @@ rust_api.StarknetTokenMetadata unwrapTokenMetadataResponse(
         rust_api.TokenMetadataResponse response) =>
     _unwrapValue(response.value, response.error, 'token metadata');
 
-rust_api.StarknetFeeQuote unwrapFeeQuoteResponse(
-        rust_api.FeeQuoteResponse response) =>
+rust_api.StarknetFeeQuote unwrapFeeQuoteResponse(rust_api.FeeQuoteResponse response) =>
     _unwrapValue(response.value, response.error, 'fee quote');
 
 rust_api.StarknetExecutionPlanData unwrapExecutionPlanResponse(
         rust_api.ExecutionPlanResponse response) =>
     _unwrapValue(response.value, response.error, 'execution plan');
+
+rust_api.StarknetTransactionDetails unwrapTransactionDetailsResponse(
+        rust_api.TransactionDetailsResponse response) =>
+    _unwrapValue(response.value, response.error, 'transaction details');
 
 List<String> unwrapStringListResponse(rust_api.StringListResponse response) {
   if (response.error != null && response.error!.isNotEmpty) {

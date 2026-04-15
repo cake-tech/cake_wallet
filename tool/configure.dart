@@ -39,7 +39,8 @@ Future<void> main(List<String> args) async {
   final hasZcash = args.contains('${prefix}zcash');
   final hasStarknet = args.contains('${prefix}starknet');
   final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc;
-  final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
+  final excludeFlutterSecureStorage =
+      args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -766,12 +767,15 @@ abstract class BitcoinCash {
   """;
 
   const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
-  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+  const bitcoinCashCWDefinition =
+      'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
 
   final output = '$bitcoinCashCommonHeaders\n' +
       (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n') +
       (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n') +
-      (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition) +
+      (hasImplementation
+          ? bitcoinCashCWDefinition
+          : bitcoinCashEmptyDefinition) +
       '\n' +
       bitcoinCashContent;
 
@@ -906,7 +910,8 @@ abstract class NanoUtil {
   """;
 
   const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
-  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoCWDefinition =
+      'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +
       (hasImplementation ? '$nanoCWHeaders\n' : '\n') +
@@ -1068,7 +1073,9 @@ Future<void> generateStarknet(bool hasImplementation) async {
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/starknet_token.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -1077,10 +1084,11 @@ import 'package:cw_core/wallet_service.dart';
 """;
   const starknetCWHeaders = """
 import 'package:cw_starknet/starknet_wallet.dart';
+import 'package:cw_starknet/starknet_client.dart';
 import 'package:cw_starknet/starknet_mnemonics.dart';
 import 'package:cw_starknet/starknet_wallet_service.dart';
 import 'package:cw_starknet/starknet_transaction_info.dart';
-import 'package:cw_starknet/pending_starknet_transaction.dart';
+import 'package:cw_starknet/starknet_transaction_priority.dart';
 import 'package:cw_starknet/starknet_transaction_credentials.dart';
 import 'package:cw_starknet/starknet_wallet_creation_credentials.dart';
 
@@ -1096,24 +1104,84 @@ abstract class Starknet {
       {required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createStarknetRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password});
+  WalletCredentials createStarknetRestoreWalletFromPublicKey(
+      {required String name, required String publicKey, required String password, String? accountClassHashHex});
 
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getStarknetTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeStarknetTransactionPriority(int raw);
 
   Object createStarknetTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
+    TransactionPriority? priority,
   });
 
   Object createStarknetTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
     required CryptoCurrency currency,
+    TransactionPriority? priority,
   });
+
+  List<StarknetToken> getStarknetTokenCurrencies(WalletBase wallet);
+  Future<void> addStarknetToken(
+    WalletBase wallet,
+    CryptoCurrency token,
+    String contractAddress,
+  );
+  Future<void> deleteStarknetToken(WalletBase wallet, CryptoCurrency token);
+  Future<CryptoCurrency?> getStarknetToken(WalletBase wallet, String contractAddress);
+  String getTokenAddress(CryptoCurrency asset);
 
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
-  double? getEstimateFees(WalletBase wallet);
+  double? getEstimateFees(WalletBase wallet, {CryptoCurrency? currency});
+
+  Future<List<String>> signTypedData(
+    WalletBase wallet,
+    String typedDataJson, {
+    String? address,
+  });
+
+  Future<Map<String, String>> buildMessageSignUr(
+    WalletBase wallet,
+    String message, {
+    String? address,
+  });
+
+  Future<String> commitMessageUR(WalletBase wallet, String ur);
+
+  Future<Map<String, String>> buildTypedDataSignUr(
+    WalletBase wallet,
+    String typedDataJson, {
+    String? address,
+  });
+
+  Future<List<String>> commitTypedDataUR(WalletBase wallet, String ur);
+
+  Future<String> executeWalletConnectCalls(
+    WalletBase wallet,
+    List<StarknetExecutionCall> calls,
+  );
+
+  Future<Map<String, String>> buildExecutionUr(
+    WalletBase wallet,
+    List<StarknetExecutionCall> calls,
+  );
+
+  Future<String> commitTransactionUR(
+    WalletBase wallet,
+    String ur, {
+    String? requestUr,
+  });
+
+  bool supportsOfflineUrSigning(WalletBase wallet);
+
+  bool isValidAddress(String address);
 }
   """;
 
@@ -1920,7 +1988,8 @@ Future<void> generatePubspec({
   final inputLines = inputText.split('\n');
   final dependenciesIndex = inputLines.indexWhere((line) => Platform.isWindows
       // On Windows it could contains `\r` (Carriage Return). It could be fixed in newer dart versions.
-      ? line.toLowerCase() == 'dependencies:\r' || line.toLowerCase() == 'dependencies:'
+      ? line.toLowerCase() == 'dependencies:\r' ||
+          line.toLowerCase() == 'dependencies:'
       : line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 

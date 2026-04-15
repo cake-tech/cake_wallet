@@ -7,6 +7,10 @@ import 'package:ur/ur_encoder.dart';
 
 const String starknetSignRequestUrType = 'starknet-sign-request';
 const String starknetSignResponseUrType = 'starknet-sign-response';
+const String starknetMessageSignRequestUrType = 'starknet-message-sign-request';
+const String starknetMessageSignResponseUrType = 'starknet-message-sign-response';
+const String starknetTypedDataSignRequestUrType = 'starknet-typed-data-sign-request';
+const String starknetTypedDataSignResponseUrType = 'starknet-typed-data-sign-response';
 const int _defaultUrFragmentLength = 120;
 
 class StarknetUrSignature {
@@ -41,6 +45,10 @@ class StarknetSignRequestUrPayload {
     required this.amountSymbol,
     required this.destinationAddress,
     required this.feeWei,
+    this.summaryActionName,
+    this.summaryTokenAddress,
+    this.summaryAdditionalInfo,
+    this.preferSummary = false,
     this.deployAccountTransactionHashHex,
     this.version = 1,
   });
@@ -59,6 +67,12 @@ class StarknetSignRequestUrPayload {
         amountSymbol: json['amountSymbol'] as String,
         destinationAddress: json['destinationAddress'] as String,
         feeWei: json['feeWei'] as String,
+        summaryActionName: json['summaryActionName'] as String?,
+        summaryTokenAddress: json['summaryTokenAddress'] as String?,
+        summaryAdditionalInfo: json['summaryAdditionalInfo'] == null
+            ? null
+            : Map<String, dynamic>.from(json['summaryAdditionalInfo'] as Map),
+        preferSummary: json['preferSummary'] as bool? ?? false,
       );
 
   final int version;
@@ -73,6 +87,10 @@ class StarknetSignRequestUrPayload {
   final String amountSymbol;
   final String destinationAddress;
   final String feeWei;
+  final String? summaryActionName;
+  final String? summaryTokenAddress;
+  final Map<String, dynamic>? summaryAdditionalInfo;
+  final bool preferSummary;
 
   Map<String, dynamic> toJson() => {
         'version': version,
@@ -87,6 +105,10 @@ class StarknetSignRequestUrPayload {
         'amountSymbol': amountSymbol,
         'destinationAddress': destinationAddress,
         'feeWei': feeWei,
+        'summaryActionName': summaryActionName,
+        'summaryTokenAddress': summaryTokenAddress,
+        'summaryAdditionalInfo': summaryAdditionalInfo,
+        'preferSummary': preferSummary,
       };
 }
 
@@ -132,6 +154,99 @@ class StarknetSignResponseUrPayload {
       };
 }
 
+class StarknetMessageSignRequestUrPayload {
+  StarknetMessageSignRequestUrPayload({
+    required this.accountAddressHex,
+    required this.publicKeyHex,
+    required this.message,
+    required this.messageHashHex,
+    this.version = 1,
+  });
+
+  factory StarknetMessageSignRequestUrPayload.fromJson(Map<String, dynamic> json) =>
+      StarknetMessageSignRequestUrPayload(
+        version: json['version'] as int? ?? 1,
+        accountAddressHex: json['accountAddressHex'] as String,
+        publicKeyHex: json['publicKeyHex'] as String,
+        message: json['message'] as String,
+        messageHashHex: json['messageHashHex'] as String,
+      );
+
+  final int version;
+  final String accountAddressHex;
+  final String publicKeyHex;
+  final String message;
+  final String messageHashHex;
+
+  Map<String, dynamic> toJson() => {
+        'version': version,
+        'accountAddressHex': accountAddressHex,
+        'publicKeyHex': publicKeyHex,
+        'message': message,
+        'messageHashHex': messageHashHex,
+      };
+}
+
+class StarknetTypedDataSignRequestUrPayload {
+  StarknetTypedDataSignRequestUrPayload({
+    required this.accountAddressHex,
+    required this.publicKeyHex,
+    required this.typedDataJson,
+    required this.typedDataHashHex,
+    this.version = 1,
+  });
+
+  factory StarknetTypedDataSignRequestUrPayload.fromJson(Map<String, dynamic> json) =>
+      StarknetTypedDataSignRequestUrPayload(
+        version: json['version'] as int? ?? 1,
+        accountAddressHex: json['accountAddressHex'] as String,
+        publicKeyHex: json['publicKeyHex'] as String,
+        typedDataJson: json['typedDataJson'] as String,
+        typedDataHashHex: json['typedDataHashHex'] as String,
+      );
+
+  final int version;
+  final String accountAddressHex;
+  final String publicKeyHex;
+  final String typedDataJson;
+  final String typedDataHashHex;
+
+  Map<String, dynamic> toJson() => {
+        'version': version,
+        'accountAddressHex': accountAddressHex,
+        'publicKeyHex': publicKeyHex,
+        'typedDataJson': typedDataJson,
+        'typedDataHashHex': typedDataHashHex,
+      };
+}
+
+class StarknetSignatureResponseUrPayload {
+  StarknetSignatureResponseUrPayload({
+    required this.messageHashHex,
+    required this.signature,
+    this.version = 1,
+  });
+
+  factory StarknetSignatureResponseUrPayload.fromJson(Map<String, dynamic> json) =>
+      StarknetSignatureResponseUrPayload(
+        version: json['version'] as int? ?? 1,
+        messageHashHex: json['messageHashHex'] as String,
+        signature: StarknetUrSignature.fromJson(
+          Map<String, dynamic>.from(json['signature'] as Map),
+        ),
+      );
+
+  final int version;
+  final String messageHashHex;
+  final StarknetUrSignature signature;
+
+  Map<String, dynamic> toJson() => {
+        'version': version,
+        'messageHashHex': messageHashHex,
+        'signature': signature.toJson(),
+      };
+}
+
 Map<String, String> encodeStarknetSignRequestUrMap(StarknetSignRequestUrPayload payload) => {
       'Cupcake ur': _encodeJsonUr(starknetSignRequestUrType, payload.toJson()),
     };
@@ -139,11 +254,49 @@ Map<String, String> encodeStarknetSignRequestUrMap(StarknetSignRequestUrPayload 
 String encodeStarknetSignResponseUr(StarknetSignResponseUrPayload payload) =>
     _encodeJsonUr(starknetSignResponseUrType, payload.toJson());
 
+Map<String, String> encodeStarknetMessageSignRequestUrMap(
+        StarknetMessageSignRequestUrPayload payload) =>
+    {
+      'Cupcake ur': _encodeJsonUr(starknetMessageSignRequestUrType, payload.toJson()),
+    };
+
+String encodeStarknetMessageSignResponseUr(StarknetSignatureResponseUrPayload payload) =>
+    _encodeJsonUr(starknetMessageSignResponseUrType, payload.toJson());
+
+Map<String, String> encodeStarknetTypedDataSignRequestUrMap(
+        StarknetTypedDataSignRequestUrPayload payload) =>
+    {
+      'Cupcake ur': _encodeJsonUr(starknetTypedDataSignRequestUrType, payload.toJson()),
+    };
+
+String encodeStarknetTypedDataSignResponseUr(StarknetSignatureResponseUrPayload payload) =>
+    _encodeJsonUr(starknetTypedDataSignResponseUrType, payload.toJson());
+
 StarknetSignRequestUrPayload decodeStarknetSignRequestUr(String input) =>
     StarknetSignRequestUrPayload.fromJson(_decodeJsonUr(input, starknetSignRequestUrType));
 
 StarknetSignResponseUrPayload decodeStarknetSignResponseUr(String input) =>
     StarknetSignResponseUrPayload.fromJson(_decodeJsonUr(input, starknetSignResponseUrType));
+
+StarknetMessageSignRequestUrPayload decodeStarknetMessageSignRequestUr(String input) =>
+    StarknetMessageSignRequestUrPayload.fromJson(
+      _decodeJsonUr(input, starknetMessageSignRequestUrType),
+    );
+
+StarknetSignatureResponseUrPayload decodeStarknetMessageSignResponseUr(String input) =>
+    StarknetSignatureResponseUrPayload.fromJson(
+      _decodeJsonUr(input, starknetMessageSignResponseUrType),
+    );
+
+StarknetTypedDataSignRequestUrPayload decodeStarknetTypedDataSignRequestUr(String input) =>
+    StarknetTypedDataSignRequestUrPayload.fromJson(
+      _decodeJsonUr(input, starknetTypedDataSignRequestUrType),
+    );
+
+StarknetSignatureResponseUrPayload decodeStarknetTypedDataSignResponseUr(String input) =>
+    StarknetSignatureResponseUrPayload.fromJson(
+      _decodeJsonUr(input, starknetTypedDataSignResponseUrType),
+    );
 
 String _encodeJsonUr(String type, Map<String, dynamic> jsonMap) {
   final sourceBytes = utf8.encode(json.encode(jsonMap));

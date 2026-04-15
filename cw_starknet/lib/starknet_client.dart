@@ -66,6 +66,56 @@ class StarknetTransferEvent {
   BigInt get amount => BigInt.parse(amountWei);
 }
 
+class StarknetTransactionDetails {
+  StarknetTransactionDetails({
+    required this.transactionHash,
+    required this.transactionType,
+    required this.isPending,
+    required this.blockNumber,
+    required this.blockTimestamp,
+    required this.actualFeeWei,
+    required this.actionName,
+    required this.callCount,
+    required this.primaryContractAddressHex,
+    required this.primaryEntrypoint,
+    required this.senderAddressHex,
+    required this.finalityStatus,
+    required this.executionStatus,
+    required this.revertReason,
+    required this.accountDeploymentRequired,
+    required this.l1GasMaxAmount,
+    required this.l1GasMaxPriceWei,
+    required this.l2GasMaxAmount,
+    required this.l2GasMaxPriceWei,
+    required this.l1DataGasMaxAmount,
+    required this.l1DataGasMaxPriceWei,
+    required this.tip,
+  });
+
+  final String transactionHash;
+  final String transactionType;
+  final bool isPending;
+  final int? blockNumber;
+  final int? blockTimestamp;
+  final String? actualFeeWei;
+  final String? actionName;
+  final int? callCount;
+  final String? primaryContractAddressHex;
+  final String? primaryEntrypoint;
+  final String? senderAddressHex;
+  final String? finalityStatus;
+  final String? executionStatus;
+  final String? revertReason;
+  final bool accountDeploymentRequired;
+  final String? l1GasMaxAmount;
+  final String? l1GasMaxPriceWei;
+  final String? l2GasMaxAmount;
+  final String? l2GasMaxPriceWei;
+  final String? l1DataGasMaxAmount;
+  final String? l1DataGasMaxPriceWei;
+  final int? tip;
+}
+
 class StarknetWalletClient {
   static const String mainnetChainIdHex = '0x534e5f4d41494e';
   static const List<String> _fallbackNodeUrls = [
@@ -181,6 +231,7 @@ class StarknetWalletClient {
     required String accountAddressHex,
     required String accountClassHashHex,
     required List<StarknetExecutionCall> calls,
+    required int feePriorityRaw,
   }) async {
     await ensureStarknetRustInitialized();
 
@@ -192,6 +243,7 @@ class StarknetWalletClient {
           accountAddressHex: accountAddressHex,
           accountClassHashHex: accountClassHashHex,
           calls: calls.map((call) => call.toRust()).toList(),
+          feePriorityRaw: feePriorityRaw,
           chainIdHex: mainnetChainIdHex,
         );
         return unwrapFeeQuoteResponse(response);
@@ -204,6 +256,7 @@ class StarknetWalletClient {
     required String publicKeyHex,
     required String accountClassHashHex,
     required List<StarknetExecutionCall> calls,
+    required int feePriorityRaw,
   }) async {
     await ensureStarknetRustInitialized();
 
@@ -215,6 +268,7 @@ class StarknetWalletClient {
           accountAddressHex: accountAddressHex,
           accountClassHashHex: accountClassHashHex,
           calls: calls.map((call) => call.toRust()).toList(),
+          feePriorityRaw: feePriorityRaw,
           chainIdHex: mainnetChainIdHex,
         );
         return unwrapFeeQuoteResponse(response);
@@ -230,6 +284,8 @@ class StarknetWalletClient {
     required String destinationAddress,
     required String accountClassHashHex,
     required String feeWei,
+    required int feePriorityRaw,
+    Future<void> Function(String txHash)? onCommitted,
   }) async {
     final privateKeyHex = _requirePrivateKey();
     final accountAddressHex = _requireAccountAddress();
@@ -250,12 +306,14 @@ class StarknetWalletClient {
               accountAddressHex: accountAddressHex,
               accountClassHashHex: accountClassHashHex,
               calls: calls.map((call) => call.toRust()).toList(),
+              feePriorityRaw: feePriorityRaw,
               chainIdHex: mainnetChainIdHex,
             );
             return unwrapStringResponse(response);
           },
         );
       },
+      onCommitted: onCommitted,
     );
   }
 
@@ -267,6 +325,8 @@ class StarknetWalletClient {
     required String destinationAddress,
     required String accountClassHashHex,
     required String feeWei,
+    required int feePriorityRaw,
+    Future<void> Function(String txHash)? onCommitted,
   }) async {
     final accountAddressHex = _requireAccountAddress();
     final publicKeyHex = _requirePublicKey();
@@ -289,6 +349,7 @@ class StarknetWalletClient {
               accountAddressHex: accountAddressHex,
               accountClassHashHex: accountClassHashHex,
               calls: calls.map((call) => call.toRust()).toList(),
+              feePriorityRaw: feePriorityRaw,
               chainIdHex: mainnetChainIdHex,
             );
             final hashes = unwrapExecutionPlanResponse(hashesResponse);
@@ -319,6 +380,7 @@ class StarknetWalletClient {
           },
         );
       },
+      onCommitted: onCommitted,
     );
   }
 
@@ -330,6 +392,56 @@ class StarknetWalletClient {
     required String destinationAddress,
     required String accountClassHashHex,
     required String feeWei,
+    required int feePriorityRaw,
+    String? summaryActionName,
+    String? summaryTokenAddress,
+    Map<String, dynamic>? summaryAdditionalInfo,
+    bool preferSummary = false,
+  }) async {
+    await ensureStarknetRustInitialized();
+    final requestUr = await buildUnsignedTransactionUr(
+      calls: calls,
+      amountWei: amountWei,
+      amountDecimals: amountDecimals,
+      amountSymbol: amountSymbol,
+      destinationAddress: destinationAddress,
+      accountClassHashHex: accountClassHashHex,
+      feeWei: feeWei,
+      feePriorityRaw: feePriorityRaw,
+      summaryActionName: summaryActionName,
+      summaryTokenAddress: summaryTokenAddress,
+      summaryAdditionalInfo: summaryAdditionalInfo,
+      preferSummary: preferSummary,
+    );
+    final requestPayload = decodeStarknetSignRequestUr(requestUr.values.first);
+
+    return PendingStarknetTransaction(
+      amountWei: amountWei,
+      amountDecimals: amountDecimals,
+      amountSymbol: amountSymbol,
+      destinationAddress: destinationAddress,
+      feeWei: feeWei,
+      transactionHash: requestPayload.invokeTransactionHashHex,
+      sendTransaction: () async => throw UnsupportedError(
+        'Offline Starknet transactions must be completed via commitUR().',
+      ),
+      buildUnsignedTransactionUr: () async => requestUr,
+    );
+  }
+
+  Future<Map<String, String>> buildUnsignedTransactionUr({
+    required List<StarknetExecutionCall> calls,
+    required String amountWei,
+    required int amountDecimals,
+    required String amountSymbol,
+    required String destinationAddress,
+    required String accountClassHashHex,
+    required String feeWei,
+    required int feePriorityRaw,
+    String? summaryActionName,
+    String? summaryTokenAddress,
+    Map<String, dynamic>? summaryAdditionalInfo,
+    bool preferSummary = false,
   }) async {
     await ensureStarknetRustInitialized();
 
@@ -344,6 +456,7 @@ class StarknetWalletClient {
           accountAddressHex: accountAddressHex,
           accountClassHashHex: accountClassHashHex,
           calls: calls.map((call) => call.toRust()).toList(),
+          feePriorityRaw: feePriorityRaw,
           chainIdHex: mainnetChainIdHex,
         );
         return unwrapExecutionPlanResponse(response);
@@ -362,20 +475,13 @@ class StarknetWalletClient {
       amountSymbol: amountSymbol,
       destinationAddress: destinationAddress,
       feeWei: feeWei,
+      summaryActionName: summaryActionName,
+      summaryTokenAddress: summaryTokenAddress,
+      summaryAdditionalInfo: summaryAdditionalInfo,
+      preferSummary: preferSummary,
     );
 
-    return PendingStarknetTransaction(
-      amountWei: amountWei,
-      amountDecimals: amountDecimals,
-      amountSymbol: amountSymbol,
-      destinationAddress: destinationAddress,
-      feeWei: feeWei,
-      transactionHash: executionPlan.invokeTransactionHashHex,
-      sendTransaction: () async => throw UnsupportedError(
-        'Offline Starknet transactions must be completed via commitUR().',
-      ),
-      buildUnsignedTransactionUr: () async => encodeStarknetSignRequestUrMap(requestPayload),
-    );
+    return encodeStarknetSignRequestUrMap(requestPayload);
   }
 
   Future<List<StarknetTransferEvent>> fetchTransferEvents({
@@ -425,6 +531,54 @@ class StarknetWalletClient {
     } catch (e) {
       printV('Error fetching Starknet transfer history: $e');
       return [];
+    }
+  }
+
+  Future<StarknetTransactionDetails?> getTransactionDetails({
+    required String transactionHashHex,
+  }) async {
+    if (_nodeUrl == null) {
+      return null;
+    }
+
+    try {
+      await ensureStarknetRustInitialized();
+      return _withFallbackNodeUrls(
+        (nodeUrl) async {
+          final response = await rust_api.getTransactionDetails(
+            nodeUrl: nodeUrl,
+            transactionHashHex: transactionHashHex,
+          );
+          final details = unwrapTransactionDetailsResponse(response);
+          return StarknetTransactionDetails(
+            transactionHash: details.transactionHash,
+            transactionType: details.transactionType,
+            isPending: details.isPending,
+            blockNumber: details.blockNumber?.toInt(),
+            blockTimestamp: details.blockTimestamp?.toInt(),
+            actualFeeWei: details.actualFeeWei,
+            actionName: details.actionName,
+            callCount: details.callCount?.toInt(),
+            primaryContractAddressHex: details.primaryContractAddressHex,
+            primaryEntrypoint: details.primaryEntrypoint,
+            senderAddressHex: details.senderAddressHex,
+            finalityStatus: details.finalityStatus,
+            executionStatus: details.executionStatus,
+            revertReason: details.revertReason,
+            accountDeploymentRequired: details.accountDeploymentRequired,
+            l1GasMaxAmount: details.l1GasMaxAmount,
+            l1GasMaxPriceWei: details.l1GasMaxPriceWei,
+            l2GasMaxAmount: details.l2GasMaxAmount,
+            l2GasMaxPriceWei: details.l2GasMaxPriceWei,
+            l1DataGasMaxAmount: details.l1DataGasMaxAmount,
+            l1DataGasMaxPriceWei: details.l1DataGasMaxPriceWei,
+            tip: details.tip?.toInt(),
+          );
+        },
+      );
+    } catch (e) {
+      printV('Error fetching Starknet transaction details for $transactionHashHex: $e');
+      return null;
     }
   }
 

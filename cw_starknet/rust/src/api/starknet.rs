@@ -22,9 +22,10 @@ use starknet_rust::{
         crypto::Signature,
         types::{
             AddressFilter, BlockId, BlockTag, BroadcastedTransaction, ByteArray, Call,
-            EmittedEvent, EventFilter, ExecutionResult, Felt, FunctionCall,
-            MaybePreConfirmedBlockWithTxHashes, SimulationFlagForEstimateFee, StarknetError,
-            TransactionReceipt, TypedData,
+            DeployAccountTransaction, EmittedEvent, EventFilter, ExecutionResult, Felt,
+            FunctionCall, InvokeTransaction, MaybePreConfirmedBlockWithTxHashes,
+            ResourceBoundsMapping, SimulationFlagForEstimateFee, StarknetError, Transaction,
+            TransactionFinalityStatus, TransactionReceipt, TypedData,
         },
         utils::{get_contract_address, get_selector_from_name},
     },
@@ -32,9 +33,7 @@ use starknet_rust::{
         jsonrpc::{HttpTransport, JsonRpcClient},
         Provider, ProviderError, Url,
     },
-    signers::{
-        LocalWallet, Signer, SignerInteractivityContext, SigningKey, VerifyingKey,
-    },
+    signers::{LocalWallet, Signer, SignerInteractivityContext, SigningKey, VerifyingKey},
 };
 use starknet_rust_curve::curve_params::EC_ORDER;
 use tokio::runtime::{Builder, Runtime};
@@ -120,6 +119,32 @@ pub struct StarknetExecutionPlanData {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StarknetTransactionDetails {
+    pub transaction_hash: String,
+    pub transaction_type: String,
+    pub is_pending: bool,
+    pub block_number: Option<i64>,
+    pub block_timestamp: Option<i64>,
+    pub actual_fee_wei: Option<String>,
+    pub action_name: Option<String>,
+    pub call_count: Option<i32>,
+    pub primary_contract_address_hex: Option<String>,
+    pub primary_entrypoint: Option<String>,
+    pub sender_address_hex: Option<String>,
+    pub finality_status: Option<String>,
+    pub execution_status: Option<String>,
+    pub revert_reason: Option<String>,
+    pub account_deployment_required: bool,
+    pub l1_gas_max_amount: Option<String>,
+    pub l1_gas_max_price_wei: Option<String>,
+    pub l2_gas_max_amount: Option<String>,
+    pub l2_gas_max_price_wei: Option<String>,
+    pub l1_data_gas_max_amount: Option<String>,
+    pub l1_data_gas_max_price_wei: Option<String>,
+    pub tip: Option<i64>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DerivedAccountDataResponse {
     pub value: Option<DerivedAccountData>,
     pub error: Option<String>,
@@ -174,6 +199,12 @@ pub struct ExecutionPlanResponse {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TransactionDetailsResponse {
+    pub value: Option<StarknetTransactionDetails>,
+    pub error: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct StringListResponse {
     pub items: Vec<String>,
     pub error: Option<String>,
@@ -218,6 +249,38 @@ struct PreparedExternalExecution {
     invoke_transaction_hash: Felt,
     deploy_account_transaction_hash: Option<Felt>,
     serialized_plan: SerializedExternalExecutionPlan,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum StarknetFeePriority {
+    Slow,
+    Medium,
+    Fast,
+}
+
+#[derive(Clone, Debug)]
+struct DecodedInvokeCall {
+    contract_address: Felt,
+    selector: Felt,
+    calldata: Vec<Felt>,
+}
+
+#[derive(Clone, Debug)]
+struct DecodedTransactionSummary {
+    transaction_type: String,
+    action_name: Option<String>,
+    call_count: Option<i32>,
+    primary_contract_address_hex: Option<String>,
+    primary_entrypoint: Option<String>,
+    sender_address_hex: Option<String>,
+    account_deployment_required: bool,
+    l1_gas_max_amount: Option<String>,
+    l1_gas_max_price_wei: Option<String>,
+    l2_gas_max_amount: Option<String>,
+    l2_gas_max_price_wei: Option<String>,
+    l1_data_gas_max_amount: Option<String>,
+    l1_data_gas_max_price_wei: Option<String>,
+    tip: Option<i64>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -311,6 +374,13 @@ impl ExecutionPlanResponse {
     }
 }
 
+impl TransactionDetailsResponse {
+    fn from_result(result: ApiResult<StarknetTransactionDetails>) -> Self {
+        let (value, error) = split_result(result);
+        Self { value, error }
+    }
+}
+
 impl StringListResponse {
     fn from_result(result: ApiResult<Vec<String>>) -> Self {
         match result {
@@ -330,6 +400,16 @@ impl std::fmt::Display for ExternalSignerError {
 }
 
 impl std::error::Error for ExternalSignerError {}
+
+impl StarknetFeePriority {
+    fn from_raw(raw: i32) -> Self {
+        match raw {
+            0 => Self::Slow,
+            2 => Self::Fast,
+            _ => Self::Medium,
+        }
+    }
+}
 
 #[async_trait]
 impl Signer for PublicKeyOnlySigner {
@@ -490,6 +570,7 @@ pub fn estimate_transfer_fee(
                 entrypoint: "transfer".to_string(),
                 calldata_hex: transfer_calldata_hex(recipient_address_hex, amount_wei)?,
             }],
+            StarknetFeePriority::Medium,
             chain_id_hex,
         )
         .await?;
@@ -537,6 +618,7 @@ pub fn send_transfer(
                 entrypoint: "transfer".to_string(),
                 calldata_hex: transfer_calldata_hex(recipient_address_hex, amount_wei)?,
             }],
+            StarknetFeePriority::Medium,
             chain_id_hex,
         )
         .await
@@ -549,6 +631,7 @@ pub fn estimate_execute_fee(
     account_address_hex: String,
     account_class_hash_hex: String,
     calls: Vec<StarknetCallInput>,
+    fee_priority_raw: i32,
     chain_id_hex: Option<String>,
 ) -> FeeQuoteResponse {
     FeeQuoteResponse::from_result(run_async(estimate_execute_fee_inner(
@@ -557,6 +640,7 @@ pub fn estimate_execute_fee(
         account_address_hex,
         account_class_hash_hex,
         calls,
+        StarknetFeePriority::from_raw(fee_priority_raw),
         chain_id_hex,
     )))
 }
@@ -567,21 +651,21 @@ pub fn estimate_execute_fee_external_signer(
     account_address_hex: String,
     account_class_hash_hex: String,
     calls: Vec<StarknetCallInput>,
+    fee_priority_raw: i32,
     chain_id_hex: Option<String>,
 ) -> FeeQuoteResponse {
     FeeQuoteResponse::from_result(run_async(async move {
-        Ok(
-            prepare_external_execution_inner(
-                node_url,
-                public_key_hex,
-                account_address_hex,
-                account_class_hash_hex,
-                calls,
-                chain_id_hex,
-            )
-            .await?
-            .fee_quote,
+        Ok(prepare_external_execution_inner(
+            node_url,
+            public_key_hex,
+            account_address_hex,
+            account_class_hash_hex,
+            calls,
+            StarknetFeePriority::from_raw(fee_priority_raw),
+            chain_id_hex,
         )
+        .await?
+        .fee_quote)
     }))
 }
 
@@ -591,6 +675,7 @@ pub fn execute_calls(
     account_address_hex: String,
     account_class_hash_hex: String,
     calls: Vec<StarknetCallInput>,
+    fee_priority_raw: i32,
     chain_id_hex: Option<String>,
 ) -> StringResponse {
     StringResponse::from_result(run_async(execute_calls_inner(
@@ -599,6 +684,7 @@ pub fn execute_calls(
         account_address_hex,
         account_class_hash_hex,
         calls,
+        StarknetFeePriority::from_raw(fee_priority_raw),
         chain_id_hex,
     )))
 }
@@ -609,6 +695,7 @@ pub fn get_execute_transaction_hashes_external_signer(
     account_address_hex: String,
     account_class_hash_hex: String,
     calls: Vec<StarknetCallInput>,
+    fee_priority_raw: i32,
     chain_id_hex: Option<String>,
 ) -> ExecutionPlanResponse {
     ExecutionPlanResponse::from_result(run_async(async move {
@@ -618,6 +705,7 @@ pub fn get_execute_transaction_hashes_external_signer(
             account_address_hex,
             account_class_hash_hex,
             calls,
+            StarknetFeePriority::from_raw(fee_priority_raw),
             chain_id_hex,
         )
         .await?;
@@ -627,9 +715,7 @@ pub fn get_execute_transaction_hashes_external_signer(
             deploy_account_transaction_hash_hex: prepared
                 .deploy_account_transaction_hash
                 .map(felt_to_hex),
-            account_deployment_required: prepared
-                .fee_quote
-                .account_deployment_required,
+            account_deployment_required: prepared.fee_quote.account_deployment_required,
             plan_json: serde_json::to_string(&prepared.serialized_plan)
                 .map_err(|err| format!("Failed to serialize Starknet execution plan: {err}"))?,
         })
@@ -741,7 +827,10 @@ pub fn fetch_transfer_history(
         }
         let tx_hashes = tx_fees.keys().copied().collect::<Vec<_>>();
         for tx_hash in tx_hashes {
-            tx_fees.insert(tx_hash, fetch_transaction_fee(&provider, tx_hash).await.ok());
+            tx_fees.insert(
+                tx_hash,
+                fetch_transaction_fee(&provider, tx_hash).await.ok(),
+            );
         }
 
         Ok(deduped
@@ -755,7 +844,9 @@ pub fn fetch_transfer_history(
                     event.event_index
                 ),
                 event_index: i64::try_from(event.event_index).unwrap_or(i64::MAX),
-                block_number: event.block_number.and_then(|value| i64::try_from(value).ok()),
+                block_number: event
+                    .block_number
+                    .and_then(|value| i64::try_from(value).ok()),
                 from: event.from,
                 to: event.to,
                 amount_wei: event.amount_wei,
@@ -771,10 +862,24 @@ pub fn fetch_transfer_history(
     }))
 }
 
+pub fn get_transaction_details(
+    node_url: String,
+    transaction_hash_hex: String,
+) -> TransactionDetailsResponse {
+    TransactionDetailsResponse::from_result(run_async(async move {
+        let provider = make_provider(&node_url)?;
+        let transaction_hash = parse_felt_hex(&transaction_hash_hex, "transaction_hash_hex")?;
+        fetch_transaction_details(&provider, transaction_hash).await
+    }))
+}
+
 pub fn get_block_number(node_url: String) -> I64Response {
     I64Response::from_result(run_async(async move {
         let provider = make_provider(&node_url)?;
-        let block_number = provider.block_number().await.map_err(format_provider_error)?;
+        let block_number = provider
+            .block_number()
+            .await
+            .map_err(format_provider_error)?;
         i64::try_from(block_number).map_err(|_| "Block number does not fit in i64".to_string())
     }))
 }
@@ -851,12 +956,8 @@ fn derive_account_inner(
     let signing_key = SigningKey::from_secret_scalar(private_key);
     let public_key = signing_key.verifying_key().scalar();
     let account_class_hash = parse_felt_hex(&account_class_hash_hex, "account_class_hash_hex")?;
-    let account_address = get_contract_address(
-        public_key,
-        account_class_hash,
-        &[public_key],
-        Felt::ZERO,
-    );
+    let account_address =
+        get_contract_address(public_key, account_class_hash, &[public_key], Felt::ZERO);
 
     Ok(DerivedAccountData {
         private_key_hex: felt_to_hex(private_key),
@@ -871,8 +972,7 @@ fn derive_account_from_public_key_inner(
 ) -> ApiResult<DerivedAccountData> {
     let public_key = parse_felt_hex(&public_key_hex, "public_key_hex")?;
     let account_class_hash = parse_felt_hex(&account_class_hash_hex, "account_class_hash_hex")?;
-    let account_address =
-        derive_account_address_from_public_key(public_key, account_class_hash);
+    let account_address = derive_account_address_from_public_key(public_key, account_class_hash);
 
     Ok(DerivedAccountData {
         private_key_hex: String::new(),
@@ -922,8 +1022,8 @@ fn sign_typed_data_inner(
 ) -> ApiResult<Vec<String>> {
     let private_key = parse_private_key(&private_key_hex)?;
     let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
-    let typed_data: TypedData =
-        serde_json::from_str(&typed_data_json).map_err(|err| format!("Invalid typedData: {err}"))?;
+    let typed_data: TypedData = serde_json::from_str(&typed_data_json)
+        .map_err(|err| format!("Invalid typedData: {err}"))?;
     let message_hash = typed_data
         .message_hash(account_address)
         .map_err(|err| format!("Invalid typedData: {err}"))?;
@@ -939,8 +1039,8 @@ fn get_typed_data_message_hash_inner(
     typed_data_json: String,
 ) -> ApiResult<String> {
     let account_address = parse_felt_hex(&account_address_hex, "account_address_hex")?;
-    let typed_data: TypedData =
-        serde_json::from_str(&typed_data_json).map_err(|err| format!("Invalid typedData: {err}"))?;
+    let typed_data: TypedData = serde_json::from_str(&typed_data_json)
+        .map_err(|err| format!("Invalid typedData: {err}"))?;
     let message_hash = typed_data
         .message_hash(account_address)
         .map_err(|err| format!("Invalid typedData: {err}"))?;
@@ -954,6 +1054,7 @@ async fn estimate_execute_fee_inner(
     account_address_hex: String,
     account_class_hash_hex: String,
     calls: Vec<StarknetCallInput>,
+    fee_priority: StarknetFeePriority,
     chain_id_hex: Option<String>,
 ) -> ApiResult<StarknetFeeQuote> {
     let provider = make_provider(&node_url)?;
@@ -968,22 +1069,29 @@ async fn estimate_execute_fee_inner(
 
     if is_deployed {
         let account = make_single_owner_account(
-            provider,
+            provider.clone(),
             LocalWallet::from(signing_key),
             account_address,
             chain_id,
         );
-        let fee = account
-            .execute_v3(call_inputs)
-            .gas_estimate_multiplier(1.5)
-            .gas_price_estimate_multiplier(1.5)
-            .estimate_fee()
-            .await
-            .map_err(format_account_error)?;
+        let nonce = account.get_nonce().await.map_err(format_provider_error)?;
+        let invoke_params = prepare_transaction_params_from_fee_estimate(
+            &provider,
+            nonce,
+            account
+                .execute_v3(call_inputs)
+                .nonce(nonce)
+                .estimate_fee()
+                .await
+                .map_err(format_account_error)?,
+            fee_priority,
+        )
+        .await?;
 
+        let execution_fee = calculate_overall_fee_from_params(&invoke_params).to_string();
         return Ok(StarknetFeeQuote {
-            overall_fee_wei: fee.overall_fee.to_string(),
-            execution_fee_wei: fee.overall_fee.to_string(),
+            overall_fee_wei: execution_fee.clone(),
+            execution_fee_wei: execution_fee,
             deploy_account_fee_wei: None,
             account_deployment_required: false,
         });
@@ -1056,10 +1164,23 @@ async fn estimate_execute_fee_inner(
         ));
     }
 
-    let deploy_fee = fee_estimates[0].overall_fee;
-    let execution_fee = fee_estimates[1].overall_fee;
+    let tip = fetch_latest_block_tip(&provider).await?;
+    let deploy_params = prepare_transaction_params_from_estimate_with_tip(
+        Felt::ZERO,
+        &fee_estimates[0],
+        tip,
+        fee_priority,
+    )?;
+    let invoke_params = prepare_transaction_params_from_estimate_with_tip(
+        Felt::ONE,
+        &fee_estimates[1],
+        tip,
+        fee_priority,
+    )?;
+    let deploy_fee = calculate_overall_fee_from_params(&deploy_params);
+    let execution_fee = calculate_overall_fee_from_params(&invoke_params);
     Ok(StarknetFeeQuote {
-        overall_fee_wei: (BigUint::from(deploy_fee) + BigUint::from(execution_fee)).to_string(),
+        overall_fee_wei: (deploy_fee.clone() + execution_fee.clone()).to_string(),
         execution_fee_wei: execution_fee.to_string(),
         deploy_account_fee_wei: Some(deploy_fee.to_string()),
         account_deployment_required: true,
@@ -1072,6 +1193,7 @@ async fn prepare_external_execution_inner(
     account_address_hex: String,
     account_class_hash_hex: String,
     calls: Vec<StarknetCallInput>,
+    fee_priority: StarknetFeePriority,
     chain_id_hex: Option<String>,
 ) -> ApiResult<PreparedExternalExecution> {
     let provider = make_provider(&node_url)?;
@@ -1084,12 +1206,8 @@ async fn prepare_external_execution_inner(
     validate_derived_account_address(public_key, account_class_hash, account_address)?;
 
     let execution_calls = build_execution_calls(calls.clone())?;
-    let account = make_single_owner_account(
-        provider.clone(),
-        signer.clone(),
-        account_address,
-        chain_id,
-    );
+    let account =
+        make_single_owner_account(provider.clone(), signer.clone(), account_address, chain_id);
 
     if is_account_deployed_with_provider(&provider, account_address).await? {
         let nonce = account.get_nonce().await.map_err(format_provider_error)?;
@@ -1102,13 +1220,10 @@ async fn prepare_external_execution_inner(
                 .estimate_fee()
                 .await
                 .map_err(format_account_error)?,
+            fee_priority,
         )
         .await?;
-        let invoke_hash = build_invoke_transaction_hash(
-            &account,
-            execution_calls,
-            &invoke_params,
-        )?;
+        let invoke_hash = build_invoke_transaction_hash(&account, execution_calls, &invoke_params)?;
 
         return Ok(PreparedExternalExecution {
             fee_quote: StarknetFeeQuote {
@@ -1131,14 +1246,10 @@ async fn prepare_external_execution_inner(
         });
     }
 
-    let factory = OpenZeppelinAccountFactory::new(
-        account_class_hash,
-        chain_id,
-        signer,
-        provider.clone(),
-    )
-    .await
-    .map_err(|err| err.to_string())?;
+    let factory =
+        OpenZeppelinAccountFactory::new(account_class_hash, chain_id, signer, provider.clone())
+            .await
+            .map_err(|err| err.to_string())?;
 
     let zero_deploy_request = factory
         .deploy_v3(public_key)
@@ -1192,13 +1303,20 @@ async fn prepare_external_execution_inner(
     }
 
     let tip = fetch_latest_block_tip(&provider).await?;
-    let deploy_params =
-        prepare_transaction_params_from_estimate_with_tip(Felt::ZERO, &fee_estimates[0], tip)?;
-    let invoke_params =
-        prepare_transaction_params_from_estimate_with_tip(Felt::ONE, &fee_estimates[1], tip)?;
+    let deploy_params = prepare_transaction_params_from_estimate_with_tip(
+        Felt::ZERO,
+        &fee_estimates[0],
+        tip,
+        fee_priority,
+    )?;
+    let invoke_params = prepare_transaction_params_from_estimate_with_tip(
+        Felt::ONE,
+        &fee_estimates[1],
+        tip,
+        fee_priority,
+    )?;
     let deploy_hash = build_deploy_transaction_hash(&factory, public_key, &deploy_params)?;
-    let invoke_hash =
-        build_invoke_transaction_hash(&account, execution_calls, &invoke_params)?;
+    let invoke_hash = build_invoke_transaction_hash(&account, execution_calls, &invoke_params)?;
     let deploy_fee = calculate_overall_fee_from_params(&deploy_params);
     let execution_fee = calculate_overall_fee_from_params(&invoke_params);
 
@@ -1328,6 +1446,7 @@ async fn execute_calls_inner(
     account_address_hex: String,
     account_class_hash_hex: String,
     calls: Vec<StarknetCallInput>,
+    fee_priority: StarknetFeePriority,
     chain_id_hex: Option<String>,
 ) -> ApiResult<String> {
     let private_key = parse_private_key(&private_key_hex)?;
@@ -1344,14 +1463,32 @@ async fn execute_calls_inner(
             account_class_hash,
             chain_id,
             LocalWallet::from(signing_key.clone()),
-            provider,
+            provider.clone(),
         )
         .await
         .map_err(|_| "failed to derive Starknet public key".to_string())?;
+        let deploy_estimate = factory
+            .deploy_v3(public_key)
+            .estimate_fee()
+            .await
+            .map_err(format_account_error)?;
+        let deploy_params = prepare_transaction_params_from_fee_estimate(
+            &provider,
+            Felt::ZERO,
+            deploy_estimate,
+            fee_priority,
+        )
+        .await?;
         let deployment = factory
             .deploy_v3(public_key)
-            .gas_estimate_multiplier(1.5)
-            .gas_price_estimate_multiplier(1.5);
+            .nonce(deploy_params.nonce)
+            .l1_gas(deploy_params.l1_gas)
+            .l1_gas_price(deploy_params.l1_gas_price)
+            .l2_gas(deploy_params.l2_gas)
+            .l2_gas_price(deploy_params.l2_gas_price)
+            .l1_data_gas(deploy_params.l1_data_gas)
+            .l1_data_gas_price(deploy_params.l1_data_gas_price)
+            .tip(deploy_params.tip);
 
         let deployment_result = deployment.send().await.map_err(format_account_error)?;
         wait_for_transaction(&node_url, deployment_result.transaction_hash).await?;
@@ -1359,15 +1496,34 @@ async fn execute_calls_inner(
 
     let execute_provider = make_provider(&node_url)?;
     let account = make_single_owner_account(
-        execute_provider,
+        execute_provider.clone(),
         LocalWallet::from(signing_key),
         account_address,
         chain_id,
     );
+    let nonce = account.get_nonce().await.map_err(format_provider_error)?;
+    let invoke_params = prepare_transaction_params_from_fee_estimate(
+        &execute_provider,
+        nonce,
+        account
+            .execute_v3(call_inputs.clone())
+            .nonce(nonce)
+            .estimate_fee()
+            .await
+            .map_err(format_account_error)?,
+        fee_priority,
+    )
+    .await?;
     let invoke_result = account
         .execute_v3(call_inputs)
-        .gas_estimate_multiplier(1.5)
-        .gas_price_estimate_multiplier(1.5)
+        .nonce(invoke_params.nonce)
+        .l1_gas(invoke_params.l1_gas)
+        .l1_gas_price(invoke_params.l1_gas_price)
+        .l2_gas(invoke_params.l2_gas)
+        .l2_gas_price(invoke_params.l2_gas_price)
+        .l1_data_gas(invoke_params.l1_data_gas)
+        .l1_data_gas_price(invoke_params.l1_data_gas_price)
+        .tip(invoke_params.tip)
         .send()
         .await
         .map_err(format_account_error)?;
@@ -1510,30 +1666,88 @@ async fn fetch_latest_block_tip(provider: &JsonRpcClient<HttpTransport>) -> ApiR
         .median_tip())
 }
 
-fn adjust_gas_amount(value: u64) -> u64 {
-    ((value as f64) * 1.5) as u64
+fn apply_multiplier_u64(value: u64, numerator: u64, denominator: u64) -> ApiResult<u64> {
+    let adjusted = (u128::from(value) * u128::from(numerator))
+        .checked_add(u128::from(denominator.saturating_sub(1)))
+        .ok_or_else(|| "fee calculation overflow".to_string())?
+        / u128::from(denominator);
+    u64::try_from(adjusted).map_err(|_| "fee calculation overflow".to_string())
 }
 
-fn adjust_gas_price(value: u128) -> ApiResult<u128> {
-    Ok(((TryInto::<u64>::try_into(value)
-        .map_err(|_| "fee calculation overflow".to_string())? as f64)
-        * 1.5) as u128)
+fn apply_multiplier_u128(value: u128, numerator: u64, denominator: u64) -> ApiResult<u128> {
+    value
+        .checked_mul(u128::from(numerator))
+        .and_then(|intermediate| {
+            intermediate.checked_add(u128::from(denominator.saturating_sub(1)))
+        })
+        .map(|adjusted| adjusted / u128::from(denominator))
+        .ok_or_else(|| "fee calculation overflow".to_string())
+}
+
+fn fee_priority_multipliers(priority: StarknetFeePriority) -> (u64, u64, u64, u64, u64, u64) {
+    match priority {
+        StarknetFeePriority::Slow => (115, 100, 110, 100, 50, 100),
+        StarknetFeePriority::Medium => (135, 100, 130, 100, 100, 100),
+        StarknetFeePriority::Fast => (160, 100, 150, 100, 200, 100),
+    }
+}
+
+fn adjust_tip(value: u64, numerator: u64, denominator: u64) -> ApiResult<u64> {
+    if value == 0 || numerator == 0 {
+        return Ok(0);
+    }
+
+    Ok(apply_multiplier_u64(value, numerator, denominator)?.max(1))
 }
 
 fn prepare_transaction_params_from_estimate_with_tip(
     nonce: Felt,
     fee_estimate: &starknet_rust::core::types::FeeEstimate,
     tip: u64,
+    fee_priority: StarknetFeePriority,
 ) -> ApiResult<PreparedTransactionParams> {
+    let (
+        gas_amount_numerator,
+        gas_amount_denominator,
+        gas_price_numerator,
+        gas_price_denominator,
+        tip_numerator,
+        tip_denominator,
+    ) = fee_priority_multipliers(fee_priority);
+
     Ok(PreparedTransactionParams {
         nonce,
-        l1_gas: adjust_gas_amount(fee_estimate.l1_gas_consumed),
-        l1_gas_price: adjust_gas_price(fee_estimate.l1_gas_price)?,
-        l2_gas: adjust_gas_amount(fee_estimate.l2_gas_consumed),
-        l2_gas_price: adjust_gas_price(fee_estimate.l2_gas_price)?,
-        l1_data_gas: adjust_gas_amount(fee_estimate.l1_data_gas_consumed),
-        l1_data_gas_price: adjust_gas_price(fee_estimate.l1_data_gas_price)?,
-        tip,
+        l1_gas: apply_multiplier_u64(
+            fee_estimate.l1_gas_consumed,
+            gas_amount_numerator,
+            gas_amount_denominator,
+        )?,
+        l1_gas_price: apply_multiplier_u128(
+            fee_estimate.l1_gas_price,
+            gas_price_numerator,
+            gas_price_denominator,
+        )?,
+        l2_gas: apply_multiplier_u64(
+            fee_estimate.l2_gas_consumed,
+            gas_amount_numerator,
+            gas_amount_denominator,
+        )?,
+        l2_gas_price: apply_multiplier_u128(
+            fee_estimate.l2_gas_price,
+            gas_price_numerator,
+            gas_price_denominator,
+        )?,
+        l1_data_gas: apply_multiplier_u64(
+            fee_estimate.l1_data_gas_consumed,
+            gas_amount_numerator,
+            gas_amount_denominator,
+        )?,
+        l1_data_gas_price: apply_multiplier_u128(
+            fee_estimate.l1_data_gas_price,
+            gas_price_numerator,
+            gas_price_denominator,
+        )?,
+        tip: adjust_tip(tip, tip_numerator, tip_denominator)?,
     })
 }
 
@@ -1541,9 +1755,10 @@ async fn prepare_transaction_params_from_fee_estimate(
     provider: &JsonRpcClient<HttpTransport>,
     nonce: Felt,
     fee_estimate: starknet_rust::core::types::FeeEstimate,
+    fee_priority: StarknetFeePriority,
 ) -> ApiResult<PreparedTransactionParams> {
     let tip = fetch_latest_block_tip(provider).await?;
-    prepare_transaction_params_from_estimate_with_tip(nonce, &fee_estimate, tip)
+    prepare_transaction_params_from_estimate_with_tip(nonce, &fee_estimate, tip, fee_priority)
 }
 
 fn calculate_overall_fee_from_params(params: &PreparedTransactionParams) -> BigUint {
@@ -1612,8 +1827,10 @@ fn build_execution_calls(calls: Vec<StarknetCallInput>) -> ApiResult<Vec<Call>> 
         .into_iter()
         .enumerate()
         .map(|(index, call)| {
-            let contract_address =
-                parse_felt_hex(&call.contract_address_hex, &format!("calls[{index}].contractAddress"))?;
+            let contract_address = parse_felt_hex(
+                &call.contract_address_hex,
+                &format!("calls[{index}].contractAddress"),
+            )?;
             let selector = parse_entrypoint_selector(&call.entrypoint, index)?;
             let calldata = call
                 .calldata_hex
@@ -1642,7 +1859,10 @@ fn parse_entrypoint_selector(value: &str, index: usize) -> ApiResult<Felt> {
     }
 }
 
-fn transfer_calldata_hex(recipient_address_hex: String, amount_wei: String) -> ApiResult<Vec<String>> {
+fn transfer_calldata_hex(
+    recipient_address_hex: String,
+    amount_wei: String,
+) -> ApiResult<Vec<String>> {
     let recipient_address = parse_felt_hex(&recipient_address_hex, "recipient_address_hex")?;
     Ok(transfer_calldata(recipient_address, &amount_wei)?
         .into_iter()
@@ -1690,10 +1910,22 @@ fn felt_to_biguint(value: Felt) -> BigUint {
     BigUint::from_bytes_be(&value.to_bytes_be())
 }
 
+fn felt_to_usize(value: Felt) -> Result<usize, ()> {
+    felt_to_biguint(value)
+        .to_string()
+        .parse::<usize>()
+        .map_err(|_| ())
+}
+
 fn felt_to_short_string(value: Felt) -> String {
     let bytes = value.to_bytes_be();
-    let start = bytes.iter().position(|byte| *byte != 0).unwrap_or(bytes.len());
-    String::from_utf8_lossy(&bytes[start..]).trim_matches('\u{0}').to_string()
+    let start = bytes
+        .iter()
+        .position(|byte| *byte != 0)
+        .unwrap_or(bytes.len());
+    String::from_utf8_lossy(&bytes[start..])
+        .trim_matches('\u{0}')
+        .to_string()
 }
 
 async fn call_token_string(
@@ -1786,7 +2018,11 @@ async fn fetch_paginated_transfer_events(
 
     loop {
         let result = provider
-            .get_events(filter.clone(), continuation_token.clone(), DEFAULT_PAGE_SIZE)
+            .get_events(
+                filter.clone(),
+                continuation_token.clone(),
+                DEFAULT_PAGE_SIZE,
+            )
             .await;
 
         let page = match result {
@@ -1795,7 +2031,11 @@ async fn fetch_paginated_transfer_events(
         };
 
         for event in page.events {
-            events.push(parse_transfer_event(event, is_outgoing, token_symbol.clone()));
+            events.push(parse_transfer_event(
+                event,
+                is_outgoing,
+                token_symbol.clone(),
+            ));
         }
 
         continuation_token = page.continuation_token;
@@ -1818,8 +2058,18 @@ fn parse_transfer_event(
         transaction_hash: event.transaction_hash,
         event_index: event.event_index,
         block_number: event.block_number,
-        from: event.keys.get(1).copied().map(felt_to_hex).unwrap_or_default(),
-        to: event.keys.get(2).copied().map(felt_to_hex).unwrap_or_default(),
+        from: event
+            .keys
+            .get(1)
+            .copied()
+            .map(felt_to_hex)
+            .unwrap_or_default(),
+        to: event
+            .keys
+            .get(2)
+            .copied()
+            .map(felt_to_hex)
+            .unwrap_or_default(),
         amount_wei: uint256_from_words(low, high).to_string(),
         is_outgoing,
         token_symbol,
@@ -1865,6 +2115,411 @@ fn actual_fee_from_receipt(receipt: &TransactionReceipt) -> BigUint {
     };
 
     felt_to_biguint(fee_amount)
+}
+
+async fn fetch_transaction_details(
+    provider: &JsonRpcClient<HttpTransport>,
+    transaction_hash: Felt,
+) -> ApiResult<StarknetTransactionDetails> {
+    let transaction = provider
+        .get_transaction_by_hash(transaction_hash, None)
+        .await
+        .map_err(format_provider_error)?;
+    let receipt = provider
+        .get_transaction_receipt(transaction_hash)
+        .await
+        .map_err(format_provider_error)?;
+    let summary = summarize_transaction(&transaction)?;
+    let block_number = i64::try_from(receipt.block.block_number())
+        .map_err(|_| "Block number does not fit in i64".to_string())
+        .ok();
+    let block_timestamp = if receipt.block.is_pre_confirmed() {
+        None
+    } else {
+        fetch_block_timestamp(provider, receipt.block.block_number())
+            .await
+            .ok()
+    };
+
+    let (execution_status, revert_reason) = match receipt.receipt.execution_result() {
+        ExecutionResult::Succeeded => (Some("SUCCEEDED".to_string()), None),
+        ExecutionResult::Reverted { reason } => {
+            (Some("REVERTED".to_string()), Some(reason.clone()))
+        }
+    };
+
+    Ok(StarknetTransactionDetails {
+        transaction_hash: felt_to_hex(transaction_hash),
+        transaction_type: summary.transaction_type,
+        is_pending: matches!(
+            receipt.receipt.finality_status(),
+            TransactionFinalityStatus::PreConfirmed
+        ),
+        block_number,
+        block_timestamp,
+        actual_fee_wei: Some(actual_fee_from_receipt(&receipt.receipt).to_string()),
+        action_name: summary.action_name,
+        call_count: summary.call_count,
+        primary_contract_address_hex: summary.primary_contract_address_hex,
+        primary_entrypoint: summary.primary_entrypoint,
+        sender_address_hex: summary.sender_address_hex,
+        finality_status: Some(finality_status_to_string(receipt.receipt.finality_status())),
+        execution_status,
+        revert_reason,
+        account_deployment_required: summary.account_deployment_required,
+        l1_gas_max_amount: summary.l1_gas_max_amount,
+        l1_gas_max_price_wei: summary.l1_gas_max_price_wei,
+        l2_gas_max_amount: summary.l2_gas_max_amount,
+        l2_gas_max_price_wei: summary.l2_gas_max_price_wei,
+        l1_data_gas_max_amount: summary.l1_data_gas_max_amount,
+        l1_data_gas_max_price_wei: summary.l1_data_gas_max_price_wei,
+        tip: summary.tip,
+    })
+}
+
+fn summarize_transaction(transaction: &Transaction) -> ApiResult<DecodedTransactionSummary> {
+    match transaction {
+        Transaction::Invoke(InvokeTransaction::V0(tx)) => {
+            let calls = vec![DecodedInvokeCall {
+                contract_address: tx.contract_address,
+                selector: tx.entry_point_selector,
+                calldata: tx.calldata.clone(),
+            }];
+            Ok(DecodedTransactionSummary {
+                transaction_type: "INVOKE".to_string(),
+                action_name: infer_action_name(&calls),
+                call_count: Some(1),
+                primary_contract_address_hex: Some(felt_to_hex(tx.contract_address)),
+                primary_entrypoint: Some(selector_display_name(tx.entry_point_selector)),
+                sender_address_hex: Some(felt_to_hex(tx.contract_address)),
+                account_deployment_required: false,
+                l1_gas_max_amount: None,
+                l1_gas_max_price_wei: None,
+                l2_gas_max_amount: None,
+                l2_gas_max_price_wei: None,
+                l1_data_gas_max_amount: None,
+                l1_data_gas_max_price_wei: None,
+                tip: None,
+            })
+        }
+        Transaction::Invoke(InvokeTransaction::V1(tx)) => Ok(summarize_account_invoke_transaction(
+            "INVOKE".to_string(),
+            tx.sender_address,
+            &tx.calldata,
+            None,
+            None,
+        )),
+        Transaction::Invoke(InvokeTransaction::V3(tx)) => Ok(summarize_account_invoke_transaction(
+            "INVOKE".to_string(),
+            tx.sender_address,
+            &tx.calldata,
+            Some(&tx.resource_bounds),
+            Some(tx.tip),
+        )),
+        Transaction::DeployAccount(DeployAccountTransaction::V1(_)) => {
+            Ok(DecodedTransactionSummary {
+                transaction_type: "DEPLOY_ACCOUNT".to_string(),
+                action_name: Some("deploy_account".to_string()),
+                call_count: Some(1),
+                primary_contract_address_hex: None,
+                primary_entrypoint: Some("constructor".to_string()),
+                sender_address_hex: None,
+                account_deployment_required: true,
+                l1_gas_max_amount: None,
+                l1_gas_max_price_wei: None,
+                l2_gas_max_amount: None,
+                l2_gas_max_price_wei: None,
+                l1_data_gas_max_amount: None,
+                l1_data_gas_max_price_wei: None,
+                tip: None,
+            })
+        }
+        Transaction::DeployAccount(DeployAccountTransaction::V3(tx)) => {
+            Ok(DecodedTransactionSummary {
+                transaction_type: "DEPLOY_ACCOUNT".to_string(),
+                action_name: Some("deploy_account".to_string()),
+                call_count: Some(1),
+                primary_contract_address_hex: None,
+                primary_entrypoint: Some("constructor".to_string()),
+                sender_address_hex: None,
+                account_deployment_required: true,
+                l1_gas_max_amount: Some(tx.resource_bounds.l1_gas.max_amount.to_string()),
+                l1_gas_max_price_wei: Some(
+                    tx.resource_bounds.l1_gas.max_price_per_unit.to_string(),
+                ),
+                l2_gas_max_amount: Some(tx.resource_bounds.l2_gas.max_amount.to_string()),
+                l2_gas_max_price_wei: Some(
+                    tx.resource_bounds.l2_gas.max_price_per_unit.to_string(),
+                ),
+                l1_data_gas_max_amount: Some(tx.resource_bounds.l1_data_gas.max_amount.to_string()),
+                l1_data_gas_max_price_wei: Some(
+                    tx.resource_bounds
+                        .l1_data_gas
+                        .max_price_per_unit
+                        .to_string(),
+                ),
+                tip: i64::try_from(tx.tip).ok(),
+            })
+        }
+        Transaction::Declare(_) => Ok(DecodedTransactionSummary {
+            transaction_type: "DECLARE".to_string(),
+            action_name: Some("declare".to_string()),
+            call_count: Some(1),
+            primary_contract_address_hex: None,
+            primary_entrypoint: Some("declare".to_string()),
+            sender_address_hex: None,
+            account_deployment_required: false,
+            l1_gas_max_amount: None,
+            l1_gas_max_price_wei: None,
+            l2_gas_max_amount: None,
+            l2_gas_max_price_wei: None,
+            l1_data_gas_max_amount: None,
+            l1_data_gas_max_price_wei: None,
+            tip: transaction
+                .tip()
+                .and_then(|value| i64::try_from(value).ok()),
+        }),
+        Transaction::Deploy(_) => Ok(DecodedTransactionSummary {
+            transaction_type: "DEPLOY".to_string(),
+            action_name: Some("deploy".to_string()),
+            call_count: Some(1),
+            primary_contract_address_hex: None,
+            primary_entrypoint: Some("constructor".to_string()),
+            sender_address_hex: None,
+            account_deployment_required: false,
+            l1_gas_max_amount: None,
+            l1_gas_max_price_wei: None,
+            l2_gas_max_amount: None,
+            l2_gas_max_price_wei: None,
+            l1_data_gas_max_amount: None,
+            l1_data_gas_max_price_wei: None,
+            tip: None,
+        }),
+        Transaction::L1Handler(_) => Ok(DecodedTransactionSummary {
+            transaction_type: "L1_HANDLER".to_string(),
+            action_name: Some("l1_handler".to_string()),
+            call_count: Some(1),
+            primary_contract_address_hex: None,
+            primary_entrypoint: Some("l1_handler".to_string()),
+            sender_address_hex: None,
+            account_deployment_required: false,
+            l1_gas_max_amount: None,
+            l1_gas_max_price_wei: None,
+            l2_gas_max_amount: None,
+            l2_gas_max_price_wei: None,
+            l1_data_gas_max_amount: None,
+            l1_data_gas_max_price_wei: None,
+            tip: None,
+        }),
+    }
+}
+
+fn summarize_account_invoke_transaction(
+    transaction_type: String,
+    sender_address: Felt,
+    calldata: &[Felt],
+    resource_bounds: Option<&ResourceBoundsMapping>,
+    tip: Option<u64>,
+) -> DecodedTransactionSummary {
+    let decoded_calls = decode_account_execute_calls(calldata);
+    let primary_call = decoded_calls.first();
+
+    DecodedTransactionSummary {
+        transaction_type,
+        action_name: infer_action_name(&decoded_calls),
+        call_count: i32::try_from(decoded_calls.len()).ok(),
+        primary_contract_address_hex: primary_call.map(|call| felt_to_hex(call.contract_address)),
+        primary_entrypoint: primary_call.map(|call| selector_display_name(call.selector)),
+        sender_address_hex: Some(felt_to_hex(sender_address)),
+        account_deployment_required: false,
+        l1_gas_max_amount: resource_bounds.map(|bounds| bounds.l1_gas.max_amount.to_string()),
+        l1_gas_max_price_wei: resource_bounds
+            .map(|bounds| bounds.l1_gas.max_price_per_unit.to_string()),
+        l2_gas_max_amount: resource_bounds.map(|bounds| bounds.l2_gas.max_amount.to_string()),
+        l2_gas_max_price_wei: resource_bounds
+            .map(|bounds| bounds.l2_gas.max_price_per_unit.to_string()),
+        l1_data_gas_max_amount: resource_bounds
+            .map(|bounds| bounds.l1_data_gas.max_amount.to_string()),
+        l1_data_gas_max_price_wei: resource_bounds
+            .map(|bounds| bounds.l1_data_gas.max_price_per_unit.to_string()),
+        tip: tip.and_then(|value| i64::try_from(value).ok()),
+    }
+}
+
+fn decode_account_execute_calls(calldata: &[Felt]) -> Vec<DecodedInvokeCall> {
+    let Some(first) = calldata.first() else {
+        return Vec::new();
+    };
+
+    let Ok(call_count) = felt_to_usize(*first) else {
+        return Vec::new();
+    };
+    let descriptors_start = 1usize;
+    let descriptors_end = descriptors_start.saturating_add(call_count.saturating_mul(4));
+    if calldata.len() <= descriptors_end {
+        return Vec::new();
+    }
+
+    let Ok(flat_calldata_len) = felt_to_usize(calldata[descriptors_end]) else {
+        return Vec::new();
+    };
+    let flat_calldata_start = descriptors_end + 1;
+    let flat_calldata_end = flat_calldata_start.saturating_add(flat_calldata_len);
+    if calldata.len() < flat_calldata_end {
+        return Vec::new();
+    }
+
+    let flat_calldata = &calldata[flat_calldata_start..flat_calldata_end];
+    let mut decoded = Vec::with_capacity(call_count);
+
+    for index in 0..call_count {
+        let base = descriptors_start + index * 4;
+        let contract_address = calldata[base];
+        let selector = calldata[base + 1];
+        let Ok(data_offset) = felt_to_usize(calldata[base + 2]) else {
+            return Vec::new();
+        };
+        let Ok(data_len) = felt_to_usize(calldata[base + 3]) else {
+            return Vec::new();
+        };
+        let data_end = data_offset.saturating_add(data_len);
+        if data_end > flat_calldata.len() {
+            return Vec::new();
+        }
+
+        decoded.push(DecodedInvokeCall {
+            contract_address,
+            selector,
+            calldata: flat_calldata[data_offset..data_end].to_vec(),
+        });
+    }
+
+    decoded
+}
+
+fn infer_action_name(calls: &[DecodedInvokeCall]) -> Option<String> {
+    if calls.is_empty() {
+        return None;
+    }
+
+    let normalized_entrypoints = calls
+        .iter()
+        .map(|call| action_name_for_selector(call.selector))
+        .collect::<Vec<_>>();
+
+    if normalized_entrypoints
+        .iter()
+        .all(|entrypoint| entrypoint == "transfer")
+    {
+        return Some("transfer".to_string());
+    }
+
+    if normalized_entrypoints
+        .iter()
+        .all(|entrypoint| entrypoint == "approve")
+    {
+        return Some("approval".to_string());
+    }
+
+    if normalized_entrypoints
+        .iter()
+        .any(|entrypoint| looks_like_swap_action(entrypoint))
+    {
+        return Some("swap".to_string());
+    }
+
+    if calls.len() > 1 {
+        return Some("multicall".to_string());
+    }
+
+    normalized_entrypoints.first().cloned()
+}
+
+fn selector_display_name(selector: Felt) -> String {
+    known_selector_name(selector)
+        .map(|name| name.to_string())
+        .unwrap_or_else(|| felt_to_hex(selector))
+}
+
+fn known_selector_name(selector: Felt) -> Option<&'static str> {
+    static KNOWN_SELECTORS: Lazy<Vec<(Felt, &'static str)>> = Lazy::new(|| {
+        [
+            "transfer",
+            "approve",
+            "transferFrom",
+            "swap",
+            "multi_route_swap",
+            "exact_input",
+            "exact_output",
+            "multihop_swap",
+            "deposit",
+            "withdraw",
+            "mint",
+            "burn",
+            "claim",
+            "stake",
+            "unstake",
+        ]
+        .into_iter()
+        .filter_map(|name| {
+            get_selector_from_name(name)
+                .ok()
+                .map(|selector| (selector, name))
+        })
+        .collect()
+    });
+
+    KNOWN_SELECTORS
+        .iter()
+        .find_map(|(known_selector, name)| (*known_selector == selector).then_some(*name))
+}
+
+fn action_name_for_selector(selector: Felt) -> String {
+    known_selector_name(selector)
+        .map(normalize_action_name)
+        .filter(|value| !value.is_empty())
+        .unwrap_or_else(|| "contract_call".to_string())
+}
+
+fn normalize_action_name(value: &str) -> String {
+    let mut output = String::with_capacity(value.len());
+    let mut previous_was_separator = false;
+
+    for (index, ch) in value.chars().enumerate() {
+        if ch == '_' || ch == '-' || ch == ' ' {
+            if !output.is_empty() && !previous_was_separator {
+                output.push('_');
+                previous_was_separator = true;
+            }
+            continue;
+        }
+
+        if ch.is_ascii_uppercase() {
+            if index > 0 && !previous_was_separator && !output.ends_with('_') {
+                output.push('_');
+            }
+            output.push(ch.to_ascii_lowercase());
+            previous_was_separator = false;
+            continue;
+        }
+
+        output.push(ch.to_ascii_lowercase());
+        previous_was_separator = false;
+    }
+
+    output.trim_matches('_').to_string()
+}
+
+fn looks_like_swap_action(value: &str) -> bool {
+    value.contains("swap") || value.contains("exact_input") || value.contains("exact_output")
+}
+
+fn finality_status_to_string(status: &TransactionFinalityStatus) -> String {
+    match status {
+        TransactionFinalityStatus::PreConfirmed => "PRE_CONFIRMED".to_string(),
+        TransactionFinalityStatus::AcceptedOnL2 => "ACCEPTED_ON_L2".to_string(),
+        TransactionFinalityStatus::AcceptedOnL1 => "ACCEPTED_ON_L1".to_string(),
+    }
 }
 
 async fn wait_for_transaction(node_url: &str, tx_hash: Felt) -> ApiResult<()> {
@@ -2000,6 +2655,9 @@ mod tests {
         let amount = parse_decimal_biguint("12345678901234567890", "amount").unwrap();
         let (low, high) = biguint_to_uint256_words(&amount).unwrap();
 
-        assert_eq!(uint256_from_words(low, high).to_string(), amount.to_string());
+        assert_eq!(
+            uint256_from_words(low, high).to_string(),
+            amount.to_string()
+        );
     }
 }

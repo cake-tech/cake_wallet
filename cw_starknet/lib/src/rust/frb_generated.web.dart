@@ -57,6 +57,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       dynamic raw);
 
   @protected
+  StarknetTransactionDetails
+      dco_decode_box_autoadd_starknet_transaction_details(dynamic raw);
+
+  @protected
   DerivedAccountData dco_decode_derived_account_data(dynamic raw);
 
   @protected
@@ -122,6 +126,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       dynamic raw);
 
   @protected
+  StarknetTransactionDetails?
+      dco_decode_opt_box_autoadd_starknet_transaction_details(dynamic raw);
+
+  @protected
   StarknetCallInput dco_decode_starknet_call_input(dynamic raw);
 
   @protected
@@ -142,6 +150,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   StarknetTokenMetadata dco_decode_starknet_token_metadata(dynamic raw);
 
   @protected
+  StarknetTransactionDetails dco_decode_starknet_transaction_details(
+      dynamic raw);
+
+  @protected
   StringListResponse dco_decode_string_list_response(dynamic raw);
 
   @protected
@@ -149,6 +161,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   TokenMetadataResponse dco_decode_token_metadata_response(dynamic raw);
+
+  @protected
+  TransactionDetailsResponse dco_decode_transaction_details_response(
+      dynamic raw);
 
   @protected
   TransferHistoryItem dco_decode_transfer_history_item(dynamic raw);
@@ -199,6 +215,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   StarknetTokenMetadata sse_decode_box_autoadd_starknet_token_metadata(
       SseDeserializer deserializer);
+
+  @protected
+  StarknetTransactionDetails
+      sse_decode_box_autoadd_starknet_transaction_details(
+          SseDeserializer deserializer);
 
   @protected
   DerivedAccountData sse_decode_derived_account_data(
@@ -272,6 +293,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       SseDeserializer deserializer);
 
   @protected
+  StarknetTransactionDetails?
+      sse_decode_opt_box_autoadd_starknet_transaction_details(
+          SseDeserializer deserializer);
+
+  @protected
   StarknetCallInput sse_decode_starknet_call_input(
       SseDeserializer deserializer);
 
@@ -295,6 +321,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       SseDeserializer deserializer);
 
   @protected
+  StarknetTransactionDetails sse_decode_starknet_transaction_details(
+      SseDeserializer deserializer);
+
+  @protected
   StringListResponse sse_decode_string_list_response(
       SseDeserializer deserializer);
 
@@ -303,6 +333,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   TokenMetadataResponse sse_decode_token_metadata_response(
+      SseDeserializer deserializer);
+
+  @protected
+  TransactionDetailsResponse sse_decode_transaction_details_response(
       SseDeserializer deserializer);
 
   @protected
@@ -357,6 +391,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_starknet_token_metadata(
       StarknetTokenMetadata self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_starknet_transaction_details(
+      StarknetTransactionDetails self, SseSerializer serializer);
 
   @protected
   void sse_encode_derived_account_data(
@@ -432,6 +470,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       StarknetTokenMetadata? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_starknet_transaction_details(
+      StarknetTransactionDetails? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_starknet_call_input(
       StarknetCallInput self, SseSerializer serializer);
 
@@ -456,6 +498,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       StarknetTokenMetadata self, SseSerializer serializer);
 
   @protected
+  void sse_encode_starknet_transaction_details(
+      StarknetTransactionDetails self, SseSerializer serializer);
+
+  @protected
   void sse_encode_string_list_response(
       StringListResponse self, SseSerializer serializer);
 
@@ -466,6 +512,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_token_metadata_response(
       TokenMetadataResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_transaction_details_response(
+      TransactionDetailsResponse self, SseSerializer serializer);
 
   @protected
   void sse_encode_transfer_history_item(

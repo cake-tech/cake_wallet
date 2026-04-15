@@ -13,6 +13,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_starknet/starknet_transaction_info.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
@@ -80,6 +81,121 @@ class TxDetailRowDefinition {
         applicable: (vm) =>
             vm.wallet.type != WalletType.nano &&
             (vm.transactionInfo.feeFormatted() ?? "").isNotEmpty),
+    TxDetailRowDefinition(
+        keyString: "standard_list_item_transaction_details_starknet_action_key",
+        title: "Action",
+        valueGetter: (vm) => vm._starknetActionLabel()!,
+        applicable: (vm) => vm._starknetActionLabel() != null),
+    TxDetailRowDefinition(
+        keyString: "standard_list_item_transaction_details_starknet_type_key",
+        title: "Transaction type",
+        valueGetter: (vm) => vm._starknetInfo?.transactionTypeLabel() ?? '',
+        applicable: (vm) => vm._starknetInfo?.transactionTypeLabel() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_execution_status_key",
+        title: "Execution status",
+        valueGetter: (vm) => vm._starknetInfo?.executionStatusLabel() ?? '',
+        applicable: (vm) => vm._starknetInfo?.executionStatusLabel() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_finality_status_key",
+        title: "Finality",
+        valueGetter: (vm) => vm._starknetInfo?.finalityStatusLabel() ?? '',
+        applicable: (vm) => vm._starknetInfo?.finalityStatusLabel() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_fee_priority_key",
+        title: "Fee priority",
+        valueGetter: (vm) => vm._starknetInfo?.feePriorityLabel() ?? '',
+        applicable: (vm) => vm._starknetInfo?.feePriorityLabel() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_execution_fee_key",
+        title: "Execution fee",
+        valueGetter: (vm) => vm._starknetInfo?.executionFeeFormatted() ?? '',
+        applicable: (vm) => vm._starknetInfo?.executionFeeFormatted() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_deploy_fee_key",
+        title: "Deploy fee",
+        valueGetter: (vm) =>
+            vm._starknetInfo?.deployAccountFeeFormatted() ?? '',
+        applicable: (vm) =>
+            vm._starknetInfo?.deployAccountFeeFormatted() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_deployment_required_key",
+        title: "Account deployment",
+        valueGetter: (_) => 'Required',
+        applicable: (vm) =>
+            vm._starknetInfo?.accountDeploymentRequired == true),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_call_count_key",
+        title: "Call count",
+        valueGetter: (vm) => vm._starknetInfo?.callCountLabel() ?? '',
+        applicable: (vm) => vm._starknetInfo?.callCountLabel() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_primary_contract_key",
+        title: "Primary contract",
+        valueGetter: (vm) => vm._starknetInfo?.primaryContractAddress() ?? '',
+        applicable: (vm) => vm._starknetInfo?.primaryContractAddress() != null,
+        listItemBuilder: AddressListItem.new),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_primary_entrypoint_key",
+        title: "Primary entrypoint",
+        valueGetter: (vm) => vm._starknetInfo?.primaryEntrypoint() ?? '',
+        applicable: (vm) => vm._starknetInfo?.primaryEntrypoint() != null),
+    TxDetailRowDefinition(
+        keyString: "standard_list_item_transaction_details_starknet_tip_key",
+        title: "Tip",
+        valueGetter: (vm) => vm._starknetInfo?.transactionTipLabel() ?? '',
+        applicable: (vm) => vm._starknetInfo?.transactionTipLabel() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_l1_gas_amount_key",
+        title: "L1 gas max amount",
+        valueGetter: (vm) => vm._starknetInfo?.l1GasMaxAmount() ?? '',
+        applicable: (vm) => vm._starknetInfo?.l1GasMaxAmount() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_l1_gas_price_key",
+        title: "L1 gas max price",
+        valueGetter: (vm) => vm._starknetInfo?.l1GasMaxPriceWei() ?? '',
+        applicable: (vm) => vm._starknetInfo?.l1GasMaxPriceWei() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_l2_gas_amount_key",
+        title: "L2 gas max amount",
+        valueGetter: (vm) => vm._starknetInfo?.l2GasMaxAmount() ?? '',
+        applicable: (vm) => vm._starknetInfo?.l2GasMaxAmount() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_l2_gas_price_key",
+        title: "L2 gas max price",
+        valueGetter: (vm) => vm._starknetInfo?.l2GasMaxPriceWei() ?? '',
+        applicable: (vm) => vm._starknetInfo?.l2GasMaxPriceWei() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_l1_data_gas_amount_key",
+        title: "L1 data gas max amount",
+        valueGetter: (vm) => vm._starknetInfo?.l1DataGasMaxAmount() ?? '',
+        applicable: (vm) => vm._starknetInfo?.l1DataGasMaxAmount() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_l1_data_gas_price_key",
+        title: "L1 data gas max price",
+        valueGetter: (vm) => vm._starknetInfo?.l1DataGasMaxPriceWei() ?? '',
+        applicable: (vm) => vm._starknetInfo?.l1DataGasMaxPriceWei() != null),
+    TxDetailRowDefinition(
+        keyString:
+            "standard_list_item_transaction_details_starknet_revert_reason_key",
+        title: "Revert reason",
+        valueGetter: (vm) => vm._starknetInfo?.revertReason() ?? '',
+        applicable: (vm) => vm._starknetInfo?.revertReason() != null),
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_confirmations_key",
         title: S.current.confirmations,
@@ -297,7 +413,8 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     return switch (wallet.type) {
       WalletType.solana => solana!.assetOfTransaction(wallet, transactionInfo),
-      WalletType.starknet => starknet!.assetOfTransaction(wallet, transactionInfo),
+      WalletType.starknet =>
+        starknet!.assetOfTransaction(wallet, transactionInfo),
       WalletType.tron => tron!.assetOfTransaction(wallet, transactionInfo),
       WalletType.zano => zano!.assetOfTransaction(wallet, transactionInfo) ??
           CryptoCurrency.zano,
@@ -390,12 +507,46 @@ abstract class TransactionDetailsViewModelBase with Store {
     if (transactionInfo.additionalInfo['autoShield'] == true) {
       return "Autoshield";
     }
+    final starknetActionLabel = _starknetActionLabel();
+    if (wallet.type == WalletType.starknet &&
+        starknetActionLabel != null &&
+        starknetActionLabel.toLowerCase() != 'transfer' &&
+        transactionInfo.direction == TransactionDirection.outgoing) {
+      return starknetActionLabel;
+    }
     if (transactionInfo.direction == TransactionDirection.incoming) {
       return S.current.received;
     }
 
     return S.current.sent;
   }
+
+  String? _starknetActionLabel() {
+    final explicitLabel = transactionInfo.additionalInfo['starknetActionLabel']
+        ?.toString()
+        .trim();
+    if (explicitLabel != null && explicitLabel.isNotEmpty) {
+      return explicitLabel;
+    }
+
+    final actionName = transactionInfo.evmSignatureName?.trim();
+    if (actionName == null || actionName.isEmpty) {
+      return null;
+    }
+
+    final normalized = actionName.replaceAll('_', ' ').trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+
+    return normalized[0].toUpperCase() + normalized.substring(1);
+  }
+
+  StarknetTransactionInfo? get _starknetInfo =>
+      wallet.type == WalletType.starknet &&
+              transactionInfo is StarknetTransactionInfo
+          ? transactionInfo as StarknetTransactionInfo
+          : null;
 
   @observable
   bool canReplaceByFee;

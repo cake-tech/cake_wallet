@@ -73,9 +73,26 @@ class CWStarknet extends Starknet {
   String getPublicKey(WalletBase wallet) =>
       (wallet as StarknetWallet).publicKey;
 
+  @override
+  TransactionPriority getDefaultTransactionPriority() =>
+      StarknetTransactionPriority.medium;
+
+  @override
+  TransactionPriority getStarknetTransactionPrioritySlow() =>
+      StarknetTransactionPriority.slow;
+
+  @override
+  List<TransactionPriority> getTransactionPriorities() =>
+      StarknetTransactionPriority.all;
+
+  @override
+  TransactionPriority deserializeStarknetTransactionPriority(int raw) =>
+      StarknetTransactionPriority.deserialize(raw: raw);
+
   Object createStarknetTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
+    TransactionPriority? priority,
   }) =>
       StarknetTransactionCredentials(
         outputs
@@ -90,13 +107,19 @@ class CWStarknet extends Starknet {
                 formattedCryptoAmount: out.formattedCryptoAmount))
             .toList(),
         currency: currency,
+        priority: priority,
       );
 
   Object createStarknetTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
     required CryptoCurrency currency,
+    TransactionPriority? priority,
   }) =>
-      StarknetTransactionCredentials(outputs, currency: currency);
+      StarknetTransactionCredentials(
+        outputs,
+        currency: currency,
+        priority: priority,
+      );
 
   @override
   List<StarknetToken> getStarknetTokenCurrencies(WalletBase wallet) =>
@@ -189,6 +212,31 @@ class CWStarknet extends Starknet {
       (wallet as StarknetWallet).signTypedData(typedDataJson, address: address);
 
   @override
+  Future<Map<String, String>> buildMessageSignUr(
+    WalletBase wallet,
+    String message, {
+    String? address,
+  }) =>
+      (wallet as StarknetWallet).buildMessageSignUr(message, address: address);
+
+  @override
+  Future<String> commitMessageUR(WalletBase wallet, String ur) =>
+      (wallet as StarknetWallet).submitSignedMessageUr(ur);
+
+  @override
+  Future<Map<String, String>> buildTypedDataSignUr(
+    WalletBase wallet,
+    String typedDataJson, {
+    String? address,
+  }) =>
+      (wallet as StarknetWallet)
+          .buildTypedDataSignUr(typedDataJson, address: address);
+
+  @override
+  Future<List<String>> commitTypedDataUR(WalletBase wallet, String ur) =>
+      (wallet as StarknetWallet).submitSignedTypedDataUr(ur);
+
+  @override
   Future<String> executeWalletConnectCalls(
     WalletBase wallet,
     List<StarknetExecutionCall> calls,
@@ -196,8 +244,20 @@ class CWStarknet extends Starknet {
       (wallet as StarknetWallet).executeCalls(calls);
 
   @override
-  Future<bool> commitTransactionUR(WalletBase wallet, String ur) =>
-      (wallet as StarknetWallet).submitSignedTransactionUR(ur);
+  Future<Map<String, String>> buildExecutionUr(
+    WalletBase wallet,
+    List<StarknetExecutionCall> calls,
+  ) =>
+      (wallet as StarknetWallet).buildExecuteCallsUr(calls);
+
+  @override
+  Future<String> commitTransactionUR(
+    WalletBase wallet,
+    String ur, {
+    String? requestUr,
+  }) =>
+      (wallet as StarknetWallet)
+          .submitSignedTransactionUR(ur, requestUrPayload: requestUr);
 
   @override
   bool supportsOfflineUrSigning(WalletBase wallet) =>

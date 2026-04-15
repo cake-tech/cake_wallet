@@ -30,6 +30,8 @@ import 'package:cw_starknet/starknet_rust.dart';
 import 'package:cw_starknet/starknet_transaction_credentials.dart';
 import 'package:cw_starknet/starknet_transaction_history.dart';
 import 'package:cw_starknet/starknet_transaction_info.dart';
+import 'package:cw_starknet/starknet_transaction_priority.dart';
+import 'package:cw_starknet/starknet_ur.dart';
 import 'package:cw_starknet/starknet_wallet_addresses.dart';
 import 'package:cw_starknet/src/rust/api/starknet.dart' as rust_api;
 import 'package:hex/hex.dart';
@@ -56,13 +58,13 @@ abstract class StarknetWalletBase
     String? hardwarePublicKeyHex,
     String? hardwareDerivationPath,
     int? initialLastSyncedBlock,
+    StarknetWalletClient? client,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
         _hardwarePublicKeyHex = hardwarePublicKeyHex,
         _hardwareDerivationPath = hardwareDerivationPath,
-        _client = StarknetWalletClient(),
         walletAddresses = StarknetWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, StarknetBalance>.of(
           {CryptoCurrency.strk: initialBalance ?? StarknetBalance.zero()},
@@ -81,6 +83,7 @@ abstract class StarknetWalletBase
 
     _accountClassHashHex = _normalizeAccountClassHashHex(accountClassHashHex);
     _lastSyncedBlock = initialLastSyncedBlock;
+    _client = client ?? StarknetWalletClient();
   }
 
   static const String openZeppelinAccountClassHashHex =
@@ -100,6 +103,9 @@ abstract class StarknetWalletBase
   String? _hardwarePublicKeyHex;
   final String? _hardwareDerivationPath;
   HardwareWalletService? _hardwareWalletService;
+  StarknetTransactionPriority _currentFeePriority = StarknetTransactionPriority.medium;
+  int? _estimatedFeePriorityRaw;
+  final Map<String, _FeeQuoteModel> _estimatedFeeQuotesByTokenAddress = {};
 
   StarknetWalletClient get client => _client;
 
@@ -232,7 +238,32 @@ abstract class StarknetWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+    final normalizedPriority = _normalizeTransactionPriority(priority);
+    if (_estimatedFeePriorityRaw != normalizedPriority.raw) {
+      return 0;
+    }
+
+    final asset = balance.keys.contains(currency) ? currency : CryptoCurrency.strk;
+    final feeQuote = _estimatedFeeQuotesByTokenAddress[_tokenAddressFor(asset).toLowerCase()] ??
+        _estimatedFeeQuotesByTokenAddress[StarknetTokenAddresses.strk.toLowerCase()];
+    if (feeQuote == null) {
+      return 0;
+    }
+
+    final parsed = BigInt.tryParse(feeQuote.overallFeeWei) ?? BigInt.zero;
+    if (parsed > BigInt.from(0x7fffffffffffffff)) {
+      return 0x7fffffffffffffff;
+    }
+
+    return parsed.toInt();
+  }
+
+  @override
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {
+    _currentFeePriority = _normalizeTransactionPriority(priority);
+    await _refreshEstimatedFees(priority: _currentFeePriority);
+  }
 
   @override
   Future<void> changePassword(String password) async {
@@ -291,11 +322,13 @@ abstract class StarknetWalletBase
   }
 
   static String _messageHashHex(String message) =>
-      '0x${HEX.encode(crypto_lib.sha256.convert(utf8.encode(message)).bytes)}';
+      _starknetFeltHex(crypto_lib.sha256.convert(utf8.encode(message)).bytes);
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final starkCredentials = credentials as StarknetTransactionCredentials;
+    final feePriority = _normalizeTransactionPriority(starkCredentials.priority);
+    _currentFeePriority = feePriority;
     final outputs = starkCredentials.outputs;
     if (outputs.isEmpty) {
       throw StarknetTransactionCreationException.fromMessage('Missing Starknet outputs');
@@ -342,6 +375,7 @@ abstract class StarknetWalletBase
       final quote = await _quoteTransferBatch(
         tokenAddress: tokenAddress,
         transfers: [(destinationAddress, tokenBalance)],
+        priority: feePriority,
       );
 
       BigInt sendAmountWei = tokenBalance;
@@ -375,6 +409,7 @@ abstract class StarknetWalletBase
       final quote = await _quoteTransferBatch(
         tokenAddress: tokenAddress,
         transfers: transfers,
+        priority: feePriority,
       );
 
       if (totalAmountWei > tokenBalance) {
@@ -395,6 +430,7 @@ abstract class StarknetWalletBase
     final feeQuote = await _quoteTransferBatch(
       tokenAddress: tokenAddress,
       transfers: transfers,
+      priority: feePriority,
     );
     final calls = transfers
         .map(
@@ -406,6 +442,13 @@ abstract class StarknetWalletBase
         )
         .toList();
 
+    final transferSummary = _buildTransferExecutionSummary(
+      asset: asset,
+      transfers: transfers,
+      feeQuote: feeQuote,
+      priority: feePriority,
+    );
+
     return supportsOfflineUrSigning
         ? _client.createOfflineTransaction(
             calls: calls,
@@ -416,6 +459,11 @@ abstract class StarknetWalletBase
                 transfers.length == 1 ? transfers.first.$1 : '${transfers.length} recipients',
             accountClassHashHex: _accountClassHashHex,
             feeWei: feeQuote.overallFeeWei,
+            feePriorityRaw: feePriority.raw,
+            summaryActionName: transferSummary.actionName,
+            summaryTokenAddress: transferSummary.tokenAddress,
+            summaryAdditionalInfo: transferSummary.additionalInfo,
+            preferSummary: transferSummary.preferSummary,
           )
         : walletInfo.isHardwareWallet
             ? _client.createHardwareTransaction(
@@ -427,6 +475,14 @@ abstract class StarknetWalletBase
                     transfers.length == 1 ? transfers.first.$1 : '${transfers.length} recipients',
                 accountClassHashHex: _accountClassHashHex,
                 feeWei: feeQuote.overallFeeWei,
+                feePriorityRaw: feePriority.raw,
+                onCommitted: transferSummary.preferSummary
+                    ? (txHash) => _recordExecutionSummary(
+                          txHash: txHash,
+                          summary: transferSummary,
+                          feeWei: feeQuote.overallFeeWei,
+                        )
+                    : null,
               )
             : _client.createTransaction(
                 calls: calls,
@@ -437,6 +493,14 @@ abstract class StarknetWalletBase
                     transfers.length == 1 ? transfers.first.$1 : '${transfers.length} recipients',
                 accountClassHashHex: _accountClassHashHex,
                 feeWei: feeQuote.overallFeeWei,
+                feePriorityRaw: feePriority.raw,
+                onCommitted: transferSummary.preferSummary
+                    ? (txHash) => _recordExecutionSummary(
+                          txHash: txHash,
+                          summary: transferSummary,
+                          feeWei: feeQuote.overallFeeWei,
+                        )
+                    : null,
               );
   }
 
@@ -450,6 +514,16 @@ abstract class StarknetWalletBase
 
       final result = <String, StarknetTransactionInfo>{};
       int? latestBlock = _lastSyncedBlock;
+      final summaryTransactions = transactionHistory.transactions.values
+          .where(
+            (transaction) =>
+                transaction.additionalInfo['starknetPreferSummary'] == true &&
+                transaction.transactionHash.isNotEmpty,
+          )
+          .toList(growable: false);
+      final summaryTransactionHashes = summaryTransactions
+          .map((transaction) => transaction.transactionHash.toLowerCase())
+          .toSet();
 
       for (final asset in assets) {
         final tokenAddress = _tokenAddressFor(asset);
@@ -461,6 +535,10 @@ abstract class StarknetWalletBase
         );
 
         for (final event in events) {
+          if (summaryTransactionHashes.contains(event.transactionHash.toLowerCase())) {
+            continue;
+          }
+
           final timestampSeconds =
               event.blockTimestamp ?? (DateTime.now().millisecondsSinceEpoch ~/ 1000);
           final tokenAsset = _assetForTokenAddress(event.tokenAddressHex) ?? asset;
@@ -481,12 +559,34 @@ abstract class StarknetWalletBase
             txFeeWei: event.txFeeWei ?? '',
           );
 
-          if (event.blockNumber != null) {
-            latestBlock = latestBlock == null
-                ? event.blockNumber!
-                : (event.blockNumber! > latestBlock ? event.blockNumber! : latestBlock);
-          }
+          latestBlock = _maxBlock(latestBlock, event.blockNumber);
         }
+      }
+
+      final detailsByHash = await _fetchTransactionDetailsByHash(
+        <String>{
+          ...result.values.map((transaction) => transaction.transactionHash),
+          ...summaryTransactions.map((transaction) => transaction.transactionHash),
+        },
+      );
+
+      result.updateAll((_, transaction) {
+        final details = detailsByHash[transaction.transactionHash.toLowerCase()];
+        final enriched =
+            details == null ? transaction : _applyTransactionDetails(transaction, details);
+        latestBlock = _maxBlock(latestBlock, enriched.height);
+        return enriched;
+      });
+
+      for (final summaryTransaction in summaryTransactions) {
+        final details = detailsByHash[summaryTransaction.transactionHash.toLowerCase()];
+        if (details == null) {
+          continue;
+        }
+
+        final enriched = _applyTransactionDetails(summaryTransaction, details);
+        result[summaryTransaction.id] = enriched;
+        latestBlock = _maxBlock(latestBlock, enriched.height);
       }
 
       _lastSyncedBlock = latestBlock;
@@ -517,6 +617,100 @@ abstract class StarknetWalletBase
     }
   }
 
+  Future<Map<String, StarknetTransactionDetails>> _fetchTransactionDetailsByHash(
+    Set<String> transactionHashes,
+  ) async {
+    final results = <String, StarknetTransactionDetails>{};
+
+    for (final transactionHash in transactionHashes) {
+      final normalizedHash = transactionHash.trim();
+      if (normalizedHash.isEmpty) {
+        continue;
+      }
+
+      final details = await _client.getTransactionDetails(
+        transactionHashHex: normalizedHash,
+      );
+      if (details != null) {
+        results[normalizedHash.toLowerCase()] = details;
+      }
+    }
+
+    return results;
+  }
+
+  StarknetTransactionInfo _applyTransactionDetails(
+    StarknetTransactionInfo transaction,
+    StarknetTransactionDetails details,
+  ) {
+    final nextAdditionalInfo = <String, dynamic>{
+      ...transaction.additionalInfo,
+      'starknetTransactionType': details.transactionType,
+      'starknetExecutionStatus': details.executionStatus,
+      'starknetFinalityStatus': details.finalityStatus,
+      if ((details.revertReason?.isNotEmpty ?? false)) 'starknetRevertReason': details.revertReason,
+      if ((details.callCount ?? 0) > 0) 'starknetCallCount': details.callCount,
+      if ((details.primaryContractAddressHex?.isNotEmpty ?? false))
+        'starknetPrimaryContract': details.primaryContractAddressHex,
+      if ((details.primaryEntrypoint?.isNotEmpty ?? false))
+        'starknetPrimaryEntrypoint': details.primaryEntrypoint,
+      if ((details.senderAddressHex?.isNotEmpty ?? false))
+        'starknetSenderAddress': details.senderAddressHex,
+      if (details.accountDeploymentRequired) 'starknetAccountDeploymentRequired': true,
+      if ((details.l1GasMaxAmount?.isNotEmpty ?? false))
+        'starknetL1GasMaxAmount': details.l1GasMaxAmount,
+      if ((details.l1GasMaxPriceWei?.isNotEmpty ?? false))
+        'starknetL1GasMaxPriceWei': details.l1GasMaxPriceWei,
+      if ((details.l2GasMaxAmount?.isNotEmpty ?? false))
+        'starknetL2GasMaxAmount': details.l2GasMaxAmount,
+      if ((details.l2GasMaxPriceWei?.isNotEmpty ?? false))
+        'starknetL2GasMaxPriceWei': details.l2GasMaxPriceWei,
+      if ((details.l1DataGasMaxAmount?.isNotEmpty ?? false))
+        'starknetL1DataGasMaxAmount': details.l1DataGasMaxAmount,
+      if ((details.l1DataGasMaxPriceWei?.isNotEmpty ?? false))
+        'starknetL1DataGasMaxPriceWei': details.l1DataGasMaxPriceWei,
+      if (details.tip != null) 'starknetTip': details.tip,
+    };
+
+    final nextActionName = details.actionName ?? transaction.evmSignatureName;
+    if (nextActionName != null && nextActionName.isNotEmpty) {
+      nextAdditionalInfo['starknetActionLabel'] = _starknetActionLabelFor(nextActionName);
+    }
+
+    final timestampSeconds =
+        details.blockTimestamp ?? (transaction.blockTime.millisecondsSinceEpoch ~/ 1000);
+
+    return StarknetTransactionInfo(
+      id: transaction.id,
+      transactionHash: transaction.transactionHash,
+      blockTime: DateTime.fromMillisecondsSinceEpoch(timestampSeconds * 1000),
+      to: transaction.to,
+      from: transaction.from ?? details.senderAddressHex,
+      direction: transaction.direction,
+      amountWei: transaction.amountWei,
+      tokenAddress: transaction.tokenAddress,
+      tokenDecimals: transaction.tokenDecimals,
+      tokenSymbol: transaction.tokenSymbol,
+      isPending: details.isPending,
+      txFeeWei: details.actualFeeWei ?? transaction.txFeeWei,
+      evmSignatureName: nextActionName,
+      additionalInfo: nextAdditionalInfo,
+      height: details.blockNumber ?? transaction.height,
+    );
+  }
+
+  int? _maxBlock(int? left, int? right) {
+    if (right == null) {
+      return left;
+    }
+
+    if (left == null) {
+      return right;
+    }
+
+    return right > left ? right : left;
+  }
+
   @override
   Future<void> rescan({required int height}) async {
     final shouldRestartTimer = _transactionsUpdateTimer?.isActive ?? false;
@@ -525,12 +719,14 @@ abstract class StarknetWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
       _lastSyncedBlock = height < 0 ? 0 : height;
+      _estimatedFeeQuotesByTokenAddress.clear();
+      _estimatedFeePriorityRaw = null;
       estimatedFeesWeiByTokenAddress.clear();
 
       await transactionHistory.reset();
       await _updateBalance(throwOnError: true);
       await updateTransactionsHistory();
-      await _refreshEstimatedFees();
+      await _refreshEstimatedFees(priority: _currentFeePriority);
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -568,7 +764,7 @@ abstract class StarknetWalletBase
       syncStatus = AttemptingSyncStatus();
 
       await _updateBalance(throwOnError: true);
-      await _refreshEstimatedFees();
+      await _refreshEstimatedFees(priority: _currentFeePriority);
       await updateTransactionsHistory();
 
       syncStatus = SyncedSyncStatus();
@@ -607,8 +803,13 @@ abstract class StarknetWalletBase
     }
   }
 
-  Future<void> _refreshEstimatedFees() async {
+  Future<void> _refreshEstimatedFees({
+    required StarknetTransactionPriority priority,
+  }) async {
+    _currentFeePriority = priority;
+    _estimatedFeePriorityRaw = priority.raw;
     final nextQuotes = <String, String>{};
+    final nextQuoteModels = <String, _FeeQuoteModel>{};
     final assets = <CryptoCurrency>[
       CryptoCurrency.strk,
       ...starknetTokenCurrencies.where((token) => token.enabled),
@@ -630,13 +831,18 @@ abstract class StarknetWalletBase
         final quote = await _quoteTransferBatch(
           tokenAddress: tokenAddress,
           transfers: [(_accountAddressHex, BigInt.one)],
+          priority: priority,
         );
         nextQuotes[tokenAddress.toLowerCase()] = quote.overallFeeWei;
+        nextQuoteModels[tokenAddress.toLowerCase()] = quote;
       } catch (e) {
         printV('Skipping Starknet fee refresh for ${asset.title}: $e');
       }
     }
 
+    _estimatedFeeQuotesByTokenAddress
+      ..clear()
+      ..addAll(nextQuoteModels);
     estimatedFeesWeiByTokenAddress
       ..clear()
       ..addAll(nextQuotes);
@@ -773,18 +979,67 @@ abstract class StarknetWalletBase
   }
 
   double? estimatedFeeFor(CryptoCurrency currency) {
-    final feeWei = estimatedFeesWeiByTokenAddress[_tokenAddressFor(currency).toLowerCase()];
-    if (feeWei == null) {
+    final feeQuote = _estimatedFeeQuotesByTokenAddress[_tokenAddressFor(currency).toLowerCase()] ??
+        _estimatedFeeQuotesByTokenAddress[StarknetTokenAddresses.strk.toLowerCase()];
+    if (feeQuote == null) {
       return null;
     }
 
-    return double.tryParse(formatFixed(BigInt.parse(feeWei), 18, fractionalDigits: 18));
+    return double.tryParse(
+      formatFixed(BigInt.parse(feeQuote.overallFeeWei), 18, fractionalDigits: 18),
+    );
+  }
+
+  Future<Map<String, String>> buildMessageSignUr(String message, {String? address}) async {
+    final accountAddressHex = address ?? _accountAddressHex;
+    return encodeStarknetMessageSignRequestUrMap(
+      StarknetMessageSignRequestUrPayload(
+        accountAddressHex: accountAddressHex,
+        publicKeyHex: _starknetPublicKeyHex,
+        message: message,
+        messageHashHex: _messageHashHex(message),
+      ),
+    );
+  }
+
+  Future<String> submitSignedMessageUr(String urPayload) async {
+    final responsePayload = decodeStarknetMessageSignResponseUr(urPayload);
+    await _verifyOfflineSignature(
+      messageHashHex: responsePayload.messageHashHex,
+      signature: responsePayload.signature,
+    );
+    return _formatSignature(responsePayload.signature);
+  }
+
+  Future<Map<String, String>> buildTypedDataSignUr(String typedDataJson, {String? address}) async {
+    final accountAddressHex = address ?? _accountAddressHex;
+    final typedDataHashHex = await _client.getTypedDataHash(
+      accountAddressHex: accountAddressHex,
+      typedDataJson: typedDataJson,
+    );
+    return encodeStarknetTypedDataSignRequestUrMap(
+      StarknetTypedDataSignRequestUrPayload(
+        accountAddressHex: accountAddressHex,
+        publicKeyHex: _starknetPublicKeyHex,
+        typedDataJson: typedDataJson,
+        typedDataHashHex: typedDataHashHex,
+      ),
+    );
+  }
+
+  Future<List<String>> submitSignedTypedDataUr(String urPayload) async {
+    final responsePayload = decodeStarknetTypedDataSignResponseUr(urPayload);
+    await _verifyOfflineSignature(
+      messageHashHex: responsePayload.messageHashHex,
+      signature: responsePayload.signature,
+    );
+    return [responsePayload.signature.rHex, responsePayload.signature.sHex];
   }
 
   Future<List<String>> signTypedData(String typedDataJson, {String? address}) async {
     if (supportsOfflineUrSigning) {
       throw UnsupportedError(
-        'Offline Starknet typed-data signing over UR is not implemented yet.',
+        'Offline Starknet typed-data signing must be completed via buildTypedDataSignUr().',
       );
     }
 
@@ -802,44 +1057,97 @@ abstract class StarknetWalletBase
     );
   }
 
+  Future<Map<String, String>> buildExecuteCallsUr(List<StarknetExecutionCall> calls) async {
+    final summary = await _buildExecutionSummary(calls);
+    final quote = await _quoteExecutionCalls(
+      calls,
+      priority: _currentFeePriority,
+    );
+    return _client.buildUnsignedTransactionUr(
+      calls: calls,
+      amountWei: summary.amountWei,
+      amountDecimals: summary.tokenDecimals,
+      amountSymbol: summary.tokenSymbol,
+      destinationAddress: summary.destinationAddress,
+      accountClassHashHex: _accountClassHashHex,
+      feeWei: quote.overallFeeWei,
+      feePriorityRaw: _currentFeePriority.raw,
+      summaryActionName: summary.actionName,
+      summaryTokenAddress: summary.tokenAddress,
+      summaryAdditionalInfo: {
+        ...summary.additionalInfo,
+        ..._feeMetadataForQuote(quote, _currentFeePriority),
+      },
+      preferSummary: summary.preferSummary,
+    );
+  }
+
   Future<String> executeCalls(List<StarknetExecutionCall> calls) async {
     if (supportsOfflineUrSigning) {
       throw UnsupportedError(
-        'WalletConnect execution is not available for offline Starknet wallets.',
+        'Offline Starknet execution must be completed via buildExecuteCallsUr().',
       );
     }
 
+    final summary = await _buildExecutionSummary(calls);
+    final quote = await _quoteExecutionCalls(
+      calls,
+      priority: _currentFeePriority,
+    );
     final pending = walletInfo.isHardwareWallet
         ? await _client.createHardwareTransaction(
             calls: calls,
-            amountWei: '0',
-            amountDecimals: 18,
-            amountSymbol: CryptoCurrency.strk.title,
-            destinationAddress: _accountAddressHex,
+            amountWei: summary.amountWei,
+            amountDecimals: summary.tokenDecimals,
+            amountSymbol: summary.tokenSymbol,
+            destinationAddress: summary.destinationAddress,
             accountClassHashHex: _accountClassHashHex,
-            feeWei: '0',
+            feeWei: quote.overallFeeWei,
+            feePriorityRaw: _currentFeePriority.raw,
           )
         : await _client.createTransaction(
             calls: calls,
-            amountWei: '0',
-            amountDecimals: 18,
-            amountSymbol: CryptoCurrency.strk.title,
-            destinationAddress: _accountAddressHex,
+            amountWei: summary.amountWei,
+            amountDecimals: summary.tokenDecimals,
+            amountSymbol: summary.tokenSymbol,
+            destinationAddress: summary.destinationAddress,
             accountClassHashHex: _accountClassHashHex,
-            feeWei: '0',
+            feeWei: quote.overallFeeWei,
+            feePriorityRaw: _currentFeePriority.raw,
           );
     await pending.commit();
+    await _recordExecutionSummary(
+      txHash: pending.id,
+      summary: summary.copyWith(
+        additionalInfo: {
+          ...summary.additionalInfo,
+          ..._feeMetadataForQuote(quote, _currentFeePriority),
+        },
+      ),
+      feeWei: quote.overallFeeWei,
+    );
     return pending.id;
   }
 
-  Future<bool> submitSignedTransactionUR(String urPayload) async {
+  Future<String> submitSignedTransactionUR(
+    String urPayload, {
+    String? requestUrPayload,
+  }) async {
     final txHash = await _client.submitSignedTransactionUr(urPayload);
+    if (requestUrPayload != null) {
+      final requestPayload = decodeStarknetSignRequestUr(requestUrPayload);
+      await _recordExecutionSummary(
+        txHash: txHash,
+        summary: _executionSummaryFromRequestPayload(requestPayload),
+        feeWei: requestPayload.feeWei,
+      );
+    }
     unawaited(() async {
       await Future<void>.delayed(const Duration(milliseconds: 250));
       await _updateBalance();
       await updateTransactionsHistory();
     }());
-    return txHash.isNotEmpty;
+    return txHash;
   }
 
   @override
@@ -870,7 +1178,7 @@ abstract class StarknetWalletBase
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       _updateBalance();
       updateTransactionsHistory();
-      _refreshEstimatedFees();
+      _refreshEstimatedFees(priority: _currentFeePriority);
     });
   }
 
@@ -880,7 +1188,7 @@ abstract class StarknetWalletBase
 
     if (supportsOfflineUrSigning) {
       throw UnsupportedError(
-        'Offline Starknet message signing over UR is not implemented yet.',
+        'Offline Starknet message signing must be completed via buildMessageSignUr().',
       );
     }
 
@@ -1000,6 +1308,345 @@ abstract class StarknetWalletBase
     return [rHex, sHex];
   }
 
+  Future<void> _verifyOfflineSignature({
+    required String messageHashHex,
+    required StarknetUrSignature signature,
+  }) async {
+    await ensureStarknetRustInitialized();
+    final response = await rust_api.verifyMessageHashSignature(
+      publicKeyHex: _starknetPublicKeyHex,
+      messageHashHex: messageHashHex,
+      rHex: signature.rHex,
+      sHex: signature.sHex,
+    );
+
+    if (!unwrapBoolResponse(response)) {
+      throw Exception('Invalid Starknet signature received from UR response');
+    }
+  }
+
+  String _formatSignature(StarknetUrSignature signature) => '${signature.rHex},${signature.sHex}';
+
+  Future<_FeeQuoteModel> _quoteExecutionCalls(
+    List<StarknetExecutionCall> calls, {
+    required StarknetTransactionPriority priority,
+  }) async {
+    _currentFeePriority = priority;
+    final quote = walletInfo.isHardwareWallet
+        ? await _client.estimateHardwareExecuteFee(
+            accountAddressHex: _accountAddressHex,
+            publicKeyHex: _starknetPublicKeyHex,
+            accountClassHashHex: _accountClassHashHex,
+            calls: calls,
+            feePriorityRaw: priority.raw,
+          )
+        : await _client.estimateExecuteFee(
+            accountAddressHex: _accountAddressHex,
+            accountClassHashHex: _accountClassHashHex,
+            calls: calls,
+            feePriorityRaw: priority.raw,
+          );
+
+    _estimatedFeePriorityRaw = priority.raw;
+    _estimatedFeeQuotesByTokenAddress[StarknetTokenAddresses.strk.toLowerCase()] = _FeeQuoteModel(
+      overallFeeWei: quote.overallFeeWei,
+      executionFeeWei: quote.executionFeeWei,
+      deployAccountFeeWei: quote.deployAccountFeeWei,
+      accountDeploymentRequired: quote.accountDeploymentRequired,
+    );
+    estimatedFeesWeiByTokenAddress[StarknetTokenAddresses.strk.toLowerCase()] = quote.overallFeeWei;
+    return _estimatedFeeQuotesByTokenAddress[StarknetTokenAddresses.strk.toLowerCase()]!;
+  }
+
+  Future<_FeeQuoteModel> _quoteTransferBatch({
+    required String tokenAddress,
+    required List<(String, BigInt)> transfers,
+    required StarknetTransactionPriority priority,
+  }) async {
+    _currentFeePriority = priority;
+    final calls = transfers
+        .map(
+          (transfer) => _buildTransferCall(
+            tokenAddress: tokenAddress,
+            destinationAddress: transfer.$1,
+            amountWei: transfer.$2,
+          ),
+        )
+        .toList();
+
+    final quote = walletInfo.isHardwareWallet
+        ? await _client.estimateHardwareExecuteFee(
+            accountAddressHex: _accountAddressHex,
+            publicKeyHex: _starknetPublicKeyHex,
+            accountClassHashHex: _accountClassHashHex,
+            calls: calls,
+            feePriorityRaw: priority.raw,
+          )
+        : await _client.estimateExecuteFee(
+            accountAddressHex: _accountAddressHex,
+            accountClassHashHex: _accountClassHashHex,
+            calls: calls,
+            feePriorityRaw: priority.raw,
+          );
+
+    final feeQuote = _FeeQuoteModel(
+      overallFeeWei: quote.overallFeeWei,
+      executionFeeWei: quote.executionFeeWei,
+      deployAccountFeeWei: quote.deployAccountFeeWei,
+      accountDeploymentRequired: quote.accountDeploymentRequired,
+    );
+    _estimatedFeePriorityRaw = priority.raw;
+    _estimatedFeeQuotesByTokenAddress[tokenAddress.toLowerCase()] = feeQuote;
+    estimatedFeesWeiByTokenAddress[tokenAddress.toLowerCase()] = quote.overallFeeWei;
+    return feeQuote;
+  }
+
+  Future<_ExecutionSummaryModel> _buildExecutionSummary(
+    List<StarknetExecutionCall> calls,
+  ) async {
+    if (calls.isEmpty) {
+      throw StarknetTransactionCreationException.fromMessage('Missing Starknet execution calls');
+    }
+
+    final normalizedEntrypoints =
+        calls.map((call) => _normalizeEntrypoint(call.entrypoint)).toList(growable: false);
+
+    if (normalizedEntrypoints.every((entrypoint) => entrypoint == 'transfer')) {
+      final asset = await _resolveSummaryAsset(calls.first.contractAddressHex);
+      var amountWei = BigInt.zero;
+      for (final call in calls) {
+        amountWei += _decodeUint256Amount(call.calldataHex, amountOffset: 1);
+      }
+
+      return _ExecutionSummaryModel(
+        actionName: 'transfer',
+        amountWei: amountWei.toString(),
+        tokenAddress: asset.tokenAddress,
+        tokenDecimals: asset.decimals,
+        tokenSymbol: asset.symbol,
+        destinationAddress: calls.length == 1
+            ? (calls.first.calldataHex.isNotEmpty
+                ? calls.first.calldataHex.first
+                : _accountAddressHex)
+            : '${calls.length} recipients',
+        additionalInfo: <String, dynamic>{
+          'starknetActionLabel': calls.length == 1 ? 'Transfer' : 'Batch transfer',
+          'starknetCallCount': calls.length,
+        },
+        preferSummary: calls.length > 1,
+      );
+    }
+
+    if (normalizedEntrypoints.every((entrypoint) => entrypoint == 'approve')) {
+      final asset = await _resolveSummaryAsset(calls.first.contractAddressHex);
+      var amountWei = BigInt.zero;
+      for (final call in calls) {
+        amountWei += _decodeUint256Amount(call.calldataHex, amountOffset: 1);
+      }
+
+      return _ExecutionSummaryModel(
+        actionName: 'approval',
+        amountWei: amountWei.toString(),
+        tokenAddress: asset.tokenAddress,
+        tokenDecimals: asset.decimals,
+        tokenSymbol: asset.symbol,
+        destinationAddress: calls.length == 1
+            ? (calls.first.calldataHex.isNotEmpty
+                ? calls.first.calldataHex.first
+                : calls.first.contractAddressHex)
+            : '${calls.length} approvals',
+        additionalInfo: <String, dynamic>{
+          'starknetActionLabel': calls.length == 1 ? 'Approval' : 'Batch approval',
+          'starknetCallCount': calls.length,
+          'starknetSpender':
+              calls.first.calldataHex.isNotEmpty ? calls.first.calldataHex.first : '',
+        },
+        preferSummary: true,
+      );
+    }
+
+    if (normalizedEntrypoints.any(_looksLikeSwapEntrypoint)) {
+      final asset = await _resolveSummaryAsset(StarknetTokenAddresses.strk);
+      return _ExecutionSummaryModel(
+        actionName: 'swap',
+        amountWei: '0',
+        tokenAddress: asset.tokenAddress,
+        tokenDecimals: asset.decimals,
+        tokenSymbol: asset.symbol,
+        destinationAddress: calls.first.contractAddressHex,
+        additionalInfo: <String, dynamic>{
+          'starknetActionLabel': 'Swap',
+          'starknetCallCount': calls.length,
+          'starknetPrimaryEntrypoint': calls.first.entrypoint,
+        },
+        preferSummary: true,
+      );
+    }
+
+    final primaryEntrypoint = normalizedEntrypoints.first;
+    final actionName = calls.length > 1
+        ? 'multicall'
+        : (primaryEntrypoint.isEmpty ? 'contract_call' : primaryEntrypoint);
+    final defaultAsset = await _resolveSummaryAsset(StarknetTokenAddresses.strk);
+
+    return _ExecutionSummaryModel(
+      actionName: actionName,
+      amountWei: '0',
+      tokenAddress: defaultAsset.tokenAddress,
+      tokenDecimals: defaultAsset.decimals,
+      tokenSymbol: defaultAsset.symbol,
+      destinationAddress:
+          calls.length > 1 ? '${calls.length} calls' : calls.first.contractAddressHex,
+      additionalInfo: <String, dynamic>{
+        'starknetActionLabel': _starknetActionLabelFor(actionName),
+        'starknetCallCount': calls.length,
+        'starknetPrimaryEntrypoint': calls.first.entrypoint,
+        'starknetPrimaryContract': calls.first.contractAddressHex,
+      },
+      preferSummary: true,
+    );
+  }
+
+  _ExecutionSummaryModel _executionSummaryFromRequestPayload(
+    StarknetSignRequestUrPayload requestPayload,
+  ) {
+    final tokenAddress = requestPayload.summaryTokenAddress ?? StarknetTokenAddresses.strk;
+    final tokenSymbol = requestPayload.amountSymbol;
+    final tokenDecimals = requestPayload.amountDecimals;
+    final actionName = requestPayload.summaryActionName ?? 'contract_call';
+
+    return _ExecutionSummaryModel(
+      actionName: actionName,
+      amountWei: requestPayload.amountWei,
+      tokenAddress: tokenAddress,
+      tokenDecimals: tokenDecimals,
+      tokenSymbol: tokenSymbol,
+      destinationAddress: requestPayload.destinationAddress,
+      additionalInfo: <String, dynamic>{
+        'starknetActionLabel': _starknetActionLabelFor(actionName),
+        ...?requestPayload.summaryAdditionalInfo,
+      },
+      preferSummary: requestPayload.preferSummary,
+    );
+  }
+
+  Future<void> _recordExecutionSummary({
+    required String txHash,
+    required _ExecutionSummaryModel summary,
+    required String feeWei,
+  }) async {
+    if (!summary.preferSummary || txHash.isEmpty) {
+      return;
+    }
+
+    final transaction = StarknetTransactionInfo(
+      id: txHash,
+      transactionHash: txHash,
+      blockTime: DateTime.now(),
+      to: summary.destinationAddress,
+      from: _accountAddressHex,
+      direction: TransactionDirection.outgoing,
+      amountWei: summary.amountWei,
+      tokenAddress: summary.tokenAddress,
+      tokenDecimals: summary.tokenDecimals,
+      tokenSymbol: summary.tokenSymbol,
+      isPending: false,
+      txFeeWei: feeWei,
+      evmSignatureName: summary.actionName,
+      additionalInfo: <String, dynamic>{
+        'starknetPreferSummary': true,
+        ...summary.additionalInfo,
+      },
+    );
+
+    transactionHistory.addOne(transaction);
+    await transactionHistory.save();
+  }
+
+  Future<_SummaryAssetModel> _resolveSummaryAsset(String tokenAddress) async {
+    final normalized = tokenAddress.toLowerCase();
+    final asset = _assetForTokenAddress(normalized);
+    if (asset != null) {
+      return _SummaryAssetModel(
+        tokenAddress: normalized,
+        decimals: asset.decimals,
+        symbol: asset.title,
+      );
+    }
+
+    try {
+      final metadata = await _client.getTokenMetadata(normalized);
+      return _SummaryAssetModel(
+        tokenAddress: metadata.tokenAddressHex.toLowerCase(),
+        decimals: metadata.decimals,
+        symbol: metadata.symbol,
+      );
+    } catch (_) {
+      return _SummaryAssetModel(
+        tokenAddress: StarknetTokenAddresses.strk,
+        decimals: CryptoCurrency.strk.decimals,
+        symbol: CryptoCurrency.strk.title,
+      );
+    }
+  }
+
+  BigInt _decodeUint256Amount(List<String> calldata, {int amountOffset = 0}) {
+    if (calldata.length <= amountOffset) {
+      return BigInt.zero;
+    }
+
+    final low = _parseFeltBigInt(calldata[amountOffset]);
+    final high = calldata.length > amountOffset + 1
+        ? _parseFeltBigInt(calldata[amountOffset + 1])
+        : BigInt.zero;
+    return low + (high << 128);
+  }
+
+  BigInt _parseFeltBigInt(String value) {
+    final normalized = value.trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return BigInt.zero;
+    }
+
+    if (normalized.startsWith('0x')) {
+      return BigInt.parse(normalized.substring(2), radix: 16);
+    }
+
+    return BigInt.parse(normalized);
+  }
+
+  String _normalizeEntrypoint(String entrypoint) => entrypoint.trim().toLowerCase();
+
+  bool _looksLikeSwapEntrypoint(String entrypoint) {
+    final normalized = _normalizeEntrypoint(entrypoint);
+    return normalized.contains('swap') ||
+        normalized.contains('exact_input') ||
+        normalized.contains('exact_output') ||
+        normalized.contains('multihop');
+  }
+
+  String _starknetActionLabelFor(String actionName) {
+    switch (_normalizeEntrypoint(actionName)) {
+      case 'approval':
+      case 'approve':
+        return 'Approval';
+      case 'swap':
+        return 'Swap';
+      case 'multicall':
+        return 'Multicall';
+      case 'transfer':
+        return 'Transfer';
+      case 'contract_call':
+        return 'Contract call';
+      default:
+        final normalized = actionName.replaceAll('_', ' ').trim();
+        if (normalized.isEmpty) {
+          return 'Contract call';
+        }
+        return normalized[0].toUpperCase() + normalized.substring(1);
+    }
+  }
+
   CryptoCurrency _resolveAsset(CryptoCurrency currency) {
     if (currency.titleAndTagEqual(CryptoCurrency.strk)) {
       return CryptoCurrency.strk;
@@ -1063,41 +1710,60 @@ abstract class StarknetWalletBase
     );
   }
 
-  Future<_FeeQuoteModel> _quoteTransferBatch({
-    required String tokenAddress,
+  _ExecutionSummaryModel _buildTransferExecutionSummary({
+    required CryptoCurrency asset,
     required List<(String, BigInt)> transfers,
-  }) async {
-    final calls = transfers
-        .map(
-          (transfer) => _buildTransferCall(
-            tokenAddress: tokenAddress,
-            destinationAddress: transfer.$1,
-            amountWei: transfer.$2,
-          ),
-        )
-        .toList();
-
-    final quote = walletInfo.isHardwareWallet
-        ? await _client.estimateHardwareExecuteFee(
-            accountAddressHex: _accountAddressHex,
-            publicKeyHex: _starknetPublicKeyHex,
-            accountClassHashHex: _accountClassHashHex,
-            calls: calls,
-          )
-        : await _client.estimateExecuteFee(
-            accountAddressHex: _accountAddressHex,
-            accountClassHashHex: _accountClassHashHex,
-            calls: calls,
-          );
-
-    estimatedFeesWeiByTokenAddress[tokenAddress.toLowerCase()] = quote.overallFeeWei;
-
-    return _FeeQuoteModel(
-      overallFeeWei: quote.overallFeeWei,
-      executionFeeWei: quote.executionFeeWei,
-      deployAccountFeeWei: quote.deployAccountFeeWei,
-      accountDeploymentRequired: quote.accountDeploymentRequired,
+    required _FeeQuoteModel feeQuote,
+    required StarknetTransactionPriority priority,
+  }) {
+    final totalAmountWei = transfers.fold<BigInt>(
+      BigInt.zero,
+      (total, transfer) => total + transfer.$2,
     );
+
+    return _ExecutionSummaryModel(
+      actionName: 'transfer',
+      amountWei: totalAmountWei.toString(),
+      tokenAddress: _tokenAddressFor(asset),
+      tokenDecimals: asset.decimals,
+      tokenSymbol: asset.title,
+      destinationAddress:
+          transfers.length == 1 ? transfers.first.$1 : '${transfers.length} recipients',
+      additionalInfo: <String, dynamic>{
+        'starknetActionLabel': transfers.length == 1 ? 'Transfer' : 'Batch transfer',
+        'starknetCallCount': transfers.length,
+        ..._feeMetadataForQuote(feeQuote, priority),
+      },
+      preferSummary: feeQuote.accountDeploymentRequired || transfers.length > 1,
+    );
+  }
+
+  Map<String, dynamic> _feeMetadataForQuote(
+    _FeeQuoteModel feeQuote,
+    StarknetTransactionPriority priority,
+  ) {
+    return <String, dynamic>{
+      'starknetFeePriorityRaw': priority.raw,
+      'starknetFeePriorityLabel': priority.title,
+      'starknetExecutionFeeWei': feeQuote.executionFeeWei,
+      if ((feeQuote.deployAccountFeeWei?.isNotEmpty ?? false))
+        'starknetDeployAccountFeeWei': feeQuote.deployAccountFeeWei,
+      if (feeQuote.accountDeploymentRequired) 'starknetAccountDeploymentRequired': true,
+    };
+  }
+
+  StarknetTransactionPriority _normalizeTransactionPriority(TransactionPriority? priority) {
+    if (priority is StarknetTransactionPriority) {
+      return priority;
+    }
+
+    if (priority != null) {
+      try {
+        return StarknetTransactionPriority.deserialize(raw: priority.raw);
+      } catch (_) {}
+    }
+
+    return StarknetTransactionPriority.medium;
   }
 
   String? _defaultIconPathForSymbol(String symbol) {
@@ -1139,3 +1805,69 @@ class _FeeQuoteModel {
   final String? deployAccountFeeWei;
   final bool accountDeploymentRequired;
 }
+
+class _ExecutionSummaryModel {
+  const _ExecutionSummaryModel({
+    required this.actionName,
+    required this.amountWei,
+    required this.tokenAddress,
+    required this.tokenDecimals,
+    required this.tokenSymbol,
+    required this.destinationAddress,
+    required this.additionalInfo,
+    required this.preferSummary,
+  });
+
+  final String actionName;
+  final String amountWei;
+  final String tokenAddress;
+  final int tokenDecimals;
+  final String tokenSymbol;
+  final String destinationAddress;
+  final Map<String, dynamic> additionalInfo;
+  final bool preferSummary;
+
+  _ExecutionSummaryModel copyWith({
+    String? actionName,
+    String? amountWei,
+    String? tokenAddress,
+    int? tokenDecimals,
+    String? tokenSymbol,
+    String? destinationAddress,
+    Map<String, dynamic>? additionalInfo,
+    bool? preferSummary,
+  }) {
+    return _ExecutionSummaryModel(
+      actionName: actionName ?? this.actionName,
+      amountWei: amountWei ?? this.amountWei,
+      tokenAddress: tokenAddress ?? this.tokenAddress,
+      tokenDecimals: tokenDecimals ?? this.tokenDecimals,
+      tokenSymbol: tokenSymbol ?? this.tokenSymbol,
+      destinationAddress: destinationAddress ?? this.destinationAddress,
+      additionalInfo: additionalInfo ?? this.additionalInfo,
+      preferSummary: preferSummary ?? this.preferSummary,
+    );
+  }
+}
+
+class _SummaryAssetModel {
+  const _SummaryAssetModel({
+    required this.tokenAddress,
+    required this.decimals,
+    required this.symbol,
+  });
+
+  final String tokenAddress;
+  final int decimals;
+  final String symbol;
+}
+
+String _starknetFeltHex(List<int> bytes) {
+  final hashedValue = BigInt.parse(HEX.encode(bytes), radix: 16);
+  return '0x${(hashedValue % _starknetFieldPrime).toRadixString(16)}';
+}
+
+final BigInt _starknetFieldPrime = BigInt.parse(
+  '800000000000011000000000000000000000000000000000000000000000001',
+  radix: 16,
+);

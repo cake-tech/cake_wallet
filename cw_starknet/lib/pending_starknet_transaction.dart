@@ -12,6 +12,7 @@ class PendingStarknetTransaction with PendingTransaction {
     required this.feeWei,
     this.transactionHash = '',
     this.buildUnsignedTransactionUr,
+    this.onCommitted,
   });
 
   final String amountWei;
@@ -22,6 +23,7 @@ class PendingStarknetTransaction with PendingTransaction {
   final Future<String> Function() sendTransaction;
   final String feeWei;
   final Future<Map<String, String>> Function()? buildUnsignedTransactionUr;
+  final Future<void> Function(String txHash)? onCommitted;
   String? _txHash;
 
   @override
@@ -32,6 +34,10 @@ class PendingStarknetTransaction with PendingTransaction {
   @override
   Future<void> commit() async {
     _txHash = await sendTransaction();
+    final txHash = _txHash;
+    if (txHash != null) {
+      await onCommitted?.call(txHash);
+    }
   }
 
   @override

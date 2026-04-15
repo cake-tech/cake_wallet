@@ -6,9 +6,9 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `actual_fee_from_receipt`, `adjust_gas_amount`, `adjust_gas_price`, `biguint_to_uint256_words`, `build_deploy_transaction_hash`, `build_execution_calls`, `build_invoke_transaction_hash`, `calculate_overall_fee_from_params`, `call_token_decimals`, `call_token_string`, `derive_account_address_from_public_key`, `derive_account_from_public_key_inner`, `derive_account_inner`, `derive_private_key_from_mnemonic`, `estimate_execute_fee_inner`, `execute_calls_external_signer_inner`, `execute_calls_inner`, `felt_to_biguint`, `felt_to_hex`, `felt_to_short_string`, `fetch_block_timestamp`, `fetch_latest_block_tip`, `fetch_paginated_transfer_events`, `fetch_transaction_fee`, `format_account_error`, `format_provider_error`, `format_starknet_error`, `from_prepared`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `get_typed_data_message_hash_inner`, `is_account_deployed_with_provider`, `make_provider`, `make_single_owner_account`, `normalize_hex`, `parse_chain_id`, `parse_decimal_biguint`, `parse_entrypoint_selector`, `parse_felt_hex`, `parse_private_key`, `parse_signature_hex`, `parse_transfer_event`, `parse_u128_decimal`, `prepare_external_execution_inner`, `prepare_transaction_params_from_estimate_with_tip`, `prepare_transaction_params_from_fee_estimate`, `run_async`, `sign_message_hash_inner`, `sign_typed_data_inner`, `split_result`, `to_prepared`, `transfer_calldata_hex`, `transfer_calldata`, `uint256_from_call_result`, `uint256_from_words`, `validate_derived_account_address`, `validate_private_key`, `verify_message_hash_signature_inner`, `wait_for_transaction`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `ExternalSignerError`, `PreparedExternalExecution`, `PreparedTransactionParams`, `PublicKeyOnlySigner`, `SerializedExternalExecutionPlan`, `SerializedPreparedTransactionParams`, `TransferEventRecord`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `get_public_key`, `is_interactive`, `sign_hash`
+// These functions are ignored because they are not marked as `pub`: `action_name_for_selector`, `actual_fee_from_receipt`, `adjust_tip`, `apply_multiplier_u128`, `apply_multiplier_u64`, `biguint_to_uint256_words`, `build_deploy_transaction_hash`, `build_execution_calls`, `build_invoke_transaction_hash`, `calculate_overall_fee_from_params`, `call_token_decimals`, `call_token_string`, `decode_account_execute_calls`, `derive_account_address_from_public_key`, `derive_account_from_public_key_inner`, `derive_account_inner`, `derive_private_key_from_mnemonic`, `estimate_execute_fee_inner`, `execute_calls_external_signer_inner`, `execute_calls_inner`, `fee_priority_multipliers`, `felt_to_biguint`, `felt_to_hex`, `felt_to_short_string`, `felt_to_usize`, `fetch_block_timestamp`, `fetch_latest_block_tip`, `fetch_paginated_transfer_events`, `fetch_transaction_details`, `fetch_transaction_fee`, `finality_status_to_string`, `format_account_error`, `format_provider_error`, `format_starknet_error`, `from_prepared`, `from_raw`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `from_result`, `get_typed_data_message_hash_inner`, `infer_action_name`, `is_account_deployed_with_provider`, `known_selector_name`, `looks_like_swap_action`, `make_provider`, `make_single_owner_account`, `normalize_action_name`, `normalize_hex`, `parse_chain_id`, `parse_decimal_biguint`, `parse_entrypoint_selector`, `parse_felt_hex`, `parse_private_key`, `parse_signature_hex`, `parse_transfer_event`, `parse_u128_decimal`, `prepare_external_execution_inner`, `prepare_transaction_params_from_estimate_with_tip`, `prepare_transaction_params_from_fee_estimate`, `run_async`, `selector_display_name`, `sign_message_hash_inner`, `sign_typed_data_inner`, `split_result`, `summarize_account_invoke_transaction`, `summarize_transaction`, `to_prepared`, `transfer_calldata_hex`, `transfer_calldata`, `uint256_from_call_result`, `uint256_from_words`, `validate_derived_account_address`, `validate_private_key`, `verify_message_hash_signature_inner`, `wait_for_transaction`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `DecodedInvokeCall`, `DecodedTransactionSummary`, `ExternalSignerError`, `PreparedExternalExecution`, `PreparedTransactionParams`, `PublicKeyOnlySigner`, `SerializedExternalExecutionPlan`, `SerializedPreparedTransactionParams`, `StarknetFeePriority`, `TransferEventRecord`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `get_public_key`, `is_interactive`, `sign_hash`
 
 Future<DerivedAccountDataResponse> deriveAccount(
         {String? mnemonic,
@@ -100,6 +100,7 @@ Future<FeeQuoteResponse> estimateExecuteFee(
         required String accountAddressHex,
         required String accountClassHashHex,
         required List<StarknetCallInput> calls,
+        required int feePriorityRaw,
         String? chainIdHex}) =>
     RustLib.instance.api.crateApiStarknetEstimateExecuteFee(
         nodeUrl: nodeUrl,
@@ -107,6 +108,7 @@ Future<FeeQuoteResponse> estimateExecuteFee(
         accountAddressHex: accountAddressHex,
         accountClassHashHex: accountClassHashHex,
         calls: calls,
+        feePriorityRaw: feePriorityRaw,
         chainIdHex: chainIdHex);
 
 Future<FeeQuoteResponse> estimateExecuteFeeExternalSigner(
@@ -115,6 +117,7 @@ Future<FeeQuoteResponse> estimateExecuteFeeExternalSigner(
         required String accountAddressHex,
         required String accountClassHashHex,
         required List<StarknetCallInput> calls,
+        required int feePriorityRaw,
         String? chainIdHex}) =>
     RustLib.instance.api.crateApiStarknetEstimateExecuteFeeExternalSigner(
         nodeUrl: nodeUrl,
@@ -122,6 +125,7 @@ Future<FeeQuoteResponse> estimateExecuteFeeExternalSigner(
         accountAddressHex: accountAddressHex,
         accountClassHashHex: accountClassHashHex,
         calls: calls,
+        feePriorityRaw: feePriorityRaw,
         chainIdHex: chainIdHex);
 
 Future<StringResponse> executeCalls(
@@ -130,6 +134,7 @@ Future<StringResponse> executeCalls(
         required String accountAddressHex,
         required String accountClassHashHex,
         required List<StarknetCallInput> calls,
+        required int feePriorityRaw,
         String? chainIdHex}) =>
     RustLib.instance.api.crateApiStarknetExecuteCalls(
         nodeUrl: nodeUrl,
@@ -137,6 +142,7 @@ Future<StringResponse> executeCalls(
         accountAddressHex: accountAddressHex,
         accountClassHashHex: accountClassHashHex,
         calls: calls,
+        feePriorityRaw: feePriorityRaw,
         chainIdHex: chainIdHex);
 
 Future<ExecutionPlanResponse> getExecuteTransactionHashesExternalSigner(
@@ -145,6 +151,7 @@ Future<ExecutionPlanResponse> getExecuteTransactionHashesExternalSigner(
         required String accountAddressHex,
         required String accountClassHashHex,
         required List<StarknetCallInput> calls,
+        required int feePriorityRaw,
         String? chainIdHex}) =>
     RustLib.instance.api
         .crateApiStarknetGetExecuteTransactionHashesExternalSigner(
@@ -153,6 +160,7 @@ Future<ExecutionPlanResponse> getExecuteTransactionHashesExternalSigner(
             accountAddressHex: accountAddressHex,
             accountClassHashHex: accountClassHashHex,
             calls: calls,
+            feePriorityRaw: feePriorityRaw,
             chainIdHex: chainIdHex);
 
 Future<StringResponse> executeCallsExternalSigner(
@@ -184,6 +192,11 @@ Future<TransferHistoryResponse> fetchTransferHistory(
         tokenSymbol: tokenSymbol,
         fromBlock: fromBlock,
         maxPages: maxPages);
+
+Future<TransactionDetailsResponse> getTransactionDetails(
+        {required String nodeUrl, required String transactionHashHex}) =>
+    RustLib.instance.api.crateApiStarknetGetTransactionDetails(
+        nodeUrl: nodeUrl, transactionHashHex: transactionHashHex);
 
 Future<I64Response> getBlockNumber({required String nodeUrl}) =>
     RustLib.instance.api.crateApiStarknetGetBlockNumber(nodeUrl: nodeUrl);
@@ -511,6 +524,109 @@ class StarknetTokenMetadata {
           decimals == other.decimals;
 }
 
+class StarknetTransactionDetails {
+  final String transactionHash;
+  final String transactionType;
+  final bool isPending;
+  final PlatformInt64? blockNumber;
+  final PlatformInt64? blockTimestamp;
+  final String? actualFeeWei;
+  final String? actionName;
+  final int? callCount;
+  final String? primaryContractAddressHex;
+  final String? primaryEntrypoint;
+  final String? senderAddressHex;
+  final String? finalityStatus;
+  final String? executionStatus;
+  final String? revertReason;
+  final bool accountDeploymentRequired;
+  final String? l1GasMaxAmount;
+  final String? l1GasMaxPriceWei;
+  final String? l2GasMaxAmount;
+  final String? l2GasMaxPriceWei;
+  final String? l1DataGasMaxAmount;
+  final String? l1DataGasMaxPriceWei;
+  final PlatformInt64? tip;
+
+  const StarknetTransactionDetails({
+    required this.transactionHash,
+    required this.transactionType,
+    required this.isPending,
+    this.blockNumber,
+    this.blockTimestamp,
+    this.actualFeeWei,
+    this.actionName,
+    this.callCount,
+    this.primaryContractAddressHex,
+    this.primaryEntrypoint,
+    this.senderAddressHex,
+    this.finalityStatus,
+    this.executionStatus,
+    this.revertReason,
+    required this.accountDeploymentRequired,
+    this.l1GasMaxAmount,
+    this.l1GasMaxPriceWei,
+    this.l2GasMaxAmount,
+    this.l2GasMaxPriceWei,
+    this.l1DataGasMaxAmount,
+    this.l1DataGasMaxPriceWei,
+    this.tip,
+  });
+
+  @override
+  int get hashCode =>
+      transactionHash.hashCode ^
+      transactionType.hashCode ^
+      isPending.hashCode ^
+      blockNumber.hashCode ^
+      blockTimestamp.hashCode ^
+      actualFeeWei.hashCode ^
+      actionName.hashCode ^
+      callCount.hashCode ^
+      primaryContractAddressHex.hashCode ^
+      primaryEntrypoint.hashCode ^
+      senderAddressHex.hashCode ^
+      finalityStatus.hashCode ^
+      executionStatus.hashCode ^
+      revertReason.hashCode ^
+      accountDeploymentRequired.hashCode ^
+      l1GasMaxAmount.hashCode ^
+      l1GasMaxPriceWei.hashCode ^
+      l2GasMaxAmount.hashCode ^
+      l2GasMaxPriceWei.hashCode ^
+      l1DataGasMaxAmount.hashCode ^
+      l1DataGasMaxPriceWei.hashCode ^
+      tip.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StarknetTransactionDetails &&
+          runtimeType == other.runtimeType &&
+          transactionHash == other.transactionHash &&
+          transactionType == other.transactionType &&
+          isPending == other.isPending &&
+          blockNumber == other.blockNumber &&
+          blockTimestamp == other.blockTimestamp &&
+          actualFeeWei == other.actualFeeWei &&
+          actionName == other.actionName &&
+          callCount == other.callCount &&
+          primaryContractAddressHex == other.primaryContractAddressHex &&
+          primaryEntrypoint == other.primaryEntrypoint &&
+          senderAddressHex == other.senderAddressHex &&
+          finalityStatus == other.finalityStatus &&
+          executionStatus == other.executionStatus &&
+          revertReason == other.revertReason &&
+          accountDeploymentRequired == other.accountDeploymentRequired &&
+          l1GasMaxAmount == other.l1GasMaxAmount &&
+          l1GasMaxPriceWei == other.l1GasMaxPriceWei &&
+          l2GasMaxAmount == other.l2GasMaxAmount &&
+          l2GasMaxPriceWei == other.l2GasMaxPriceWei &&
+          l1DataGasMaxAmount == other.l1DataGasMaxAmount &&
+          l1DataGasMaxPriceWei == other.l1DataGasMaxPriceWei &&
+          tip == other.tip;
+}
+
 class StringListResponse {
   final List<String> items;
   final String? error;
@@ -569,6 +685,27 @@ class TokenMetadataResponse {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is TokenMetadataResponse &&
+          runtimeType == other.runtimeType &&
+          value == other.value &&
+          error == other.error;
+}
+
+class TransactionDetailsResponse {
+  final StarknetTransactionDetails? value;
+  final String? error;
+
+  const TransactionDetailsResponse({
+    this.value,
+    this.error,
+  });
+
+  @override
+  int get hashCode => value.hashCode ^ error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TransactionDetailsResponse &&
           runtimeType == other.runtimeType &&
           value == other.value &&
           error == other.error;

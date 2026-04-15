@@ -1264,8 +1264,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
         return solana!.createSolanaTransactionCredentials(outputs,
             currency: selectedCryptoCurrency);
       case WalletType.starknet:
-        return starknet!.createStarknetTransactionCredentials(outputs,
-            currency: selectedCryptoCurrency);
+        return starknet!.createStarknetTransactionCredentials(
+          outputs,
+          currency: selectedCryptoCurrency,
+          priority: priority,
+        );
       case WalletType.tron:
         return tron!.createTronTransactionCredentials(outputs,
             currency: selectedCryptoCurrency);

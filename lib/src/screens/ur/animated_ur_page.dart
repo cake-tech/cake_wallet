@@ -81,6 +81,8 @@ class AnimatedURPage extends BasePage {
           "ur:xmr-output",
           "ur:psbt",
           "ur:starknet-sign-request",
+          "ur:starknet-message-sign-request",
+          "ur:starknet-typed-data-sign-request",
           BBQR.header
         ].contains(urQrType)) ...{
           Padding(
@@ -131,10 +133,31 @@ class AnimatedURPage extends BasePage {
         case "ur:starknet-sign-request":
           final ur = await presentQRScanner(context);
           if (ur == null) return;
-          final result =
-              await starknet!.commitTransactionUR(animatedURmodel.wallet, ur);
-          if (result) {
-            Navigator.of(context).pop(true);
+          final txHash = await starknet!.commitTransactionUR(
+            animatedURmodel.wallet,
+            ur,
+            requestUr: urQr.values.first,
+          );
+          if (txHash.isNotEmpty) {
+            Navigator.of(context).pop(txHash);
+          }
+          break;
+        case "ur:starknet-message-sign-request":
+          final ur = await presentQRScanner(context);
+          if (ur == null) return;
+          final signature =
+              await starknet!.commitMessageUR(animatedURmodel.wallet, ur);
+          if (signature.isNotEmpty) {
+            Navigator.of(context).pop(signature);
+          }
+          break;
+        case "ur:starknet-typed-data-sign-request":
+          final ur = await presentQRScanner(context);
+          if (ur == null) return;
+          final signature =
+              await starknet!.commitTypedDataUR(animatedURmodel.wallet, ur);
+          if (signature.isNotEmpty) {
+            Navigator.of(context).pop(signature);
           }
           break;
         default:

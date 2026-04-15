@@ -20,6 +20,9 @@ void main() {
         tokenSymbol: 'STRK',
         isPending: false,
         txFeeWei: '1000000000000000',
+        evmSignatureName: 'approval',
+        additionalInfo: {'starknetActionLabel': 'Approval'},
+        height: 42,
       );
     });
 
@@ -33,6 +36,9 @@ void main() {
       expect(txInfo.tokenSymbol, 'STRK');
       expect(txInfo.isPending, false);
       expect(txInfo.txFeeWei, '1000000000000000');
+      expect(txInfo.evmSignatureName, 'approval');
+      expect(txInfo.additionalInfo['starknetActionLabel'], 'Approval');
+      expect(txInfo.height, 42);
     });
 
     test('amount stores raw token units', () {
@@ -100,6 +106,49 @@ void main() {
       expect(txInfo.fiatAmount(), isNotEmpty);
     });
 
+    test('formats Starknet decoded details', () {
+      final detailedTx = StarknetTransactionInfo(
+        id: '0x2:0',
+        transactionHash: '0x2',
+        blockTime: DateTime.now(),
+        to: '0xrouter',
+        from: '0xsender',
+        direction: TransactionDirection.outgoing,
+        amountWei: '0',
+        tokenAddress: '0xstrk',
+        tokenDecimals: 18,
+        tokenSymbol: 'STRK',
+        isPending: false,
+        txFeeWei: '2000000000000000',
+        evmSignatureName: 'swap',
+        additionalInfo: {
+          'starknetTransactionType': 'INVOKE',
+          'starknetExecutionStatus': 'SUCCEEDED',
+          'starknetFinalityStatus': 'ACCEPTED_ON_L2',
+          'starknetExecutionFeeWei': '1500000000000000',
+          'starknetDeployAccountFeeWei': '500000000000000',
+          'starknetFeePriorityLabel': 'Fast',
+          'starknetCallCount': 3,
+          'starknetPrimaryContract': '0xrouter',
+          'starknetPrimaryEntrypoint': 'swap_exact_tokens_for_tokens',
+          'starknetTip': 7,
+          'starknetAccountDeploymentRequired': true,
+        },
+      );
+
+      expect(detailedTx.transactionTypeLabel(), 'Invoke');
+      expect(detailedTx.executionStatusLabel(), 'Succeeded');
+      expect(detailedTx.finalityStatusLabel(), 'Accepted On L2');
+      expect(detailedTx.executionFeeFormatted(), '0.0015 STRK');
+      expect(detailedTx.deployAccountFeeFormatted(), '0.0005 STRK');
+      expect(detailedTx.feePriorityLabel(), 'Fast');
+      expect(detailedTx.callCountLabel(), '3');
+      expect(detailedTx.primaryContractAddress(), '0xrouter');
+      expect(detailedTx.primaryEntrypoint(), 'swap_exact_tokens_for_tokens');
+      expect(detailedTx.transactionTipLabel(), '7');
+      expect(detailedTx.accountDeploymentRequired, isTrue);
+    });
+
     group('JSON serialization', () {
       test('toJson contains all fields', () {
         final json = txInfo.toJson();
@@ -116,6 +165,9 @@ void main() {
         expect(json['from'], '0xsender');
         expect(json['txFeeWei'], '1000000000000000');
         expect(json['blockTime'], isA<int>());
+        expect(json['evmSignatureName'], 'approval');
+        expect(json['additionalInfo'], {'starknetActionLabel': 'Approval'});
+        expect(json['height'], 42);
       });
 
       test('fromJson round-trips correctly', () {
@@ -133,8 +185,10 @@ void main() {
         expect(restored.to, txInfo.to);
         expect(restored.from, txInfo.from);
         expect(restored.txFeeWei, txInfo.txFeeWei);
-        expect(restored.blockTime.millisecondsSinceEpoch,
-            txInfo.blockTime.millisecondsSinceEpoch);
+        expect(restored.blockTime.millisecondsSinceEpoch, txInfo.blockTime.millisecondsSinceEpoch);
+        expect(restored.evmSignatureName, txInfo.evmSignatureName);
+        expect(restored.additionalInfo, txInfo.additionalInfo);
+        expect(restored.height, txInfo.height);
       });
 
       test('fromJson handles incoming direction', () {

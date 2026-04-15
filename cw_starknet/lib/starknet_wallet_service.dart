@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_starknet/starknet_client.dart';
 import 'package:cw_starknet/starknet_exceptions.dart';
 import 'package:cw_starknet/starknet_mnemonics.dart';
 import 'package:cw_starknet/starknet_wallet.dart';
@@ -20,9 +21,11 @@ class StarknetWalletService extends WalletService<
     StarknetRestoreWalletFromSeedCredentials,
     StarknetRestoreWalletFromPrivateKey,
     StarknetRestoreWalletFromHardware> {
-  StarknetWalletService(this.isDirect);
+  StarknetWalletService(this.isDirect, {StarknetWalletClient Function()? clientFactory})
+      : _clientFactory = clientFactory;
 
   final bool isDirect;
+  final StarknetWalletClient Function()? _clientFactory;
 
   @override
   Future<StarknetWallet> create(StarknetNewWalletCredentials credentials, {bool? isTestnet}) async {
@@ -37,6 +40,7 @@ class StarknetWalletService extends WalletService<
       password: credentials.password!,
       passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      client: _clientFactory?.call(),
     );
 
     await wallet.init();
@@ -101,6 +105,7 @@ class StarknetWalletService extends WalletService<
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
         hardwarePublicKeyHex: credentials.publicKey,
         accountClassHashHex: credentials.accountClassHashHex,
+        client: _clientFactory?.call(),
       );
 
       await wallet.init();
@@ -115,6 +120,7 @@ class StarknetWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      client: _clientFactory?.call(),
     );
 
     await wallet.init();
@@ -137,6 +143,7 @@ class StarknetWalletService extends WalletService<
       derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      client: _clientFactory?.call(),
     );
 
     await wallet.init();
@@ -189,6 +196,7 @@ class StarknetWalletService extends WalletService<
       hardwarePublicKeyHex: credentials.hwAccountData.publicKey,
       hardwareDerivationPath: credentials.hwAccountData.derivationPath,
       accountClassHashHex: credentials.accountClassHashHex,
+      client: _clientFactory?.call(),
     );
 
     await wallet.init();

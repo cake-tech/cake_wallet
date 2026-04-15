@@ -3,6 +3,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/starknet_token.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -13,6 +14,7 @@ import 'package:cw_starknet/starknet_wallet.dart';
 import 'package:cw_starknet/starknet_mnemonics.dart';
 import 'package:cw_starknet/starknet_wallet_service.dart';
 import 'package:cw_starknet/starknet_transaction_info.dart';
+import 'package:cw_starknet/starknet_transaction_priority.dart';
 import 'package:cw_starknet/starknet_transaction_credentials.dart';
 import 'package:cw_starknet/starknet_wallet_creation_credentials.dart';
 
@@ -47,15 +49,21 @@ abstract class Starknet {
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getStarknetTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeStarknetTransactionPriority(int raw);
 
   Object createStarknetTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
+    TransactionPriority? priority,
   });
 
   Object createStarknetTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
     required CryptoCurrency currency,
+    TransactionPriority? priority,
   });
 
   List<StarknetToken> getStarknetTokenCurrencies(WalletBase wallet);
@@ -80,12 +88,37 @@ abstract class Starknet {
     String? address,
   });
 
+  Future<Map<String, String>> buildMessageSignUr(
+    WalletBase wallet,
+    String message, {
+    String? address,
+  });
+
+  Future<String> commitMessageUR(WalletBase wallet, String ur);
+
+  Future<Map<String, String>> buildTypedDataSignUr(
+    WalletBase wallet,
+    String typedDataJson, {
+    String? address,
+  });
+
+  Future<List<String>> commitTypedDataUR(WalletBase wallet, String ur);
+
   Future<String> executeWalletConnectCalls(
     WalletBase wallet,
     List<StarknetExecutionCall> calls,
   );
 
-  Future<bool> commitTransactionUR(WalletBase wallet, String ur);
+  Future<Map<String, String>> buildExecutionUr(
+    WalletBase wallet,
+    List<StarknetExecutionCall> calls,
+  );
+
+  Future<String> commitTransactionUR(
+    WalletBase wallet,
+    String ur, {
+    String? requestUr,
+  });
 
   bool supportsOfflineUrSigning(WalletBase wallet);
 
