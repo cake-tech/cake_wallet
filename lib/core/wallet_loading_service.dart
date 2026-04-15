@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/widgets/wallet_deprecation_popup.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -15,6 +16,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_wownero/wownero_wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,6 +74,13 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
+      if(error is WalletDeprecationException) {
+        if(navigatorKey.currentContext != null) {
+          showModalBottomSheet(
+              context: navigatorKey.currentContext!, builder: (context)=>WalletDeprecationPopup(type: type, seed: error.seed,));
+        }
+      }
+      
       if (type == WalletType.wownero) rethrow;
       await ExceptionHandler.resetLastPopupDate();
       final isLedgerError = await ExceptionHandler.isLedgerError(error);
