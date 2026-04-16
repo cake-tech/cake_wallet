@@ -71,10 +71,10 @@ jobs:
           from pathlib import Path
           import re
 
-          secret_keys = re.findall(
+          secret_keys = list(dict.fromkeys(re.findall(
               r"SecretKey\('([^']+)'",
               Path("tool/utils/secret_key.dart").read_text(),
-          )
+          )))
           Path("lib/.secrets.g.dart").write_text(
               "".join(f"const {key} = '';\n" for key in secret_keys),
           )
@@ -123,28 +123,35 @@ jobs:
           base_lines = base_path.read_text().splitlines()
           overlay_lines = overlay_path.read_text().splitlines()
 
-          overlay_by_name = {}
-          for line in overlay_lines:
-              match = const_pattern.match(line.strip())
-              if match:
-                  overlay_by_name[match.group(1)] = line
+          def ordered_unique_consts(lines):
+              ordered_names = []
+              lines_by_name = {}
+
+              for line in lines:
+                  match = const_pattern.match(line.strip())
+                  if not match:
+                      continue
+
+                  name = match.group(1)
+                  if name not in lines_by_name:
+                      ordered_names.append(name)
+                  lines_by_name[name] = line
+
+              return ordered_names, lines_by_name
+
+          base_names, base_by_name = ordered_unique_consts(base_lines)
+          overlay_names, overlay_by_name = ordered_unique_consts(overlay_lines)
 
           merged_lines = []
           seen = set()
-          for line in base_lines:
-              match = const_pattern.match(line.strip())
-              if not match:
-                  merged_lines.append(line)
-                  continue
-
-              name = match.group(1)
-              merged_lines.append(overlay_by_name.get(name, line))
+          for name in base_names:
+              merged_lines.append(overlay_by_name.get(name, base_by_name[name]))
               seen.add(name)
 
-          for line in overlay_lines:
-              match = const_pattern.match(line.strip())
-              if match and match.group(1) not in seen:
-                  merged_lines.append(line)
+          for name in overlay_names:
+              if name not in seen:
+                  merged_lines.append(overlay_by_name[name])
+                  seen.add(name)
 
           output_path.write_text("\\n".join(merged_lines) + "\\n")
           PY

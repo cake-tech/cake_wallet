@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x -e
 
-for cwcoin in cw_{core,evm,monero,bitcoin,nano,bitcoin_cash,solana,tron,wownero,zano,decred,dogecoin,zcash}
+for cwcoin in cw_{core,evm,monero,bitcoin,nano,bitcoin_cash,solana,tron,wownero,zano,decred,dogecoin,zcash,starknet}
 do
     if [[ "x$1" == "xasync" ]];
     then
@@ -19,6 +19,11 @@ do
         cd $cwcoin; flutter pub get; cd ..
     fi
 done
+
+if [[ "x$1" == "xasync" ]];
+then
+    wait
+fi
 
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
