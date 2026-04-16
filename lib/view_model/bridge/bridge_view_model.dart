@@ -17,6 +17,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -125,9 +126,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final token = selectedToken;
     if (token is! Erc20Token) return '0.00';
 
-    return amountParsingProxy.getDisplayCryptoStringFromBigInt(
-      selectedTokenBalance,
-      token,
+    return amountParsingProxy.asDisplayString(
+      Money(selectedTokenBalance, token),
     );
   }
 
@@ -177,10 +177,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     if (quote == null) return '—';
 
     final cur = wallet.currency;
-    return amountParsingProxy.getDisplayCryptoStringFromBigInt(
-      quote!.nativeFee,
-      cur,
-    );
+    return amountParsingProxy.asDisplayString(
+      Money(quote!.nativeFee, cur));
   }
 
   @computed
@@ -221,7 +219,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       amount.replaceAll(',', '.'),
       token,
     );
-    return validAmount != null && validAmount > BigInt.zero;
+    return validAmount != null && validAmount > Money(BigInt.zero, token);
   }
 
   @action
@@ -261,9 +259,9 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       return;
     }
     setAmount(
-      amountParsingProxy.getDisplayCryptoStringFromBigInt(
+      amountParsingProxy.asDisplayString(Money(
         selectedTokenBalance,
-        token,
+        token)
       ),
     );
   }
@@ -309,7 +307,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   BigInt get selectedTokenBalance {
     final bal = wallet.balance[selectedToken];
 
-    return bal?.available ?? BigInt.zero;
+    return bal?.available.amount ?? BigInt.zero;
   }
 
   @computed
@@ -318,12 +316,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     if (selectedToken is! Erc20Token) return null;
 
     final token = selectedToken as Erc20Token;
-    final amountBigInt = amountParsingProxy.tryParseCryptoString(
+    final parsedAmount = amountParsingProxy.tryParseCryptoString(
       amount.replaceAll(',', '.'),
       token,
     );
-    if (amountBigInt == null || amountBigInt == BigInt.zero) return null;
-    if (amountBigInt > selectedTokenBalance) {
+    if (parsedAmount == null || parsedAmount == Money(BigInt.zero, token)) return null;
+    if (parsedAmount.amount > selectedTokenBalance) {
       return 'Insufficient balance for ${token.title} token.';
     }
 
@@ -386,23 +384,23 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   ({String? error, BigInt? parsedAmount}) _parseAndValidateAmount(Erc20Token token) {
-    final amountBigInt = amountParsingProxy.tryParseCryptoString(
+    final parsedAmount = amountParsingProxy.tryParseCryptoString(
       amount.replaceAll(',', '.'),
       token,
     );
 
-    if (amountBigInt == null || amountBigInt == BigInt.zero) {
+    if (parsedAmount == null || parsedAmount == Money(BigInt.zero, token)) {
       return (error: 'Invalid amount', parsedAmount: null);
     }
 
-    if (amountBigInt > selectedTokenBalance) {
+    if (parsedAmount.amount > selectedTokenBalance) {
       return (
         error: 'Insufficient balance for ${token.title} token.',
         parsedAmount: null,
       );
     }
 
-    return (error: null, parsedAmount: amountBigInt);
+    return (error: null, parsedAmount: parsedAmount.amount);
   }
 
   @action
