@@ -89,10 +89,10 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   }
 
   @override
-  List<Subaddress> getAll(Object wallet) {
+  Future<List<Subaddress>> getAll(Object wallet) async {
     final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.walletAddresses.subaddressList
-        .getAll()
+    return (await moneroWallet.walletAddresses.subaddressList
+        .getAll())
         .map((sub) => Subaddress(
           id: sub.id,
           label: sub.label,
