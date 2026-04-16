@@ -76,7 +76,7 @@ jobs:
               Path("tool/utils/secret_key.dart").read_text(),
           )
           Path("lib/.secrets.g.dart").write_text(
-              "".join(f"const {key} = '';\\n" for key in secret_keys),
+              "".join(f"const {key} = '';\n" for key in secret_keys),
           )
           PY
           fi
