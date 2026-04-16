@@ -130,7 +130,7 @@ class _RescanPageState extends State<RescanPage> {
   }
 
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
-    final height = int.parse(_heightController.text);
+    final height = int.tryParse(_heightController.text) ?? 0;
 
     Navigator.of(context).pop();
 
