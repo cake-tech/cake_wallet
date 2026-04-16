@@ -19,7 +19,6 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -310,8 +309,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   BigInt get selectedTokenBalance {
     final bal = wallet.balance[selectedToken];
 
-    if (bal is EVMChainERC20Balance) return bal.balance;
-    return BigInt.zero;
+    return bal?.available ?? BigInt.zero;
   }
 
   @computed
@@ -477,7 +475,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     isExecuting = true;
     executeError = null;
     try {
-      final priority = EVMChainTransactionPriority.medium;
+      final priority = evm!.getDefaultTransactionPriority();
       final pending = await evm!.executeUSDT0Transfer(
         wallet: wallet,
         token: token,
@@ -486,7 +484,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         amount: amountBigInt,
         recipientAddress: recipientAddress.trim(),
         quote: quote!,
-        priority: priority as TransactionPriority,
+        priority: priority,
         useBlinkProtection: canSupportBlinkProtection(src),
       );
 
