@@ -174,6 +174,20 @@ exec > >(tee -a /var/log/cake-wallet-runner-bootstrap.log) 2>&1
 
 export DEBIAN_FRONTEND=noninteractive
 
+retry() {
+  local attempts="$1"
+  shift
+
+  local attempt=1
+  until "$@"; do
+    if (( attempt >= attempts )); then
+      return 1
+    fi
+    sleep $(( attempt * 5 ))
+    attempt=$(( attempt + 1 ))
+  done
+}
+
 ensure_packages() {
   local missing=()
 
@@ -185,8 +199,8 @@ ensure_packages() {
   [[ -e /dev/kvm ]] || missing+=(qemu-system-x86)
 
   if (( ${#missing[@]} > 0 )); then
-    apt-get update
-    apt-get install -y "${missing[@]}"
+    retry 5 apt-get update
+    retry 5 apt-get install -y "${missing[@]}"
   fi
 }
 
@@ -219,7 +233,11 @@ rm -rf /home/ubuntu/actions-runner/*
 tar -xzf "$runner_tarball" -C /home/ubuntu/actions-runner
 chown -R ubuntu:ubuntu /home/ubuntu/actions-runner
 
-bash -lc 'cd /home/ubuntu/actions-runner && ./bin/installdependencies.sh'
+if [[ -f /var/lib/cake-wallet/android-runner-ami-ready ]]; then
+  echo "Skipping runner dependency install on baked AMI"
+else
+  retry 5 bash -lc 'cd /home/ubuntu/actions-runner && ./bin/installdependencies.sh'
+fi
 
 if ! docker image inspect "__JOB_CONTAINER_IMAGE__" >/dev/null 2>&1; then
   docker pull "__JOB_CONTAINER_IMAGE__" || true

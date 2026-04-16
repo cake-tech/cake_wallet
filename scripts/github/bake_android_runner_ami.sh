@@ -132,8 +132,22 @@ exec > >(tee -a /var/log/cake-wallet-runner-bake.log) 2>&1
 
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update
-apt-get install -y docker.io qemu-system-x86 jq curl unzip ca-certificates git
+retry() {
+  local attempts="$1"
+  shift
+
+  local attempt=1
+  until "$@"; do
+    if (( attempt >= attempts )); then
+      return 1
+    fi
+    sleep $(( attempt * 5 ))
+    attempt=$(( attempt + 1 ))
+  done
+}
+
+retry 5 apt-get update
+retry 5 apt-get install -y docker.io qemu-system-x86 jq curl unzip ca-certificates git
 
 systemctl enable --now docker
 usermod -aG docker,kvm ubuntu || true
