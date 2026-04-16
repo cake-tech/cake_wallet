@@ -93,46 +93,46 @@ jobs:
           cp lib/.secrets.g.dart lib/.secrets.base.g.dart
 
           if [[ -n "${{ secrets.MAIN_SECRETS_FILE }}" ]]; then
-            echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.overlay.g.dart
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.overlay.g.dart
 
-            python3 - <<'PY'
-from pathlib import Path
-import re
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
 
-base_path = Path("lib/.secrets.base.g.dart")
-overlay_path = Path("lib/.secrets.overlay.g.dart")
-output_path = Path("lib/.secrets.g.dart")
+          base_path = Path("lib/.secrets.base.g.dart")
+          overlay_path = Path("lib/.secrets.overlay.g.dart")
+          output_path = Path("lib/.secrets.g.dart")
 
-const_pattern = re.compile(r"^const\\s+([A-Za-z0-9_]+)\\s*=.*;$")
+          const_pattern = re.compile(r"^const\\s+([A-Za-z0-9_]+)\\s*=.*;$")
 
-base_lines = base_path.read_text().splitlines()
-overlay_lines = overlay_path.read_text().splitlines()
+          base_lines = base_path.read_text().splitlines()
+          overlay_lines = overlay_path.read_text().splitlines()
 
-overlay_by_name = {}
-for line in overlay_lines:
-    match = const_pattern.match(line.strip())
-    if match:
-        overlay_by_name[match.group(1)] = line
+          overlay_by_name = {}
+          for line in overlay_lines:
+              match = const_pattern.match(line.strip())
+              if match:
+                  overlay_by_name[match.group(1)] = line
 
-merged_lines = []
-seen = set()
-for line in base_lines:
-    match = const_pattern.match(line.strip())
-    if not match:
-        merged_lines.append(line)
-        continue
+          merged_lines = []
+          seen = set()
+          for line in base_lines:
+              match = const_pattern.match(line.strip())
+              if not match:
+                  merged_lines.append(line)
+                  continue
 
-    name = match.group(1)
-    merged_lines.append(overlay_by_name.get(name, line))
-    seen.add(name)
+              name = match.group(1)
+              merged_lines.append(overlay_by_name.get(name, line))
+              seen.add(name)
 
-for line in overlay_lines:
-    match = const_pattern.match(line.strip())
-    if match and match.group(1) not in seen:
-        merged_lines.append(line)
+          for line in overlay_lines:
+              match = const_pattern.match(line.strip())
+              if match and match.group(1) not in seen:
+                  merged_lines.append(line)
 
-output_path.write_text("\\n".join(merged_lines) + "\\n")
-PY
+          output_path.write_text("\\n".join(merged_lines) + "\\n")
+          PY
           else
             mv lib/.secrets.base.g.dart lib/.secrets.g.dart
           fi
