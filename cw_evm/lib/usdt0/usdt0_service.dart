@@ -1,3 +1,4 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_evm/contract/erc20.dart';
@@ -80,11 +81,9 @@ class USDT0Service {
           );
 
           final pendingApproval = await wallet.createApprovalTransaction(
-            maxUint,
+            Money(maxUint,token),
             adapter,
-            token,
             priority,
-            EVMChainUtils.getFeeCurrency(wallet.selectedChainId),
             useBlinkProtection: useBlinkProtection,
           );
           await pendingApproval.commit();
@@ -116,7 +115,7 @@ class USDT0Service {
     return wallet.createCallDataTransaction(
       oftAddress,
       encoded.dataHex,
-      encoded.valueWei,
+      Money(encoded.valueWei, token),
       priority,
       token.contractAddress,
       amount,
