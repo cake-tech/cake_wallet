@@ -24,10 +24,6 @@ build() {
   if [[ "x$CW_DOCKER_PULL_FROM_CLOUD" == "xtrue" ]]
   then
     set +e
-    docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | \
-      grep "^${CW_DOCKER_REGISTRY}:android-deps-" | \
-      awk '{print $2}' | \
-      xargs -r docker rmi
     docker pull "$CW_DOCKER_REGISTRY:android-deps-${name}-$(tinysha "$SCRIPT_DIR/Dockerfile.${name}")-${version}"
     set -e
   fi
