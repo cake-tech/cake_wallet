@@ -108,7 +108,8 @@ jobs:
         run: |
           env \
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
-            CW_DOCKER_USE_CLOUD=true \
+            CW_DOCKER_PULL_FROM_CLOUD=true \
+            CW_DOCKER_PUSH_TO_CLOUD=${{ github.repository == 'cake-tech/cake_wallet' && 'true' || 'false' }} \
             ./scripts/android/docker/build.sh
 
       - name: Execute Build and Setup Commands

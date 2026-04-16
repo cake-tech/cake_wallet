@@ -4,6 +4,8 @@ cd "$(dirname $0)"
 
 CW_DOCKER_REGISTRY="${CW_DOCKER_REGISTRY:-localhost/cake-tech/cake_wallet}"
 CW_DOCKER_USE_CLOUD="${CW_DOCKER_USE_CLOUD:-}"
+CW_DOCKER_PULL_FROM_CLOUD="${CW_DOCKER_PULL_FROM_CLOUD:-$CW_DOCKER_USE_CLOUD}"
+CW_DOCKER_PUSH_TO_CLOUD="${CW_DOCKER_PUSH_TO_CLOUD:-$CW_DOCKER_USE_CLOUD}"
 
 SCRIPT_DIR="$(pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
@@ -19,7 +21,7 @@ tinysha() {
 build() {
   local name="$1"; shift
   local version=$1; shift
-  if [[ "x$CW_DOCKER_USE_CLOUD" == "xtrue" ]]
+  if [[ "x$CW_DOCKER_PULL_FROM_CLOUD" == "xtrue" ]]
   then
     set +e
     docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | \
@@ -40,7 +42,7 @@ build() {
     --tag      "$CW_DOCKER_REGISTRY:android-deps-${name}-$(tinysha "$SCRIPT_DIR/Dockerfile.${name}")-${version}" \
     "$@" \
     "$REPO_ROOT"
-  if [[ "x$CW_DOCKER_USE_CLOUD" == "xtrue" ]]
+  if [[ "x$CW_DOCKER_PUSH_TO_CLOUD" == "xtrue" ]]
   then
     docker push "$CW_DOCKER_REGISTRY:android-deps-${name}-$(tinysha "$SCRIPT_DIR/Dockerfile.${name}")-${version}"
   fi
