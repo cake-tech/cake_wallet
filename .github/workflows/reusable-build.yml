@@ -263,6 +263,8 @@ jobs:
         run: echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
       - name: Upload to slack step
+        if: ${{ secrets.SLACK_APP_TOKEN != '' && secrets.SLACK_APK_CHANNEL != '' }}
+        continue-on-error: true
         uses: vaporif/slack-file-upload-action@v1
         with:
           token: ${{ secrets.SLACK_APP_TOKEN }}
