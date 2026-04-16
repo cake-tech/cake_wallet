@@ -127,7 +127,13 @@ SECURITY_GROUP_ID="${SECURITY_GROUP_ID:-$(
     --output text
 )}"
 
-RUNNER_NAME="${RUNNER_NAME:-cake-android-$(date -u +%Y%m%d-%H%M%S)}"
+if [[ -n "${EPHEMERAL_RUNNER_NAME:-}" ]]; then
+  RUNNER_NAME="$EPHEMERAL_RUNNER_NAME"
+elif [[ -n "${RUNNER_NAME:-}" && -z "${GITHUB_ACTIONS:-}" ]]; then
+  RUNNER_NAME="$RUNNER_NAME"
+else
+  RUNNER_NAME="cake-android-$(date -u +%Y%m%d-%H%M%S)"
+fi
 RUNNER_TOKEN="$(
   gh api -X POST "repos/${REPO}/actions/runners/registration-token" --jq .token
 )"
