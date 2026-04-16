@@ -70,13 +70,27 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
+          import secrets
 
           secret_keys = list(dict.fromkeys(name.strip() for name in re.findall(
               r"SecretKey\('([^']+)'",
               Path("tool/utils/secret_key.dart").read_text(),
           )))
+          generated_hex_lengths = {
+              "salt": 16,
+              "keychainSalt": 12,
+              "key": 16,
+              "walletSalt": 4,
+              "shortKey": 12,
+              "backupSalt": 8,
+              "backupKeychainSalt": 12,
+              "walletGroupSalt": 16,
+          }
           Path("lib/.secrets.g.dart").write_text(
-              "".join(f"const {key} = '';\n" for key in secret_keys),
+              "".join(
+                  f"const {key} = '{secrets.token_hex(generated_hex_lengths[key]) if key in generated_hex_lengths else ''}';\n"
+                  for key in secret_keys
+              ),
           )
           PY
           fi
