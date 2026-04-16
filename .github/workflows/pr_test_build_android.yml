@@ -2,6 +2,9 @@ name: Cake Wallet Android
 
 on:
   pull_request:
+  push:
+    branches:
+      - feat/starknet
 
 permissions:
   contents: read
@@ -9,14 +12,17 @@ permissions:
 
 jobs:
   # -----------------------------------------
-  # PATH A: Internal PRs
+  # PATH A: Internal PRs + branch push builds
   internal-build:
     if: >
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.fork == false
+      github.event_name == 'push' ||
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.fork == false
+      )
     uses: ./.github/workflows/reusable-build.yml
     with:
-      ref: ${{ github.event.pull_request.head.sha }}
+      ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
       pr_number: ${{ github.head_ref || github.ref_name }}
     secrets: inherit
 
