@@ -23,7 +23,15 @@ need gh
 need python3
 
 aws sts get-caller-identity >/dev/null
-gh auth status >/dev/null
+
+GH_AUTH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+if [[ -n "$GH_AUTH_TOKEN" ]]; then
+  export GH_TOKEN="$GH_AUTH_TOKEN"
+else
+  gh auth status >/dev/null
+fi
+
+BOOTSTRAP_IAM="${BOOTSTRAP_IAM:-true}"
 
 TRUST_FILE="$(mktemp)"
 cat >"$TRUST_FILE" <<'JSON'
@@ -46,33 +54,35 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! aws iam get-role --role-name "$ROLE_NAME" >/dev/null 2>&1; then
-  aws iam create-role \
+if [[ "$BOOTSTRAP_IAM" == "true" ]]; then
+  if ! aws iam get-role --role-name "$ROLE_NAME" >/dev/null 2>&1; then
+    aws iam create-role \
+      --role-name "$ROLE_NAME" \
+      --assume-role-policy-document "file://${TRUST_FILE}" \
+      >/dev/null
+  fi
+
+  aws iam attach-role-policy \
     --role-name "$ROLE_NAME" \
-    --assume-role-policy-document "file://${TRUST_FILE}" \
+    --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore \
     >/dev/null
-fi
 
-aws iam attach-role-policy \
-  --role-name "$ROLE_NAME" \
-  --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore \
-  >/dev/null
+  if ! aws iam get-instance-profile --instance-profile-name "$PROFILE_NAME" >/dev/null 2>&1; then
+    aws iam create-instance-profile --instance-profile-name "$PROFILE_NAME" >/dev/null
+  fi
 
-if ! aws iam get-instance-profile --instance-profile-name "$PROFILE_NAME" >/dev/null 2>&1; then
-  aws iam create-instance-profile --instance-profile-name "$PROFILE_NAME" >/dev/null
-fi
-
-if ! aws iam get-instance-profile \
-  --instance-profile-name "$PROFILE_NAME" \
-  --query 'InstanceProfile.Roles[].RoleName' \
-  --output text | tr '\t' '\n' | grep -qx "$ROLE_NAME"; then
-  aws iam add-role-to-instance-profile \
+  if ! aws iam get-instance-profile \
     --instance-profile-name "$PROFILE_NAME" \
-    --role-name "$ROLE_NAME" \
-    >/dev/null || true
-fi
+    --query 'InstanceProfile.Roles[].RoleName' \
+    --output text | tr '\t' '\n' | grep -qx "$ROLE_NAME"; then
+    aws iam add-role-to-instance-profile \
+      --instance-profile-name "$PROFILE_NAME" \
+      --role-name "$ROLE_NAME" \
+      >/dev/null || true
+  fi
 
-aws iam wait instance-profile-exists --instance-profile-name "$PROFILE_NAME"
+  aws iam wait instance-profile-exists --instance-profile-name "$PROFILE_NAME"
+fi
 
 AMI_ID="$(
   aws ssm get-parameter \

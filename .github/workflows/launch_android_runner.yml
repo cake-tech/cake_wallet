@@ -1,0 +1,39 @@
+name: Launch Android Runner
+
+on:
+  push:
+    branches:
+      - feat/starknet
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  launch-runner:
+    if: github.repository == 'adrienlacombe/cake_wallet'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::905846953990:role/cake-wallet-gh-runner-launcher
+
+      - name: Launch ephemeral Android runner
+        env:
+          BOOTSTRAP_IAM: "false"
+          GH_TOKEN: ${{ secrets.RUNNER_ADMIN_TOKEN }}
+          PRIVATE_SUBNET_TAG_NAME: cake-wallet-gh-runner-private-us-east-1d
+          PROFILE_NAME: cake-wallet-gh-runner-ssm
+          REPO: ${{ github.repository }}
+          REGION: us-east-1
+          ROLE_NAME: cake-wallet-gh-runner-ssm
+          RUNNER_NAME: cake-android-${{ github.run_id }}
+        run: ./scripts/github/provision_ephemeral_android_runner.sh
