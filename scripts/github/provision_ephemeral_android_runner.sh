@@ -144,10 +144,10 @@ runcmd:
     Type=simple
     User=ubuntu
     WorkingDirectory=/home/ubuntu/actions-runner
-    ExecStart=/home/ubuntu/actions-runner/runsvc.sh
+    ExecStart=/home/ubuntu/actions-runner/run.sh
     Restart=no
     TimeoutStopSec=300
-    ExecStopPost=/usr/sbin/shutdown -h now
+    ExecStopPost=/usr/bin/sudo -n shutdown -h now
 
     [Install]
     WantedBy=multi-user.target
