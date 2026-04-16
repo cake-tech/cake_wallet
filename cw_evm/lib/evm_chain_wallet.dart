@@ -1262,10 +1262,23 @@ abstract class EVMChainWalletBase
       } else if (newTxInfo.direction == TransactionDirection.incoming &&
           existingTxInfo.direction == TransactionDirection.outgoing) {
         result[transactionModel.hash] = newTxInfo;
+      } 
+      
+      else if (newTxInfo.direction == TransactionDirection.outgoing &&
+          existingTxInfo.direction == TransactionDirection.outgoing &&
+          _hasEvmTokenContractAddress(newTxInfo) &&
+          !_hasEvmTokenContractAddress(existingTxInfo)) {
+        result[transactionModel.hash] = newTxInfo;
       }
     }
 
     return result;
+  }
+
+
+  bool _hasEvmTokenContractAddress(EVMChainTransactionInfo info) {
+    final c = info.contractAddress;
+    return c != null && c.isNotEmpty;
   }
 
   String? analyzeTransaction(String? transactionInput) {

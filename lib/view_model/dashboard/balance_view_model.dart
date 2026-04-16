@@ -489,6 +489,10 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get combinedFiatBalance {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return "●●●●●";
+    }
+
     double ret = 0.0;
     for(final record in balances.values) {
       printV(record.fiatAvailableBalanceRaw);

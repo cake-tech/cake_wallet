@@ -397,7 +397,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String get _explorerUrl {
 
-    final txId = transactionInfo.id;
+    final txId = transactionInfo.txHash;
     if (wallet.chainId != null) {
       final explorerUrl = evm!.getExplorerUrlForChainId(wallet.chainId!);
       if (explorerUrl != null) return '$explorerUrl/tx/${txId}';

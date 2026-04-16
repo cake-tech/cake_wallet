@@ -23,6 +23,7 @@ class NewSendAddressInput extends StatefulWidget {
     this.validator,
     this.focusNode,
     this.displayName,
+    this.hintText,
   });
 
   final TextEditingController addressController;
@@ -36,7 +37,8 @@ class NewSendAddressInput extends StatefulWidget {
   final bool bottomPadding;
   final FormFieldValidator<String>? validator;
   final FocusNode? focusNode;
-
+  final String? hintText;
+  
   @override
   State<NewSendAddressInput> createState() => _NewSendAddressInputState();
 }
@@ -96,7 +98,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                           },
                           controller: widget.addressController,
                           decoration: InputDecoration(
-                            hintText: S.of(context).search_or_enter,
+                            hintText: widget.hintText ?? S.of(context).search_or_enter,
                             errorMaxLines: 3,
                           ),
                         ),
