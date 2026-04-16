@@ -71,7 +71,7 @@ jobs:
           from pathlib import Path
           import re
 
-          secret_keys = list(dict.fromkeys(re.findall(
+          secret_keys = list(dict.fromkeys(name.strip() for name in re.findall(
               r"SecretKey\('([^']+)'",
               Path("tool/utils/secret_key.dart").read_text(),
           )))
