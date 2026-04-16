@@ -192,7 +192,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
-        'markup': int.tryParse(markup.toString()) ?? 0,
+        'markup': double.tryParse(markup.toString()) ?? 0,
         'refund_address': request.refundAddress,
       };
 
