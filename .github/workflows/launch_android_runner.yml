@@ -36,4 +36,5 @@ jobs:
           REPO: ${{ github.repository }}
           REGION: us-east-1
           ROLE_NAME: cake-wallet-gh-runner-ssm
+          RUNNER_AMI_PARAMETER_NAME: /cake-wallet/github-runners/android/ami-id
         run: ./scripts/github/provision_ephemeral_android_runner.sh
