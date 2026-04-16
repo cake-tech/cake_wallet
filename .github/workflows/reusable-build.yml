@@ -66,12 +66,29 @@ jobs:
 
       - name: Add secrets
         run: |
-          touch cw_bitcoin/lib/.secrets.g.dart
-          touch cw_evm/lib/.secrets.g.dart
-          touch cw_solana/lib/.secrets.g.dart
-          touch cw_core/lib/.secrets.g.dart
-          touch cw_nano/lib/.secrets.g.dart
-          touch cw_tron/lib/.secrets.g.dart
+          if [[ ! -f lib/.secrets.g.dart ]]; then
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          secret_keys = re.findall(
+              r"SecretKey\('([^']+)'",
+              Path("tool/utils/secret_key.dart").read_text(),
+          )
+          Path("lib/.secrets.g.dart").write_text(
+              "".join(f"const {key} = '';\\n" for key in secret_keys),
+          )
+          PY
+          fi
+
+          cp lib/.secrets.g.dart lib/.secrets.base.g.dart
+
+          : > cw_bitcoin/lib/.secrets.g.dart
+          : > cw_evm/lib/.secrets.g.dart
+          : > cw_solana/lib/.secrets.g.dart
+          : > cw_core/lib/.secrets.g.dart
+          : > cw_nano/lib/.secrets.g.dart
+          : > cw_tron/lib/.secrets.g.dart
 
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
@@ -89,8 +106,6 @@ jobs:
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
 
           echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
-
-          cp lib/.secrets.g.dart lib/.secrets.base.g.dart
 
           if [[ -n "${{ secrets.MAIN_SECRETS_FILE }}" ]]; then
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.overlay.g.dart
