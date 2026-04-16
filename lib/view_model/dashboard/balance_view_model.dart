@@ -14,7 +14,6 @@ import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -489,6 +488,10 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get combinedFiatBalance {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return "●●●●●";
+    }
+
     double ret = 0.0;
     for(final record in balances.values) {
       printV(record.fiatAvailableBalanceRaw);

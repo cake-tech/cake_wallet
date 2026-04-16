@@ -13,6 +13,13 @@ class ArbitrumTokens {
         enabled: true,
       ),
       Erc20Token(
+        name: "Tether USD (Omnichain)",
+        symbol: "USDT",
+        contractAddress: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        decimal: 6,
+        enabled: true,
+      ),
+      Erc20Token(
         name: "USD Coin",
         symbol: "USDC",
         contractAddress: "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
@@ -68,8 +75,7 @@ class ArbitrumTokens {
       if (token.iconPath?.isEmpty ?? true) {
         try {
           iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.toUpperCase())
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
               .iconPath;
         } catch (_) {}
       } else {
@@ -80,4 +86,3 @@ class ArbitrumTokens {
     }).toList();
   }
 }
-

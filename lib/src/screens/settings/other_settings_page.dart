@@ -145,8 +145,7 @@ class OtherSettingsPage extends BasePage {
                 Navigator.of(context).pushNamed(Routes.signPage);
               }),
         ],
-        "dev": [
-          if (_otherSettingsViewModel.walletType == WalletType.bitcoin) ...[
+        if (_otherSettingsViewModel.walletType == WalletType.bitcoin) "btc_logging": [
             ListItemRegularRow(
                 keyValue: "export_lightning_logs",
                 label: S.of(context).export_lightning_logs,
@@ -155,21 +154,20 @@ class OtherSettingsPage extends BasePage {
                 keyValue: "export_payjoin_logs",
                 label: S.of(context).export_payjoin_logs,
                 onTap: () => onExportPJLog(context)),
-          ],
-          if (FeatureFlag.hasDevOptions && _otherSettingsViewModel.walletType == WalletType.monero)
+        ],
+        "dev": FeatureFlag.hasDevOptions == false ? [] : [
+          if (_otherSettingsViewModel.walletType == WalletType.monero)
             ListItemRegularRow(
                 keyValue: "[dev] monero background sync",
                 label: "[dev] monero background sync",
                 onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync)),
-          if (FeatureFlag.hasDevOptions &&
-              [WalletType.monero, WalletType.wownero, WalletType.zano]
+          if ([WalletType.monero, WalletType.wownero, WalletType.zano]
                   .contains(_otherSettingsViewModel.walletType))
             ListItemRegularRow(
                 keyValue: "[dev] xmr call profiler",
                 label: "[dev] xmr call profiler",
                 onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler)),
-          if (FeatureFlag.hasDevOptions &&
-              [WalletType.monero].contains(_otherSettingsViewModel.walletType))
+          if ([WalletType.monero].contains(_otherSettingsViewModel.walletType))
             ListItemRegularRow(
                 keyValue: '[dev] xmr wallet cache debug',
                 label: '[dev] xmr wallet cache debug',
