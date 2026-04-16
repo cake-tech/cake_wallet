@@ -9,6 +9,7 @@ RUNNER_LABELS="${RUNNER_LABELS:-amd64,android}"
 ROLE_NAME="${ROLE_NAME:-cake-wallet-gh-runner-ssm}"
 PROFILE_NAME="${PROFILE_NAME:-cake-wallet-gh-runner-ssm}"
 RUNNER_GROUP="${RUNNER_GROUP:-Default}"
+PRIVATE_SUBNET_TAG_NAME="${PRIVATE_SUBNET_TAG_NAME:-cake-wallet-gh-runner-private-us-east-1d}"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -82,11 +83,22 @@ AMI_ID="$(
 )"
 
 SUBNET_ID="${SUBNET_ID:-$(
-  aws ec2 describe-subnets \
-    --region "$REGION" \
-    --filters Name=default-for-az,Values=true \
-    --query 'Subnets[0].SubnetId' \
-    --output text
+  PRIVATE_SUBNET_ID="$(
+    aws ec2 describe-subnets \
+      --region "$REGION" \
+      --filters Name=tag:Name,Values="$PRIVATE_SUBNET_TAG_NAME" \
+      --query 'Subnets[0].SubnetId' \
+      --output text 2>/dev/null || true
+  )"
+  if [[ -n "$PRIVATE_SUBNET_ID" && "$PRIVATE_SUBNET_ID" != "None" ]]; then
+    printf '%s\n' "$PRIVATE_SUBNET_ID"
+  else
+    aws ec2 describe-subnets \
+      --region "$REGION" \
+      --filters Name=default-for-az,Values=true \
+      --query 'Subnets[0].SubnetId' \
+      --output text
+  fi
 )}"
 
 VPC_ID="$(
