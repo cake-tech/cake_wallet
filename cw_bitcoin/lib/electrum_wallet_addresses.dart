@@ -291,7 +291,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   String get payjoinCompatibleAddress {
-    final addrType = (addressPageType == SilentPaymentsAddresType.p2sp || addressPageType == LightningAddressType.p2l) ? P2pkhAddressType.p2pkh : addressPageType;
+    final addrType = (addressPageType == SilentPaymentsAddresType.p2sp ||
+            addressPageType == LightningAddressType.p2l)
+        ? SegwitAddresType.p2wpkh
+        : addressPageType;
 
     final mainHd = mainHdByType[addrType] ?? mainHdByType.values.first;
     return getAddress(index: 0, hd: mainHd, addressType: addressPageType);
