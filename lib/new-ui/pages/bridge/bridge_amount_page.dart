@@ -157,14 +157,15 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                         RegExp(r'^\d*[.,]?\d*$'),
                                       ),
                                     ],
-                                    textAlign: TextAlign.center,
                                     decoration: InputDecoration(
                                       isDense: true,
+                                      isCollapsed: true,
+                                      contentPadding: EdgeInsets.zero,
                                       fillColor: Colors.transparent,
                                       hoverColor: Colors.transparent,
                                       focusedBorder: InputBorder.none,
                                       enabledBorder: InputBorder.none,
-                                      hintText: _amountFocused && _amountController.text.isNotEmpty ? "" : "0.00",
+                                      hintText: _amountFocused || _amountController.text.isNotEmpty ? null : "0.00",
                                       hintStyle: theme.textTheme.displayMedium?.copyWith(
                                         fontWeight: FontWeight.w400,
                                         color: theme.colorScheme.onSurfaceVariant,
