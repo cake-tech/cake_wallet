@@ -4,22 +4,14 @@
   is_default: true
   isEnabledForAutoSwitching: true
 -
-  uri: starknet.api.onfinality.io/public
-  useSSL: true
-  isEnabledForAutoSwitching: true
--
-  uri: starknet-mainnet.public.blastapi.io/rpc/v0_7
-  useSSL: true
-  isEnabledForAutoSwitching: true
--
-  uri: free-rpc.nethermind.io/mainnet-juno/v0_7
-  useSSL: true
-  isEnabledForAutoSwitching: true
--
   uri: rpc.starknet.lava.build
   useSSL: true
   isEnabledForAutoSwitching: true
 -
-  uri: starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_7
+  uri: starknet-rpc.publicnode.com
   useSSL: true
-  isEnabledForAutoSwitching: false
+  isEnabledForAutoSwitching: true
+-
+  uri: starknet.drpc.org
+  useSSL: true
+  isEnabledForAutoSwitching: true

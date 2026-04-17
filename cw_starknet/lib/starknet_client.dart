@@ -118,11 +118,6 @@ class StarknetTransactionDetails {
 
 class StarknetWalletClient {
   static const String mainnetChainIdHex = '0x534e5f4d41494e';
-  static const List<String> _fallbackNodeUrls = [
-    'https://starknet.api.onfinality.io/public',
-    'https://api.cartridge.gg/x/starknet/mainnet',
-  ];
-
   String? _nodeUrl;
   String? _accountPrivateKeyHex;
   String? _accountAddressHex;
@@ -195,7 +190,7 @@ class StarknetWalletClient {
   }) async {
     await ensureStarknetRustInitialized();
 
-    final balanceWei = await _withFallbackNodeUrls(
+    final balanceWei = await _withNodeUrl(
       (nodeUrl) async {
         final response = await rust_api.getTokenBalance(
           nodeUrl: nodeUrl,
@@ -216,7 +211,7 @@ class StarknetWalletClient {
     String tokenAddressHex,
   ) async {
     await ensureStarknetRustInitialized();
-    return _withFallbackNodeUrls(
+    return _withNodeUrl(
       (nodeUrl) async {
         final response = await rust_api.getTokenMetadata(
           nodeUrl: nodeUrl,
@@ -235,7 +230,7 @@ class StarknetWalletClient {
   }) async {
     await ensureStarknetRustInitialized();
 
-    return _withFallbackNodeUrls(
+    return _withNodeUrl(
       (nodeUrl) async {
         final response = await rust_api.estimateExecuteFee(
           nodeUrl: nodeUrl,
@@ -260,7 +255,7 @@ class StarknetWalletClient {
   }) async {
     await ensureStarknetRustInitialized();
 
-    return _withFallbackNodeUrls(
+    return _withNodeUrl(
       (nodeUrl) async {
         final response = await rust_api.estimateExecuteFeeExternalSigner(
           nodeUrl: nodeUrl,
@@ -298,7 +293,7 @@ class StarknetWalletClient {
       feeWei: feeWei,
       sendTransaction: () async {
         await ensureStarknetRustInitialized();
-        return _withFallbackNodeUrls(
+        return _withNodeUrl(
           (nodeUrl) async {
             final response = await rust_api.executeCalls(
               nodeUrl: nodeUrl,
@@ -341,7 +336,7 @@ class StarknetWalletClient {
       feeWei: feeWei,
       sendTransaction: () async {
         await ensureStarknetRustInitialized();
-        return _withFallbackNodeUrls(
+        return _withNodeUrl(
           (nodeUrl) async {
             final hashesResponse = await rust_api.getExecuteTransactionHashesExternalSigner(
               nodeUrl: nodeUrl,
@@ -448,7 +443,7 @@ class StarknetWalletClient {
     final accountAddressHex = _requireAccountAddress();
     final publicKeyHex = _requirePublicKey();
 
-    final executionPlan = await _withFallbackNodeUrls(
+    final executionPlan = await _withNodeUrl(
       (nodeUrl) async {
         final response = await rust_api.getExecuteTransactionHashesExternalSigner(
           nodeUrl: nodeUrl,
@@ -496,7 +491,7 @@ class StarknetWalletClient {
 
     try {
       await ensureStarknetRustInitialized();
-      final items = await _withFallbackNodeUrls(
+      final items = await _withNodeUrl(
         (nodeUrl) async {
           final response = await rust_api.fetchTransferHistory(
             nodeUrl: nodeUrl,
@@ -543,7 +538,7 @@ class StarknetWalletClient {
 
     try {
       await ensureStarknetRustInitialized();
-      return _withFallbackNodeUrls(
+      return _withNodeUrl(
         (nodeUrl) async {
           final response = await rust_api.getTransactionDetails(
             nodeUrl: nodeUrl,
@@ -614,7 +609,7 @@ class StarknetWalletClient {
 
     try {
       await ensureStarknetRustInitialized();
-      return _withFallbackNodeUrls(
+      return _withNodeUrl(
         (nodeUrl) async {
           final response = await rust_api.getBlockNumber(nodeUrl: nodeUrl);
           return unwrapI64Response(response);
@@ -640,7 +635,7 @@ class StarknetWalletClient {
       throw Exception('Missing Starknet invoke signature in UR response');
     }
 
-    return _withFallbackNodeUrls(
+    return _withNodeUrl(
       (nodeUrl) async {
         final response = await rust_api.executeCallsExternalSigner(
           nodeUrl: nodeUrl,
@@ -753,34 +748,8 @@ class StarknetWalletClient {
     return result;
   }
 
-  Future<T> _withFallbackNodeUrls<T>(
+  Future<T> _withNodeUrl<T>(
     Future<T> Function(String nodeUrl) action,
-  ) async {
-    final attemptedErrors = <String>[];
-
-    for (final nodeUrl in _candidateNodeUrls()) {
-      try {
-        final result = await action(nodeUrl);
-        if (_nodeUrl != nodeUrl) {
-          printV('Promoting Starknet RPC endpoint to $nodeUrl');
-          _nodeUrl = nodeUrl;
-        }
-        return result;
-      } catch (error) {
-        attemptedErrors.add('$nodeUrl -> $error');
-      }
-    }
-
-    throw Exception('All Starknet RPC endpoints failed: ${attemptedErrors.join(' | ')}');
-  }
-
-  List<String> _candidateNodeUrls() {
-    final urls = <String>[
-      _requireNodeUrl(),
-      ..._fallbackNodeUrls,
-    ];
-
-    final seen = <String>{};
-    return urls.where((url) => seen.add(url)).toList();
-  }
+  ) =>
+      action(_requireNodeUrl());
 }
