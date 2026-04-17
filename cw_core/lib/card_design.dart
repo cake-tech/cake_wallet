@@ -614,9 +614,11 @@ class CardDesign {
     }
 
     if (setting.isGradientOnly) {
-      return gradientOnlyDesign.withGradient(
-        gradientForStoredIndex(setting.gradientIndex, walletCurrency),
-      );
+      final gradient = gradientForStoredIndex(setting.gradientIndex, walletCurrency);
+      final textColors = preferredColorCombinations[gradient]
+          ?? specialDesignsForCurrencies[walletCurrency]?.colors
+          ?? gradientOnlyDesign.colors;
+      return gradientOnlyDesign.withGradientAndColorCombination(gradient, textColors);
     }
 
     if (setting.backgroundImagePath.isNotEmpty) {
@@ -646,11 +648,12 @@ class CardDesign {
     }
     if (setting.gradientIndex != -1) {
       final baseIcon = CardDesign.forCurrencyIcon(walletCurrency);
-      final withGradient = baseIcon.withGradient(
-        gradientForStoredIndex(setting.gradientIndex, walletCurrency),
-      );
+      final gradient = gradientForStoredIndex(setting.gradientIndex, walletCurrency);
+      final textColors = preferredColorCombinations[gradient]
+          ?? specialDesignsForCurrencies[walletCurrency]?.colors
+          ?? baseIcon.colors;
       return _applyIconStyleIndex(
-        withGradient,
+        baseIcon.withGradientAndColorCombination(gradient, textColors),
         setting.iconStyleIndex,
         walletCurrency,
       );

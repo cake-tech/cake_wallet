@@ -26,8 +26,18 @@ sealed class CardCustomizerState {
   });
 
   CardDesign get selectedDesign {
-    var design = availableDesigns[selectedDesignIndex]
-        .withGradient(selectedColor);
+    final gradient = selectedColor;
+    final baseDesign = availableDesigns[selectedDesignIndex];
+
+    CardDesign design;
+    if (CardDesign.preferredColorCombinations.containsKey(gradient)) {
+      design = baseDesign.withGradient(gradient);
+    } else {
+      final specialDesign = availableDesigns.length > 2 ? availableDesigns.last : null;
+      final textColors = specialDesign?.colors ?? baseDesign.colors;
+      design = baseDesign.withGradientAndColorCombination(gradient, textColors);
+    }
+
     if (design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
         availableIconPaths.isNotEmpty) {
       final clamped = selectedIconIndex.clamp(
