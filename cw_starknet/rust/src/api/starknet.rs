@@ -1540,6 +1540,7 @@ where
 }
 
 fn make_provider(node_url: &str) -> ApiResult<JsonRpcClient<HttpTransport>> {
+    crate::ensure_crypto_provider();
     let url = Url::parse(node_url).map_err(|err| format!("Invalid Starknet node URL: {err}"))?;
     Ok(JsonRpcClient::new(HttpTransport::new(url)))
 }

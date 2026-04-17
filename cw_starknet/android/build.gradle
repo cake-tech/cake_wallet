@@ -15,10 +15,16 @@ buildscript {
     }
 }
 
+import groovy.json.JsonSlurper
+
 rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = findRustlsPlatformVerifierRepo()
+            metadataSources.artifact()
+        }
     }
 }
 
@@ -49,8 +55,23 @@ android {
     }
 }
 
+dependencies {
+    implementation "rustls:rustls-platform-verifier:latest.release"
+}
+
 apply from: "../cargokit/gradle/plugin.gradle"
 cargokit {
     manifestDir = "../rust"
     libname = "cw_starknet_rust"
+}
+
+String findRustlsPlatformVerifierRepo() {
+    def dependencyText = providers.exec {
+        it.workingDir = new File("$projectDir/../rust")
+        it.commandLine("cargo", "metadata", "--format-version", "1", "--filter-platform", "aarch64-linux-android")
+    }.standardOutput.asText.get()
+
+    def dependencyJson = new JsonSlurper().parseText(dependencyText)
+    def manifestPath = file(dependencyJson.packages.find { it.name == "rustls-platform-verifier-android" }.manifest_path)
+    return new File(manifestPath.parentFile, "maven").path
 }

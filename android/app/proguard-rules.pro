@@ -9,6 +9,10 @@
 -dontwarn com.google.android.play.core.splitcompat.SplitCompatApplication
 -dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
 
+## Starknet JNI + rustls-platform-verifier
+-keep, includedescriptorclasses class com.cakewallet.cake_wallet.StarknetRust { *; }
+-keep, includedescriptorclasses class org.rustls.platformverifier.** { *; }
+
 # start reown
 -dontwarn com.github.luben.zstd.BufferPool
 -dontwarn com.github.luben.zstd.ZstdInputStream
