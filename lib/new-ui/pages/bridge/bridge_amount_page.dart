@@ -273,7 +273,6 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                     iconColor: theme.colorScheme.onPrimary,
                                     icon: Icon(Icons.arrow_forward, size: 20),
                                     onPressed: () {
-                                      _amountController.clear();
                                       Navigator.pushNamed(
                                           context, Routes.bridgeDestinationNetworkPage,
                                           arguments: bridgeViewModel);
