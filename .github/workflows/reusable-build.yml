@@ -32,6 +32,7 @@ jobs:
         MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         ANDROID_AVD_HOME: /root/.android/avd
+        CARGO_TARGET_DIR: /root/.cache/cargo-target
       volumes:
         - /opt/cw_cache_android/root/.cache:/root/.cache
         - /opt/cw_cache_android/root/.android/avd/:/root/.android/avd
@@ -40,6 +41,7 @@ jobs:
         - /opt/cw_cache_android/root/.gradle/:/root/.gradle
         - /opt/cw_cache_android/root/.android/:/root/.android
         - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
+        - /opt/cw_cache_android/root/.cargo/:/root/.cargo
         - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
         - /dev/kvm:/dev/kvm
         - /var/run/docker.sock:/var/run/docker.sock
@@ -193,10 +195,12 @@ jobs:
 
       - name: Build dependencies utilizing ghcr cache
         run: |
+          repo_owner_lc=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           env \
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
+            CW_DOCKER_PUSH_REGISTRY=ghcr.io/${repo_owner_lc}/cake_wallet \
             CW_DOCKER_PULL_FROM_CLOUD=true \
-            CW_DOCKER_PUSH_TO_CLOUD=${{ github.repository == 'cake-tech/cake_wallet' && 'true' || 'false' }} \
+            CW_DOCKER_PUSH_TO_CLOUD=true \
             ./scripts/android/docker/build.sh
 
       - name: Execute Build and Setup Commands
