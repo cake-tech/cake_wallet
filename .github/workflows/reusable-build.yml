@@ -41,7 +41,8 @@ jobs:
         - /opt/cw_cache_android/root/.gradle/:/root/.gradle
         - /opt/cw_cache_android/root/.android/:/root/.android
         - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
-        - /opt/cw_cache_android/root/.cargo/:/root/.cargo
+        - /opt/cw_cache_android/root/.cargo-registry:/root/.cargo/registry
+        - /opt/cw_cache_android/root/.cargo-git:/root/.cargo/git
         - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
         - /dev/kvm:/dev/kvm
         - /var/run/docker.sock:/var/run/docker.sock
