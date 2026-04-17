@@ -15,6 +15,9 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +81,8 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
     _autoSelectToken();
   }
 
-  bool get _isNetworkSelectable => widget.fixedNetwork == null || isEVMCompatibleChain(widget.fixedNetwork!);
+  bool get _isNetworkSelectable =>
+      widget.fixedNetwork == null || isEVMCompatibleChain(widget.fixedNetwork!);
 
   Future<void> _autoSelectToken() async {
     if (selectedNetwork == null) return;
@@ -102,7 +106,11 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
       }
 
       setState(() {
-        selectedToken = tokens.first;
+        selectedToken = tokens.firstWhere((e) {
+          return (e is Erc20Token && e.contractAddress == widget.paymentRequest.contractAddress) ||
+              (e is SPLToken && e.mintAddress == widget.paymentRequest.contractAddress) ||
+              (e is TronToken && e.contractAddress == widget.paymentRequest.contractAddress);
+        }, orElse: () => tokens.first);
         isLoadingTokens = false;
       });
     } catch (e) {
