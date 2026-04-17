@@ -33,7 +33,10 @@ class BridgeAmountPage extends StatefulWidget {
 }
 
 class _BridgeAmountPageState extends State<BridgeAmountPage> {
-  late final TextEditingController _amountController;
+  final TextEditingController _amountController = TextEditingController();
+  final FocusNode _amountFocusNode = FocusNode();
+  bool _amountFocused = false;
+
   BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
 
   @override
@@ -42,7 +45,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
     bridgeViewModel.applyInitialBridgeToken(widget.initialToken);
     bridgeViewModel.onBridgeSuccess = _showBridgeSuccessBottomSheet;
 
-    _amountController = TextEditingController();
+    _amountFocusNode.addListener(() => setState(() => _amountFocused = _amountFocusNode.hasFocus));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bridgeViewModel.ensureFiatPriceForSelectedToken();
@@ -107,199 +110,192 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
           color: theme.colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: Column(
-          children: [
-            ModalTopBar(
-              title: 'Enter Amount',
-              leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
-              onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              trailingIcon: const Icon(Icons.calendar_month, size: 18),
-              onTrailingPressed: () {
-                Navigator.pushNamed(context, Routes.bridgeHistoryPage, arguments: widget.bridgeHistoryViewModel);
-              },
-            ),
-            Expanded(
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Observer(
-                    builder: (_) {
-                      final canNext = bridgeViewModel.canProceedToDestinationNetwork;
+        child: Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Column(
+            children: [
+              ModalTopBar(
+                title: S.of(context).enter_amount,
+                leadingIcon: Icon(Icons.arrow_back_ios_new),
+                onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                trailingIcon: Icon(Icons.history),
+                onTrailingPressed: () {
+                  Navigator.pushNamed(context, Routes.bridgeHistoryPage,
+                      arguments: widget.bridgeHistoryViewModel);
+                },
+              ),
+              Expanded(
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Observer(
+                      builder: (_) {
+                        final canNext = bridgeViewModel.canProceedToDestinationNetwork;
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Spacer(flex: 2),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              return Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
-                                  children: [
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: (constraints.maxWidth - 200)
-                                            .clamp(40.0, constraints.maxWidth),
-                                        minWidth: 40,
-                                      ),
-                                      child: TextFormField(
-                                        controller: _amountController,
-                                        maxLines: 1,
-                                        onChanged: bridgeViewModel.setAmount,
-                                        autovalidateMode: AutovalidateMode.always,
-                                        validator: bridgeViewModel.decimalAmountValidator,
-                                        keyboardType: TextInputType.numberWithOptions(
-                                          signed: false,
-                                          decimal: true,
-                                        ),
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.allow(
-                                            RegExp(r'^\d*[.,]?\d*$'),
-                                          ),
-                                        ],
-                                        textAlign: TextAlign.center,
-                                        decoration: InputDecoration(
-                                          isDense: true,
-                                          hintText: '0.00',
-                                          hintStyle: theme.textTheme.displayMedium?.copyWith(
-                                            fontWeight: FontWeight.w400,
-                                            color: theme.colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        style: theme.textTheme.displayMedium?.copyWith(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 45,
-                                          color: theme.colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      bridgeViewModel.selectedToken?.title ?? '',
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Spacer(flex: 2),
+                            Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  IntrinsicWidth(
+                                    child: TextFormField(
+                                      controller: _amountController,
+                                      focusNode: _amountFocusNode,
                                       maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      onChanged: bridgeViewModel.setAmount,
+                                      autovalidateMode: AutovalidateMode.always,
+                                      validator: bridgeViewModel.decimalAmountValidator,
+                                      keyboardType: TextInputType.numberWithOptions(
+                                        signed: false,
+                                        decimal: true,
+                                      ),
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'^\d*[.,]?\d*$'),
+                                        ),
+                                      ],
+                                      textAlign: TextAlign.center,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        fillColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        hintText: _amountFocused ? "" : "0.00",
+                                        hintStyle: theme.textTheme.displayMedium?.copyWith(
+                                          fontWeight: FontWeight.w400,
+                                          color: theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
                                       style: theme.textTheme.displayMedium?.copyWith(
                                         fontWeight: FontWeight.w400,
                                         fontSize: 45,
-                                        color: theme.colorScheme.onSurfaceVariant,
+                                        color: theme.colorScheme.onSurface,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          Center(
-                            child: Text(
-                              bridgeViewModel.fiatAmountFormatted.isEmpty
-                                  ? ''
-                                  : '~${bridgeViewModel.fiatAmountFormatted} ${bridgeViewModel.fiatCurrencyTitle}',
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 22,
-                                letterSpacing: -0.11,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    bridgeViewModel.selectedToken?.title ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.displayMedium?.copyWith(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 45,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                          if (bridgeViewModel.amountError != null) ...[
-                            const SizedBox(height: 10),
-                            Text(
-                              bridgeViewModel.amountError!,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.error,
+                            const SizedBox(height: 12),
+                            Center(
+                              child: Text(
+                                bridgeViewModel.fiatAmountFormatted.isEmpty
+                                    ? ''
+                                    : '~${bridgeViewModel.fiatAmountFormatted} ${bridgeViewModel.fiatCurrencyTitle}',
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 22,
+                                  letterSpacing: -0.11,
+                                ),
                               ),
                             ),
-                          ],
-                          const Spacer(flex: 3),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: RichText(
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: 'Available ',
-                                        style: theme.textTheme.bodyLarge?.copyWith(
-                                          color: theme.colorScheme.onSurfaceVariant,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          letterSpacing: -0.08,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: '${bridgeViewModel.tokenBalanceFormatted} '
-                                            '${bridgeViewModel.selectedToken?.title ?? ''}',
-                                        style: theme.textTheme.bodyLarge?.copyWith(
-                                          color: theme.colorScheme.onSurface,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          letterSpacing: -0.08,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  textStyle: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                    letterSpacing: -0.07,
-                                  ),
-                                  foregroundColor: theme.colorScheme.primary,
-                                  backgroundColor: theme.colorScheme.surfaceContainer,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(80),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  bridgeViewModel.setMaxAmount();
-                                  _amountController.text = bridgeViewModel.amount;
-                                  _amountController.selection = TextSelection.collapsed(
-                                    offset: _amountController.text.length,
-                                  );
-                                },
-                                child: Text(S.of(context).max),
-                              ),
-                              const SizedBox(width: 10),
-                              IgnorePointer(
-                                ignoring: !canNext,
-                                child: ModernButton(
-                                  size: 48,
-                                  backgroundColor: theme.colorScheme.primary,
-                                  iconColor: theme.colorScheme.onPrimary,
-                                  icon: Icon(Icons.arrow_forward, size: 25),
-                                  onPressed: () {
-                                    _amountController.clear();
-                                    Navigator.pushNamed(
-                                        context, Routes.bridgeDestinationNetworkPage, arguments: bridgeViewModel);
-                                  },
+                            if (bridgeViewModel.amountError != null) ...[
+                              const SizedBox(height: 10),
+                              Text(
+                                bridgeViewModel.amountError!,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.error,
                                 ),
                               ),
                             ],
-                          ),
-                        ],
-                      );
-                    },
+                            const Spacer(flex: 3),
+                            Row(
+                              spacing: 8,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                    child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Text(
+                                      S.of(context).available,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    ),
+                                    Text(
+                                      "${bridgeViewModel.tokenBalanceFormatted} ${bridgeViewModel.selectedToken?.title ?? ""}",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onSurface),
+                                    )
+                                  ],
+                                )),
+                                GestureDetector(
+                                  onTap: () {
+                                    bridgeViewModel.setMaxAmount();
+                                    _amountController.text = bridgeViewModel.amount;
+                                    _amountController.selection = TextSelection.collapsed(
+                                      offset: _amountController.text.length,
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 34,
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        borderRadius: BorderRadius.circular(999999)),
+                                    child: Center(
+                                        child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 16),
+                                      child: Text(
+                                        S.of(context).max,
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).colorScheme.primary),
+                                      ),
+                                    )),
+                                  ),
+                                ),
+                                IgnorePointer(
+                                  ignoring: !canNext,
+                                  child: ModernButton(
+                                    size: 34,
+                                    backgroundColor: theme.colorScheme.primary,
+                                    iconColor: theme.colorScheme.onPrimary,
+                                    icon: Icon(Icons.arrow_forward, size: 20),
+                                    onPressed: () {
+                                      _amountController.clear();
+                                      Navigator.pushNamed(
+                                          context, Routes.bridgeDestinationNetworkPage,
+                                          arguments: bridgeViewModel);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 24,
+                            )
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
