@@ -297,7 +297,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         : addressPageType;
 
     final mainHd = mainHdByType[addrType] ?? mainHdByType.values.first;
-    return getAddress(index: 0, hd: mainHd, addressType: addressPageType);
+    return getAddress(index: 0, hd: mainHd, addressType: addrType);
   }
 
   Map<String, int> currentReceiveAddressIndexByType;
