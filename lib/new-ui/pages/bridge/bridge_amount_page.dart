@@ -49,6 +49,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bridgeViewModel.ensureFiatPriceForSelectedToken();
+      _amountFocusNode.requestFocus();
     });
   }
 
