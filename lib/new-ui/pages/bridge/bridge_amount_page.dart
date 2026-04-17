@@ -164,7 +164,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                       hoverColor: Colors.transparent,
                                       focusedBorder: InputBorder.none,
                                       enabledBorder: InputBorder.none,
-                                      hintText: _amountFocused ? "" : "0.00",
+                                      hintText: _amountFocused && _amountController.text.isNotEmpty ? "" : "0.00",
                                       hintStyle: theme.textTheme.displayMedium?.copyWith(
                                         fontWeight: FontWeight.w400,
                                         color: theme.colorScheme.onSurfaceVariant,
