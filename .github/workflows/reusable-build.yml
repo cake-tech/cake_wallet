@@ -13,6 +13,10 @@ on:
       pr_number:
         required: true
         type: string
+      include_x86_64:
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -209,10 +213,6 @@ jobs:
       - name: Build generated code
         run: |
           flutter --version
-          flutter clean
-          rm -rf .dart_tool
-          rm pubspec.lock
-          flutter pub get
           ./model_generator.sh async
 
       - name: Generate key properties
@@ -255,7 +255,12 @@ jobs:
           pushd $ANDROID_SDK_ROOT/ndk
             ln -s 28.2.13676358 25.1.8937393
           popd
-          flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi
+          if [[ "${{ inputs.include_x86_64 }}" == "true" ]]; then
+            TARGET_PLATFORM="android-arm64,android-x64"
+          else
+            TARGET_PLATFORM="android-arm64"
+          fi
+          flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi --target-platform "$TARGET_PLATFORM"
 
       - name: Rename apk file
         run: |
@@ -264,7 +269,9 @@ jobs:
           apk_basename=$(printf '%s' "$raw_branch_name" | sed 's#[^A-Za-z0-9._-]#-#g')
           mkdir -p test-apk
           cp app-arm64-v8a-release.apk "test-apk/${apk_basename}.apk"
-          cp app-x86_64-release.apk "test-apk/${apk_basename}_x86.apk"
+          if [[ "${{ inputs.include_x86_64 }}" == "true" ]]; then
+            cp app-x86_64-release.apk "test-apk/${apk_basename}_x86.apk"
+          fi
           echo "APK_BASENAME=${apk_basename}" >> $GITHUB_ENV
 
       - name: Find APK file
@@ -300,6 +307,10 @@ jobs:
       - name: 16KB align
         run: |
           cd build/app/outputs/flutter-apk
-          for i in arm64-v8a x86_64; do
+          abis="arm64-v8a"
+          if [[ "${{ inputs.include_x86_64 }}" == "true" ]]; then
+            abis="$abis x86_64"
+          fi
+          for i in $abis; do
             ../../../../scripts/android/check_16kb_align.sh app-$i-release.apk
           done
