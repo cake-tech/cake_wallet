@@ -49,7 +49,7 @@ class SecretKey {
     SecretKey('meldTestApiKey', () => ''),
     SecretKey('meldTestPublicKey', () => ''),
     SecretKey('moneroTestWalletSeeds', () => ''),
-    SecretKey('moneroLegacyTestWalletSeeds', () => ''),
+    SecretKey('moneroLegacyTestWalletSeeds ', () => ''),
     SecretKey('bitcoinTestWalletSeeds', () => ''),
     SecretKey('ethereumTestWalletSeeds', () => ''),
     SecretKey('litecoinTestWalletSeeds', () => ''),
@@ -99,7 +99,7 @@ class SecretKey {
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('moralisApiKey', () => ''),
-    SecretKey('nowNodesApiKey', () => ''),
+    SecretKey('nowNodesApiKey ', () => ''),
     SecretKey('blinkApiKey', () => ''),
   ];
 

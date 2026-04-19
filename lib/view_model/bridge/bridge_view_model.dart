@@ -23,9 +23,6 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_evm/evm_chain_transaction_priority.dart';
-import 'package:cw_evm/evm_erc20_balance.dart';
-import 'package:cw_evm/usdt0/usdt0_quote.dart';
 import 'package:mobx/mobx.dart';
 
 part 'bridge_view_model.g.dart';

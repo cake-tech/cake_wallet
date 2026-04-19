@@ -35,7 +35,6 @@ class _EnterWallectConnectURIWrapperWidgetState extends State<EnterWalletConnect
   }
 }
 
-// ignore: must_be_immutable
 class EnterWalletConnectURIWidget extends BaseAlertDialog {
   EnterWalletConnectURIWidget({
     required this.controller,

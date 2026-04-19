@@ -14,14 +14,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TransactionDetailsModal extends StatefulWidget {
-  const TransactionDetailsModal(
-      {super.key, required this.transactionDetailsViewModel});
+  const TransactionDetailsModal({super.key, required this.transactionDetailsViewModel});
 
   final TransactionDetailsViewModel transactionDetailsViewModel;
 
   @override
-  State<TransactionDetailsModal> createState() =>
-      _TransactionDetailsModalState();
+  State<TransactionDetailsModal> createState() => _TransactionDetailsModalState();
 }
 
 class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
@@ -52,19 +50,17 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
         builder: (context, controller) => SafeArea(
               bottom: false,
               child: Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: GestureDetector(
                   onTap: FocusScope.of(context).unfocus,
                   child: Container(
                     decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(25))),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
                     child: Column(
                       children: [
                         ModalTopBar(
-                          title: S.of(context).transaction_details_title,
+                          title: S.of(context).transaction,
                           leadingIcon: Icon(Icons.close),
                           onLeadingPressed: Navigator.of(context).pop,
                         ),
@@ -74,24 +70,18 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             child: Column(
                               children: [
                                 Image.asset(
-                                    widget.transactionDetailsViewModel
-                                            .transactionAsset.iconPath ??
+                                    widget.transactionDetailsViewModel.transactionAsset.iconPath ??
                                         "",
                                     width: 64,
                                     height: 64),
                                 SizedBox(height: 10),
                                 Text(
-                                  widget.transactionDetailsViewModel
-                                          .formattedTitle +
-                                      widget.transactionDetailsViewModel
-                                          .formattedStatus,
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500),
+                                  widget.transactionDetailsViewModel.formattedTitle +
+                                      widget.transactionDetailsViewModel.formattedStatus,
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  widget.transactionDetailsViewModel
-                                      .transactionInfo
+                                  widget.transactionDetailsViewModel.transactionInfo
                                       .amountFormatted(),
                                   style: TextStyle(fontSize: 28),
                                 ),
@@ -101,11 +91,9 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                     spacing: 12,
                                     children: [
                                       NewListSections(sections: {
-                                        "": widget
-                                            .transactionDetailsViewModel.items
+                                        "": widget.transactionDetailsViewModel.items
                                             .map((item) {
-                                              if (item.value.isEmpty)
-                                                return null;
+                                              if (item.value.isEmpty) return null;
 
                                               final shouldBuildBottomWidget =
                                                   item.value.length > 25;
@@ -113,20 +101,15 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                               return ListItemRegularRow(
                                                 copyableText: item.value,
                                                   showArrow: false,
-                                                  keyValue: ((item.key
-                                                              as ValueKey?)
-                                                          ?.value as String?) ??
+                                                  keyValue:
+                                                      ((item.key as ValueKey?)?.value as String?) ??
                                                           item.title,
                                                   label: item.title,
-                                                  trailingWidget:
-                                                      shouldBuildBottomWidget
+                                                  trailingWidget: shouldBuildBottomWidget
                                                       ? null
-                                                          : _buildTrailingWIdget(
-                                                              item),
-                                                  bottomWidget:
-                                                      shouldBuildBottomWidget
-                                                          ? _buildBottomWidget(
-                                                              item)
+                                                      : _buildTrailingWIdget(item),
+                                                  bottomWidget: shouldBuildBottomWidget
+                                                      ? _buildBottomWidget(item)
                                                       : null);
                                             })
                                             .whereType<ListItem>()
@@ -134,39 +117,24 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                       }),
                                       Container(
                                         decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainer),
+                                            borderRadius: BorderRadius.circular(20),
+                                            color: Theme.of(context).colorScheme.surfaceContainer),
                                         child: Padding(
                                           padding: const EdgeInsets.all(12.0),
                                           child: Column(
                                             spacing: 8,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                S
-                                                    .of(context)
-                                                    .enter_your_note
-                                                    .replaceAll('…', '')
-                                                    .replaceAll('...', ''),
-                                              ),
+                                              Text(S.of(context).note),
                                               TextField(
                                                 focusNode: noteFocusNode,
                                                 controller: noteController,
                                                 decoration: InputDecoration(
-                                                    hintText: S
-                                                        .of(context)
-                                                        .enter_your_note,
+                                                    hintText: S.of(context).add_a_note,
                                                     border: InputBorder.none,
-                                                    focusedBorder:
-                                                        InputBorder.none,
-                                                    enabledBorder:
-                                                        InputBorder.none,
-                                                    contentPadding:
-                                                        EdgeInsets.zero,
+                                                    focusedBorder: InputBorder.none,
+                                                    enabledBorder: InputBorder.none,
+                                                    contentPadding: EdgeInsets.zero,
                                                     isDense: true),
                                               )
                                             ],
@@ -174,41 +142,30 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                         ),
                                       ),
                                       Observer(
-                                        builder: (_) =>
-                                            NewListSections(sections: {
+                                        builder: (_) => NewListSections(sections: {
                                           "view tx": [
                                             ListItemRegularRow(
                                                 keyValue: "view tx on",
-                                                label: widget
-                                                    .transactionDetailsViewModel
+                                                label: widget.transactionDetailsViewModel
                                                     .explorerDescription,
                                                 onTap: widget
-                                                    .transactionDetailsViewModel
-                                                    .launchExplorer,
+                                                    .transactionDetailsViewModel.launchExplorer,
                                                 foregroundColor:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                trailingIconPath:
-                                                    "assets/new-ui/link_arrow.svg",
+                                                    Theme.of(context).colorScheme.primary,
+                                                trailingIconPath: "assets/new-ui/link_arrow.svg",
                                                 trailingIconSize: 8)
                                           ],
-                                          if (widget.transactionDetailsViewModel
-                                              .canReplaceByFee)
+                                          if (widget.transactionDetailsViewModel.canReplaceByFee)
                                             "rbf": [
                                               ListItemRegularRow(
                                                   keyValue: "replace by fee",
                                                   label: S.of(context).bump_fee,
                                                   onTap: () {
                                                     Navigator.of(context)
-                                                        .pushNamed(
-                                                            Routes.bumpFeePage,
-                                                            arguments: [
-                                                          widget
-                                                              .transactionDetailsViewModel
+                                                        .pushNamed(Routes.bumpFeePage, arguments: [
+                                                      widget.transactionDetailsViewModel
                                                           .transactionInfo,
-                                                          widget
-                                                              .transactionDetailsViewModel
+                                                      widget.transactionDetailsViewModel
                                                           .rawTransaction
                                                     ]);
                                                   })
@@ -218,10 +175,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(
-                                    height: MediaQuery.of(context)
-                                        .viewPadding
-                                        .bottom)
+                                SizedBox(height: MediaQuery.of(context).viewPadding.bottom)
                               ],
                             ),
                           ),
@@ -265,9 +219,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
               color: Theme.of(context).colorScheme.onSurface)),
       _ => Text(
           item.value,
-          style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         )
     };
   }

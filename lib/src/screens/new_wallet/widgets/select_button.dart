@@ -17,8 +17,7 @@ class SelectButton extends StatelessWidget {
     this.deviceConnectionTypes,
     this.borderRadius,
     this.padding,
-    super.key,
-    this.center = false,
+    super.key, this.center = false,
   });
 
   final Widget? image;
@@ -39,10 +38,7 @@ class SelectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = color ??
-        (isSelected
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.surfaceContainer);
+    final backgroundColor = color ?? (isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer);
     final effectiveTextColor = textColor ??
         (isSelected
             ? Theme.of(context).colorScheme.onPrimary
@@ -53,8 +49,8 @@ class SelectButton extends StatelessWidget {
             : Theme.of(context).colorScheme.onSurface);
 
     final trailingIcons = <Image>[];
-    final selectArrowImage = Image.asset('assets/images/select_arrow.png',
-        color: effectiveArrowColor);
+    final selectArrowImage =
+        Image.asset('assets/images/select_arrow.png', color: effectiveArrowColor);
 
     deviceConnectionTypes?.forEach((element) => trailingIcons.add(Image.asset(
           element.iconString,
@@ -73,9 +69,7 @@ class SelectButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(18)),
           color: backgroundColor,
-          border: borderColor != null
-              ? Border.all(color: borderColor!, width: 2)
-              : null,
+          border: borderColor != null ? Border.all(color: borderColor!, width: 2) : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -84,25 +78,22 @@ class SelectButton extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Row(
-                mainAxisAlignment:
-                    center ? MainAxisAlignment.center : MainAxisAlignment.start,
+                mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   if(!center) SizedBox(width:16),
-                  if (image != null) image!,
-                  if (image != null) SizedBox(width: 14),
-                  Flexible(
+                  image ?? Offstage(),
+                  Padding(
+                    padding: image != null ? EdgeInsets.only(left: 14) : EdgeInsets.only(left: 0),
                     child: Text(
                       text,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: textSize,
                         fontWeight: FontWeight.w500,
                         color: effectiveTextColor,
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
