@@ -13,10 +13,6 @@ on:
       pr_number:
         required: true
         type: string
-      include_x86_64:
-        required: false
-        type: boolean
-        default: false
 
 defaults:
   run:
@@ -32,7 +28,6 @@ jobs:
         MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         ANDROID_AVD_HOME: /root/.android/avd
-        CARGO_TARGET_DIR: /root/.cache/cargo-target
       volumes:
         - /opt/cw_cache_android/root/.cache:/root/.cache
         - /opt/cw_cache_android/root/.android/avd/:/root/.android/avd
@@ -41,8 +36,6 @@ jobs:
         - /opt/cw_cache_android/root/.gradle/:/root/.gradle
         - /opt/cw_cache_android/root/.android/:/root/.android
         - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
-        - /opt/cw_cache_android/root/.cargo-registry:/root/.cargo/registry
-        - /opt/cw_cache_android/root/.cargo-git:/root/.cargo/git
         - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
         - /dev/kvm:/dev/kvm
         - /var/run/docker.sock:/var/run/docker.sock
@@ -73,43 +66,12 @@ jobs:
 
       - name: Add secrets
         run: |
-          if [[ ! -f lib/.secrets.g.dart ]]; then
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          import secrets
-
-          secret_keys = list(dict.fromkeys(name.strip() for name in re.findall(
-              r"SecretKey\('([^']+)'",
-              Path("tool/utils/secret_key.dart").read_text(),
-          )))
-          generated_hex_lengths = {
-              "salt": 16,
-              "keychainSalt": 12,
-              "key": 16,
-              "walletSalt": 4,
-              "shortKey": 12,
-              "backupSalt": 8,
-              "backupKeychainSalt": 12,
-              "walletGroupSalt": 16,
-          }
-          Path("lib/.secrets.g.dart").write_text(
-              "".join(
-                  f"const {key} = '{secrets.token_hex(generated_hex_lengths[key]) if key in generated_hex_lengths else ''}';\n"
-                  for key in secret_keys
-              ),
-          )
-          PY
-          fi
-
-          cp lib/.secrets.g.dart lib/.secrets.base.g.dart
-
-          : > cw_bitcoin/lib/.secrets.g.dart
-          : > cw_evm/lib/.secrets.g.dart
-          : > cw_solana/lib/.secrets.g.dart
-          : > cw_core/lib/.secrets.g.dart
-          : > cw_nano/lib/.secrets.g.dart
-          : > cw_tron/lib/.secrets.g.dart
+          touch cw_bitcoin/lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
 
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
@@ -128,59 +90,7 @@ jobs:
 
           echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
-          if [[ -n "${{ secrets.MAIN_SECRETS_FILE }}" ]]; then
-          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.overlay.g.dart
-
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          base_path = Path("lib/.secrets.base.g.dart")
-          overlay_path = Path("lib/.secrets.overlay.g.dart")
-          output_path = Path("lib/.secrets.g.dart")
-
-          const_pattern = re.compile(r"^const\\s+([A-Za-z0-9_]+)\\s*=.*;$")
-
-          base_lines = base_path.read_text().splitlines()
-          overlay_lines = overlay_path.read_text().splitlines()
-
-          def ordered_unique_consts(lines):
-              ordered_names = []
-              lines_by_name = {}
-
-              for line in lines:
-                  match = const_pattern.match(line.strip())
-                  if not match:
-                      continue
-
-                  name = match.group(1)
-                  if name not in lines_by_name:
-                      ordered_names.append(name)
-                  lines_by_name[name] = line
-
-              return ordered_names, lines_by_name
-
-          base_names, base_by_name = ordered_unique_consts(base_lines)
-          overlay_names, overlay_by_name = ordered_unique_consts(overlay_lines)
-
-          merged_lines = []
-          seen = set()
-          for name in base_names:
-              merged_lines.append(overlay_by_name.get(name, base_by_name[name]))
-              seen.add(name)
-
-          for name in overlay_names:
-              if name not in seen:
-                  merged_lines.append(overlay_by_name[name])
-                  seen.add(name)
-
-          output_path.write_text("\\n".join(merged_lines) + "\\n")
-          PY
-          else
-            mv lib/.secrets.base.g.dart lib/.secrets.g.dart
-          fi
-
-          rm -f lib/.secrets.base.g.dart lib/.secrets.overlay.g.dart
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
       - name: Generate KeyStore
         run: |
@@ -196,12 +106,9 @@ jobs:
 
       - name: Build dependencies utilizing ghcr cache
         run: |
-          repo_owner_lc=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           env \
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
-            CW_DOCKER_PUSH_REGISTRY=ghcr.io/${repo_owner_lc}/cake_wallet \
-            CW_DOCKER_PULL_FROM_CLOUD=true \
-            CW_DOCKER_PUSH_TO_CLOUD=true \
+            CW_DOCKER_USE_CLOUD=true \
             ./scripts/android/docker/build.sh
 
       - name: Execute Build and Setup Commands
@@ -218,6 +125,10 @@ jobs:
       - name: Build generated code
         run: |
           flutter --version
+          flutter clean
+          rm -rf .dart_tool
+          rm pubspec.lock
+          flutter pub get
           ./model_generator.sh async
 
       - name: Generate key properties
@@ -260,43 +171,32 @@ jobs:
           pushd $ANDROID_SDK_ROOT/ndk
             ln -s 28.2.13676358 25.1.8937393
           popd
-          if [[ "${{ inputs.include_x86_64 }}" == "true" ]]; then
-            TARGET_PLATFORM="android-arm64,android-x64"
-          else
-            TARGET_PLATFORM="android-arm64"
-          fi
-          flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi --target-platform "$TARGET_PLATFORM"
+          flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi
 
       - name: Rename apk file
         run: |
           cd build/app/outputs/flutter-apk
-          raw_branch_name=${BRANCH_NAME#origin/}
-          apk_basename=$(printf '%s' "$raw_branch_name" | sed 's#[^A-Za-z0-9._-]#-#g')
-          mkdir -p test-apk
-          cp app-arm64-v8a-release.apk "test-apk/${apk_basename}.apk"
-          if [[ "${{ inputs.include_x86_64 }}" == "true" ]]; then
-            cp app-x86_64-release.apk "test-apk/${apk_basename}_x86.apk"
-          fi
-          echo "APK_BASENAME=${apk_basename}" >> $GITHUB_ENV
+          mkdir test-apk
+          cp app-arm64-v8a-release.apk test-apk/${BRANCH_NAME}.apk
+          cp app-x86_64-release.apk test-apk/${BRANCH_NAME}_x86.apk
 
       - name: Find APK file
         id: find_apk
         run: |
           set -x
-          apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${APK_BASENAME}.apk || exit 1)
+          apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${BRANCH_NAME}.apk || exit 1)
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
       - name: Write BRANCH_NAME to env
         run: echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
       - name: Upload to slack step
-        continue-on-error: true
         uses: vaporif/slack-file-upload-action@v1
         with:
           token: ${{ secrets.SLACK_APP_TOKEN }}
           initial_comment: ${{ env.message }}
           files: >
             [
-              {"file": "${{ env.APK_FILE }}", "filename": "${{ env.APK_BASENAME }}.apk"}
+              {"file": "${{ env.APK_FILE }}", "filename": "${{ env.BRANCH_NAME }}.apk"}
             ]
           channel_id: ${{ secrets.SLACK_APK_CHANNEL }}
 
@@ -312,10 +212,6 @@ jobs:
       - name: 16KB align
         run: |
           cd build/app/outputs/flutter-apk
-          abis="arm64-v8a"
-          if [[ "${{ inputs.include_x86_64 }}" == "true" ]]; then
-            abis="$abis x86_64"
-          fi
-          for i in $abis; do
+          for i in arm64-v8a x86_64; do
             ../../../../scripts/android/check_16kb_align.sh app-$i-release.apk
           done
