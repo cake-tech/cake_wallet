@@ -28,8 +28,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'bottom_sheet_service.dart';
 import 'chain_service/solana/solana_chain_id.dart';
 import 'chain_service/solana/solana_chain_service.dart';
-import 'chain_service/starknet/starknet_chain_id.dart';
-import 'chain_service/starknet/starknet_chain_service.dart';
 
 part 'walletkit_service.g.dart';
 
@@ -181,17 +179,6 @@ abstract class WalletKitServiceBase with Store {
       }
     }
 
-    if (appStore.wallet!.type == WalletType.starknet) {
-      for (final cId in StarknetChainId.values) {
-        StarknetChainService(
-          reference: cId,
-          appStore: appStore,
-          wcKeyService: walletKeyService,
-          bottomSheetService: _bottomSheetHandler,
-          walletKit: _walletKit,
-        );
-      }
-    }
   }
 
   @action

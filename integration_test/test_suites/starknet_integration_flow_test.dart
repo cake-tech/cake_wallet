@@ -1,10 +1,4 @@
-import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/bottom_sheet_queue_item_model.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/starknet/starknet_chain_id.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/starknet/starknet_chain_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/starknet/starknet.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/output_info.dart';
@@ -12,11 +6,8 @@ import 'package:cw_core/starknet_token.dart';
 import 'package:cw_starknet/starknet_client.dart';
 import 'package:cw_starknet/starknet_transaction_credentials.dart';
 import 'package:cw_starknet/src/rust/api/starknet.dart' as rust_api;
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:reown_walletkit/reown_walletkit.dart';
 
 import '../helpers/starknet_integration_harness.dart';
 
@@ -172,139 +163,6 @@ void main() {
     );
   });
 
-  testWidgets('handles WalletConnect Starknet sign and invoke', (tester) async {
-    final softwareClient = FakeStarknetWalletClient(
-      initialBalancesByToken: {
-        StarknetTokenAddresses.strk.toLowerCase(): _strk('5'),
-      },
-    );
-    final softwareWallet = await harness.createWallet(
-      client: softwareClient,
-      mnemonic: _testMnemonic,
-    );
-    final softwareAccount = await harness.deriveAccount(
-      mnemonic: _testMnemonic,
-      accountClassHashHex: softwareWallet.accountClassHashHex,
-    );
-
-    final offlineClient = FakeStarknetWalletClient(
-      initialBalancesByToken: {
-        StarknetTokenAddresses.strk.toLowerCase(): _strk('5'),
-      },
-      initiallyDeployed: false,
-    );
-    final offlineWallet = await harness.restoreWalletFromPublicKey(
-      client: offlineClient,
-      publicKeyHex: softwareWallet.publicKey,
-      accountClassHashHex: softwareWallet.accountClassHashHex,
-    );
-
-    final appStore = _MockAppStore();
-    when(() => appStore.wallet).thenReturn(offlineWallet);
-
-    final capturedResponses = <JsonRpcResponse<dynamic>>[];
-    final pendingRequests = <dynamic>[
-      _TestPendingRequest(
-        id: 1,
-        method: 'starknet_signTypedData',
-        chainId: StarknetChainId.mainnet.chain(),
-      ),
-      _TestPendingRequest(
-        id: 2,
-        method: 'starknet_requestAddInvokeTransaction',
-        chainId: StarknetChainId.mainnet.chain(),
-      ),
-    ];
-
-    final chainService = StarknetChainService(
-      appStore: appStore,
-      bottomSheetService: _StubBottomSheetService(),
-      walletKit: _MockReownWalletKit(),
-      wcKeyService: KeyServiceImpl(),
-      reference: StarknetChainId.mainnet,
-      registerHandlers: false,
-      approvalRequester: ({
-        required String text,
-        String? title,
-        String? method,
-        String? chainId,
-        String? address,
-        required String transportType,
-        VerifyContext? verifyContext,
-      }) async =>
-          true,
-      pendingRequestProvider: () => pendingRequests.removeAt(0),
-      responseSender: (topic, response) async {
-        capturedResponses.add(response);
-      },
-      sessionProvider: (_) => null,
-      urRoundTripRequester: (requestUr) async {
-        final request = requestUr.values.first;
-        if (request.startsWith('ur:starknet-typed-data-sign-request')) {
-          final signedUr = await harness.signTypedDataRequestUr(
-            privateKeyHex: softwareAccount.privateKeyHex,
-            requestUr: request,
-          );
-          return starknet!.commitTypedDataUR(offlineWallet, signedUr);
-        }
-
-        final signedUr = await harness.signTransactionRequestUr(
-          privateKeyHex: softwareAccount.privateKeyHex,
-          requestUr: request,
-        );
-        return starknet!.commitTransactionUR(
-          offlineWallet,
-          signedUr,
-          requestUr: request,
-        );
-      },
-    );
-
-    await chainService.starknetSignTypedData(
-      'wc-topic',
-      [
-        offlineWallet.accountAddress,
-        const {
-          'types': {
-            'Message': [
-              {'name': 'contents', 'type': 'felt'},
-            ],
-          },
-          'primaryType': 'Message',
-          'domain': {},
-          'message': {'contents': '0x1'},
-        },
-      ],
-    );
-
-    final transferAmount = _strk('0.5');
-    final transferWords = _uint256Words(transferAmount);
-    await chainService.starknetRequestAddInvokeTransaction(
-      'wc-topic',
-      {
-        'accountAddress': offlineWallet.accountAddress,
-        'executionRequest': {
-          'calls': [
-            {
-              'contractAddress': StarknetTokenAddresses.strk,
-              'entrypoint': 'transfer',
-              'calldata': [
-                _testRecipientAddress,
-                transferWords.$1,
-                transferWords.$2
-              ],
-            },
-          ],
-        },
-      },
-    );
-
-    expect(capturedResponses, hasLength(2));
-    expect((capturedResponses[0].result as Map)['signature'], hasLength(2));
-    expect(
-        (capturedResponses[1].result as Map)['transaction_hash'], isNotEmpty);
-  });
-
   testWidgets('handles Ledger restore and send', (tester) async {
     final baseClient = FakeStarknetWalletClient(
       initialBalancesByToken: {
@@ -448,47 +306,6 @@ void main() {
   });
 }
 
-class _MockAppStore extends Mock implements AppStore {}
-
-class _MockReownWalletKit extends Mock implements ReownWalletKit {}
-
-class _StubBottomSheetService implements BottomSheetService {
-  @override
-  final ValueNotifier<BottomSheetQueueItemModel?> currentSheet =
-      ValueNotifier(null);
-
-  @override
-  Future<WCBottomSheetResult> queueBottomSheet({
-    required Widget widget,
-    bool isModalDismissible = false,
-    int closeAfter = 0,
-  }) async =>
-      WCBottomSheetResult.one;
-
-  @override
-  void showNext() {}
-}
-
-class _TestPendingRequest {
-  const _TestPendingRequest({
-    required this.id,
-    required this.method,
-    required this.chainId,
-  });
-
-  final int id;
-  final String method;
-  final String chainId;
-  final _TestTransportType transportType = const _TestTransportType('qr');
-  final VerifyContext? verifyContext = null;
-}
-
-class _TestTransportType {
-  const _TestTransportType(this.name);
-
-  final String name;
-}
-
 BigInt _strk(String amount) {
   final parts = amount.split('.');
   final whole = BigInt.parse(parts.first) * BigInt.from(10).pow(18);
@@ -498,11 +315,4 @@ BigInt _strk(String amount) {
 
   final fraction = parts[1].padRight(18, '0').substring(0, 18);
   return whole + BigInt.parse(fraction);
-}
-
-(String, String) _uint256Words(BigInt amount) {
-  final mask = (BigInt.one << 128) - BigInt.one;
-  final low = amount & mask;
-  final high = amount >> 128;
-  return ('0x${low.toRadixString(16)}', '0x${high.toRadixString(16)}');
 }
