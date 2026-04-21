@@ -951,14 +951,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  void _updateSubAddress(bool enableAutoGenerate, {Account? account}) {
+  Future<void> _updateSubAddress(bool enableAutoGenerate, {Account? account}) async {
     if (enableAutoGenerate) {
       walletAddresses.updateUnusedSubaddress(
         accountIndex: account?.id ?? 0,
         defaultLabel: account?.label ?? '',
       );
     } else {
-      walletAddresses.updateSubaddressList(accountIndex: account?.id ?? 0);
+      await walletAddresses.updateSubaddressList(accountIndex: account?.id ?? 0);
     }
   }
 
