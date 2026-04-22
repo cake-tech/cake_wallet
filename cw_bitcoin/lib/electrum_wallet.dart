@@ -2518,19 +2518,7 @@ abstract class ElectrumWalletBase
               // Got a new transaction fetched, add it to the transaction history
               // instead of waiting all to finish, and next time it will be faster
 
-              if (this is LitecoinWallet) {
-                // if we have a peg out transaction with the same value
-                // that matches this received transaction, mark it as being from a peg out:
-                for (final tx2 in transactionHistory.transactions.values) {
-                  final heightDiff = ((tx2.height ?? 0) - (tx.height ?? 0)).abs();
-                  // this isn't a perfect matching algorithm since we don't have the right input/output information from these transaction models (the addresses are in different formats), but this should be more than good enough for now as it's extremely unlikely a user receives the EXACT same amount from 2 different sources and one of them is a peg out and the other isn't WITHIN 5 blocks of each other
-                  if (tx2.additionalInfo["isPegOut"] == true &&
-                      tx2.amount == tx.amount &&
-                      heightDiff <= 5) {
-                    tx.additionalInfo["fromPegOut"] = true;
-                  }
-                }
-              }
+              _applyLitecoinPegOutTag(tx);
               transactionHistory.addOne(tx);
               await transactionHistory.save();
             }
@@ -2785,17 +2773,7 @@ abstract class ElectrumWalletBase
 
           historiesWithDetails[tx.id] = tx;
 
-          // Litecoin peg-out tagging
-          if (this is LitecoinWallet) {
-            for (final tx2 in transactionHistory.transactions.values) {
-              final heightDiff = ((tx2.height ?? 0) - (tx.height ?? 0)).abs();
-              if (tx2.additionalInfo["isPegOut"] == true &&
-                  tx2.amount == tx.amount &&
-                  heightDiff <= 5) {
-                tx.additionalInfo["fromPegOut"] = true;
-              }
-            }
-          }
+          _applyLitecoinPegOutTag(tx);
 
           transactionHistory.addOne(tx);
           didUpdateHistory = true;
@@ -2929,8 +2907,16 @@ abstract class ElectrumWalletBase
 
     final inputTxIdsByHash = _collectInputTxIdsByHash(originalByHash);
 
-    final inputVerboseByTxId = await _fetchInputTransactionVerboseBatch(
-        inputTxIdsByHash);
+    final allInputTxids = <String>{};
+    for (final txids in inputTxIdsByHash.values) {
+      allInputTxids.addAll(txids);
+    }
+
+    final inputTxIds = allInputTxids.toList(growable: false);
+
+    final inputVerboseByTxId = inputTxIds.isEmpty
+        ? <String, Map<String, dynamic>>{}
+        : await _fetchTransactionVerboseBatch(inputTxIds);
 
     final parsedInputTxById = _parseTransactions(inputVerboseByTxId);
 
@@ -3021,65 +3007,6 @@ abstract class ElectrumWalletBase
 
     return inputTxIdsByHash;
   }
-
-
-  Future<Map<String, Map<String, dynamic>>> _fetchInputTransactionVerboseBatch(
-      Map<String, List<String>> inputTxidsByHash) async {
-    final allInputTxids = <String>{};
-    for (final txids in inputTxidsByHash.values) {
-      allInputTxids.addAll(txids);
-    }
-
-    final inputTxIds = allInputTxids.toList(growable: false);
-
-    final verboseTransactionByHash =
-    await _processChunksToMap<String, String, Map<String, dynamic>>(
-      items: inputTxIds,
-      chunkSize: inputTransactionChunkSize,
-      processChunk: _getTransactionVerboseBatch,
-      onChunkError: (chunk, error) {
-        if (error is electrum.RequestFailedTimeoutException) {
-          printV(
-            'fetchInputTransactionVerboseBatch timeout for ${chunk.length} txs: ${error.method}',
-          );
-        } else {
-          printV(
-            'fetchInputTransactionVerboseBatch failed for ${chunk.length} txs: $error,',
-          );
-        }
-      },
-    );
-
-    final emptyHex = <String>[];
-    for (final txId in inputTxIds) {
-      final vTx = verboseTransactionByHash[txId];
-      if (vTx == null || vTx.isEmpty || vTx['hex'] == null) {
-        emptyHex.add(txId);
-      }
-    }
-
-    final hexByHash = await _processChunksToMap<String, String, String?>(
-      items: emptyHex,
-      chunkSize: inputTransactionChunkSize,
-      processChunk: _getTransactionHexBatch,
-    );
-
-    for (final txId in inputTxIds) {
-      final verbose = verboseTransactionByHash[txId] ?? <String, dynamic>{};
-      if ((verbose['hex'] as String?) == null) {
-        final hex = hexByHash[txId];
-        if (hex != null && hex.isNotEmpty) {
-          verboseTransactionByHash[txId] = {
-            ...verbose,
-            'hex': hex,
-          };
-        }
-      }
-    }
-
-    return verboseTransactionByHash;
-  }
-
 
   Future<Map<String, ElectrumTransactionBundle>> _buildTransactionBundlesBatch({
     required List<String> unique,
@@ -3448,6 +3375,22 @@ abstract class ElectrumWalletBase
     return base64Encode(decodedSig);
   }
 
+  void _applyLitecoinPegOutTag(ElectrumTransactionInfo tx) {
+    if (this is! LitecoinWallet) return;
+
+    // if we have a peg out transaction with the same value
+    // that matches this received transaction, mark it as being from a peg out:
+    for (final tx in transactionHistory.transactions.values) {
+      final heightDiff = ((tx.height ?? 0) - (tx.height ?? 0)).abs();
+    // this isn't a perfect matching algorithm since we don't have the right input/output information from these transaction models (the addresses are in different formats), but this should be more than good enough for now as it's extremely unlikely a user receives the EXACT same amount from 2 different sources and one of them is a peg out and the other isn't WITHIN 5 blocks of each other
+      if (tx.additionalInfo["isPegOut"] == true &&
+          tx.amount == tx.amount &&
+          heightDiff <= 5) {
+        tx.additionalInfo["fromPegOut"] = true;
+      }
+    }
+  }
+
   Future<void> _checkIfBatchSupported() async {
 
     if (_isBatchSupported != null) {
@@ -3468,11 +3411,22 @@ abstract class ElectrumWalletBase
 
       printV('[BATCH_TEST] Start: hashes=${hashes.length}, timeout=${batchTestTimeoutMs}ms');
 
-      await electrumClient.callBatchWithTimeout(
+      final result = await electrumClient.callBatchWithTimeout(
         method: 'blockchain.scripthash.get_history',
         paramsList: paramsList,
         timeout: batchTestTimeoutMs,
       );
+
+      final hasError = result.any((item) =>
+          item is Map<String, dynamic> &&
+          item.containsKey('error') &&
+          item['error'] != null);
+
+      if (hasError) {
+        _isBatchSupported = false;
+        printV('[BATCH_TEST] Result: supported=false (server returned error)');
+        return;
+      }
 
       _isBatchSupported = true;
       printV('[BATCH_TEST] Result: supported=true');
