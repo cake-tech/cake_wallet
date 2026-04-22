@@ -1631,6 +1631,16 @@ class EvmWalletConnectFeeQuote {
   final int maxPriorityFeePerGasWei;
   final int? latestBaseFeeWei;
 }
+
+class BridgeQuote {
+  const BridgeQuote({
+    required this.nativeFee,
+    required this.lzTokenFee,
+  });
+
+  final BigInt nativeFee;
+  final BigInt lzTokenFee;
+}
   """;
 
   const evmEmptyDefinition = 'EVM? evm;\n';

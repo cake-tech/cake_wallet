@@ -78,7 +78,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   String? destinationWalletName;
 
   @observable
-  USDT0Quote? quote;
+  BridgeQuote? quote;
 
   @observable
   bool isQuoteLoading = false;
@@ -224,9 +224,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     try {
       final bal = wallet.balance[selectedToken!];
 
-      if (bal is! EVMChainERC20Balance) return BigInt.zero;
-
-      return bal.balance;
+      return bal?.fullAvailableBalance ?? BigInt.zero;
     } catch (e) {
       return BigInt.zero;
     }
