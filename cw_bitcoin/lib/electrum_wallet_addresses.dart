@@ -715,7 +715,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<bool> discoverAddressesBatch(
+  Future<List<BitcoinAddressRecord>> discoverAddressesBatch(
       List<BitcoinAddressRecord> addressList,
       bool isHidden,
       Future<Set<String>> Function(List<BitcoinAddressRecord>) getUsedAddresses, {
@@ -734,19 +734,19 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         newAddresses.isNotEmpty && usedAddresses.contains(newAddresses.last.address);
 
     if (!isLastAddressUsed) {
-      return false;
+      return newAddresses;
     }
 
     final updatedAddressList = [...addressList, ...newAddresses];
 
-    await discoverAddressesBatch(
+    final moreNewAddresses = await discoverAddressesBatch(
       updatedAddressList,
       isHidden,
       getUsedAddresses,
       type: type,
     );
 
-    return true;
+    return [...newAddresses, ...moreNewAddresses];
   }
 
 
