@@ -172,7 +172,8 @@ class ElectrumClient {
       unterminatedString += message;
 
       if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString);
+        final response = json.decode(unterminatedString) as Map<String, dynamic>;
+        _handleResponse(response);
         // unterminatedString = null;
         unterminatedString = '';
       }
