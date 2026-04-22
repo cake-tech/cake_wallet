@@ -17,43 +17,55 @@ import 'dart:io';
 
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_wallet.dart';
 import 'package:cw_zcash/src/zcash_wallet_service.dart';
+import 'package:cw_zcash/src/zkooltx.dart';
 import 'package:flutter/foundation.dart';
-import 'package:warp_api/data_fb_generated.dart';
-import 'package:warp_api/warp_api.dart';
-import 'package:flat_buffers/flat_buffers.dart' as fb;
 import 'package:path/path.dart' as p;
+import 'package:zkool/src/rust/api/account.dart' as zkool_account;
+import 'package:zkool/src/rust/api/coin.dart' as zkool_coin;
+import 'package:zkool/src/rust/api/sync.dart' as zkool_sync;
+import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
+import 'package:zkool/src/rust/api/network.dart' as zkool_network;
+import 'package:zkool/src/rust/pay.dart' as zkool_paydart;
+import 'package:zkool/src/rust/api/sweep.dart' as zkool_sweep;
+import 'package:mutex/mutex.dart';
 
 class ZcashTaddressRotation {
-  ZcashTaddressRotation(this.accountIndex);
-  final int accountIndex;
-
   static bool _isStarted = false;
+  static zkool_coin.Coin get c => ZcashWalletBase.c;
 
-  static const coin = ZcashWalletBase.coin;
-  static String seedForOffset(final String seed) {
-    final seedWords = seed.split(" ");
+  static zkool_account.Seed seedForOffset(final zkool_account.Seed seed) {
+    final seedStr = "${seed.mnemonic} ${seed.phrase}".trim();
+    final seedWords = seedStr.split(" ");
     if ([12, 24].contains(seedWords.length)) {
       seedWords.add("");
     }
     final lastI = seedWords.length - 1;
-    final crc = CRC32.compute(seed);
-    seedWords[lastI] += ":tgen:${crc}";
-    return seedWords.join(" ");
+    final crc = CRC32.compute(seedStr);
+    seedWords[lastI] += "${seed.phrase}:tgen:${crc}";
+    final phrase = seedWords.removeLast();
+    return zkool_account.Seed(mnemonic: seedWords.join(" "), phrase: phrase, aindex: 1);
   }
 
-  static bool isSeedForWallet(final String? mainWallet, final String? subWallet) {
+  static bool zkoolAccountSeedIsEqual(final zkool_account.Seed a, final zkool_account.Seed b) {
+    return a.mnemonic == b.mnemonic && a.phrase == b.phrase;
+  }
+
+  static bool isSeedForWallet(
+    final zkool_account.Seed? mainWallet,
+    final zkool_account.Seed? subWallet,
+  ) {
     if (mainWallet == null || subWallet == null) return false;
-    return seedForOffset(mainWallet.trim()) == subWallet;
+    return zkoolAccountSeedIsEqual(seedForOffset(mainWallet), subWallet);
   }
 
-  static Map<int, List<Account>> rotationAccounts = {};
-  static Map<int, List<Account>> rotationAccountsUsable = {};
-  static Map<int, List<ShieldedTx>> shieldedAccountsTx = {};
+  static Map<int, Set<String>> rotationAddresses = {};
+  static Map<int, Set<String>> rotationAddressesUsable = {};
+  static Map<int, List<ZkoolTx>> shieldedAccountsTx = {};
+
   static Future<void> init() async {
     printV("Deserializing previous state");
     if (_isStarted) {
@@ -62,18 +74,15 @@ class ZcashTaddressRotation {
     _isStarted = true;
     final pfw = await pathForWalletTypeDir(type: WalletType.zcash);
     try {
-      final f = File(p.join(pfw, "zec-taddr.json"));
-      if (!f.existsSync()) {
-        f.writeAsBytesSync(serialize());
-      }
-      deserialize(f.readAsBytesSync());
+      final f = File(p.join(pfw, "zec-taddr.v2.json"));
+      await deserialize(f.readAsBytesSync());
     } catch (e) {
       printV("Failed to deserialize T address DB for zcash, it doesn't really matter: $e");
     }
 
     unawaited(
       (() async {
-        await Future.delayed(Duration(seconds: 5));
+        await Future.delayed(Duration(seconds: 15));
         return _jobRunner();
       })(),
     );
@@ -81,45 +90,21 @@ class ZcashTaddressRotation {
 
   static Future<void> serializeToFile() async {
     final pfw = await pathForWalletTypeDir(type: WalletType.zcash);
-    final f = File(p.join(pfw, "zec-taddr.json"));
+    final f = File(p.join(pfw, "zec-taddr.v2.json"));
     f.writeAsBytesSync(serialize());
   }
 
   static Uint8List serialize() {
     final data = {
-      "rotationAccounts": rotationAccounts.map(
-        (final k, final v) => MapEntry(
-          k.toRadixString(16),
-          v.map((final a) => flatBuffersPack(a.unpack().pack)).toList(),
-        ),
+      "rotationAddresses": rotationAddresses.map(
+        (final k, final v) => MapEntry(k.toRadixString(16), v.toList()),
       ),
-      if (kDebugMode)
-        "_rotationAccounts": rotationAccounts.map(
-          (final k, final v) =>
-              MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
-        ),
-      "rotationAccountsUsable": rotationAccountsUsable.map(
-        (final k, final v) => MapEntry(
-          k.toRadixString(16),
-          v.map((final a) => flatBuffersPack(a.unpack().pack)).toList(),
-        ),
+      "rotationAddressesUsable": rotationAddressesUsable.map(
+        (final k, final v) => MapEntry(k.toRadixString(16), v.toList()),
       ),
-      if (kDebugMode)
-        "_rotationAccountsUsable": rotationAccountsUsable.map(
-          (final k, final v) =>
-              MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
-        ),
       "shieldedAccountsTx": shieldedAccountsTx.map(
-        (final k, final v) => MapEntry(
-          k.toRadixString(16),
-          v.map((final a) => flatBuffersPack(a.unpack().pack)).toList(),
-        ),
+        (final k, final v) => MapEntry(k.toRadixString(16), v.map((final v) => v.toJson()).toList()),
       ),
-      if (kDebugMode)
-        "_shieldedAccountsTx": shieldedAccountsTx.map(
-          (final k, final v) =>
-              MapEntry(k.toRadixString(16), v.map((final a) => a.toString()).toList()),
-        ),
     };
 
     if (kDebugMode) {
@@ -128,14 +113,7 @@ class ZcashTaddressRotation {
     return utf8.encode(jsonEncode(data));
   }
 
-  static String flatBuffersPack(final int Function(fb.Builder fbBuilder) pack) {
-    final fbBuilder = fb.Builder();
-    final offset = pack(fbBuilder);
-    fbBuilder.finish(offset);
-    return base64.encode(fbBuilder.buffer);
-  }
-
-  static void deserialize(final Uint8List bytes) {
+  static Future<void> deserialize(final Uint8List bytes) async {
     // todo: replace keys with sums and reverse in serialize
     // final List<String> seeds = [];
     // for (int i = 0; i < accounts.length; i++) {
@@ -145,23 +123,28 @@ class ZcashTaddressRotation {
     //   seeds.add(backup.seed!);
     // }
     try {
+      final accs = await zkool_account.listAccounts(c: c);
       final Map<dynamic, dynamic> data = jsonDecode(utf8.decode(bytes));
-      rotationAccounts = (data["rotationAccounts"] as Map<String, dynamic>).map(
+      rotationAddresses = (data["rotationAddresses"] as Map<String, dynamic>).map(
         (final k, final v) => MapEntry(
           int.parse(k, radix: 16),
-          (v as List).map((final a) => Account(atob(a))).toList(),
+          (v as List).map((final a) => a as String).toSet(),
         ),
       );
-      rotationAccountsUsable = (data["rotationAccountsUsable"] as Map<String, dynamic>).map(
+      rotationAddressesUsable = (data["rotationAddressesUsable"] as Map<String, dynamic>).map(
         (final k, final v) => MapEntry(
           int.parse(k, radix: 16),
-          (v as List).map((final a) => Account(atob(a))).toList(),
+          (v as List).map((final a) => a as String).toSet(),
         ),
       );
       shieldedAccountsTx = (data["shieldedAccountsTx"] as Map<String, dynamic>).map(
         (final k, final v) => MapEntry(
           int.parse(k, radix: 16),
-          (v as List).map((final a) => ShieldedTx(atob(a))).toList(),
+          (v as List)
+              .map(
+                (final a) => ZkoolTx.fromJson(a),
+              )
+              .toList(),
         ),
       );
     } catch (e) {
@@ -172,208 +155,199 @@ class ZcashTaddressRotation {
   static Uint8List atob(final String value) =>
       Uint8List.fromList(List<int>.from(base64.decode(value)));
 
-  static Future<void> createAndSweepTAddresses() async {
-    int chainHeight = 0;
+  static Future<int?> getRotationAccountForCurrentAccount() async {
+    final currentHeight = await zkool_network.getCurrentHeight(c: c);
     try {
-      chainHeight = await WarpApi.getLatestHeight(coin);
-    } catch (e) {
-      printV("Error getting latest height: $e");
-    }
-    final dbHeight = WarpApi.getDbHeight(coin);
-    final height = dbHeight.unpack();
-    final syncHeight = height.height;
-    if (chainHeight != syncHeight) {
-      printV(
-        "Waiting for sync to finish: chainHeight(${chainHeight}) != syncHeight(${syncHeight})",
+      await ZcashWalletBase.runWithCoinMutex.acquire();
+      final wSeed = await zkool_account.getAccountSeed(c: c, account: c.account);
+      if (wSeed == null) {
+        printV("Not running Taddr rotation - seed not found");
+        return null;
+      }
+      final seed = seedForOffset(wSeed);
+      final accs = await zkool_account.listAccounts(c: c);
+      for (int i = 0; i < accs.length; i++) {
+        final accSeed = await zkool_account.getAccountSeed(c: c, account: accs[i].id);
+        if (accSeed?.mnemonic == seed.mnemonic &&
+            accSeed?.phrase == seed.phrase &&
+            accSeed?.aindex == seed.aindex) {
+          return accs[i].id;
+        }
+      }
+
+      final acc = accs.firstWhere((final a) => a.id == c.account);
+
+      final name = CRC32.compute(wSeed.mnemonic).toString();
+      final id = await newAccount(
+        name: name,
+        seed: seed.mnemonic,
+        passphrase: seed.phrase,
+        height: acc.birth,
+        aindex: seed.aindex,
       );
+      return id;
+    } finally {
+      ZcashWalletBase.runWithCoinMutex.release();
+    }
+  }
+
+  static Future<void> createAndSweepTAddresses() async {
+    printV("createAndSweepTAddresses");
+    final chainHeight = await zkool_network.getCurrentHeight(c: c);
+    final syncHeight = ZcashWalletBase.dbHeight;
+    // if (chainHeight != syncHeight) {
+    //   printV(
+    //     "Waiting for sync to finish: chainHeight(${chainHeight}) != syncHeight(${syncHeight})",
+    //   );
+    //   return;
+    // }
+
+
+    final rotationAccount = await getRotationAccountForCurrentAccount();
+
+    if (rotationAccount == null) {
+      printV("rotation account is null, bailing out");
       return;
     }
-    final Map<int, List<ShieldedTx>> newShieldedAccountsTx = {};
-    final accounts = WarpApi.getAccountList(coin);
-    if (accounts.isEmpty) return;
-    final Map<int, String> seeds = {};
-    for (int i = 0; i < accounts.length; i++) {
-      final acc = accounts[i];
-      final backup = WarpApi.getBackup(coin, acc.id);
-      await WarpApi.transparentSync(coin, acc.id, syncHeight);
-      if (backup.seed == null) continue;
-      seeds[acc.id] = backup.seed!;
-    }
-    for (int i = 0; i < accounts.length; i++) {
-      final seed = seeds[accounts[i].id]!;
-      if ([12, 13, 24, 25].contains(seed.split(" ").length)) {
-        if (seed.split(" ").last.contains(":tgen:")) continue;
-        rotationAccounts[accounts[i].id] = [];
-      }
-    }
-    final raKeys = rotationAccounts.keys.toList();
-    seeds.removeWhere((_, final val) => raKeys.contains(val));
-    printV("raKeys: ${raKeys.length}");
-    for (int i = 0; i < raKeys.length; i++) {
-      final accs = accounts.where((final a) {
-        final seed = WarpApi.getBackup(coin, a.id).seed;
-        return isSeedForWallet(seeds[raKeys[i]], seed);
-      }).toList();
-      rotationAccounts[raKeys[i]]!.addAll(accs);
-      final acc = accountForSeed(seeds[raKeys[i]]!)!;
-      final txs = WarpApi.getTxsSync(coin, acc.id);
-      newShieldedAccountsTx[acc.id] ??= [];
-      newShieldedAccountsTx[acc.id]!.addAll(txs);
-    }
-    rotationAccountsUsable = rotationAccounts.map((final k, final v) => MapEntry(k, v.toList()));
-    printV("rotationAccounts: ${rotationAccounts.length}");
 
-    for (int i = 0; i < raKeys.length; i++) {
-      final acc = accountForSeed(seeds[raKeys[i]]!)!;
-      newShieldedAccountsTx[acc.id] = [];
-      for (int j = 0; j < (rotationAccounts[raKeys[i]]?.length ?? 0); j++) {
-        final txs = WarpApi.getTxsSync(coin, rotationAccounts[raKeys[i]]![j].id);
-        rotationAccounts[raKeys[i]]![j];
-        newShieldedAccountsTx[acc.id]!.addAll(txs);
-      }
-      rotationAccountsUsable[raKeys[i]]!.removeWhere((final a) {
-        final txs = WarpApi.getTxsSync(coin, a.id);
-        return txs.isNotEmpty;
-      });
-
-      // remove hidden addresses
-      final wis = await WalletInfo.selectList('type = ?', [WalletType.zcash.index]);
-
-      final List<String> hiddenAddresses_ = [];
-      for (int k = 0; k < wis.length; k++) {
-        final addrs = await wis[k].getHiddenAddresses();
-        final addr2 = await wis[k].getUsedAddresses();
-        hiddenAddresses_.addAll(addrs);
-        hiddenAddresses_.addAll(addr2);
-      }
-      final Set<String> hiddenAddresses = hiddenAddresses_.toSet();
-      rotationAccountsUsable[raKeys[i]]!.removeWhere((final a) {
-        return hiddenAddresses.contains(WarpApi.getTAddr(coin, a.id));
-      });
-    }
-    printV("rotationAccountsUsable: ${rotationAccountsUsable.length}");
-
-    bool didAddNewAccount = false;
-    for (int i = 0; i < raKeys.length; i++) {
-      if (rotationAccountsUsable[raKeys[i]]!.length < 5) {
-        final seed = seedForOffset(seeds[raKeys[i]]!);
-        final name = CRC32.compute(raKeys[i].toString()).toString();
-        final id = await ZcashWalletService.runInDbMutex(
-          () => WarpApi.newAccount(coin, name, seed, rotationAccounts[raKeys[i]]!.length),
+    final amt = 25 + (rotationAddresses[c.account]?.length??0) - (rotationAddressesUsable[c.account]?.length??0);
+    await ZcashWalletBase.runWithCoinMutex.acquire();
+    final cId = c.account;
+    ZcashWalletBase.runWithCoinMutex.release();
+    await ZcashWalletBase.runWithCoin(
+      accountId: rotationAccount,
+      func: (final c) async {
+        final sc = await zkool_sweep.TransparentScanner.newInstance();
+        final sub = sc.run(endHeight: chainHeight, gapLimit: amt, c: c);
+        final wait = Mutex();
+        sub.listen(
+          (final a) {
+            rotationAddresses[cId] ??= {};
+            rotationAddresses[cId]!.add(a);
+          },
+          onDone: () {
+            if (wait.isLocked) wait.release();
+          },
+          onError: (final e) {
+            if (wait.isLocked) wait.release();
+            printV(e.toString());
+          },
+          cancelOnError: true,
         );
-        printV("new id: $id / $seed");
-        printV("${rotationAccounts[raKeys[i]]}");
-        printV(raKeys[i]);
-        rotationAccounts[raKeys[i]]!.forEach((final a) {
-          final b = WarpApi.getBackup(coin, a.id);
-          printV("${a.id}");
-        });
-        didAddNewAccount = true;
+        await wait.acquire();
+      },
+    );
+
+    final txList = await ZcashWalletBase.runWithCoin(
+      accountId: rotationAccount,
+      func: (final c) => zkool_account.listTxHistory(c: c),
+    );
+
+    printV("txList: $txList");
+
+    rotationAddressesUsable[cId] ??= {};
+    rotationAddressesUsable[cId]!.addAll(rotationAddresses[cId] ?? {});
+    for (int i = 0; i < txList.length; i++) {
+      final tx = txList[i];
+      final details = await ZcashWalletBase.runWithCoin(
+        accountId: rotationAccount,
+        func: (final c) => zkool_account.getTxDetails(c: c, idTx: tx.id),
+      );
+      for (int j = 0; j < details.outputs.length; j++) {
+        final out = details.outputs[j];
+        rotationAddressesUsable[cId]?.removeWhere((final a) => a == out.address);
       }
     }
-    printV("didAddNewAccount: ${didAddNewAccount}");
-    if (didAddNewAccount) {
-      return createAndSweepTAddresses();
+
+    BigInt bal = BigInt.from(0);
+
+    try {
+      final b = await ZcashWalletBase.runWithCoin(
+        accountId: rotationAccount,
+        func: (final c) => zkool_sync.balance(c: c),
+      );
+      bal += b.field0.reduce((final a, final b) => a + b);
+    } catch (e) {
+      printV("getTBalance: $e");
+      return;
+    }
+    if (bal < BigInt.from(30000)) {
+      await updateCache();
+      return;
+    };
+    
+    final toAddressO = await zkool_account.getAddresses(c: c, uaPools: 7);
+    final toAddress = toAddressO.saddr!;
+    final tx = await zkool_pay.prepare(
+      recipients: [zkool_paydart.Recipient(address: toAddress, amount: bal)],
+      options: zkool_pay.PaymentOptions(
+        srcPools: 7,
+        recipientPaysFee: true,
+        smartTransparent: false,
+      ),
+      c: c,
+    );
+    printV("getLatestHeight");
+    final height = await zkool_network.getCurrentHeight(c: c);
+    printV("signTransaction");
+    final signTx = await zkool_pay.signTransaction(pczt: tx, c: c);
+    printV("extractTransaction");
+    final txBytes = await zkool_pay.extractTransaction(package: signTx);
+    printV("broadcastTransaction");
+    final result = await zkool_pay.broadcastTransaction(height: height, txBytes: txBytes, c: c);
+    printV("result");
+    if (result.isEmpty) {
+      printV("Unknown error");
+      throw Exception("Unknown error");
     }
 
-    for (var i = 0; i < raKeys.length; i++) {
-      final accs = rotationAccounts[raKeys[i]]!;
-      inner:
-      for (var j = 0; j < accs.length; j++) {
-        int bal = 0;
-        try {
-          bal += await WarpApi.getTBalance(coin, accs[j].id);
-        } catch (e) {
-          printV("getTBalance: $e");
-          return;
-        }
-        if (bal < 30000) continue inner;
-        final to = accountForSeed(seeds[raKeys[i]]!)!;
-        // final toAddress = WarpApi.getTAddr(coin, to.id);
-        // final fromSeed = WarpApi.getBackup(coin, to.id);
-        // final txId = await ZcashWalletService.runInDbMutex(
-        //   () => WarpApi.sweepTransparentSeed(
-        //     to.coin,
-        //     to.id,
-        //     chainHeight,
-        //     fromSeed.seed!,
-        //     7,
-        //     toAddress,
-        //     0,
-        //     1,
-        //     FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 0),
-        //   ),
-        // );
-        final recipientBuilder = RecipientObjectBuilder(
-          address: WarpApi.getAddress(coin, to.id, 4),
-          pools: 4,
-          feeIncluded: true,
-          amount: bal,
-        );
+    await Future.delayed(Duration(seconds: 120)); // let it be
+    return createAndSweepTAddresses();
+  }
 
-        final recipient = Recipient(recipientBuilder.toBytes());
-        final fee = FeeT(fee: 10000, minFee: 0, maxFee: 0, scheme: 0);
-        await ZcashWalletBase.loadProver();
-        final txPlan = await ZcashWalletService.runInDbMutex(
-          () => WarpApi.prepareTx(
-            coin,
-            accs[j].id,
-            [recipient],
-            3, // pools: (Transparent + Sapling)
-            1,
-            0, // anchorOffset
-            fee,
-          ),
-        );
-        final _txId = await ZcashWalletService.runInDbMutex(
-          () => WarpApi.signAndBroadcast(ZcashWalletBase.coin, accs[j].id, txPlan),
-        );
-        await ZcashWalletService.addShieldedTx(_txId);
-        printV("shielded: $_txId");
+  static Future<void> updateCache() async {
+    final rotationAccount = await getRotationAccountForCurrentAccount();
+    if (rotationAccount == null) {
+      printV("rotationAccount is null");
+      return;
+    }
+    final txsI = await ZcashWalletBase.runWithCoin(
+      accountId: rotationAccount,
+      func: (final c) => zkool_account.listTxHistory(c: c),
+    );
+    final txsA = await Future.wait(
+      txsI.map((final tx) async => ZcashWalletBase.runWithCoin(
+        accountId: rotationAccount,
+        func: (final c) => zkool_account.getTxDetails(idTx: tx.id, c: c),
+      ),
+    ));
+    final txs = <ZkoolTx>[];
+    for (int i = 0; i < txsI.length; i++) {
+      txs.add(ZkoolTx(txsI[i], txsA[i]));
+    }
+    shieldedAccountsTx[c.account] ??= [];
+    final txsCrc = txs.map((final t) => t.txHash);
+    shieldedAccountsTx[c.account]!.removeWhere((final t) => txsCrc.contains(t.txHash));
+    shieldedAccountsTx[c.account]!.addAll(txs);
 
-        await Future.delayed(Duration(seconds: 120)); // let it be
-        return createAndSweepTAddresses();
+    final txHist = shieldedAccountsTx[c.account]!;
+    for (int i = 0; i < txHist.length; i++) {
+      final tx = txHist[i];
+      if (tx.value < BigInt.from(0)) {
+        await ZcashWalletService.addShieldedTx(tx.txHash);
       }
     }
-    final nsatKeys = newShieldedAccountsTx.keys.toList();
-    for (int i = 0; i < nsatKeys.length; i++) {
-      inner:
-      for (int j = 0; j < newShieldedAccountsTx[nsatKeys[i]]!.length; j++) {
-        final tx = newShieldedAccountsTx[nsatKeys[i]]?[j];
-        if (tx == null) {
-          continue inner;
-        }
-        final _txId = tx.txId;
-        if (_txId == null) {
-          continue inner;
-        }
-        if (tx.value < 0) {
-          await ZcashWalletService.addShieldedTx(_txId);
-          // continue inner;
-        }
-        if (ZcashWalletService.autoshieldTx.contains(_txId)) {
-          continue inner;
-        }
-      }
-    }
-    shieldedAccountsTx = newShieldedAccountsTx.map((final k, final v) => MapEntry(k, v.toList()));
     await serializeToFile();
     return;
   }
 
-  static ShieldedTx reverseAmount(final ShieldedTx t) {
-    final tt = t.unpack();
-    tt.value = -tt.value;
-    return ShieldedTx(base64.decode(flatBuffersPack(tt.pack)));
-  }
-
-  static Account? accountForSeed(final String seed) {
-    final accounts = WarpApi.getAccountList(coin);
+  static Future<zkool_account.Account?> accountForSeed(final zkool_account.Seed seed) async {
+    final accounts = await zkool_account.listAccounts(c: c);
     if (accounts.isEmpty) return null;
     for (int i = 0; i < accounts.length; i++) {
       final acc = accounts[i];
-      final backup = WarpApi.getBackup(coin, acc.id);
-      if (backup.seed == seed) {
+      final backup = await zkool_account.getAccountSeed(c: c, account: acc.id);
+      if (backup?.mnemonic == seed.mnemonic && backup?.phrase == seed.phrase) {
         return acc;
       }
     }
@@ -395,51 +369,44 @@ class ZcashTaddressRotation {
     }
   }
 
-  static String? addressForAccount(final int accountId, final Set<String>? hiddenAddresses) {
-    final accs = rotationAccountsUsable[accountId] ?? [];
-    for (int i = 0; i < accs.length; i++) {
-      final addr = WarpApi.getTAddr(coin, accs[i].id);
-      if (hiddenAddresses?.contains(addr) == true) {
-        continue;
-      }
-      return addr;
-    }
-    return null;
+  static Future<String?> addressForAccount(
+    final int accountId,
+  ) async {
+    return rotationAddressesUsable[accountId]?.firstOrNull;
   }
 
-  static List<String>? allAddressesForAccount(final int accountId) {
-    final acc = rotationAccounts[accountId];
-    if (acc == null) {
-      printV("Nothing found");
-      return null;
-    }
-    for (int i = 0; i < acc.length; i++) {
-      final b = WarpApi.getBackup(coin, acc[i].id);
-      printV("$i. ${b.seed?.split(" ").last}, ${b.index}, ${WarpApi.getTAddr(coin, acc[i].id)}");
-    }
-    return acc.map((final a) => WarpApi.getTAddr(coin, a.id)).toList();
+  static Future<Iterable<String>?> allAddressesForAccount(final int accountId) async {
+    return rotationAddresses[accountId];
   }
 
-  static List<String>? allUsedAddressesForAccount(final int accountId) {
-    final seed = WarpApi.getBackup(coin, accountId).seed;
-    if (seed == null) return [];
-    final acc = rotationAccounts[seed]?.toList();
-    if (acc == null) {
-      printV("Nothing found");
-      return null;
-    }
-    acc.removeWhere((final a1) {
-      for (int i = 0; i < (rotationAccountsUsable[seed]?.length ?? 0); i++) {
-        if (rotationAccountsUsable[seed]?[i].id == a1.id) {
-          return true;
-        }
-      }
-      return false;
-    });
-    for (int i = 0; i < acc.length; i++) {
-      final b = WarpApi.getBackup(coin, acc[i].id);
-      printV("$i. ${b.seed?.split(" ").last}, ${b.index}, ${WarpApi.getTAddr(coin, acc[i].id)}");
-    }
-    return acc.map((final a) => WarpApi.getTAddr(coin, a.id)).toList();
+  static Future<List<String>?> allUsedAddressesForAccount(final int accountId) async {
+    final allAccCopy = rotationAddresses[accountId]?.map((final a) => a).toList();
+    allAccCopy?.removeWhere((final a) => rotationAddressesUsable[accountId]?.contains(a) == true);
+    return allAccCopy;
+  }
+
+  static Future<int> newAccount({
+    required final String name,
+    required final String seed,
+    required final String passphrase,
+    required final int height,
+    required final int aindex,
+  }) async {
+    final id = await zkool_account.newAccount(
+      na: zkool_account.NewAccount(
+        name: name,
+        restore: true,
+        passphrase: passphrase,
+        key: seed,
+        aindex: aindex,
+        birth: height,
+        folder: '',
+        useInternal: false,
+        internal: false,
+        ledger: false,
+      ),
+      c: c,
+    );
+    return id;
   }
 }

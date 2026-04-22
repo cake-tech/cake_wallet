@@ -9,8 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  warp_api:
-    path: ../scripts/zcash_lib/packages/warp_api_ffi
   cw_core:
     path: ../cw_core
   mobx: ^2.6.0
@@ -20,9 +18,10 @@ dependencies:
   path: any
   flat_buffers: any
   zkool:
+    # path: ../../zkool2
     git:
-      url: https://github.com/cake-tech/zkool2
-      ref: b1642f260da4fa00dd2f8d4dd689073d0b56960a
+      url: https://github.com/cake-tech/zkool2.git
+      ref: a5ad91db33488a5108b9ad4e3241703854d5692a
 
   path_provider: any
 dependency_overrides:
