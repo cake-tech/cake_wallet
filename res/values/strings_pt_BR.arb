@@ -207,7 +207,7 @@
   "coin_control": "Controle de moedas (opcional)",
   "coin_control_desc": "Filtrar saídas para esta transação. As alterações feitas aqui refletirão apenas na transação atual.",
   "coin_control_load_failed": "Falha ao carregar moedas não gastas",
-  "cold_or_recover_wallet": "Adicionar uma carteira somente leitura do Cupcake, uma carteira fria ou recuperar uma carteira de papel",
+  "cold_or_recover_wallet": "Adicione uma cold wallet air-gapped ou recupere uma paper wallet.",
   "collection_address": "Endereço de coleta",
   "collection_description": "Descrição da coleção",
   "collection_name": "Nome da coleção",

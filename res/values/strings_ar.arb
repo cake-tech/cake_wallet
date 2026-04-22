@@ -208,7 +208,7 @@
   "coin_control": "التحكم في العملات (اختياري)",
   "coin_control_desc": "تصفية المخرجات لهذه المعاملة. ستنعكس التغييرات التي تجريها هنا على المعاملة الحالية فقط.",
   "coin_control_load_failed": "فشل تحميل العملات غير المصروفة",
-  "cold_or_recover_wallet": "أضف محفظة للعرض فقط من Cupcake أو محفظة باردة أو استعد محفظة ورقية",
+  "cold_or_recover_wallet": "أضف محفظة باردة معزولة عن الهواء أو استعد محفظة ورقية.",
   "collection_address": "عنوان الاستلام",
   "collection_description": "وصف المجموعة",
   "collection_name": "اسم المجموعة",
