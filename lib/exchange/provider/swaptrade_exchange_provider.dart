@@ -94,6 +94,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
+      if (isFixedRateMode && !supportsFixedRate) {
+        return 0.0;
+      }
       if(from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
 
       final params = <String, dynamic>{};
@@ -192,7 +195,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
-        'markup': int.tryParse(markup.toString()) ?? 0,
+        'markup': double.tryParse(markup.toString()) ?? 0,
         'refund_address': request.refundAddress,
       };
 

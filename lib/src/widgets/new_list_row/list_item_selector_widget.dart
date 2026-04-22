@@ -36,19 +36,22 @@ class ListItemSelectorWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(child: Text(label, style: textStyle)),
-              Row(
-                spacing: 8,
-                children: [
-                  Text(
-                    options[selectedIndex],
-                    style: labelStyle,
-                  ),
-                  CakeImageWidget(imageUrl:
-                  "assets/new-ui/chooser.svg",
-                    colorFilter:
-                    ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Text(
+                      options[selectedIndex],
+                      style: labelStyle,
+                    ),
+                    CakeImageWidget(imageUrl:
+                    "assets/new-ui/chooser.svg",
+                      colorFilter:
+                      ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                    ),
+                  ],
+                ),
               ),
             ],
             );

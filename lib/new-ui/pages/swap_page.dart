@@ -378,11 +378,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   @override
   void dispose() {
-    super.dispose();
     _depositAmountFocus.dispose();
     _depositAddressFocus.dispose();
     _receiveAmountFocus.dispose();
     _receiveAddressFocus.dispose();
+    widget.exchangeViewModel.dispose();
+    super.dispose();
   }
 
   void _onCurrencyChange(CryptoCurrency currency, ExchangeViewModel exchangeViewModel,
@@ -390,6 +391,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
     final isCurrentTypeWallet = exchangeViewModel.useSameWalletAddress(currency);
 
     if (key == depositKey && !isCurrentTypeWallet) exchangeViewModel.isSendFromExternal = true;
+    if (key == depositKey && isCurrentTypeWallet) exchangeViewModel.isSendFromExternal = false;
+
 
     key.currentState!.changeSelectedCurrency(currency);
 
