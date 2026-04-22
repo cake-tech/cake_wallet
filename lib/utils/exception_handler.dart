@@ -304,6 +304,7 @@ class ExceptionHandler {
     "Image upload failed due to loss of GPU access",
     "transport error",
     "SdkError.sparkError(field0: Operator RPC error: Connection error: status: Unavailable, message: \"dns error\", details: []",
+    "the timeout of the request was reached",
 
     "support for coin removed, your seedphrase:"
   ];
