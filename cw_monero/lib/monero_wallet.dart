@@ -3,7 +3,6 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -504,7 +503,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateUsedSubaddress();
 
     if (isEnabledAutoGenerateSubaddress) {
-      walletAddresses.updateUnusedSubaddress(
+      await walletAddresses.updateUnusedSubaddress(
           accountIndex: walletAddresses.account?.id ?? 0,
           defaultLabel: walletAddresses.account?.label ?? '');
     }
@@ -953,7 +952,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> _updateSubAddress(bool enableAutoGenerate, {Account? account}) async {
     if (enableAutoGenerate) {
-      walletAddresses.updateUnusedSubaddress(
+      await walletAddresses.updateUnusedSubaddress(
         accountIndex: account?.id ?? 0,
         defaultLabel: account?.label ?? '',
       );
