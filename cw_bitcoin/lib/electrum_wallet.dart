@@ -2438,13 +2438,13 @@ abstract class ElectrumWalletBase
         historiesWithDetails.addAll(history);
 
         final matchedAddresses = addressRecord.isHidden ? hiddenAddresses : receiveAddresses;
-        final isUsedAddressUnderGap = matchedAddresses.toList().indexOf(addressRecord) >=
+        final isUsedAddressAboveGap = matchedAddresses.toList().indexOf(addressRecord) >=
             matchedAddresses.length -
                 (addressRecord.isHidden
                     ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
                     : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
 
-        if (isUsedAddressUnderGap) {
+        if (isUsedAddressAboveGap) {
           final prevLength = walletAddresses.allAddresses.length;
 
           // Discover new addresses for the same address type until the gap limit is respected
@@ -2552,63 +2552,106 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchTransactionsForAddressTypeBatch(
-      Map<String, ElectrumTransactionInfo> historiesWithDetails, BitcoinAddressType type) async {
+      Map<String, ElectrumTransactionInfo> historiesWithDetails,
+      BitcoinAddressType type) async {
     final addressesByType =
-    walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
-    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden).toList();
+        walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
     final receiveAddresses = addressesByType.where((addr) => !addr.isHidden).toList();
+    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden).toList();
+
     walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
-    final tip = await getCurrentChainTip();
-
-    final addressHistory = await _processChunksToMap<BitcoinAddressRecord, String, ElectrumTransactionInfo>(
-      items: addressesByType,
-      chunkSize: addressHistoryChunkSize,
-      processChunk: (chunk) => _fetchBatchAddressHistory(chunk, tip, addressHistoryChunkSize),
+    await fetchTransactionsForAddressesBranchBatch(
+      historiesWithDetails,
+      type,
+      receiveAddresses,
+      isHidden: false,
     );
 
-    if (addressHistory.isNotEmpty) historiesWithDetails.addAll(addressHistory);
-
-    for (final addressRecord in addressesByType) {
-      final matchedAddresses = addressRecord.isHidden ? hiddenAddresses : receiveAddresses;
-
-      final isUsedAddressUnderGap =
-          matchedAddresses.indexOf(addressRecord) >=
-              matchedAddresses.length - ElectrumWalletAddressesBase.gap;
-
-      if (isUsedAddressUnderGap && addressRecord.isUsed) {
-        final prevLength = walletAddresses.allAddresses.length;
+    await fetchTransactionsForAddressesBranchBatch(
+      historiesWithDetails,
+      type,
+      hiddenAddresses,
+      isHidden: true,
+    );
+  }
 
 
-        await walletAddresses.discoverAddressesBatch(
-          matchedAddresses,
-          addressRecord.isHidden,
-              (newAddresses) async {
-            await _fetchBatchAddressHistory(
-              newAddresses,
-              tip,
-              discoveryHistoryChunkSize,
-            );
+  Future<void> fetchTransactionsForAddressesBranchBatch(
+      Map<String, ElectrumTransactionInfo> historiesWithDetails,
+      BitcoinAddressType type,
+      List<BitcoinAddressRecord> branchAddresses, {
+        required bool isHidden,
+      }) async {
+    if (branchAddresses.isEmpty) return;
 
-            return newAddresses
-                .where((addressRecord) => addressRecord.isUsed)
-                .map((addressRecord) => addressRecord.address)
-                .toSet();
-          },
-          type: type,
+    final tip = await getCurrentChainTip();
+    final currentBranch = [...branchAddresses];
+
+    final initialHistory =
+        await _processChunksToMap<BitcoinAddressRecord, String, ElectrumTransactionInfo>(
+      items: currentBranch,
+      chunkSize: addressHistoryChunkSize,
+      processChunk: (chunk) => _fetchBatchAddressHistory(
+        chunk,
+        tip,
+        addressHistoryChunkSize,
+      ),
+    );
+
+    if (initialHistory.isNotEmpty) {
+      historiesWithDetails.addAll(initialHistory);
+    }
+
+    final gapLimit = isHidden
+        ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
+        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
+
+    final highestUsedIndex = _highestUsedIndex(currentBranch);
+    final shouldDiscover =
+        highestUsedIndex >= 0 && highestUsedIndex >= currentBranch.length - gapLimit;
+
+    if (!shouldDiscover) return;
+
+
+    final newAddresses = await walletAddresses.discoverAddressesBatch(
+      currentBranch,
+      isHidden,
+      (newAddresses) async {
+        final newHistory = await _fetchBatchAddressHistory(
+          newAddresses,
+          tip,
+          discoveryHistoryChunkSize,
         );
 
-        final newLength = walletAddresses.allAddresses.length;
-
-        if (newLength > prevLength) {
-          await fetchTransactionsForAddressTypeBatch(
-              historiesWithDetails,
-              type);
-          return;
+        if (newHistory.isNotEmpty) {
+          historiesWithDetails.addAll(newHistory);
         }
+
+        return newAddresses
+            .where((addressRecord) => addressRecord.isUsed)
+            .map((addressRecord) => addressRecord.address)
+            .toSet();
+      },
+      type: type,
+    );
+
+    if (newAddresses.isNotEmpty) {
+      currentBranch.addAll(newAddresses);
+
+      if (isHidden) {
+        walletAddresses.hiddenAddresses.addAll(newAddresses.map((e) => e.address));
+        await walletAddresses.saveAddressesInBox();
       }
     }
+  }
+
+  int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
+    for (int i = addresses.length - 1; i >= 0; i--) {
+      if (addresses[i].isUsed) return i;
+    }
+    return -1;
   }
 
   Future<Map<String, ElectrumTransactionInfo>> _fetchBatchAddressHistory(
