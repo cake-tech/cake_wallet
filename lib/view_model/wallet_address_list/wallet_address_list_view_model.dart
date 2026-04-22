@@ -614,7 +614,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
   }
 
-  void _init() {
+  Future<void> _init() async {
     _baseItems = [];
 
     if (wallet.walletAddresses.hiddenAddresses.isNotEmpty) {
@@ -633,7 +633,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _baseItems.add(WalletAddressListHeader());
     }
     if (wallet.isEnabledAutoGenerateSubaddress) {
-      wallet.walletAddresses.address = wallet.walletAddresses.latestAddress;
+      await wallet.walletAddresses.ensureLatestAddress();
     }
 
     // reaction((_) => amount, (_) => refreshUri());

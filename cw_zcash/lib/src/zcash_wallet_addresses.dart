@@ -29,9 +29,8 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   String? _orchardAddress;
   String? _unifiedAddress;
 
-  @override
   @computed
-  String get latestAddress {
+  String get _latestAddress {
     switch (addressPageType) {
       case ZcashAddressType.transparent:
         return transparentAddress;
@@ -59,6 +58,12 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
+  @override
+  @action
+  Future<void> ensureLatestAddress() async {
+    address = _latestAddress;
+  }
+
   @observable
   ZcashAddressType? _addressPageType;
 
@@ -69,7 +74,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   set addressPageType(final ZcashAddressType newZat) {
     _addressPageType = newZat;
     init();
-    address = latestAddress;
+    address = _latestAddress;
   }
 
   @action
@@ -146,7 +151,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     usedAddresses = await walletInfo.getUsedAddresses();
     manualAddresses = await walletInfo.getManualAddresses();
     hiddenAddresses = await walletInfo.getHiddenAddresses();
-    address = latestAddress;
+    await ensureLatestAddress();
   }
 
   @override
@@ -183,7 +188,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @observable
-  late String _address = latestAddress;
+  late String _address = _latestAddress;
 
   @computed
   String get address {

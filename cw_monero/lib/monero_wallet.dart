@@ -504,7 +504,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateUsedSubaddress();
 
     if (isEnabledAutoGenerateSubaddress) {
-      walletAddresses.updateUnusedSubaddress(
+      await walletAddresses.updateUnusedSubaddress(
           accountIndex: walletAddresses.account?.id ?? 0,
           defaultLabel: walletAddresses.account?.label ?? '');
     }
@@ -953,7 +953,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> _updateSubAddress(bool enableAutoGenerate, {Account? account}) async {
     if (enableAutoGenerate) {
-      walletAddresses.updateUnusedSubaddress(
+      await walletAddresses.updateUnusedSubaddress(
         accountIndex: account?.id ?? 0,
         defaultLabel: account?.label ?? '',
       );

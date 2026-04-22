@@ -33,15 +33,16 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   String get primaryAddress => getAddress(accountIndex: account?.id ?? 0, addressIndex: 0);
 
   @override
-  String get latestAddress {
-    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
-    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-    while (hiddenAddresses.contains(address)) {
-      addressIndex++;
-      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-      subaddressList.update(accountIndex: account?.id??0);
-    }
-    return address;
+  @action
+  Future<void> ensureLatestAddress() async {
+      var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+      var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+      while (hiddenAddresses.contains(address)) {
+        addressIndex++;
+        address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+        await subaddressList.update(accountIndex: account?.id??0);
+      }
+      this.address = address;
   }
 
   @override

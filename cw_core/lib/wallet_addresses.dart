@@ -23,12 +23,18 @@ abstract class WalletAddresses {
 
   String get address;
 
-  String get latestAddress {
-    if ([WalletType.monero, WalletType.wownero].contains(walletInfo.type)) {
-      if (addressesMap.keys.isEmpty) return address;
-      return addressesMap[addressesMap.keys.last] ?? address;
+  // String get latestAddress {
+  //   if ([WalletType.monero, WalletType.wownero].contains(walletInfo.type)) {
+  //     if (addressesMap.keys.isEmpty) return address;
+  //     return addressesMap[addressesMap.keys.last] ?? address;
+  //   }
+  //   return _localAddress ?? address;
+  // }
+
+  Future<void> ensureLatestAddress() async {
+    if(_localAddress != null && _localAddress != address) {
+      address = _localAddress!;
     }
-    return _localAddress ?? address;
   }
 
   String get primaryAddress => address;
