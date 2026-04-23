@@ -490,9 +490,9 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
 
 abstract class MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {required int accountIndex});
+  Future<void> update(Object wallet, {required int accountIndex});
   void refresh(Object wallet, {required int accountIndex});
-  List<Subaddress> getAll(Object wallet);
+  Future<List<Subaddress>> getAll(Object wallet);
   Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
   Future<void> setLabelSubaddress(Object wallet,
       {required int accountIndex, required int addressIndex, required String label});

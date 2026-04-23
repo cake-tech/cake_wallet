@@ -28,18 +28,16 @@ class NetworkPathPill extends StatelessWidget {
           color: scheme.onSurfaceVariant,
         ),
         const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            sourceChainName.capitalized(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: scheme.onSurface,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                  letterSpacing: -0.08,
-                ),
-          ),
+        Text(
+          sourceChainName.capitalized(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: scheme.onSurface,
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+                letterSpacing: -0.08,
+              ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -56,18 +54,16 @@ class NetworkPathPill extends StatelessWidget {
           color: scheme.onSurfaceVariant,
         ),
         const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            destChainName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: scheme.onSurface,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                  letterSpacing: -0.08,
-                ),
-          ),
+        Text(
+          destChainName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: scheme.onSurface,
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+                letterSpacing: -0.08,
+              ),
         ),
       ],
     );
