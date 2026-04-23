@@ -96,6 +96,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
     bridgeViewModel.onBridgeSuccess = null;
     bridgeViewModel.setAmount('');
     _amountController.dispose();
+    bridgeViewModel.dispose();
     super.dispose();
   }
 

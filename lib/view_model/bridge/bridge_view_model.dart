@@ -49,9 +49,9 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   final FiatConversionStore fiatConversionStore;
   final BridgeTransfersStore bridgeTransfersStore;
   final Map<String, Completer<void>> _pollingCancellers = {};
-  
+
   static const _pollInterval = Duration(seconds: 2);
-  static const _pollTimeout = Duration(minutes: 3);
+  static const _pollTimeout = Duration(minutes: 5);
   static const _destinationPollInterval = Duration(seconds: 5);
   static const _destinationPollTimeout = Duration(minutes: 10);
 
@@ -159,7 +159,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
       return calculateFiatAmount(price: price, cryptoAmount: forFiat);
     } catch (_) {
-      return '0.00';
+      return '';
     }
   }
 
@@ -318,6 +318,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   @action
   Future<void> loadReceivingWalletOptions() async {
     if (!isEVMCompatibleChain(wallet.type)) return;
+
+    if (destinationChainId == null) return;
 
     final destWalletType = evm!.getWalletTypeByChainId(destinationChainId!);
 
@@ -507,7 +509,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @override
   void onWalletChange(WalletBase wallet) {
-    cancelAllPolling();
+    _cancelAllPolling();
     _resumePollingForActiveTransfers(wallet);
   }
 
@@ -686,13 +688,17 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     _clearQuoteState();
   }
 
-  void cancelAllPolling() {
+  void _cancelAllPolling() {
     for (final canceller in _pollingCancellers.values) {
       if (!canceller.isCompleted) {
         canceller.complete();
       }
     }
     _pollingCancellers.clear();
+  }
+
+  void dispose() {
+    _cancelAllPolling();
   }
 }
 
