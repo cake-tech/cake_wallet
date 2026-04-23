@@ -1570,7 +1570,7 @@ abstract class EVM {
   bool isUSDT0Token(WalletBase wallet, CryptoCurrency token);
   List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet);
 
-  Future<USDT0Quote> quoteUSDT0Transfer({
+  Future<BridgeQuote> quoteUSDT0Transfer({
     required WalletBase wallet,
     required int sourceChainId,
     required int destinationChainId,
@@ -1585,7 +1585,7 @@ abstract class EVM {
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-    required USDT0Quote quote,
+    required BridgeQuote quote,
     required TransactionPriority priority,
     bool useBlinkProtection = true,
   });
