@@ -139,10 +139,14 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 }
 
   @computed
-  String get amountDisplayFormatted => amountParsingProxy.getDisplayCryptoAmount(
-        amount.replaceAll(',', '.'),
-        selectedToken!,
-      );
+  String get amountDisplayFormatted {
+        if (selectedToken == null) return "0.00";
+        
+        return amountParsingProxy.getDisplayCryptoAmount(
+              amount.replaceAll(',', '.'),
+              selectedToken!,
+            );
+    }
 
   DecimalAmountValidator get decimalAmountValidator => DecimalAmountValidator(
         currency: selectedToken!,
