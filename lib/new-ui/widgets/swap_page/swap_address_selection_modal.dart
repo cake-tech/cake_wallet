@@ -113,6 +113,9 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             List<WalletInfoAddressInfo>? accounts =
                           hasAccounts ? this.accounts[item.id] : null;
 
+                            if (accounts != null && accounts.length > 1) {
+                              accounts = [accounts.last];
+                            }
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6.0),
                         child: SwapAddressSelectionModalRow(
