@@ -130,10 +130,13 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   @computed
-  String get tokenBalanceFormatted => amountParsingProxy.getDisplayCryptoStringFromBigInt(
-        selectedTokenBalance,
-        selectedToken!,
-      );
+    String get tokenBalanceFormatted {
+          if (selectedToken == null) return "0.00";
+          
+          return amountParsingProxy.getDisplayCryptoStringFromBigInt(
+            selectedTokenBalance, selectedToken!,
+  );
+}
 
   @computed
   String get amountDisplayFormatted => amountParsingProxy.getDisplayCryptoAmount(
