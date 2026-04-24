@@ -722,15 +722,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @action
-  Future<void> changeReceiveAmount({required String amount}) async {
+  Future<void> changeReceiveAmount({required String amount, bool isCanonical = false}) async {
     if (amount.isEmpty) {
       _depositAmount = null;
       _receiveAmount = null;
       return;
     }
 
-    _receiveAmount =
-        amountParsingProxy.parseCryptoString(amount.replaceAll(',', '.'), receiveCurrency);
+    _receiveAmount = isCanonical
+        ? Money.tryParse(amount.replaceAll(',', '.'), receiveCurrency)
+        : _appStore.amountParsingProxy
+            .tryParseCryptoString(amount.replaceAll(',', '.'), receiveCurrency);
+
+    if (_receiveAmount == null) {
+      _depositAmount = null;
+      return;
+    }
 
     final _enteredAmount = double.tryParse(_receiveAmount.toString()) ?? 0;
 
@@ -779,10 +786,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     _depositAmount = isCanonical
-        ? Money.parse(amount.replaceAll(',', '.'), depositCurrency)
+        ? Money.tryParse(amount.replaceAll(',', '.'), depositCurrency)
         : _appStore.amountParsingProxy
-            .parseCryptoString(amount.replaceAll(',', '.'), depositCurrency);
+            .tryParseCryptoString(amount.replaceAll(',', '.'), depositCurrency);
 
+    if (_depositAmount == null) {
+      _receiveAmount = null;
+      return;
+    }
     /// For fixed-rate transactions, we don't want to recalculate receive amount
     /// as it should remain exactly what the user set
     if (isFixedRateMode) return;
