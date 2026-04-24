@@ -240,13 +240,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      final agreedAmount = trade.amount;
-      final isSendAll = trade.isSendAll;
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
       trade.mergeFindTradeByIdResult(updatedTrade);
-      trade.amount = agreedAmount;
-      trade.isSendAll = isSendAll;
       tradesStore.setTrade(trade);
 
       _updateItems();

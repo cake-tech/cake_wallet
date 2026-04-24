@@ -132,14 +132,9 @@ class TradeLegacy extends HiveObject {
       isRefund: isRefund,
       isSendAll: isSendAll,
       router: router,
-      fromCurrencyJson: TradeCurrencySnapshot.fromLegacyHive(
-        raw: fromRaw,
-        displayTitleTag: userCurrencyFromRaw,
-      ),
-      toCurrencyJson: TradeCurrencySnapshot.fromLegacyHive(
-        raw: toRaw,
-        displayTitleTag: userCurrencyToRaw,
-      ),
+      from:
+          TradeCurrencySnapshot.fromLegacyHive(raw: fromRaw, displayTitleTag: userCurrencyFromRaw),
+      to: TradeCurrencySnapshot.fromLegacyHive(raw: toRaw, displayTitleTag: userCurrencyToRaw),
       needToRegisterInSwapXyz: needToRegisterInSwapXyz,
       sourceTokenAddress: sourceTokenAddress,
       sourceTokenDecimals: sourceTokenDecimals,

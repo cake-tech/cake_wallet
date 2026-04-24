@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/trade_currency_snapshot.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/db/sqlite.dart';
@@ -16,8 +15,8 @@ class Trade {
     required this.id,
     required this.amount,
     ExchangeProviderDescription? provider,
-    CryptoCurrency? from,
-    CryptoCurrency? to,
+    this.from,
+    this.to,
     TradeState? state,
     this.receiveAmount,
     this.createdAt,
@@ -38,8 +37,6 @@ class Trade {
     this.isRefund,
     this.isSendAll,
     this.router,
-    String? fromCurrencyJson,
-    String? toCurrencyJson,
     // The following fields are used for SwapXyz trades only
     this.needToRegisterInSwapXyz,
     this.sourceTokenAddress,
@@ -52,10 +49,6 @@ class Trade {
     this.chainId,
   }) {
     if (provider != null) providerRaw = provider.raw;
-
-    this.fromCurrencyJson = fromCurrencyJson ?? TradeCurrencySnapshot.encode(from);
-    this.toCurrencyJson = toCurrencyJson ?? TradeCurrencySnapshot.encode(to);
-
     if (state != null) stateRaw = state.raw;
   }
 
@@ -76,13 +69,8 @@ class Trade {
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  String? fromCurrencyJson;
-
-  String? toCurrencyJson;
-
-  CryptoCurrency? get from => TradeCurrencySnapshot.decode(fromCurrencyJson);
-
-  CryptoCurrency? get to => TradeCurrencySnapshot.decode(toCurrencyJson);
+  CryptoCurrency? from;
+  CryptoCurrency? to;
 
   String stateRaw = '';
 
@@ -176,97 +164,25 @@ class Trade {
   }
 
   // ── SQLite serialization ─────────────────────────────
-
-  static bool _hasValidString(String? value) => value != null && value.trim().isNotEmpty;
-
   void mergeFindTradeByIdResult(Trade updated) {
-    final keepInternalId = internalId;
-
-    if (updated.id.isNotEmpty) id = updated.id;
-
-    providerRaw = updated.providerRaw;
-
     if (updated.stateRaw.isNotEmpty) stateRaw = updated.stateRaw;
-    if (updated.amount.trim().isNotEmpty) amount = updated.amount;
     if (updated.createdAt != null) createdAt = updated.createdAt;
     if (updated.expiredAt != null) expiredAt = updated.expiredAt;
     if (updated.isRefund != null) isRefund = updated.isRefund;
-    if (updated.isSendAll != null) isSendAll = updated.isSendAll;
-    if (updated.chainId != null) chainId = updated.chainId;
-    if (updated.fee != null) fee = updated.fee;
 
-    if (_hasValidString(updated.memo)) memo = updated.memo;
-    if (_hasValidString(updated.txId)) txId = updated.txId;
-
-    if (_hasValidString(updated.fromCurrencyJson)) {
-      fromCurrencyJson = updated.fromCurrencyJson;
-    }
-    if (_hasValidString(updated.toCurrencyJson)) {
-      toCurrencyJson = updated.toCurrencyJson;
-    }
-    if (_hasValidString(updated.receiveAmount)) {
-      receiveAmount = updated.receiveAmount;
-    }
-    if (_hasValidString(updated.inputAddress)) {
-      inputAddress = updated.inputAddress;
-    }
-    if (_hasValidString(updated.extraId)) {
-      extraId = updated.extraId;
-    }
-    if (_hasValidString(updated.outputTransaction)) {
+    if (updated.receiveAmount != null) receiveAmount = updated.receiveAmount;
+    if (updated.inputAddress != null) inputAddress = updated.inputAddress;
+    if (updated.extraId != null) extraId = updated.extraId;
+    if (updated.outputTransaction != null) {
       outputTransaction = updated.outputTransaction;
     }
-    if (_hasValidString(updated.refundAddress)) {
-      refundAddress = updated.refundAddress;
-    }
-    if (_hasValidString(updated.walletId)) {
-      walletId = updated.walletId;
-    }
-    if (_hasValidString(updated.payoutAddress)) {
-      payoutAddress = updated.payoutAddress;
-    }
-    if (_hasValidString(updated.password)) {
-      password = updated.password;
-    }
-    if (_hasValidString(updated.providerId)) {
-      providerId = updated.providerId;
-    }
-    if (_hasValidString(updated.providerName)) {
-      providerName = updated.providerName;
-    }
-    if (_hasValidString(updated.fromWalletAddress)) {
-      fromWalletAddress = updated.fromWalletAddress;
-    }
-
-    if (_hasValidString(updated.router)) {
-      router = updated.router;
-    }
-    if (updated.needToRegisterInSwapXyz != null) {
-      needToRegisterInSwapXyz = updated.needToRegisterInSwapXyz;
-    }
-    if (updated.sourceTokenDecimals != null) {
-      sourceTokenDecimals = updated.sourceTokenDecimals;
-    }
-    if (updated.routerChainId != null) {
-      routerChainId = updated.routerChainId;
-    }
-    if (updated.requiresTokenApproval != null) {
-      requiresTokenApproval = updated.requiresTokenApproval;
-    }
-    if (_hasValidString(updated.sourceTokenAddress)) {
-      sourceTokenAddress = updated.sourceTokenAddress;
-    }
-    if (_hasValidString(updated.routerData)) {
-      routerData = updated.routerData;
-    }
-    if (_hasValidString(updated.routerValue)) {
-      routerValue = updated.routerValue;
-    }
-    if (_hasValidString(updated.sourceTokenAmountRaw)) {
-      sourceTokenAmountRaw = updated.sourceTokenAmountRaw;
-    }
-
-    internalId = keepInternalId;
+    if (updated.refundAddress != null) refundAddress = updated.refundAddress;
+    if (updated.payoutAddress != null) payoutAddress = updated.payoutAddress;
+    if (updated.password != null) password = updated.password;
+    if (updated.providerId != null) providerId = updated.providerId;
+    if (updated.providerName != null) providerName = updated.providerName;
+    if (updated.memo != null) memo = updated.memo;
+    if (updated.txId != null) txId = updated.txId;
   }
 
   Map<String, dynamic> toSqliteMap() {
@@ -274,8 +190,24 @@ class Trade {
       selfIdColumn: internalId,
       'id': id,
       'providerRaw': providerRaw,
-      'fromCurrencyJson': fromCurrencyJson,
-      'toCurrencyJson': toCurrencyJson,
+      'fromTitle': from?.title,
+      'fromName': from?.name,
+      'fromTag': from?.tag,
+      'fromFullName': from?.fullName,
+      'fromDecimals': from?.decimals,
+      'fromRaw': from?.raw,
+      'fromIconPath': from?.iconPath,
+      'fromFlatIconPath': from?.flatIconPath,
+      'fromChainIconPath': from?.chainIconPath,
+      'toTitle': to?.title,
+      'toName': to?.name,
+      'toTag': to?.tag,
+      'toFullName': to?.fullName,
+      'toDecimals': to?.decimals,
+      'toRaw': to?.raw,
+      'toIconPath': to?.iconPath,
+      'toFlatIconPath': to?.flatIconPath,
+      'toChainIconPath': to?.chainIconPath,
       'stateRaw': stateRaw,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'expiredAt': expiredAt?.millisecondsSinceEpoch,
@@ -340,8 +272,8 @@ class Trade {
       isRefund: (row['isRefund'] as int?) == 1,
       isSendAll: (row['isSendAll'] as int?) == 1,
       router: row['router'] as String?,
-      fromCurrencyJson: row['fromCurrencyJson'] as String?,
-      toCurrencyJson: row['toCurrencyJson'] as String?,
+      from: _currencyFromRow(row, 'from'),
+      to: _currencyFromRow(row, 'to'),
       needToRegisterInSwapXyz: (row['needToRegisterInSwapXyz'] as int?) == 1,
       sourceTokenAddress: row['sourceTokenAddress'] as String?,
       sourceTokenDecimals: row['sourceTokenDecimals'] as int?,
@@ -356,6 +288,28 @@ class Trade {
     trade.providerRaw = row['providerRaw'] as int? ?? 0;
     trade.stateRaw = row['stateRaw'] as String? ?? '';
     return trade;
+  }
+
+  static CryptoCurrency? _currencyFromRow(Map<String, dynamic> row, String prefix) {
+    final title = row['${prefix}Title'] as String?;
+    if (title == null || title.isEmpty) return null;
+
+    final tag = row['${prefix}Tag'] as String?;
+
+    final live = CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
+    if (live != null) return live;
+
+    return CryptoCurrency(
+      title: title,
+      name: row['${prefix}Name'] as String? ?? '',
+      tag: tag,
+      fullName: row['${prefix}FullName'] as String?,
+      decimals: row['${prefix}Decimals'] as int? ?? 1,
+      raw: row['${prefix}Raw'] as int? ?? -1,
+      iconPath: row['${prefix}IconPath'] as String?,
+      flatIconPath: row['${prefix}FlatIconPath'] as String?,
+      chainIconPath: row['${prefix}ChainIconPath'] as String?,
+    );
   }
 
   String amountFormatted() => formatAmount(amount);

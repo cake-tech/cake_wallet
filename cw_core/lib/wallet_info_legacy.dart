@@ -246,35 +246,35 @@ class WalletInfo extends HiveObject {
   Future<void> migrateToSqlite() async {
     final di = newWi.DerivationInfo(
       id: 0,
-      derivationType: derivationInfo?.derivationType ?? derivationType ?? newWi.DerivationType.unknown,
+      derivationType:
+          derivationInfo?.derivationType ?? derivationType ?? newWi.DerivationType.unknown,
       derivationPath: derivationInfo?.derivationPath ?? derivationPath ?? '',
     );
     final derivationInfoId = await di.save();
     final walletInfo = newWi.WalletInfo(
-      0,
-      id,
-      name,
-      type,
-      isRecovery,
-      restoreHeight,
-      timestamp,
-      dirPath,
-      path,
-      address,
-      yatEid,
-      yatLastUsedAddressRaw,
-      showIntroCakePayCard,
-      derivationInfoId,
-      hardwareWalletType,
-      parentAddress,
-      hashedWalletIdentifier,
-      isNonSeedWallet,
-      0,
-      addressPageType,
-      false,
-      true,
-      null
-    );
+        0,
+        id,
+        name,
+        type,
+        isRecovery,
+        restoreHeight,
+        timestamp,
+        dirPath,
+        path,
+        address,
+        yatEid,
+        yatLastUsedAddressRaw,
+        showIntroCakePayCard,
+        derivationInfoId,
+        hardwareWalletType,
+        parentAddress,
+        hashedWalletIdentifier,
+        isNonSeedWallet,
+        0,
+        addressPageType,
+        false,
+        true,
+        null);
     final wiId = await walletInfo.save();
     for (final address in usedAddresses ?? <String>[]) {
       await newWi.WalletInfoAddress.insert(wiId, newWi.WalletInfoAddressType.used, address);
@@ -289,8 +289,8 @@ class WalletInfo extends HiveObject {
       for (final address in addressInfos![i] ?? <AddressInfo>[]) {
         await newWi.WalletInfoAddressInfo.insert(
           walletInfoId: wiId,
-          mapKey: i, 
-          accountIndex: address.accountIndex??0,
+          mapKey: i,
+          accountIndex: address.accountIndex ?? 0,
           address: address.address,
           label: address.label,
         );
@@ -303,9 +303,13 @@ class WalletInfo extends HiveObject {
     printV('Migrating WalletInfo to SQLite: start');
     final sw = Stopwatch()..start();
     final list = box.values.toList();
-    for (final wi in list) {
-      await wi.migrateToSqlite();
-      await wi.delete();
+    for (final trade in list) {
+      try {
+        await trade.migrateToSqlite();
+        await trade.delete();
+      } catch (e) {
+        printV('Error migrating trade ${trade.id}: $e');
+      }
     }
     printV('Migrating WalletInfo to SQLite: end (${sw.elapsedMilliseconds}ms)');
   }

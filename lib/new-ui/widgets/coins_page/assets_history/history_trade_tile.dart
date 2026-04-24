@@ -121,34 +121,30 @@ class HistoryTradeTile extends StatelessWidget {
 
   String _getIconPath(CryptoCurrency currency) {
     try {
-      if (currency.iconPath != null) {
-        return currency.iconPath!;
+      if (currency.title.isNotEmpty) {
+        final live = CryptoCurrency.safeParseCurrencyFromString(currency.title, tag: currency.tag);
+        if (live?.iconPath != null) return live!.iconPath!;
       }
+
+      if (currency.iconPath != null) return currency.iconPath!;
 
       if (currency.name.isNotEmpty) {
-        final c = CryptoCurrency.safeParseCurrencyFromString(currency.name);
-        if (c != null && c.iconPath != null) {
-          return c.iconPath!;
-        }
-      }
-
-      if (currency.title.isNotEmpty) {
-        final c = CryptoCurrency.safeParseCurrencyFromString(currency.title);
-        if (c != null && c.iconPath != null) {
-          return c.iconPath!;
-        }
+        final byName = CryptoCurrency.safeParseCurrencyFromString(currency.name);
+        if (byName?.iconPath != null) return byName!.iconPath!;
       }
     } catch (_) {}
 
-    //TODO approporiate fallback
     return "";
   }
 
   String _getChainIcon(CryptoCurrency currency) {
     try {
-      if (currency.chainIconPath != null) {
-        return currency.chainIconPath!;
+      if (currency.title.isNotEmpty) {
+        final parsedCurrency = CryptoCurrency.safeParseCurrencyFromString(currency.title, tag: currency.tag);
+        if (parsedCurrency?.chainIconPath != null) return parsedCurrency!.chainIconPath!;
       }
+
+      if (currency.chainIconPath != null) return currency.chainIconPath!;
 
       if ((currency.tag ?? "").isNotEmpty) {
         final currencyFromTag = CryptoCurrency.fromString(currency.tag!);

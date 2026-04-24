@@ -15,8 +15,6 @@ class TradeListItem extends ActionListItem {
 
   BalanceDisplayMode get displayMode => appStore.settingsStore.balanceDisplayMode;
 
-
-
   String get tradeFormattedAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '---';
@@ -36,5 +34,5 @@ class TradeListItem extends ActionListItem {
   }
 
   @override
-  DateTime get date => trade.createdAt ?? DateTime.now();
+  DateTime get date => trade.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 }
