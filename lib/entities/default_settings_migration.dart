@@ -609,6 +609,19 @@ Future<void> defaultSettingsMigration(
         case 63:
           await _addXaut0TokenToExistingSolanaWallets();
           break;
+        case 64:
+          await _backupWowneroSeeds(havenSeedStore);
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "LetsExchange",
+            enabled: false,
+          );
+          await _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: true,
+          );
+          break;
         default:
           break;
       }

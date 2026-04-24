@@ -535,6 +535,9 @@ class EVMChainClient {
     } on RangeError catch (_) {
       throw Exception('Invalid token contract for this network.');
     } catch (e) {
+      if (e.toString().contains("hostUnreachable")) {
+        return EVMChainERC20Balance(BigInt.zero);
+      }
       throw Exception('Could not fetch balances: ${e.toString()}');
     }
   }

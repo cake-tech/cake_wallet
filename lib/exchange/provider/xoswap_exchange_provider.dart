@@ -7,12 +7,21 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
-  XOSwapExchangeProvider();
+  XOSwapExchangeProvider() {
+    _addAppVersionHeader();
+  }
+
+  void _addAppVersionHeader() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+    _headers['App-Version'] = currentVersion;
+  }
 
   static const _apiAuthority = 'exchange.exodus.io';
   static const _apiPath = '/v3';
@@ -21,7 +30,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   static const _orders = '/orders';
   static const _assets = '/assets';
 
-  static const _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
+  static final _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
 
   final _networks = <String, String>{
     'POL': 'matic',
