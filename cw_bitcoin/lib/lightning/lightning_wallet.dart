@@ -23,7 +23,6 @@ class LightningWallet {
   final String apiKey;
   final String lnurlDomain;
   final Network network;
-  final Currency currency;
   late BreezSdk sdk;
 
   String? cachedAddress;
@@ -37,9 +36,10 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
-    this.currency = CryptoCurrency.btcln,
     this.cachedAddress
   });
+
+  Currency get currency => CryptoCurrency.btcln;
 
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;

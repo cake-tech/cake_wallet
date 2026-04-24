@@ -180,11 +180,12 @@ class Money implements Comparable<Money> {
       return parseFixed(
           formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals), targetDecimals);
     } else {
-      return parseFixed(
-          formatFixed(source, sourceDecimals).padRight(targetDecimals - sourceDecimals),
-          targetDecimals);
+      return parseFixed(formatFixed(source, sourceDecimals), targetDecimals);
     }
   }
+
+  @override
+  int get hashCode => amount.hashCode ^ currency.hashCode;
 
   @override
   String toString() => formatFixed(amount, currency.decimals);

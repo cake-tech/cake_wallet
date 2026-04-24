@@ -1,13 +1,4 @@
-import 'package:decimal/decimal.dart';
-
 class AmountConverter {
-  static double cryptoAmountToDouble({required num amount, required num divider}) =>
-      amount / divider;
-
-  static Decimal cryptoAmountToDecimal({required int amount, required int divider}) =>
-    (Decimal.fromInt(amount) / Decimal.fromInt(divider)).toDecimal();
-
-
   static String toBaseUnits(String amount, int decimals) {
     amount = amount.trim();
     if (amount.isEmpty) return '0';
