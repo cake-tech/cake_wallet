@@ -2912,6 +2912,14 @@ abstract class ElectrumWalletBase
     );
   }
 
+  Future<Map<String, Map<String, dynamic>>> _getBalanceBatch(
+      List<String> scriptHashes) {
+    return electrumClient.getBatchBalance(
+      scriptHashes,
+      timeout: transactionBatchTimeoutMs,
+    );
+  }
+
   Future<Map<String, ElectrumTransactionInfo?>> fetchTransactionInfoBatch({
     required List<String> hashes,
     Map<String, int?>? heightsByHash,
@@ -3332,18 +3340,64 @@ abstract class ElectrumWalletBase
     }));
   }
 
+  Future<List<Map<String, dynamic>>> fetchBalancesBatch(
+    List<BitcoinAddressRecord> addresses,
+  ) async {
+    final scriptHashes = addresses.map((address) => address.getScriptHash(network)).toList();
+
+    if (scriptHashes.isEmpty) {
+      return <Map<String, dynamic>>[];
+    }
+
+    try {
+      final balancesByScriptHash =
+          await _processChunksToMap<String, String, Map<String, dynamic>>(
+        items: scriptHashes,
+        chunkSize: addressHistoryChunkSize,
+        processChunk: _getBalanceBatch,
+      );
+
+      final balances = scriptHashes
+          .map((scriptHash) => balancesByScriptHash[scriptHash] ?? <String, dynamic>{})
+          .toList();
+
+      final hasMissingBalance = balances.any((balance) => balance['confirmed'] == null);
+      if (hasMissingBalance) {
+        printV('fetchBalancesBatch returned missing balances, falling back to regular flow');
+        return fetchBalancesRegular(addresses);
+      }
+
+      return balances;
+    } catch (e) {
+      printV('fetchBalancesBatch failed, falling back to regular flow: $e');
+      return fetchBalancesRegular(addresses);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchBalancesRegular(
+    List<BitcoinAddressRecord> addresses,
+  ) async {
+    final balanceFutures = <Future<Map<String, dynamic>>>[];
+
+    for (final address in addresses) {
+      final sh = address.getScriptHash(network);
+      balanceFutures.add(electrumClient.getBalance(sh));
+    }
+
+    return Future.wait(balanceFutures);
+  }
+
   Future<ElectrumBalance> fetchBalances() async {
     final addresses = walletAddresses.allAddresses
         .where((address) => address.address.isNotEmpty)
         .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
-    final balanceFutures = <Future<Map<String, dynamic>>>[];
-    for (var i = 0; i < addresses.length; i++) {
-      final addressRecord = addresses[i];
-      final sh = addressRecord.getScriptHash(network);
-      final balanceFuture = electrumClient.getBalance(sh);
-      balanceFutures.add(balanceFuture);
-    }
+
+    final balances = shouldUseBatchFetching
+        ? await fetchBalancesBatch(addresses)
+        : await fetchBalancesRegular(addresses);
+
+    printV('Fetched balances for ${addresses.length} addresses. Batch fetching: $shouldUseBatchFetching');
 
     var totalFrozen = 0;
     var totalConfirmed = 0;
@@ -3378,8 +3432,6 @@ abstract class ElectrumWalletBase
         }
       });
     });
-
-    final balances = await Future.wait(balanceFutures);
 
     if (balances.isNotEmpty && balances.first['confirmed'] == null) {
       // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
