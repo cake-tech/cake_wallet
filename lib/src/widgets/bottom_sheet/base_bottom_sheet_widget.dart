@@ -55,13 +55,15 @@ abstract class BaseBottomSheet extends StatelessWidget {
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
         child: Container(
           color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _buildHeader(context),
-              contentWidget(context),
-              _buildFooter(context),
-            ],
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                _buildHeader(context),
+                contentWidget(context),
+                _buildFooter(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -108,7 +110,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
 
       case FooterType.slideActionButton:
         return Padding(
-          padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
+          padding: const EdgeInsets.fromLTRB(40, 12, 40, 24),
           child: StandardSlideButton(
             key: ValueKey('base_bottom_sheet_widget_standard_slide_button_key'),
             buttonText: slideActionButtonText ?? '',
@@ -120,7 +122,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
 
       case FooterType.singleActionButton:
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 34),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: LoadingPrimaryButton(
             key: singleActionButtonKey,
             text: singleActionButtonText ?? '',
@@ -134,7 +136,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
 
       case FooterType.doubleActionButton:
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 34),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           child: Row(
             children: [
               Expanded(

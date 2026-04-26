@@ -324,7 +324,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 63,
+    initialMigrationVersion: 64,
   );
 }
 
@@ -362,10 +362,10 @@ Future<void> initialSetup({
     powNodeSource: powNodes,
     contactSource: contactSource,
     tradesSource: tradesSource,
+    ordersSource: ordersSource,
     templates: templates,
     exchangeTemplates: exchangeTemplates,
     transactionDescriptionBox: transactionDescriptions,
-    ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     payjoinSessionSource: payjoinSessionSource,

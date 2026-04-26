@@ -146,4 +146,8 @@ class Routes {
   static const aboutPage = "/about_page";
 
   static const liveDemoConfig = "/live_demo_config";
+
+  static const bridgeHistoryPage = '/bridge_history_page';
+  static const bridgeDestinationNetworkPage = '/bridge_destination_network_page';
+  static const bridgeReceivingWalletPage = '/bridge_receiving_wallet_page';
 }
