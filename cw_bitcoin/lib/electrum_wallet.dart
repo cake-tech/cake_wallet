@@ -360,6 +360,8 @@ abstract class ElectrumWalletBase
 
   String get xpub => accountHD.publicKey.toExtended;
 
+  bool get shouldUseBatchFetching => useBatchForHistory && _isBatchSupported == true;
+
   @override
   String? get seed => _mnemonic;
 
@@ -1785,18 +1787,21 @@ abstract class ElectrumWalletBase
     }
 
     // Set the balance of all non-silent payment and non-mweb addresses to 0 before updating
-    walletAddresses.allAddresses
-        .where((element) => element.type != SegwitAddresType.mweb)
-        .forEach((addr) {
-      if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
-    });
 
-    final addressFutures = walletAddresses.allAddresses
+    final targetAddresses = walletAddresses.allAddresses
         .where((element) => element.type != SegwitAddresType.mweb)
-        .map((address) => fetchUnspent(address))
         .toList();
 
-    final results = await Future.wait(addressFutures);
+    for (final addr in targetAddresses) {
+      if (addr is! BitcoinSilentPaymentAddressRecord) {
+        addr.balance = 0;
+      }
+    }
+
+    final results = shouldUseBatchFetching
+        ? await _fetchUnspentsBatch(targetAddresses)
+        : await _fetchUnspentsRegular(targetAddresses);
+
     final failedCount = results.where((result) => result == null).length;
 
     if (failedCount == 0) {
@@ -1826,6 +1831,74 @@ abstract class ElectrumWalletBase
 
     await updateCoins(unspentCoins);
     await _refreshUnspentCoinsInfo();
+  }
+
+  Future<List<List<BitcoinUnspent>?>> _fetchUnspentsRegular(
+      List<BitcoinAddressRecord> addresses,
+      ) async {
+    final addressFutures = addresses.map((address) => fetchUnspent(address)).toList();
+    return Future.wait(addressFutures);
+  }
+
+
+  Future<List<List<BitcoinUnspent>?>> _fetchUnspentsBatch(
+      List<BitcoinAddressRecord> addresses,
+      ) async {
+    final byScriptHash = <String, BitcoinAddressRecord>{
+      for (final address in addresses) address.getScriptHash(network): address,
+    };
+
+    final scriptHashes = byScriptHash.keys.toList();
+
+    try {
+      final unspentByScriptHash =
+      await _processChunksToMap<String, String, List<Map<String, dynamic>>>(
+        items: scriptHashes,
+        chunkSize: addressHistoryChunkSize,
+        processChunk: _getListUnspentBatch,
+      );
+
+      final txHashes = <String>{};
+      final coinsByScriptHash = <String, List<BitcoinUnspent>>{};
+
+      for (final entry in unspentByScriptHash.entries) {
+        final addressRecord = byScriptHash[entry.key];
+        if (addressRecord == null) continue;
+
+        final coins = <BitcoinUnspent>[];
+
+        for (final unspent in entry.value) {
+          final coin = BitcoinUnspent.fromJSON(addressRecord, unspent);
+          coin.isChange = addressRecord.isHidden;
+          coins.add(coin);
+          txHashes.add(coin.hash);
+        }
+
+        coinsByScriptHash[entry.key] = coins;
+      }
+
+      final txInfoByHash = await fetchTransactionInfoBatch(
+        hashes: txHashes.toList(),
+        retryOnFailure: true,
+        retryDelay: const Duration(seconds: 1),
+      );
+
+      for (final coins in coinsByScriptHash.values) {
+        for (final coin in coins) {
+          final tx = txInfoByHash[coin.hash];
+          coin.confirmations = tx?.confirmations;
+          coin.isPegOut = tx?.isHogEx;
+        }
+      }
+
+      return addresses.map((address) {
+        final scriptHash = address.getScriptHash(network);
+        return coinsByScriptHash[scriptHash] ?? <BitcoinUnspent>[];
+      }).toList();
+    } catch (e) {
+      printV('fetchUnspentsBatch failed: $e');
+      return List<List<BitcoinUnspent>?>.filled(addresses.length, null);
+    }
   }
 
   List<BitcoinUnspent> handleFailedUtxoFetch({
@@ -2387,13 +2460,12 @@ abstract class ElectrumWalletBase
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     try {
-      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
-      final shouldUseBatchForHistory = useBatchForHistory && _isBatchSupported == true;
+      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};;
 
-      printV('[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchForHistory');
+      printV('[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchFetching');
 
       if (type == WalletType.bitcoin) {
-        await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchForHistory
+        await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
             ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
             : fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.bitcoinCash) {
@@ -2827,6 +2899,14 @@ abstract class ElectrumWalletBase
   Future<Map<String, List<Map<String, dynamic>>>> _getHistoryBatch(
       List<String> scriptHashes) {
     return electrumClient.getBatchHistory(
+      scriptHashes,
+      timeout: transactionBatchTimeoutMs,
+    );
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>> _getListUnspentBatch(
+      List<String> scriptHashes) {
+    return electrumClient.getBatchUnspent(
       scriptHashes,
       timeout: transactionBatchTimeoutMs,
     );

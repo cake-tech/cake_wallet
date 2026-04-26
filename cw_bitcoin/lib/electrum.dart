@@ -341,6 +341,44 @@ class ElectrumClient {
     return historyMap;
   }
 
+  Future<Map<String, List<Map<String, dynamic>>>> getBatchUnspent(
+      List<String> scriptHashes, {
+        int timeout = 10000,
+      }) async {
+    final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
+
+    final batchResults = await callBatchWithTimeout(
+      method: 'blockchain.scripthash.listunspent',
+      paramsList: paramsList,
+      timeout: timeout,
+    );
+
+    final unspentMap = <String, List<Map<String, dynamic>>>{};
+
+    for (int i = 0; i < scriptHashes.length; i++) {
+      final sh = scriptHashes[i];
+
+      if (i >= batchResults.length) {
+        unspentMap[sh] = const [];
+        continue;
+      }
+
+      final result = batchResults[i];
+
+      if (result is List) {
+        unspentMap[sh] = result
+            .whereType<Map<dynamic, dynamic>>()
+            .map((m) => m.map((k, v) => MapEntry(k.toString(), v)))
+            .cast<Map<String, dynamic>>()
+            .toList();
+      } else {
+        unspentMap[sh] = const [];
+      }
+    }
+
+    return unspentMap;
+  }
+
   Future<Map<String, Map<String, dynamic>>> getBatchTransactionVerbose(
       List<String> hashes, {
         int timeout = 10000,
