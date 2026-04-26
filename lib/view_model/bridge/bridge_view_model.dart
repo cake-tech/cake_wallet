@@ -18,6 +18,7 @@ import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -185,7 +186,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   String get quoteNativeFeeFormattedForDisplay {
     if (quoteNativeFee.isEmpty) return '';
 
-    return '${quoteNativeFee} ${wallet.currency.title}';
+    return '${quoteNativeFee.withMaxDecimals(8)} ${wallet.currency.title}';
   }
 
   @computed

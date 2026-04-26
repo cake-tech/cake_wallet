@@ -100,6 +100,7 @@ class InfoBottomSheet extends BaseBottomSheet {
             )
           else
             Container(),
+          SizedBox(height: 24,),
           if (content != null)
             Expanded(
               flex: 2,
