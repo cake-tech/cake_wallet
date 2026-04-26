@@ -185,8 +185,14 @@ dev_dependencies:
       url: https://github.com/cake-tech/google-translator.git
       version: 1.0.0
   msix: ^3.16.9
+  cw_custom_lints:
+    path: cw_custom_lints
+  custom_lint: 0.6.2
 
 dependency_overrides:
+  rxdart: 0.28.0
+  dart_style: 2.3.6
+  analyzer: 6.4.1
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git

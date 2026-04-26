@@ -1,0 +1,56 @@
+name: PR Formatting & Lint Check
+
+on: [pull_request]
+
+jobs:
+  fast_lint_check:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Incremental Format and Lint
+        run: |
+          PR_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '\.dart$' || true)
+
+          if [ -z "$PR_FILES" ]; then
+            exit 0
+          fi
+
+          FAILED=false
+
+          if ! dart format --output=none --set-exit-if-changed $PR_FILES; then
+            FAILED=true
+          fi
+
+          dart run custom_lint > custom_lint_output 2>&1 || true
+
+          for file in $PR_FILES; do
+            if grep -q "$file" custom_lint_output; then
+              grep -C 2 "$file" custom_lint_output
+              FAILED=true
+            fi
+          done
+
+          dart analyze > dart_analyze_output 2>&1 || true
+
+          for file in $PR_FILES; do
+            if grep -q "$file" dart_analyze_output; then
+              grep -C 2 "$file" dart_analyze_output
+              FAILED=true
+            fi
+          done
+
+          if [ "$FAILED" = true ]; then
+            echo "ci failed because you didn't format or lint."
+            exit 1
+          fi

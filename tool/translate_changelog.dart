@@ -46,7 +46,7 @@ void main() async {
       });
 
       currentItem++;
-      printV(
+      print(
           "\r$currentLang/${langs.length} langs done, $currentItem/${defaultLangChangelog.length} items done");
     }
     currentLang++;

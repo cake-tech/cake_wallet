@@ -1,0 +1,8 @@
+name: cw_custom_lints
+version: 0.0.1
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # FIXME update once we get rid of hive and therefore can move away from flutter 3.32 and analyzer v6
+  custom_lint_builder: 0.6.2

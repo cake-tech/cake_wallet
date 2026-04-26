@@ -47,8 +47,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<CardCustomizerBloc, CardCustomizerState>(
+  Widget build(BuildContext context) => BlocListener<CardCustomizerBloc, CardCustomizerState>(
       listenWhen: (previous, current) =>
       previous.accountName != current.accountName,
       listener: (context, state) {
@@ -233,5 +232,4 @@ class _CardCustomizerState extends State<CardCustomizer> {
       },
     ),
 );
-  }
 }

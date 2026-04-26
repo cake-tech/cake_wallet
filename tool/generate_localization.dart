@@ -37,7 +37,7 @@ Future<void> main(List<String> args) async {
 
   extraInfo.forEach((key, dynamic value) async {
     if (key != srcDir) {
-      printV('Wrong key: $key');
+      print('Wrong key: $key');
       return;
     }
 
@@ -45,7 +45,7 @@ Future<void> main(List<String> args) async {
     final dir = Directory(dirPath);
 
     if (!await dir.exists()) {
-      printV('Wrong directory path: $dirPath');
+      print('Wrong directory path: $dirPath');
       return;
     }
 
@@ -55,12 +55,12 @@ Future<void> main(List<String> args) async {
         final shortLocale = element.path.split('_',)[1].split('.')[0];
         localePath[shortLocale] = element.path;
       } catch (e) {
-        printV('Wrong file: ${element.path}');
+        print('Wrong file: ${element.path}');
       }
     });
 
     if (!localePath.keys.contains(defaultLocale)) {
-      printV("Locale list doesn't contain $defaultLocale");
+      print("Locale list doesn't contain $defaultLocale");
       return;
     }
 
@@ -117,7 +117,7 @@ Future<void> main(List<String> args) async {
 
       await File(outputPath + localeListFileName).writeAsString(locales);
     } catch (e) {
-      printV(e.toString());
+      print(e.toString());
     }
   });
 }
