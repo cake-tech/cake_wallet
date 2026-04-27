@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
@@ -990,6 +991,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+
+    final validationErrorMessage = _addressTypeValidation(depositAddress, receiveAddress);
+    if (validationErrorMessage != null) {
+      tradeState = TradeIsCreatedFailure(title: S.current.trade_not_created, error: validationErrorMessage);
+      return;
+    }
+
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
       final amount = double.tryParse(_depositAmount.toString());
@@ -1406,6 +1414,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       case WalletType.none:
         break;
     }
+  }
+
+  String? _addressTypeValidation(String refoundAddress, String receiveAddress) {
+    final isRefundAddressSP = RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(refoundAddress);
+    if (isRefundAddressSP) return 'Silent payment address does not allowed as refund address';
+
+    final isReceiveAddressSP = RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(receiveAddress);
+    if (isReceiveAddressSP) return 'Silent payment address does not allowed as receive address';
+
+    final isRefundAddressMWEB = RegExp(AddressValidator.mWebAddressPattern).hasMatch(refoundAddress);
+    if (isRefundAddressMWEB) return 'MWEB address does not allowed as refund address';
+
+    final isReceiveAddressMWEB = RegExp(AddressValidator.mWebAddressPattern).hasMatch(receiveAddress);
+    if (isReceiveAddressMWEB) return 'MWEB address does not allowed as receive address';
+    return null;
   }
 
   void _defineIsReceiveAmountEditable() {
