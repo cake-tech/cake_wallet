@@ -77,9 +77,9 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   }
 
   @override
-  void update(Object wallet, {required int accountIndex}) {
+  Future<void> update(Object wallet, {required int accountIndex}) async {
     final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.walletAddresses.subaddressList.update(accountIndex: accountIndex);
+    await moneroWallet.walletAddresses.subaddressList.update(accountIndex: accountIndex);
   }
 
   @override

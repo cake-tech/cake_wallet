@@ -83,6 +83,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     // depositCurrency = wallet.currency;
   }
 
+  final List<ReactionDisposer> _disposers = [];
+
+  void dispose() {
+    bestRateSync.cancel();
+    for (final disposer in _disposers) {
+      disposer();
+    }
+    _disposers.clear();
+  }
+
   ExchangeViewModelBase(
     this._appStore,
     this.trades,
@@ -167,11 +177,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAddress =
         useSameWalletAddress(depositCurrency) ? wallet.walletAddresses.addressForExchange : '';
 
-    reaction((_) => receiveAddress, (_) {
+    _disposers.add(reaction((_) => receiveAddress, (_) {
       if(!(tradeState is TradeIsCreatedSuccessfully)) {
         receiveAddressDisplayName = null;
       }
-    });
+    }));
 
     provider = providerList.firstOrNull;
     final initialProvider = provider;
@@ -185,9 +195,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     // providerDisplay is read by ui to display auto-selected provider.
     // it's on a delay so it doesn't flicker.
-    reaction((_)=>bestRateProvider,(val) {
+    _disposers.add(reaction((_) => bestRateProvider, (val) {
       providerDisplay = val;
-    },delay: 300);
+    }, delay: 300));
 
     receiveCurrencies = CryptoCurrency.all
         .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
@@ -203,19 +213,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _injectUserTronTokensIntoCurrencyLists();
     _defineIsReceiveAmountEditable();
     loadLimits();
-    reaction((_) => isFixedRateMode, (Object _) {
+    _disposers.add(reaction((_) => isFixedRateMode, (Object _) {
       bestRateProvider = null;
       bestRate = 0.0;
       loadLimits();
-    });
+    }));
 
-    reaction((_) => forceDecentralizedExchanges, (val) {
+    _disposers.add(reaction((_) => forceDecentralizedExchanges, (val) {
       if (val && (bestRateProvider?.description.isCentralized ?? false)) {
         bestRateProvider = null;
         bestRate = 0.0;
         loadLimits();
       }
-    });
+    }));
 
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
@@ -722,15 +732,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @action
-  Future<void> changeReceiveAmount({required String amount}) async {
+  Future<void> changeReceiveAmount({required String amount, bool isCanonical = false}) async {
     if (amount.isEmpty) {
       _depositAmount = null;
       _receiveAmount = null;
       return;
     }
 
-    _receiveAmount =
-        amountParsingProxy.parseCryptoString(amount.replaceAll(',', '.'), receiveCurrency);
+    _receiveAmount = isCanonical
+        ? Money.tryParse(amount.replaceAll(',', '.'), receiveCurrency)
+        : _appStore.amountParsingProxy
+            .tryParseCryptoString(amount.replaceAll(',', '.'), receiveCurrency);
+
+    if (_receiveAmount == null) {
+      _depositAmount = null;
+      return;
+    }
 
     final _enteredAmount = double.tryParse(_receiveAmount.toString()) ?? 0;
 
@@ -779,10 +796,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     _depositAmount = isCanonical
-        ? Money.parse(amount.replaceAll(',', '.'), depositCurrency)
+        ? Money.tryParse(amount.replaceAll(',', '.'), depositCurrency)
         : _appStore.amountParsingProxy
-            .parseCryptoString(amount.replaceAll(',', '.'), depositCurrency);
+            .tryParseCryptoString(amount.replaceAll(',', '.'), depositCurrency);
 
+    if (_depositAmount == null) {
+      _receiveAmount = null;
+      return;
+    }
     /// For fixed-rate transactions, we don't want to recalculate receive amount
     /// as it should remain exactly what the user set
     if (isFixedRateMode) return;
@@ -1075,6 +1096,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         final providerRate = ratesSnapshot[i];
 
         printV('createTrade: trying provider=${provider.title}');
+
+        // should not happen but just as an extra check
+        if (isFixedRateMode && provider.supportsFixedRate == false) {
+          continue;
+        }
 
         // Skip Swaps.xyz when sending from external
         if (isSendFromExternal &&

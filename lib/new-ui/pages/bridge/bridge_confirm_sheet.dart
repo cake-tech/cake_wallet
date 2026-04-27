@@ -6,6 +6,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -98,7 +99,7 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 48),
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: CupertinoActivityIndicator(),
                       ),
                     );
                   }
@@ -176,9 +177,14 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                           ),
                         ],
                       ),
-                      NetworkPathPill(
-                        sourceChainName: bridgeViewModel.wallet.type.name,
-                        destChainName: bridgeViewModel.destinationChainInfo?.name ?? '',
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          NetworkPathPill(
+                            sourceChainName: bridgeViewModel.wallet.type.name,
+                            destChainName: bridgeViewModel.destinationChainInfo?.name ?? '',
+                          ),
+                        ],
                       ),
                       ConfirmDetailsCard(bridgeViewModel: bridgeViewModel),
                       if (bridgeViewModel.executeError != null) ...[
@@ -199,22 +205,16 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
               child: Observer(
                 builder: (_) {
                   if (bridgeViewModel.isExecuting) {
-                    return const LoadingBottomWidget(
-                      text: 'Bridging...',
-                    );
+                    return LoadingBottomWidget(text: "${S.of(context).bridging}...",);
                   }
-                  final canSwipe = bridgeViewModel.quote != null && !bridgeViewModel.isQuoteLoading;
-                  return IgnorePointer(
-                    ignoring: !canSwipe,
-                    child: Opacity(
-                      opacity: canSwipe ? 1 : 0.45,
-                      child: ConfirmSwiper(
-                        onConfirmed: () {
-                          bridgeViewModel.executeBridge();
-                        },
-                        swiperText: 'Swipe to bridge',
-                      ),
-                    ),
+                  if(bridgeViewModel.isQuoteLoading || bridgeViewModel.quote == null) {
+                    return LoadingBottomWidget(text: "${S.of(context).loading}...");
+                  }
+                  return ConfirmSwiper(
+                    onConfirmed: () {
+                      bridgeViewModel.executeBridge();
+                    },
+                    swiperText: S.of(context).swipe_to_bridge,
                   );
                 },
               ),

@@ -98,22 +98,30 @@ class TxDetailRowDefinition {
         keyString: "standard_list_item_transaction_details_recipient_address_key",
         title: S.current.transaction_details_recipient_address,
         valueGetter: (vm) {
-          vm.isRecipientAddressShown = true;
+          String? ret = null;
+
           switch (vm.wallet.type) {
             case WalletType.monero:
-              return monero!.getTransactionAddress(
-                  vm.wallet,
-                  vm.transactionInfo.additionalInfo['accountIndex'] as int,
-                  vm.transactionInfo.additionalInfo['addressIndex'] as int);
+              if (vm.transactionInfo.direction == TransactionDirection.incoming) {
+                ret = monero!.getTransactionAddress(
+                    vm.wallet,
+                    vm.transactionInfo.additionalInfo['accountIndex'] as int,
+                    vm.transactionInfo.additionalInfo['addressIndex'] as int);
+              }
             case WalletType.bitcoin:
-              return (bitcoin!.getTransactionAddresses(vm.wallet, vm.transactionInfo) ?? [])
+              ret = (bitcoin!.getTransactionAddresses(vm.wallet, vm.transactionInfo) ?? [])
                       .firstOrNull ??
                   "";
             case WalletType.tron:
-              return tron!.getTronBase58Address(vm.transactionInfo.to!, vm.wallet);
+              ret = tron!.getTronBase58Address(vm.transactionInfo.to!, vm.wallet);
             default:
-              return vm.transactionInfo.to!;
+              break;
           }
+          if(ret == null) {
+            ret = vm.transactionInfo.to ?? "";
+          }
+          vm.isRecipientAddressShown = ret.isNotEmpty;
+          return ret;
         },
         applicable: (vm) =>
             vm.showRecipientAddress &&

@@ -11,6 +11,7 @@ void main() {
       expect(content, Uri.parse("https://cake.cash/.well-known/lnurlp/konsti"));
     });
 
+    // This tests includes a rest request to an URL that expired and due to the lack of an alternative URL we ignore this test
     // test('get amount', () async {
     //   CakeTor.instance = await CakeTorInstance.getInstance();
     //

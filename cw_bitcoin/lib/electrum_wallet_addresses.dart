@@ -290,6 +290,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return getAddress(index: 0, hd: mainHd, addressType: addressPageType);
   }
 
+  String get payjoinCompatibleAddress {
+    final addrType = (addressPageType == SilentPaymentsAddresType.p2sp ||
+            addressPageType == LightningAddressType.p2l)
+        ? SegwitAddresType.p2wpkh
+        : addressPageType;
+
+    final mainHd = mainHdByType[addrType] ?? mainHdByType.values.first;
+    return getAddress(index: 0, hd: mainHd, addressType: addrType);
+  }
+
   Map<String, int> currentReceiveAddressIndexByType;
 
   int get currentReceiveAddressIndex =>

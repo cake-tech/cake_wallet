@@ -23,7 +23,6 @@ class LightningWallet {
   final String apiKey;
   final String lnurlDomain;
   final Network network;
-  final Currency currency;
   late BreezSdk sdk;
 
   String? cachedAddress;
@@ -37,9 +36,10 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
-    this.currency = CryptoCurrency.btcln,
     this.cachedAddress
   });
+
+  Currency get currency => CryptoCurrency.btcln;
 
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
@@ -50,9 +50,25 @@ class LightningWallet {
 
   void _subscribeToLogStream(File logFile) {
     _logSubscription = _logStream?.listen((logEntry) {
-      logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+      try {
+        // Check if file exists before writing (optional, but safer)
+        if (!logFile.existsSync()) {
+          logFile.createSync(recursive: true);
+        }
+        logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+      } catch (e) {
+        // Silently fail or use printV(e) so it doesn't crash the app
+        print("Failed to write to log: $e");
+      }
     }, onError: (e) {
-      logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
+      try {
+        if (!logFile.existsSync()) {
+          logFile.createSync(recursive: true);
+        }
+        logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
+      } catch (err) {
+        print("Failed to write error to log: $err");
+      }
     });
   }
 

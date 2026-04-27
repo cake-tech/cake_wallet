@@ -67,14 +67,14 @@ abstract class MoneroSubaddressListBase with Store {
 
   Future<void> addSubaddress({required int accountIndex, required String label}) async {
     await subaddress_list.addSubaddress(accountIndex: accountIndex, label: label);
-    update(accountIndex: accountIndex);
+    await update(accountIndex: accountIndex);
   }
 
   Future<void> setLabelSubaddress(
       {required int accountIndex, required int addressIndex, required String label}) async {
     await subaddress_list.setLabelForSubaddress(
         accountIndex: accountIndex, addressIndex: addressIndex, label: label);
-    update(accountIndex: accountIndex);
+    await update(accountIndex: accountIndex);
   }
 
   void refresh({required int accountIndex}) {

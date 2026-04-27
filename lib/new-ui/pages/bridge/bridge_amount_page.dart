@@ -4,7 +4,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
-import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
@@ -33,7 +32,10 @@ class BridgeAmountPage extends StatefulWidget {
 }
 
 class _BridgeAmountPageState extends State<BridgeAmountPage> {
-  late final TextEditingController _amountController;
+  final TextEditingController _amountController = TextEditingController();
+  final FocusNode _amountFocusNode = FocusNode();
+  bool _amountFocused = false;
+
   BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
 
   @override
@@ -42,10 +44,11 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
     bridgeViewModel.applyInitialBridgeToken(widget.initialToken);
     bridgeViewModel.onBridgeSuccess = _showBridgeSuccessBottomSheet;
 
-    _amountController = TextEditingController();
+    _amountFocusNode.addListener(() => setState(() => _amountFocused = _amountFocusNode.hasFocus));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bridgeViewModel.ensureFiatPriceForSelectedToken();
+      _amountFocusNode.requestFocus();
     });
   }
 
@@ -100,22 +103,23 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return KeyboardHideOverlay(
-      unfocusOnTap: true,
-      child: Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Column(
           children: [
             ModalTopBar(
-              title: 'Enter Amount',
-              leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
+              title: S.of(context).enter_amount,
+              leadingIcon: Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              trailingIcon: const Icon(Icons.calendar_month, size: 18),
+              trailingIcon: Icon(Icons.history),
               onTrailingPressed: () {
-                Navigator.pushNamed(context, Routes.bridgeHistoryPage, arguments: widget.bridgeHistoryViewModel);
+                Navigator.pushNamed(context, Routes.bridgeHistoryPage,
+                    arguments: widget.bridgeHistoryViewModel);
               },
             ),
             Expanded(
@@ -130,66 +134,63 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const Spacer(flex: 2),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              return Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
-                                  children: [
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: (constraints.maxWidth - 200)
-                                            .clamp(40.0, constraints.maxWidth),
-                                        minWidth: 40,
-                                      ),
-                                      child: TextFormField(
-                                        controller: _amountController,
-                                        maxLines: 1,
-                                        onChanged: bridgeViewModel.setAmount,
-                                        autovalidateMode: AutovalidateMode.always,
-                                        validator: bridgeViewModel.decimalAmountValidator,
-                                        keyboardType: TextInputType.numberWithOptions(
-                                          signed: false,
-                                          decimal: true,
-                                        ),
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.allow(
-                                            RegExp(r'^\d*[.,]?\d*$'),
-                                          ),
-                                        ],
-                                        textAlign: TextAlign.center,
-                                        decoration: InputDecoration(
-                                          isDense: true,
-                                          hintText: '0.00',
-                                          hintStyle: theme.textTheme.displayMedium?.copyWith(
-                                            fontWeight: FontWeight.w400,
-                                            color: theme.colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        style: theme.textTheme.displayMedium?.copyWith(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 45,
-                                          color: theme.colorScheme.onSurface,
-                                        ),
-                                      ),
+                          Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                IntrinsicWidth(
+                                  child: TextFormField(
+                                    controller: _amountController,
+                                    focusNode: _amountFocusNode,
+                                    maxLines: 1,
+                                    onChanged: bridgeViewModel.setAmount,
+                                    autovalidateMode: AutovalidateMode.always,
+                                    validator: bridgeViewModel.decimalAmountValidator,
+                                    keyboardType: TextInputType.numberWithOptions(
+                                      signed: false,
+                                      decimal: true,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      bridgeViewModel.selectedToken?.title ?? '',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: theme.textTheme.displayMedium?.copyWith(
+                                    inputFormatters: <TextInputFormatter>[
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*[.,]?\d*$'),
+                                      ),
+                                    ],
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      isCollapsed: true,
+                                      contentPadding: EdgeInsets.zero,
+                                      fillColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      focusedBorder: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      hintText: _amountFocused || _amountController.text.isNotEmpty ? null : "0.00",
+                                      hintStyle: theme.textTheme.displayMedium?.copyWith(
                                         fontWeight: FontWeight.w400,
-                                        fontSize: 45,
                                         color: theme.colorScheme.onSurfaceVariant,
                                       ),
                                     ),
-                                  ],
+                                    style: theme.textTheme.displayMedium?.copyWith(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 45,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
                                 ),
-                              );
-                            },
+                                const SizedBox(width: 8),
+                                Text(
+                                  bridgeViewModel.selectedToken?.title ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.displayMedium?.copyWith(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 45,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 12),
                           Center(
@@ -217,78 +218,71 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                           ],
                           const Spacer(flex: 3),
                           Row(
+                            spacing: 8,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Expanded(
-                                child: RichText(
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: 'Available ',
-                                        style: theme.textTheme.bodyLarge?.copyWith(
-                                          color: theme.colorScheme.onSurfaceVariant,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          letterSpacing: -0.08,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: '${bridgeViewModel.tokenBalanceFormatted} '
-                                            '${bridgeViewModel.selectedToken?.title ?? ''}',
-                                        style: theme.textTheme.bodyLarge?.copyWith(
-                                          color: theme.colorScheme.onSurface,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          letterSpacing: -0.08,
-                                        ),
-                                      ),
-                                    ],
+                                  child: Row(
+                                spacing: 8,
+                                children: [
+                                  Text(
+                                    S.of(context).available,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  textStyle: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                    letterSpacing: -0.07,
-                                  ),
-                                  foregroundColor: theme.colorScheme.primary,
-                                  backgroundColor: theme.colorScheme.surfaceContainer,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(80),
-                                  ),
-                                ),
-                                onPressed: () {
+                                  Text(
+                                    "${bridgeViewModel.tokenBalanceFormatted} ${bridgeViewModel.selectedToken?.title ?? ""}",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Theme.of(context).colorScheme.onSurface),
+                                  )
+                                ],
+                              )),
+                              GestureDetector(
+                                onTap: () {
                                   bridgeViewModel.setMaxAmount();
                                   _amountController.text = bridgeViewModel.amount;
                                   _amountController.selection = TextSelection.collapsed(
                                     offset: _amountController.text.length,
                                   );
                                 },
-                                child: Text(S.of(context).max),
+                                child: Container(
+                                  height: 34,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.surfaceContainer,
+                                      borderRadius: BorderRadius.circular(999999)),
+                                  child: Center(
+                                      child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text(
+                                      S.of(context).max,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).colorScheme.primary),
+                                    ),
+                                  )),
+                                ),
                               ),
-                              const SizedBox(width: 10),
                               IgnorePointer(
                                 ignoring: !canNext,
                                 child: ModernButton(
-                                  size: 48,
+                                  size: 34,
                                   backgroundColor: theme.colorScheme.primary,
                                   iconColor: theme.colorScheme.onPrimary,
-                                  icon: Icon(Icons.arrow_forward, size: 25),
+                                  icon: Icon(Icons.arrow_forward, size: 20),
                                   onPressed: () {
-                                    _amountController.clear();
                                     Navigator.pushNamed(
-                                        context, Routes.bridgeDestinationNetworkPage, arguments: bridgeViewModel);
+                                        context, Routes.bridgeDestinationNetworkPage,
+                                        arguments: bridgeViewModel);
                                   },
                                 ),
                               ),
                             ],
                           ),
+                          SizedBox(
+                            height: 24,
+                          )
                         ],
                       );
                     },
@@ -302,4 +296,3 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
     );
   }
 }
-
