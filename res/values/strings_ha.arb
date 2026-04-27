@@ -40,6 +40,8 @@
   "address_from_yat": "Wannan adireshi daga ${emoji} ne a Yat",
   "address_label": "Alamar adireshi",
   "address_label_explainer": "Za ka iya samun dama da sarrafa duk adireshoshin da ka yi amfani da su a baya ta danna Addresses",
+  "address_not_allowed_as_receive": "ba a yarda da adireshin kamar yadda adireshin karɓa ba",
+  "address_not_allowed_as_refund": "adireshin ba a yarda a matsayin adireshin maida kuɗi",
   "address_or_alias": "Adireshi ko laƙabi",
   "address_remove_contact": "Cire tuntuɓa",
   "address_remove_content": "Kuna da tabbacin kuna so ku cire wannan lambar tuntuɓa da aka zaɓa?",

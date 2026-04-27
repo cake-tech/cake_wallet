@@ -35,6 +35,8 @@
   "address_from_yat": "Ko dirección ou ${emoji} rehegua Yat-pe",
   "address_label": "Kundaharape reramoĩ",
   "address_label_explainer": "Ikatu reike ha remboguata opaite ne kundaha reipuruva’ekue eikutu hag̃ua Addresses.",
+  "address_not_allowed_as_receive": "dirección ndojehejái dirección ohupytýva ramo",
+  "address_not_allowed_as_refund": "dirección ndojehejái dirección de reembolso ramo",
   "address_or_alias": "Kundaharape térã alias",
   "address_remove_contact": "Emboguete hag̃ua pe contacto",
   "address_remove_content": "¿Eime hag̃ua remboguese pe contacto ojeporavóva?",

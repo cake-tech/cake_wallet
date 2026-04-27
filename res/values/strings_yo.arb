@@ -40,6 +40,8 @@
   "address_from_yat": "Àdírẹ́sì yìí wá láti ${emoji} lórí Yat",
   "address_label": "Aami adirẹsi",
   "address_label_explainer": "O le wọle síi àti ṣàkóso gbogbo àwọn adirẹsi tí o ti lò tẹ́lẹ̀ nípa títẹ Adirẹsi",
+  "address_not_allowed_as_receive": "adirẹsi ko ba gba laaye bi gbigba adirẹsi",
+  "address_not_allowed_as_refund": "adirẹsi ko ba gba laaye bi agbapada adirẹsi",
   "address_or_alias": "Adirẹsi tàbí orúkọ-àpèjọ",
   "address_remove_contact": "Yọ olùbánisọ̀rọ̀ kúrò",
   "address_remove_content": "Ṣé ó dá ẹ lójú pé ẹ fẹ́ yọ ẹni ìbánisọ̀rọ̀ tí ẹ yàn kúrò?",

@@ -40,6 +40,8 @@
   "address_from_yat": "Alamat ini berasal dari ${emoji} di Yat",
   "address_label": "Label alamat",
   "address_label_explainer": "Anda dapat mengakses dan mengelola semua alamat yang pernah Anda gunakan dengan menekan Alamat",
+  "address_not_allowed_as_receive": "Alamat tidak diperbolehkan sebagai alamat penerima",
+  "address_not_allowed_as_refund": "Alamat tidak diperbolehkan sebagai alamat pengembalian dana",
   "address_or_alias": "Alamat atau alias",
   "address_remove_contact": "Hapus kontak",
   "address_remove_content": "Apakah Anda yakin ingin menghapus kontak yang dipilih?",

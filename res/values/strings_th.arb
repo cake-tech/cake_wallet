@@ -40,6 +40,8 @@
   "address_from_yat": "ที่อยู่นี้มาจาก ${emoji} บน Yat",
   "address_label": "ป้ายกำกับที่อยู่",
   "address_label_explainer": "คุณสามารถเข้าถึงและจัดการที่อยู่ที่เคยใช้ทั้งหมดได้โดยกดที่ “Addresses”",
+  "address_not_allowed_as_receive": "ไม่อนุญาตให้ใช้ที่อยู่เป็นที่อยู่รับ",
+  "address_not_allowed_as_refund": "ไม่อนุญาตให้ใช้ที่อยู่เป็นที่อยู่คืนเงิน",
   "address_or_alias": "ที่อยู่หรือชื่อแทน",
   "address_remove_contact": "ลบผู้ติดต่อ",
   "address_remove_content": "คุณแน่ใจหรือไม่ว่าต้องการลบผู้ติดต่อที่เลือก?",

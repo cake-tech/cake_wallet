@@ -1416,18 +1416,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
   }
 
-  String? _addressTypeValidation(String refoundAddress, String receiveAddress) {
-    final isRefundAddressSP = RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(refoundAddress);
-    if (isRefundAddressSP) return 'Silent payment address does not allowed as refund address';
+  String? _addressTypeValidation(String refundAddress, String receiveAddress) {
+    final isRefundAddressSP = RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(refundAddress);
+    if (isRefundAddressSP) return 'Silent Payment ${S.current.address_not_allowed_as_refund}';
 
     final isReceiveAddressSP = RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(receiveAddress);
-    if (isReceiveAddressSP) return 'Silent payment address does not allowed as receive address';
+    if (isReceiveAddressSP) return 'Silent Payment ${S.current.address_not_allowed_as_receive}';
 
-    final isRefundAddressMWEB = RegExp(AddressValidator.mWebAddressPattern).hasMatch(refoundAddress);
-    if (isRefundAddressMWEB) return 'MWEB address does not allowed as refund address';
+    final isRefundAddressMWEB = RegExp(AddressValidator.mWebAddressPattern).hasMatch(refundAddress);
+    if (isRefundAddressMWEB) return 'MWEB ${S.current.address_not_allowed_as_refund}';
 
     final isReceiveAddressMWEB = RegExp(AddressValidator.mWebAddressPattern).hasMatch(receiveAddress);
-    if (isReceiveAddressMWEB) return 'MWEB address does not allowed as receive address';
+    if (isReceiveAddressMWEB) return 'MWEB ${S.current.address_not_allowed_as_receive}';
     return null;
   }
 
