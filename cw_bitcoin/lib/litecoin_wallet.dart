@@ -372,6 +372,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       } catch (e) {
         printV("failed to subscribe for updates: $e");
       }
+      await checkIfBatchSupported();
       updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =

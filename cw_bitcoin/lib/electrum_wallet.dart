@@ -693,7 +693,7 @@ abstract class ElectrumWalletBase
       }
 
       await subscribeForUpdates();
-      await _checkIfBatchSupported();
+      await checkIfBatchSupported();
       await updateTransactions();
 
       await updateAllUnspents();
@@ -2459,14 +2459,20 @@ abstract class ElectrumWalletBase
             : fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.bitcoinCash) {
         await Future.wait(BITCOIN_CASH_ADDRESS_TYPES
-            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+            .map((type) => shouldUseBatchFetching
+            ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
+            : fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.litecoin) {
         await Future.wait(LITECOIN_ADDRESS_TYPES
             .where((type) => type != SegwitAddresType.mweb)
-            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+            .map((type) => shouldUseBatchFetching
+            ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
+            : fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.dogecoin) {
         await Future.wait(DOGECOIN_ADDRESS_TYPES
-            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+            .map((type) => shouldUseBatchFetching
+            ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
+            : fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
       transactionHistory.transactions.values.forEach((tx) async {
@@ -3523,7 +3529,7 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<void> _checkIfBatchSupported() async {
+  Future<void> checkIfBatchSupported() async {
 
     if (_isBatchSupported != null) {
       printV('[BATCH_TEST] Already checked: $_isBatchSupported');
