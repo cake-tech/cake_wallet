@@ -97,6 +97,7 @@ android/app/key.jks
 **/tool/.solana-secrets-config.json
 **/tool/.nano-secrets-config.json
 **/tool/.tron-secrets-config.json
+**/tool/.bitcoin-secrets-config.json
 **/lib/.secrets.g.dart
 **/cw_evm/lib/.secrets.g.dart
 **/cw_solana/lib/.secrets.g.dart
@@ -155,6 +156,7 @@ android/app/src/main/res/drawable/ic_launcher.png
 !android/app/src/main/res/drawable/launch_background.xml
 !android/app/src/main/res/values/styles.xml
 assets/images/app_logo.png
+assets/new-ui/**/*.svg.vec
 
 /pubspec.yaml
 /pubspec.lock

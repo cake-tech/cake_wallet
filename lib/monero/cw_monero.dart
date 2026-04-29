@@ -48,6 +48,10 @@ class CWMoneroAccountList extends MoneroAccountList {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
+    if (accountIndex == moneroWallet.walletAddresses.account?.id) {
+      moneroWallet.walletAddresses.account = monero_account.Account(
+          id: accountIndex, label: label, balance: moneroWallet.walletAddresses.account!.balance);
+    }
   }
 }
 
@@ -73,9 +77,9 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   }
 
   @override
-  void update(Object wallet, {required int accountIndex}) {
+  Future<void> update(Object wallet, {required int accountIndex}) async {
     final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.walletAddresses.subaddressList.update(accountIndex: accountIndex);
+    await moneroWallet.walletAddresses.subaddressList.update(accountIndex: accountIndex);
   }
 
   @override
@@ -85,10 +89,10 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   }
 
   @override
-  List<Subaddress> getAll(Object wallet) {
+  Future<List<Subaddress>> getAll(Object wallet) async {
     final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.walletAddresses.subaddressList
-        .getAll()
+    return (await moneroWallet.walletAddresses.subaddressList
+        .getAll())
         .map((sub) => Subaddress(
           id: sub.id,
           label: sub.label,
@@ -215,6 +219,7 @@ class CWMonero extends Monero {
           required String address,
           required String password,
           required String language,
+          HardwareWalletType? hardwareWalletType,
           required int height}) =>
       MoneroRestoreWalletFromKeysCredentials(
           name: name,
@@ -223,6 +228,7 @@ class CWMonero extends Monero {
           address: address,
           password: password,
           language: language,
+          hardwareWalletType: hardwareWalletType,
           height: height);
 
   @override
@@ -383,7 +389,7 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
-  
+
   @override
   bool importKeyImagesUR(Object wallet, String ur) {
     final moneroWallet = wallet as MoneroWallet;

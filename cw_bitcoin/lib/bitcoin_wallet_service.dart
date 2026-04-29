@@ -15,7 +15,6 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
 class BitcoinWalletService extends WalletService<
@@ -177,6 +176,7 @@ class BitcoinWalletService extends WalletService<
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       payjoinBox: payjoinSessionSource,
+      useLightning: false,
     );
     await wallet.save();
     await wallet.init();
@@ -200,6 +200,7 @@ class BitcoinWalletService extends WalletService<
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       payjoinBox: payjoinSessionSource,
+      useLightning: false,
     );
 
     await wallet.save();

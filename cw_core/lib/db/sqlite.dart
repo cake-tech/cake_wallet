@@ -2,9 +2,28 @@
 import 'dart:io';
 
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-late Database db;
+Database? db;
+
+
+
+Future<void> _addColumnIfNotExists(
+  Database db, {
+  required String table,
+  required String column,
+  required String definition,
+}) async {
+  final result = await db.rawQuery("PRAGMA table_info($table)");
+  final columnExists = result.any((row) => row['name'] == column);
+
+  if (!columnExists) {
+    await db.execute(
+      'ALTER TABLE $table ADD COLUMN $column $definition;',
+    );
+  }
+}
 
 Future<void> initDb({String? pathOverride}) async {
   if (Platform.isLinux || Platform.isWindows) {
@@ -21,8 +40,60 @@ Future<void> initDb({String? pathOverride}) async {
       dbFileOld.deleteSync();
     }
   }
+  await db?.close();
+  db = await openDatabase(dbFile.path, version: 5,
+    onUpgrade: (Database db, int oldVersion, int newVersion) async {
+      printV("migrating: $oldVersion, $newVersion");
+      if (oldVersion <= 1) {
+        await db.execute('''
+DELETE FROM WalletInfo
+WHERE walletInfoId NOT IN (
+    SELECT MIN(walletInfoId)
+    FROM WalletInfo
+    GROUP BY id
+);
 
-  db = await openDatabase(dbFile.path, version: 1,
+CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
+ON WalletInfo (id);
+''');
+      }
+      if (oldVersion <= 2) {
+        await db.execute('''
+CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
+  walletInfoId INTEGER,
+  accountIndex INTEGER DEFAULT -1,
+  gradientIndex INTEGER DEFAULT -1,
+  useSpecialDesign BOOLEAN DEFAULT FALSE,
+  backgroundImagePath TEXT DEFAULT "",
+  PRIMARY KEY (walletInfoId, accountIndex),
+  FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+''');
+        await _addColumnIfNotExists(
+          db,
+          table: 'WalletInfo',
+          column: 'receiveInfoboxDismissed',
+          definition: 'BOOLEAN DEFAULT FALSE',
+        );
+
+        await _addColumnIfNotExists(
+          db,
+          table: 'BalanceCardStyleSettings',
+          column: 'cardOrder',
+          definition: 'INTEGER DEFAULT 0',
+        );
+      }
+      if (oldVersion <= 3) {
+        await _addColumnIfNotExists(db, table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
+        // null - primary token (eth, sol etc)
+        // not null - address of fav token
+        // if address doesn't correspond to a valid token, fallback to primary token
+        await _addColumnIfNotExists(db, table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
+      }
+      if (oldVersion <= 4) {
+        await _createBridgeTransferTable(db);
+      }
+    },
     onCreate: (Database db, int version) async {
       await db.execute(
         '''
@@ -47,7 +118,10 @@ CREATE TABLE WalletInfo (
   parentAddress TEXT,
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
-  sortOrder INTEGER DEFAULT (0) NOT NULL
+  sortOrder INTEGER DEFAULT (0) NOT NULL,
+  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
+  showCombinedBalance BOOLEAN DEFAULT TRUE,
+  favoriteTokenAddress TEXT DEFAULT NULL
 );
 ''');
 
@@ -100,6 +174,23 @@ CREATE TABLE "WalletInfoAddressMap" (
 );
         '''
       );
+      await db.execute('''
+CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
+ON WalletInfo (id);
+''');
+      await db.execute('''
+CREATE TABLE BalanceCardStyleSettings (
+  walletInfoId INTEGER,
+  accountIndex INTEGER DEFAULT -1,
+  gradientIndex INTEGER DEFAULT -1,
+  useSpecialDesign BOOLEAN DEFAULT FALSE,
+  backgroundImagePath TEXT DEFAULT "",
+  cardOrder INTEGER DEFAULT 0,
+  PRIMARY KEY (walletInfoId, accountIndex),
+  FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+        ''');
+      await _createBridgeTransferTable(db);
     }
   );
 }
@@ -121,10 +212,10 @@ Future<List<String>> _getTableNames(Database db) async {
 }
 
 Future<Map<String, dynamic>> _dumpDb() async {
-  final tableNames = await _getTableNames(db);
+  final tableNames = await _getTableNames(db!);
   final ret = <String, dynamic>{};
   for (final tableName in tableNames) {
-    ret[tableName] = await db.query(tableName);
+    ret[tableName] = await db!.query(tableName);
   }
   return ret;
 }
@@ -137,4 +228,31 @@ Future<Map<String, dynamic>> dumpCustomDb(String path) async {
     ret[tableName] = await db.query(tableName);
   }
   return ret;
+}
+
+Future<void> _createBridgeTransferTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS BridgeTransfer (
+  id TEXT NOT NULL PRIMARY KEY,
+  wallet_id TEXT NOT NULL,
+  source_chain_id INTEGER NOT NULL,
+  destination_chain_id INTEGER NOT NULL,
+  token_symbol TEXT NOT NULL,
+  token_contract TEXT NOT NULL,
+  amount TEXT NOT NULL,
+  recipient_address TEXT NOT NULL,
+  source_tx_hash TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER,
+  confirmed_at INTEGER,
+  amount_raw TEXT,
+  error_message TEXT,
+  status_message TEXT
+);
+''');
+  await db.execute('''
+CREATE INDEX IF NOT EXISTS idx_bridgetransfer_wallet_id
+ON BridgeTransfer(wallet_id);
+''');
 }

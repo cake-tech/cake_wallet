@@ -1,56 +1,66 @@
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/core/node_address_validator.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
+import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-
-class MwebNodePage extends BasePage {
-  MwebNodePage(this.mwebSettingsViewModelBase)
-      : _nodeUriController = TextEditingController(text: mwebSettingsViewModelBase.mwebNodeUri),
-        super();
+class MwebNodePage extends StatefulWidget {
+  const MwebNodePage(this.mwebSettingsViewModelBase, {super.key});
 
   final MwebSettingsViewModelBase mwebSettingsViewModelBase;
-  final TextEditingController _nodeUriController;
 
   @override
-  String get title => S.current.litecoin_mweb_node;
+  State<MwebNodePage> createState() => _MwebNodePageState();
+}
+
+class _MwebNodePageState extends State<MwebNodePage> {
+  late final TextEditingController _nodeUriController =
+      TextEditingController(text: widget.mwebSettingsViewModelBase.mwebNodeUri);
 
   @override
-  Widget body(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: BaseTextFormField(controller: _nodeUriController),
-              )
-            ],
+  void dispose() {
+    _nodeUriController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: ModalPageWrapper(
+          topBar: ModalTopBar(
+            title: S.current.litecoin_mweb_settings,
+            onLeadingPressed: Navigator.of(context).pop,
+            leadingIcon: Icon(Icons.arrow_back_ios_new)),
+          content: Container(
+            child: NewListSections(
+                controllers: {
+                  widget.mwebSettingsViewModelBase.mwebNodeUri: _nodeUriController,
+                },
+                sections: {
+              'main': [
+                ListItemTextField(
+                  keyValue: widget.mwebSettingsViewModelBase.mwebNodeUri,
+                  label: S.current.node_address,
+                  validator: NodePathValidator(),
+                ),
+              ]
+            }),
           ),
+          bottomContent: LoadingPrimaryButton(
+        onPressed: () => save(context),
+        text: S.of(context).save,
+        color: Theme.of(context).colorScheme.primary,
+        textColor: Theme.of(context).colorScheme.onPrimary,
         ),
-        Positioned(
-          child: Observer(
-            builder: (_) => LoadingPrimaryButton(
-              onPressed: () => save(context),
-              text: S.of(context).save,
-              color: Theme.of(context).colorScheme.primary,
-              textColor: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-          bottom: 24,
-          left: 24,
-          right: 24,
-        )
-      ],
+      ),
     );
   }
 
   void save(BuildContext context) {
-    mwebSettingsViewModelBase.setMwebNodeUri(_nodeUriController.text);
+    widget.mwebSettingsViewModelBase.setMwebNodeUri(_nodeUriController.text);
     Navigator.pop(context);
   }
 }

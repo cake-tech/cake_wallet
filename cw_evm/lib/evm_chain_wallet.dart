@@ -15,6 +15,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -52,9 +53,18 @@ import 'evm_erc20_balance.dart';
 part 'evm_chain_wallet.g.dart';
 
 const Map<String, String> methodSignatureToType = {
+  // ERC20
   '0x095ea7b3': 'approval',
   '0xa9059cbb': 'transfer',
   '0x23b872dd': 'transferFrom',
+
+  // Aggregator / Router (Swaps.xyz paths)
+  '0x9be111d1': 'smartSwap',
+  '0x5327a3d2': 'crossChainSwap',
+  '0x205030b2': 'routerExecution',
+  '0x5ad29efa': 'relayedExecution',
+
+  // Misc contracts
   '0x574da717': 'transferOut',
   '0x2e1a7d4d': 'withdraw',
   '0x7ff36ab5': 'swapExactETHForTokens',
@@ -89,7 +99,8 @@ abstract class EVMChainWalletBase
         _isTransactionUpdating = false,
         _client = client,
         selectedChainId = initialChainId ?? _getInitialChainId(walletInfo.type),
-        walletAddresses = EVMChainWalletAddresses(walletInfo),
+        walletAddresses = EVMChainWalletAddresses(
+            walletInfo, initialChainId ?? _getInitialChainId(walletInfo.type)),
         balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
@@ -251,6 +262,7 @@ abstract class EVMChainWalletBase
       } catch (_) {
         // erc20TokensBox doesn't exist yet, run migration from global box
         await _initEthereumErc20TokensBox();
+        await _normalizeEvmChainErc20TokensBoxKeys();
         return;
       }
     }
@@ -274,6 +286,8 @@ abstract class EVMChainWalletBase
     } else {
       evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
     }
+
+    await _normalizeEvmChainErc20TokensBoxKeys();
 
     addInitialTokens();
   }
@@ -304,6 +318,89 @@ abstract class EVMChainWalletBase
 
   String getTransactionHistoryFileName() =>
       EVMChainUtils.getTransactionHistoryFileName(selectedChainId);
+
+  /// Ensures all ERC20 token entries use lowercase contract addresses as
+  /// their Hive keys to avoid duplicates caused by case differences.
+  Future<void> _normalizeEvmChainErc20TokensBoxKeys() async {
+    if (!evmChainErc20TokensBox.isOpen) return;
+
+    final prefs = await sharedPrefs.future;
+    final migrationKey = 'erc20_box_normalized_${walletInfo.name}_$selectedChainId';
+
+    if (prefs.getBool(migrationKey) ?? false) return;
+
+    final box = evmChainErc20TokensBox;
+    final keys = box.keys.toList();
+
+    if (keys.isEmpty) {
+      await prefs.setBool(migrationKey, true);
+      return;
+    }
+
+    final Map<String, Erc20Token> normalizedTokens = {};
+    var needsRewrite = false;
+
+    for (final key in keys) {
+      final token = box.get(key);
+
+      if (token == null) {
+        needsRewrite = true;
+        continue;
+      }
+
+      final lowerKey = key is String ? key.toLowerCase() : token.contractAddress.toLowerCase();
+      if (key is int) needsRewrite = true;
+
+      final Erc20Token normalizedToken =
+          token.contractAddress == token.contractAddress.toLowerCase()
+              ? token
+              : Erc20Token(
+                  name: token.name,
+                  symbol: token.symbol,
+                  contractAddress: token.contractAddress.toLowerCase(),
+                  decimal: token.decimal,
+                  enabled: token.enabled,
+                  iconPath: token.iconPath,
+                  tag: token.tag,
+                  isPotentialScam: token.isPotentialScam,
+                );
+
+      if (!needsRewrite && (lowerKey != key || identical(normalizedToken, token) == false)) {
+        needsRewrite = true;
+      }
+
+      final existing = normalizedTokens[lowerKey];
+
+      if (existing == null) {
+        normalizedTokens[lowerKey] = normalizedToken;
+        continue;
+      }
+
+      final merged = Erc20Token(
+        name: normalizedToken.name,
+        symbol: normalizedToken.symbol,
+        contractAddress: lowerKey,
+        decimal: normalizedToken.decimal,
+        enabled: normalizedToken.enabled || existing.enabled,
+        iconPath: (normalizedToken.iconPath?.isNotEmpty ?? false)
+            ? normalizedToken.iconPath
+            : existing.iconPath,
+        tag: normalizedToken.tag ?? existing.tag,
+        isPotentialScam: normalizedToken.isPotentialScam || existing.isPotentialScam,
+      );
+
+      normalizedTokens[lowerKey] = merged;
+    }
+
+    if (needsRewrite) {
+      await box.clear();
+      for (final entry in normalizedTokens.entries) {
+        await box.put(entry.key, entry.value);
+      }
+    }
+
+    await prefs.setBool(migrationKey, true);
+  }
 
   Future<bool> checkIfScanProviderIsEnabled() async {
     final key = EVMChainUtils.getScanProviderPreferenceKey(selectedChainId);
@@ -368,6 +465,7 @@ abstract class EVMChainWalletBase
       137 => "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      56 => "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
       _ => throw Exception("Unsupported chain ID: $selectedChainId"),
     };
   }
@@ -439,24 +537,60 @@ abstract class EVMChainWalletBase
     await save();
   }
 
-  Future<void> _checkForExistingScamTokens() async {
-    final baseCurrencySymbols = CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
+  bool isTokenPropertiesSuspicious(Erc20Token token) {
+    bool isTokenWhitelisted = getDefaultTokenContractAddresses
+        .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
 
+    final defaultTokenSymbols = EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId);
+
+    // Normalize the token data to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+    final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
+    final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
+    final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
+
+    final suspiciousStrings = [
+      't.me',
+      '.me',
+      'telegram',
+      'http',
+      'https',
+      '.com',
+      '.org',
+      '.top',
+      '.live',
+      'airdrop',
+      'reward',
+      'distribution',
+      'www',
+      '.xyz',
+      '🎁',
+      'bot',
+      'claim',
+      'reward',
+    ];
+
+    final hasSuspiciousData = suspiciousStrings.any(
+      (element) =>
+          normalizedName.toLowerCase().contains(element) ||
+          normalizedSymbol.toLowerCase().contains(element) ||
+          normalizedTitle.toLowerCase().contains(element),
+    );
+
+    final nativeSymbol = currency.title.toUpperCase();
+    final hasSuspiciousNativeSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
+
+    final hasSuspiciousDefaultTokenSymbol =
+        defaultTokenSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    return hasSuspiciousData || hasSuspiciousNativeSymbol || hasSuspiciousDefaultTokenSymbol;
+  }
+
+  Future<void> _checkForExistingScamTokens() async {
     for (var token in erc20Currencies) {
       bool isPotentialScam = false;
 
-      bool isWhitelisted = getDefaultTokenContractAddresses
-          .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
-
-      final tokenSymbol = token.title.toUpperCase();
-
-      // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
-      // if it is, then it's probably a scam unless it's in the whitelist
-      if (baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase()) && !isWhitelisted) {
+      if (isTokenPropertiesSuspicious(token)) {
         isPotentialScam = true;
-      }
-
-      if (isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
         await token.save();
@@ -478,6 +612,66 @@ abstract class EVMChainWalletBase
 
         await token.save();
       }
+    }
+  }
+
+  Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {
+    try {
+      if (!evmChainErc20TokensBox.isOpen) return MoralisDiscoveryResult.empty;
+
+      final address = walletAddresses.address;
+      if (address.isEmpty) return MoralisDiscoveryResult.empty;
+
+      final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
+
+      final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
+      if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
+
+      final existingTokenAddresses = {
+        for (final token in evmChainErc20TokensBox.values)
+          token.contractAddress.toLowerCase(): token,
+      };
+
+      final whitelistedTokenAddresses =
+          getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+
+      final newTokens = <DiscoveredToken>[];
+
+      for (final token in walletTokens) {
+        final addr = token.contractAddress.toLowerCase();
+
+        final existingToken = existingTokenAddresses[addr];
+        if (existingToken != null) {
+          if (whitelistedTokenAddresses.contains(addr) && !existingToken.enabled) {
+            existingToken.enabled = true;
+            await existingToken.save();
+            await addErc20Token(existingToken);
+          }
+          continue;
+        }
+
+        final newToken = Erc20Token(
+          name: token.name,
+          symbol: token.symbol,
+          contractAddress: addr,
+          decimal: token.decimals,
+          iconPath: token.iconUrl,
+          tag: EVMChainUtils.getDefaultTokenTag(selectedChainId),
+          isPotentialScam: token.possibleSpam,
+        );
+
+        newTokens.add(
+          DiscoveredToken(
+            token: newToken,
+            balanceWei: token.balanceWei,
+          ),
+        );
+      }
+
+      return MoralisDiscoveryResult(newTokens: newTokens);
+    } catch (e) {
+      printV('Error discovering tokens from Moralis: ${e.toString()}');
+      return MoralisDiscoveryResult.empty;
     }
   }
 
@@ -586,27 +780,13 @@ abstract class EVMChainWalletBase
         throw EVMChainTransactionFeesException('Failed to retrieve gas price from node');
       }
 
-      int maxFeePerGas;
-      int adjustedGasPrice;
-
-      if (gasBaseFee != null && gasBaseFee > 0) {
-        // For chains with base fee, add priority fee (if supported) and a buffer to account for base fee increases
-        // Base fee can increase between estimation and transaction submission
-        final baseFeeWithPriority = gasBaseFee + priorityFee;
-
-        // For chains without priority fees (e.g., Arbitrum), use a 5% buffer
-        // For chains with priority fees (e.g., Ethereum), use a 15% buffer to account for base fee volatility
-        // Base fee can increase significantly during high network activity
-        final bufferMultiplier = hasPriorityFee ? 115 : 105;
-        final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ 100;
-        final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
-        maxFeePerGas = bufferPercent > bufferMin ? bufferPercent : bufferMin;
-      } else {
-        // Fallback to gasPrice if baseFee is not available
-        maxFeePerGas = gasPrice + priorityFee;
-      }
-
-      adjustedGasPrice = maxFeePerGas;
+      final maxFeePerGas = EVMChainUtils.computeBufferedMaxFeePerGasWei(
+        gasBaseFee: gasBaseFee,
+        gasPrice: gasPrice,
+        priorityFeeWei: priorityFee,
+        chainHasPriorityFee: hasPriorityFee,
+      );
+      final adjustedGasPrice = maxFeePerGas;
 
       final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
         contractAddress: contractAddress,
@@ -633,6 +813,39 @@ abstract class EVMChainWalletBase
       }
       throw EVMChainTransactionFeesException(
           'Failed to calculate transaction fees: ${e.toString()}');
+    }
+  }
+
+  Future<WalletConnectBufferedFeeData?> getWCBufferedFeeQuote(TransactionPriority priority) async {
+    try {
+      final gasBaseFee = await _client.getGasBaseFee();
+      final gasPrice = await _client.getGasUnitPrice();
+
+      if (gasPrice <= 0) {
+        printV('WC fee quote: invalid gas price $gasPrice');
+        return null;
+      }
+
+      int priorityFee = 0;
+      if (hasPriorityFee && priority is EVMChainTransactionPriority) {
+        priorityFee = getTotalPriorityFee(priority);
+      }
+
+      final maxFee = EVMChainUtils.computeBufferedMaxFeePerGasWei(
+        gasBaseFee: gasBaseFee,
+        gasPrice: gasPrice,
+        priorityFeeWei: priorityFee,
+        chainHasPriorityFee: hasPriorityFee,
+      );
+
+      return WalletConnectBufferedFeeData(
+        maxFeePerGasWei: maxFee,
+        maxPriorityFeePerGasWei: priorityFee,
+        latestBaseFeeWei: gasBaseFee,
+      );
+    } catch (e, s) {
+      printV('getWalletConnectBufferedFeeQuote: $e\n$s');
+      return null;
     }
   }
 
@@ -821,6 +1034,10 @@ abstract class EVMChainWalletBase
       if (currencyBalance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
+      if (transactionCurrency is! Erc20Token &&
+          totalAmount + estimatedFeesForTransaction > currencyBalance.balance) {
+        throw EVMChainTransactionFeesException.fromCurrency(currency.title);
+      }
     }
 
     if (transactionCurrency is Erc20Token &&
@@ -837,7 +1054,7 @@ abstract class EVMChainWalletBase
       gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority,
       currency: transactionCurrency,
-      feeCurrency: switch (selectedChainId) { 137 => "POL", _ => "ETH" },
+      feeCurrency: EVMChainUtils.getFeeCurrency(selectedChainId),
       maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
@@ -854,45 +1071,94 @@ abstract class EVMChainWalletBase
     String to,
     String dataHex,
     BigInt valueWei,
-    EVMChainTransactionPriority? priority, {
+    EVMChainTransactionPriority? priority,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount, {
     bool useBlinkProtection = true,
   }) async {
-    // Estimate gas with the SAME call (sender, to, value, data)
-    final gas = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: valueWei, // native value (usually 0 for ERC20 transfer)
-      receivingAddressHex: to,
-      priority: priority,
-      contractAddress: null,
-      data: _client.hexToBytes(dataHex),
-    );
-
+    // Define Native Currency
     final nativeCurrency = switch (selectedChainId) {
       137 => CryptoCurrency.maticpoly,
+      56 => CryptoCurrency.bnb,
       8453 => CryptoCurrency.baseEth,
       42161 => CryptoCurrency.arbEth,
       _ => CryptoCurrency.eth,
     };
 
-    // Fallback for nodes that fail estimate (non-zero)
-    final gasUnits = gas.estimatedGasUnits == 0 ? 65000 : gas.estimatedGasUnits;
+    // Gas Estimation
+    GasParamsHandler gas;
+    try {
+      gas = await calculateActualEstimatedFeeForCreateTransaction(
+        amount: valueWei,
+        receivingAddressHex: to,
+        priority: priority,
+        contractAddress: null,
+        data: _client.hexToBytes(dataHex),
+      );
+    } catch (_) {
+      // If estimation fails, we proceed but will use a safe gas limit below.
+      // This is common for complex swaps that depend on block state.
+      gas = GasParamsHandler.zero();
+    }
 
-    // Sign raw (native) tx with callData
-    return _client.signTransaction(
-      privateKey: _evmChainPrivateKey,
-      toAddress: to,
-      amount: valueWei,
-      gasFee: BigInt.from(gas.estimatedGasFee),
-      estimatedGasUnits: gasUnits,
-      maxFeePerGas: gas.maxFeePerGas,
-      priority: priority,
-      currency: nativeCurrency,
-      feeCurrency: nativeCurrency.title,
-      exponent: 18,
-      contractAddress: null,
-      data: dataHex,
-      gasPrice: gas.gasPrice,
-      useBlinkProtection: useBlinkProtection,
-    );
+    // Validate NATIVE Balance (for Gas + Value)
+    final nativeBal = balance[nativeCurrency]?.balance ?? BigInt.zero;
+    final requiredNative = valueWei + BigInt.from(gas.estimatedGasFee);
+
+    if (requiredNative > nativeBal) {
+      throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
+    }
+
+    // Validate ERC20 Balance (Only if source is NOT native)
+    final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
+
+    // Check for both 0xeeee... AND 0x0000... (Zero Address)
+    bool isNativeSource = sourceTokenAddress == null ||
+        cleanAddress == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
+        cleanAddress == '0x0000000000000000000000000000000000000000';
+
+    if (!isNativeSource && sourceTokenAmount != null && sourceTokenAmount > BigInt.zero) {
+      // Filter list to find match.
+      final matchingTokens = balance.keys
+          .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
+
+      if (matchingTokens.isEmpty) {
+        // Token is not in the wallet balance map -> Balance is 0
+        throw Exception('Insufficient token balance (Token not found in wallet).');
+      }
+
+      final tokenKey = matchingTokens.first;
+      final tokenBalance = balance[tokenKey]?.balance ?? BigInt.zero;
+
+      if (tokenBalance < sourceTokenAmount) {
+        throw Exception('Insufficient ${tokenKey.title} balance to cover the transaction amount.');
+      }
+    }
+
+    // Final Safe Gas Limit
+    // If estimation failed (0), use 300,000 as a safe default for swaps.
+    final gasUnits = gas.estimatedGasUnits == 0 ? 300000 : gas.estimatedGasUnits;
+
+    try {
+      return _client.signTransaction(
+        privateKey: _evmChainPrivateKey,
+        toAddress: to,
+        amount: valueWei,
+        gasFee: BigInt.from(gas.estimatedGasFee),
+        estimatedGasUnits: gasUnits,
+        maxFeePerGas: gas.maxFeePerGas,
+        priority: priority,
+        currency: nativeCurrency,
+        feeCurrency: nativeCurrency.title,
+        exponent: 18,
+        contractAddress: null,
+        data: dataHex,
+        gasPrice: gas.gasPrice,
+        useBlinkProtection: useBlinkProtection,
+      );
+    } catch (_) {
+      throw Exception('Failed to create the transaction.');
+    }
   }
 
   Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
@@ -908,13 +1174,19 @@ abstract class EVMChainWalletBase
       toAddress: EthereumAddress.fromHex(spender),
     );
 
+    final tokenContract = (transactionCurrency as Erc20Token).contractAddress;
+
     final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
-      amount: amount,
-      receivingAddressHex: spender,
+      amount: BigInt.zero,
+      receivingAddressHex: tokenContract,
       priority: priority,
-      contractAddress: transactionCurrency.contractAddress,
+      contractAddress: tokenContract,
       data: data,
     );
+
+    final int safeGasUnits = gasFeesModel.estimatedGasUnits == 0
+        ? 65000
+        : (gasFeesModel.estimatedGasUnits < 65000 ? 65000 : gasFeesModel.estimatedGasUnits);
 
     return _client.signApprovalTransaction(
       privateKey: _evmChainPrivateKey,
@@ -924,9 +1196,9 @@ abstract class EVMChainWalletBase
       gasFee: BigInt.from(gasFeesModel.estimatedGasFee),
       maxFeePerGas: gasFeesModel.maxFeePerGas,
       feeCurrency: feeCurrency,
-      estimatedGasUnits: gasFeesModel.estimatedGasUnits,
+      estimatedGasUnits: safeGasUnits,
       exponent: transactionCurrency.decimal,
-      contractAddress: transactionCurrency.contractAddress,
+      contractAddress: tokenContract,
       gasPrice: gasFeesModel.gasPrice,
       useBlinkProtection: useBlinkProtection,
     );
@@ -992,15 +1264,45 @@ abstract class EVMChainWalletBase
         continue;
       }
 
-      result[transactionModel.hash] = getTransactionInfo(transactionModel, address);
+      final newTxInfo = getTransactionInfo(transactionModel, address);
+      final existingTxInfo = result[transactionModel.hash];
+      final savedTxInfo = transactionHistory.transactions[transactionModel.hash];
+
+      // Prioritize saved incoming transactions
+      if (savedTxInfo != null &&
+          savedTxInfo.direction == TransactionDirection.incoming &&
+          newTxInfo.direction == TransactionDirection.outgoing) {
+        result[transactionModel.hash] = savedTxInfo;
+        continue;
+      }
+
+      if (existingTxInfo == null) {
+        result[transactionModel.hash] = newTxInfo;
+      } else if (newTxInfo.direction == TransactionDirection.incoming &&
+          existingTxInfo.direction == TransactionDirection.outgoing) {
+        result[transactionModel.hash] = newTxInfo;
+      } 
+      
+      else if (newTxInfo.direction == TransactionDirection.outgoing &&
+          existingTxInfo.direction == TransactionDirection.outgoing &&
+          _hasEvmTokenContractAddress(newTxInfo) &&
+          !_hasEvmTokenContractAddress(existingTxInfo)) {
+        result[transactionModel.hash] = newTxInfo;
+      }
     }
 
     return result;
   }
 
+
+  bool _hasEvmTokenContractAddress(EVMChainTransactionInfo info) {
+    final c = info.contractAddress;
+    return c != null && c.isNotEmpty;
+  }
+
   String? analyzeTransaction(String? transactionInput) {
     if (transactionInput == '0x' || transactionInput == null || transactionInput.isEmpty) {
-      return 'simpleTransfer';
+      return '';
     }
 
     final methodSignature =
@@ -1142,7 +1444,20 @@ abstract class EVMChainWalletBase
     final token = tokenContract.toLowerCase();
     if (token == zero || token == evmNative.toLowerCase()) return false;
     if (requiredAmount <= BigInt.zero) return false;
+    try {
+      final allowance = await getAllowance(tokenContract, spender);
+      if (allowance == null) {
+        printV('Could not fetch allowance for $tokenContract, assuming approval is required');
+        return true;
+      }
+      return allowance < requiredAmount;
+    } catch (e) {
+      printV('approval-check error: $e');
+      return true;
+    }
+  }
 
+  Future<BigInt?> getAllowance(String tokenContract, String spender) async {
     try {
       final owner = _evmChainPrivateKey.address;
       final erc20 = ERC20(
@@ -1152,11 +1467,10 @@ abstract class EVMChainWalletBase
       );
 
       final allowance = await erc20.allowance(owner, EthereumAddress.fromHex(spender));
-
-      return allowance < requiredAmount;
+      return allowance;
     } catch (e) {
-      printV('approval-check error: $e');
-      return true;
+      printV('getAllowance error: $e');
+      return null;
     }
   }
 
@@ -1199,6 +1513,9 @@ abstract class EVMChainWalletBase
   }
 
   Future<void> addErc20Token(Erc20Token token) async {
+    final isSuspicious = isTokenPropertiesSuspicious(token);
+    token.isPotentialScam = token.isPotentialScam || isSuspicious;
+
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
@@ -1451,4 +1768,34 @@ class GasParamsHandler {
       gasPrice: 0,
     );
   }
+}
+
+class DiscoveredToken {
+  final Erc20Token token;
+  final BigInt balanceWei;
+
+  const DiscoveredToken({
+    required this.token,
+    required this.balanceWei,
+  });
+}
+
+class MoralisDiscoveryResult {
+  final List<DiscoveredToken> newTokens;
+
+  const MoralisDiscoveryResult({required this.newTokens});
+
+  static const MoralisDiscoveryResult empty = MoralisDiscoveryResult(newTokens: []);
+}
+
+class WalletConnectBufferedFeeData {
+  const WalletConnectBufferedFeeData({
+    required this.maxFeePerGasWei,
+    required this.maxPriorityFeePerGasWei,
+    this.latestBaseFeeWei,
+  });
+
+  final int maxFeePerGasWei;
+  final int maxPriorityFeePerGasWei;
+  final int? latestBaseFeeWei;
 }

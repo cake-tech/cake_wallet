@@ -74,12 +74,39 @@ class EVMChainClient {
           });
         }
 
+        // Merge split transfers (same hash + same token)
+        final Map<String, Map<String, dynamic>> mergedMap = {};
+        for (var tx in res) {
+          final hash = tx['hash'];
+          final key = '${hash}_${tx['contractAddress'] ?? ''}';
+
+          if (mergedMap.containsKey(key)) {
+            try {
+              final currentNet = getNetFlow(mergedMap[key]!, address);
+              final newNet = getNetFlow(tx, address);
+              final totalNet = currentNet + newNet;
+
+              mergedMap[key]!['value'] = totalNet.abs().toString();
+              if (totalNet < BigInt.zero) {
+                mergedMap[key]!['from'] = address;
+              } else {
+                mergedMap[key]!['to'] = address;
+                mergedMap[key]!['from'] = '';
+              }
+            } catch (e) {
+              printV('Error merging transaction values: $e');
+            }
+          } else {
+            mergedMap[key] = Map<String, dynamic>.from(tx);
+          }
+        }
+
+        final mergedList = mergedMap.values.toList();
+
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
-        return res
-            .map(
-              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, symbol, chainId),
-            )
+        return mergedList
+            .map((e) => EVMChainTransactionModel.fromJson(e, symbol, chainId))
             .toList();
       }
 
@@ -88,6 +115,16 @@ class EVMChainClient {
       log(e.toString());
       return [];
     }
+  }
+
+  BigInt getNetFlow(Map<String, dynamic> txData, String address) {
+    final val = BigInt.parse(txData['value'] ?? '0');
+    final isIncoming = txData['to']?.toLowerCase() == address.toLowerCase();
+    final isOutgoing = txData['from']?.toLowerCase() == address.toLowerCase();
+
+    if (isIncoming && !isOutgoing) return val;
+    if (isOutgoing && !isIncoming) return -val;
+    return BigInt.zero;
   }
 
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
@@ -277,12 +314,14 @@ class EVMChainClient {
         currency == CryptoCurrency.maticpoly ||
         currency == CryptoCurrency.baseEth ||
         currency == CryptoCurrency.arbEth ||
+        currency == CryptoCurrency.bnb ||
         contractAddress != null);
 
     bool isNativeToken = currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
         currency == CryptoCurrency.baseEth ||
-        currency == CryptoCurrency.arbEth;
+        currency == CryptoCurrency.arbEth ||
+        currency == CryptoCurrency.bnb;
 
     // Get nonce with "pending" block tag to include pending transactions
     // This prevents "Nonce too low" errors when sending multiple transactions quickly
@@ -431,6 +470,9 @@ class EVMChainClient {
       final blinkClient = Web3Client(_blinkUrl(secrets.blinkApiKey), client);
       try {
         return await blinkClient.sendRawTransaction(prepared);
+      } catch (e) {
+        printV('Blink failed, retrying without Blink: $e');
+        return await _client!.sendRawTransaction(prepared);
       } finally {
         await blinkClient.dispose();
       }
@@ -493,22 +535,25 @@ class EVMChainClient {
     } on RangeError catch (_) {
       throw Exception('Invalid token contract for this network.');
     } catch (e) {
+      if (e.toString().contains("hostUnreachable")) {
+        return EVMChainERC20Balance(BigInt.zero);
+      }
       throw Exception('Could not fetch balances: ${e.toString()}');
     }
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
     try {
-      final token = await getErcTokenInfoFromNode(contractAddress, chainName);
+      final token = await getErc20TokenFromMoralis(contractAddress, chainName);
 
       if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErc20TokenFromMoralis(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress, chainName);
       }
 
       return token;
     } catch (e) {
       try {
-        return await getErc20TokenFromMoralis(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress, chainName);
       } catch (e) {
         return null;
       }
@@ -516,6 +561,10 @@ class EVMChainClient {
   }
 
   Future<Erc20Token?> getErc20TokenFromMoralis(String contractAddress, String chainName) async {
+    if (secrets.moralisApiKey.isEmpty) {
+      printV('Moralis API key is empty, cannot fetch token info');
+      return null;
+    }
     final uri = Uri.https(
       'deep-index.moralis.io',
       '/api/v2.2/erc20/metadata',
@@ -565,6 +614,93 @@ class EVMChainClient {
     );
   }
 
+  Future<List<MoralisWalletTokenBalance>> fetchWalletTokensFromMoralis(
+    String address,
+    String chainName,
+  ) async {
+    try {
+      if (secrets.moralisApiKey.isEmpty) {
+        printV('Moralis API key is empty, cannot fetch wallet tokens');
+        return [];
+      }
+
+      final uri = Uri.https(
+        'deep-index.moralis.io',
+        '/api/v2.2/$address/erc20',
+        {
+          "chain": chainName,
+        },
+      );
+
+      final response = await client.get(
+        uri,
+        headers: {
+          "Accept": "application/json",
+          "X-API-Key": secrets.moralisApiKey,
+        },
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        printV('Moralis API returned invalid status code: ${response.statusCode}');
+        return [];
+      }
+
+      final decodedResponse = jsonDecode(response.body) as List;
+
+      final List<MoralisWalletTokenBalance> tokens = [];
+
+      for (final item in decodedResponse) {
+        final tokenData = item as Map<String, dynamic>;
+
+        final balanceStr = tokenData['balance'] as String? ?? '0';
+        final balanceWei = BigInt.tryParse(balanceStr) ?? BigInt.zero;
+        if (balanceWei == BigInt.zero) continue;
+
+        final contractAddress = (tokenData['token_address'] as String? ?? '').toLowerCase();
+        final name = (tokenData['name'] as String? ?? '').toString();
+        final symbol = (tokenData['symbol'] as String? ?? '').toString();
+        final symbolFiltered = symbol.replaceFirst(RegExp('^\\\$'), '');
+
+        final decimalsRaw = tokenData['decimals'];
+        final decimals =
+            decimalsRaw is int ? decimalsRaw : int.tryParse(decimalsRaw.toString()) ?? 18;
+
+        final logo = tokenData['logo'] as String?;
+        final thumbnail = tokenData['thumbnail'] as String?;
+        final iconUrl = logo ?? thumbnail;
+
+        final possibleSpamRaw = tokenData['possible_spam'];
+        final possibleSpam = possibleSpamRaw is bool
+            ? possibleSpamRaw
+            : (possibleSpamRaw.toString().toLowerCase() == 'true');
+
+        final verifiedContractRaw = tokenData['verified_contract'];
+        final verifiedContract = verifiedContractRaw is bool
+            ? verifiedContractRaw
+            : (verifiedContractRaw.toString().toLowerCase() == 'true');
+
+        tokens.add(
+          MoralisWalletTokenBalance(
+            contractAddress: contractAddress,
+            name: name,
+            symbol: symbolFiltered,
+            decimals: decimals,
+            iconUrl: iconUrl,
+            balanceWei: balanceWei,
+            possibleSpam: possibleSpam,
+            verifiedContract: verifiedContract,
+          ),
+        );
+      }
+
+      return tokens;
+    } catch (e, stackTrace) {
+      printV('Error fetching wallet tokens from Moralis: ${e.toString()}');
+      printV('Stack trace: ${stackTrace.toString()}');
+      return [];
+    }
+  }
+
   Uint8List hexToBytes(String hexString) {
     return Uint8List.fromList(
         hex.HEX.decode(hexString.startsWith('0x') ? hexString.substring(2) : hexString));
@@ -596,4 +732,26 @@ class EVMChainClient {
 //     int exponent = int.parse(decimals.first.toString());
 //     return exponent;
 //   }
+}
+
+class MoralisWalletTokenBalance {
+  final String contractAddress;
+  final String name;
+  final String symbol;
+  final int decimals;
+  final String? iconUrl;
+  final BigInt balanceWei;
+  final bool possibleSpam;
+  final bool verifiedContract;
+
+  MoralisWalletTokenBalance({
+    required this.contractAddress,
+    required this.name,
+    required this.symbol,
+    required this.decimals,
+    this.iconUrl,
+    required this.balanceWei,
+    required this.possibleSpam,
+    required this.verifiedContract,
+  });
 }

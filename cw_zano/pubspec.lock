@@ -46,6 +46,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  bech32:
+    dependency: transitive
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "05755063b593aa6cca0a4820a318e0ce17de6192"
+      url: "https://github.com/cake-tech/bech32.git"
+    source: git
+    version: "0.2.2"
   blockchain_utils:
     dependency: transitive
     description:
@@ -498,8 +507,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: "411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29"
-      resolved-ref: "411e8a1cdb3f4c2812d83f28c335d2a4eb18bd29"
+      ref: bc8d1a0b75b97156d71579581b4cdfe58c777ed2
+      resolved-ref: bc8d1a0b75b97156d71579581b4cdfe58c777ed2
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"

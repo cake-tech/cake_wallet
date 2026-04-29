@@ -22,21 +22,21 @@ class EthereumTokens {
       Erc20Token(
         name: "Decentralized Euro",
         symbol: "DEURO",
-        contractAddress: "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea",
+        contractAddress: "0xba3f535bbcccca2a154b573ca6c5a49baae0a3ea",
         decimal: 18,
         enabled: true,
       ),
       Erc20Token(
         name: "Dai",
         symbol: "DAI",
-        contractAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        contractAddress: "0x6b175474e89094c44da98b954eedeac495271d0f",
         decimal: 18,
         enabled: true,
       ),
       Erc20Token(
         name: "Wrapped Ether",
         symbol: "WETH",
-        contractAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        contractAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
         decimal: 18,
         enabled: false,
       ),
@@ -64,7 +64,7 @@ class EthereumTokens {
       Erc20Token(
         name: "Matic Token",
         symbol: "MATIC",
-        contractAddress: "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+        contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
         decimal: 18,
         enabled: false,
       ),
@@ -82,6 +82,14 @@ class EthereumTokens {
         decimal: 18,
         enabled: false,
       ),
+      Erc20Token(
+        name: "Tether Gold",
+        symbol: "XAUT",
+        contractAddress: "0x68749665ff8d2d112fa859aa293f07a622782f38",
+        decimal: 6,
+        enabled: false,
+        iconPath: "assets/images/xaut.webp",
+      ),
     ];
 
     return tokens.map((token) {
@@ -89,8 +97,7 @@ class EthereumTokens {
       if (token.iconPath?.isEmpty ?? true) {
         try {
           iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.toUpperCase())
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
               .iconPath;
         } catch (_) {}
       } else {
@@ -101,4 +108,3 @@ class EthereumTokens {
     }).toList();
   }
 }
-

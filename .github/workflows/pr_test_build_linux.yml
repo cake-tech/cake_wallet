@@ -44,6 +44,7 @@ jobs:
 
       - name: Add secrets
         run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
           touch cw_core/lib/.secrets.g.dart
@@ -64,6 +65,8 @@ jobs:
 
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
@@ -101,28 +104,31 @@ jobs:
             ./build_zcash.sh
           popd
 
-      - name: Execute Build and Setup Commands
-        run: |
-          pushd scripts/linux
-            source ./app_env.sh cakewallet
-            ./app_config.sh
-          popd
-
-      - name: Build monero_c
-        run: |
-          mkdir -p scripts/monero_c
-          pushd scripts/monero_c
-            wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.0-RC9/release-bundle.zip
-            unzip release-bundle.zip
-            rm release-bundle.zip
-            unxz -fv release/*/*.xz
-          popd
-
       - name: Build Bitbox Flutter
         run: |
           set -x -e
           pushd scripts
             ./build_bitbox_flutter.sh
+          popd
+
+      - name: Build monero_c
+        run: |
+          ./scripts/prepare_moneroc.sh
+          mkdir -p scripts/monero_c/release
+          pushd scripts/monero_c/release
+            mkdir -p $(git describe --tags)
+            pushd $(git describe --tags)
+              wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC1/release-bundle.zip
+              unzip release-bundle.zip
+              rm release-bundle.zip
+            popd
+          popd
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
           popd
 
       - name: Install Flutter dependencies
@@ -215,7 +221,7 @@ jobs:
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
       - name: Test [cw_monero]
         timeout-minutes: 15
-        run: cd cw_monero && flutter test --verbose
+        run: cd cw_monero && flutter test
       - name: Stop screen recording, encrypt and upload
         if: always()
         run: |

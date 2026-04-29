@@ -1,14 +1,23 @@
 import 'dart:math';
 
 import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/favorite_token_modal.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
@@ -28,22 +37,77 @@ class HomeSettingsPage extends BasePage {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Observer(
-            builder: (_) => SettingsPickerCell<SortBalanceBy>(
-              title: S.current.sort_by,
-              items: SortBalanceBy.values,
-              selectedItem: _homeSettingsViewModel.sortBalanceBy,
-              onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
-            ),
-          ),
-          Divider(color: Theme.of(context).colorScheme.outlineVariant),
-          Observer(
-            builder: (_) => SettingsSwitcherCell(
-              title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
-              value: _homeSettingsViewModel.pinNativeToken,
-              onValueChange: (_, bool value) {
-                _homeSettingsViewModel.setPinNativeToken(value);
-              },
+          // Observer(
+          //   builder: (_) => SettingsPickerCell<SortBalanceBy>(
+          //     title: S.current.sort_by,
+          //     items: SortBalanceBy.values,
+          //     selectedItem: _homeSettingsViewModel.sortBalanceBy,
+          //     onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
+          //   ),
+          // ),
+          // Divider(color: Theme.of(context).colorScheme.outlineVariant),
+          // Observer(
+          //   builder: (_) => SettingsSwitcherCell(
+          //     title: S.of(context).show_combined_balance,
+          //     value: _homeSettingsViewModel.showCombinedBalance,
+          //     onValueChange: (_, bool value) {
+          //       _homeSettingsViewModel.setShowCombinedBalance(value);
+          //     },
+          //   ),
+          // ),
+          // Observer(
+          //     builder: (_) => _homeSettingsViewModel.showCombinedBalance
+          //         ? SizedBox.shrink()
+          //         : SettingsCellWithArrow(
+          //             title: S.of(context).favorite_token,
+          //             handler: (context) async {
+          //
+          //             },
+          //           )),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Observer(
+              builder: (_) => NewListSections(sections: {
+                "": [
+                  ListItemRegularRow(
+                      keyValue: "sort balance by",
+                      label: S.of(context).sort_by,
+                      trailingText: _homeSettingsViewModel.sortBalanceBy.toString(),
+                      onTap: () {
+                        showPopUp<void>(
+                          context: context,
+                          builder: (context) => Picker(
+                            items: SortBalanceBy.values,
+                            selectedAtIndex:
+                                SortBalanceBy.values.indexOf(_homeSettingsViewModel.sortBalanceBy),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
+                            isSeparated: false,
+                          ),
+                        );
+                      }),
+                  ListItemToggle(
+                      keyValue: "show combined",
+                      label: S.of(context).show_combined_balance,
+                      value: _homeSettingsViewModel.showCombinedBalance,
+                      onChanged: (val) => _homeSettingsViewModel.setShowCombinedBalance(val)),
+                  if (!_homeSettingsViewModel.showCombinedBalance)
+                    ListItemRegularRow(
+                        keyValue: "fav token",
+                        label: S.of(context).favorite_token,
+                        trailingText: _homeSettingsViewModel.favoriteToken.title,
+                        showArrow: true,
+                        onTap: () async {
+                          final res = await showModalBottomSheet(
+                              context: context,
+                              builder: (context) =>
+                                  FavoriteTokenModal(tokens: _homeSettingsViewModel.enabledTokens));
+                          if (res != null && res is CryptoCurrency) {
+                            _homeSettingsViewModel.setFavoriteToken(res);
+                          }
+                        })
+                ]
+              }),
             ),
           ),
           Divider(color: Theme.of(context).colorScheme.outlineVariant),

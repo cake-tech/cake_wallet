@@ -9,11 +9,13 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -28,10 +30,14 @@ abstract class HomeSettingsViewModelBase with Store {
       : tokens = ObservableSet<CryptoCurrency>(),
         isAddingToken = false,
         isDeletingToken = false,
-        isValidatingContractAddress = false {
+        isValidatingContractAddress = false,
+        showCombinedBalance = _balanceViewModel.wallet.walletInfo.showCombinedBalance,
+        favoriteToken = _balanceViewModel.wallet.currency {
     _updateTokensList();
+  _updateLocalFavoriteToken();
 
-    // React to wallet changes
+
+  // React to wallet changes
     reaction((_) => _balanceViewModel.wallet, (_) {
       _updateTokensList();
     });
@@ -53,6 +59,9 @@ abstract class HomeSettingsViewModelBase with Store {
   final BalanceViewModel _balanceViewModel;
 
   final ObservableSet<CryptoCurrency> tokens;
+
+  @computed
+  List<CryptoCurrency> get enabledTokens => [_balanceViewModel.wallet.currency, ...tokens.where((item)=>item.enabled).toList()];
 
   WalletType get walletType => _balanceViewModel.wallet.type;
 
@@ -211,6 +220,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         defaultTokenAddresses = evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
         break;
       case WalletType.solana:
@@ -239,6 +249,44 @@ abstract class HomeSettingsViewModelBase with Store {
     bool isInWhitelist = defaultTokenAddresses
         .any((element) => element.toLowerCase() == contractAddress.toLowerCase());
     return isInWhitelist;
+  }
+
+  bool checkIfTokenSymbolMatchesDefaultToken(String symbol) {
+    final normalizedSymbol = normalizeHomoglyphs(symbol.trim().toUpperCase());
+    if (normalizedSymbol.isEmpty) return false;
+
+    List<String> defaultTokenSymbols = [];
+    switch (_balanceViewModel.wallet.type) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
+        defaultTokenSymbols = evm!.getDefaultTokenSymbols(_balanceViewModel.wallet);
+        break;
+      case WalletType.solana:
+        defaultTokenSymbols = solana!.getDefaultTokenSymbols();
+        break;
+      case WalletType.tron:
+        defaultTokenSymbols = tron!.getDefaultTokenSymbols();
+        break;
+      case WalletType.zano:
+      case WalletType.banano:
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.wownero:
+      case WalletType.bitcoinCash:
+      case WalletType.decred:
+      case WalletType.dogecoin:
+      case WalletType.zcash:
+        return false;
+    }
+
+    return defaultTokenSymbols.any((s) => s.toUpperCase() == normalizedSymbol);
   }
 
   Future<bool> _isPotentialScamTokenViaMoralis(
@@ -365,7 +413,7 @@ abstract class HomeSettingsViewModelBase with Store {
   void _updateFiatPrices(CryptoCurrency token) async {
     if (token.isPotentialScam) return; // don't fetch price data for potential scam tokens
     try {
-      _balanceViewModel.fiatConvertationStore.prices[token] =
+      _balanceViewModel.fiatConversionStore.prices[token] =
           await FiatConversionService.fetchPrice(
               crypto: token,
               fiat: _settingsStore.fiatCurrency,
@@ -450,6 +498,45 @@ abstract class HomeSettingsViewModelBase with Store {
         ..sort(_sortFunc));
     }
   }
+
+
+  // FIXME these two observables cause duplicated state and are needed because mobx. remove them as part of the refactor and replace with proper getters
+  @observable
+  bool showCombinedBalance;
+
+  @observable
+  CryptoCurrency favoriteToken;
+
+  @action
+  void setShowCombinedBalance(bool value) {
+    _balanceViewModel.wallet.walletInfo.showCombinedBalance = value;
+    showCombinedBalance = value;
+    _balanceViewModel.wallet.updateBalance();
+    _balanceViewModel.wallet.walletInfo.save();
+  }
+
+  @action
+  Future<void> setFavoriteToken(CryptoCurrency token) async {
+    final String? address;
+
+    if(token == _balanceViewModel.wallet.currency) {
+      address = null;
+    } else {
+      address = getTokenAddressBasedOnWallet(token);
+    }
+
+    _balanceViewModel.wallet.walletInfo.favoriteTokenAddress = address;
+    _balanceViewModel.wallet.walletInfo.save();
+    _updateLocalFavoriteToken();
+  }
+
+  @action
+  Future<void> _updateLocalFavoriteToken() async {
+    favoriteToken = await TokenUtilities.findTokenByAddress(
+        walletType: _balanceViewModel.wallet.type, address: _balanceViewModel.wallet.walletInfo.favoriteTokenAddress ?? "") ??
+        _balanceViewModel.wallet.currency;
+  }
+
 
   @action
   void _refreshTokensList() {

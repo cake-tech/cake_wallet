@@ -34,8 +34,9 @@ Future<void> main(List<String> args) async {
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
+  final hasBsc = args.contains('${prefix}bsc');
   final hasZcash = args.contains('${prefix}zcash');
-  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum;
+  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -69,6 +70,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasBsc: hasBsc,
     hasZcash: hasZcash,
   );
   await generateWalletTypes(
@@ -87,6 +89,7 @@ Future<void> main(List<String> args) async {
     hasDogecoin: hasDogecoin,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
+    hasBsc: hasBsc,
     hasZcash: hasZcash,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
@@ -125,6 +128,7 @@ import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
@@ -144,6 +148,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
@@ -151,24 +156,30 @@ import 'package:cw_bitcoin/hardware/litecoin_ledger_service.dart';
 import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:mobx/mobx.dart';
+import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
 
-  class ElectrumSubAddress {
+class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
     required this.name,
     required this.address,
     required this.txCount,
     required this.balance,
-    required this.isChange});
+    required this.isChange,
+    this.derivationPath,
+    this.isLegacyDerivation = false
+  });
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final String? derivationPath;
+  final bool isLegacyDerivation;
 }
 
 abstract class Bitcoin {
@@ -184,7 +195,7 @@ abstract class Bitcoin {
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
-  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey});
+  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey, HardwareWalletType? hardwareWalletType});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -228,9 +239,10 @@ abstract class Bitcoin {
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet);
-  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet);
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  ReceivePageOption getBitcoinLightningReceivePageOption();
+  ReceivePageOption getBitcoinSegwitPageOption();
+  ReceivePageOption getLitecoinMwebReceivePageOption();
   bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
@@ -269,6 +281,7 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  Future<String?> getUnusedSpakDepositAddress(Object wallet);
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes);
 
   void updatePayjoinState(Object wallet, bool state);
@@ -277,6 +290,13 @@ abstract class Bitcoin {
   void stopPayjoinSessions(Object wallet);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
+  String getNetworkName(Object wallet);
+  bool useLightning(Object wallet);
+  void updateUseLightning(Object wallet, bool value);
+  Future<void> setLightningUsername(Object wallet, String username);
+  Future<String?> getLightningUsername(Object wallet);
+  Future<String?> getLightningInvoice(Object wallet, BigInt amount);
+  String? getBreezSdkError(Object exception);
 }
   """;
 
@@ -369,14 +389,14 @@ class MoneroBalance extends Balance {
       : formattedFullBalance = monero!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             monero!.formatterMoneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = monero!.formatterMoneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(monero!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
             monero!.formatterMoneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -440,6 +460,7 @@ abstract class Monero {
     required String address,
     required String password,
     required String language,
+    HardwareWalletType? hardwareWalletType,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
@@ -469,9 +490,9 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
 
 abstract class MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {required int accountIndex});
+  Future<void> update(Object wallet, {required int accountIndex});
   void refresh(Object wallet, {required int accountIndex});
-  List<Subaddress> getAll(Object wallet);
+  Future<List<Subaddress>> getAll(Object wallet);
   Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
   Future<void> setLabelSubaddress(Object wallet,
       {required int accountIndex, required int addressIndex, required String label});
@@ -576,14 +597,14 @@ class WowneroBalance extends Balance {
       : formattedFullBalance = wownero!.formatterWowneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             wownero!.formatterWowneroAmountToString(amount: unlockedBalance),
-        super(unlockedBalance, fullBalance);
+        super.fromInt(unlockedBalance, fullBalance);
 
   WowneroBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
       : fullBalance = wownero!.formatterWowneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
-        super(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
             wownero!.formatterWowneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
@@ -740,15 +761,12 @@ abstract class BitcoinCash {
   """;
 
   const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
-  const bitcoinCashCWDefinition =
-      'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
 
   final output = '$bitcoinCashCommonHeaders\n' +
       (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n') +
       (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n') +
-      (hasImplementation
-          ? bitcoinCashCWDefinition
-          : bitcoinCashEmptyDefinition) +
+      (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition) +
       '\n' +
       bitcoinCashContent;
 
@@ -883,8 +901,7 @@ abstract class NanoUtil {
   """;
 
   const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
-  const nanoCWDefinition =
-      'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +
       (hasImplementation ? '$nanoCWHeaders\n' : '\n') +
@@ -969,7 +986,9 @@ abstract class Solana {
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
   double? getEstimateFees(WalletBase wallet);
+  List<SPLToken> getDefaultSPLTokens();
   List<String> getDefaultTokenContractAddresses();
+  List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   
   // Jupiter swap transaction handling
@@ -1094,7 +1113,9 @@ abstract class Tron {
   String? getTronTRC20EstimatedFee(WalletBase wallet);
 
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
+  List<TronToken> getDefaultTronTokens();
   List<String> getDefaultTokenContractAddresses();
+  List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
   """;
@@ -1323,6 +1344,7 @@ abstract class DogeCoin {
 Future<void> generateEVM(bool hasImplementation) async {
   final outputFile = File(evmOutputPath);
   const evmCommonHeaders = """
+import 'dart:math' as math;
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -1346,9 +1368,15 @@ import 'package:web3dart/web3dart.dart';
 
 """;
   const evmCWHeaders = """
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
+import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -1364,7 +1392,13 @@ import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/deuro/deuro_savings.dart';
+import 'package:cw_evm/usdt0/usdt0_config.dart';
+import 'package:cw_evm/usdt0/usdt0_quote.dart';
+import 'package:cw_evm/usdt0/usdt0_service.dart';
 import 'package:eth_sig_util/util/utils.dart';
+export 'package:cw_evm/evm_chain_transaction_priority.dart';
+export 'package:cw_evm/evm_erc20_balance.dart';
+export 'package:cw_evm/usdt0/usdt0_quote.dart';
 
 """;
   const evmCwPart = "part 'cw_evm.dart';";
@@ -1450,6 +1484,7 @@ abstract class EVM {
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
+  BigInt? getERC20AvailableBalance(Object balance);
   
   Future<bool> isApprovalRequired(
     WalletBase wallet,
@@ -1457,6 +1492,11 @@ abstract class EVM {
     String spender,
     BigInt requiredAmount,
   );
+  
+  Future<BigInt?> getAllowance(
+      WalletBase wallet,
+      String tokenContract,
+      String spender);
   
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
@@ -1473,7 +1513,9 @@ abstract class EVM {
     String dataHex,
     BigInt valueWei,
     TransactionPriority? priority,
-    {bool useBlinkProtection = true}
+    {bool useBlinkProtection = true,
+    String? sourceTokenAddress,
+    BigInt? sourceTokenAmount}
   );
   
   // Hardware wallet methods
@@ -1483,7 +1525,9 @@ abstract class EVM {
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   
   // Utility methods
+  List<Erc20Token> getDefaultTokensByChainId(int chainId);
   List<String> getDefaultTokenContractAddresses(WalletBase wallet);
+  List<String> getDefaultTokenSymbols(WalletBase wallet);
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   String? getEVMNativeEstimatedFee(WalletBase wallet);
   String? getEVMERC20EstimatedFee(WalletBase wallet);
@@ -1508,17 +1552,50 @@ abstract class EVM {
   WalletType? getWalletTypeByChainId(int chainId);
   String getChainNameByChainId(int chainId);
   String getTokenNameByChainId(int chainId);
-  
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
+  ChainInfo? getChainInfoByChainId(int chainId);
+
 
   int? getSelectedChainId(WalletBase wallet);
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
   
   String? getExplorerUrlForChainId(int chainId, {bool showProtocol = true});
   
+  Future<bool?> getTransactionReceipt(WalletBase wallet, String txHash);
+
   bool hasPriorityFee(int chainId);
+
+  bool isUSDT0Token(WalletBase wallet, CryptoCurrency token);
+  List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet);
+
+  Future<USDT0Quote> quoteUSDT0Transfer({
+    required WalletBase wallet,
+    required int sourceChainId,
+    required int destinationChainId,
+    required BigInt amount,
+    required String recipientAddress,
+  });
+
+  Future<PendingTransaction> executeUSDT0Transfer({
+    required WalletBase wallet,
+    required CryptoCurrency token,
+    required int sourceChainId,
+    required int destinationChainId,
+    required BigInt amount,
+    required String recipientAddress,
+    required USDT0Quote quote,
+    required TransactionPriority priority,
+    bool useBlinkProtection = true,
+  });
+  
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  );
+
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
 class ChainInfo {
@@ -1526,11 +1603,13 @@ class ChainInfo {
     required this.chainId,
     required this.name,
     required this.shortCode,
+    required this.currency,
   });
   
   final int chainId;
   final String name;
   final String shortCode;
+  final CryptoCurrency currency;
 
   @override
   bool operator ==(Object other) =>
@@ -1539,6 +1618,18 @@ class ChainInfo {
 
   @override
   int get hashCode => chainId.hashCode;
+}
+
+class EvmWalletConnectFeeQuote {
+  const EvmWalletConnectFeeQuote({
+    required this.maxFeePerGasWei,
+    required this.maxPriorityFeePerGasWei,
+    this.latestBaseFeeWei,
+  });
+
+  final int maxFeePerGasWei;
+  final int maxPriorityFeePerGasWei;
+  final int? latestBaseFeeWei;
 }
   """;
 
@@ -1601,7 +1692,7 @@ abstract class Zcash {
       String? passphrase,
       required int? height});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
-      {required String name, required String privateKey, required String password});
+      {required String name, required String privateKey, required String password, required int height});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -1629,15 +1720,16 @@ abstract class Zcash {
   TransactionPriority getZcashTransactionPriorityAutomatic();
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
-  List<ReceivePageOption> getZcashReceivePageOptions(Object wallet);
   ReceivePageOption getSelectedAddressType(Object wallet);
   dynamic getZcashAddressType(ReceivePageOption option);
+  bool hasSelectedTransparentAddress(Object wallet);
   Future<void> setAddressType(Object wallet, dynamic option);
   dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
   Future<int> getHeightByDate(DateTime date);
+  bool showMissingFundsCard(WalletBase wallet);
+  Future<void> rescanInternalChange(WalletBase wallet);
 }
-
   """;
 
   const zcashEmptyDefinition = 'Zcash? zcash;\n';
@@ -1674,6 +1766,7 @@ Future<void> generatePubspec({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasBsc,
   required bool hasZcash,
 }) async {
   const cwCore = """
@@ -1745,8 +1838,7 @@ Future<void> generatePubspec({
   final inputLines = inputText.split('\n');
   final dependenciesIndex = inputLines.indexWhere((line) => Platform.isWindows
       // On Windows it could contains `\r` (Carriage Return). It could be fixed in newer dart versions.
-      ? line.toLowerCase() == 'dependencies:\r' ||
-          line.toLowerCase() == 'dependencies:'
+      ? line.toLowerCase() == 'dependencies:\r' || line.toLowerCase() == 'dependencies:'
       : line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 
@@ -1786,7 +1878,7 @@ Future<void> generatePubspec({
     output += '\n$flutterSecureStorage\n';
   }
 
-  if (hasEthereum || hasPolygon || hasBase || hasArbitrum) {
+  if (hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc) {
     output += '\n$cwEVM';
   }
 
@@ -1834,6 +1926,7 @@ Future<void> generateWalletTypes({
   required bool hasDogecoin,
   required bool hasBase,
   required bool hasArbitrum,
+  required bool hasBsc,
   required bool hasZcash,
 }) async {
   final walletTypesFile = File(walletTypesPath);
@@ -1856,6 +1949,10 @@ Future<void> generateWalletTypes({
 
   if (hasEthereum) {
     outputContent += '\tWalletType.ethereum,\n';
+  }
+
+  if (hasBsc) {
+    outputContent += '\tWalletType.bsc,\n';
   }
 
   if (hasSolana) {

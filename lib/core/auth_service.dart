@@ -260,7 +260,7 @@ Future<void> _handleDuressLogin(
 
   // Wipe wallet-related database tables
   try {
-    await db.transaction((txn) async {
+    await db!.transaction((txn) async {
       await txn.delete(WalletInfoAddressInfo.tableName);
       await txn.delete(WalletInfoAddressMap.tableName);
       await txn.delete(WalletInfoAddress.tableName);

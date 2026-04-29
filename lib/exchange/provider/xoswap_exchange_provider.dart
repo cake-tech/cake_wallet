@@ -7,13 +7,21 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
-  XOSwapExchangeProvider();
+  XOSwapExchangeProvider() {
+    _addAppVersionHeader();
+  }
+
+  void _addAppVersionHeader() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+    _headers['App-Version'] = currentVersion;
+  }
 
   static const _apiAuthority = 'exchange.exodus.io';
   static const _apiPath = '/v3';
@@ -22,7 +30,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   static const _orders = '/orders';
   static const _assets = '/assets';
 
-  static const _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
+  static final _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
 
   final _networks = <String, String>{
     'POL': 'matic',
@@ -150,7 +158,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -358,7 +366,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final payoutAddress = responseJSON['toAddress'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
       final refundAddress = responseJSON['fromAddress'] as String;
-      final depositAmount = _toDouble(amount['value']);
+      final depositAmountStr = amount['value'].toString();
+      final parsedAmount = double.tryParse(depositAmountStr);
+
+      if (parsedAmount == null || parsedAmount <= 0) {
+        throw Exception('Invalid deposit amount received from API');
+      }
+
       final receiveAmount = toAmount['value'] as String;
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['createdAt'] as String;
@@ -386,7 +400,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
           'depositAddress': depositAddress,
           'payoutAddress': payoutAddress,
           'refundAddress': refundAddress,
-          'depositAmount': depositAmount,
+          'depositAmount': depositAmountStr,
           'receiveAmount': receiveAmount,
           'status': status,
           'createdAt': createdAtString,
@@ -405,7 +419,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         refundAddress: refundAddress,
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
-        amount: depositAmount.toString(),
+        amount: depositAmountStr,
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
@@ -499,7 +513,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
       final orderId = responseJSON['id'] as String;
-      final depositAmount = amount['value'] as String;
+      final depositAmountStr = amount['value'].toString();
+      final parsedAmount = double.tryParse(depositAmountStr);
+
+      if (parsedAmount == null || parsedAmount <= 0) {
+        throw Exception('Invalid deposit amount received from API');
+      }
+
       final receiveAmount = toAmount['value'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
       final payoutAddress = responseJSON['toAddress'] as String;
@@ -526,7 +546,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         refundAddress: refundAddress,
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
-        amount: depositAmount,
+        amount: depositAmountStr,
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
@@ -553,15 +573,5 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       }
     }
     return null;
-  }
-
-  double _toDouble(dynamic value) {
-    if (value is int) {
-      return value.toDouble();
-    } else if (value is double) {
-      return value;
-    } else {
-      return 0.0;
-    }
   }
 }

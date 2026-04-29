@@ -65,8 +65,7 @@ class CakePayOrder {
       CakePayPaymentMethod.LTC => order.paymentData.ltc,
       CakePayPaymentMethod.LTC_MWEB => order.paymentData.ltc_mweb,
       CakePayPaymentMethod.ZEC => order.paymentData.zec,
-      // TODO: Handle this case.
-      CakePayPaymentMethod.BTC_LN => throw UnimplementedError(),
+      CakePayPaymentMethod.BTC_LN => order.paymentData.btc_ln,
     };
 
     if (data == null) return null;

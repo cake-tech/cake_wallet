@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 
 class MenuWidget extends StatefulWidget {
   MenuWidget(this.dashboardViewModel, Key? key);
@@ -36,6 +35,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.polygonIcon = Image.asset('assets/images/crypto/polygon.webp'),
         this.baseIcon = Image.asset('assets/images/crypto/base_icon.webp'),
         this.arbitrumIcon = Image.asset('assets/images/crypto/arbitrum.webp'),
+        this.bscIcon = Image.asset('assets/images/crypto/BNB.webp'),
         this.solanaIcon = Image.asset('assets/images/crypto/solana.webp'),
         this.tronIcon = Image.asset('assets/images/crypto/tron.webp'),
         this.wowneroIcon = Image.asset('assets/images/crypto/wownero.webp'),
@@ -66,6 +66,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image polygonIcon;
   Image baseIcon;
   Image arbitrumIcon;
+  Image bscIcon;
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
@@ -258,6 +259,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return baseIcon;
       case WalletType.arbitrum:
         return arbitrumIcon;
+      case WalletType.bsc:
+        return bscIcon;
       case WalletType.tron:
         return tronIcon;
       case WalletType.wownero:

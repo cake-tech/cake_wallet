@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Performance enhancements",
+    "description": "Improve app performance and speed"
+  },
+  {
+    "title": "Add USDT bridging",
+    "description": "Bridge your USDT from one chain to another"
+  },
+  {
+    "title": "Wallets improvements",
+    "description": "Improve wallets UI and functionality"
+  },
+  {
+    "title": "Bug fixes",
+    "description": "Squash more bugs, to make your experience smooth"
+  }
+]

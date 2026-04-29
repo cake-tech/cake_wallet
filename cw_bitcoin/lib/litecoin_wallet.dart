@@ -123,8 +123,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      mainHdByType: mainHdByType,
+      sideHdByType: sideHdByType,
+      legacyMainHd: mainHd,
+      legacySideHd: sideHd,
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
@@ -989,7 +991,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return ElectrumBalance(
       confirmed: confirmed,
       unconfirmed: unconfirmed,
-      frozen: balance.frozen,
+      frozen: balance.frozen.toInt(),
       secondConfirmed: confirmedMweb,
       secondUnconfirmed: unconfirmedMweb,
     );
@@ -1250,8 +1252,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
             final key = generateECPrivate(
                 hd: utxo.bitcoinAddressRecord.isHidden
-                    ? walletAddresses.sideHd
-                    : walletAddresses.mainHd,
+                    ? sideHd
+                    : mainHd,
                 index: utxo.bitcoinAddressRecord.index,
                 network: network);
             final digest = tx2.getTransactionSegwitDigit(
@@ -1424,7 +1426,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final index = address != null
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
 
     final privateKey = ECDSAPrivateKey.fromBytes(

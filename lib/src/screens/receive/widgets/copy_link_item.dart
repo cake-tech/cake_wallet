@@ -1,8 +1,8 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 
 class CopyLinkItem extends StatelessWidget {
   const CopyLinkItem({super.key, required this.url, required this.title});
@@ -40,7 +40,7 @@ class CopyLinkItem extends StatelessWidget {
               highlightColor: Colors.transparent,
               splashColor: Colors.transparent,
               iconSize: 25,
-              onPressed: () => Share.share(url),
+              onPressed: () => ShareUtil.share(text: url, context: context),
               icon: Icon(
                 Icons.share,
                 color: Theme.of(context).colorScheme.primary,

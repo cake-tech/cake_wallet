@@ -12,7 +12,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -84,7 +84,7 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
 class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBody> {
   final TextEditingController passphraseController = TextEditingController();
   final TextEditingController confirmPassphraseController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<NodeFormState>();
   final _passphraseFormKey = GlobalKey<FormState>();
   bool? testnetValue;
 
@@ -274,7 +274,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     Padding(
                       padding: EdgeInsets.only(left: 24, right: 24, top: 24),
                       child: NodeForm(
-                        formKey: _formKey,
+                        key: _formKey,
                         nodeViewModel: widget.nodeViewModel,
                       ),
                     )

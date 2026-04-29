@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
@@ -13,6 +14,7 @@ import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_bitcoin/psbt/utils.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
@@ -39,9 +41,47 @@ class PayjoinManager {
 
   static const payjoinDirectoryUrl = 'https://payjo.in';
 
-  Future<void> initPayjoin() => pj_config.PConfig.initializeApp();
+  var _logStreamController = StreamController<String>.broadcast();
+  Stream<String> get logStream => _logStreamController.stream;
+  StreamSubscription<String>? _logSubscription;
+
+  Future<void> initPayjoin() async {
+    await initLogging();
+
+    await pj_config.PConfig.initializeApp();
+  }
+
+  Future<void> initLogging() async {
+    _logSubscription?.cancel();
+    _logStreamController = StreamController<String>.broadcast();
+
+    try {
+      final path = await pathForWalletDir(name: _wallet.name, type: _wallet.type);
+      File("$path/payjoin.log")
+          .create()
+          .then(_subscribeToLogStream)
+          .onError((e, s) async => printV("$e\n$s"));
+    } catch (e) {
+      printV(e);
+    }
+  }
+
+  void _subscribeToLogStream(File logFile) {
+    _logSubscription = logStream.listen((logEntry) {
+      logFile.writeAsString("$logEntry\n", mode: FileMode.writeOnlyAppend);
+    });
+  }
+
+  void writePayjoinLog(String message) {
+    if (_logStreamController.isClosed) return;
+
+    try {
+      _logStreamController.add(message);
+    } catch (_) {}
+  }
 
   Future<void> resumeSessions() async {
+    await initLogging();
     final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
 
     final spawnedSessions = allSessions.map((session) {
@@ -112,12 +152,21 @@ class PayjoinManager {
         try {
           switch (message['type'] as PayjoinSenderRequestTypes) {
             case PayjoinSenderRequestTypes.requestPosted:
+              writePayjoinLog("Sender($pjUri) PayjoinSenderRequestTypes.requestPosted");
               return;
             case PayjoinSenderRequestTypes.psbtToSign:
+              writePayjoinLog("Sender($pjUri) PayjoinSenderRequestTypes.psbtToSign");
+
               final proposalPsbt = message['psbt'] as String;
+              writePayjoinLog("Sender($pjUri) proposedPSBT: $proposalPsbt");
+
               final utxos = _wallet.getUtxoWithPrivateKeys();
               final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
+              writePayjoinLog("Sender($pjUri) finalizedPsbt: $finalizedPsbt");
+
               final txId = getTxIdFromPsbtV0(finalizedPsbt);
+              writePayjoinLog("Sender($pjUri) expected: $txId");
+
               _wallet.commitPsbt(finalizedPsbt);
 
               _cleanupSession(pjUri);
@@ -125,6 +174,7 @@ class PayjoinManager {
               completer.complete();
           }
         } catch (e) {
+          writePayjoinLog("[ERROR] Sender($pjUri) $e");
           _cleanupSession(pjUri);
           await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, e.toString());
           completer.complete();
@@ -132,11 +182,16 @@ class PayjoinManager {
       } else if (message is PayjoinSessionError) {
         _cleanupSession(pjUri);
         if (message is UnrecoverableError) {
+          writePayjoinLog("[ERROR] Sender($pjUri) UnrecoverableError(${message.message})");
           await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, message.message);
           completer.complete();
         } else if (message is RecoverableError) {
+          writePayjoinLog("[ERROR] Sender($pjUri) RecoverableError(${message.message})");
+
           completer.complete();
         } else {
+          writePayjoinLog("[ERROR] Sender($pjUri) GenericError(${message.message})");
+
           completer.completeError(message);
         }
       }
@@ -166,6 +221,8 @@ class PayjoinManager {
   }
 
   Future<Receiver> initReceiver(String address, [bool isTestnet = false, int retryCount = 0]) async {
+    if (retryCount > 0) writePayjoinLog("Retrying initReceiver ${retryCount + 1} attempt");
+
     try {
       final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
         ohttpRelay: await randomOhttpRelayUrl(),
@@ -186,7 +243,9 @@ class PayjoinManager {
 
       return receiver;
     } catch (e) {
+      writePayjoinLog(e.toString());
       if (e.toString().contains("error sending request for url") && retryCount < 5) {
+
         return initReceiver(address, isTestnet, ++retryCount);
       } else {
         rethrow;
@@ -251,6 +310,8 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.processPsbt:
               final psbt = message['psbt'] as String;
+              writePayjoinLog("Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.processPsbt: $psbt");
+
               final signedPsbt = await _wallet.signPsbt(psbt, utxos);
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
@@ -261,25 +322,35 @@ class PayjoinManager {
             case PayjoinReceiverRequestTypes.proposalSent:
               _cleanupSession(receiver.id());
               final psbt = message['psbt'] as String;
+              writePayjoinLog("Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.proposalSent: $psbt");
+
               await _payjoinStorage.markReceiverSessionComplete(
                   receiver.id(), getTxIdFromPsbtV0(psbt), rawAmount);
               completer.complete();
           }
         } catch (e) {
           _cleanupSession(receiver.id());
-          await _payjoinStorage.markReceiverSessionUnrecoverable(
-              receiver.id(), e.toString());
+          writePayjoinLog("[ERROR] Receiver(${receiver.id()}) $e");
+
+          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id(), e.toString());
           completer.completeError(e);
         }
       } else if (message is PayjoinSessionError) {
         _cleanupSession(receiver.id());
         if (message is UnrecoverableError) {
-          await _payjoinStorage.markReceiverSessionUnrecoverable(
-              receiver.id(), message.message);
+          writePayjoinLog(
+              "[ERROR] Receiver(${receiver.id()}) UnrecoverableError(${message.message})");
+
+          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id(), message.message);
           completer.complete();
         } else if (message is RecoverableError) {
+          writePayjoinLog(
+              "[ERROR] Receiver(${receiver.id()}) RecoverableError(${message.message})");
+
           completer.complete();
         } else {
+          writePayjoinLog("[ERROR] Receiver(${receiver.id()}) GenericError(${message.message})");
+
           completer.completeError(message);
         }
       } else if (message is SendPort) {
@@ -302,9 +373,13 @@ class PayjoinManager {
     for (final sessionId in sessionIds) {
       _cleanupSession(sessionId);
     }
+
+    _logSubscription?.cancel();
+    _logStreamController.close();
   }
 
   void _cleanupSession(String sessionId) {
+    writePayjoinLog("Cleaning $sessionId");
     _activePollers[sessionId]?.close();
     _activePollers.remove(sessionId);
   }

@@ -12,7 +12,9 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -101,113 +103,116 @@ class BalanceRowWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: hasAdditionalBalance
-                                ? () => _showBalanceDescription(
-                                    context, S.of(context).available_balance_description)
-                                : null,
-                            child: Row(
-                              children: [
-                                Semantics(
-                                  hint: 'Double tap to see more information',
-                                  container: true,
-                                  child: Text(
-                                    '${availableBalanceLabel}',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          height: 1,
-                                        ),
-                                  ),
-                                ),
-                                if (hasAdditionalBalance)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: Icon(
-                                      Icons.help_outline,
-                                      size: 16,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          AutoSizeText(
-                            availableBalance,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 24,
-                                  height: 1,
-                                ),
-                            maxLines: 1,
-                            textAlign: TextAlign.start,
-                          ),
-                          SizedBox(height: 6),
-                          if (isTestnet)
-                            Text(
-                              S.of(context).testnet_coins_no_value,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    height: 1,
-                                  ),
-                            ),
-                          if (!isTestnet)
-                            Text(
-                              '${availableFiatBalance}',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1,
-                                  ),
-                            ),
-                        ],
-                      ),
-                      SizedBox(
-                        //width: min(MediaQuery.of(context).size.width * 0.2, 100),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              CakeImageWidget(
-                                imageUrl: currency.iconPath,
-                                height: 40,
-                                width: 40,
-                                errorWidget: Container(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  child: Center(
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: hasAdditionalBalance
+                                  ? () => _showBalanceDescription(
+                                      context, S.of(context).available_balance_description)
+                                  : null,
+                              child: Row(
+                                children: [
+                                  Semantics(
+                                    hint: 'Double tap to see more information',
+                                    container: true,
                                     child: Text(
-                                      currency.title.substring(0, min(currency.title.length, 2)),
+                                      '${availableBalanceLabel}',
                                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            fontSize: 11,
                                             color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1,
                                           ),
                                     ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
-                                  ),
-                                ),
+                                  if (hasAdditionalBalance)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Icon(
+                                        Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              const SizedBox(height: 10),
+                            ),
+                            SizedBox(height: 6),
+                            AutoSizeText(
+                              availableBalance,
+                              minFontSize: 16,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 24,
+                                    height: 1,
+                                  ),
+                              maxLines: 1,
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(height: 6),
+                            if (isTestnet)
                               Text(
-                                currency.title,
+                                S.of(context).testnet_coins_no_value,
+                                textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Theme.of(context).colorScheme.onSurface,
                                       height: 1,
                                     ),
                               ),
-                            ],
-                          ),
+                            if (!isTestnet)
+                              Text(
+                                '${availableFiatBalance}',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      height: 1,
+                                    ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            CakeImageWidget(
+                              imageUrl: currency.iconPath,
+                              height: 40,
+                              width: 40,
+                              errorWidget: Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    currency.title.substring(0, min(currency.title.length, 2)),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              currency.title,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    height: 1,
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -215,7 +220,7 @@ class BalanceRowWidget extends StatelessWidget {
                   if (currency.isPotentialScam)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      margin: EdgeInsets.only(top: 4),
+                      margin: const EdgeInsets.only(top: 4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.errorContainer,
                         borderRadius: BorderRadius.circular(8),
@@ -243,7 +248,7 @@ class BalanceRowWidget extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 26),
+                        const SizedBox(height: 26),
                         Row(
                           children: [
                             Text(
@@ -256,7 +261,7 @@ class BalanceRowWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         AutoSizeText(
                           frozenBalance,
                           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
@@ -267,14 +272,12 @@ class BalanceRowWidget extends StatelessWidget {
                           maxLines: 1,
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         if (!isTestnet)
                           Text(
                             frozenFiatBalance,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                  height: 1,
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(height: 1),
                           ),
                       ],
                     ),
@@ -282,7 +285,7 @@ class BalanceRowWidget extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
                         Text(
                           '${additionalBalanceLabel}',
                           textAlign: TextAlign.center,
@@ -291,7 +294,7 @@ class BalanceRowWidget extends StatelessWidget {
                                 height: 1,
                               ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         AutoSizeText(
                           additionalBalance,
                           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
@@ -302,14 +305,12 @@ class BalanceRowWidget extends StatelessWidget {
                           maxLines: 1,
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         if (!isTestnet)
                           Text(
                             '${additionalFiatBalance}',
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                  height: 1,
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(height: 1),
                           ),
                       ],
                     ),
@@ -332,15 +333,6 @@ class BalanceRowWidget extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              // boxShadow: [
-              //   BoxShadow(
-              //       color: Theme.of(context)
-              //           .extension<BalancePageTheme>()!
-              //           .cardBorderColor
-              //           .withAlpha(50),
-              //       spreadRadius: dashboardViewModel.getShadowSpread(),
-              //       blurRadius: dashboardViewModel.getShadowBlur())
-              // ],
             ),
             child: TextButton(
               onPressed: _showToast,
@@ -359,27 +351,48 @@ class BalanceRowWidget extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Container(
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      child: ImageIcon(
-                                        AssetImage('assets/images/mweb_logo.png'),
-                                        size: 40,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      'MWEB',
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                            color: Theme.of(context).colorScheme.onSurface,
-                                            height: 1,
-                                          ),
-                                    ),
-                                  ],
-                                ),
+                              Column(
+                                children: [
+                                  ImageIcon(
+                                    AssetImage('assets/images/mweb_logo.png'),
+                                    size: 40,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'MWEB',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        if (currency == CryptoCurrency.btc)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/lightning-icon.svg',
+                                    width: 40,
+                                    height: 40,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'Lightning',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -391,15 +404,11 @@ class BalanceRowWidget extends StatelessWidget {
                                 children: [
                                   GestureDetector(
                                     behavior: HitTestBehavior.opaque,
-                                    onTap: () => launchUrl(
-                                      Uri.parse(
-                                          "https://docs.cakewallet.com/cryptos/litecoin#mweb"),
-                                      mode: LaunchMode.externalApplication,
-                                    ),
+                                    onTap: onPressedHelp,
                                     child: Row(
                                       children: [
                                         Text(
-                                          '${secondAvailableBalanceLabel}',
+                                          secondAvailableBalanceLabel,
                                           textAlign: TextAlign.center,
                                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color:
@@ -433,7 +442,7 @@ class BalanceRowWidget extends StatelessWidget {
                                   SizedBox(height: 6),
                                   if (!isTestnet)
                                     Text(
-                                      '${secondAvailableFiatBalance}',
+                                      secondAvailableFiatBalance,
                                       textAlign: TextAlign.center,
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                             fontSize: 16,
@@ -461,7 +470,7 @@ class BalanceRowWidget extends StatelessWidget {
                                 children: [
                                   SizedBox(height: 24),
                                   Text(
-                                    '${secondAdditionalBalanceLabel}',
+                                    secondAdditionalBalanceLabel,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -497,31 +506,15 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                   IntrinsicHeight(
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Semantics(
-                              label: S.of(context).litecoin_mweb_pegin,
+                              label: depositToL2Label,
                               child: OutlinedButton(
-                                onPressed: () {
-                                  final mwebAddress =
-                                      bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
-                                  PaymentRequest? paymentRequest = null;
-                                  if ((mwebAddress?.isNotEmpty ?? false)) {
-                                    paymentRequest = PaymentRequest.fromUri(
-                                        Uri.parse("litecoin:${mwebAddress}"));
-                                  }
-                                  Navigator.pushNamed(
-                                    context,
-                                    Routes.send,
-                                    arguments: {
-                                      'paymentRequest': paymentRequest,
-                                      'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-                                    },
-                                  );
-                                },
+                                onPressed: () => depositToL2(context),
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.primary,
                                   side: BorderSide(
@@ -534,7 +527,7 @@ class BalanceRowWidget extends StatelessWidget {
                                   ),
                                 ),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -546,7 +539,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        S.of(context).litecoin_mweb_pegin,
+                                        depositToL2Label,
                                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                               color: Theme.of(context).colorScheme.onPrimary,
                                               fontWeight: FontWeight.w700,
@@ -561,25 +554,9 @@ class BalanceRowWidget extends StatelessWidget {
                           SizedBox(width: 16),
                           Expanded(
                             child: Semantics(
-                              label: S.of(context).litecoin_mweb_pegout,
+                              label: withdrawFromL2Label,
                               child: OutlinedButton(
-                                onPressed: () {
-                                  final litecoinAddress =
-                                      bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
-                                  PaymentRequest? paymentRequest = null;
-                                  if ((litecoinAddress?.isNotEmpty ?? false)) {
-                                    paymentRequest = PaymentRequest.fromUri(
-                                        Uri.parse("litecoin:${litecoinAddress}"));
-                                  }
-                                  Navigator.pushNamed(
-                                    context,
-                                    Routes.send,
-                                    arguments: {
-                                      'paymentRequest': paymentRequest,
-                                      'coinTypeToSpendFrom': UnspentCoinType.mweb,
-                                    },
-                                  );
-                                },
+                                onPressed: () => withdrawFromL2(context),
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.surface,
                                   side: BorderSide(
@@ -604,7 +581,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        S.of(context).litecoin_mweb_pegout,
+                                        withdrawFromL2Label,
                                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                               color: Theme.of(context)
                                                   .colorScheme
@@ -622,7 +599,7 @@ class BalanceRowWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -632,20 +609,74 @@ class BalanceRowWidget extends StatelessWidget {
     );
   }
 
-  //  double getShadowSpread(){
-  //   double spread = 3;
-  //   else if (!dashboardViewModel.settingsStore.currentTheme.isDark) spread = 3;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) spread = 1;
-  //   return spread;
-  // }
-  //
-  //
-  // double getShadowBlur(){
-  //   double blur = 7;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) blur = 7;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) blur = 3;
-  //   return blur;
-  // }
+  String get depositToL2Label => dashboardViewModel.type == WalletType.litecoin
+      ? S.current.litecoin_mweb_pegin
+      : S.current.bitcoin_lightning_deposit;
+
+  String get withdrawFromL2Label => dashboardViewModel.type == WalletType.litecoin
+      ? S.current.litecoin_mweb_pegout
+      : S.current.bitcoin_lightning_withdraw;
+
+  Future<void> depositToL2(BuildContext context) async {
+    PaymentRequest? paymentRequest = null;
+
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      final depositAddress = bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$depositAddress"));
+      }
+    } else if (dashboardViewModel.type == WalletType.bitcoin) {
+      final depositAddress = await bitcoin!.getUnusedSpakDepositAddress(dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$depositAddress"));
+      }
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+      },
+    );
+  }
+
+  Future<void> withdrawFromL2(BuildContext context) async {
+    PaymentRequest? paymentRequest = null;
+    UnspentCoinType unspentCoinType = UnspentCoinType.any;
+    final withdrawAddress = bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
+
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.mweb;
+    } else if (dashboardViewModel.type == WalletType.bitcoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.lightning;
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': unspentCoinType,
+      },
+    );
+  }
+
+  void onPressedHelp() {
+    var helpUri = Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin#lightning");
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      helpUri = Uri.parse("https://docs.cakewallet.com/cryptos/litecoin#mweb");
+    }
+
+    launchUrl(helpUri, mode: LaunchMode.externalApplication);
+  }
 
   void _showBalanceDescription(BuildContext context, String content) {
     showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));

@@ -112,6 +112,9 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
                     buttonAction: () {
                       _showingFailureDialog = false;
                       Navigator.of(popupContext).pop();
+                      if(mounted) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      }
                     },
                   );
                 },
@@ -172,7 +175,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
                     onSingleActionButtonPressed: () {
                       Navigator.of(bottomSheetContext).pop();
                       if (mounted) {
-                        Navigator.of(context).pop();
+                        Navigator.of(context, rootNavigator: true).pop();
                       }
                       ;
                     },
@@ -348,7 +351,7 @@ class _SwapDetailsContent extends StatelessWidget {
                     const SizedBox(height: 4),
                     AddressFormatter.buildSegmentedAddress(
                       address: trade.payoutAddress ?? '',
-                      walletType: trade.to != null ? cryptoCurrencyToWalletType(trade.to!) : null,
+                      walletType: trade.to != null ? cryptoCurrencyOrTokenToWalletType(trade.to!) : null,
                       evenTextStyle: Theme.of(context)
                           .textTheme
                           .bodyMedium!

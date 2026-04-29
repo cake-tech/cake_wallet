@@ -38,6 +38,7 @@ class EnsRecord {
           case WalletType.polygon:
           case WalletType.base:
           case WalletType.arbitrum:
+          case WalletType.bsc:
           default:
             return (await ens.withName(name).getAddress()).hex;
         }

@@ -5,9 +5,12 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -22,8 +25,10 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
+    required super.mainHdByType,
+    required super.sideHdByType,
+    required super.legacyMainHd,
+    required super.legacySideHd,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
@@ -53,6 +58,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
       ? hex.decode(scanSecretOverride!)
       : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+
   List<int> get spendPubkey => (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
       ? hex.decode(spendPubkeyOverride!)
       : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ?? List.filled(32, 0);
@@ -69,7 +75,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     return List.from(super.allAddresses)..addAll(mwebAddresses);
   }
 
-  Future<void> ensureMwebAddressUpToIndexExists(int index) async {
+  Future<void> ensureMwebAddressUpToIndexExists(int _index) async {
+    final index = _index + 1;
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }
@@ -142,7 +149,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       if (mwebAddrs.length == 0) {
         return "";
       }
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      return hd == legacySideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
@@ -221,8 +228,30 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @override
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
-    final addresses = receiveAddresses
-        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
-    return addresses.first.address;
+    try {
+      final addresses = receiveAddresses
+          .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
+      return addresses.first.address;
+    } catch (_) {
+      return receiveAddresses.first.address;
+    }
   }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows || isHardwareWallet) {
+      return [
+        ...BitcoinReceivePageOption.allLitecoin
+            .where((element) => element != BitcoinReceivePageOption.mweb),
+        ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+      ];
+    }
+    return [
+      ...BitcoinReceivePageOption.allLitecoin,
+      ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+    ];
+  }
+
+  @override
+  PaymentURI getPaymentUri(String amount) => LitecoinURI(amount: amount, address: address);
 }

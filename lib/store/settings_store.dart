@@ -11,6 +11,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -30,6 +31,7 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -90,6 +92,7 @@ abstract class SettingsStoreBase with Store {
       required this.deviceName,
       required Map<WalletType, Node> nodes,
       required Map<WalletType, Node> powNodes,
+      required this.displayAmountsInSatoshi,
       required this.shouldShowYatPopup,
       required this.shouldShowDEuroDisclaimer,
       required this.shouldShowRepWarning,
@@ -107,11 +110,14 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldRequireTOTP2FAForAddingContacts,
       required bool initialShouldRequireTOTP2FAForCreatingNewWallets,
       required bool initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+      required this.forceDecentralizedExchanges,
+      required this.decentralizedExchangesPromptDismissed,
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
       required this.useBaseScan,
       required this.useArbiScan,
+      required this.useBscScan,
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
@@ -132,9 +138,12 @@ abstract class SettingsStoreBase with Store {
       required this.silentPaymentsCardDisplay,
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
+      required this.showZcashMissingFundsCard,
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
+      required this.mwebAdDismissed,
+      required this.balanceHideCounter,
       required bool initialEnableAutomaticNodeSwitching,
       required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
@@ -146,9 +155,11 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialEVMTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
       TransactionPriority? initialBaseTransactionPriority,
+      TransactionPriority? initialBscTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
+      TransactionPriority? initialZcashTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -238,6 +249,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.base] = initialBaseTransactionPriority;
     }
 
+    if (initialBscTransactionPriority != null) {
+      priority[WalletType.bsc] = initialBscTransactionPriority;
+    }
+
     if (initialBitcoinCashTransactionPriority != null) {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
@@ -247,6 +262,9 @@ abstract class SettingsStoreBase with Store {
     }
     if (initialDecredTransactionPriority != null) {
       priority[WalletType.decred] = initialDecredTransactionPriority;
+    }
+    if (initialZcashTransactionPriority != null) {
+      priority[WalletType.zcash] = initialZcashTransactionPriority;
     }
 
     if (initialCakePayCountry != null) {
@@ -277,6 +295,8 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => shouldShowRepWarning,
         (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
 
+    reaction((_)=>mwebAdDismissed, (val)=>sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
+
     priority.observe((change) {
       final String? key;
       switch (change.key) {
@@ -305,11 +325,17 @@ abstract class SettingsStoreBase with Store {
         case WalletType.base:
           key = PreferencesKey.baseTransactionPriority;
           break;
+        case WalletType.bsc:
+          key = PreferencesKey.bscTransactionPriority;
+          break;
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
           break;
         case WalletType.decred:
           key = PreferencesKey.decredTransactionPriority;
+          break;
+        case WalletType.zcash:
+          key = PreferencesKey.zcashTransactionPriority;
           break;
         default:
           key = null;
@@ -433,6 +459,11 @@ abstract class SettingsStoreBase with Store {
         (BalanceDisplayMode mode) => sharedPreferences.setInt(
             PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
+    reaction(
+        (_) => displayAmountsInSatoshi,
+        (BitcoinAmountDisplayMode displayAmountsInSatoshi) => sharedPreferences.setInt(
+            PreferencesKey.displayAmountsInSatoshi, displayAmountsInSatoshi.raw));
+
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
       FlutterDaemon().startBackgroundSync(syncMode.frequency.inMinutes);
@@ -476,6 +507,9 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => useArbiScan,
         (bool useArbiScan) => _sharedPreferences.setBool(PreferencesKey.useArbiScan, useArbiScan));
+
+    reaction((_) => useBscScan,
+        (bool useBscScan) => _sharedPreferences.setBool(PreferencesKey.useBscScan, useBscScan));
 
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
@@ -648,6 +682,11 @@ abstract class SettingsStoreBase with Store {
         (bool mwebCardDisplay) =>
             _sharedPreferences.setBool(PreferencesKey.mwebCardDisplay, mwebCardDisplay));
 
+    reaction(
+        (_) => showZcashMissingFundsCard,
+        (bool showZcashMissingFundsCard) =>
+            _sharedPreferences.setBool(PreferencesKey.showZcashMissingFundsCard, showZcashMissingFundsCard));
+
     reaction((_) => mwebEnabled,
         (bool mwebEnabled) => _sharedPreferences.setBool(PreferencesKey.mwebEnabled, mwebEnabled));
 
@@ -670,6 +709,22 @@ abstract class SettingsStoreBase with Store {
         (_) => backgroundImage,
         (String backgroundImage) =>
             _sharedPreferences.setString(PreferencesKey.backgroundImage, backgroundImage));
+
+    reaction(
+        (_) => forceDecentralizedExchanges,
+        (bool forceDecentralizedExchanges) => _sharedPreferences.setBool(
+            PreferencesKey.forceDecentralizedExchanges, forceDecentralizedExchanges));
+
+    reaction(
+        (_) => decentralizedExchangesPromptDismissed,
+        (bool decentralizedExchangesPromptDismissed) => _sharedPreferences.setBool(
+            PreferencesKey.decentralizedExchangesPromptDismissed,
+            decentralizedExchangesPromptDismissed));
+
+    reaction(
+        (_) => balanceHideCounter,
+        (int balanceHideCounter) => _sharedPreferences.setInt(PreferencesKey.balanceHideCounter, balanceHideCounter)
+    );
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -723,6 +778,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BalanceDisplayMode balanceDisplayMode;
+
+  @observable
+  int balanceHideCounter;
+
+  @observable
+  BitcoinAmountDisplayMode displayAmountsInSatoshi;
 
   @observable
   FiatApiMode fiatApiMode;
@@ -854,6 +915,9 @@ abstract class SettingsStoreBase with Store {
   bool useArbiScan;
 
   @observable
+  bool useBscScan;
+
+  @observable
   bool useTronGrid;
 
   @observable
@@ -922,6 +986,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool mwebCardDisplay;
+  
+  @observable
+  bool showZcashMissingFundsCard;
 
   @observable
   bool mwebEnabled;
@@ -937,6 +1004,15 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   String backgroundImage;
+
+  @observable
+  bool forceDecentralizedExchanges;
+
+  @observable
+  bool decentralizedExchangesPromptDismissed;
+
+  @observable
+  bool mwebAdDismissed;
 
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
@@ -981,6 +1057,8 @@ abstract class SettingsStoreBase with Store {
         return PreferencesKey.currentBaseNodeIdKey;
       case 42161:
         return PreferencesKey.currentArbitrumNodeIdKey;
+      case 56:
+        return PreferencesKey.currentBscNodeIdKey;
       default:
         // Default to Ethereum for unknown chainIds
         return PreferencesKey.currentEthereumNodeIdKey;
@@ -1043,10 +1121,12 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? evmTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? baseTransactionPriority;
+    TransactionPriority? bscTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
+    TransactionPriority? zcashTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1070,6 +1150,10 @@ abstract class SettingsStoreBase with Store {
       baseTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.bscTransactionPriority) != null) {
+      bscTransactionPriority = evm?.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.bscTransactionPriority)!);
+    }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
@@ -1086,6 +1170,10 @@ abstract class SettingsStoreBase with Store {
       decredTransactionPriority = decred?.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority) != null) {
+      zcashTransactionPriority = zcash?.deserializeZcashTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1098,10 +1186,14 @@ abstract class SettingsStoreBase with Store {
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= evm?.getDefaultTransactionPriority();
     baseTransactionPriority ??= evm?.getDefaultTransactionPriority();
+    bscTransactionPriority ??= evm?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
+    zcashTransactionPriority ??= zcash?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
+    final displayAmountsInSatoshi = BitcoinAmountDisplayMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.displayAmountsInSatoshi) ?? 0);
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
@@ -1127,6 +1219,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final forceDecentralizedExchanges = await sharedPreferences.getBool(PreferencesKey.forceDecentralizedExchanges) ?? false;
+    final decentralizedExchangesPromptDismissed = await sharedPreferences.getBool(PreferencesKey.decentralizedExchangesPromptDismissed) ?? false;
     final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
         sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.blocksRemaining.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
@@ -1148,6 +1242,7 @@ abstract class SettingsStoreBase with Store {
     final usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     final useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
     final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
+    final useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
@@ -1173,6 +1268,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    final showZcashMissingFundsCard = sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     final hasEnabledMwebBefore =
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
@@ -1200,6 +1296,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
+    final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1225,6 +1322,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
     final arbitrumNode = nodeSource.get(arbitrumNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
+    final bscNode = nodeSource.get(bscNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
     final nanoNode = nodeSource.get(nanoNodeId) ??
@@ -1307,6 +1406,10 @@ abstract class SettingsStoreBase with Store {
 
     if (arbitrumNode != null) {
       nodes[WalletType.arbitrum] = arbitrumNode;
+    }
+
+    if (bscNode != null) {
+      nodes[WalletType.bsc] = bscNode;
     }
 
     if (bitcoinCashElectrumServer != null) {
@@ -1456,6 +1559,11 @@ abstract class SettingsStoreBase with Store {
         ) ??
         '';
 
+    final mwebAdDismissed =
+        await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
+    
+    final balanceHideCounter = await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
+
     return SettingsStore(
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
@@ -1466,6 +1574,7 @@ abstract class SettingsStoreBase with Store {
       powNodes: powNodes,
       appVersion: packageInfo.version,
       deviceName: deviceName,
+      displayAmountsInSatoshi: displayAmountsInSatoshi,
       isBitcoinBuyEnabled: isBitcoinBuyEnabled,
       initialFiatCurrency: currentFiatCurrency,
       initialCakePayCountry: currentCakePayCountry,
@@ -1502,6 +1611,7 @@ abstract class SettingsStoreBase with Store {
       usePolygonScan: usePolygonScan,
       useBaseScan: useBaseScan,
       useArbiScan: useArbiScan,
+      useBscScan: useBscScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
@@ -1522,9 +1632,12 @@ abstract class SettingsStoreBase with Store {
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
+      showZcashMissingFundsCard: showZcashMissingFundsCard,
       mwebEnabled: mwebEnabled,
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
+      forceDecentralizedExchanges: forceDecentralizedExchanges,
+      decentralizedExchangesPromptDismissed: decentralizedExchangesPromptDismissed,
       initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
       initialBackgroundImage: backgroundImage,
       initialMoneroTransactionPriority: moneroTransactionPriority,
@@ -1535,6 +1648,7 @@ abstract class SettingsStoreBase with Store {
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
+      initialZcashTransactionPriority: zcashTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1552,12 +1666,15 @@ abstract class SettingsStoreBase with Store {
       initialEVMTransactionPriority: evmTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
       initialBaseTransactionPriority: baseTransactionPriority,
+      initialBscTransactionPriority: bscTransactionPriority,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,
       shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
+      mwebAdDismissed: mwebAdDismissed,
+      balanceHideCounter: balanceHideCounter,
     );
   }
 
@@ -1607,6 +1724,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.base] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
     }
+    if (evm != null && sharedPreferences.getInt(PreferencesKey.bscTransactionPriority) != null) {
+      priority[WalletType.bsc] = evm!.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.bscTransactionPriority)!);
+    }
     if (bitcoinCash != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       priority[WalletType.bitcoinCash] = bitcoinCash!.deserializeBitcoinCashTransactionPriority(
@@ -1620,6 +1741,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.decredTransactionPriority) != null) {
       priority[WalletType.decred] = decred!.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
+    }
+    if (zcash != null &&
+        sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority) != null) {
+      priority[WalletType.zcash] = zcash!.deserializeZcashTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1706,6 +1832,7 @@ abstract class SettingsStoreBase with Store {
     usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
     useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
+    useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
@@ -1730,6 +1857,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    showZcashMissingFundsCard = sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     hasEnabledMwebBefore = sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
@@ -1744,6 +1872,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
+    final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
@@ -1760,6 +1889,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNode = nodeSource.get(polygonNodeId);
     final baseNode = nodeSource.get(baseNodeId);
     final arbitrumNode = nodeSource.get(arbitrumNodeId);
+    final bscNode = nodeSource.get(bscNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
@@ -1800,6 +1930,10 @@ abstract class SettingsStoreBase with Store {
 
     if (arbitrumNode != null) {
       nodes[WalletType.arbitrum] = arbitrumNode;
+    }
+
+    if (bscNode != null) {
+      nodes[WalletType.bsc] = bscNode;
     }
 
     if (bitcoinCashNode != null) {
@@ -1956,6 +2090,7 @@ abstract class SettingsStoreBase with Store {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
+      case WalletType.bsc:
         final chainId = evm!.getChainIdByWalletType(node.type);
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.key as int);

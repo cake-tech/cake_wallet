@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,6 @@ class AuthPage extends StatefulWidget {
 class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   final _key = GlobalKey<ScaffoldState>();
   final _pinCodeKey = GlobalKey<PinCodeState>();
-  final _backArrowImageDarkTheme = Image.asset('assets/images/close_button.png');
   ReactionDisposer? _reaction;
   Flushbar<void>? _authBar;
   Flushbar<void>? _progressBar;
@@ -109,7 +109,9 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   @override
   Future<void> close({String? route, dynamic arguments}) async {
     if (_key.currentContext == null) {
-      throw Exception('Key context is null. Should be not happened');
+      // throw Exception('Key context is null. Should be not happened');
+      // flutter can happen, so safe to just return
+      return;
     }
 
     /// not the best scenario, but WidgetsBinding is not behaving correctly on Android
@@ -127,26 +129,23 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: _key,
-        appBar: CupertinoNavigationBar(
-            leading: widget.closable
-                ? Container(
-                    padding: EdgeInsets.only(top: 10),
-                    child: SizedBox(
-                      height: 37,
-                      width: 37,
-                      child: InkWell(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: _backArrowImageDarkTheme,
-                      ),
-                    ))
-                : Container(),
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            border: null),
-        resizeToAvoidBottomInset: false,
-        body: PinCode((pin, _) => widget.authViewModel.auth(password: pin), (_) => null,
-            widget.authViewModel.pinLength, false, _pinCodeKey));
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: Scaffold(
+            key: _key,
+            appBar: CupertinoNavigationBar(
+                leading: widget.closable
+                    ? ModernButton(size: 36, icon: Icon(Icons.close), onPressed: Navigator.of(context).pop, iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
+                    : Container(),
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                border: null),
+            resizeToAvoidBottomInset: false,
+            body: PinCode((pin, _) => widget.authViewModel.auth(password: pin), (_) => null,
+                widget.authViewModel.pinLength, false, _pinCodeKey)),
+      ),
+    );
   }
 
   void dismissFlushBar(Flushbar<dynamic>? bar) {
