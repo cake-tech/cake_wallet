@@ -347,8 +347,9 @@ class WalletInfo {
     this.isNonSeedWallet,
     this.sortOrder,
     this.addressPageType,
-    this.receiveInfoboxDismissed
-
+    this.receiveInfoboxDismissed,
+    this.showCombinedBalance,
+    this.favoriteTokenAddress
   ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
@@ -371,6 +372,8 @@ class WalletInfo {
     bool? isNonSeedWallet,
     int? sortOrder,
     bool? receiveInfoboxDismissed,
+    bool? showCombinedBalance,
+    String? favoriteTokenAddress
   }) {
     return WalletInfo(
       0,
@@ -393,7 +396,9 @@ class WalletInfo {
       isNonSeedWallet ?? false,
       sortOrder ?? 0,
       null,
-      receiveInfoboxDismissed ?? false
+      receiveInfoboxDismissed ?? false,
+      showCombinedBalance ?? true,
+      favoriteTokenAddress
     );
   }
 
@@ -413,6 +418,8 @@ class WalletInfo {
   String path;
   String address;
   bool receiveInfoboxDismissed;
+  bool showCombinedBalance;
+  String? favoriteTokenAddress;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -445,7 +452,8 @@ class WalletInfo {
     await WalletInfoAddressInfo.deleteByWalletInfoId(internalId);
     final entries = addressInfos.entries.toList();
     for (final addressInfo in entries) {
-      for (final info in addressInfo.value) {
+      final infoList = addressInfo.value.toList();
+      for (final info in infoList) {
         await WalletInfoAddressInfo.insert(
           walletInfoId: internalId,
           mapKey: addressInfo.key,
@@ -578,7 +586,8 @@ class WalletInfo {
     "sortOrder": sortOrder,
     "addressPageType": addressPageType,
     "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
-
+    "showCombinedBalance": showCombinedBalance ? 1 : 0,
+    "favoriteTokenAddress": favoriteTokenAddress
   };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -606,6 +615,8 @@ class WalletInfo {
       json['sortOrder'] as int? ?? 0,
       json['addressPageType'] as String? ?? null,
       json['receiveInfoboxDismissed'] != 0,
+      json["showCombinedBalance"] != 0,
+      json["favoriteTokenAddress"] as String? ?? null
     );
   }
 

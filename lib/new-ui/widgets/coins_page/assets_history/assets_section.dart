@@ -21,11 +21,22 @@ class AssetsSection extends StatelessWidget {
         child: Observer(
           builder: (context) {
             final hasMweb = dashboardViewModel.hasMweb && dashboardViewModel.mwebEnabled;
-            return ListView.builder(
+            return ListView.separated(
               shrinkWrap: true,
-              padding: EdgeInsets.zero,
+              padding: EdgeInsets.symmetric(vertical: 18),
               physics: NeverScrollableScrollPhysics(),
               itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length + (hasMweb ? 1 : 0),
+              separatorBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Container(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  height:1,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Container(color: Theme.of(context).colorScheme.surfaceContainerHigh,),
+                  ),
+                ),
+              ),
               itemBuilder: (context, index) {
                 return Observer(builder: (context) {
                   if (hasMweb) {
@@ -39,6 +50,8 @@ class AssetsSection extends StatelessWidget {
                       modalMode: index > 0
                           ? AssetDetailsModalModes.ltcPrivate
                           : AssetDetailsModalModes.ltcTransparent,
+                      isFirst: index == 0,
+                      isLast: index != 0,
                       title: index > 0 ? "Litecoin Private" : null,
                     );
                   }
@@ -46,8 +59,11 @@ class AssetsSection extends StatelessWidget {
                   final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
                   return AssetTile(
                     showSwap: dashboardViewModel.isEnabledSwapAction,
+                    showBridgeButton: dashboardViewModel.showBridge(balance.asset),
                     balance: balance,
                     wallet: dashboardViewModel.wallet,
+                    isFirst: index == 0,
+                    isLast: index == dashboardViewModel.balanceViewModel.formattedBalances.length-1,
                     chainIconPath: _getChainIconPath(),
                   );
                 });

@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/long_press_popup.dart';
+import 'package:cake_wallet/new-ui/widgets/addresses_page/address_info.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/long_press_menu.dart';
@@ -13,7 +14,6 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -21,7 +21,6 @@ import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:mobx/mobx.dart';
@@ -145,7 +144,8 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                           if (item is WalletAddressListItem) {
                             return Observer(
                               builder: (_) => AddressRow(
-                                selected: item.address == widget.addressListViewModel.address.address,
+                                selected:
+                                    item.address == widget.addressListViewModel.address.address,
                                 first: widget.showHidden && index == 0,
                                 last: index == filteredItems.length - 1,
                                 item: item,
@@ -158,6 +158,8 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                                   updateItems();
                                 },
                                 walletType: widget.addressListViewModel.type,
+                                hasBalance: widget.addressListViewModel.isBalanceAvailable,
+                                hasReceived: widget.addressListViewModel.isReceivedAvailable,
                               ),
                             );
                           }
@@ -303,16 +305,19 @@ class AccountPreviewHeader extends StatelessWidget {
 }
 
 class AddressRow extends StatelessWidget {
-  const AddressRow(
-      {super.key,
-      required this.selected,
-      required this.first,
-      required this.last,
-      required this.item,
-      required this.onSelect,
-      required this.walletType,
-      required this.onLabelChanged,
-      required this.onAddressHidden});
+  const AddressRow({
+    super.key,
+    required this.selected,
+    required this.first,
+    required this.last,
+    required this.item,
+    required this.onSelect,
+    required this.walletType,
+    required this.onLabelChanged,
+    required this.onAddressHidden,
+    required this.hasBalance,
+    required this.hasReceived,
+  });
 
   final bool selected;
   final bool first;
@@ -322,6 +327,8 @@ class AddressRow extends StatelessWidget {
   final VoidCallback onLabelChanged;
   final VoidCallback onAddressHidden;
   final WalletType walletType;
+  final bool hasBalance;
+  final bool hasReceived;
 
   @override
   Widget build(BuildContext context) {
@@ -355,6 +362,15 @@ class AddressRow extends StatelessWidget {
                     onAddressHidden();
                   },
                   color: Theme.of(context).colorScheme.error),
+              LongPressMenuItem(
+                  label: 'Info',
+                  iconPath: "assets/images/info_icon.svg",
+                  onSelected: () async {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    await showPopUp(
+                        context: context,
+                        builder: (context) => getIt.get<AddressInfoPopup>(param1: item));
+                  }),
             ],
           ),
           child: AnimatedContainer(
@@ -415,7 +431,7 @@ class AddressRow extends StatelessWidget {
                                   fontSize: 12,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                            Text("${S.of(context).balance}: ${item.balance}",
+                            Text("${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -424,8 +440,7 @@ class AddressRow extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (selected) CakeImageWidget(
-                      imageUrl: "assets/new-ui/checkmark.svg")
+                  if (selected) CakeImageWidget(imageUrl: "assets/new-ui/checkmark.svg")
                 ],
               ),
             ),
@@ -464,8 +479,7 @@ class ShowHiddenButton extends StatelessWidget {
                       Text(S.of(context).show_hidden_addresses),
                       RotatedBox(
                           quarterTurns: 1,
-                          child:CakeImageWidget(
-                              imageUrl: "assets/new-ui/dropdown_arrow.svg"))
+                          child: CakeImageWidget(imageUrl: "assets/new-ui/dropdown_arrow.svg"))
                     ],
                   ),
                 ),

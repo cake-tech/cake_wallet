@@ -4,7 +4,6 @@ import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -32,6 +31,10 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: !widget.unspentCoinsListViewModel.isSavingItems,
+      onPopInvokedWithResult: (didPop, result) async{
+        await widget.unspentCoinsListViewModel.dispose();
+        if(!didPop && mounted) Navigator.of(context).pop();
+      },
       child: Material(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         color: Colors.transparent,
@@ -42,10 +45,25 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
           child: Column(
             children: [
               ModalTopBar(
-                  title: "",
-                  onLeadingPressed: Navigator.of(context).pop,
-                  leadingIcon: Icon(Icons.arrow_back_ios_new),
-                  onTrailingPressed: () {}),
+                title: "",
+                trailingWidget: GestureDetector(
+                  onTap: Navigator.of(context).pop,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        borderRadius: BorderRadius.circular(99999)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      child: Text(
+                        S.of(context).done,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               FutureBuilder(
                   future: _initialization,
                   builder: (context, asyncSnapshot) {

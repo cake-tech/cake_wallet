@@ -295,13 +295,18 @@ class ExceptionHandler {
     "core/key_service.dart:14",
     "Wallet is null",
     "Wrong Device Status: 0x5515 (UNKNOWN)",
+    "Command handling failed. With error: hostUnreachable",
     
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
     "reown_core/relay_client/websocket/websocket_handler.dart",
     "Image upload failed due to loss of GPU access",
-    'transport error',
+    "transport error",
+    "SdkError.sparkError(field0: Operator RPC error: Connection error: status: Unavailable, message: \"dns error\", details: []",
+    "the timeout of the request was reached",
+
+    "support for coin removed, your seedphrase:"
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

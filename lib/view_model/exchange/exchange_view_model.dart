@@ -82,6 +82,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     // depositCurrency = wallet.currency;
   }
 
+  final List<ReactionDisposer> _disposers = [];
+
+  void dispose() {
+    bestRateSync.cancel();
+    for (final disposer in _disposers) {
+      disposer();
+    }
+    _disposers.clear();
+  }
+
   ExchangeViewModelBase(
     this._appStore,
     this.trades,
@@ -166,11 +176,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAddress =
         useSameWalletAddress(depositCurrency) ? wallet.walletAddresses.addressForExchange : '';
 
-    reaction((_) => receiveAddress, (_) {
+    _disposers.add(reaction((_) => receiveAddress, (_) {
       if(!(tradeState is TradeIsCreatedSuccessfully)) {
         receiveAddressDisplayName = null;
       }
-    });
+    }));
 
     provider = providerList.firstOrNull;
     final initialProvider = provider;
@@ -184,9 +194,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     // providerDisplay is read by ui to display auto-selected provider.
     // it's on a delay so it doesn't flicker.
-    reaction((_)=>bestRateProvider,(val) {
+    _disposers.add(reaction((_) => bestRateProvider, (val) {
       providerDisplay = val;
-    },delay: 300);
+    }, delay: 300));
 
     receiveCurrencies = CryptoCurrency.all
         .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
@@ -202,19 +212,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _injectUserTronTokensIntoCurrencyLists();
     _defineIsReceiveAmountEditable();
     loadLimits();
-    reaction((_) => isFixedRateMode, (Object _) {
+    _disposers.add(reaction((_) => isFixedRateMode, (Object _) {
       bestRateProvider = null;
       bestRate = 0.0;
       loadLimits();
-    });
+    }));
 
-    reaction((_) => forceDecentralizedExchanges, (val) {
+    _disposers.add(reaction((_) => forceDecentralizedExchanges, (val) {
       if (val && (bestRateProvider?.description.isCentralized ?? false)) {
         bestRateProvider = null;
         bestRate = 0.0;
         loadLimits();
       }
-    });
+    }));
 
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
@@ -763,7 +773,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (price == null || price == 0.0) return;
 
     final crypto = _enteredAmount / price;
-    final depositAmountTmp = crypto.toString().withMaxDecimals(receiveCurrency.decimals);
+    final depositAmountTmp = crypto.toString().withMaxDecimals(depositCurrency.decimals);
     if (_depositAmount != depositAmountTmp) {
       changeDepositAmount(amount: depositAmountTmp, isCanonical: true);
     }
@@ -1070,6 +1080,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         final providerRate = ratesSnapshot[i];
 
         printV('createTrade: trying provider=${provider.title}');
+
+        // should not happen but just as an extra check
+        if (isFixedRateMode && provider.supportsFixedRate == false) {
+          continue;
+        }
 
         // Skip Swaps.xyz when sending from external
         if (isSendFromExternal &&

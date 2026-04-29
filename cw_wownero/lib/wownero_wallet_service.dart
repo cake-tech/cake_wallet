@@ -136,7 +136,10 @@ class WowneroWalletService extends WalletService<
       if (walletInfo == null) {
         throw Exception('Wallet not found');
       }
+
       wallet = WowneroWallet(walletInfo: walletInfo, derivationInfo: await walletInfo.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: password);
+      throw Exception("support for coin removed, your seedphrase: ${wallet.seed}");
+      
       final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
@@ -146,9 +149,9 @@ class WowneroWalletService extends WalletService<
       }
 
       await wallet.init();
-
       return wallet;
     } catch (e, s) {
+      rethrow;
       // TODO: Implement Exception for wallet list service.
 
       final bool isBadAlloc = e.toString().contains('bad_alloc') ||

@@ -100,7 +100,7 @@ class ConnectionSyncPage extends BasePage {
                                 label: S.of(context).arbiscan_history,
                                 value: _connectionSyncViewModel.useArbiScan,
                                 onChanged: (val) {
-                                  _connectionSyncViewModel.setUsePolygonScan(val);
+                                  _connectionSyncViewModel.setUseArbiScan(val);
                                 }),
                           if (_connectionSyncViewModel.canUseBscScan)
                             ListItemToggle(
@@ -116,7 +116,7 @@ class ConnectionSyncPage extends BasePage {
                                 label: S.of(context).trongrid_history,
                                 value: _connectionSyncViewModel.useTronGrid,
                                 onChanged: (val) {
-                                  _connectionSyncViewModel.setUsePolygonScan(val);
+                                  _connectionSyncViewModel.setUseTronGrid(val);
                                 }),
                           if (_connectionSyncViewModel.canUseMempoolFeeAPI)
                             ListItemToggle(

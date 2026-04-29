@@ -56,8 +56,10 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      mainHdByType: mainHdByType,
+      sideHdByType: sideHdByType,
+      legacyMainHd: mainHd,
+      legacySideHd: sideHd,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -221,7 +223,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
           : null;
     } catch (_) {}
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromWif(
       WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,

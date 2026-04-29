@@ -152,6 +152,7 @@ class TokenUtilities {
     required WalletType walletType,
     required String address,
   }) async {
+    if(address.isEmpty) return null;
     final lower = address.toLowerCase();
     switch (walletType) {
       case WalletType.ethereum:
@@ -271,12 +272,12 @@ class TokenUtilities {
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
       if (tag != null) {
-        final chainId = evm!.getChainIdByTag(tag);
+        final chainId = evm?.getChainIdByTag(tag);
         if (chainId != null) return chainId;
       }
 
       // Try by title (case-insensitive)
-      final titleChainId = evm!.getChainIdByTitle(title);
+      final titleChainId = evm?.getChainIdByTitle(title);
       if (titleChainId != null) return titleChainId;
     }
 
