@@ -40,8 +40,6 @@
   "address_from_yat": "Այս հասցեն ստացվել է Yat-ում ${emoji}-ից",
   "address_label": "Հասցեի պիտակ",
   "address_label_explainer": "Դուք կարող եք մուտք գործել և կառավարել ձեր նախկինում օգտագործված բոլոր հասցեները՝ սեղմելով «Հասցեներ»",
-  "address_not_allowed_as_receive": "հասցեն չի թույլատրվում որպես ստացման հասցե",
-  "address_not_allowed_as_refund": "հասցեն չի թույլատրվում որպես վերադարձի հասցե",
   "address_or_alias": "Հասցե կամ այլանուն",
   "address_remove_contact": "Հեռացնել կոնտակտը",
   "address_remove_content": "Վստա՞հ եք, որ ցանկանում եք հեռացնել ընտրված կոնտակտը:",

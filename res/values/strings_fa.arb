@@ -40,8 +40,6 @@
   "address_from_yat": "این آدرس از ${emoji} در Yat است",
   "address_label": "برچسب آدرس",
   "address_label_explainer": "می‌توانید با زدن Addresses به همه آدرس‌هایی که قبلاً استفاده کرده‌اید دسترسی داشته باشید و آن‌ها را مدیریت کنید",
-  "address_not_allowed_as_receive": "آدرس به عنوان آدرس دریافت مجاز نیست",
-  "address_not_allowed_as_refund": "آدرس به عنوان آدرس بازپرداخت مجاز نیست",
   "address_or_alias": "آدرس یا نام مستعار",
   "address_remove_contact": "حذف مخاطب",
   "address_remove_content": "آیا مطمئن هستید که می‌خواهید مخاطب انتخاب‌شده را حذف کنید؟",

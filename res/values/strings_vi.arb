@@ -40,8 +40,6 @@
   "address_from_yat": "Địa chỉ này lấy từ ${emoji} trên Yat",
   "address_label": "Nhãn địa chỉ",
   "address_label_explainer": "Bạn có thể truy cập và quản lý tất cả các địa chỉ đã dùng trước đây của mình bằng cách nhấn Địa chỉ",
-  "address_not_allowed_as_receive": "địa chỉ không được phép làm địa chỉ nhận",
-  "address_not_allowed_as_refund": "địa chỉ không được phép làm địa chỉ hoàn lại tiền",
   "address_or_alias": "Địa chỉ hoặc bí danh",
   "address_remove_contact": "Xóa liên hệ",
   "address_remove_content": "Bạn có chắc chắn muốn xóa liên hệ đã chọn không?",

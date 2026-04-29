@@ -40,8 +40,6 @@
   "address_from_yat": "Dit adres is van ${emoji} op Yat",
   "address_label": "Adreslabel",
   "address_label_explainer": "Je kunt al je eerder gebruikte adressen openen en beheren door op Adressen te drukken",
-  "address_not_allowed_as_receive": "adres is niet toegestaan ​​als ontvangstadres",
-  "address_not_allowed_as_refund": "adres is niet toegestaan ​​als restitutieadres",
   "address_or_alias": "Adres of alias",
   "address_remove_contact": "Contact verwijderen",
   "address_remove_content": "Weet je zeker dat je het geselecteerde contact wilt verwijderen?",

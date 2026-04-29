@@ -40,8 +40,6 @@
   "address_from_yat": "Cette adresse provient de ${emoji} sur Yat",
   "address_label": "Libellé de l'adresse",
   "address_label_explainer": "Vous pouvez accéder à toutes vos adresses déjà utilisées et les gérer en appuyant sur Adresses",
-  "address_not_allowed_as_receive": "l'adresse n'est pas autorisée comme adresse de réception",
-  "address_not_allowed_as_refund": "l'adresse n'est pas autorisée comme adresse de remboursement",
   "address_or_alias": "Adresse ou alias",
   "address_remove_contact": "Supprimer le contact",
   "address_remove_content": "Êtes-vous sûr de vouloir supprimer le contact sélectionné ?",

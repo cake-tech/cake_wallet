@@ -40,8 +40,6 @@
   "address_from_yat": "Bu adres, Yat'taki ${emoji} üzerinden alınmıştır",
   "address_label": "Adres etiketi",
   "address_label_explainer": "Adresler’e basarak daha önce kullandığınız tüm adreslere erişebilir ve bunları yönetebilirsiniz.",
-  "address_not_allowed_as_receive": "Adresin alma adresi olarak kullanılmasına izin verilmiyor",
-  "address_not_allowed_as_refund": "adresin geri ödeme adresi olarak kullanılmasına izin verilmiyor",
   "address_or_alias": "Adres veya takma ad",
   "address_remove_contact": "Kişiyi kaldır",
   "address_remove_content": "Seçili kişiyi kaldırmak istediğinizden emin misiniz?",

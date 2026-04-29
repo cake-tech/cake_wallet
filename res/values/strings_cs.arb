@@ -40,8 +40,6 @@
   "address_from_yat": "Tato adresa je z ${emoji} na Yat",
   "address_label": "Štítek adresy",
   "address_label_explainer": "Ke všem dříve používaným adresám můžete přistupovat a spravovat je stisknutím tlačítka Adresy",
-  "address_not_allowed_as_receive": "adresa není povolena jako adresa pro příjem",
-  "address_not_allowed_as_refund": "adresa není povolena jako adresa pro vrácení peněz",
   "address_or_alias": "Adresa nebo alias",
   "address_remove_contact": "Odebrat kontakt",
   "address_remove_content": "Opravdu chcete odstranit vybraný kontakt?",

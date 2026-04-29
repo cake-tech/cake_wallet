@@ -40,8 +40,6 @@
   "address_from_yat": "Esta dirección proviene de ${emoji} en Yat",
   "address_label": "Etiqueta de la dirección",
   "address_label_explainer": "Puede acceder y gestionar todas las direcciones que ha usado anteriormente pulsando Direcciones",
-  "address_not_allowed_as_receive": "La dirección no está permitida como dirección de recepción.",
-  "address_not_allowed_as_refund": "La dirección no está permitida como dirección de reembolso.",
   "address_or_alias": "Dirección o alias",
   "address_remove_contact": "Eliminar contacto",
   "address_remove_content": "¿Seguro que deseas eliminar el contacto seleccionado?",
