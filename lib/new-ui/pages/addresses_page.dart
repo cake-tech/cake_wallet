@@ -7,7 +7,9 @@ import 'package:cake_wallet/new-ui/long_press_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_info.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
+import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/long_press_menu.dart';
+import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -180,61 +182,13 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                 SafeArea(
                   child: Padding(
                       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                      child: AddressSearchBox(controller: _searchController)),
+                      child: FloatingBlurWrapper(child:
+                      NewSearchBar(controller: _searchController))),
                 ),
               ],
             ),
           )
         ],
-      ),
-    );
-  }
-}
-
-class AddressSearchBox extends StatelessWidget {
-  const AddressSearchBox({super.key, required this.controller});
-
-  final TextEditingController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 18.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(999999),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh.withAlpha(128),
-                  border: Border.all(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest, width: 1),
-                  borderRadius: BorderRadius.circular(99999)),
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: S.of(context).search,
-                  hintStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  prefixIcon: Icon(Icons.search),
-                  filled: false,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(99999),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(99999),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 8),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

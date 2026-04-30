@@ -41,7 +41,7 @@ class AuthService with Store {
     Routes.setup_2faPage,
     Routes.modify2FAPage,
     Routes.newWallet,
-    Routes.newWalletType,
+    Routes.newChainSelectionPage,
     Routes.addressBookAddContact,
     Routes.restoreOptions,
     Routes.securityBackupDuressPin,

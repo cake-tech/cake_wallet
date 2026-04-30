@@ -54,7 +54,7 @@ class NewListSections extends StatelessWidget {
         if (showHeader && headerText.isNotEmpty && items.length > 0) ...[
           Text(
             headerText,
-            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           SizedBox(height: 12)
         ],
@@ -107,6 +107,8 @@ class NewListSections extends StatelessWidget {
         trailingIconSize: item.trailingIconSize,
         trailingWidget: item.trailingWidget,
         bottomWidget: item.bottomWidget,
+        trailingTextPadding: item.trailingTextPadding,
+        mainPadding: item.mainPadding,
       );
     }
 

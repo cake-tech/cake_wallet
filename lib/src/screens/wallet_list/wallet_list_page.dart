@@ -451,12 +451,12 @@ class WalletListBodyState extends State<WalletListBody> {
                                 .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
                               widget.authService.authenticateAction(
                                 context,
-                                route: Routes.newWalletType,
+                                route: Routes.newChainSelectionPage,
                                 conditionToDetermineIfToUse2FA: widget
                                     .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
                               );
                             } else {
-                              Navigator.of(context).pushNamed(Routes.newWalletType);
+                              Navigator.of(context).pushNamed(Routes.newChainSelectionPage);
                             }
                           }
                         },
