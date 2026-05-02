@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cake_wallet/routes.dart';
 
 class NewChainCustomizationPage extends BasePage {
   NewChainCustomizationPage();
@@ -180,14 +181,22 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                 ),
               ),
               const Spacer(flex: 3),
-              PrimaryButton(
-                key: const ValueKey('new_wallet_customization_continue_button_key'),
-                onPressed: () {},
-                borderRadius: BorderRadius.circular(999999),
-                text: S.of(context).continue_text,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
-                isDisabled: state.selectedTypes.isEmpty,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: PrimaryButton(
+                  key: const ValueKey('new_wallet_customization_continue_button_key'),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(
+                      Routes.newOmniChainSummaryPage,
+                      arguments: context.read<OmniChainWalletBloc>(),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(999999),
+                  text: S.of(context).continue_text,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                  isDisabled: state.selectedTypes.isEmpty,
+                ),
               ),
             ],
           ),

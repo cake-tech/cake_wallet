@@ -53,6 +53,7 @@ class Routes {
   static const newWalletType = '/new_wallet_type';
   static const newChainSelectionPage = '/new_chain_selection_page';
   static const newChainCustomizationPage = '/new_chain_customization_page';
+  static const newOmniChainSummaryPage = '/new_omnichain_summary_page';
   static const sendTemplate = '/send_template';
   static const exchangeTemplate = '/exchange_template';
   static const restoreWalletType = '/restore_wallet_type';

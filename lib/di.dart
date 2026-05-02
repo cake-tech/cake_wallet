@@ -59,7 +59,6 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
-import 'package:cake_wallet/new-ui/pages/omni_chain_wallet/new_chain_selection_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
@@ -320,7 +319,9 @@ import 'package:trezor_connect/trezor_connect.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
-import 'new-ui/pages/omni_chain_wallet/new_chain_customization_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_customization_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_selection_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_summary_page.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
@@ -1469,14 +1470,16 @@ Future<void> setup({
   });
 
 
-  getIt.registerFactory<NewChainCustomizationPage>(() => NewChainCustomizationPage());
-
   getIt.registerFactoryParam<NewChainSelectionPage, NewWalletTypeArguments, void>(
           (newWalletTypeArguments, _) {
         return NewChainSelectionPage(
           newWalletTypeArguments: newWalletTypeArguments,
         );
       });
+
+  getIt.registerFactory<NewChainCustomizationPage>(() => NewChainCustomizationPage());
+
+  getIt.registerFactory<NewOmnichainSummaryPage>(() => NewOmnichainSummaryPage());
 
   getIt.registerFactory<PreSeedPage>(() => PreSeedPage());
 

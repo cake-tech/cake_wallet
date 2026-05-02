@@ -11,7 +11,6 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
-import 'package:cake_wallet/new-ui/pages/omni_chain_wallet/new_chain_selection_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -167,7 +166,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'new-ui/pages/omni_chain_wallet/new_chain_customization_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_customization_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_selection_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_summary_page.dart';
 import 'new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_bloc.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
@@ -199,6 +200,20 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
+    case Routes.newChainSelectionPage:
+      return handleRouteWithPlatformAwareness(
+            (_) => getIt.get<NewChainSelectionPage>(
+          param1: NewWalletTypeArguments(
+            onTypeSelected: (BuildContext context, WalletType type) =>
+                Navigator.of(context).pushNamed(
+                  Routes.newWallet,
+                  arguments: NewWalletArguments(type: type),
+                ),
+            isCreate: true,
+          ),
+        ),
+      );
+
     case Routes.newChainCustomizationPage:
       final omniChainWalletBloc = settings.arguments as OmniChainWalletBloc;
 
@@ -206,6 +221,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
             (_) => BlocProvider.value(
           value: omniChainWalletBloc,
           child: getIt.get<NewChainCustomizationPage>(),
+        ),
+      );
+
+  case Routes.newOmniChainSummaryPage:
+      final omniChainWalletBloc = settings.arguments as OmniChainWalletBloc;
+
+      return handleRouteWithPlatformAwareness(
+            (_) => BlocProvider.value(
+          value: omniChainWalletBloc,
+          child: getIt.get<NewOmnichainSummaryPage>(),
         ),
       );
 
@@ -234,20 +259,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         );
       }
       return createRoute(RouteSettings(name: Routes.newChainSelectionPage));
-
-    case Routes.newChainSelectionPage:
-      return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<NewChainSelectionPage>(
-          param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) =>
-                Navigator.of(context).pushNamed(
-              Routes.newWallet,
-              arguments: NewWalletArguments(type: type),
-            ),
-            isCreate: true,
-          ),
-        ),
-      );
 
     case Routes.walletGroupsDisplayPage:
       final type = settings.arguments as WalletType;

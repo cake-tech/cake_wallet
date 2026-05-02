@@ -7,7 +7,7 @@ class FloatingBlurWrapper extends StatelessWidget {
     super.key,
     required this.child,
     this.horizontalPadding = 20.0,
-    this.verticalPadding = 18.0,
+    this.verticalPadding = 8.0,
     this.blurSigma = 1.0,
     this.borderRadius = 999999,
   });
