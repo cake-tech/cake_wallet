@@ -9,6 +9,8 @@ import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_walle
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
 import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
@@ -195,7 +197,7 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
                   children: [
                     SingleChildScrollView(
                       physics: AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 80),
+                      padding: const EdgeInsets.only(bottom: 112),
                       child: NewListSections(
                         showHeader: true,
                         sections: {
@@ -227,7 +229,35 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
                             bottom: MediaQuery.of(context).viewInsets.bottom,
                           ),
                           child: FloatingBlurWrapper(
-                            child: NewSearchBar(controller: _searchController),
+                            horizontalPadding: 0.0,
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  flex: 5,
+                                  fit: FlexFit.tight,
+                                  child: NewSearchBar(controller: _searchController),
+                                ),
+                                const SizedBox(width: 12),
+                                Flexible(
+                                  flex: 2,
+                                  fit: FlexFit.tight,
+                                  child: PrimaryButton(
+                                    key: const ValueKey('new_wallet_continue_button_key'),
+                                    borderRadius: BorderRadius.circular(999999),
+                                    onPressed: () {
+                                      Navigator.of(context).pushNamed(
+                                        Routes.newChainCustomizationPage,
+                                        arguments: context.read<OmniChainWalletBloc>(),
+                                      );
+                                    },
+                                    text: S.of(context).continue_text,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    textColor: Theme.of(context).colorScheme.onPrimary,
+                                    isDisabled: !state.hasAnySelected,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

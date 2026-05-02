@@ -4,11 +4,13 @@ class OmniChainWalletState {
   OmniChainWalletState({
     Set<WalletType>? selectedTypes,
     Set<WalletType>? allWalletTypes,
+    this.name = '',
   })  : selectedTypes = selectedTypes ?? <WalletType>{},
         allWalletTypes = allWalletTypes ?? <WalletType>{};
 
   final Set<WalletType> selectedTypes;
   final Set<WalletType> allWalletTypes;
+  final String name;
 
   bool get hasAnySelected => selectedTypes.isNotEmpty;
 
@@ -17,10 +19,12 @@ class OmniChainWalletState {
   OmniChainWalletState copyWith({
     Set<WalletType>? selectedTypes,
     Set<WalletType>? allWalletTypes,
+    String? name,
   }) {
     return OmniChainWalletState(
       selectedTypes: selectedTypes ?? this.selectedTypes,
       allWalletTypes: allWalletTypes ?? this.allWalletTypes,
+      name: name ?? this.name,
     );
   }
 }

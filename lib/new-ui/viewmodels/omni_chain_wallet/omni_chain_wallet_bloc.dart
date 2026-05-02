@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_event.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/generate_name.dart';
 
 class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletState> {
   OmniChainWalletBloc({
@@ -10,6 +11,8 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     on<OmniChainWalletTypeToggled>(_onWalletTypeToggled);
     on<OmniChainWalletTypesDeselected>(_onWalletTypesDeselected);
     on<OmniChainWalletTypesSelected>(_onWalletTypesSelected);
+    on<OmniChainWalletNameChanged>(_onWalletNameChanged);
+    on<OmniChainWalletNameGenerated>(_onWalletNameGenerated);
   }
 
   void _onWalletTypeToggled(OmniChainWalletTypeToggled event, Emitter<OmniChainWalletState> emit) {
@@ -34,10 +37,23 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     ));
   }
 
+  void _onWalletNameChanged(
+    OmniChainWalletNameChanged event,
+    Emitter<OmniChainWalletState> emit,
+  ) {
+    emit(state.copyWith(name: event.name.trim()));
+  }
+
+  Future<void> _onWalletNameGenerated(
+    OmniChainWalletNameGenerated event,
+    Emitter<OmniChainWalletState> emit,
+  ) async {
+    final name = await generateName();
+    emit(state.copyWith(name: name));
+  }
+
   List<WalletType> popularWalletTypes([Iterable<WalletType>? types]) {
-    return (types ?? state.allWalletTypes)
-        .where((type) => _popularTypes.contains(type))
-        .toList();
+    return (types ?? state.allWalletTypes).where((type) => _popularTypes.contains(type)).toList();
   }
 
   static const _popularTypes = {
@@ -51,6 +67,5 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     WalletType.dogecoin,
     WalletType.bsc,
     WalletType.bitcoinCash,
-
   };
 }

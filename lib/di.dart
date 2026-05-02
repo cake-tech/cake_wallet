@@ -320,6 +320,7 @@ import 'package:trezor_connect/trezor_connect.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
+import 'new-ui/pages/omni_chain_wallet/new_chain_customization_page.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
@@ -1466,6 +1467,9 @@ Future<void> setup({
       newWalletTypeArguments: newWalletTypeArguments,
     );
   });
+
+
+  getIt.registerFactory<NewChainCustomizationPage>(() => NewChainCustomizationPage());
 
   getIt.registerFactoryParam<NewChainSelectionPage, NewWalletTypeArguments, void>(
           (newWalletTypeArguments, _) {
