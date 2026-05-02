@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_bitcoin/bitcoin_mnemonic.dart' show mnemonicToSeedBytes;
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -298,6 +300,7 @@ abstract class ElectrumWalletBase
   bool useLightning;
 
   final Bip32Slip10Secp256k1? _masterHD;
+  Bip32Slip10Secp256k1? _altMasterHD;
   final Bip32Slip10Secp256k1 accountHD;
   final String? _mnemonic;
 
@@ -477,6 +480,7 @@ abstract class ElectrumWalletBase
 
   Future<void> init() async {
     await walletAddresses.init();
+    await _initAltSeedAddresses();
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
     await save();
@@ -3802,6 +3806,92 @@ abstract class ElectrumWalletBase
     }
   }
 
+  /// Computes addresses from the alternate seed derivation algorithm and adds
+  /// them to [walletAddresses] so they get subscribed to during blockchain
+  /// scanning.  This ensures that wallets originally created with a different
+  /// seed algorithm (Electrum vs BIP39) are still fully recovered when the user
+  /// restores via seed phrase regardless of which type they select in the UI.
+  ///
+  /// Only P2WPKH addresses are generated here (the universal default type).
+  /// The brute-force signing path handles key recovery for all types once a
+  /// UTXO is discovered.
+  Future<void> _initAltSeedAddresses() async {
+    if (_mnemonic == null || isHardwareWallet || _masterHD == null) return;
+
+    final Uint8List altSeedBytes;
+    try {
+      if (derivationInfo.derivationType == DerivationType.bip39) {
+        // Primary is BIP39 → also derive from Electrum-style seed.
+        altSeedBytes = await mnemonicToSeedBytes(_mnemonic!, passphrase: passphrase ?? '');
+      } else {
+        // Primary is Electrum → also derive from BIP39 seed.
+        altSeedBytes = await bip39.mnemonicToSeed(_mnemonic!, passphrase: passphrase ?? '');
+      }
+    } catch (_) {
+      return;
+    }
+
+    _altMasterHD = Bip32Slip10Secp256k1.fromSeed(altSeedBytes);
+
+    final coinType = _coinTypeFor(currency);
+    // Track seen address strings to avoid duplicates across the two seeds and
+    // multiple paths.  Pre-populate with addresses already in the wallet.
+    final seenAddresses = walletAddresses.allAddresses.map((a) => a.address).toSet();
+    final newAddresses = <BitcoinAddressRecord>[];
+
+    // Generate [defaultReceiveAddressesCount] receive and
+    // [defaultChangeAddressesCount] change addresses from a single
+    // (receiveHD, changeHD) branch pair.
+    void generateFromBranch(
+        Bip32Slip10Secp256k1 receiveHD, Bip32Slip10Secp256k1 changeHD) {
+      for (int i = 0;
+          i < ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
+          i++) {
+        final addr = generateP2WPKHAddress(hd: receiveHD, index: i, network: network);
+        if (seenAddresses.add(addr)) {
+          newAddresses.add(BitcoinAddressRecord(addr,
+              index: i,
+              isHidden: false,
+              type: SegwitAddresType.p2wpkh,
+              network: network));
+        }
+      }
+      for (int i = 0;
+          i < ElectrumWalletAddressesBase.defaultChangeAddressesCount;
+          i++) {
+        final addr = generateP2WPKHAddress(hd: changeHD, index: i, network: network);
+        if (seenAddresses.add(addr)) {
+          newAddresses.add(BitcoinAddressRecord(addr,
+              index: i,
+              isHidden: true,
+              type: SegwitAddresType.p2wpkh,
+              network: network));
+        }
+      }
+    }
+
+    // Generate addresses from every combination of (seed algorithm) × (HD path).
+    // The primary wallet only generates from one specific path (e.g. m/0' for
+    // Electrum or m/84'/coinType'/0' for BIP39).  Here we cover the other common
+    // paths for BOTH seeds so that wallets created with any reasonable combination
+    // of tool and derivation choice are discovered during restoration.
+    for (final masterHD in [_masterHD!, _altMasterHD!]) {
+      Bip32Slip10Secp256k1 d(String p) => masterHD.derivePath(p) as Bip32Slip10Secp256k1;
+
+      // Electrum classic path: m/0'
+      generateFromBranch(d("m/0'/0"), d("m/0'/1"));
+
+      // BIP84 segwit path for native coin type and Bitcoin coin type (0).
+      for (final ct in {coinType, 0}) {
+        generateFromBranch(d("m/84'/$ct'/0'/0"), d("m/84'/$ct'/0'/1"));
+      }
+    }
+
+    if (newAddresses.isNotEmpty) {
+      walletAddresses.addAddresses(newAddresses);
+    }
+  }
+
   /// Searches every known HD derivation path (all type-specific receive/change
   /// HDs plus legacy variants) across indices 0..[maxIndex) until it finds one
   /// whose derived address matches [targetAddress].  Returns the corresponding
@@ -3827,13 +3917,32 @@ abstract class ElectrumWalletBase
     // in mainHdByType / sideHdByType.  We always include coin type 0 (Bitcoin)
     // in addition to the wallet's native coin type so that Litecoin (coin type 2)
     // wallets can recover keys that were derived using Bitcoin paths, and vice versa.
+    // We also include the Electrum derivation path (m/0') which pre-dates BIP44.
     if (_masterHD != null) {
+      // Electrum-style path: account = m/0', children are m/0'/0 (receive) and m/0'/1 (change).
+      allHds.add(_masterHD!.derivePath("m/0'/0") as Bip32Slip10Secp256k1);
+      allHds.add(_masterHD!.derivePath("m/0'/1") as Bip32Slip10Secp256k1);
+
       final nativeCoinType = _coinTypeFor(currency);
       for (final coinType in {0, nativeCoinType}) {
         for (final purpose in [44, 49, 84, 86]) {
           final base = "m/$purpose'/$coinType'/0'";
           allHds.add(_masterHD!.derivePath("$base/0") as Bip32Slip10Secp256k1);
           allHds.add(_masterHD!.derivePath("$base/1") as Bip32Slip10Secp256k1);
+        }
+      }
+    }
+
+    // Also search paths derived from the alternate seed algorithm.
+    if (_altMasterHD != null) {
+      allHds.add(_altMasterHD!.derivePath("m/0'/0") as Bip32Slip10Secp256k1);
+      allHds.add(_altMasterHD!.derivePath("m/0'/1") as Bip32Slip10Secp256k1);
+      final nativeCoinType = _coinTypeFor(currency);
+      for (final coinType in {0, nativeCoinType}) {
+        for (final purpose in [44, 49, 84, 86]) {
+          final base = "m/$purpose'/$coinType'/0'";
+          allHds.add(_altMasterHD!.derivePath("$base/0") as Bip32Slip10Secp256k1);
+          allHds.add(_altMasterHD!.derivePath("$base/1") as Bip32Slip10Secp256k1);
         }
       }
     }

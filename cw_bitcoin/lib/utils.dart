@@ -87,6 +87,8 @@ ECPrivate? bruteForcePrivkeyForAddress({
     for (int i = 0; i < maxIndex; i++) {
       if (generateAddressForType(hd: hd, index: i, type: targetType, network: network) ==
           targetAddress) {
+        print('Found address at index $i');
+        print(hd.toString());
         return generateECPrivate(hd: hd, index: i, network: network);
       }
     }
