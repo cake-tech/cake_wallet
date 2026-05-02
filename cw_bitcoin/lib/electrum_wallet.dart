@@ -915,6 +915,19 @@ abstract class ElectrumWalletBase
       } else if (!isHardwareWallet && keys.privateKey.isNotEmpty) {
         privkey =
             generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
+
+        // Verify the derived key actually maps to this UTXO's address.
+        // If the address was originally generated under a different derivation
+        // path (wrong HD wallet or wrong index), search all known paths.
+        final expectedAddr = walletAddresses.getAddress(
+          index: utx.bitcoinAddressRecord.index,
+          hd: hd,
+          addressType: utx.bitcoinAddressRecord.type,
+        );
+        if (expectedAddr != utx.address) {
+          privkey =
+              _bruteForcePrivkeyForAddress(utx.address, _getScriptType(address)) ?? privkey;
+        }
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
@@ -3787,6 +3800,51 @@ abstract class ElectrumWalletBase
 
       syncStatus = FailedSyncStatus();
     }
+  }
+
+  /// Searches every known HD derivation path (all type-specific receive/change
+  /// HDs plus legacy variants) across indices 0..[maxIndex) until it finds one
+  /// whose derived address matches [targetAddress].  Returns the corresponding
+  /// ECPrivate, or null if no match is found within the search space.
+  ///
+  /// The search is expanded beyond the wallet's default HD map to also cover:
+  ///   - All BIP-purpose variants (44/49/84/86) for the wallet's native coin type
+  ///   - The same purposes for Bitcoin's coin type (0), catching addresses that
+  ///     were accidentally generated with the wrong coin type (common for Litecoin)
+  ECPrivate? _bruteForcePrivkeyForAddress(
+    String targetAddress,
+    BitcoinAddressType targetType, {
+    int maxIndex = 1000,
+  }) {
+    final allHds = <Bip32Slip10Secp256k1>{
+      ...mainHdByType.values,
+      ...sideHdByType.values,
+      walletAddresses.legacyMainHd,
+      walletAddresses.legacySideHd,
+    };
+
+    // Expand to cover all purpose/coin-type combinations not already present
+    // in mainHdByType / sideHdByType.  We always include coin type 0 (Bitcoin)
+    // in addition to the wallet's native coin type so that Litecoin (coin type 2)
+    // wallets can recover keys that were derived using Bitcoin paths, and vice versa.
+    if (_masterHD != null) {
+      final nativeCoinType = _coinTypeFor(currency);
+      for (final coinType in {0, nativeCoinType}) {
+        for (final purpose in [44, 49, 84, 86]) {
+          final base = "m/$purpose'/$coinType'/0'";
+          allHds.add(_masterHD!.derivePath("$base/0") as Bip32Slip10Secp256k1);
+          allHds.add(_masterHD!.derivePath("$base/1") as Bip32Slip10Secp256k1);
+        }
+      }
+    }
+
+    return bruteForcePrivkeyForAddress(
+      targetAddress: targetAddress,
+      targetType: targetType,
+      candidateHDs: allHds,
+      network: network,
+      maxIndex: maxIndex,
+    );
   }
 
   Bip32Slip10Secp256k1 _hdFor({required BaseBitcoinAddressRecord record}) {
