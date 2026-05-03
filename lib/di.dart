@@ -320,8 +320,10 @@ import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_customization_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_open_network_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_selection_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_summary_page.dart';
+import 'new-ui/services/omnichain_wallet/omnichain_wallet_creation_service.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
@@ -455,6 +457,13 @@ Future<void> setup({
           sharedPreferences: getIt.get<SharedPreferences>(),
           settingsStore: getIt.get<SettingsStore>(),
         ));
+
+  getIt.registerFactory<OmniChainWalletCreationService>(
+    () => OmniChainWalletCreationService(
+      walletCreationService: getIt.get<WalletCreationService>(param1: WalletType.none),
+      sharedPreferences: getIt.get<SharedPreferences>(),
+    ),
+  );
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
@@ -1471,13 +1480,15 @@ Future<void> setup({
 
 
   getIt.registerFactoryParam<NewChainSelectionPage, NewWalletTypeArguments, void>(
-          (newWalletTypeArguments, _) {
-        return NewChainSelectionPage(
-          newWalletTypeArguments: newWalletTypeArguments,
-        );
-      });
+    (newWalletTypeArguments, _) {
+      return NewChainSelectionPage(
+        newWalletTypeArguments: newWalletTypeArguments,
+      );
+    });
 
   getIt.registerFactory<NewChainCustomizationPage>(() => NewChainCustomizationPage());
+
+  getIt.registerFactory<NewOmnichainOpenNetworkPage>(() => NewOmnichainOpenNetworkPage());
 
   getIt.registerFactory<NewOmnichainSummaryPage>(() => NewOmnichainSummaryPage());
 

@@ -26,7 +26,7 @@ class NewOmnichainSummaryPageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<OmniChainWalletBloc, OmniChainWalletState>(
       builder: (context, state) {
-        final walletName = state.name.isEmpty ? 'My Wallet' : state.name;
+        final walletName = state.groupName.isEmpty ? 'My Wallet' : state.groupName;
         final selectedTypes = state.selectedTypes.toList();
 
         return Padding(

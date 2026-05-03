@@ -19,6 +19,8 @@ import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_creation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -33,25 +35,42 @@ class NewChainSelectionPage extends BasePage {
   String get title => S.current.new_wallet;
 
   @override
-  Widget body(BuildContext context) => BlocProvider(
-        create: (_) => OmniChainWalletBloc(allWalletTypes: availableWalletTypes.toSet()),
-        child: NewChainSelectionPageBody(
-          isCreate: newWalletTypeArguments.isCreate,
-          onTypeSelected: newWalletTypeArguments.onTypeSelected,
-          hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
-        ),
-      );
+  Widget body(BuildContext context) {
+    final flowWalletTypes = availableWalletTypes
+        .where((element) =>
+            newWalletTypeArguments.hardwareWalletType == null ||
+            DeviceConnectionType.supportedConnectionTypes(
+              element,
+              newWalletTypeArguments.hardwareWalletType!,
+              Platform.isIOS,
+            ).isNotEmpty)
+        .toList();
+
+    return BlocProvider(
+      create: (_) => OmniChainWalletBloc(
+        allWalletTypes: flowWalletTypes.toSet(),
+        creationService: getIt.get<OmniChainWalletCreationService>(),
+      ),
+      child: NewChainSelectionPageBody(
+        isCreate: newWalletTypeArguments.isCreate,
+        onTypeSelected: newWalletTypeArguments.onTypeSelected,
+        hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
+        availableWalletTypes: flowWalletTypes,
+      ),
+    );
+  }
 }
 
 class NewChainSelectionPageBody extends StatefulWidget {
   NewChainSelectionPageBody({
     required this.isCreate,
+    required this.availableWalletTypes,
     this.onTypeSelected,
     this.hardwareWalletType,
   });
 
   final bool isCreate;
-
+  final List<WalletType> availableWalletTypes;
   final void Function(BuildContext, WalletType)? onTypeSelected;
   final HardwareWalletType? hardwareWalletType;
 
@@ -62,7 +81,7 @@ class NewChainSelectionPageBody extends StatefulWidget {
 }
 
 class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
-  _NewChainSelectionPageBodyState() : types = availableWalletTypes;
+  _NewChainSelectionPageBodyState() : types = const [];
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -73,15 +92,7 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
   void initState() {
     super.initState();
 
-    types = availableWalletTypes
-        .where((element) =>
-            !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(
-              element,
-              widget.hardwareWalletType!,
-              Platform.isIOS,
-            ).isNotEmpty)
-        .toList();
+    types = widget.availableWalletTypes;
 
     filteredTypes = context.read<OmniChainWalletBloc>().popularWalletTypes(types);
 

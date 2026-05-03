@@ -2,12 +2,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_event.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
-import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,7 +36,7 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
 
     _walletNameController.addListener(() {
       context.read<OmniChainWalletBloc>().add(
-            OmniChainWalletNameChanged(_walletNameController.text),
+            OmniChainWalletGroupNameChanged(_walletNameController.text),
           );
     });
   }
@@ -58,11 +55,11 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
     );
     return BlocConsumer<OmniChainWalletBloc, OmniChainWalletState>(
       listener: (context, state) {
-        if (_walletNameController.text == state.name) return;
+        if (_walletNameController.text == state.groupName) return;
 
-        _walletNameController.text = state.name;
+        _walletNameController.text = state.groupName;
         _walletNameController.selection = TextSelection.fromPosition(
-          TextPosition(offset: state.name.length),
+          TextPosition(offset: state.groupName.length),
         );
       },
       builder: (context, state) {
@@ -141,7 +138,7 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       context.read<OmniChainWalletBloc>().add(
-                            OmniChainWalletNameGenerated(),
+                            OmniChainWalletGroupNameGenerated(),
                           );
                     },
                     child: SizedBox(
@@ -158,6 +155,18 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                   ),
                 ),
               ),
+              if (state.groupNameError != null) ...[
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Text(
+                    state.groupNameError!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 32),
               Center(
                 child: Material(
@@ -187,7 +196,7 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                   key: const ValueKey('new_wallet_customization_continue_button_key'),
                   onPressed: () {
                     Navigator.of(context).pushNamed(
-                      Routes.newOmniChainSummaryPage,
+                      Routes.newOmniChainOpenNetworkPage,
                       arguments: context.read<OmniChainWalletBloc>(),
                     );
                   },
@@ -195,7 +204,7 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                   text: S.of(context).continue_text,
                   color: Theme.of(context).colorScheme.primary,
                   textColor: Theme.of(context).colorScheme.onPrimary,
-                  isDisabled: state.selectedTypes.isEmpty,
+                  isDisabled: !state.canContinue,
                 ),
               ),
             ],

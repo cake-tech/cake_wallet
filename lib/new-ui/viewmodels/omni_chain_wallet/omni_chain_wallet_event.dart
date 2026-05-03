@@ -2,18 +2,24 @@ import 'package:cw_core/wallet_type.dart';
 
 sealed class OmniChainWalletEvent {}
 
-class OmniChainWalletNameChanged extends OmniChainWalletEvent {
-  OmniChainWalletNameChanged(this.name);
-  final String name;
+class OmniChainWalletGroupNameChanged extends OmniChainWalletEvent {
+  OmniChainWalletGroupNameChanged(this.groupName);
+  final String groupName;
 }
 
-class OmniChainWalletNameGenerated extends OmniChainWalletEvent {}
+class OmniChainWalletGroupNameGenerated extends OmniChainWalletEvent {}
 
 class OmniChainWalletTypeToggled extends OmniChainWalletEvent {
   OmniChainWalletTypeToggled({required this.type, required this.isSelected});
 
   final WalletType type;
   final bool isSelected;
+}
+
+class OmniChainWalletPrimaryTypeSelected extends OmniChainWalletEvent {
+  OmniChainWalletPrimaryTypeSelected(this.type);
+
+  final WalletType type;
 }
 
 class OmniChainWalletTypesDeselected extends OmniChainWalletEvent {}

@@ -167,6 +167,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_customization_page.dart';
+import 'new-ui/pages/omnichain_wallet/new_omnichain_open_network_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_selection_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_summary_page.dart';
 import 'new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_bloc.dart';
@@ -221,6 +222,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
             (_) => BlocProvider.value(
           value: omniChainWalletBloc,
           child: getIt.get<NewChainCustomizationPage>(),
+        ),
+      );
+
+    case Routes.newOmniChainOpenNetworkPage:
+      final omniChainWalletBloc = settings.arguments as OmniChainWalletBloc;
+
+      return handleRouteWithPlatformAwareness(
+            (_) => BlocProvider.value(
+          value: omniChainWalletBloc,
+          child: getIt.get<NewOmnichainOpenNetworkPage>(),
         ),
       );
 
