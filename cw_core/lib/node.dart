@@ -12,12 +12,12 @@ import 'package:convert/convert.dart';
 
 import 'package:crypto/crypto.dart';
 
-part 'node.g.dart';
+part 'node.part.dart';
 
 Uri createUriFromElectrumAddress(String address, String path) =>
     Uri.tryParse('tcp://$address$path')!;
 
-@HiveType(typeId: Node.typeId)
+// @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node({
     this.label,
@@ -67,43 +67,43 @@ class Node extends HiveObject with Keyable {
   static const typeId = NODE_TYPE_ID;
   static const boxName = 'Nodes';
 
-  @HiveField(0, defaultValue: '')
+  // @HiveField(0, defaultValue: '')
   late String uriRaw;
 
-  @HiveField(1)
+  // @HiveField(1)
   String? login;
 
-  @HiveField(2)
+  // @HiveField(2)
   String? password;
 
-  @HiveField(3, defaultValue: 0)
+  // @HiveField(3, defaultValue: 0)
   late int typeRaw;
 
-  @HiveField(4)
+  // @HiveField(4)
   bool? useSSL;
 
-  @HiveField(5, defaultValue: false)
+  // @HiveField(5, defaultValue: false)
   bool trusted;
 
-  @HiveField(6)
+  // @HiveField(6)
   String? socksProxyAddress;
 
-  @HiveField(7, defaultValue: '')
+  // @HiveField(7, defaultValue: '')
   String? path;
 
-  @HiveField(8)
+  // @HiveField(8)
   bool? isElectrs;
 
-  @HiveField(9)
+  // @HiveField(9)
   bool? supportsSilentPayments;
 
-  @HiveField(10)
+  // @HiveField(10)
   bool? supportsMweb;
 
-  @HiveField(11, defaultValue: false)
+  // @HiveField(11, defaultValue: false)
   bool isEnabledForAutoSwitching;
 
-  @HiveField(12, defaultValue: '')
+  // @HiveField(12, defaultValue: '')
   String? label;
 
   bool get isSSL => useSSL ?? false;

@@ -59,124 +59,124 @@ class Trade extends HiveObject {
   static const boxName = 'Trades';
   static const boxKey = 'tradesBoxKey';
 
-  @HiveField(0, defaultValue: '')
+  // @HiveField(0, defaultValue: '')
   String id;
 
-  @HiveField(1, defaultValue: 0)
+  // @HiveField(1, defaultValue: 0)
   late int providerRaw;
 
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  @HiveField(2, defaultValue: -1)
+  // @HiveField(2, defaultValue: -1)
   int fromRaw = -1;
 
   CryptoCurrency? get from => CryptoCurrency.safeDeserialize(raw: fromRaw);
 
-  @HiveField(3, defaultValue: -1)
+  // @HiveField(3, defaultValue: -1)
   int toRaw = -1;
 
   CryptoCurrency? get to => CryptoCurrency.safeDeserialize(raw: toRaw);
 
-  @HiveField(4, defaultValue: '')
+  // @HiveField(4, defaultValue: '')
   late String stateRaw;
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
 
-  @HiveField(5)
+  // @HiveField(5)
   DateTime? createdAt;
 
-  @HiveField(6)
+  // @HiveField(6)
   DateTime? expiredAt;
 
-  @HiveField(7, defaultValue: '')
+  // @HiveField(7, defaultValue: '')
   String amount;
 
-  @HiveField(8)
+  // @HiveField(8)
   String? inputAddress;
 
-  @HiveField(9)
+  // @HiveField(9)
   String? extraId;
 
-  @HiveField(10)
+  // @HiveField(10)
   String? outputTransaction;
 
-  @HiveField(11)
+  // @HiveField(11)
   String? refundAddress;
 
-  @HiveField(12)
+  // @HiveField(12)
   String? walletId;
 
-  @HiveField(13)
+  // @HiveField(13)
   String? payoutAddress;
 
-  @HiveField(14)
+  // @HiveField(14)
   String? password;
 
-  @HiveField(15)
+  // @HiveField(15)
   String? providerId;
 
-  @HiveField(16)
+  // @HiveField(16)
   String? providerName;
 
-  @HiveField(17)
+  // @HiveField(17)
   String? fromWalletAddress;
 
-  @HiveField(18)
+  // @HiveField(18)
   String? memo;
 
-  @HiveField(19)
+  // @HiveField(19)
   String? txId;
 
-  @HiveField(20)
+  // @HiveField(20)
   bool? isRefund;
 
-  @HiveField(21)
+  // @HiveField(21)
   bool? isSendAll;
 
   /// Must be set on createTrade;
 
-  @HiveField(22)
+  // @HiveField(22)
   String? router;
 
-  @HiveField(23, defaultValue: '')
+  // @HiveField(23, defaultValue: '')
   String? receiveAmount;
 
-  @HiveField(24, defaultValue: '')
+  // @HiveField(24, defaultValue: '')
   String? userCurrencyFromRaw;
 
-  @HiveField(25, defaultValue: '')
+  // @HiveField(25, defaultValue: '')
   String? userCurrencyToRaw;
 
   // The following fields are used for SwapXyz trades only
-  @HiveField(26)
+  // @HiveField(26)
   bool? needToRegisterInSwapXyz;
 
-  @HiveField(27)
+  // @HiveField(27)
   String? sourceTokenAddress;
 
-  @HiveField(28)
+  // @HiveField(28)
   int? sourceTokenDecimals;
 
-  @HiveField(29)
+  // @HiveField(29)
   String? routerData;
 
-  @HiveField(30)
+  // @HiveField(30)
   String? routerValue;
 
-  @HiveField(31)
+  // @HiveField(31)
   int? routerChainId;
 
-  @HiveField(32)
+  // @HiveField(32)
   String? sourceTokenAmountRaw;
 
-  @HiveField(33, defaultValue: false)
+  // @HiveField(33, defaultValue: false)
   bool? requiresTokenApproval;
 
-  @HiveField(34)
+  // @HiveField(34)
   int? chainId;
 
-  @HiveField(35)
+  // @HiveField(35)
   double? fee;
 
   CryptoCurrency? get userCurrencyFrom {
