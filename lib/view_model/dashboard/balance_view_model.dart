@@ -19,6 +19,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -382,9 +383,11 @@ abstract class BalanceViewModelBase with Store {
         if (a.asset == wallet.currency) return -1;
       }
 
-      if (isEVMCompatibleChain(wallet.type)) {
-        final aIsToken = a.asset is Erc20Token;
-        final bIsToken = b.asset is Erc20Token;
+      final isTokenWallet = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+
+      if (isTokenWallet) {
+        final aIsToken = a.asset is Erc20Token || a.asset is SPLToken;
+        final bIsToken = b.asset is Erc20Token || b.asset is SPLToken;
 
         final aHasBalance = (double.tryParse(a.availableBalance) ?? 0) > 0;
         final bHasBalance = (double.tryParse(b.availableBalance) ?? 0) > 0;
