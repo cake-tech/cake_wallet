@@ -419,56 +419,6 @@ abstract class ExchangeTradeViewModelBase with Store {
     return true;
   }
 
-  Future<void> registerSwapsXyzTransaction() async {
-    try {
-      if (!(_provider is SwapsXyzExchangeProvider)) return;
-      final swaps = _provider as SwapsXyzExchangeProvider;
-
-      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
-      final needToRegister = trade.needToRegisterInSwapXyz ?? false;
-      if (!needToRegister) return;
-
-      final vmId = (trade.providerId ?? '').toLowerCase();
-      if (vmId.isEmpty) {
-        printV('SwapsXyz: transaction register: skipped (vmId empty)');
-        return;
-      }
-
-      final txHash = sendViewModel.pendingTransaction?.evmTxHashFromRawHex ??
-          sendViewModel.pendingTransaction?.id ??
-          '';
-
-      if (txHash.isEmpty) {
-        printV('SwapsXyz: transaction register: skipped (txHash empty)');
-        return;
-      }
-
-      final chainId = int.tryParse(trade.router ?? '') ?? 0;
-      if (chainId <= 0) {
-        printV('SwapsXyz: transaction register: skipped (invalid chainId)');
-        return;
-      }
-
-      printV(
-          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
-
-      final registered = await swaps.registerAltVmTx(
-        txId: trade.id,
-        txHash: txHash,
-        chainId: chainId,
-        vmId: vmId,
-      );
-
-      if (!registered) {
-        printV('SwapsXyz: transaction register: failed');
-      } else {
-        printV('SwapsXyz: transaction register: success');
-      }
-    } catch (e) {
-      printV('registerSwapsXyzTransaction error: $e');
-    }
-  }
-
   PaymentURI? get paymentUri {
     final inputAddress = trade.inputAddress;
     final amount = trade.amount;

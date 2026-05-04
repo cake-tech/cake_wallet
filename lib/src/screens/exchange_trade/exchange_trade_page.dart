@@ -340,7 +340,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       if (bottomSheetContext.mounted && Navigator.canPop(bottomSheetContext)) Navigator.of(bottomSheetContext).pop(true);
 
                       sendVM.commitTransaction(context);
-                      widget.exchangeTradeViewModel.registerSwapsXyzTransaction();
                     },
                     amountParsingProxy: sendVM.amountParsingProxy,
                   );
