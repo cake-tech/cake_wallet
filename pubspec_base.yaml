@@ -175,7 +175,7 @@ dev_dependencies:
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.4.4
-  hive_generator: ^2.0.1
+#  hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
