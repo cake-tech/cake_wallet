@@ -303,12 +303,12 @@ class WalletInfo extends HiveObject {
     printV('Migrating WalletInfo to SQLite: start');
     final sw = Stopwatch()..start();
     final list = box.values.toList();
-    for (final trade in list) {
+    for (final wi in list) {
       try {
-        await trade.migrateToSqlite();
-        await trade.delete();
+        await wi.migrateToSqlite();
+        await wi.delete();
       } catch (e) {
-        printV('Error migrating trade ${trade.id}: $e');
+        printV('Error migrating WalletInfo ${wi.id}: $e');
       }
     }
     printV('Migrating WalletInfo to SQLite: end (${sw.elapsedMilliseconds}ms)');

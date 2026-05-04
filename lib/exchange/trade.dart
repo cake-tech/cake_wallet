@@ -166,7 +166,9 @@ class Trade {
   // ── SQLite serialization ─────────────────────────────
   void mergeFindTradeByIdResult(Trade updated) {
     if (updated.stateRaw.isNotEmpty) stateRaw = updated.stateRaw;
-    if (updated.createdAt != null) createdAt = updated.createdAt;
+    if (createdAt == null && updated.createdAt != null) {
+      createdAt = updated.createdAt;
+    }
     if (updated.expiredAt != null) expiredAt = updated.expiredAt;
     if (updated.isRefund != null) isRefund = updated.isRefund;
 

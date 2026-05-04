@@ -304,13 +304,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         isRefund: isRefund,
       );
 
-      final storedTrade = await Trade.getByTradeId(id);
-      if (storedTrade != null) {
-        storedTrade.receiveAmount = newTrade.receiveAmount;
-        storedTrade.outputTransaction = newTrade.outputTransaction;
-        await storedTrade.save();
-      }
-
       return newTrade;
     } catch (e) {
       printV(e.toString());

@@ -243,6 +243,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
       trade.mergeFindTradeByIdResult(updatedTrade);
+      await trade.save();
       tradesStore.setTrade(trade);
 
       _updateItems();

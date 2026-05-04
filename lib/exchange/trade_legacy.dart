@@ -156,8 +156,12 @@ class TradeLegacy extends HiveObject {
     printV('Migrating Trades to SQLite: start');
     final list = box.values.toList();
     for (final trade in list) {
-      await trade.migrateToSqlite();
-      await trade.delete();
+      try {
+        await trade.migrateToSqlite();
+        await trade.delete();
+      } catch (e) {
+        printV('Error migrating trade ${trade.id}: $e');
+      }
     }
     printV('Migrating Trades to SQLite: end');
   }
