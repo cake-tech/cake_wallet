@@ -517,7 +517,7 @@ class CWEVM extends EVM {
   ChainInfo? getChainInfoByChainId(int chainId) {
     final config = _registry.getChainConfig(chainId);
     if (config == null) return null;
-    
+
     return ChainInfo(
       chainId: config.chainId,
       name: config.name,
@@ -602,25 +602,29 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<USDT0Quote> quoteUSDT0Transfer({
+  Future<BridgeQuote> quoteUSDT0Transfer({
     required WalletBase wallet,
     required int sourceChainId,
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-  }) {
+  }) async {
     final evmWallet = wallet as EVMChainWallet;
     final client = evmWallet.getWeb3Client();
     if (client == null) {
       throw StateError('Wallet not connected');
     }
 
-    return USDT0Service.quoteCrossChainTransfer(
+    final quote = await USDT0Service.quoteCrossChainTransfer(
       client: client,
       sourceChainId: sourceChainId,
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
+    );
+    return BridgeQuote(
+      nativeFee: quote.nativeFee,
+      lzTokenFee: quote.lzTokenFee,
     );
   }
 
@@ -632,7 +636,7 @@ class CWEVM extends EVM {
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-    required USDT0Quote quote,
+    required BridgeQuote quote,
     required TransactionPriority priority,
     bool useBlinkProtection = true,
   }) {
@@ -645,13 +649,13 @@ class CWEVM extends EVM {
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
-      quote: quote,
+      quote: USDT0Quote(nativeFee: quote.nativeFee, lzTokenFee: quote.lzTokenFee),
       token: tokenErc20,
       priority: priority as EVMChainTransactionPriority,
       useBlinkProtection: useBlinkProtection,
-
-        );
+    );
   }
+
   Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
     WalletBase wallet,
     TransactionPriority priority,
