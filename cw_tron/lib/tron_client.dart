@@ -93,8 +93,14 @@ class TronClient {
 
   bool connect(Node node) {
     try {
-      final formattedUrl = '${node.isSSL ? 'https' : 'http'}://${node.uriRaw}';
-      _provider = TronProvider(TronHTTPProvider(url: formattedUrl));
+      String urlString;
+      final ssl = node.isSSL ? 'https' : 'http';
+      if (node.uriRaw.contains('chainstack.com')) {
+        urlString = '$ssl://${node.uriRaw}/${secrets.chainStackApiKey}';
+      } else {
+        urlString = '$ssl://${node.uriRaw}';
+      }
+      _provider = TronProvider(TronHTTPProvider(url: urlString));
 
       return true;
     } catch (e) {
@@ -525,7 +531,7 @@ class TronClient {
 
       final decimal =
           (await getTokenDetail(contract, "decimals", ownerAddress, tokenAddress) as BigInt?) ??
-              BigInt.zero;
+          BigInt.zero;
 
       return TronToken(
         name: name,

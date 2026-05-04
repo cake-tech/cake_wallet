@@ -101,6 +101,7 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
     SecretKey('nowNodesApiKey ', () => ''),
     SecretKey('blinkApiKey', () => ''),
+    SecretKey('chainStackApiKey', () => ''),
   ];
 
   static final solanaSecrets = [
@@ -118,6 +119,7 @@ class SecretKey {
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
     SecretKey('tronNowNodesApiKey', () => ''),
+    SecretKey('chainStackApiKey', () => ''),
   ];
 
   static final bitcoinSecrets = [

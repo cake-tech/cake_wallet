@@ -18,3 +18,7 @@
   isEnabledForAutoSwitching: true
 -
   uri: ethereum.publicnode.com
+-
+  uri: ethereum-mainnet.core.chainstack.com
+  useSSL: true
+  isEnabledForAutoSwitching: true

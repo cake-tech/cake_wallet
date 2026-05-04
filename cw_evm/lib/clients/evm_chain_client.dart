@@ -182,6 +182,16 @@ class EVMChainClient {
         }
 
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
+      } else if (node.uriRaw.contains('core.chainstack.com')) {
+        isModifiedNodeUri = true;
+        String chainStackApiKey = secrets.chainStackApiKey;
+
+        if (chainStackApiKey.isEmpty) {
+          printV('ChainStack API key is empty, cannot connect to ${node.uriRaw}');
+          return false;
+        }
+
+        rpcUri = Uri.https(node.uriRaw, '/$chainStackApiKey');
       }
 
       _client = Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);

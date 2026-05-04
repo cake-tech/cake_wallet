@@ -663,30 +663,4 @@ $messageDetails''';
     if (input.isEmpty) return input;
     return input[0].toUpperCase() + input.substring(1).toLowerCase();
   }
-
-  Future<String> getTokenDetails(String contractAddress, String chainName) async {
-    final uri = Uri.https(
-      'deep-index.moralis.io',
-      '/api/v2.2/erc20/metadata',
-      {
-        "chain": chainName,
-        "addresses": contractAddress,
-      },
-    );
-
-    final response = await ProxyWrapper().get(
-      clearnetUri: uri,
-      headers: {
-        "Accept": "application/json",
-        "X-API-Key": secrets.moralisApiKey,
-      },
-    );
-
-    final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
-
-    final symbol = (decodedResponse['symbol'] ?? '') as String;
-
-    final name = decodedResponse['name'] ?? '';
-    return '$name ($symbol)';
-  }
 }

@@ -11,3 +11,7 @@
   uri: trx.nownodes.io
   useSSL: true
   isEnabledForAutoSwitching: true
+-
+  uri: tron-mainnet.core.chainstack.com
+  useSSL: true
+  isEnabledForAutoSwitching: true
