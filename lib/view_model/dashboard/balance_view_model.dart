@@ -465,12 +465,18 @@ abstract class BalanceViewModelBase with Store {
     }
 
     double ret = 0.0;
-    for(final record in balances.values) {
-      ret += double.tryParse(record.fiatAvailableBalanceRaw) ?? 0;
+    for (final curr in wallet.balance.keys) {
+      final record = wallet.balance[curr]!;
+      final available = evm?.getERC20AvailableBalance(record) ??
+          (record.fullAvailableBalance - (record.secondAvailable ?? BigInt.zero));
+      final price = fiatConversionStore.prices[curr] ?? 0;
+      ret += double.tryParse(calculateFiatAmount(
+                  price: price, cryptoAmount: curr.formatAmount(available).replaceAll(",", ""))
+              .replaceAll(",", "")) ??
+          0;
     }
     return ret.toStringAsFixed(2);
   }
-
 
   Balance _currencyBalance(CryptoCurrency cryptoCurrency) {
     final balance = wallet.balance[cryptoCurrency];
