@@ -942,6 +942,11 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
@@ -1019,6 +1024,8 @@ abstract class Solana {
     WalletBase wallet, {
     List<String>? tokenMints,
   });
+
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
 class JupiterSwapFailedException implements Exception {
