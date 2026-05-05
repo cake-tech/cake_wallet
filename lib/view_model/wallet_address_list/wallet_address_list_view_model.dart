@@ -409,7 +409,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     // update the address list:
     await wallet.walletAddresses.saveAddressesInBox();
     if (wallet.type == WalletType.monero) {
-      monero!
+      await monero!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
     } else if (wallet.type == WalletType.wownero) {

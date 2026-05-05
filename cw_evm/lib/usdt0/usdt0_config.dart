@@ -1,7 +1,7 @@
 import 'package:cw_core/erc20_token.dart';
 
 /// USDT0 (Omnichain USDT) config. 
-/// Addresses and EIDs from https://docs.usdt0.to/technical-documentation/developer/usdt0-deployments
+/// Addresses and EIDs from https://docs.usdt0.to/technical-documentation/deployments
 class USDT0Config {
   USDT0Config._();
 
