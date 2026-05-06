@@ -1,6 +1,5 @@
 -
   uri: base.nownodes.io
-  is_default: true
   useSSL: true
   isEnabledForAutoSwitching: true
 -
@@ -8,6 +7,7 @@
   useSSL: true
 -
   uri: base-rpc.publicnode.com
+  is_default: true
   useSSL: true
   isEnabledForAutoSwitching: true
 -
