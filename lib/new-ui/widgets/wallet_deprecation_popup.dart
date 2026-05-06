@@ -35,7 +35,7 @@ class WalletDeprecationPopup extends StatelessWidget {
                 spacing: 24,
                 children: [
                   CakeImageWidget(
-                    imageUrl: curr.iconSvgPath ?? curr.iconPath,
+                    imageUrl: curr.iconPath,
                     width: 64,
                     height: 64,
                   ),
