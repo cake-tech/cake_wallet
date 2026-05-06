@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
@@ -282,7 +283,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   Widget _buildCurrencyIcon(ContactBase contact) {
     final image = contact.type.iconPath;
     return image != null
-        ? Image.asset(image, height: 24, width: 24)
+        ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);
   }
 }
