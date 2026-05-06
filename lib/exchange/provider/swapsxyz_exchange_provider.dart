@@ -407,10 +407,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         requiresTokenApproval: requiresTokenApproval,
         routerData: routerData,
         routerValue: txValue,
-        userCurrencyFromRaw:
-            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw:
-            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
 
       return trade;
@@ -554,8 +550,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       state: state,
       createdAt: createdAt,
       refundAddress: refundAddress,
-      userCurrencyFromRaw: '${fromSymbol.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toSymbol.toUpperCase()}' + '_',
     );
   }
 

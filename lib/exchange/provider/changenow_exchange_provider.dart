@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -248,8 +247,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       receiveAmount: toAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }
@@ -315,9 +312,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       outputTransaction: outputTransaction,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw:
-          '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 

@@ -166,9 +166,9 @@ class TransactionsPage extends StatelessWidget {
                               final trade = item.trade;
 
                               final tradeFrom =
-                                  trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+                                  trade.from;
 
-                              final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
+                              final tradeTo = trade.to;
 
                               return tradeFrom != null && tradeTo != null
                                   ? Observer(
