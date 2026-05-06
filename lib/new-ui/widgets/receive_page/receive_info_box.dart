@@ -125,7 +125,8 @@ class InfoboxCurrencyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currenciesLimited = currencies.sublist(0, min(currencies.length, maxCurrencies));
+    final currenciesWithImage = currencies.where((item)=>item.iconPath != null).toList();
+    final currenciesLimited = currenciesWithImage.sublist(0, min(currenciesWithImage.length, maxCurrencies));
 
     final double stackWidth = iconSize + (overlap * (currenciesLimited.length));
 
@@ -151,7 +152,7 @@ class InfoboxCurrencyRow extends StatelessWidget {
             children: [
               Positioned(
                 top: iconBorder,
-                left: overlap * min(currencies.length, maxCurrencies),
+                left: overlap * currenciesLimited.length,
                 child: Container(
                   width: 24,
                   height: 24,
