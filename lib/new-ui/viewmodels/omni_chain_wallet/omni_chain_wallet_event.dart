@@ -25,3 +25,5 @@ class OmniChainWalletPrimaryTypeSelected extends OmniChainWalletEvent {
 class OmniChainWalletTypesDeselected extends OmniChainWalletEvent {}
 
 class OmniChainWalletTypesSelected extends OmniChainWalletEvent {}
+
+class OmniChainWalletGroupCreateRequested extends OmniChainWalletEvent {}

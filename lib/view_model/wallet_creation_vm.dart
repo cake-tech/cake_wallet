@@ -65,20 +65,26 @@ abstract class WalletCreationVMBase with Store {
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   bool _isCreating = false;
-  Future<void> create({dynamic options}) async {
+
+  Future<void> create({dynamic options,bool makeCurrent = true, bool isGroupCreationDeferred = false, String? groupKey, int? walletInfoIdOverride,}) async {
     try {
       if (_isCreating) {
         printV("not creating because we don't feel like doing so");
         return;
       }
       _isCreating = true;
-      await _create(options: options);
+      await _create(options: options, makeCurrent: makeCurrent, isGroupCreationDeferred: isGroupCreationDeferred , walletInfoIdOverride: walletInfoIdOverride);
     } finally {
       _isCreating = false;
     }
   }
 
-  Future<void> _create({dynamic options}) async {
+  Future<void> _create({
+    dynamic options,
+    bool makeCurrent = true,
+    bool isGroupCreationDeferred = false,
+    int? walletInfoIdOverride,
+  }) async {
     final type = this.type;
     try {
 
@@ -95,7 +101,39 @@ abstract class WalletCreationVMBase with Store {
         throw Exception(S.current.repeated_password_is_incorrect);
       }
 
-      await walletCreationService.checkIfExists(name);
+      WalletInfo? placeholder;
+      int? keepSortOrder;
+      String? resolvedGroupKey;
+
+      if (walletInfoIdOverride != null) {
+        final rows = await WalletInfo.selectList('walletInfoId = ?', [walletInfoIdOverride]);
+        if (rows.isEmpty) {
+          throw Exception('Placeholder WalletInfo not found (id=$walletInfoIdOverride)');
+        }
+        placeholder = rows.first;
+
+        name = placeholder.name;
+        if (type != placeholder.type) {
+          throw Exception('Type mismatch: placeholder is ${placeholder.type}, requested $type');
+        }
+
+        keepSortOrder = placeholder.sortOrder;
+        resolvedGroupKey = placeholder.hashedWalletIdentifier ?? '';
+
+        // Clean children then delete the placeholder row
+        await WalletInfoAddressInfo.deleteByWalletInfoId(placeholder.internalId);
+        await WalletInfoAddressMap.deleteByWalletInfoId(placeholder.internalId);
+        // remove all possible address rows (used/hidden/manual)
+        for (final t in WalletInfoAddressType.values) {
+          await WalletInfoAddress.deleteByType(placeholder.internalId, t);
+        }
+        await WalletInfo.delete(placeholder);
+
+        //  skip duplicate-name check, we’re recreating same name
+      } else {
+        walletCreationService.checkIfExists(name);
+      }
+
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
 

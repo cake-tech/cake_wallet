@@ -9,12 +9,18 @@ class OmniChainWalletState {
     String? groupName,
     this.groupNameError,
     this.primaryType,
+    this.providedMnemonic,
+    this.providedPassphrase,
+    this.groupCreated = false,
   })  : selectedTypes = selectedTypes ?? <WalletType>{},
         allWalletTypes = allWalletTypes ?? <WalletType>{},
         _groupName = groupName;
 
   final Set<WalletType> selectedTypes;
   final Set<WalletType> allWalletTypes;
+  final String? providedMnemonic;
+  final String? providedPassphrase;
+  final bool groupCreated;
   final String? _groupName;
   final String? groupNameError;
   final WalletType? primaryType;
@@ -33,6 +39,7 @@ class OmniChainWalletState {
     String? groupName,
     Object? groupNameError = _noChange,
     Object? primaryType = _noChange,
+    bool? groupCreated,
   }) {
     return OmniChainWalletState(
       selectedTypes: selectedTypes ?? this.selectedTypes,
@@ -40,6 +47,7 @@ class OmniChainWalletState {
       groupName: groupName ?? this.groupName,
       groupNameError: groupNameError == _noChange ? this.groupNameError : groupNameError as String?,
       primaryType: primaryType == _noChange ? this.primaryType : primaryType as WalletType?,
+      groupCreated: groupCreated ?? this.groupCreated,
     );
   }
 }

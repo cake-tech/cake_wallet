@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart';
 import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_creation_service.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_event.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
@@ -16,6 +17,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     on<OmniChainWalletTypesSelected>(_onWalletTypesSelected);
     on<OmniChainWalletGroupNameChanged>(_onGroupNameChanged);
     on<OmniChainWalletGroupNameGenerated>(_onGroupNameGenerated);
+    on<OmniChainWalletGroupCreateRequested>(_onGroupCreateRequested);
   }
 
   final OmniChainWalletCreationService creationService;
@@ -89,6 +91,33 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
       groupName: groupName,
       groupNameError: error,
     ));
+  }
+
+  Future<void> _onGroupCreateRequested(
+      OmniChainWalletGroupCreateRequested event,
+      Emitter<OmniChainWalletState> emit,
+      ) async {
+    try {
+      final primaryType = state.primaryType;
+      if (primaryType == null) throw Exception('Primary wallet type is not selected');
+
+      final createGroupRequest = OmniChainCreateGroupRequest(
+        selectedTypes: state.selectedTypes,
+        primaryType: primaryType,
+        groupName: state.groupName,
+        mnemonic: state.providedMnemonic,
+        passphrase: state.providedPassphrase,
+      );
+
+      await creationService.createGroup(request: createGroupRequest);
+
+      emit(state.copyWith(
+        groupNameError: null,
+        groupCreated: true,
+      ));
+    } catch (e) {
+      emit(state.copyWith(groupNameError: e.toString()));
+    }
   }
 
   List<WalletType> popularWalletTypes([Iterable<WalletType>? types]) {

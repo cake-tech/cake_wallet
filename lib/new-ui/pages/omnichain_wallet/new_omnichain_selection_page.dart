@@ -53,7 +53,6 @@ class NewChainSelectionPage extends BasePage {
       ),
       child: NewChainSelectionPageBody(
         isCreate: newWalletTypeArguments.isCreate,
-        onTypeSelected: newWalletTypeArguments.onTypeSelected,
         hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
         availableWalletTypes: flowWalletTypes,
       ),

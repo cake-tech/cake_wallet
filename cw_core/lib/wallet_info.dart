@@ -349,8 +349,9 @@ class WalletInfo {
     this.addressPageType,
     this.receiveInfoboxDismissed,
     this.showCombinedBalance,
-    this.favoriteTokenAddress
-  ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
+    this.favoriteTokenAddress,
+  ) : isReady = true,
+      _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -373,9 +374,10 @@ class WalletInfo {
     int? sortOrder,
     bool? receiveInfoboxDismissed,
     bool? showCombinedBalance,
-    String? favoriteTokenAddress
+    String? favoriteTokenAddress,
+    bool? isReady,
   }) {
-    return WalletInfo(
+    final wi = WalletInfo(
       0,
       id,
       name,
@@ -398,8 +400,10 @@ class WalletInfo {
       null,
       receiveInfoboxDismissed ?? false,
       showCombinedBalance ?? true,
-      favoriteTokenAddress
+      favoriteTokenAddress,
     );
+    wi.isReady = isReady ?? true;
+    return wi;
   }
 
   static String get tableName => 'walletInfo';
@@ -420,6 +424,7 @@ class WalletInfo {
   bool receiveInfoboxDismissed;
   bool showCombinedBalance;
   String? favoriteTokenAddress;
+  bool isReady;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -586,11 +591,12 @@ class WalletInfo {
     "addressPageType": addressPageType,
     "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
     "showCombinedBalance": showCombinedBalance ? 1 : 0,
-    "favoriteTokenAddress": favoriteTokenAddress
+    "favoriteTokenAddress": favoriteTokenAddress,
+    "isReady": isReady ? 1 : 0,
   };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
-    return WalletInfo(
+    final wi = WalletInfo(
       json[selfIdColumn] as int,
       json['id'] as String,
       json['name'] as String,
@@ -615,8 +621,10 @@ class WalletInfo {
       json['addressPageType'] as String? ?? null,
       json['receiveInfoboxDismissed'] != 0,
       json["showCombinedBalance"] != 0,
-      json["favoriteTokenAddress"] as String? ?? null
+      json["favoriteTokenAddress"] as String? ?? null,
     );
+    wi.isReady = (json['isReady'] as int? ?? 1) == 1;
+    return wi;
   }
 
   Future<int> save() async {

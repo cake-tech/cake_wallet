@@ -135,7 +135,8 @@ class NewOmnichainSummaryPageBody extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: PrimaryButton(
                   key: const ValueKey('new_wallet_summary_open_wallet_button_key'),
-                  onPressed: () {},
+                  onPressed: () =>
+                    Navigator.of(context).popUntil((route) => route.isFirst),
                   borderRadius: BorderRadius.circular(999999),
                   text: 'Open Wallet',
                   color: Theme.of(context).colorScheme.primary,

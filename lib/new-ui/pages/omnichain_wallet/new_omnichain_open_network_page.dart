@@ -63,7 +63,15 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OmniChainWalletBloc, OmniChainWalletState>(
+    return BlocConsumer<OmniChainWalletBloc, OmniChainWalletState>(
+        listener: (context, state) {
+          if (state.groupCreated) {
+            Navigator.of(context).pushNamed(
+              Routes.newOmniChainSummaryPage,
+              arguments: context.read<OmniChainWalletBloc>(),
+            );
+          }
+        },
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -113,14 +121,9 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                                 showArrow: false,
                                 iconPath: getCryptoCurrencyIconForWalletListItem(type),
                                 onTap: () {
-                                  context.read<OmniChainWalletBloc>().add(
-                                        OmniChainWalletPrimaryTypeSelected(type),
-                                      );
-
-                                  Navigator.of(context).pushNamed(
-                                    Routes.newOmniChainSummaryPage,
-                                    arguments: context.read<OmniChainWalletBloc>(),
-                                  );
+                                  final bloc = context.read<OmniChainWalletBloc>();
+                                  bloc.add(OmniChainWalletPrimaryTypeSelected(type));
+                                  bloc.add(OmniChainWalletGroupCreateRequested());
                                 },
                               ),
                             ),

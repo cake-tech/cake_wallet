@@ -461,7 +461,9 @@ Future<void> setup({
   getIt.registerFactory<OmniChainWalletCreationService>(
     () => OmniChainWalletCreationService(
       walletCreationService: getIt.get<WalletCreationService>(param1: WalletType.none),
-      sharedPreferences: getIt.get<SharedPreferences>(),
+      walletNewVMBuilder: (newWalletArguments) => getIt.get<WalletNewVM>(param1: newWalletArguments),
+      walletManager: getIt.get<WalletManager>(),
+      appStore: getIt.get<AppStore>(),
     ),
   );
 

@@ -17,7 +17,7 @@ class WalletManager {
     walletGroups.clear();
 
     for (final walletInfo in await WalletInfo.getAll()) {
-      final groupKey = _resolveGroupKey(walletInfo);
+      final groupKey = resolveGroupKey(walletInfo);
       final group = _getOrCreateGroup(groupKey);
       group.wallets.add(walletInfo);
     }
@@ -26,7 +26,7 @@ class WalletManager {
     _loadCustomGroupNames();
   }
 
-  String _resolveGroupKey(WalletInfo walletInfo) {
+  String resolveGroupKey(WalletInfo walletInfo) {
     if (walletInfo.hashedWalletIdentifier != null &&
         walletInfo.hashedWalletIdentifier!.isNotEmpty) {
       return walletInfo.hashedWalletIdentifier!;
@@ -52,13 +52,13 @@ class WalletManager {
   }
 
   void addWallet(WalletInfo walletInfo) {
-    final groupKey = _resolveGroupKey(walletInfo);
+    final groupKey = resolveGroupKey(walletInfo);
     final group = _getOrCreateGroup(groupKey);
     group.wallets.add(walletInfo);
   }
 
   void removeWallet(WalletInfo walletInfo) {
-    final groupKey = _resolveGroupKey(walletInfo);
+    final groupKey = resolveGroupKey(walletInfo);
     final group = _getOrCreateGroup(groupKey);
     group.wallets.remove(walletInfo);
 
@@ -118,7 +118,7 @@ class WalletManager {
     }
 
     // Identify the old group key for this wallet
-    final oldGroupKey = _resolveGroupKey(walletInfo); // parentAddress fallback
+    final oldGroupKey = resolveGroupKey(walletInfo); // parentAddress fallback
 
     // Find all wallets that share this old group key (i.e the old group)
     final oldGroupWallets = (await WalletInfo.getAll()).where((w) {
@@ -165,7 +165,7 @@ class WalletManager {
 
   String? getGroupName(WalletInfo walletInfo) {
     try {
-        final groupKey = _resolveGroupKey(walletInfo);
+        final groupKey = resolveGroupKey(walletInfo);
         final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
         return group.groupName;
     } catch (_) {
