@@ -227,6 +227,22 @@ class CWEVM extends EVM {
   Web3Client? getWeb3Client(WalletBase wallet) => (wallet as EVMChainWallet).getWeb3Client();
 
   @override
+  Future<bool?> getTransactionReceipt(WalletBase wallet, String txHash) async {
+    final client = getWeb3Client(wallet);
+    if (client == null) return null;
+
+    try {
+      final receipt = await client.getTransactionReceipt(txHash);
+
+      if (receipt == null) return null;
+
+      return receipt.status;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
@@ -239,10 +255,7 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).isApprovalRequired(tokenContract, spender, requiredAmount);
 
   @override
-  Future<BigInt?> getAllowance(
-      WalletBase wallet,
-      String tokenContract,
-      String spender) =>
+  Future<BigInt?> getAllowance(WalletBase wallet, String tokenContract, String spender) =>
       (wallet as EVMChainWallet).getAllowance(tokenContract, spender);
 
   @override
@@ -272,7 +285,7 @@ class CWEVM extends EVM {
     String to,
     String dataHex,
     BigInt valueWei,
-    TransactionPriority? priority,{
+    TransactionPriority? priority, {
     bool useBlinkProtection = true,
     String? sourceTokenAddress,
     BigInt? sourceTokenAmount,
@@ -481,7 +494,7 @@ class CWEVM extends EVM {
 
   @override
   BigInt? getERC20AvailableBalance(Object balance) {
-    if(balance is EVMChainERC20Balance) {
+    if (balance is EVMChainERC20Balance) {
       return balance.balance;
     }
     return null;
@@ -495,8 +508,22 @@ class CWEVM extends EVM {
               chainId: config.chainId,
               name: config.name,
               shortCode: config.shortCode,
+              currency: config.nativeCurrency,
             ))
         .toList();
+  }
+
+  @override
+  ChainInfo? getChainInfoByChainId(int chainId) {
+    final config = _registry.getChainConfig(chainId);
+    if (config == null) return null;
+
+    return ChainInfo(
+      chainId: config.chainId,
+      name: config.name,
+      shortCode: config.shortCode,
+      currency: config.nativeCurrency,
+    );
   }
 
   @override
@@ -508,6 +535,7 @@ class CWEVM extends EVM {
         chainId: config.chainId,
         name: config.name,
         shortCode: config.shortCode,
+        currency: config.nativeCurrency,
       );
     }
     return null;
@@ -543,6 +571,106 @@ class CWEVM extends EVM {
 
   @override
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
+
+  @override
+  bool isUSDT0Token(WalletBase wallet, CryptoCurrency token) {
+    if (token is! Erc20Token) return false;
+
+    final chainId = getSelectedChainId(wallet);
+    if (chainId == null) return false;
+
+    return USDT0Config.isUSDT0Token(token, chainId);
+  }
+
+  @override
+  List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet) {
+    final currentChainId = getSelectedChainId(wallet);
+    if (currentChainId == null) return [];
+
+    final result = <ChainInfo>[];
+    for (final config in _registry.getAllChains()) {
+      if (USDT0Config.isChainSupported(config.chainId) && config.chainId != currentChainId) {
+        result.add(ChainInfo(
+          chainId: config.chainId,
+          name: config.name,
+          shortCode: config.shortCode,
+          currency: config.nativeCurrency,
+        ));
+      }
+    }
+    return result;
+  }
+
+  @override
+  Future<BridgeQuote> quoteUSDT0Transfer({
+    required WalletBase wallet,
+    required int sourceChainId,
+    required int destinationChainId,
+    required BigInt amount,
+    required String recipientAddress,
+  }) async {
+    final evmWallet = wallet as EVMChainWallet;
+    final client = evmWallet.getWeb3Client();
+    if (client == null) {
+      throw StateError('Wallet not connected');
+    }
+
+    final quote = await USDT0Service.quoteCrossChainTransfer(
+      client: client,
+      sourceChainId: sourceChainId,
+      destinationChainId: destinationChainId,
+      amount: amount,
+      recipientAddress: recipientAddress,
+    );
+    return BridgeQuote(
+      nativeFee: quote.nativeFee,
+      lzTokenFee: quote.lzTokenFee,
+    );
+  }
+
+  @override
+  Future<PendingTransaction> executeUSDT0Transfer({
+    required WalletBase wallet,
+    required CryptoCurrency token,
+    required int sourceChainId,
+    required int destinationChainId,
+    required BigInt amount,
+    required String recipientAddress,
+    required BridgeQuote quote,
+    required TransactionPriority priority,
+    bool useBlinkProtection = true,
+  }) {
+    final evmWallet = wallet as EVMChainWallet;
+    final tokenErc20 = token as Erc20Token;
+
+    return USDT0Service.executeCrossChainTransfer(
+      wallet: evmWallet,
+      sourceChainId: sourceChainId,
+      destinationChainId: destinationChainId,
+      amount: amount,
+      recipientAddress: recipientAddress,
+      quote: USDT0Quote(nativeFee: quote.nativeFee, lzTokenFee: quote.lzTokenFee),
+      token: tokenErc20,
+      priority: priority as EVMChainTransactionPriority,
+      useBlinkProtection: useBlinkProtection,
+    );
+  }
+
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  ) async {
+    if (wallet is! EVMChainWallet) return null;
+
+    final data = await wallet.getWCBufferedFeeQuote(priority);
+    if (data == null) return null;
+
+    return EvmWalletConnectFeeQuote(
+      maxFeePerGasWei: data.maxFeePerGasWei,
+      maxPriorityFeePerGasWei: data.maxPriorityFeePerGasWei,
+      latestBaseFeeWei: data.latestBaseFeeWei,
+    );
+  }
 
   Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
     Erc20Token token,
