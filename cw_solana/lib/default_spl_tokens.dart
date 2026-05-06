@@ -43,7 +43,7 @@ class DefaultSPLTokens {
       mintAddress: '2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk',
       decimal: 6,
       mint: 'soEth',
-      iconPath: 'assets/images/crypto/ethereum.webp',
+      iconPath: 'assets/new-ui/crypto_full_icons/ethereum.svg',
       enabled: false,
     ),
     SPLToken(
@@ -52,7 +52,7 @@ class DefaultSPLTokens {
       mintAddress: 'So11111111111111111111111111111111111111112',
       decimal: 9,
       mint: 'WSOL',
-      iconPath: 'assets/images/crypto/solana.webp',
+      iconPath: 'assets/new-ui/crypto_full_icons/solana.svg',
       enabled: false,
     ),
     SPLToken(
@@ -61,7 +61,7 @@ class DefaultSPLTokens {
       mintAddress: '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E',
       decimal: 6,
       mint: 'btcsol',
-      iconPath: 'assets/images/crypto/bitcoin.webp',
+      iconPath: 'assets/new-ui/crypto_full_icons/bitcoin.svg',
       enabled: false,
     ),
     SPLToken(

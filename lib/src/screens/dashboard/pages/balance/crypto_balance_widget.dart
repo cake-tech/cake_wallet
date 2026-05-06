@@ -343,7 +343,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       description: S.of(context).zcash_card_description,
                       leftButtonTitle: S.of(context).zcash_card_dismiss,
                       rightButtonTitle: S.of(context).zcash_card_scan,
-                      image: 'assets/images/zec_icon.png',
+                      image: 'assets/new-ui/crypto_full_icons/zcash.svg',
                       leftButtonAction: () => _dismissZcash(context),
                       rightButtonAction: () => _rescanInternalChangeZcash(context),
                       hintWidget: GestureDetector(

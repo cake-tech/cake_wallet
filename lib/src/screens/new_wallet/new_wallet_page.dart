@@ -36,8 +36,8 @@ class NewWalletPage extends BasePage {
   final SeedSettingsViewModel _seedSettingsViewModel;
   final bool isChildWallet;
 
-  final welcomeImageLight = 'assets/images/wallet_type_wallet_light.png';
-  final welcomeImageDark = 'assets/images/wallet_type_wallet_dark.png';
+  final welcomeImageLight = 'assets/new-ui/hero/wallet_type_light.svg';
+  final welcomeImageDark = 'assets/new-ui/hero/wallet_type_dark.svg';
 
   @override
   bool get gradientBackground => true;

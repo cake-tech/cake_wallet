@@ -52,7 +52,7 @@ const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
-const baseDefaultNodeUri = 'base.nownodes.io';
+const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
@@ -620,6 +620,15 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "Swaps.XYZ",
             enabled: true,
+          );
+          break;
+        case 65:
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.base,
+            currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
+            oldUri: ['base.nownodes.io'],
           );
           break;
         default:

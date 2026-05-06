@@ -132,10 +132,11 @@ abstract class ElectrumWalletBase
       }
     } else if (canDeriveFromSeed) {
       final coinType = _coinTypeFor(currency);
+      final accountIndex = _parseAccountIndex(derivationInfo.derivationPath);
 
       for (final type in supportedTypes) {
         final purpose = _purposeForType(type);
-        final accountPath = "m/$purpose'/$coinType'/0'";
+        final accountPath = "m/$purpose'/$coinType'/$accountIndex'";
 
         mainHdByType[type] = _masterHD!.derivePath("$accountPath/0") as Bip32Slip10Secp256k1;
         sideHdByType[type] = _masterHD!.derivePath("$accountPath/1") as Bip32Slip10Secp256k1;
@@ -197,7 +198,8 @@ abstract class ElectrumWalletBase
 
     final coinType = _coinTypeFor(currency);
     final purpose = _purposeForType(record.type);
-    return "m/$purpose'/$coinType'/0'";
+    final accountIndex = _parseAccountIndex(derivationInfo.derivationPath);
+    return "m/$purpose'/$coinType'/$accountIndex'";
   }
 
   List<BitcoinAddressType> supportedAddressTypes(WalletType type) {
@@ -258,6 +260,15 @@ abstract class ElectrumWalletBase
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
+
+  // Parses the account index from a BIP-44/49/84/86 derivation path.
+  // e.g. "m/84'/0'/1'" → 1.  Returns 0 for unrecognised formats.
+  static int _parseAccountIndex(String? derivationPath) {
+    if (derivationPath == null) return 0;
+    final parts = derivationPath.split('/');
+    if (parts.length < 4) return 0;
+    return int.tryParse(parts[3].replaceAll("'", "")) ?? 0;
+  }
 
   static Bip32KeyNetVersions? getKeyNetVersion(BasedUtxoNetwork network,
       [HardwareWalletType? hardwareWalletType]) {

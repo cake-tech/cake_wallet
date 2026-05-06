@@ -35,7 +35,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
 
   @override
   @HiveField(8, defaultValue: false)
-  final bool isPotentialScam;
+  bool isPotentialScam;
 
   SPLToken({
     required this.name,

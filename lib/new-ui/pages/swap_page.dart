@@ -936,12 +936,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CakeImageWidget(
-                                  imageUrl: _selectedCurrency.iconPath,
-                                  width: 28,
-                                  height: 28,
-                                  borderRadius: 8,
-                                ),
+                                CakeImageWidget(imageUrl: _selectedCurrency.iconPath ?? "",
+                                    width: 28, height: 28),
                                 SizedBox(width: 10),
                                 Text(
                                   currencyToShow,
