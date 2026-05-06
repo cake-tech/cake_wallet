@@ -17,6 +17,8 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_starknet/hardware/starknet_ledger_service.dart';
+import 'package:cw_starknet/starknet_wallet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as sdk;
 import 'package:mobx/mobx.dart';
@@ -188,6 +190,11 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+      case WalletType.starknet:
+        (wallet as StarknetWallet).setHardwareWalletService(
+          await getHardwareWalletService(wallet.type),
+        );
+        return;
       default:
         throw Exception('Unexpected wallet type: ${wallet.type} for ledger');
     }
@@ -203,6 +210,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getLedgerHardwareWalletService(connection);
+      case WalletType.starknet:
+        return StarknetLedgerService(connection);
       default:
         throw UnimplementedError();
     }

@@ -26,6 +26,7 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -80,7 +81,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     selectedCryptoCurrency =
         coinTypeToSpendFrom == UnspentCoinType.lightning ? CryptoCurrency.btcln : wallet.currency;
     hasMultipleTokens = isEVMWallet ||
-        [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type);
+        [WalletType.solana, WalletType.starknet, WalletType.tron, WalletType.zano]
+            .contains(wallet.type);
 
     for (final output in outputs) {
       output.updateWallet(wallet);
@@ -112,7 +114,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             ? CryptoCurrency.btcln
             : _appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
-            [WalletType.solana, WalletType.tron, WalletType.zano].contains(_appStore.wallet!.type),
+            [WalletType.solana, WalletType.starknet, WalletType.tron, WalletType.zano]
+                .contains(_appStore.wallet!.type),
         selectedChainId = _appStore.wallet!.chainId,
         outputs = ObservableList<Output>(),
         fiatFromSettings = _appStore.settingsStore.fiatCurrency,
@@ -258,6 +261,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bsc:
       case WalletType.tron:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.bitcoin:
         return wallet.currency;
       default:
@@ -1053,7 +1057,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       // Immediate transaction update for EVM chains, Tron, and Nano
-      if (isEVMWallet || [WalletType.bitcoin, WalletType.solana, WalletType.tron, WalletType.nano].contains(walletType)) {
+      if (isEVMWallet ||
+          [WalletType.bitcoin, WalletType.solana, WalletType.starknet, WalletType.tron, WalletType.nano]
+              .contains(walletType)) {
         Future.delayed(Duration(seconds: 4), () async {
           try {
             await Future.wait([
@@ -1142,6 +1148,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.nano,
           WalletType.banano,
           WalletType.solana,
+          WalletType.starknet,
           WalletType.tron,
           WalletType.arbitrum,
           WalletType.zcash,
@@ -1195,6 +1202,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+      case WalletType.starknet:
+        return starknet!.createStarknetTransactionCredentials(
+          outputs,
+          currency: selectedCryptoCurrency,
+          priority: priority,
+        );
       case WalletType.tron:
         return tron!.createTronTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.zano:

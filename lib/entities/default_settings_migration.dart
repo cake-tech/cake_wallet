@@ -57,6 +57,12 @@ const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
+const starknetDefaultNodeUri = 'api.cartridge.gg/x/starknet/mainnet';
+const deprecatedStarknetNodeUris = <String>[
+  'starknet-mainnet.public.blastapi.io',
+  'free-rpc.nethermind.io',
+  'starknet.drpc.org',
+];
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -624,6 +630,16 @@ Future<void> defaultSettingsMigration(
             enabled: true,
           );
           break;
+        case 65:
+          await addWalletNodeList(nodes: nodes, type: WalletType.starknet);
+          await _repairStarknetNodes(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+          );
+          break;
+        case 66:
+          await addWalletNodeList(nodes: nodes, type: WalletType.starknet);
+          break;
         default:
           break;
       }
@@ -702,6 +718,33 @@ Future<void> _changeDefaultNode({
   }
 }
 
+Future<void> _repairStarknetNodes({
+  required Box<Node> nodes,
+  required SharedPreferences sharedPreferences,
+}) async {
+  for (final node in nodes.values.where((node) => node.type == WalletType.starknet)) {
+    if (node.uriRaw == starknetDefaultNodeUri) {
+      node.useSSL = true;
+      node.isEnabledForAutoSwitching = true;
+      await node.save();
+      continue;
+    }
+
+    if (deprecatedStarknetNodeUris.any(node.uriRaw.contains)) {
+      node.isEnabledForAutoSwitching = false;
+      await node.save();
+    }
+  }
+
+  await _changeDefaultNode(
+    nodes: nodes,
+    sharedPreferences: sharedPreferences,
+    type: WalletType.starknet,
+    currentNodePreferenceKey: PreferencesKey.currentStarknetNodeIdKey,
+    oldUri: deprecatedStarknetNodeUris,
+  );
+}
+
 String _getDefaultNodeUri(WalletType type) {
   switch (type) {
     case WalletType.monero:
@@ -740,6 +783,8 @@ String _getDefaultNodeUri(WalletType type) {
       return bscDefaultNodeUri;
     case WalletType.zcash:
       return zcashDefaultNodeUri;
+    case WalletType.starknet:
+      return starknetDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';

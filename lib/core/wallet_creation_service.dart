@@ -85,6 +85,7 @@ class WalletCreationService {
       case WalletType.dogecoin:
       case WalletType.nano:
       case WalletType.zcash:
+      case WalletType.starknet:
         return true;
       case WalletType.monero:
       case WalletType.wownero:

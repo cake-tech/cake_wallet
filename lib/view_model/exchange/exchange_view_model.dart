@@ -1486,6 +1486,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.sol;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.starknet:
+        depositCurrency = CryptoCurrency.strk;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.tron:
         depositCurrency = CryptoCurrency.trx;
         receiveCurrency = CryptoCurrency.xmr;

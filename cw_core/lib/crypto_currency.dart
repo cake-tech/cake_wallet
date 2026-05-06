@@ -4,7 +4,9 @@ import 'package:collection/collection.dart';
 import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/parse_fixed.dart';
 
-class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
+class CryptoCurrency extends EnumerableItem<int>
+    with Serializable<int>
+    implements Currency {
   const CryptoCurrency({
     String title = '',
     int raw = -1,
@@ -128,6 +130,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.arbEth,
     CryptoCurrency.usdcArb,
     CryptoCurrency.usdtArb,
+    CryptoCurrency.strk,
   ];
 
   static const havenCurrencies = [
@@ -169,19 +172,32 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const xrp = CryptoCurrency(title: 'XRP', fullName: 'Ripple', raw: 15, name: 'xrp', iconPath: 'assets/images/xrp_icon.png', decimals: 6);
   static const xhv = CryptoCurrency(title: 'XHV', fullName: 'Haven Protocol', raw: 16, name: 'xhv', iconPath: 'assets/images/xhv_logo.png', decimals: 12);
 
-  static const xag = CryptoCurrency(title: 'XAG', tag: 'XHV',  raw: 17, name: 'xag', decimals: 12);
-  static const xau = CryptoCurrency(title: 'XAU', tag: 'XHV', raw: 18, name: 'xau', decimals: 12);
-  static const xaud = CryptoCurrency(title: 'XAUD', tag: 'XHV', raw: 19, name: 'xaud', decimals: 12);
-  static const xbtc = CryptoCurrency(title: 'XBTC', tag: 'XHV', raw: 20, name: 'xbtc', decimals: 12);
-  static const xcad = CryptoCurrency(title: 'XCAD', tag: 'XHV', raw: 21, name: 'xcad', decimals: 12);
-  static const xchf = CryptoCurrency(title: 'XCHF', tag: 'XHV', raw: 22, name: 'xchf', decimals: 12);
-  static const xcny = CryptoCurrency(title: 'XCNY', tag: 'XHV', raw: 23, name: 'xcny', decimals: 12);
-  static const xeur = CryptoCurrency(title: 'XEUR', tag: 'XHV', raw: 24, name: 'xeur', decimals: 12);
-  static const xgbp = CryptoCurrency(title: 'XGBP', tag: 'XHV', raw: 25, name: 'xgbp', decimals: 12);
-  static const xjpy = CryptoCurrency(title: 'XJPY', tag: 'XHV', raw: 26, name: 'xjpy', decimals: 12);
-  static const xnok = CryptoCurrency(title: 'XNOK', tag: 'XHV', raw: 27, name: 'xnok', decimals: 12);
-  static const xnzd = CryptoCurrency(title: 'XNZD', tag: 'XHV', raw: 28, name: 'xnzd', decimals: 12);
-  static const xusd = CryptoCurrency(title: 'XUSD', tag: 'XHV', raw: 29, name: 'xusd', decimals: 12);
+  static const xag = CryptoCurrency(
+      title: 'XAG', tag: 'XHV', raw: 17, name: 'xag', decimals: 12);
+  static const xau = CryptoCurrency(
+      title: 'XAU', tag: 'XHV', raw: 18, name: 'xau', decimals: 12);
+  static const xaud = CryptoCurrency(
+      title: 'XAUD', tag: 'XHV', raw: 19, name: 'xaud', decimals: 12);
+  static const xbtc = CryptoCurrency(
+      title: 'XBTC', tag: 'XHV', raw: 20, name: 'xbtc', decimals: 12);
+  static const xcad = CryptoCurrency(
+      title: 'XCAD', tag: 'XHV', raw: 21, name: 'xcad', decimals: 12);
+  static const xchf = CryptoCurrency(
+      title: 'XCHF', tag: 'XHV', raw: 22, name: 'xchf', decimals: 12);
+  static const xcny = CryptoCurrency(
+      title: 'XCNY', tag: 'XHV', raw: 23, name: 'xcny', decimals: 12);
+  static const xeur = CryptoCurrency(
+      title: 'XEUR', tag: 'XHV', raw: 24, name: 'xeur', decimals: 12);
+  static const xgbp = CryptoCurrency(
+      title: 'XGBP', tag: 'XHV', raw: 25, name: 'xgbp', decimals: 12);
+  static const xjpy = CryptoCurrency(
+      title: 'XJPY', tag: 'XHV', raw: 26, name: 'xjpy', decimals: 12);
+  static const xnok = CryptoCurrency(
+      title: 'XNOK', tag: 'XHV', raw: 27, name: 'xnok', decimals: 12);
+  static const xnzd = CryptoCurrency(
+      title: 'XNZD', tag: 'XHV', raw: 28, name: 'xnzd', decimals: 12);
+  static const xusd = CryptoCurrency(
+      title: 'XUSD', tag: 'XHV', raw: 29, name: 'xusd', decimals: 12);
 
   static const ape = CryptoCurrency(title: 'APE', tag: 'ETH', fullName: 'ApeCoin', raw: 30, name: 'ape', iconPath: 'assets/images/ape_icon.png', decimals: 18);
   static const avaxc = CryptoCurrency(title: 'AVAX', tag: 'AVAXC', fullName: 'Avalanche', raw: 31, name: 'avaxc', iconPath: 'assets/images/avaxc_icon.png',iconSvgPath: "assets/new-ui/crypto_full_icons/avax.svg", decimals: 9);
@@ -265,21 +281,31 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const usdcArb = CryptoCurrency(title: 'USDC', tag: 'ARB', fullName: 'USDC Coin', raw: 108, name: 'usdcarb', iconPath: 'assets/images/crypto/usdc.webp',iconSvgPath: "assets/new-ui/crypto_full_icons/usdc.svg",  decimals: 6);
   static const usdtArb = CryptoCurrency(title: 'USDT', tag: 'ARB', fullName: 'USDT Tether', raw: 109, name: 'usdtarb', iconPath: 'assets/images/crypto/tether.webp',iconSvgPath: "assets/new-ui/crypto_full_icons/usdt.svg",  decimals: 6);
   static const ltcmweb = CryptoCurrency(title: 'LTC', fullName: 'Litecoin MWeb', raw: 110, name: 'ltcmweb', iconPath: 'assets/images/crypto/litecoin.webp',iconSvgPath: "assets/new-ui/crypto_full_icons/litecoin.svg", decimals: 8);
+  static const strk = CryptoCurrency(title: 'STRK', fullName: 'Starknet', raw: 111, name: 'strk', iconPath: 'assets/images/crypto/starknet.webp', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/starknet.svg");
 
-  static final Map<int, CryptoCurrency> _rawCurrencyMap =
-    [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
+  static final Map<int, CryptoCurrency> _rawCurrencyMap = [
+    ...all,
+    ...havenCurrencies,
+    ...zcashCurrencies
+  ].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
       acc.addAll({item.raw: item});
       return acc;
     });
 
-  static final Map<String, CryptoCurrency> _nameCurrencyMap =
-    [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
+  static final Map<String, CryptoCurrency> _nameCurrencyMap = [
+    ...all,
+    ...havenCurrencies,
+    ...zcashCurrencies
+  ].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
       acc.addAll({item.name: item});
       return acc;
     });
 
-  static final Map<String, CryptoCurrency> _fullNameCurrencyMap =
-    [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
+  static final Map<String, CryptoCurrency> _fullNameCurrencyMap = [
+    ...all,
+    ...havenCurrencies,
+    ...zcashCurrencies
+  ].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
       if(item.fullName != null){
         acc.addAll({item.fullName!.toLowerCase(): item});
       }
@@ -321,10 +347,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return _rawCurrencyMap[raw];
   }
 
-
   // TODO: refactor this
-  static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
-
+  static CryptoCurrency fromString(String name,
+      {CryptoCurrency? walletCurrency}) {
     final schemeMatch = _schemeCurrencyMap[name.toLowerCase()];
     if (schemeMatch != null) return schemeMatch;
 
@@ -339,7 +364,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
     // search by fullName if not found by title:
     try {
-      return CryptoCurrency.all.firstWhere((element) => element.fullName?.toLowerCase() == name);
+      return CryptoCurrency.all
+          .firstWhere((element) => element.fullName?.toLowerCase() == name);
     } catch (_) {}
 
     if (CryptoCurrency._nameCurrencyMap[name.toLowerCase()] == null) {
@@ -351,11 +377,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   }
 
   static CryptoCurrency fromFullName(String name) {
-    if (CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()] == null) {
+    if (CryptoCurrency
+            ._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()] ==
+        null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
       throw  ArgumentError.value(name, 'Fullname', s);
     }
-    return CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
+    return CryptoCurrency
+        ._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
   }
 
   static CryptoCurrency? safeParseCurrencyFromString(
@@ -377,12 +406,12 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       return null;
     }
 
-
     // Try for native currency with same title and tag
     if (tag == null || tag.isEmpty) {
       final match = CryptoCurrency.all.firstWhereOrNull(
             (e) =>
-        e.title.toUpperCase() == raw.toUpperCase() && (e.tag == raw.toUpperCase()),
+            e.title.toUpperCase() == raw.toUpperCase() &&
+            (e.tag == raw.toUpperCase()),
       );
 
       if (match != null) return match;
@@ -393,7 +422,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     } catch (_) {}
 
     // try cleaned (keep only A–Z/0–9)
-    final cleaned = raw.trim().toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    final cleaned =
+        raw.trim().toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
     try {
       return CryptoCurrency.fromString(cleaned, walletCurrency: walletCurrency);
     } catch (_) {}
@@ -427,11 +457,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   @override
   String toString() => title;
 
-  bool titleAndTagEqual(CryptoCurrency other) => title == other.title && tag == other.tag;
+  bool titleAndTagEqual(CryptoCurrency other) =>
+      title == other.title && tag == other.tag;
 
   /// Format the raw amount into its decimal representation eg. turn Sats into Bitcoin
-  String formatAmount(BigInt amount, {int? fractionalDigits, bool trimZeros = true}) =>
-      formatFixed(amount, decimals, fractionalDigits: fractionalDigits, trimZeros: trimZeros);
+  String formatAmount(BigInt amount,
+          {int? fractionalDigits, bool trimZeros = true}) =>
+      formatFixed(amount, decimals,
+          fractionalDigits: fractionalDigits, trimZeros: trimZeros);
 
   /// Parse the [value] and turn it into the smallest denomination eg. turn Bitcoin into Sats
   BigInt parseAmount(String value) => parseFixed(value, decimals);

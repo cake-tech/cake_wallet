@@ -124,7 +124,8 @@ abstract class BalanceViewModelBase with Store {
   @computed
   bool get isHomeScreenSettingsEnabled =>
       isEVMCompatibleChain(wallet.type) ||
-      [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type);
+      [WalletType.solana, WalletType.starknet, WalletType.tron, WalletType.zano]
+          .contains(wallet.type);
 
   @computed
   bool get isEVMCompatible => isEVMCompatibleChain(wallet.type);
@@ -191,6 +192,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.arbitrum:
       case WalletType.bsc:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.tron:
         return S.current.xmr_full_balance;
       case WalletType.nano:

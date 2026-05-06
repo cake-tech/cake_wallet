@@ -29,6 +29,7 @@ import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
@@ -160,6 +161,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
       TransactionPriority? initialZcashTransactionPriority,
+      TransactionPriority? initialStarknetTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -266,6 +268,9 @@ abstract class SettingsStoreBase with Store {
     if (initialZcashTransactionPriority != null) {
       priority[WalletType.zcash] = initialZcashTransactionPriority;
     }
+    if (initialStarknetTransactionPriority != null) {
+      priority[WalletType.starknet] = initialStarknetTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -336,6 +341,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.zcash:
           key = PreferencesKey.zcashTransactionPriority;
+          break;
+        case WalletType.starknet:
+          key = PreferencesKey.starknetTransactionPriority;
           break;
         default:
           key = null;
@@ -1127,6 +1135,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
     TransactionPriority? zcashTransactionPriority;
+    TransactionPriority? starknetTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1174,6 +1183,10 @@ abstract class SettingsStoreBase with Store {
       zcashTransactionPriority = zcash?.deserializeZcashTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.starknetTransactionPriority) != null) {
+      starknetTransactionPriority = starknet?.deserializeStarknetTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.starknetTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1189,6 +1202,7 @@ abstract class SettingsStoreBase with Store {
     bscTransactionPriority ??= evm?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
     zcashTransactionPriority ??= zcash?.getDefaultTransactionPriority();
+    starknetTransactionPriority ??= starknet?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1306,6 +1320,7 @@ abstract class SettingsStoreBase with Store {
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final starknetNodeId = sharedPreferences.getInt(PreferencesKey.currentStarknetNodeIdKey);
 
     /// get the selected node, if null, then use the default
     final moneroNode = nodeSource.get(nodeId) ??
@@ -1344,6 +1359,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
+    final starknetNode = nodeSource.get(starknetNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == starknetDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1450,6 +1467,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (starknetNode != null) {
+      nodes[WalletType.starknet] = starknetNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1649,6 +1670,7 @@ abstract class SettingsStoreBase with Store {
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
       initialZcashTransactionPriority: zcashTransactionPriority,
+      initialStarknetTransactionPriority: starknetTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1746,6 +1768,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority) != null) {
       priority[WalletType.zcash] = zcash!.deserializeZcashTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
+    }
+    if (starknet != null &&
+        sharedPreferences.getInt(PreferencesKey.starknetTransactionPriority) != null) {
+      priority[WalletType.starknet] = starknet!.deserializeStarknetTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.starknetTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1881,6 +1908,7 @@ abstract class SettingsStoreBase with Store {
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final starknetNodeId = sharedPreferences.getInt(PreferencesKey.currentStarknetNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1899,6 +1927,7 @@ abstract class SettingsStoreBase with Store {
     final zcashNode = nodeSource.get(zcashNodeId);
     final decredNode = nodeSource.get(decredNodeId);
     final dogecoinNode = nodeSource.get(dogecoinNodeId);
+    final starknetNode = nodeSource.get(starknetNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1970,6 +1999,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (starknetNode != null) {
+      nodes[WalletType.starknet] = starknetNode;
     }
 
     // MIGRATED:
@@ -2123,6 +2156,10 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.zcash:
         await _sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.key as int);
+        break;
+      case WalletType.starknet:
+        await _sharedPreferences.setInt(
+            PreferencesKey.currentStarknetNodeIdKey, node.key as int);
         break;
       case WalletType.none:
         throw UnimplementedError();

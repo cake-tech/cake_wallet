@@ -52,7 +52,8 @@ class BitcoinURI extends PaymentURI {
       qp['pj'] = pjUri;
     }
 
-    return Uri(scheme: 'bitcoin', path: address, queryParameters: qp).toString();
+    return Uri(scheme: 'bitcoin', path: address, queryParameters: qp)
+        .toString();
   }
 }
 
@@ -77,6 +78,21 @@ class EthereumURI extends PaymentURI {
   @override
   String toString() {
     var base = 'ethereum:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+class StarknetURI extends PaymentURI {
+  StarknetURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'starknet:$address';
 
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
@@ -361,8 +377,11 @@ class ERC681URI extends PaymentURI {
     final (isContract, targetAddress) = _getTargetAddress(uri.path);
     final chainId = _getChainID(uri.path);
 
-    final address = isContract ? uri.queryParameters["address"] ?? '' : targetAddress;
-    final amountParam = isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
+    final address =
+        isContract ? uri.queryParameters["address"] ?? '' : targetAddress;
+    final amountParam = isContract
+        ? uri.queryParameters["uint256"]
+        : uri.queryParameters["value"];
 
     var formatedAmount = "";
 
@@ -389,8 +408,9 @@ class ERC681URI extends PaymentURI {
   }
 
   static (bool, String) _getTargetAddress(String path) {
-    final targetAddress =
-    RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false).firstMatch(path)!.group(0)!;
+    final targetAddress = RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false)
+        .firstMatch(path)!
+        .group(0)!;
     return (path.contains("/"), targetAddress);
   }
 
@@ -483,4 +503,3 @@ class LightningPaymentRequest extends PaymentURI {
   @override
   String toString() => bolt11Invoice ?? "lightning:$lnURL";
 }
-

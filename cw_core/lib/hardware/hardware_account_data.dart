@@ -5,6 +5,7 @@ class HardwareAccountData {
     required this.address,
     required this.accountIndex,
     required this.derivationPath,
+    this.publicKey,
     this.xpub,
     this.masterFingerprint,
   });
@@ -12,6 +13,7 @@ class HardwareAccountData {
   final String address;
   final int accountIndex;
   final String derivationPath;
+  final String? publicKey;
 
   // Bitcoin Specific
   final Uint8List? masterFingerprint;

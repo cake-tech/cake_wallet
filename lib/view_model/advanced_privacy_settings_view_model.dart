@@ -57,6 +57,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.arbitrum:
       case WalletType.bsc:
       case WalletType.solana:
+      case WalletType.starknet:
       case WalletType.tron:
       case WalletType.zcash:
         return true;
@@ -102,6 +103,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.bsc,
         WalletType.tron,
         WalletType.solana,
+        WalletType.starknet,
         WalletType.monero,
         WalletType.wownero,
         WalletType.zano,

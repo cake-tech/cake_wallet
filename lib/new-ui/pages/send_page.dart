@@ -893,6 +893,14 @@ class _NewSendPageState extends State<NewSendPage> {
           );
 
           break;
+        case PaymentFlowType.starknetTokenSelection:
+          await _showTokenSelectionFlow(
+            widget.paymentViewModel,
+            widget.walletSwitcherViewModel,
+            paymentRequest,
+            fixedNetwork: WalletType.starknet,
+          );
+          break;
         case PaymentFlowType.currentWalletCompatible:
         case PaymentFlowType.error:
         case PaymentFlowType.incompatible:

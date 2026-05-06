@@ -6,6 +6,7 @@ import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/starknet_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -74,6 +75,25 @@ class TokenUtilities {
         if (seen.add(key)) unique.add(t);
       }
     }
+    return unique;
+  }
+
+  static Future<List<StarknetToken>> loadAllUniqueStarknetTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final starknetWallets = allWi.where((w) => w.type == WalletType.starknet);
+
+    final seen = <String>{};
+    final unique = <StarknetToken>[];
+    for (final wallet in starknetWallets) {
+      final box = await _openStarknetTokensBoxFor(wallet);
+      for (final token in box.values.where((token) => token.enabled)) {
+        final key = token.contractAddress.toLowerCase();
+        if (seen.add(key)) {
+          unique.add(token);
+        }
+      }
+    }
+
     return unique;
   }
 
@@ -177,6 +197,12 @@ class TokenUtilities {
           if (t.contractAddress.toLowerCase() == lower) return t;
         }
         return null;
+      case WalletType.starknet:
+        final starknetTokens = await loadAllUniqueStarknetTokens();
+        for (final t in starknetTokens) {
+          if (t.contractAddress.toLowerCase() == lower) return t;
+        }
+        return null;
       default:
         return null;
     }
@@ -217,6 +243,14 @@ class TokenUtilities {
       return CakeHive.box<TronToken>(boxName);
     }
     return CakeHive.openBox<TronToken>(boxName);
+  }
+
+  static Future<Box<StarknetToken>> _openStarknetTokensBoxFor(WalletInfo walletInfo) async {
+    final boxName = '${walletInfo.name.replaceAll(' ', '_')}_${StarknetToken.boxName}';
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<StarknetToken>(boxName);
+    }
+    return CakeHive.openBox<StarknetToken>(boxName);
   }
 
   static Erc20Token? findErc20Token(CryptoCurrency currency, WalletBase wallet) {
@@ -389,6 +423,17 @@ class TokenUtilities {
       }
     }
 
+    // Handle Starknet network
+    else if (network == WalletType.starknet) {
+      final userStarknetTokens = await loadAllUniqueStarknetTokens();
+      for (final token in userStarknetTokens) {
+        final contractAddress = token.contractAddress.toLowerCase();
+        if (addedAddresses.add(contractAddress)) {
+          allTokens.add(token);
+        }
+      }
+    }
+
     return allTokens;
   }
 
@@ -417,6 +462,10 @@ class TokenUtilities {
 
     if (walletType == WalletType.tron) {
       return await loadAllUniqueTronTokens();
+    }
+
+    if (walletType == WalletType.starknet) {
+      return await loadAllUniqueStarknetTokens();
     }
 
     return [];

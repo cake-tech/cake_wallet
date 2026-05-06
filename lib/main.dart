@@ -49,6 +49,7 @@ import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/starknet_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -73,7 +74,8 @@ import 'package:trezor_connect/trezor_connect.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
-final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
+final RouteObserver<PageRoute<dynamic>> routeObserver =
+    RouteObserver<PageRoute<dynamic>>();
 final quickActionsStream = StreamController<Uri?>.broadcast();
 
 Future<void> main({Key? topLevelKey}) async {
@@ -105,7 +107,10 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
       quickActions.setShortcutItems(<ShortcutItem>[
         const ShortcutItem(
-            type: 'send', icon: 'send', localizedTitle: 'Send', localizedSubtitle: 'Send funds'),
+            type: 'send',
+            icon: 'send',
+            localizedTitle: 'Send',
+            localizedSubtitle: 'Send funds'),
         const ShortcutItem(
             type: 'receive',
             icon: 'receive',
@@ -129,7 +134,8 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     /// A callback that is invoked when an unhandled error occurs in the root
     /// isolate.
     PlatformDispatcher.instance.onError = (error, stack) {
-      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      ExceptionHandler.onError(
+          FlutterErrorDetails(exception: error, stack: stack));
 
       return true;
     };
@@ -165,10 +171,12 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     if (FeatureFlag.hasDevOptions) {
       ProxyWrapper.logger = MemoryProxyLogger();
     }
-    var zcashPassword = await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
+    var zcashPassword =
+        await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
     if (zcashPassword == null || zcashPassword.isEmpty) {
       zcashPassword = generateKey().substring(0, 32);
-      secureStorageShared.write(key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+      secureStorageShared.write(
+          key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
     }
     zcash?.unlockDatabase(zcashPassword);
 
@@ -198,7 +206,8 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       );
     }
 
-    await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    await ExceptionHandler.onError(
+        FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
@@ -280,31 +289,45 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
     CakeHive.registerAdapter(TronTokenAdapter());
   }
+
+  if (!CakeHive.isAdapterRegistered(StarknetToken.typeId)) {
+    CakeHive.registerAdapter(StarknetTokenAdapter());
+  }
   await performHiveMigration();
 
   final secureStorage = secureStorageShared;
-  final transactionDescriptionsBoxKey =
-      await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-  final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
+  final transactionDescriptionsBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  final tradesBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: Trade.boxKey);
+  final ordersBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes =
-      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
-  final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
+  final powNodes = await CakeHive.openBox<Node>(
+      Node.boxName + "pow"); // must be different from Node.boxName
+  final transactionDescriptions =
+      await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
-  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-  final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final trades =
+      await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders =
+      await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
-  final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-  final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-  final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-  final payjoinSessionSource = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
+  final exchangeTemplates =
+      await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final anonpayInvoiceInfo =
+      await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+  final unspentCoinsInfoSource =
+      await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+  final payjoinSessionSource =
+      await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
 
-  final havenSeedStoreBoxKey =
-      await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
-  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(HavenSeedStore.boxName,
+  final havenSeedStoreBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
+  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(
+      HavenSeedStore.boxName,
       encryptionKey: havenSeedStoreBoxKey);
 
   await initialSetup(
@@ -324,7 +347,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 64,
+    initialMigrationVersion: 66,
   );
 }
 
@@ -405,16 +428,19 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final settingsStore = appStore.settingsStore;
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
-        final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
+        final initialRoute =
+            authenticationStore.state == AuthenticationState.uninitialized
             ? Routes.welcome
             : settingsStore.currentBuiltinTor
                 ? Routes.startTor
                 : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
-        final statusBarBrightness =
-            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
-        final statusBarIconBrightness =
-            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
+        final statusBarBrightness = currentTheme.type == currentTheme.isDark
+            ? Brightness.light
+            : Brightness.dark;
+        final statusBarIconBrightness = currentTheme.type == currentTheme.isDark
+            ? Brightness.light
+            : Brightness.dark;
         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
             statusBarColor: statusBarColor,
             statusBarBrightness: statusBarBrightness,
@@ -436,12 +462,14 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           trezorConnect: getIt<TrezorConnect>(),
           child: ThemeProvider(
             themeStore: appStore.themeStore,
-            materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
+            materialAppBuilder: (context, theme, darkTheme, themeMode) =>
+                MaterialApp(
               navigatorObservers: [routeObserver, appRouteObserver],
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               builder: (context, child) => MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+                  data: MediaQuery.of(context)
+                      .copyWith(textScaler: TextScaler.noScaling),
                   child: child!),
               theme: theme,
               darkTheme: darkTheme,
@@ -482,8 +510,10 @@ class _HomeState extends State<_Home> {
         SystemChrome.setPreferredOrientations(
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       } else {
-        SystemChrome.setPreferredOrientations(
-            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight
+        ]);
       }
     }
   }

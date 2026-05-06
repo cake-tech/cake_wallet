@@ -14,6 +14,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_starknet/starknet_wallet_creation_credentials.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_hardware_restore_view_model.g.dart';
@@ -93,6 +94,15 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           password: password,
           height: _options['height'] as int? ?? 0,
         );
+        break;
+      case WalletType.starknet:
+        final password = walletPassword ?? generateWalletPassword();
+        credentials = StarknetRestoreWalletFromHardware(
+          name: name,
+          hwAccountData: selectedAccount!,
+          password: password,
+        );
+        break;
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

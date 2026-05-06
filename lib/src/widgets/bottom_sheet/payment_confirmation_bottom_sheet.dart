@@ -93,7 +93,8 @@ class _PaymentConfirmationContent extends StatelessWidget {
   bool _isTokenSelectionFlow(PaymentFlowType type) {
     return type == PaymentFlowType.evmNetworkSelection ||
         type == PaymentFlowType.solanaTokenSelection ||
-        type == PaymentFlowType.tronTokenSelection;
+        type == PaymentFlowType.tronTokenSelection ||
+        type == PaymentFlowType.starknetTokenSelection;
   }
 
   @override

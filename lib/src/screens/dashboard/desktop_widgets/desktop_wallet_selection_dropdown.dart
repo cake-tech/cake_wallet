@@ -23,35 +23,59 @@ class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
   final AuthService _authService;
 
-  DesktopWalletSelectionDropDown(this.walletListViewModel, this._authService, {Key? key})
+  DesktopWalletSelectionDropDown(this.walletListViewModel, this._authService,
+      {Key? key})
       : super(key: key);
 
   @override
-  State<DesktopWalletSelectionDropDown> createState() => _DesktopWalletSelectionDropDownState();
+  State<DesktopWalletSelectionDropDown> createState() =>
+      _DesktopWalletSelectionDropDownState();
 }
 
-class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
-  final moneroIcon = Image.asset('assets/images/crypto/monero.webp', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp', height: 24, width: 24);
-  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/crypto/litecoin.webp', height: 24, width: 24);
-  final havenIcon = Image.asset('assets/images/haven_logo.webp', height: 24, width: 24);
-  final ethereumIcon = Image.asset('assets/images/crypto/ethereum.webp', height: 24, width: 24);
-  final polygonIcon = Image.asset('assets/images/crypto/polygon.webp', height: 24, width: 24);
-  final bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.webp', height: 24, width: 24);
-  final baseIcon = Image.asset('assets/images/crypto/base_icon.webp', height: 24, width: 24);
-  final arbitrumIcon = Image.asset('assets/images/crypto/arbitrum.webp', height: 24, width: 24);
-  final bscIcon = Image.asset('assets/images/crypto/BNB.webp', height: 24, width: 24);
-  final nanoIcon = Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
-  final bananoIcon = Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
-  final solanaIcon = Image.asset('assets/images/crypto/solana.webp', height: 24, width: 24);
-  final tronIcon = Image.asset('assets/images/crypto/tron.webp', height: 24, width: 24);
-  final wowneroIcon = Image.asset('assets/images/crypto/wownero.webp', height: 24, width: 24);
-  final zanoIcon = Image.asset('assets/images/crypto/zano.webp', height: 24, width: 24);
-  final decredIcon = Image.asset('assets/images/crypto/decred.webp', height: 24, width: 24);
-  final dogeIcon = Image.asset('assets/images/crypto/dogecoin.webp', height: 24, width: 24);
-  final zcashIcon = Image.asset('assets/images/crypto/zcash.webp', height: 24, width: 24);
-  final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
+class _DesktopWalletSelectionDropDownState
+    extends State<DesktopWalletSelectionDropDown> {
+  final moneroIcon =
+      Image.asset('assets/images/crypto/monero.webp', height: 24, width: 24);
+  final bitcoinIcon =
+      Image.asset('assets/images/crypto/bitcoin.webp', height: 24, width: 24);
+  final tBitcoinIcon =
+      Image.asset('assets/images/tbtc.png', height: 24, width: 24);
+  final litecoinIcon =
+      Image.asset('assets/images/crypto/litecoin.webp', height: 24, width: 24);
+  final havenIcon =
+      Image.asset('assets/images/haven_logo.webp', height: 24, width: 24);
+  final ethereumIcon =
+      Image.asset('assets/images/crypto/ethereum.webp', height: 24, width: 24);
+  final polygonIcon =
+      Image.asset('assets/images/crypto/polygon.webp', height: 24, width: 24);
+  final bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.webp',
+      height: 24, width: 24);
+  final baseIcon =
+      Image.asset('assets/images/crypto/base_icon.webp', height: 24, width: 24);
+  final arbitrumIcon =
+      Image.asset('assets/images/crypto/arbitrum.webp', height: 24, width: 24);
+  final bscIcon =
+      Image.asset('assets/images/crypto/BNB.webp', height: 24, width: 24);
+  final nanoIcon =
+      Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
+  final bananoIcon =
+      Image.asset('assets/images/crypto/nano.webp', height: 24, width: 24);
+  final solanaIcon =
+      Image.asset('assets/images/crypto/solana.webp', height: 24, width: 24);
+  final tronIcon =
+      Image.asset('assets/images/crypto/tron.webp', height: 24, width: 24);
+  final wowneroIcon =
+      Image.asset('assets/images/crypto/wownero.webp', height: 24, width: 24);
+  final zanoIcon =
+      Image.asset('assets/images/crypto/zano.webp', height: 24, width: 24);
+  final decredIcon =
+      Image.asset('assets/images/crypto/decred.webp', height: 24, width: 24);
+  final dogeIcon =
+      Image.asset('assets/images/crypto/dogecoin.webp', height: 24, width: 24);
+  final zcashIcon =
+      Image.asset('assets/images/crypto/zcash.webp', height: 24, width: 24);
+  final nonWalletTypeIcon =
+      Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
@@ -82,7 +106,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                     child: DropDownItemWidget(
                       title: wallet.name,
                       image: wallet.isEnabled
-                          ? _imageFor(type: wallet.type, isTestnet: wallet.isTestnet)
+                          ? _imageFor(
+                              type: wallet.type, isTestnet: wallet.isTestnet)
                           : nonWalletTypeIcon,
                     ),
                   ),
@@ -124,7 +149,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         },
         dropdownColor: themeData.colorScheme.surface,
         style: themeData.textTheme.bodyMedium,
-        selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
+        selectedItemBuilder: (context) =>
+            dropDownItems.map((item) => item.child).toList(),
         value: selectedItem,
         underline: const SizedBox(),
         focusColor: Colors.transparent,
@@ -142,11 +168,15 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
               builder: (dialogContext) {
                 return AlertWithTwoActions(
                     alertTitle: S.of(context).change_wallet_alert_title,
-                    alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
+                    alertContent: S
+                        .of(context)
+                        .change_wallet_alert_content(selectedWallet.name),
                     leftButtonText: S.of(context).cancel,
                     rightButtonText: S.of(context).change,
-                    actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-                    actionRightButton: () => Navigator.of(dialogContext).pop(true));
+                    actionLeftButton: () =>
+                        Navigator.of(dialogContext).pop(false),
+                    actionRightButton: () =>
+                        Navigator.of(dialogContext).pop(true));
               }) ??
           false;
 
@@ -197,6 +227,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return bscIcon;
       case WalletType.zcash:
         return zcashIcon;
+      case WalletType.starknet:
+        return ethereumIcon;
       case WalletType.none:
         return nonWalletTypeIcon;
     }
@@ -206,7 +238,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
     if (SettingsStoreBase.walletPasswordDirectInput) {
       Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
           arguments: WalletUnlockArguments(
-              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+              callback:
+                  (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
                 if (isAuthenticatedSuccessfully) {
                   auth.close();
                   setState(() {});
@@ -224,14 +257,17 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
 
         try {
           if (mounted) {
-            changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+            changeProcessText(
+                S.of(context).wallet_list_loading_wallet(wallet.name));
           }
           await widget.walletListViewModel.loadWallet(wallet);
           hideProgressText();
           setState(() {});
         } catch (e) {
           if (mounted) {
-            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+            changeProcessText(S
+                .of(context)
+                .wallet_list_failed_to_load(wallet.name, e.toString()));
           }
         }
       },
@@ -245,16 +281,17 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       widget._authService.authenticateAction(
         context,
         route: Routes.newWallet,
-        arguments: NewWalletArguments(type: widget.walletListViewModel.currentWalletType),
-        conditionToDetermineIfToUse2FA:
-            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+        arguments: NewWalletArguments(
+            type: widget.walletListViewModel.currentWalletType),
+        conditionToDetermineIfToUse2FA: widget
+            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
     } else {
       widget._authService.authenticateAction(
         context,
         route: Routes.newWalletType,
-        conditionToDetermineIfToUse2FA:
-            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+        conditionToDetermineIfToUse2FA: widget
+            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
     }
   }
@@ -264,7 +301,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text,context, duration: null)..show(context);
+    _progressBar = createBar<void>(text, context, duration: null)
+      ..show(context);
   }
 
   void hideProgressText() {

@@ -504,6 +504,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return BSCURI(amount: amount, address: inputAddress);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: inputAddress);
+      case WalletType.starknet:
+        return null; // Starknet does not have a standard payment URI yet
       case WalletType.tron:
         return TronURI(amount: amount, address: inputAddress);
       case WalletType.monero:

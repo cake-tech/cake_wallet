@@ -1,0 +1,52 @@
+name: cw_starknet
+description: Starknet wallet implementation for Cake Wallet.
+version: 0.0.1
+publish_to: none
+homepage: https://cakewallet.com
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cw_core:
+    path: ../cw_core
+  hive: ^2.2.3
+  bip39: ^1.0.6
+  mobx: ^2.3.0+1
+  hex: ^0.2.0
+  crypto: ^3.0.5
+  flutter_rust_bridge: 2.12.0
+  ledger_flutter_plus: ^1.5.6
+  ur:
+    git:
+      url: https://github.com/bukata-sa/bc-ur-dart
+      ref: 5738f70d0ec3d50977ac3dd01fed62939600238b
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  build_runner: ^2.4.15
+  mobx_codegen: ^2.0.7
+  integration_test:
+    sdk: flutter
+
+dependency_overrides:
+  watcher: ^1.1.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        ffiPlugin: true
+      ios:
+        ffiPlugin: true
+      macos:
+        ffiPlugin: true
+      linux:
+        ffiPlugin: true
+      windows:
+        ffiPlugin: true

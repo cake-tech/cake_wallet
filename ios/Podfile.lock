@@ -10,6 +10,8 @@ PODS:
     - Flutter
   - cw_mweb (0.0.1):
     - Flutter
+  - cw_starknet (0.0.1):
+    - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -163,6 +165,7 @@ DEPENDENCIES:
   - CryptoSwift
   - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
   - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
+  - cw_starknet (from `.symlinks/plugins/cw_starknet/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -203,7 +206,7 @@ DEPENDENCIES:
   - warp_api (from `.symlinks/plugins/warp_api/ios`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - CryptoSwift
     - DKImagePickerController
     - DKPhotoGallery
@@ -224,6 +227,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cw_decred/ios"
   cw_mweb:
     :path: ".symlinks/plugins/cw_mweb/ios"
+  cw_starknet:
+    :path: ".symlinks/plugins/cw_starknet/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
@@ -308,6 +313,7 @@ SPEC CHECKSUMS:
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   cw_decred: a02cf30175a46971c1e2fa22c48407534541edc6
   cw_mweb: 3aea2fb35b2bd04d8b2d21b83216f3b8fb768d85
+  cw_starknet: 1af40c733f4554f4169251dbb6ab6c44f0be9a38
   device_display_brightness: 04374ebd653619292c1d996f00f42877ea19f17f
   device_info_plus: 335f3ce08d2e174b9fdc3db3db0f4e3b1f66bd89
   devicelocale: bd64aa714485a8afdaded0892c1e7d5b7f680cf8
@@ -354,6 +360,6 @@ SPEC CHECKSUMS:
   warp_api: 997d8fb3e777669bc6260d0c12e56cd40b9db1d1
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
-PODFILE CHECKSUM: 5296465b1c6d14d506230356756826012f65d97a
+PODFILE CHECKSUM: dbf34f4e0af89cc5d6eae66277813be6492c7735
 
 COCOAPODS: 1.16.2

@@ -2,13 +2,16 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sign_form.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/verify_form.dart';
+import 'package:cake_wallet/starknet/starknet.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -17,16 +20,14 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 class SignPage extends StatefulWidget {
   SignPage(this.signViewModel);
 
-
   final SignViewModel signViewModel;
-
 
   @override
   State<SignPage> createState() => _SignPageState();
 }
 
 class _SignPageState extends State<SignPage> {
-  List<Widget> _pages = [];
+  final List<Widget> _pages = [];
   final signFormKey = GlobalKey<SignFormState>();
   final verifyFormKey = GlobalKey<VerifyFormState>();
   final PageController _controller = PageController(initialPage: 0) ;
@@ -58,11 +59,11 @@ class _SignPageState extends State<SignPage> {
         top:false,
         child: Column(
           children: [
-            ModalTopBar(title: S.current.sign_verify_title,
+            ModalTopBar(
+              title: S.current.sign_verify_title,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
-              onLeadingPressed: Navigator
-                  .of(context)
-                  .pop,),
+              onLeadingPressed: Navigator.of(context).pop,
+            ),
             Expanded(
               child: KeyboardHideOverlay(
                 child: Container(
@@ -79,7 +80,8 @@ class _SignPageState extends State<SignPage> {
                             },
                             controller: _controller,
                             itemCount: _pages.length,
-                            itemBuilder: (_, index) => SingleChildScrollView(child: _pages[index]),
+                            itemBuilder: (_, index) =>
+                                SingleChildScrollView(child: _pages[index]),
                           ),
                         ),
                         if (_pages.length > 1)
@@ -93,13 +95,18 @@ class _SignPageState extends State<SignPage> {
                                 radius: 6.0,
                                 dotWidth: 6.0,
                                 dotHeight: 6.0,
-                                dotColor: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-                                activeDotColor: Theme.of(context).colorScheme.outline,
+                                dotColor: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 0.5),
+                                activeDotColor:
+                                    Theme.of(context).colorScheme.outline,
                               ),
                             ),
                           ),
                         Padding(
-                          padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
+                          padding: EdgeInsets.only(
+                              top: 20, bottom: 24, left: 24, right: 24),
                           child: Column(
                             children: [
                               Observer(
@@ -111,10 +118,14 @@ class _SignPageState extends State<SignPage> {
                                     text: widget.signViewModel.isSigning
                                         ? S.current.sign_message
                                         : S.current.verify_message,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    textColor: Theme.of(context).colorScheme.onPrimary,
-                                    isLoading: widget.signViewModel.state is IsExecutingState,
-                                    isDisabled: widget.signViewModel.state is IsExecutingState,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    textColor:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    isLoading: widget.signViewModel.state
+                                        is IsExecutingState,
+                                    isDisabled: widget.signViewModel.state
+                                        is IsExecutingState,
                                   );
                                 },
                               ),
@@ -150,7 +161,8 @@ class _SignPageState extends State<SignPage> {
                   alertContent: state.error,
                   buttonText: S.of(context).ok,
                   buttonAction: () {
-                    if (context.mounted && Navigator.canPop(_context)) Navigator.of(_context).pop();
+                    if (context.mounted && Navigator.canPop(_context))
+                      Navigator.of(_context).pop();
                   },
                 );
               });
@@ -158,7 +170,8 @@ class _SignPageState extends State<SignPage> {
       }
       if (state is ExecutedSuccessfullyState) {
         if (widget.signViewModel.isSigning) {
-          signFormKey.currentState!.signatureController.text = state.payload as String;
+          signFormKey.currentState!.signatureController.text =
+              state.payload as String;
         } else {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             showPopUp<void>(
@@ -188,7 +201,31 @@ class _SignPageState extends State<SignPage> {
       if (widget.signViewModel.signIncludesAddress) {
         address = signFormKey.currentState!.addressController.text;
       }
+      if (widget.signViewModel.wallet.type == WalletType.starknet &&
+          starknet!.supportsOfflineUrSigning(widget.signViewModel.wallet)) {
+        widget.signViewModel.state = IsExecutingState();
+        try {
+          final requestUr = await starknet!.buildMessageSignUr(
+            widget.signViewModel.wallet,
+            message,
+            address: address,
+          );
+          final result = await Navigator.of(context).pushNamed(
+            Routes.urqrAnimatedPage,
+            arguments: requestUr,
+          );
+          if (result == null) {
+            throw Exception('Canceled by user');
+          }
+
+          widget.signViewModel.state =
+              ExecutedSuccessfullyState(payload: result as String);
+        } catch (e) {
+          widget.signViewModel.state = FailureState(e.toString());
+        }
+      } else {
       await widget.signViewModel.sign(message, address: address);
+      }
     } else {
       String message = verifyFormKey.currentState!.messageController.text;
       String signature = verifyFormKey.currentState!.signatureController.text;

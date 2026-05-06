@@ -225,7 +225,7 @@ dependency_overrides:
       url: https://github.com/cake-tech/flutter_file_picker.git
       ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
   decimal: ^2.3.3
-  flutter_rust_bridge: 2.11.1
+  flutter_rust_bridge: 2.12.0
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -266,6 +266,7 @@ flutter:
     - assets/arbitrum_node_list.yml
     - assets/zcash_node_list.yml
     - assets/bsc_node_list.yml
+    - assets/starknet_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

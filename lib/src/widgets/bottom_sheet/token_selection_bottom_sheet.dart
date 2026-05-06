@@ -132,6 +132,9 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
     if (selectedNetwork == WalletType.solana) {
       return 'Solana\n${S.current.address_detected.toLowerCase()}';
     }
+    if (selectedNetwork == WalletType.starknet) {
+      return 'Starknet\n${S.current.address_detected.toLowerCase()}';
+    }
     if (selectedNetwork == WalletType.tron) {
       return 'Tron\n${S.current.address_detected.toLowerCase()}';
     }
@@ -141,6 +144,9 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
   String _getEcosystemDescription() {
     if (selectedNetwork == WalletType.solana) {
       return 'Select a token to send on Solana network';
+    }
+    if (selectedNetwork == WalletType.starknet) {
+      return 'Select a token to send on Starknet network';
     }
     if (selectedNetwork == WalletType.tron) {
       return 'Select a token to send on Tron network';
@@ -363,6 +369,23 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
         AddressDetectionResult(
           address: widget.paymentRequest.address,
           detectedWalletType: WalletType.tron,
+          detectedCurrency: selectedToken!,
+          isValid: true,
+          amount: widget.paymentRequest.amount,
+          note: widget.paymentRequest.note,
+          scheme: widget.paymentRequest.scheme,
+          pjUri: widget.paymentRequest.pjUri,
+          callbackUrl: widget.paymentRequest.callbackUrl,
+          callbackMessage: widget.paymentRequest.callbackMessage,
+        ),
+        compatibleWallets: compatibleWallets,
+        wallet: compatibleWallets.isNotEmpty ? compatibleWallets.first : null,
+      );
+    } else if (selectedNetwork == WalletType.starknet) {
+      newResult = PaymentFlowResult.starknetTokenSelection(
+        AddressDetectionResult(
+          address: widget.paymentRequest.address,
+          detectedWalletType: WalletType.starknet,
           detectedCurrency: selectedToken!,
           isValid: true,
           amount: widget.paymentRequest.amount,

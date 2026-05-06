@@ -43,6 +43,9 @@ class WalletRestoreFromQRCode {
     'tron': WalletType.tron,
     'tron-wallet': WalletType.tron,
     'tron_wallet': WalletType.tron,
+    'starknet': WalletType.starknet,
+    'starknet-wallet': WalletType.starknet,
+    'starknet_wallet': WalletType.starknet,
     'wownero': WalletType.wownero,
     'wownero-wallet': WalletType.wownero,
     'wownero_wallet': WalletType.wownero,
@@ -61,9 +64,11 @@ class WalletRestoreFromQRCode {
   };
 
   static WalletType? _extractWalletType(String code) {
-    final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
+    final sortedKeys = _walletTypeMap.keys.toList()
+      ..sort((a, b) => b.length.compareTo(a.length));
 
-    final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+    final extracted =
+        sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
 
     if (code.startsWith("xpub")) return WalletType.bitcoin;
     if (code.startsWith("zpub")) return WalletType.bitcoin;
@@ -99,9 +104,11 @@ class WalletRestoreFromQRCode {
     }
   }
 
-  static String? _extractSeedPhraseFromUrl(String rawString, WalletType walletType) {
-    RegExp _getPattern(int wordCount) =>
-        RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
+  static String? _extractSeedPhraseFromUrl(
+      String rawString, WalletType walletType) {
+    RegExp _getPattern(int wordCount) => RegExp(r'(?<=\W|^)((?:\w+\s+){' +
+        (wordCount - 1).toString() +
+        r'}\w+)(?=\W|$)');
 
     final List<int> patternCounts = [12, 13, 14, 16, 18, 24, 25, 26];
 
@@ -115,10 +122,12 @@ class WalletRestoreFromQRCode {
     return null;
   }
 
-  static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
+  static Future<RestoredWallet> scanQRCodeForRestoring(
+      BuildContext context) async {
     String? code = await presentQRScanner(context);
     if (code == null) throw Exception("QR scan is cancelled");
-    if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
+    if (code.isEmpty)
+      throw Exception('Unexpected scan QR code value: value is empty');
 
     if (code.startsWith("[")) code = code.substring(code.indexOf("]") + 1);
 
@@ -130,10 +139,13 @@ class WalletRestoreFromQRCode {
             ? 'zpub'
             : '????';
     if (walletType == null) {
-      await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
+      await _specifyWalletAssets(
+          context, "Can't determine wallet type, please pick it manually");
       walletType =
-          await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletType?;
-      if (walletType == null) throw Exception("Failed to determine wallet type.");
+          await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR)
+              as WalletType?;
+      if (walletType == null)
+        throw Exception("Failed to determine wallet type.");
 
       final seedPhrase = _extractSeedPhraseFromUrl(code, walletType);
 
@@ -145,7 +157,9 @@ class WalletRestoreFromQRCode {
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = code.startsWith(prefix) ? '$walletType:?$prefix=$code' : '$walletType:?$query';
+      formattedUri = code.startsWith(prefix)
+          ? '$walletType:?$prefix=$code'
+          : '$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
@@ -158,7 +172,11 @@ class WalletRestoreFromQRCode {
       queryParameters['address'] = _extractAddressFromUrl(code, walletType);
     }
 
-    Map<String, dynamic> credentials = {'type': walletType, ...queryParameters, 'raw_qr': code};
+    Map<String, dynamic> credentials = {
+      'type': walletType,
+      ...queryParameters,
+      'raw_qr': code
+    };
 
     credentials['mode'] = _determineWalletRestoreMode(credentials);
 
@@ -174,7 +192,8 @@ class WalletRestoreFromQRCode {
     }
   }
 
-  static WalletRestoreMode _determineWalletRestoreMode(Map<String, dynamic> credentials) {
+  static WalletRestoreMode _determineWalletRestoreMode(
+      Map<String, dynamic> credentials) {
     final type = credentials['type'] as WalletType;
     if (credentials.containsKey('tx_payment_id')) {
       final txIdValue = credentials['tx_payment_id'] as String? ?? '';
@@ -208,13 +227,15 @@ class WalletRestoreFromQRCode {
       return WalletRestoreMode.seed;
     }
 
-    if (credentials.containsKey('spend_key') || credentials.containsKey('view_key')) {
+    if (credentials.containsKey('spend_key') ||
+        credentials.containsKey('view_key')) {
       final spendKeyValue = credentials['spend_key'] as String? ?? '';
       final viewKeyValue = credentials['view_key'] as String? ?? '';
 
       return spendKeyValue.isNotEmpty || viewKeyValue.isNotEmpty
           ? WalletRestoreMode.keys
-          : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
+          : throw Exception(
+              'Unexpected restore mode: spend_key or view_key is invalid');
     }
 
     if (isEVMCompatibleChain(type) && credentials.containsKey('private_key')) {
@@ -242,6 +263,17 @@ class WalletRestoreFromQRCode {
       return WalletRestoreMode.keys;
     }
 
+    if (type == WalletType.starknet &&
+        (credentials.containsKey('private_key') ||
+            credentials.containsKey('public_key'))) {
+      final privateKey = credentials['private_key'] as String? ?? '';
+      final publicKey = credentials['public_key'] as String? ?? '';
+      if (privateKey.isEmpty && publicKey.isEmpty) {
+        throw Exception('Unexpected restore mode: private_key/public_key');
+      }
+      return WalletRestoreMode.keys;
+    }
+
     if (type == WalletType.tron && credentials.containsKey('private_key')) {
       final privateKey = credentials['private_key'] as String;
       if (privateKey.isEmpty) {
@@ -253,7 +285,8 @@ class WalletRestoreFromQRCode {
     if (type == WalletType.monero) {
       final codeParsed = json.decode(credentials['raw_qr'].toString());
       if (codeParsed["version"] != 0)
-        throw UnimplementedError("Found view-only restore with unsupported version");
+        throw UnimplementedError(
+            "Found view-only restore with unsupported version");
       if (codeParsed["primaryAddress"] == null ||
           codeParsed["privateViewKey"] == null ||
           codeParsed["restoreHeight"] == null) {

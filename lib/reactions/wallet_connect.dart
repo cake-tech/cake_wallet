@@ -41,6 +41,7 @@ bool isNFTACtivatedChain(WalletType walletType, {int? chainId}) {
 
   switch (walletType) {
     case WalletType.solana:
+    case WalletType.starknet:
       return true;
     default:
       return false;
@@ -114,6 +115,10 @@ String getChainNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
 String getTokenNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
     return 'SOL';
+  }
+
+  if (walletType == WalletType.starknet) {
+    return 'STRK';
   }
 
   if (chainId != null) {

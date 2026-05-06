@@ -24,13 +24,15 @@ class PreferencesKey {
   static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentWowneroNodeIdKey = 'current_node_id_wow';
   static const currentZcashNodeIdKey = 'current_node_id_zec';
+  static const currentStarknetNodeIdKey = 'current_node_id_strk';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const displayAmountsInSatoshi = 'display_amounts_in_satoshi';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableTradeOption = 'disable_buy';
-  static const disableAutomaticExchangeStatusUpdates = 'disable_automatic_exchange_status_updates';
+  static const disableAutomaticExchangeStatusUpdates =
+      'disable_automatic_exchange_status_updates';
   static const disableBulletinKey = 'disable_bulletin';
   static const walletListOrder = 'wallet_list_order';
   static const contactListOrder = 'contact_list_order';
@@ -59,11 +61,13 @@ class PreferencesKey {
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const baseTransactionPriority = 'current_fee_priority_base';
   static const bscTransactionPriority = 'current_fee_priority_bsc';
-  static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
+  static const bitcoinCashTransactionPriority =
+      'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const decredTransactionPriority = 'current_fee_priority_decred';
   static const zcashTransactionPriority = 'current_fee_priority_decred';
+  static const starknetTransactionPriority = 'current_fee_priority_starknet';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
@@ -108,14 +112,16 @@ class PreferencesKey {
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
-  static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
+  static const decentralizedExchangesPromptDismissed =
+      'decentralized_exchanges_prompt_dismissed';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const trocadorProviderStatesKey = 'trocador_provider_states';
-  static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
+  static const autoGenerateSubaddressStatusKey =
+      'auto_generate_subaddress_status';
   static const moneroSeedType = 'monero_seed_type';
   static const bitcoinSeedType = 'bitcoin_seed_type';
   static const nanoSeedType = 'nano_seed_type';
@@ -123,15 +129,19 @@ class PreferencesKey {
   static const onionDonationLink = 'onion_donation_link';
   static const donationLinkWalletName = 'donation_link_wallet_name';
   static const lastSeenAppVersion = 'last_seen_app_version';
-  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
+  static const shouldShowMarketPlaceInDashboard =
+      'should_show_marketplace_in_dashboard';
   static const showAddressBookPopupEnabled = 'show_address_book_popup_enabled';
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
-  static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
+  static const walletConnectPairingTopicsList =
+      'wallet_connect_pairing_topics_list';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
-  static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
-  static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
+  static String backgroundSyncLastTrigger(String walletId) =>
+      'background_sync_last_trigger_${walletId}';
+  static const backgroundSyncNotificationsEnabled =
+      'background_sync_notifications_enabled';
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
   static const syncStatusDisplayMode = 'sync_status_display_mode';
   static const backgroundImage = 'background_image';

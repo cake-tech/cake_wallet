@@ -203,6 +203,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           );
 
           break;
+        case PaymentFlowType.starknetTokenSelection:
+          await _showTokenSelectionFlow(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+            fixedNetwork: WalletType.starknet,
+          );
+          break;
         case PaymentFlowType.currentWalletCompatible:
         case PaymentFlowType.error:
         case PaymentFlowType.incompatible:
