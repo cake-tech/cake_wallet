@@ -48,6 +48,10 @@ class CWWowneroAccountList extends WowneroAccountList {
     final wowneroWallet = wallet as WowneroWallet;
     await wowneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
+    if (accountIndex == wowneroWallet.walletAddresses.account?.id) {
+      wowneroWallet.walletAddresses.account = wownero_account.Account(
+          id: accountIndex, label: label, balance: wowneroWallet.walletAddresses.account!.balance);
+    }
   }
 }
 
@@ -375,9 +379,15 @@ class CWWownero extends Wownero {
       final flutterSecureStorage = secureStorageShared;
       final keyService = KeyService(flutterSecureStorage);
       final password = await keyService.getWalletPassword(walletName: w.name);
-      final wallet = await walletService.openWallet(w.name, password);
-      await havenSeedStore.add(HavenSeedStore(id: wallet.id, seed: wallet.seed));
-      wallet.close();
+      String seed = "unknown";
+      try {
+        final wallet = await walletService.openWallet(w.name, password);
+        seed = wallet.seed;
+        wallet.close();
+      } catch (e) {
+        seed += "\n$e";
+      }
+      await havenSeedStore.add(HavenSeedStore(id: w.id, seed: seed));
     }
     await havenSeedStore.flush();
   }

@@ -8,6 +8,8 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 part 'node_list_view_model.g.dart';
 
@@ -22,16 +24,37 @@ abstract class NodeListViewModelBase with Store {
     reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
       bindNodes();
     });
+
+    reaction((_) {
+      final wallet = _appStore.wallet;
+      if (wallet != null && isEVMCompatibleChain(wallet.type)) {
+        // Access selectedChainId to track changes
+        return evm!.getSelectedChainId(wallet);
+      }
+      return null;
+    }, (_) {
+      _bindNodes();
+    });
   }
 
   @computed
   Node get currentNode {
-    final node = settingsStore.nodes[_appStore.wallet!.type];
+    final wallet = _appStore.wallet!;
+    final walletType = wallet.type;
 
-    if (node == null) {
-      throw Exception('No node for wallet type: ${_appStore.wallet!.type}');
+    int? chainId;
+    if (isEVMCompatibleChain(walletType)) {
+      chainId = evm!.getSelectedChainId(wallet);
     }
 
+    if (isEVMCompatibleChain(walletType) && chainId != null) {
+      return settingsStore.getCurrentNode(walletType, chainId: chainId);
+    }
+
+    final node = settingsStore.nodes[walletType];
+    if (node == null) {
+      throw Exception('No node for wallet type: $walletType');
+    }
     return node;
   }
 
@@ -53,9 +76,26 @@ abstract class NodeListViewModelBase with Store {
   Future<void> reset() async {
     await resetToDefault();
 
+    final wallet = _appStore.wallet!;
+    final walletType = wallet.type;
+
     Node node;
-    if (_appStore.wallet!.type == WalletType.bitcoin && _appStore.wallet!.isTestnet) {
+    if (walletType == WalletType.bitcoin && wallet.isTestnet) {
       node = (await getBitcoinTestnetDefaultElectrumServer())!;
+
+    } else if (isEVMCompatibleChain(walletType)) {
+      final chainId = evm!.getSelectedChainId(wallet);
+      if (chainId != null) {
+        final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
+        if (nodeWalletType != null) {
+          node = getDefaultNode(nodes: _nodeSource, type: nodeWalletType)!;
+        } else {
+          throw Exception(
+              'Cannot reset node for EVM wallet: wallet type not found for chainId: $chainId');
+        }
+      } else {
+        throw Exception('Cannot reset node for EVM wallet: chainId is null');
+      }
     } else {
       node = (await getDefaultNode(type: _appStore.wallet!.type))!;
     }
@@ -67,11 +107,49 @@ abstract class NodeListViewModelBase with Store {
   Future<void> delete(Node node) async => node.delete();
 
   @action
-  Future<void> setAsCurrent(Node node) async => settingsStore.nodes[_appStore.wallet!.type] = node;
+  Future<void> setAsCurrent(Node node) async {
+    final wallet = _appStore.wallet!;
+    final walletType = wallet.type;
+
+    if (isEVMCompatibleChain(walletType)) {
+      final chainId = evm!.getSelectedChainId(wallet);
+      if (chainId != null) {
+        final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
+        if (nodeWalletType != null) {
+          settingsStore.nodes[nodeWalletType] = node;
+          return;
+        }
+      }
+      throw Exception('Cannot set node for EVM wallet: chainId or wallet type not found');
+    }
+
+    // For non-EVM wallets, use the wallet type directly
+    settingsStore.nodes[walletType] = node;
+  }
 
   @action
   Future<void> bindNodes() async {
     nodes.clear();
-    nodes.addAll(await Node.getAllForWalletType(_appStore.wallet!.type));
+    final wallet = _appStore.wallet!;
+    final walletType = wallet.type;
+
+    // We filter nodes by the wallet type corresponding to current chainId for EVM wallets
+    if (isEVMCompatibleChain(walletType)) {
+      final chainId = evm!.getSelectedChainId(wallet);
+      if (chainId != null) {
+        final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
+        if (nodeWalletType != null) {
+          nodes.addAll(await Node.getAllForWalletType(nodeWalletType));
+
+          return;
+        }
+      }
+      // If chainId is null or wallet type not found, show no nodes
+      return;
+    }
+
+    // For non-EVM wallets, use the wallet type directly
+    nodes.addAll(await Node.getAllForWalletType(walletType));
+
   }
 }

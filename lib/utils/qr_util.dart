@@ -4,10 +4,16 @@ String getQrImage(WalletType type) {
   switch (type) {
     case WalletType.ethereum:
       return 'assets/images/eth_chain_qr.svg';
-    case WalletType.solana:
-      return 'assets/images/sol_chain_qr.svg';
     case WalletType.polygon:
       return 'assets/images/pol_chain_qr.svg';
+    case WalletType.base:
+      return 'assets/images/base_chain_QR.svg';
+    case WalletType.arbitrum:
+      return 'assets/images/arbitrum_chain_QR.svg';
+    case WalletType.bsc:
+      return 'assets/images/bnb_chain_QR.svg';
+    case WalletType.solana:
+      return 'assets/images/sol_chain_qr.svg';
     case WalletType.tron:
       return 'assets/images/trx_chain_qr.svg';
     case WalletType.zano:
@@ -28,10 +34,8 @@ String getQrImage(WalletType type) {
       return 'assets/images/dcr_chain_qr.svg';
     case WalletType.dogecoin:
       return 'assets/images/doge_chain_qr.svg';
-    case WalletType.base:
-      return 'assets/images/base_chain_QR.svg';
-    case WalletType.arbitrum:
-      return 'assets/images/arbitrum_chain_QR.svg';
+    case WalletType.zcash:
+      return 'assets/images/zec_icon_qr.svg';
     case WalletType.banano:
     case WalletType.haven:
     case WalletType.none:
@@ -43,18 +47,20 @@ String getChainMonoImage(WalletType type) {
   switch (type) {
     case WalletType.ethereum:
       return 'assets/images/eth_chain_mono.svg';
-    case WalletType.solana:
-      return 'assets/images/sol_chain_mono.svg';
     case WalletType.polygon:
       return 'assets/images/pol_chain_mono.svg';
-    case WalletType.tron:
-      return 'assets/images/trx_chain_mono.svg';
-    case WalletType.zano:
-      return 'assets/images/zano_chain_mono.svg';
     case WalletType.base:
       return 'assets/images/base_chain_mono.svg';
     case WalletType.arbitrum:
       return 'assets/images/arbitrum_chain_mono.svg';
+    case WalletType.bsc:
+      return 'assets/images/bnb_chain_mono.svg';
+    case WalletType.solana:
+      return 'assets/images/sol_chain_mono.svg';
+    case WalletType.tron:
+      return 'assets/images/trx_chain_mono.svg';
+    case WalletType.zano:
+      return 'assets/images/zano_chain_mono.svg';
     default:
       return 'assets/images/eth_chain_mono.svg';
   }

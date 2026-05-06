@@ -35,12 +35,14 @@ class MenuWidgetState extends State<MenuWidget> {
         this.polygonIcon = Image.asset('assets/images/crypto/polygon.webp'),
         this.baseIcon = Image.asset('assets/images/crypto/base_icon.webp'),
         this.arbitrumIcon = Image.asset('assets/images/crypto/arbitrum.webp'),
+        this.bscIcon = Image.asset('assets/images/crypto/BNB.webp'),
         this.solanaIcon = Image.asset('assets/images/crypto/solana.webp'),
         this.tronIcon = Image.asset('assets/images/crypto/tron.webp'),
         this.wowneroIcon = Image.asset('assets/images/crypto/wownero.webp'),
         this.zanoIcon = Image.asset('assets/images/crypto/zano.webp'),
         this.decredIcon = Image.asset('assets/images/crypto/decred.webp'),
-        this.dogecoinIcon = Image.asset('assets/images/crypto/dogecoin.webp');
+        this.dogecoinIcon = Image.asset('assets/images/crypto/dogecoin.webp'),
+        this.zcashIcon = Image.asset('assets/images/crypto/zcash.webp');
 
   final largeScreen = 731;
 
@@ -64,12 +66,14 @@ class MenuWidgetState extends State<MenuWidget> {
   Image polygonIcon;
   Image baseIcon;
   Image arbitrumIcon;
+  Image bscIcon;
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
   Image zanoIcon;
   Image decredIcon;
   Image dogecoinIcon;
+  Image zcashIcon;
 
   @override
   void initState() {
@@ -229,7 +233,7 @@ class MenuWidgetState extends State<MenuWidget> {
     );
   }
 
-  Image _iconFor({required WalletType type}) {
+  Widget _iconFor({required WalletType type}) {
     switch (type) {
       case WalletType.monero:
         return moneroIcon;
@@ -255,6 +259,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return baseIcon;
       case WalletType.arbitrum:
         return arbitrumIcon;
+      case WalletType.bsc:
+        return bscIcon;
       case WalletType.tron:
         return tronIcon;
       case WalletType.wownero:
@@ -265,6 +271,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return decredIcon;
       case WalletType.dogecoin:
         return dogecoinIcon;
+      case WalletType.zcash:
+        return zcashIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

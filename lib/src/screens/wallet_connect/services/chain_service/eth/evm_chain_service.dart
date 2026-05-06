@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
@@ -17,6 +16,8 @@ import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 class EvmChainServiceImpl {
   Map<String, dynamic Function(String, dynamic)> get sessionRequestHandlers => {
@@ -38,11 +39,7 @@ class EvmChainServiceImpl {
     required this.bottomSheetService,
     required this.walletKit,
     Web3Client? web3Client,
-  }) : ethClient = web3Client ??
-            Web3Client(
-              appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
-              ProxyWrapper().getHttpIOClient(),
-            ) {
+  }) : ethClient = web3Client ?? _createWeb3Client(reference, appStore) {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
         chainId: getChainId(),
@@ -76,6 +73,18 @@ class EvmChainServiceImpl {
   final BottomSheetService bottomSheetService;
 
   String getChainId() => reference.chain();
+
+  static Web3Client _createWeb3Client(EVMChainId reference, AppStore appStore) {
+    if (appStore.wallet != null && isEVMCompatibleChain(appStore.wallet!.type)) {
+      final walletClient = evm?.getWeb3Client(appStore.wallet!);
+
+      if (walletClient != null) return walletClient;
+    }
+
+    final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
+
+    return Web3Client(node.uri.toString(), ProxyWrapper().getHttpIOClient());
+  }
 
   Future<void> personalSign(String topic, dynamic parameters) async {
     debugPrint('personalSign request: $parameters');
@@ -410,25 +419,30 @@ class EvmChainServiceImpl {
   }) async {
     Transaction transaction = transactionJson.toTransaction();
 
-    final gasPrice = await ethClient.getGasPrice();
-    try {
-      final gasLimit = await ethClient.estimateGas(
-        sender: transaction.from,
-        to: transaction.to,
-        value: transaction.value,
-        data: transaction.data,
-        gasPrice: gasPrice,
-      );
+    if (transactionJson.containsKey('gas') && transaction.maxGas == null) {
+      final gasHex = transactionJson['gas'].toString();
+      try {
+        final gasValue = int.parse(
+          gasHex.replaceFirst('0x', '').replaceFirst('0X', ''),
+          radix: 16,
+        );
+        transaction = transaction.copyWith(maxGas: gasValue);
+      } catch (e) {
+        debugPrint('Failed to parse gas value: $gasHex, error: $e');
+      }
+    }
 
-      transaction = transaction.copyWith(
-        gasPrice: gasPrice,
-        maxGas: gasLimit.toInt(),
-      );
+    try {
+      transaction = await _ensureWCTransactionHasGasLimit(transaction);
     } on RPCError catch (e) {
       return JsonRpcError(code: e.errorCode, message: e.message);
     }
 
-    final gweiGasPrice = (transaction.gasPrice?.getInWei ?? BigInt.zero) / BigInt.from(1000000000);
+    transaction = await _applyWCBufferedFees(transaction);
+
+    final gweiGasPrice =
+        (transaction.gasPrice?.getInWei ?? transaction.maxFeePerGas?.getInWei ?? BigInt.zero) /
+            BigInt.from(1000000000);
 
     final amount = (transaction.value?.getInWei ?? BigInt.zero) / BigInt.from(1e18);
 
@@ -455,6 +469,90 @@ class EvmChainServiceImpl {
     }
 
     return JsonRpcError(code: 5002, message: S.current.user_rejected_method);
+  }
+
+  Future<Transaction> _ensureWCTransactionHasGasLimit(Transaction transaction) async {
+    final hasGasLimit = transaction.maxGas != null && transaction.maxGas! > 0;
+    if (hasGasLimit) return transaction;
+
+    final hint = transaction.gasPrice ?? transaction.maxFeePerGas ?? await ethClient.getGasPrice();
+
+    final gasLimit = await ethClient.estimateGas(
+      sender: transaction.from,
+      to: transaction.to,
+      value: transaction.value,
+      data: transaction.data,
+      gasPrice: hint,
+    );
+
+    if (transaction.isEIP1559) {
+      return transaction.copyWith(maxGas: gasLimit.toInt());
+    }
+
+    return transaction.copyWith(
+      maxGas: gasLimit.toInt(),
+      gasPrice: transaction.gasPrice ?? hint,
+    );
+  }
+
+  Future<Transaction> _applyWCBufferedFees(Transaction transaction) async {
+    try {
+      final storedPriority =
+          appStore.settingsStore.getPriority(appStore.wallet!.type, chainId: reference.chainId);
+      final priority = storedPriority ?? evm!.getDefaultTransactionPriority();
+
+      final quote = await evm!.getWCBufferedFeeQuote(appStore.wallet!, priority);
+      if (quote != null) {
+        return _mergeWCBufferedFees(transaction, quote);
+      }
+    } catch (e) {
+      debugPrint('WalletConnect fee refresh failed: $e');
+    }
+
+    if (!transaction.isEIP1559 && transaction.gasPrice == null) {
+      return transaction.copyWith(gasPrice: await ethClient.getGasPrice());
+    }
+
+    return transaction;
+  }
+
+  Transaction _mergeWCBufferedFees(Transaction transaction, EvmWalletConnectFeeQuote quote) {
+    if (transaction.isEIP1559) {
+      // the fees coming from the dApp
+      final dAppMax = transaction.maxFeePerGas?.getInWei ?? BigInt.zero;
+      final dAppPri = transaction.maxPriorityFeePerGas?.getInWei ?? BigInt.zero;
+
+      // the updated fees coming from the wallet, handles buffered fees
+      final quoteMax = BigInt.from(quote.maxFeePerGasWei);
+      final quotePri = BigInt.from(quote.maxPriorityFeePerGasWei);
+
+      // we'll just use the higher of the two
+      var newMaxFeePerGasWei = dAppMax > quoteMax ? dAppMax : quoteMax;
+      var newPriorityFeePerGasWei = dAppPri > quotePri ? dAppPri : quotePri;
+
+      final base = quote.latestBaseFeeWei;
+      if (base != null) {
+        final baseB = BigInt.from(base);
+        final maxPriAllowed = newMaxFeePerGasWei - baseB;
+        if (newPriorityFeePerGasWei > maxPriAllowed) {
+          if (maxPriAllowed > BigInt.zero) {
+            newPriorityFeePerGasWei = maxPriAllowed;
+          } else {
+            newMaxFeePerGasWei = baseB + newPriorityFeePerGasWei;
+          }
+        }
+      }
+
+      return transaction.copyWith(
+        maxFeePerGas: EtherAmount.inWei(newMaxFeePerGasWei),
+        maxPriorityFeePerGas: EtherAmount.inWei(newPriorityFeePerGasWei),
+      );
+    }
+
+    final dPrice = transaction.gasPrice?.getInWei ?? BigInt.zero;
+    final floor = BigInt.from(quote.maxFeePerGasWei);
+    final newPriceWei = dPrice > floor ? dPrice : floor;
+    return transaction.copyWith(gasPrice: EtherAmount.inWei(newPriceWei));
   }
 
   void _onSessionRequest(SessionRequestEvent? args) async {
@@ -502,7 +600,7 @@ class EvmChainServiceImpl {
 
       // Get the primary type and types
       final primaryType = typedData['primaryType']?.toString() ?? '';
-      final types = typedData['types']  as Map<String, dynamic>? ?? {};
+      final types = typedData['types'] as Map<String, dynamic>? ?? {};
       final message = typedData['message'] as Map<String, dynamic>? ?? {};
 
       // Build a readable message based on the primary type and its structure
@@ -584,7 +682,6 @@ $messageDetails''';
       },
     );
 
-    
     final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
     final symbol = (decodedResponse['symbol'] ?? '') as String;

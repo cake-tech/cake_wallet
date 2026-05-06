@@ -1,6 +1,6 @@
 class PendingChange {
   final String address;
-  final String amount;
+  final BigInt amount;
 
   PendingChange(this.address, this.amount);
 }
@@ -15,6 +15,13 @@ mixin PendingTransaction {
   String? get evmTxHashFromRawHex => null;
   int? get outputCount => null;
   PendingChange? change;
+
+  String get roundedAmountFormatted {
+    if (amountFormatted.split(".").last.length <= 8) {
+      return amountFormatted;
+    }
+    return double.parse(amountFormatted).toStringAsFixed(8);
+  }
 
   bool shouldCommitUR() => false;
 

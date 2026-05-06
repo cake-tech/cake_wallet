@@ -15,7 +15,7 @@ enum DeviceConnectionType {
           WalletType.bitcoin,
           // WalletType.litecoin,
           WalletType.ethereum,
-          WalletType.polygon
+          WalletType.polygon,
         ].contains(walletType);
         break;
       case HardwareWalletType.ledger:
@@ -24,7 +24,7 @@ enum DeviceConnectionType {
           WalletType.bitcoin,
           WalletType.litecoin,
           WalletType.ethereum,
-          WalletType.polygon
+          WalletType.polygon,
         ].contains(walletType);
         break;
       case HardwareWalletType.trezor:
@@ -36,6 +36,12 @@ enum DeviceConnectionType {
           WalletType.polygon,
         ].contains(walletType);
         break;
+      case HardwareWalletType.cupcake:
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
+        // This should not be thrown since it should never reach this code for these HardwareWalletTypes
+        throw UnimplementedError();
     }
 
     return isSupported

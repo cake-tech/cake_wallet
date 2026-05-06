@@ -10,7 +10,7 @@ Future<void> setDefaultMinimumWindowSize() async {
 
   try {
     // A small delay to confirm that our native platform channels are ready
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 200));
 
     final result = await _channel.invokeMethod(
       'setMinWindowSize',

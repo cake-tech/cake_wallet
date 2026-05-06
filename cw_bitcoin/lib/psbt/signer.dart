@@ -227,7 +227,7 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
         RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
 
     final newHd =
-        input.bitcoinAddressRecord.isHidden ? wallet.sideHd : wallet.hd;
+        input.bitcoinAddressRecord.isHidden ? wallet.sideHd : wallet.mainHd;
 
     ECPrivate privkey;
     if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {

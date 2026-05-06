@@ -33,6 +33,7 @@ class WalletRestoreFromQRCode {
     'polygon-wallet': WalletType.polygon,
     'base-wallet': WalletType.base,
     'arbitrum-wallet': WalletType.arbitrum,
+    'bsc-wallet': WalletType.bsc,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,
@@ -53,7 +54,10 @@ class WalletRestoreFromQRCode {
     'decred_wallet': WalletType.decred,
     'dogecoin': WalletType.dogecoin,
     'dogecoin-wallet': WalletType.dogecoin,
-    'dogecoin_wallet': WalletType.dogecoin
+    'dogecoin_wallet': WalletType.dogecoin,
+    'zcash': WalletType.zcash,
+    'zcash-wallet': WalletType.zcash,
+    'zcash_wallet': WalletType.zcash,
   };
 
   static WalletType? _extractWalletType(String code) {
@@ -85,7 +89,9 @@ class WalletRestoreFromQRCode {
     try {
       return AddressResolver.extractAddressByType(
         raw: rawString,
-        type: walletTypeToCryptoCurrency(type),
+        type: walletTypeToCryptoCurrency(
+          type,
+        ),
         requireSurroundingWhitespaces: false,
       );
     } catch (_) {
@@ -118,7 +124,11 @@ class WalletRestoreFromQRCode {
 
     String formattedUri = '';
     WalletType? walletType = _extractWalletType(code);
-    final prefix = code.startsWith('xpub') ? 'xpub' : code.startsWith('zpub') ? 'zpub' : '????';
+    final prefix = code.startsWith('xpub')
+        ? 'xpub'
+        : code.startsWith('zpub')
+            ? 'zpub'
+            : '????';
     if (walletType == null) {
       await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
       walletType =
@@ -129,15 +139,13 @@ class WalletRestoreFromQRCode {
 
       formattedUri = seedPhrase != null
           ? '$walletType:?seed=$seedPhrase'
-          : code.startsWith(prefix) 
-            ? '$walletType:?$prefix=$code' 
-            : throw Exception('Failed to determine valid seed phrase');
+          : code.startsWith(prefix)
+              ? '$walletType:?$prefix=$code'
+              : throw Exception('Failed to determine valid seed phrase');
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = code.startsWith(prefix) 
-        ? '$walletType:?$prefix=$code' 
-        :'$walletType:?$query';
+      formattedUri = code.startsWith(prefix) ? '$walletType:?$prefix=$code' : '$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
@@ -174,8 +182,7 @@ class WalletRestoreFromQRCode {
       throw Exception('Unexpected restore mode: tx_payment_id is invalid');
     }
 
-    if (credentials.containsKey("xpub") ||
-        credentials.containsKey("zpub")) {
+    if (credentials.containsKey("xpub") || credentials.containsKey("zpub")) {
       return WalletRestoreMode.keys;
     }
 

@@ -1,9 +1,25 @@
-import 'package:cake_wallet/core/payment_uris.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
   PaymentRequest(this.address, this.amount, this.note, this.scheme, this.pjUri,
       {this.callbackUrl, this.callbackMessage, this.contractAddress});
+
+  factory PaymentRequest.fromString(String input) {
+    try {
+      return PaymentRequest.fromBolt11(input);
+    } catch (_) {
+      return PaymentRequest.fromUri(Uri.parse(input));
+    }
+  }
+
+  factory PaymentRequest.fromBolt11(String invoice) {
+    final amountRaw = getBolt11Amount(invoice) ?? 0;
+    final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(amountRaw));
+    return PaymentRequest(invoice, amount, '', 'lightning', null);
+  }
 
   factory PaymentRequest.fromUri(Uri? uri) {
     var address = "";
@@ -22,7 +38,16 @@ class PaymentRequest {
       }
 
       address = uri.queryParameters['address'] ?? uri.path;
-      amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
+      try {
+        final lnAmount =
+            CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(uri.path) ?? 0));
+        if (lnAmount != 0) {
+          amount = lnAmount;
+        }
+      } catch (_) {}
+      if (amount.isEmpty) {
+        amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
+      }
       note = uri.queryParameters['tx_description'] ?? uri.queryParameters['message'] ?? "";
       scheme = uri.scheme;
       callbackUrl = uri.queryParameters['callback'];

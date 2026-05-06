@@ -32,7 +32,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/core/address_validator.dart';
@@ -615,7 +615,7 @@ class ExchangePage extends BasePage {
       try {
         exchangeViewModel.receiveCurrency =
             CryptoCurrency.fromString(initialPaymentRequest!.scheme);
-        exchangeViewModel.receiveAmount = initialPaymentRequest!.amount;
+        exchangeViewModel.setCanonicalReceiveAmount(initialPaymentRequest!.amount);
         exchangeViewModel.receiveAddress = initialPaymentRequest!.address;
       } catch (e) {
         printV('error: ${e.toString()}');
@@ -636,8 +636,6 @@ class ExchangePage extends BasePage {
     key.currentState!.changeAddress(
         address:
             isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '');
-
-    key.currentState!.changeAmount(amount: '');
   }
 
   void _onWalletNameChange(ExchangeViewModel exchangeViewModel, CryptoCurrency currency,
@@ -718,6 +716,7 @@ class ExchangePage extends BasePage {
               ? AmountValidator(
                   isAutovalidate: true,
                   currency: exchangeViewModel.depositCurrency,
+                  amountParsingProxy: exchangeViewModel.amountParsingProxy,
                   minValue: exchangeViewModel.limits.min.toString(),
                   maxValue: exchangeViewModel.limits.max.toString(),
                 ).call(value)
@@ -734,6 +733,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.depositAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
         },
+        useSatoshis: exchangeViewModel.useSatoshiDeposit,
       ),
     );
 
@@ -765,6 +765,7 @@ class ExchangePage extends BasePage {
               ? AmountValidator(
                   isAutovalidate: true,
                   currency: exchangeViewModel.receiveCurrency,
+                  amountParsingProxy: exchangeViewModel.amountParsingProxy,
                   minValue: exchangeViewModel.limits.min.toString(),
                   maxValue: exchangeViewModel.limits.max.toString(),
                 ).call(value)
@@ -781,6 +782,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.receiveAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
         },
+        useSatoshis: exchangeViewModel.useSatoshisReceive,
       ),
     );
 

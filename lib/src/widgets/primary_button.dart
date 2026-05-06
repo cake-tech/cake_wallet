@@ -43,7 +43,7 @@ class PrimaryButton extends StatelessWidget {
             ),
             shape: WidgetStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(12.0),
+                borderRadius: borderRadius ?? BorderRadius.circular(18.0),
               ),
             ),
           ),
@@ -108,7 +108,7 @@ class LoadingPrimaryButton extends StatelessWidget {
               backgroundColor: WidgetStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
               shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(18.0),
                 ),
               )),
           child: isLoading
@@ -138,7 +138,7 @@ class PrimaryIconButton extends StatelessWidget {
     required this.iconBackgroundColor,
     required this.textColor,
     this.mainAxisAlignment = MainAxisAlignment.start,
-    this.radius = 12,
+    this.radius = 18,
     super.key,
   });
 
@@ -233,7 +233,7 @@ class PrimaryImageButton extends StatelessWidget {
               backgroundColor: WidgetStateProperty.all(color),
               shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(18.0),
                 ),
               )),
           child: Center(

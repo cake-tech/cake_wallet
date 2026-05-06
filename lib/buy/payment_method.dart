@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:cake_wallet/core/selectable_option.dart';
 
 enum PaymentType {
@@ -124,6 +122,8 @@ extension PaymentTypeTitle on PaymentType {
         return 'assets/images/skrill.svg';
       case PaymentType.applePay:
         return 'assets/images/apple_pay_round_light.svg';
+      case PaymentType.revolutPay:
+        return 'assets/images/revolut_light.svg';
       default:
         return null;
     }
@@ -143,6 +143,8 @@ extension PaymentTypeTitle on PaymentType {
         return 'assets/images/skrill.svg';
       case PaymentType.applePay:
         return 'assets/images/apple_pay_round_dark.svg';
+      case PaymentType.revolutPay:
+        return 'assets/images/revolut_dark.svg';
       default:
         return null;
     }

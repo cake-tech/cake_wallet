@@ -66,6 +66,7 @@ class BlackTheme extends MaterialThemeBase {
         errorContainer: const Color(0xFFC53636),
         onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
+        surfaceDim: const Color(0xFF000000),
         background: surfaceColor,
         onSurface: const Color(0xFFE6E1E3),
         onSurfaceVariant: const Color(0xFFB4B4B4),
@@ -75,10 +76,10 @@ class BlackTheme extends MaterialThemeBase {
         surfaceContainerHigh: Color(0xFF2B292B),
         surfaceContainerHighest: Color(0xFF363435),
         outline: const Color(0xFF958F95),
-        outlineVariant: const Color(0xFF49454B),
+        outlineVariant: const Color(0xFF2F2D2F),
       );
 
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'Wix Madefor Text';
 
   @override
   TextTheme get textTheme => TextTheme(
@@ -101,26 +102,26 @@ class BlackTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w400,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
@@ -202,7 +203,7 @@ class BlackTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -211,7 +212,7 @@ class BlackTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.primary,
             side: BorderSide(color: colorScheme.outline),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -219,7 +220,7 @@ class BlackTheme extends MaterialThemeBase {
           style: TextButton.styleFrom(
             foregroundColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -227,27 +228,27 @@ class BlackTheme extends MaterialThemeBase {
           filled: true,
           fillColor: colorScheme.surfaceContainer,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.primary),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.error),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.error),
           ),
           disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
         ),

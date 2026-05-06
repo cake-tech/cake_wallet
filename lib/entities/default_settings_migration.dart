@@ -1,32 +1,35 @@
 import 'dart:convert';
 import 'dart:io' show Directory, File, Platform;
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/pathForWallet.dart';
+import 'package:cake_wallet/entities/node_list.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/node.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/node.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/node_list.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/entities/fs_migration.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:collection/collection.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/erc20_token.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
@@ -52,6 +55,8 @@ const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base.nownodes.io';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
+const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
+const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -520,10 +525,69 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
           );
           break;
-         case 54:
+        case 54:
           await _backupWowneroSeeds(havenSeedStore);
           break;
+        case 55:
+          await addWalletNodeList(nodes: nodes, type: WalletType.zcash);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.zcash,
+            currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
+          );
+        case 56:
+          await sharedPreferences.setString(
+              PreferencesKey.syncStatusDisplayMode, SyncStatusDisplayMode.blocksRemaining.name);
+          break;
+        case 57:
+          await _addXautTokenToExistingEthereumWallets();
 
+          await addWalletNodeList(nodes: nodes, type: WalletType.bsc);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.bsc,
+            currentNodePreferenceKey: PreferencesKey.currentBscNodeIdKey,
+          );
+          break;
+        case 58: // BalanceCardStyleSettings no-op (handled in sqlite.dart)
+        case 59: // WalletInfo.receiveInfoboxDismissed no-op (handled in sqlite.dart)
+        case 60: // BalanceCardStyleSettings.cardOrder no-op (handled in sqlite.dart)
+        // Do not migrate SQLite here, do that in sqlite.dart in order to prevent runtime
+        // errors, missing row and missing tables.
+        case 61:
+          // reset force dex option only 1 time and let users pick it from the swap settings preference
+          await sharedPreferences.setBool(PreferencesKey.forceDecentralizedExchanges, false);
+          break;
+        case 62:
+          await _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: false,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "StealthEX",
+            enabled: false,
+          );
+          break;
+        case 63:
+          await _addXaut0TokenToExistingSolanaWallets();
+          break;
+        case 64:
+          await _backupWowneroSeeds(havenSeedStore);
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "LetsExchange",
+            enabled: false,
+          );
+          await _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: true,
+          );
+          break;
         default:
           break;
       }
@@ -638,21 +702,25 @@ String _getDefaultNodeUri(WalletType type) {
       return baseDefaultNodeUri;
     case WalletType.arbitrum:
       return arbitrumDefaultNodeUri;
+    case WalletType.bsc:
+      return bscDefaultNodeUri;
+    case WalletType.zcash:
+      return zcashDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
   }
 }
 
-void _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
-    {required String providerName, required bool enabled}) {
+Future<void> _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
+    {required String providerName, required bool enabled}) async {
   final Map<String, dynamic> exchangeProvidersSelection =
       json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
           as Map<String, dynamic>;
 
   exchangeProvidersSelection[providerName] = enabled;
 
-  sharedPreferences.setString(
+  await sharedPreferences.setString(
     PreferencesKey.exchangeProvidersSelection,
     json.encode(exchangeProvidersSelection),
   );
@@ -965,7 +1033,8 @@ Future<void> updateNodeTypes() async {
 }
 
 Future<void> addAddressesForMoneroWallets() async {
-  final moneroWalletsInfo = (await WalletInfo.getAll()).where((info) => info.type == WalletType.monero);
+  final moneroWalletsInfo =
+      (await WalletInfo.getAll()).where((info) => info.type == WalletType.monero);
   moneroWalletsInfo.forEach((info) async {
     try {
       final walletPath = await pathForWallet(name: info.name, type: WalletType.monero);
@@ -1026,6 +1095,7 @@ Future<void> fixBtcDerivationPaths() async {
     }
   }
 }
+
 Future<void> updateBtcNanoWalletInfos() async {}
 // Future<void> updateBtcNanoWalletInfos() async {
 //   for (WalletInfo walletInfo in await WalletInfo.getAll()) {
@@ -1054,17 +1124,18 @@ Future<void> checkCurrentNodes(
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
   final currentBaseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
   final currentArbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
+  final currentBscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
-  final currentDogecoinNodeId =
-  sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+  final currentDogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+  final currentZcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
   List<Node> nodeSource = await Node.getAll();
   List<Node> powNodeSource = await Node.getAllPow();
 
@@ -1084,6 +1155,8 @@ Future<void> checkCurrentNodes(
       nodeSource.firstWhereOrNull((node) => node.id == currentBaseNodeId);
   final currentArbitrumNodeServer =
       nodeSource.firstWhereOrNull((node) => node.id == currentArbitrumNodeId);
+  final currentBscNodeServer =
+      nodeSource.firstWhereOrNull((node) => node.id == currentBscNodeId);
   final currentNanoNodeServer =
       nodeSource.firstWhereOrNull((node) => node.id == currentNanoNodeId);
   final currentDecredNodeServer =
@@ -1102,6 +1175,8 @@ Future<void> checkCurrentNodes(
       nodeSource.firstWhereOrNull((node) => node.id == currentWowneroNodeId);
   final currentZanoNode =
       nodeSource.firstWhereOrNull((node) => node.id == currentZanoNodeId);
+  final currentZcashNode =
+      nodeSource.firstWhereOrNull((node) => node.id == currentZcashNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -1187,6 +1262,12 @@ Future<void> checkCurrentNodes(
     await sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.id);
   }
 
+  if (currentBscNodeServer == null) {
+    final node = Node(uri: bscDefaultNodeUri, type: WalletType.bsc);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentBscNodeIdKey, node.key as int);
+  }
+
   if (currentSolanaNodeServer == null) {
     final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
     await node.save();
@@ -1216,6 +1297,12 @@ Future<void> checkCurrentNodes(
     await node.save();
     await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.id);
   }
+
+  if (currentZcashNode == null) {
+    final node = Node(uri: zcashDefaultNodeUri, type: WalletType.zcash, useSSL: true);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.key as int);
+  }
 }
 
 Future<void> resetBitcoinElectrumServer(SharedPreferences sharedPreferences) async {
@@ -1228,8 +1315,11 @@ Future<void> resetBitcoinElectrumServer(SharedPreferences sharedPreferences) asy
       .firstWhereOrNull((node) => node.uriRaw.toString() == cakeWalletBitcoinElectrumUri);
 
   if (cakeWalletNode == null) {
-    cakeWalletNode =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
+    cakeWalletNode = Node(
+        uri: cakeWalletBitcoinElectrumUri,
+        type: WalletType.bitcoin,
+        useSSL: false,
+        isEnabledForAutoSwitching: true);
     // final cakeWalletElectrumTestnet =
     //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
     // await nodeSource.add(cakeWalletElectrumTestnet);
@@ -1363,3 +1453,75 @@ Future<void> migrateExistingNodesToUseAutoSwitching() async {
 
 }
 
+Future<void> _addXautTokenToExistingEthereumWallets() async {
+  try {
+    final xautToken = Erc20Token(
+      name: "Tether Gold",
+      symbol: "XAUT",
+      contractAddress: "0x68749665FF8D2d112Fa859AA293F07A622782F38",
+      decimal: 6,
+      enabled: false,
+      iconPath: "assets/images/xaut_icon.png",
+    );
+
+    final allWallets = await WalletInfo.getAll();
+
+    final ethereumWallets =
+        allWallets.where((wallet) => wallet.type == WalletType.ethereum).toList();
+
+    for (final walletInfo in ethereumWallets) {
+      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
+      final boxName = '${sanitizedName}_${Erc20Token.ethereumBoxName}';
+
+      Box<Erc20Token> tokenBox;
+      if (CakeHive.isBoxOpen(boxName)) {
+        tokenBox = CakeHive.box<Erc20Token>(boxName);
+      } else {
+        tokenBox = await CakeHive.openBox<Erc20Token>(boxName);
+      }
+
+      final xautAddress = xautToken.contractAddress;
+      if (!tokenBox.containsKey(xautAddress)) {
+        await tokenBox.put(xautAddress, xautToken);
+      }
+    }
+  } catch (e) {
+    printV('Error in XAUT migration: $e');
+  }
+}
+Future<void> _addXaut0TokenToExistingSolanaWallets() async {
+  try {
+    final xaut0Token = SPLToken(
+      name: "Tether Gold",
+      symbol: "XAUT0",
+      mintAddress: "AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P",
+      decimal: 6,
+      mint: 'xaut0',
+      enabled: false,
+      iconPath: "assets/images/xau_sol.png",
+    );
+
+    final allWallets = await WalletInfo.getAll();
+
+    final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
+
+    for (final walletInfo in solanaWallets) {
+      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
+      final boxName = '${sanitizedName}_${SPLToken.boxName}';
+
+      Box<SPLToken> tokenBox;
+      if (CakeHive.isBoxOpen(boxName)) {
+        tokenBox = CakeHive.box<SPLToken>(boxName);
+      } else {
+        tokenBox = await CakeHive.openBox<SPLToken>(boxName);
+      }
+
+      final xaut0Address = xaut0Token.mintAddress;
+      if (!tokenBox.containsKey(xaut0Address)) {
+        await tokenBox.put(xaut0Address, xaut0Token);
+      }
+    }
+  } catch (e) {
+    printV('Error in XAUT0 migration: $e');
+  }
+}

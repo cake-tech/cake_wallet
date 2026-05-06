@@ -79,6 +79,7 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
       required this.address,
       required this.viewKey,
       required this.spendKey,
+      super.hardwareWalletType,
       int height = 0})
       : super(name: name, password: password, height: height);
 
@@ -564,7 +565,7 @@ class MoneroWalletService extends WalletService<
   Future<bool> requireHardwareWalletConnection(String name) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      return false;
     }
     return walletInfo.isHardwareWallet;
   }

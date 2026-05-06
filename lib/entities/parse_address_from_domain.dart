@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/ens_record.dart';
+import 'package:cake_wallet/entities/lnurlpay_record.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -175,7 +177,7 @@ class AddressResolver {
     var addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
     if (addressPattern == null) {
-      throw Exception('Unexpected token: $type for getAddressFromStringPattern');
+      return null;
     }
 
     if (requireSurroundingWhitespaces)
@@ -216,6 +218,19 @@ class AddressResolver {
   Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
     final ticker = currency.title;
     try {
+      if (text.startsWith("zcash.me")) {
+        final parts = text.split("/");
+        final handle = parts.last;
+        if (parts.length == 2 && handle.isNotEmpty) {
+          final extractZcashAddress = await _fetchZcashAddress(handle);
+          if (extractZcashAddress != null) {
+            return ParsedAddress.zcashAddress(
+              address: extractZcashAddress,
+              name: handle,
+            );
+          }
+        }
+      }
       // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
@@ -372,6 +387,14 @@ class AddressResolver {
             return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
           }
         }
+
+        if (walletType == WalletType.bitcoin) {
+          final record =
+              await LNUrlPayRecord.fetchAddressAndName(formattedName: text, currency: currency);
+          if (record != null) {
+            return ParsedAddress.fetchLNUrlPayAddress(address: record.address, name: text);
+          }
+        }
       }
 
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
@@ -478,5 +501,29 @@ class AddressResolver {
     }
 
     return ParsedAddress(addresses: [text]);
+  }
+
+  Future<String?> _fetchZcashAddress(String handle) async {
+    final url = Uri.parse('https://zcash.me/$handle');
+
+    try {
+      final response = await ProxyWrapper().get(clearnetUri: url);
+
+      if (response.statusCode == 200) {
+        final addressRegex = RegExp(
+          r'(t1[0-9A-Za-z]{33}|t3[0-9A-Za-z]{33}|zs[a-z0-9]{76}|u1[a-z0-9]{1,300})',
+          caseSensitive: true,
+        );
+
+        final match = addressRegex.firstMatch(response.body);
+
+        if (match != null) {
+          return match.group(0);
+        }
+      }
+    } catch (e) {
+      printV('Error fetching zcash.me profile: $e');
+    }
+    return null;
   }
 }

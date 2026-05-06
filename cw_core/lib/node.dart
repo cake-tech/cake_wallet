@@ -18,6 +18,7 @@ Uri createUriFromElectrumAddress(String address, String path) =>
 class Node {
   Node({
     this.id = 0,
+    this.label,
     this.login,
     this.password,
     this.useSSL,
@@ -37,11 +38,26 @@ class Node {
     }
   }
 
+  @override
+  String toString() {
+    return """Node(
+  uriRaw: $uriRaw,
+  path: $path,
+  login: $login,
+  password: $password,
+  useSSL: $useSSL,
+  trusted: $trusted,
+  socksProxyAddress: $socksProxyAddress,
+  isEnabledForAutoSwitching: $isEnabledForAutoSwitching,
+ })""";
+  }
+
   Node.fromMap(Map<String, Object?> map)
       : id = (map[selfIdColumn] ?? 0) as int,
         uriRaw = map['uri'] as String? ?? '',
         path = map['path'] as String? ?? '',
         login = map['login'] as String?,
+        label = map['label'] as String?,
         password = map['password'] as String?,
         isPow = (map["isPow"] != null && map['isPow'] != 0) as bool? ?? false,
         useSSL = (map['useSSL'] != 0) as bool?,
@@ -136,6 +152,8 @@ class Node {
   bool? supportsMweb;
   bool isEnabledForAutoSwitching;
 
+  String? label;
+
   static String get tableName => "Node";
   static String get selfIdColumn => "${tableName}Id";
 
@@ -147,6 +165,7 @@ class Node {
   Uri get uri {
     switch (type) {
       case WalletType.monero:
+      case WalletType.zcash:
       case WalletType.haven:
       case WalletType.wownero:
         return Uri.http(uriRaw, '');
@@ -160,6 +179,7 @@ class Node {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.bsc:
       case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
@@ -177,19 +197,21 @@ class Node {
   @override
   bool operator ==(other) =>
       other is Node &&
-          (other.uriRaw == uriRaw &&
-              other.login == login &&
-              other.password == password &&
-              other.typeRaw == typeRaw &&
-              other.useSSL == useSSL &&
-              other.trusted == trusted &&
-              other.socksProxyAddress == socksProxyAddress &&
-              other.path == path);
+      (other.uriRaw == uriRaw &&
+          other.login == login &&
+          other.label == label &&
+          other.password == password &&
+          other.typeRaw == typeRaw &&
+          other.useSSL == useSSL &&
+          other.trusted == trusted &&
+          other.socksProxyAddress == socksProxyAddress &&
+          other.path == path);
 
   @override
   int get hashCode =>
       uriRaw.hashCode ^
       login.hashCode ^
+      label.hashCode ^
       password.hashCode ^
       typeRaw.hashCode ^
       useSSL.hashCode ^
@@ -219,9 +241,11 @@ class Node {
         case WalletType.polygon:
         case WalletType.base:
         case WalletType.arbitrum:
+        case WalletType.bsc:
         case WalletType.solana:
         case WalletType.tron:
         case WalletType.dogecoin:
+        case WalletType.zcash:
           return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();

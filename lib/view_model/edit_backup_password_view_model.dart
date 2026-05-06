@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart' show generateBackupPassword;
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 
@@ -27,7 +28,10 @@ abstract class EditBackupPasswordViewModelBase with Store {
   @action
   Future<void> init() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    final password = (await secureStorage.read(key: key))!;
+    final password = (await secureStorage.read(key: key)) ?? '';
+    if (backupPassword.isEmpty) {
+      generateBackupPassword(secureStorage);
+    }
     _originalPassword = password;
     backupPassword = password;
   }

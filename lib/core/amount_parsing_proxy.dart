@@ -1,0 +1,91 @@
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
+import 'package:cw_core/crypto_amount_format.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+
+class AmountParsingProxy {
+  final BitcoinAmountDisplayMode displayMode;
+
+  const AmountParsingProxy(this.displayMode);
+
+  /// [getCryptoInputAmount] turns the input [amount] into the canonical representation of [cryptoCurrency]
+  String getCanonicalCryptoAmount(String amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
+      return cryptoCurrency.formatAmount(BigInt.tryParse(amount) ?? BigInt.zero);
+    }
+
+    return amount;
+  }
+
+  /// [getCryptoOutputAmount] turns the input [amount] into the preferred representation of [cryptoCurrency]
+  String getDisplayCryptoAmount(String amount, CryptoCurrency cryptoCurrency) {
+
+    try {
+      if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
+        return cryptoCurrency.parseAmount(amount.withMaxDecimals(cryptoCurrency.decimals)).toString();
+      }
+
+      return amount.withMaxDecimals(cryptoCurrency.decimals);
+
+    } catch(_) {
+      printV("failed to parse amount $amount for currency ${cryptoCurrency.title}, falling back to showing unparsed");
+      return amount;
+    }
+
+  }
+
+  /// [getCryptoStringRepresentation] turns the input [amount] into the preferred representation of [cryptoCurrency]
+  String getDisplayCryptoString(int amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return "$amount";
+    }
+
+    return cryptoCurrency.formatAmount(BigInt.from(amount));
+  }
+
+  String getDisplayCryptoStringFromBigInt(BigInt amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return "$amount";
+    }
+
+    return cryptoCurrency.formatAmount(amount);
+  }
+
+  /// [getCryptoStringFromDouble] turns the input [amount] into the preferred representation of [cryptoCurrency] and
+  String getDisplayCryptoStringFromDouble(double amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return "$amount";
+    }
+
+    return cryptoCurrency.formatAmount(BigInt.from(amount));
+  }
+
+  /// [parseCryptoString] turns the input [string] into a `BigInt` presentation of the [cryptoCurrency]
+  BigInt parseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return BigInt.parse(amount);
+    }
+
+    return cryptoCurrency.parseAmount(amount);
+  }
+
+  /// [tryParseCryptoString] tries to turn the display representation [string] into a `BigInt` presentation of the [cryptoCurrency]
+  BigInt? tryParseCryptoString(String amount, CryptoCurrency cryptoCurrency) {
+    if (useSatoshi(cryptoCurrency)) {
+      return BigInt.tryParse(amount);
+    }
+
+    return cryptoCurrency.tryParseAmount(amount);
+  }
+
+  /// [getCryptoSymbol] returns the correct Symbol related to the presentation
+  String getCryptoSymbol(CryptoCurrency cryptoCurrency) =>
+      useSatoshi(cryptoCurrency) ? "sats" : cryptoCurrency.title.safeSubString(0, 8);
+
+  bool useSatoshi(CryptoCurrency cryptoCurrency) =>
+      ([CryptoCurrency.btc, CryptoCurrency.btcln].contains(cryptoCurrency) &&
+          displayMode == BitcoinAmountDisplayMode.satoshi) ||
+      (CryptoCurrency.btcln == cryptoCurrency &&
+          displayMode == BitcoinAmountDisplayMode.satoshiForLightning);
+}

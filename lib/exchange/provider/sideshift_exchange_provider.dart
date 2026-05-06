@@ -16,23 +16,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
-  SideShiftExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.xhv,
-    CryptoCurrency.dcr,
-    CryptoCurrency.kmd,
-    CryptoCurrency.oxt,
-    CryptoCurrency.pivx,
-    CryptoCurrency.rune,
-    CryptoCurrency.rvn,
-    CryptoCurrency.scrt,
-    CryptoCurrency.stx,
-    CryptoCurrency.bttc,
-    CryptoCurrency.usdt,
-    CryptoCurrency.eos,
-    CryptoCurrency.xmr,
-  ];
+  SideShiftExchangeProvider();
 
   static const affiliateId = secrets.sideShiftAffiliateId;
   static const apiBaseUrl = 'https://sideshift.ai/api';
@@ -76,7 +60,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {

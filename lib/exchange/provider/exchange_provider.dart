@@ -6,11 +6,9 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 abstract class ExchangeProvider {
-  ExchangeProvider({required this.pairList});
+  ExchangeProvider();
 
   String get title;
-
-  List<ExchangePair> pairList;
 
   ExchangeProviderDescription get description;
 
@@ -25,7 +23,7 @@ abstract class ExchangeProvider {
   @override
   String toString() => title;
 
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode});
 
   Future<Trade> createTrade(

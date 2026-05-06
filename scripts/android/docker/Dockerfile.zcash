@@ -1,0 +1,11 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts/android
+COPY scripts/prepare_zcash.sh /w/scripts/prepare_zcash.sh
+COPY scripts/android/build_zcash.sh /w/scripts/android/build_zcash.sh
+RUN /w/scripts/android/build_zcash.sh \
+    && rm -rf /w/scripts/zcash_lib/target
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w

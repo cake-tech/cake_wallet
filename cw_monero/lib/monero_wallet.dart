@@ -179,7 +179,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     _autoSaveTimer = Timer.periodic(
         Duration(seconds: _autoSaveInterval), (_) async => await save());
     // update transaction details after restore
-    walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id??0);
+    await walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id??0);
   }
 
   @override
@@ -503,7 +503,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletAddresses.updateUsedSubaddress();
 
     if (isEnabledAutoGenerateSubaddress) {
-      walletAddresses.updateUnusedSubaddress(
+      await walletAddresses.updateUnusedSubaddress(
           accountIndex: walletAddresses.account?.id ?? 0,
           defaultLabel: walletAddresses.account?.label ?? '');
     }
@@ -950,14 +950,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  void _updateSubAddress(bool enableAutoGenerate, {Account? account}) {
+  Future<void> _updateSubAddress(bool enableAutoGenerate, {Account? account}) async {
     if (enableAutoGenerate) {
-      walletAddresses.updateUnusedSubaddress(
+      await walletAddresses.updateUnusedSubaddress(
         accountIndex: account?.id ?? 0,
         defaultLabel: account?.label ?? '',
       );
     } else {
-      walletAddresses.updateSubaddressList(accountIndex: account?.id ?? 0);
+      await walletAddresses.updateSubaddressList(accountIndex: account?.id ?? 0);
     }
   }
 

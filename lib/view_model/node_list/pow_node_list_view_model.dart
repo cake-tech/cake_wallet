@@ -62,7 +62,7 @@ abstract class PowNodeListViewModelBase with Store {
         node = (await getNanoDefaultPowNode())!;
         break;
       default:
-        throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
+        throw Exception('Unexpected wallet type: ${_appStore.wallet!.type} for pow node list');
     }
 
     await setAsCurrent(node);

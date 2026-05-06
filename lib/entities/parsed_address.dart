@@ -15,7 +15,9 @@ enum ParseFrom {
   thorChain,
   wellKnown,
   zanoAlias,
-  bip353
+  zcashAddress,
+  bip353,
+  lnurlpay,
 }
 
 class ParsedAddress {
@@ -167,11 +169,27 @@ class ParsedAddress {
     );
   }
 
+  factory ParsedAddress.zcashAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.zcashAddress,
+    );
+  }
+
   factory ParsedAddress.fetchWellKnownAddress({required String address, required String name}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.wellKnown,
+    );
+  }
+
+  factory ParsedAddress.fetchLNUrlPayAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.lnurlpay,
     );
   }
 
