@@ -8,12 +8,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 class WalletInfoBar extends StatelessWidget {
   const WalletInfoBar(
       {super.key,
-      required this.lightningMode,
       required this.name,
       required this.hardwareWalletType,
-      required this.onCustomizeButtonTap, required this.hasCustomize});
+      required this.onCustomizeButtonTap,
+        required this.hasCustomize});
 
-  final bool lightningMode;
   final String name;
   final HardwareWalletType? hardwareWalletType;
   final bool hasCustomize;

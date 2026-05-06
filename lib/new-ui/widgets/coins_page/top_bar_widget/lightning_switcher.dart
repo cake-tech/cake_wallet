@@ -1,7 +1,6 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class LightningSwitcher extends StatelessWidget {
   const LightningSwitcher(
@@ -12,72 +11,99 @@ class LightningSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    const switcherWidth = 142.0;
+    const switcherPadding = 4.0;
+    const onChainSegmentWidth = 94.0;
+    const lightningSegmentWidth = 40.0;
+
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(999999),
         onTap: () {
           HapticFeedback.mediumImpact();
           onLightningSwitchPress();
         },
         child: Container(
+          width: switcherWidth,
+          height: 40,
+          padding: const EdgeInsets.all(switcherPadding),
           decoration: ShapeDecoration(
-              shape: RoundedSuperellipseBorder(borderRadius: BorderRadiusGeometry.circular(900.0)),
-              color: Theme.of(context).colorScheme.surfaceContainer),
-          width: 70,
-          height: 36,
-          padding: EdgeInsets.symmetric(vertical: 2),
+            shape: RoundedSuperellipseBorder(
+              borderRadius: BorderRadiusGeometry.circular(900.0),
+            ),
+            color: Theme.of(context).colorScheme.surfaceContainer,
+          ),
           child: Stack(
             children: [
-              AnimatedContainer(
-                alignment: Alignment.centerRight,
-                margin: EdgeInsets.only(left: lightningMode ? 36 : 2),
-                duration: Duration(milliseconds: 250),
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
-                width: 32,
-                height: 32,
-                // height: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(9999990.0)),
-                    color: Theme.of(context).colorScheme.primary),
-              ),
-              Container(
-                child: Row(
-                  spacing: 2.0,
-                  children: [
-                    SizedBox(),
-                    AnimatedSwitcher(
-                      duration: Duration(milliseconds: 150),
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(opacity: animation, child: child),
-                      child: CakeImageWidget(imageUrl:'assets/new-ui/switcher-bitcoin.svg',
-                        key: ValueKey(lightningMode),
-                        width: 32,
-                        height: 32,
-                        colorFilter: ColorFilter.mode(
-                          lightningMode
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.surfaceContainer,
-                          BlendMode.srcIn,
-                        ),
-                      ),
+                left: lightningMode ? onChainSegmentWidth : 0,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: lightningMode ? lightningSegmentWidth : onChainSegmentWidth,
+                  height: 32,
+                  decoration: ShapeDecoration(
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadiusGeometry.circular(900.0),
                     ),
-                    AnimatedSwitcher(
-                      duration: Duration(milliseconds: 150),
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(opacity: animation, child: child),
-                      child: CakeImageWidget(imageUrl: 'assets/new-ui/switcher-lightning.svg',
-                        key: ValueKey(lightningMode),
-                        width: 32,
-                        height: 32,
-                        colorFilter: ColorFilter.mode(
-                          lightningMode
-                              ? Theme.of(context).colorScheme.surfaceContainer
-                              : Theme.of(context).colorScheme.primary,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
-                  ],
+                    color: Color.fromRGBO(215, 226, 247, 0.12)
+                  ),
                 ),
+              ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: onChainSegmentWidth,
+                    height: 32,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 2),
+                        CakeImageWidget(
+                          imageUrl: 'assets/new-ui/switcher-bitcoin.svg',
+                          width: 28,
+                          height: 28,
+                          colorFilter: ColorFilter.mode(
+                            lightningMode
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          'On-chain',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: lightningSegmentWidth,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: CakeImageWidget(
+                          imageUrl: 'assets/new-ui/switcher-lightning.svg',
+                          width: 28,
+                          height: 28,
+                          colorFilter: ColorFilter.mode(
+                            lightningMode
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.primary,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

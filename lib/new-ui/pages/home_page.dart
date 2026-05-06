@@ -10,6 +10,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
@@ -91,12 +92,6 @@ class _NewHomePageState extends State<NewHomePage> {
               children: [
                 TopBar(
                   dashboardViewModel: widget.dashboardViewModel,
-                  lightningMode: _lightningMode,
-                  onLightningSwitchPress: () {
-                    setState(() {
-                      _lightningMode = !_lightningMode;
-                    });
-                  },
                   onSettingsButtonPress: () {
                     CupertinoScaffold.showCupertinoModalBottomSheet(
                       context: context,
@@ -109,15 +104,18 @@ class _NewHomePageState extends State<NewHomePage> {
                           ))),
                     );
                   },
+                  openAccountCustomizer: openAccountCustomizer,
+                  hasCustomize: accountListViewModel != null,
                 ),
-                Observer(
-                  builder: (_)=>WalletInfoBar(
+                if (widget.dashboardViewModel.hasLightning)
+                  LightningSwitcher(
                     lightningMode: _lightningMode,
-                    hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
-                    name: widget.dashboardViewModel.wallet.name,
-                            hasCustomize: accountListViewModel != null,
-                            onCustomizeButtonTap: openAccountCustomizer),
-                      ),
+                    onLightningSwitchPress: () {
+                      setState(() {
+                        _lightningMode = !_lightningMode;
+                      });
+                    },
+                  ),
                       Column(
                         children: [
                           Observer(

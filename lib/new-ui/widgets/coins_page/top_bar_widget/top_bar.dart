@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/chain_icon.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -12,16 +14,16 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class TopBar extends StatelessWidget {
   const TopBar({
     super.key,
-    required this.lightningMode,
-    required this.onLightningSwitchPress,
     required this.dashboardViewModel,
     required this.onSettingsButtonPress,
+    required this.openAccountCustomizer,
+    required this.hasCustomize,
   });
 
-  final bool lightningMode;
-  final VoidCallback onLightningSwitchPress;
   final VoidCallback onSettingsButtonPress;
+  final VoidCallback openAccountCustomizer;
   final DashboardViewModel dashboardViewModel;
+  final bool hasCustomize;
 
   @override
   Widget build(BuildContext context) {
@@ -29,21 +31,24 @@ class TopBar extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 10, left: 18, right:18, top: 10+_additionalTopPadding(context)),
       child: Observer(
         builder: (_) => Row(
-          spacing: 12,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            (dashboardViewModel.hasLightning)
-                ? LightningSwitcher(
-                    lightningMode: lightningMode,
-                    onLightningSwitchPress: onLightningSwitchPress,
-                  )
-                : ChainIcon(
-                    iconPath: dashboardViewModel.wallet.currency.flatIconPath ?? "",
+            ChainIcon(
+                    iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
                     dashboardViewModel: dashboardViewModel,
                     isSyncHeavy: dashboardViewModel.isSyncHeavy),
+            Spacer(),
+            WalletInfoBar(
+                hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
+                name: dashboardViewModel.wallet.name,
+                hasCustomize: hasCustomize,
+                onCustomizeButtonTap: openAccountCustomizer),
+            SizedBox(width: 12),
             SyncBar(
               dashboardViewModel: dashboardViewModel,
               isSyncHeavy: dashboardViewModel.isSyncHeavy,
             ),
+            Spacer(),
             ModernButton.svg(
               iconColor: Theme.of(context).colorScheme.primary,
               size: 36,
