@@ -40,6 +40,8 @@
   "address_from_yat": "此地址来自 Yat 上的 ${emoji}",
   "address_label": "地址标签",
   "address_label_explainer": "您可以点击“地址”来访问和管理您之前使用过的所有地址",
+  "address_not_allowed_as_receive": "地址不允许作为接收地址",
+  "address_not_allowed_as_refund": "地址不允许作为退款地址",
   "address_or_alias": "地址或别名",
   "address_remove_contact": "移除联系人",
   "address_remove_content": "您确定要移除所选联系人吗？",
