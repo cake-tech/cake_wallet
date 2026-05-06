@@ -1,6 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/exceptions.dart' show WalletDeprecationException;
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -20,16 +20,6 @@ import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';
 import 'package:monero/wownero.dart' as wownero;
-
-class WalletDeprecationException implements Exception {
-  final String seed;
-  final CryptoCurrency curr;
-
-  @override
-  String toString() => "Wallet type no longer supported";
-
-  WalletDeprecationException({required this.seed, required this.curr});
-}
 
 class WowneroNewWalletCredentials extends WalletCredentials {
   WowneroNewWalletCredentials(
