@@ -165,12 +165,17 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     if (FeatureFlag.hasDevOptions) {
       ProxyWrapper.logger = MemoryProxyLogger();
     }
-    var zcashPassword = await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
-    if (zcashPassword == null || zcashPassword.isEmpty) {
-      zcashPassword = generateKey().substring(0, 32);
-      secureStorageShared.write(key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+
+    if (!Platform.isWindows) {
+      var zcashPassword = await secureStorageShared.read(
+          key: "com.cakewallet.cw_zcash/zec.db");
+      if (zcashPassword == null || zcashPassword.isEmpty) {
+        zcashPassword = generateKey().substring(0, 32);
+        secureStorageShared.write(
+            key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+      }
+      zcash?.unlockDatabase(zcashPassword);
     }
-    zcash?.unlockDatabase(zcashPassword);
 
     // Basically when we're running a test
     if (topLevelKey != null) {
