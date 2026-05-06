@@ -83,15 +83,15 @@ class Node {
   }
 
   Future<int> delete() async {
-    return await db.delete(tableName, where: '${selfIdColumn} = ?', whereArgs: [id]);
+    return await db!.delete(tableName, where: '${selfIdColumn} = ?', whereArgs: [id]);
   }
 
   static Future<int> deleteAll() async {
-    return await db.delete(tableName, where: "isPow = ?", whereArgs: [false]);
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [false]);
   }
 
   static Future<int> deleteAllPow() async {
-    return await db.delete(tableName, where: "isPow = ?", whereArgs: [true]);
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [true]);
   }
 
   Future<int> save() async {
@@ -100,7 +100,7 @@ class Node {
     if (json[selfIdColumn] == 0) {
       json[selfIdColumn] = null;
     }
-    id = await db.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
+    id = await db!.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
     return id;
   }
 
@@ -109,7 +109,7 @@ class Node {
     if(orderBy == null) {
       orderBy = selfIdColumn;
     }
-    final list = await db.query(
+    final list = await db!.query(
       tableName,
       where: where.isNotEmpty ? where : "1 = 1",
       whereArgs: whereArgs.isNotEmpty ? whereArgs : null,

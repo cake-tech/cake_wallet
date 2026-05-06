@@ -529,9 +529,8 @@ Future<void> defaultSettingsMigration(
           await _backupWowneroSeeds(havenSeedStore);
           break;
         case 55:
-          await addWalletNodeList(nodes: nodes, type: WalletType.zcash);
+          await addWalletNodeList(type: WalletType.zcash);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.zcash,
             currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
@@ -543,9 +542,8 @@ Future<void> defaultSettingsMigration(
         case 57:
           await _addXautTokenToExistingEthereumWallets();
 
-          await addWalletNodeList(nodes: nodes, type: WalletType.bsc);
+          await addWalletNodeList(type: WalletType.bsc);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.bsc,
             currentNodePreferenceKey: PreferencesKey.currentBscNodeIdKey,
@@ -1264,8 +1262,8 @@ Future<void> checkCurrentNodes(
 
   if (currentBscNodeServer == null) {
     final node = Node(uri: bscDefaultNodeUri, type: WalletType.bsc);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentBscNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentBscNodeIdKey, node.id);
   }
 
   if (currentSolanaNodeServer == null) {
@@ -1300,8 +1298,8 @@ Future<void> checkCurrentNodes(
 
   if (currentZcashNode == null) {
     final node = Node(uri: zcashDefaultNodeUri, type: WalletType.zcash, useSSL: true);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.key as int);
+    await node.save();
+    await sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.id);
   }
 }
 

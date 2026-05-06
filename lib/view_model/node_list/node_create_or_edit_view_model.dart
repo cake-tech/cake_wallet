@@ -25,6 +25,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         connectionState = InitialExecutionState(),
         useSSL = false,
         address = '',
+        label = "",
         path = '',
         port = '',
         login = '',
@@ -159,8 +160,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   final WalletType walletType;
-  final Node? editingNode;
-  final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
 
   void updateViewModelFromText(String key, String value) {

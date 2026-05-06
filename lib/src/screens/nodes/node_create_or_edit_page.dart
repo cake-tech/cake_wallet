@@ -130,7 +130,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                       false;
 
                                   if (confirmed) {
-                                    await nodeCreateOrEditViewModel.delete(editingNode: editingNode!);
+                                    await widget.nodeCreateOrEditViewModel.delete(editingNode: widget.editingNode!);
                                     Navigator.of(context).pop();
                                   }
                                 },

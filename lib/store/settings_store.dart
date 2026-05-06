@@ -2143,7 +2143,7 @@ abstract class SettingsStoreBase with Store {
         await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.id);
         break;
       case WalletType.zcash:
-        await _sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.id);
         break;
       case WalletType.none:
         throw UnimplementedError();

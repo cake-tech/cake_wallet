@@ -33,7 +33,7 @@ abstract class NodeListViewModelBase with Store {
       }
       return null;
     }, (_) {
-      _bindNodes();
+      bindNodes();
     });
   }
 
@@ -88,7 +88,7 @@ abstract class NodeListViewModelBase with Store {
       if (chainId != null) {
         final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
         if (nodeWalletType != null) {
-          node = getDefaultNode(nodes: _nodeSource, type: nodeWalletType)!;
+          node = (await getDefaultNode(type: nodeWalletType))!;
         } else {
           throw Exception(
               'Cannot reset node for EVM wallet: wallet type not found for chainId: $chainId');

@@ -1181,12 +1181,13 @@ Future<void> setup({
       final WalletType type = args['type'] as WalletType? ?? getIt.get<AppStore>().wallet!.type;
       final bool isPow = args['isPow'] as bool? ?? false;
       final Node? editingNode = args['editingNode'] as Node?;
-      final nodeSourceArgs = isPow ? _powNodeSource : _nodeSource;
         return NodeCreateOrEditViewModel(
-            nodeSourceArgs,
-            type,
-            editingNode,
-            getIt.get<SettingsStore>());
+          isPow,
+          getIt.get<NodeListViewModel>(),
+          getIt.get<PowNodeListViewModel>(),
+          type,
+          getIt.get<SettingsStore>(),
+        );
       }
   );
 

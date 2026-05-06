@@ -8,12 +8,11 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'dart:math' as math;
-import "package:cw_core/node.dart" as node_new;
 import 'package:convert/convert.dart';
 
 import 'package:crypto/crypto.dart';
 
-// part 'node.g.dart';
+import 'node.dart' as node_new;
 
 part "node_legacy.g.dart";
 
@@ -23,6 +22,7 @@ Uri createUriFromElectrumAddress(String address, String path) =>
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node({
+    this.label,
     this.login,
     this.password,
     this.useSSL,
@@ -41,10 +41,43 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  static Future<void> migrateAllToSqlite(Box<Node> nodeBox, Box<Node> powNodeBox) async {
+    final list = nodeBox.values.toList();
+    final powList = powNodeBox.values.toList();
+    for (final node in list) {
+      await node.migrateToSqlite(isPow: false);
+      await node.delete();
+    }
+    for(final node in powList) {
+      await node.migrateToSqlite(isPow: true);
+      await node.delete();
+    }
+  }
+
+
+  Future<void> migrateToSqlite({required bool isPow}) async {
+    final newNode = node_new.Node(
+      login: login,
+      label: label,
+      password: password,
+      type: type,
+      useSSL: useSSL,
+      trusted: trusted,
+      socksProxyAddress: socksProxyAddress,
+      isPow: isPow,
+      path: path,
+      uri: uriRaw,
+      isEnabledForAutoSwitching: isEnabledForAutoSwitching,
+    );
+    await newNode.save();
+  }
+
+
   Node.fromMap(Map<String, Object?> map)
       : uriRaw = map['uri'] as String? ?? '',
         path = map['path'] as String? ?? '',
         login = map['login'] as String?,
+        label = map['label'] as String?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false,
@@ -90,6 +123,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(11, defaultValue: false)
   bool isEnabledForAutoSwitching;
 
+  @HiveField(12, defaultValue: '')
+  String? label;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -97,6 +133,7 @@ class Node extends HiveObject with Keyable {
   Uri get uri {
     switch (type) {
       case WalletType.monero:
+      case WalletType.zcash:
       case WalletType.haven:
       case WalletType.wownero:
         return Uri.http(uriRaw, '');
@@ -110,6 +147,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.bsc:
       case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
@@ -127,19 +165,21 @@ class Node extends HiveObject with Keyable {
   @override
   bool operator ==(other) =>
       other is Node &&
-      (other.uriRaw == uriRaw &&
-          other.login == login &&
-          other.password == password &&
-          other.typeRaw == typeRaw &&
-          other.useSSL == useSSL &&
-          other.trusted == trusted &&
-          other.socksProxyAddress == socksProxyAddress &&
-          other.path == path);
+          (other.uriRaw == uriRaw &&
+              other.login == login &&
+              other.label == label &&
+              other.password == password &&
+              other.typeRaw == typeRaw &&
+              other.useSSL == useSSL &&
+              other.trusted == trusted &&
+              other.socksProxyAddress == socksProxyAddress &&
+              other.path == path);
 
   @override
   int get hashCode =>
       uriRaw.hashCode ^
       login.hashCode ^
+      label.hashCode ^
       password.hashCode ^
       typeRaw.hashCode ^
       useSSL.hashCode ^
@@ -176,9 +216,11 @@ class Node extends HiveObject with Keyable {
         case WalletType.polygon:
         case WalletType.base:
         case WalletType.arbitrum:
+        case WalletType.bsc:
         case WalletType.solana:
         case WalletType.tron:
         case WalletType.dogecoin:
+        case WalletType.zcash:
           return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();
@@ -206,7 +248,7 @@ class Node extends HiveObject with Keyable {
         body: jsonBody,
       );
 
-      
+
       final resBody = json.decode(response.body) as Map<String, dynamic>;
 
       return resBody['result']['height'] != null;
@@ -249,14 +291,14 @@ class Node extends HiveObject with Keyable {
       final responseString = await response.body;
 
       if ((responseString.contains("400 Bad Request") // Some other generic error
-              ||
-              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
-              ||
-              response.headers["location"] != null // Generic reverse proxy
-              ||
-              responseString
-                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
-          ) &&
+          ||
+          responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+          ||
+          response.headers["location"] != null // Generic reverse proxy
+          ||
+          responseString
+              .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+      ) &&
           !(useSSL ?? false)) {
         final oldUseSSL = useSSL;
         useSSL = true;
@@ -333,7 +375,7 @@ class Node extends HiveObject with Keyable {
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body);
       if (response.statusCode != 200 ||
           data["error"] != null ||
@@ -351,8 +393,8 @@ class Node extends HiveObject with Keyable {
   Future<bool> requestEthereumServer() async {
     try {
       final req = await ProxyWrapper().getHttpClient()
-        .getUrl(uri,)
-        .timeout(Duration(seconds: 15));
+          .getUrl(uri,)
+          .timeout(Duration(seconds: 15));
       final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
@@ -363,46 +405,17 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestDecredNode() async {
-  if (uri.host == "default-spv-nodes") {
-    // Just show default port as ok. The wallet will connect to a list of known
-    // nodes automatically.
-    return true;
-  }
-  try {
-    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+    if (uri.host == "default-spv-nodes") {
+      // Just show default port as ok. The wallet will connect to a list of known
+      // nodes automatically.
+      return true;
+    }
+    try {
+      final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
       socket.destroy();
       return true;
     } catch (_) {
       return false;
-    }
-  }
-
-Future<void> migrateToSqlite({required bool isPow}) async {
-    final newNode = node_new.Node(
-      login: login,
-      password: password,
-      type: type,
-      useSSL: useSSL,
-      trusted: trusted,
-      socksProxyAddress: socksProxyAddress,
-      isPow: isPow,
-      path: path,
-      uri: uriRaw,
-      isEnabledForAutoSwitching: isEnabledForAutoSwitching,
-    );
-    await newNode.save();
-}
-
-  static Future<void> migrateAllToSqlite(Box<Node> nodeBox, Box<Node> powNodeBox) async {
-    final list = nodeBox.values.toList();
-    final powList = powNodeBox.values.toList();
-    for (final node in list) {
-      await node.migrateToSqlite(isPow: false);
-      await node.delete();
-    }
-    for(final node in powList) {
-      await node.migrateToSqlite(isPow: true);
-      await node.delete();
     }
   }
 }
@@ -544,7 +557,7 @@ class DaemonRpc {
     }
 
     final Map<String, dynamic> result =
-        jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
+    jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
     if (result['error'] != null) {
       throw Exception('RPC Error: ${result['error']}');
     }
