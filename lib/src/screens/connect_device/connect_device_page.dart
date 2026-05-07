@@ -164,18 +164,29 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   String _getDeviceTileLeading(HardwareWalletDeviceType deviceType) {
     switch (deviceType) {
       case HardwareWalletDeviceType.ledgerNanoX:
-        return 'assets/images/hardware_wallet/ledger_nano_x.png';
+        return 'assets/new-ui/hardware_wallets/ledger_nano_x.svg';
       case HardwareWalletDeviceType.ledgerNanoGen5:
-        return 'assets/images/hardware_wallet/device_ledger_nano_gen_5.svg';
+        return 'assets/new-ui/hardware_wallets/device_ledger_nano_gen_5.svg';
       case HardwareWalletDeviceType.ledgerStax:
-        return 'assets/images/hardware_wallet/ledger_stax.png';
+        return 'assets/new-ui/hardware_wallets/ledger_stax.svg';
       case HardwareWalletDeviceType.ledgerFlex:
-        return 'assets/images/hardware_wallet/ledger_flex.png';
+        return 'assets/new-ui/hardware_wallets/ledger_flex.svg';
       case HardwareWalletDeviceType.BitBox02:
-        return 'assets/images/hardware_wallet/device_bitbox.svg';
+      case HardwareWalletDeviceType.BitBox02Nova:
+        return 'assets/new-ui/hardware_wallets/device_bitbox.svg';
+      case HardwareWalletDeviceType.trezorModelOne:
+        return 'assets/new-ui/hardware_wallets/device_trezor_model_one.svg';
+      case HardwareWalletDeviceType.trezorModelT:
+        return 'assets/new-ui/hardware_wallets/device_trezor_model_t.svg';
+      case HardwareWalletDeviceType.trezorSafe3:
+        return 'assets/new-ui/hardware_wallets/device_trezor_safe_3.svg';
+      case HardwareWalletDeviceType.trezorSafe5:
+        return 'assets/new-ui/hardware_wallets/device_trezor_safe_5.svg';
+      case HardwareWalletDeviceType.trezorSafe7:
+        return 'assets/new-ui/hardware_wallets/device_trezor_safe_7.svg';
 
       default:
-        return 'assets/images/hardware_wallet/ledger_nano_x.png';
+        return 'assets/new-ui/hardware_wallets/ledger_nano_x.svg';
     }
   }
 
