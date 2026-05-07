@@ -5,6 +5,7 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
+import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_creation_service.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
@@ -24,6 +25,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+import 'omnichain_wallet/omnichain_change_network_page.dart';
 
 class NewHomePage extends StatefulWidget {
   NewHomePage({super.key, required this.dashboardViewModel, required this.nftViewModel});
@@ -105,6 +108,18 @@ class _NewHomePageState extends State<NewHomePage> {
                     );
                   },
                   openAccountCustomizer: openAccountCustomizer,
+                  openChainSelection: () {
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
+                        context: context,
+                        barrierColor: Colors.black.withAlpha(85),
+                        builder: (context) => FractionallySizedBox(
+                            child: Material(
+                              child: OmniChainChangeNetworkPage(
+                                omniChainWalletCreationService: getIt.get<OmniChainWalletCreationService>(),
+                              ),
+                            )));
+                  },
+
                   hasCustomize: accountListViewModel != null,
                 ),
                 if (widget.dashboardViewModel.hasLightning)

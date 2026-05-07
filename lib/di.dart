@@ -323,6 +323,7 @@ import 'new-ui/pages/omnichain_wallet/new_omnichain_customization_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_open_network_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_selection_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_summary_page.dart';
+import 'new-ui/pages/omnichain_wallet/omnichain_change_network_page.dart';
 import 'new-ui/services/omnichain_wallet/omnichain_wallet_creation_service.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';

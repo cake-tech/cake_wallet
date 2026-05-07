@@ -36,6 +36,17 @@ class OmniChainWalletCreationService {
         .toList();
   }
 
+  Future<List<WalletInfo>> getCurrentWalletGroupWallets() async {
+    final currentWalletInfo = appStore.wallet?.walletInfo;
+    if (currentWalletInfo == null) return [];
+
+    await walletManager.updateWalletGroups();
+
+    final groupKey = walletManager.resolveGroupKey(currentWalletInfo);
+
+    return walletManager.getWalletsInGroup(groupKey);
+  }
+
   bool groupNameExists(String name) {
     final groupName = name.toLowerCase();
     return getAllCustomGroupNames().any(
@@ -88,17 +99,16 @@ class OmniChainWalletCreationService {
         throw Exception('Failed to resolve mnemonic (shared) for group.');
       }
 
-      walletManager.setGroupName(groupKey, groupName);
-
       final String? sharedPassphrase = request.passphrase ?? wallet.passphrase;
 
       final restTypesRaw = types.where((type) => type != primaryType).toList();
 
-      _createWalletPlaceholders(
+      await _createWalletPlaceholders(
         groupKey: groupKey,
         groupName: groupName,
         restTypes: restTypesRaw,
       );
+      await walletManager.updateWalletGroups();
     } catch (e) {
       throw Exception('Failed to create wallet group: ${e.toString()}');
     }

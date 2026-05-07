@@ -9,11 +9,13 @@ class ChainIcon extends StatelessWidget {
       {super.key,
       required this.iconPath,
       required this.dashboardViewModel,
-      required this.isSyncHeavy});
+      required this.isSyncHeavy,
+      required this.openChainSelection});
 
   final String iconPath;
   final bool isSyncHeavy;
   final DashboardViewModel dashboardViewModel;
+  final VoidCallback openChainSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class ChainIcon extends StatelessWidget {
             borderRadius: BorderRadius.circular(999999),
             onTap: () {
               HapticFeedback.mediumImpact();
+              openChainSelection();
             },
             child: Container(
               decoration: ShapeDecoration(

@@ -17,11 +17,13 @@ class TopBar extends StatelessWidget {
     required this.dashboardViewModel,
     required this.onSettingsButtonPress,
     required this.openAccountCustomizer,
+    required this.openChainSelection,
     required this.hasCustomize,
   });
 
   final VoidCallback onSettingsButtonPress;
   final VoidCallback openAccountCustomizer;
+  final VoidCallback openChainSelection;
   final DashboardViewModel dashboardViewModel;
   final bool hasCustomize;
 
@@ -36,7 +38,8 @@ class TopBar extends StatelessWidget {
             ChainIcon(
                     iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
                     dashboardViewModel: dashboardViewModel,
-                    isSyncHeavy: dashboardViewModel.isSyncHeavy),
+                    isSyncHeavy: dashboardViewModel.isSyncHeavy,
+                    openChainSelection: openChainSelection),
             Spacer(),
             WalletInfoBar(
                 hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
