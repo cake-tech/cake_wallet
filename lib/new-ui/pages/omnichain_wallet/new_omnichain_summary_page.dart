@@ -1,20 +1,19 @@
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_bloc.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cw_core/wallet_type.dart';
 
 class NewOmnichainSummaryPage extends BasePage {
   NewOmnichainSummaryPage();
 
-
   @override
-  Widget leading (BuildContext context) => const SizedBox.shrink();
-  
+  Widget leading(BuildContext context) => const SizedBox.shrink();
+
   @override
   Widget body(BuildContext context) => const NewOmnichainSummaryPageBody();
 }
@@ -135,8 +134,7 @@ class NewOmnichainSummaryPageBody extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: PrimaryButton(
                   key: const ValueKey('new_wallet_summary_open_wallet_button_key'),
-                  onPressed: () =>
-                    Navigator.of(context).popUntil((route) => route.isFirst),
+                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
                   borderRadius: BorderRadius.circular(999999),
                   text: 'Open Wallet',
                   color: Theme.of(context).colorScheme.primary,

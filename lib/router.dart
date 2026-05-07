@@ -170,7 +170,7 @@ import 'new-ui/pages/omnichain_wallet/new_omnichain_customization_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_open_network_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_selection_page.dart';
 import 'new-ui/pages/omnichain_wallet/new_omnichain_summary_page.dart';
-import 'new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_bloc.dart';
+import 'new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 

@@ -1,8 +1,8 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_bloc.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
 import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
 import 'package:cake_wallet/routes.dart';
@@ -64,14 +64,14 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OmniChainWalletBloc, OmniChainWalletState>(
-        listener: (context, state) {
-          if (state.groupCreated) {
-            Navigator.of(context).pushNamed(
-              Routes.newOmniChainSummaryPage,
-              arguments: context.read<OmniChainWalletBloc>(),
-            );
-          }
-        },
+      listener: (context, state) {
+        if (state.groupCreated) {
+          Navigator.of(context).pushNamed(
+            Routes.newOmniChainSummaryPage,
+            arguments: context.read<OmniChainWalletBloc>(),
+          );
+        }
+      },
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),

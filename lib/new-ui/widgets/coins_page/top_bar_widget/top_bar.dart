@@ -29,6 +29,10 @@ class TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final walletNameToDisplay = dashboardViewModel.wallet.name.split('_')[0];
+    final truncatedWalletName = walletNameToDisplay.length > 20
+        ? '${walletNameToDisplay.substring(0, 17)}...'
+        : walletNameToDisplay;
     return Padding(
       padding: EdgeInsets.only(bottom: 10, left: 18, right:18, top: 10+_additionalTopPadding(context)),
       child: Observer(
@@ -43,7 +47,7 @@ class TopBar extends StatelessWidget {
             Spacer(),
             WalletInfoBar(
                 hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
-                name: dashboardViewModel.wallet.name,
+                name: truncatedWalletName,
                 hasCustomize: hasCustomize,
                 onCustomizeButtonTap: openAccountCustomizer),
             SizedBox(width: 12),

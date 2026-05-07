@@ -47,6 +47,12 @@ class OmniChainWalletCreationService {
     return walletManager.getWalletsInGroup(groupKey);
   }
 
+  String? getCurrentGroupName() {
+    final currentWalletInfo = appStore.wallet?.walletInfo;
+    if (currentWalletInfo == null) return null;
+    return walletManager.getGroupName(currentWalletInfo);
+  }
+
   bool groupNameExists(String name) {
     final groupName = name.toLowerCase();
     return getAllCustomGroupNames().any(
@@ -55,8 +61,8 @@ class OmniChainWalletCreationService {
   }
 
   Future<String> _uniqueNamePerGroup(WalletType type, String groupName) async {
-    final typeSuffix = walletTypeSuffix(type);
-    return '$groupName $typeSuffix';
+    final typeSuffix = walletTypeToString(type);
+    return '${groupName}_${typeSuffix}';
   }
 
   Future<void> createGroup({required OmniChainCreateGroupRequest request}) async {
@@ -92,6 +98,9 @@ class OmniChainWalletCreationService {
       if (wallet == null) throw Exception('First wallet was not set as current.');
 
       final groupKey = walletManager.resolveGroupKey(wallet.walletInfo);
+      await walletManager.updateWalletGroups();
+
+      walletManager.setGroupName(groupKey, groupName);
 
       String? sharedMnemonic = mnemonic;
       sharedMnemonic ??= wallet.seed;

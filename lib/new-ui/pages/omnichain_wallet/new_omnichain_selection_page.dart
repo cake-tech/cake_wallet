@@ -1,26 +1,26 @@
 import 'dart:io';
 
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_bloc.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
+import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
 import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_creation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

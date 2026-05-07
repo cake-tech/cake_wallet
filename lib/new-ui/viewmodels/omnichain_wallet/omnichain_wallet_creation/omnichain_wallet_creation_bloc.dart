@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart';
-import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_creation_service.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omni_chain_wallet/omni_chain_wallet_state.dart';
+import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -94,9 +94,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
   }
 
   Future<void> _onGroupCreateRequested(
-      OmniChainWalletGroupCreateRequested event,
-      Emitter<OmniChainWalletState> emit,
-      ) async {
+    OmniChainWalletGroupCreateRequested event,
+    Emitter<OmniChainWalletState> emit,
+  ) async {
     try {
       final primaryType = state.primaryType;
       if (primaryType == null) throw Exception('Primary wallet type is not selected');
