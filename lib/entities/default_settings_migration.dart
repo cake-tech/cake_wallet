@@ -13,7 +13,6 @@ import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
@@ -53,7 +52,7 @@ const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
-const baseDefaultNodeUri = 'base.nownodes.io';
+const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
@@ -62,11 +61,10 @@ Future<void> defaultSettingsMigration(
     {required int version,
     required SharedPreferences sharedPreferences,
     required SecureStorage secureStorage,
-    required Box<Trade> tradeSource,
     required Box<Contact> contactSource,
     required Box<HavenSeedStore> havenSeedStore}) async {
   if (Platform.isIOS) {
-    await ios_migrate_v1(tradeSource, contactSource);
+    await ios_migrate_v1(contactSource);
   }
 
   // check current nodes for nullability regardless of the version
@@ -584,6 +582,15 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "Swaps.XYZ",
             enabled: true,
+          );
+          break;
+        case 65:
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.base,
+            currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
+            oldUri: ['base.nownodes.io'],
           );
           break;
         default:

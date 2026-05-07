@@ -297,8 +297,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         state: TradeState.created,
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
@@ -374,8 +372,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
-        userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
-        userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");

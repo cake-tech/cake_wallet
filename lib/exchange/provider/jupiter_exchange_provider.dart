@@ -367,8 +367,6 @@ class JupiterExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? 'SOL'}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? 'SOL'}',
         routerData: transaction,
         routerValue: requestId,
         fee: totalFeeInSol,

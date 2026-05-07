@@ -33,8 +33,10 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
-    this.cachedAddress
+    this.cachedAddress,
   });
+
+  static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;

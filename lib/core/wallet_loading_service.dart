@@ -5,11 +5,12 @@ import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/widgets/wallet_deprecation_popup.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/exceptions.dart' show WalletDeprecationException;
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -73,9 +74,12 @@ class WalletLoadingService {
       return wallet;
     } catch (error, stack) {
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
-      
-      if ([WalletType.wownero, WalletType.haven].contains(type)) {
-        corruptedWalletsSeeds += "\n\n$type $name: $error";
+
+      if(error is WalletDeprecationException) {
+        if(navigatorKey.currentContext != null) {
+          showModalBottomSheet(
+              context: navigatorKey.currentContext!, builder: (context)=>WalletDeprecationPopup(type: type, seed: error.seed,));
+        }
       } else {
         await ExceptionHandler.resetLastPopupDate();
         final isLedgerError = await ExceptionHandler.isLedgerError(error);
