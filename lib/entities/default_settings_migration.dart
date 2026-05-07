@@ -586,7 +586,6 @@ Future<void> defaultSettingsMigration(
           break;
         case 65:
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.base,
             currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
