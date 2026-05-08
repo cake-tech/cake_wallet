@@ -22,6 +22,16 @@ Future<void> validateBuiltinNodes() async {
   final builtinFromDb = await Node.getAllBuiltin();
   final builtinFromList = await loadAllDefaultNodes();
 
+  for (final listNode in builtinFromList) {
+    // preserve proxy settings from user
+    try {
+      final matchedDbNode = builtinFromDb.firstWhere(
+              (dbNode) => dbNode.uri == listNode.uri
+      );
+      listNode.socksProxyAddress = matchedDbNode.socksProxyAddress;
+    } catch(e) {}
+  }
+
   final dbSet = builtinFromDb.toSet();
   final listSet = builtinFromList.toSet();
 

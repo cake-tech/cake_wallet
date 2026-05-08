@@ -137,6 +137,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                 text: S.of(context).delete,
                                 isDisabled: widget.editingNode == null ||
                                     !widget.nodeCreateOrEditViewModel.isReady ||
+                                    widget.editingNode!.isBuiltin ||
                                     (widget.isSelected ?? false),
                                 color: Theme.of(context).colorScheme.errorContainer,
                                 textColor: Theme.of(context).colorScheme.onErrorContainer,
@@ -153,7 +154,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                   }
 
                                   await widget.nodeCreateOrEditViewModel.save(
-                                      editingNode: widget.editingNode, saveAsCurrent: widget.isSelected ?? false);
+                                       saveAsCurrent: widget.isSelected ?? false);
                                   if (context.mounted) {
                                     Navigator.of(context).pop();
                                   }

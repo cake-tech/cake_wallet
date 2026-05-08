@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -266,32 +267,24 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
-    final node = Node(
-        id: editingNode?.id ?? 0,
-        label: label,
-        uri: uri,
-        path: path,
-        type: walletType,
-        login: login,
-        password: password,
-        isPow: isPow,
-        useSSL: useSSL,
-        trusted: trusted,
-        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
-        socksProxyAddress: socksProxyAddress);
+  Future<void> save({bool saveAsCurrent = false}) async {
+    editingNode ??= Node();
+    editingNode!.type = walletType;
+    editingNode!.label = label;
+    editingNode!.uriRaw = uri;
+    editingNode!.path = path;
+    editingNode!.login = login;
+    editingNode!.password = password;
+    editingNode!.isPow = isPow;
+    editingNode!.useSSL = useSSL;
+    editingNode!.trusted = trusted;
+    editingNode!.socksProxyAddress = socksProxyAddress;
+
     try {
       state = IsExecutingState();
-      if (editingNode != null) {
-        await node.save();
-      } else if (await _existingNode(node) != null) {
-        setAsCurrent((await _existingNode(node))!);
-      } else {
-        await node.save();
-        setAsCurrent(node);
-      }
+      await editingNode!.save();
       if (saveAsCurrent) {
-        setAsCurrent(node);
+        setAsCurrent(editingNode!);
       }
 
       state = ExecutedSuccessfullyState();
