@@ -63,7 +63,7 @@ class Node extends HiveObject with Keyable {
     final powList = powNodeBox.values.toList();
     for (final node in list) {
       await node.migrateToSqlite(
-          isPow: true,
+          isPow: false,
           isBuiltin: defaultNodes.any((item) => item.uri == node.uri),
           isOfficial: defaultNodes.any((item) => item.isOfficial && item.uri == node.uri));
       await node.delete();
