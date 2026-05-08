@@ -41,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 6,
+  db = await openDatabase(dbFile.path, version: 7,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -95,7 +95,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       }
       if (oldVersion <= 5) {
         await _createTradeTable(db);
-        await _createNodeTables(db);
+      }
+      if(oldVersion <= 6) {
+        await _createNodeTable(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -195,7 +197,7 @@ CREATE TABLE BalanceCardStyleSettings (
 );
         ''');
       await _createBridgeTransferTable(db);
-      await _createNodeTables(db);
+      await _createNodeTable(db);
       await _createTradeTable(db);
     }
   );
@@ -325,7 +327,7 @@ ON BridgeTransfer(wallet_id);
 ''');
 }
 
-Future<void> _createNodeTables(Database db) async {
+Future<void> _createNodeTable(Database db) async {
   db.execute("""
 CREATE TABLE Node (
 NodeId INTEGER PRIMARY KEY,
