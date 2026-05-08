@@ -345,7 +345,6 @@ Future<void> initialSetup({
   required int initialMigrationVersion,
 }) async {
   LanguageService.loadLocaleList();
-  await checkCurrentNodes(sharedPreferences);
   await defaultSettingsMigration(
     secureStorage: secureStorage,
     version: initialMigrationVersion,
@@ -365,11 +364,12 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
+  final settingsStore = getIt<SettingsStore>();
+  await checkCurrentNodes(sharedPreferences, settingsStore);
 
   await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
 
   await bootstrapOffline();
-  final settingsStore = getIt<SettingsStore>();
   if (!settingsStore.currentBuiltinTor) {
     bootstrapOnline(navigatorKey, loadWallet: loadWallet);
   }

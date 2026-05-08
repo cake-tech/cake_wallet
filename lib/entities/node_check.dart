@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/node_list.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -30,7 +31,7 @@ const Map<WalletType, String> powNodePreferenceKeys = {
   WalletType.nano: PreferencesKey.currentNanoPowNodeIdKey
 };
 
-Future<void> checkNodeForWalletType(SharedPreferences sharedPreferences, WalletType type, bool isPow) async {
+Future<void> checkNodeForWalletType(SharedPreferences sharedPreferences, SettingsStore settingsStore, WalletType type, bool isPow) async {
   final preferenceKey = isPow ? powNodePreferenceKeys[type] : nodePreferenceKeys[type];
 
   if(preferenceKey == null) {
@@ -49,17 +50,20 @@ Future<void> checkNodeForWalletType(SharedPreferences sharedPreferences, WalletT
         await getDefaultNodeFromFiles(type, isPow: isPow);
     final newId = await newNode.save();
     sharedPreferences.setInt(preferenceKey, newId);
+    settingsStore.nodes[type] = newNode;
+  } else {
+    settingsStore.nodes[type] = currentNode;
   }
 
 }
 
 
-Future<void> checkCurrentNodes(SharedPreferences sharedPreferences) async {
+Future<void> checkCurrentNodes(SharedPreferences sharedPreferences, SettingsStore settingsStore) async {
   for(final walletType in nodePreferenceKeys.keys) {
-    checkNodeForWalletType(sharedPreferences, walletType, false);
+    checkNodeForWalletType(sharedPreferences, settingsStore, walletType, false);
   }
 
   for(final walletType in powNodePreferenceKeys.keys) {
-    checkNodeForWalletType(sharedPreferences, walletType, true);
+    checkNodeForWalletType(sharedPreferences, settingsStore, walletType, true);
   }
 }
