@@ -382,7 +382,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final reqAmountRaw = reqAmountStr.replaceAll('n', '');
 
       final needToRegisterInSwapXyz =
-          vmId == 'alt-vm' || bridgeIds.contains('alt-vm');
+          vmId == 'alt-vm' || bridgeIds.contains('alt-vm')
+              || chainId == 'solana' || bridgeIds.contains('solana');
 
       final trade = Trade(
         id: txId,
@@ -417,7 +418,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }
 
   /// Register a broadcasted tx with Swaps.xyz (required for alt-vm).
-  Future<bool> registerAltVmTx({
+  static Future<bool> registerAltVmTx({
     required String txId,
     required String txHash,
     required int chainId,
