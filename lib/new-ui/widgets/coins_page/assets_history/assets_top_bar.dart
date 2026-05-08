@@ -1,9 +1,9 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/line_tab_switcher.dart';
+import 'package:cake_wallet/new-ui/widgets/new_elevated_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -39,9 +39,10 @@ class AssetsTopBar extends StatelessWidget {
             selectedTab: selectedTab,
           )
       else SizedBox.shrink(),
-      Opacity(
-        opacity: hasTokenSettingsButton ? 1 : 0,
-            child: ElevatedButton(
+          Opacity(
+            opacity: hasTokenSettingsButton ? 1 : 0,
+            child: NewElevatedButton(
+              buttonText: settingsButtonText,
               onPressed: () {
                 if (tabs[selectedTab] == S.of(context).assets) {
                   Navigator.of(context).pushNamed(
@@ -55,33 +56,8 @@ class AssetsTopBar extends StatelessWidget {
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999999),
-                    ),
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainer,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Row(
-                      spacing: 6,
-                      children: [
-                    CakeImageWidget(
-                        imageUrl: "assets/new-ui/options_slider.svg",
-                        colorFilter: ColorFilter.mode(
-                            Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
-                    Text(
-                          settingsButtonText??"",
-                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
             ),
+          ),
           ],
         ),
       ),

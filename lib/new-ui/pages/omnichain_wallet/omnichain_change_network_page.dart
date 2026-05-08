@@ -1,6 +1,7 @@
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
 import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
+import 'package:cake_wallet/new-ui/widgets/new_elevated_button.dart';
 import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
@@ -131,7 +132,7 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                             ],
                             'Other Chains': [
                               ...filteredWallets.map(
-                                    (info) => ListItemCheckbox(
+                                (info) => ListItemCheckbox(
                                   keyValue: 'other_networks_${info.type.name}_button_key',
                                   label: walletTypeToString(info.type),
                                   iconPath: getCryptoCurrencyIconForWalletListItem(info.type),
@@ -166,22 +167,13 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                   Flexible(
                                     flex: 2,
                                     fit: FlexFit.tight,
-                                    child: PrimaryButton(
-                                      key: const ValueKey('new_wallet_continue_button_key'),
-                                      borderRadius: BorderRadius.circular(999999),
-                                      onPressed: () {
-                                        //TODO: continue action
-                                      },
-                                      text: 'Manage',
-                                      borderColor:
-                                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainerHigh
-                                          .withAlpha(128),
-                                      textColor: Theme.of(context).colorScheme.primary,
-                                      isDisabled: false,
-                                    ),
+                                    child: NewElevatedButton(
+                                        key: const ValueKey(
+                                            'change_network_wallet_manage_button_key'),
+                                        buttonText: 'Manage',
+                                        onPressed: () {
+                                          //TODO: continue action
+                                        }),
                                   ),
                                 ],
                               ),

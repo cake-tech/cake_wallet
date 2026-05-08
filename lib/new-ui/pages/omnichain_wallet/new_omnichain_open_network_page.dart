@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_
 import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
 import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
+import 'package:cake_wallet/new-ui/widgets/new_elevated_button.dart';
 import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -145,22 +146,13 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                                 Flexible(
                                   flex: 2,
                                   fit: FlexFit.tight,
-                                  child: PrimaryButton(
-                                    key: const ValueKey('new_wallet_continue_button_key'),
-                                    borderRadius: BorderRadius.circular(999999),
+                                  child: NewElevatedButton(
+                                    key: const ValueKey('new_wallet_manage_button_key'),
                                     onPressed: () {
                                       // TODO: manage networks action
                                     },
-                                    text: 'Manage',
-                                    borderColor:
-                                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHigh
-                                        .withAlpha(128),
-                                    textColor: Theme.of(context).colorScheme.primary,
-                                    isDisabled: !state.hasAnySelected,
-                                  ),
+                                    buttonText: 'Manage',
+                                  )
                                 ),
                               ],
                             ),

@@ -14,6 +14,7 @@ class PrimaryButton extends StatelessWidget {
     this.borderColor = Colors.black,
     this.onDisabledPressed,
     this.borderRadius,
+    this.height = 52.0,
     super.key,
   });
 
@@ -26,6 +27,7 @@ class PrimaryButton extends StatelessWidget {
   final bool isDisabled;
   final bool isDottedBorder;
   final BorderRadius? borderRadius;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class PrimaryButton extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
       child: SizedBox(
         width: double.infinity,
-        height: 52.0,
+        height: height,
         child: TextButton(
           onPressed:
               isDisabled ? (onDisabledPressed != null ? onDisabledPressed : null) : onPressed,

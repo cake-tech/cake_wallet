@@ -254,6 +254,7 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
                                   child: PrimaryButton(
                                     key: const ValueKey('new_wallet_continue_button_key'),
                                     borderRadius: BorderRadius.circular(999999),
+                                      height: 40,
                                     onPressed: () {
                                       Navigator.of(context).pushNamed(
                                         Routes.newChainCustomizationPage,
