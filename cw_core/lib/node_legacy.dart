@@ -62,17 +62,26 @@ class Node extends HiveObject with Keyable {
     final list = nodeBox.values.toList();
     final powList = powNodeBox.values.toList();
     for (final node in list) {
+      if(defaultNodes.any((item)=>item.uri == node.uri)) {
+        // default nodes will be added by validateBuiltinNodes(), no need to migrate them.
+        await node.delete();
+        continue;
+      }
       await node.migrateToSqlite(
           isPow: false,
-          isBuiltin: defaultNodes.any((item) => item.uri == node.uri),
-          isOfficial: defaultNodes.any((item) => item.isOfficial && item.uri == node.uri));
+          isBuiltin: false,
+          isOfficial: false);
       await node.delete();
     }
     for (final node in powList) {
+      if(defaultPowNodes.any((item)=>item.uri == node.uri)) {
+        await node.delete();
+        continue;
+      }
       await node.migrateToSqlite(
           isPow: true,
-          isBuiltin: defaultPowNodes.any((item) => item.uri == node.uri),
-          isOfficial: defaultPowNodes.any((item) => item.isOfficial && item.uri == node.uri));
+          isBuiltin: false,
+          isOfficial: false);
       await node.delete();
     }
   }
