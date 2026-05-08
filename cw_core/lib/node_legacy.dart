@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
+import 'package:cw_core/node_list.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -12,9 +13,24 @@ import 'package:convert/convert.dart';
 
 import 'package:crypto/crypto.dart';
 
+import 'cake_hive.dart';
 import 'node.dart' as node_new;
 
 part "node_legacy.g.dart";
+
+Future<void> performNodeHiveMigration() async {
+  if(!CakeHive.isAdapterRegistered(Node.typeId)) {
+    CakeHive.registerAdapter(NodeAdapter());
+  }
+
+  final nodeBox = await CakeHive.openBox<Node>(Node.boxName);
+  final powNodeBox = await CakeHive.openBox<Node>(Node.boxName+"pow");
+  final builtinNodes = await loadAllDefaultNodes();
+  final builtinPowNodes = await loadDefaultNanoPowNodes();
+  await Node.migrateAllToSqlite(nodeBox, powNodeBox, builtinNodes, builtinPowNodes);
+
+
+}
 
 Uri createUriFromElectrumAddress(String address, String path) =>
     Uri.tryParse('tcp://$address$path')!;
@@ -41,21 +57,27 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  static Future<void> migrateAllToSqlite(Box<Node> nodeBox, Box<Node> powNodeBox) async {
+  static Future<void> migrateAllToSqlite(Box<Node> nodeBox, Box<Node> powNodeBox,
+      List<node_new.Node> defaultNodes, List<node_new.Node> defaultPowNodes) async {
     final list = nodeBox.values.toList();
     final powList = powNodeBox.values.toList();
     for (final node in list) {
-      await node.migrateToSqlite(isPow: false);
+      await node.migrateToSqlite(
+          isPow: true,
+          isBuiltin: defaultPowNodes.any((item) => item.uri == node.uri),
+          isOfficial: defaultPowNodes.any((item) => item.isOfficial && item.uri == node.uri));
       await node.delete();
     }
-    for(final node in powList) {
-      await node.migrateToSqlite(isPow: true);
+    for (final node in powList) {
+      await node.migrateToSqlite(
+          isPow: true,
+          isBuiltin: defaultPowNodes.any((item) => item.uri == node.uri),
+          isOfficial: defaultPowNodes.any((item) => item.isOfficial && item.uri == node.uri));
       await node.delete();
     }
   }
 
-
-  Future<void> migrateToSqlite({required bool isPow}) async {
+  Future<void> migrateToSqlite({required bool isPow, required bool isBuiltin, required bool isOfficial}) async {
     final newNode = node_new.Node(
       login: login,
       label: label,
@@ -68,6 +90,8 @@ class Node extends HiveObject with Keyable {
       path: path,
       uri: uriRaw,
       isEnabledForAutoSwitching: isEnabledForAutoSwitching,
+      isOfficial: isOfficial,
+      isBuiltin: isBuiltin,
     );
     await newNode.save();
   }

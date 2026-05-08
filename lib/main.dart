@@ -16,6 +16,7 @@ import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/node_check.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
@@ -46,6 +47,7 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
@@ -293,6 +295,8 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
   await performTradeHiveMigration(secureStorage);
+  await performNodeHiveMigration();
+  await validateBuiltinNodes();
 
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
@@ -341,6 +345,7 @@ Future<void> initialSetup({
   required int initialMigrationVersion,
 }) async {
   LanguageService.loadLocaleList();
+  await checkCurrentNodes(sharedPreferences);
   await defaultSettingsMigration(
     secureStorage: secureStorage,
     version: initialMigrationVersion,

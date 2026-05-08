@@ -1361,8 +1361,10 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.id == dogecoinNodeId) ??
             nodeSource.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
     final zcashNode =
+        nodeSource.firstWhereOrNull((e) => e.id == zcashNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final bscNode =
+        nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();

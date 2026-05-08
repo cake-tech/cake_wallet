@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:blockchain_utils/hex/hex.dart';
+import 'package:cw_core/node_list.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -14,6 +15,22 @@ import 'db/sqlite.dart';
 
 Uri createUriFromElectrumAddress(String address, String path) =>
     Uri.tryParse('tcp://$address$path')!;
+
+Future<void> validateBuiltinNodes() async {
+  // ensures nodes stored as builtin in the db correspond to the nodes in the .yml files
+
+  final builtinFromDb = await Node.getAllBuiltin();
+  final builtinFromList = await loadAllDefaultNodes();
+
+  final dbSet = builtinFromDb.toSet();
+  final listSet = builtinFromList.toSet();
+
+  final nodesToDelete = dbSet.difference(listSet);
+  final nodesToAdd = listSet.difference(dbSet);
+
+  for (final node in nodesToDelete) node.delete();
+  for (final node in nodesToAdd) node.save();
+}
 
 class Node {
   Node({
@@ -27,6 +44,9 @@ class Node {
     this.socksProxyAddress,
     this.path = '',
     this.isEnabledForAutoSwitching = false,
+    this.isOfficial = false,
+    this.isBuiltin = false,
+    this.isDefault = false,
     String? uri,
     WalletType? type,
   }) {
@@ -49,6 +69,9 @@ class Node {
   trusted: $trusted,
   socksProxyAddress: $socksProxyAddress,
   isEnabledForAutoSwitching: $isEnabledForAutoSwitching,
+  isOfficial: $isOfficial,
+  isBuiltin: $isBuiltin,
+  isDefault: $isDefault
  })""";
   }
 
@@ -64,7 +87,10 @@ class Node {
         typeRaw = (map["typeRaw"] ?? 0) as int,
         trusted = (map['trusted'] != 0) as bool? ?? false,
         socksProxyAddress = map['socksProxyAddress'] as String?,
-        isEnabledForAutoSwitching = (map['isEnabledForAutoSwitching'] != 0) as bool? ?? false;
+        isEnabledForAutoSwitching = (map['isEnabledForAutoSwitching'] != 0) as bool? ?? false,
+        isOfficial = (map['isOfficial'] != 0) as bool? ?? false,
+        isBuiltin = (map['isBuiltin'] != 0) as bool? ?? false,
+        isDefault = (map['isDefault'] != 0) as bool? ?? false;
 
   Map<String, dynamic> toMap() {
     return {
@@ -79,6 +105,9 @@ class Node {
       'trusted': trusted,
       'socksProxyAddress': socksProxyAddress,
       'isEnabledForAutoSwitching': isEnabledForAutoSwitching,
+      "isOfficial": isOfficial,
+      "isBuiltin": isBuiltin,
+      "isDefault": isDefault
     };
   }
 
@@ -124,8 +153,24 @@ class Node {
     return selectList("isPow = ?", [false]);
   }
 
+  static Future<List<Node>> getAllBuiltin() async {
+    return selectList("isPow = ? AND isBuiltin = ?", [false, true]);
+  }
+
+  static Future<List<Node>> getAllPowBuiltin() async {
+    return selectList("isPow = ? AND isBuiltin = ?", [true, true]);
+  }
+
   static Future<List<Node>> getAllForWalletType(WalletType type) async {
     return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), false]);
+  }
+
+  static Future<Node?> getDefaultForWalletType(WalletType type) async {
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), false, true])).firstOrNull;
+  }
+
+  static Future<Node?> getDefaultPowForWalletType(WalletType type) async {
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), true, true])).firstOrNull;
   }
 
   static Future<List<Node>> getAllForWalletTypePow(WalletType type) async {
@@ -151,6 +196,9 @@ class Node {
   bool? supportsSilentPayments;
   bool? supportsMweb;
   bool isEnabledForAutoSwitching;
+  bool isOfficial;
+  bool isBuiltin;
+  bool isDefault;
 
   String? label;
 
@@ -316,14 +364,14 @@ class Node {
       final responseString = await response.body;
 
       if ((responseString.contains("400 Bad Request") // Some other generic error
-          ||
-          responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
-          ||
-          response.headers["location"] != null // Generic reverse proxy
-          ||
-          responseString
-              .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
-      ) &&
+              ||
+              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              ||
+              response.headers["location"] != null // Generic reverse proxy
+              ||
+              responseString
+                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+          ) &&
           !(useSSL ?? false)) {
         final oldUseSSL = useSSL;
         useSSL = true;
@@ -418,8 +466,8 @@ class Node {
   Future<bool> requestEthereumServer() async {
     try {
       final req = await ProxyWrapper().getHttpClient()
-          .getUrl(uri,)
-          .timeout(Duration(seconds: 15));
+        .getUrl(uri,)
+        .timeout(Duration(seconds: 15));
       final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
@@ -430,23 +478,27 @@ class Node {
   }
 
   Future<bool> requestDecredNode() async {
-    if (uri.host == "default-spv-nodes") {
-      // Just show default port as ok. The wallet will connect to a list of known
-      // nodes automatically.
-      return true;
-    }
-    try {
-      final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+  if (uri.host == "default-spv-nodes") {
+    // Just show default port as ok. The wallet will connect to a list of known
+    // nodes automatically.
+    return true;
+  }
+  try {
+    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
       socket.destroy();
       return true;
     } catch (_) {
       return false;
     }
   }
-
-
 }
 
+/// https://github.com/ManyMath/digest_auth/
+/// HTTP Digest authentication.
+///
+/// Adapted from https://github.com/dart-lang/http/issues/605#issue-963962341.
+///
+/// Created because http_auth was not working for Monero daemon RPC responses.
 class DigestAuth {
   final String username;
   final String password;
@@ -578,7 +630,7 @@ class DaemonRpc {
     }
 
     final Map<String, dynamic> result =
-    jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
+        jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
     if (result['error'] != null) {
       throw Exception('RPC Error: ${result['error']}');
     }

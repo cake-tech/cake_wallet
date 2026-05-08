@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       }
       if (oldVersion <= 5) {
         await _createTradeTable(db);
-        await _createNodeTable(db);
+        await _createNodeTables(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -195,7 +195,7 @@ CREATE TABLE BalanceCardStyleSettings (
 );
         ''');
       await _createBridgeTransferTable(db);
-      await _createNodeTable(db);
+      await _createNodeTables(db);
       await _createTradeTable(db);
     }
   );
@@ -325,7 +325,7 @@ ON BridgeTransfer(wallet_id);
 ''');
 }
 
-Future<void> _createNodeTable(Database db) async {
+Future<void> _createNodeTables(Database db) async {
   db.execute("""
 CREATE TABLE Node (
 NodeId INTEGER PRIMARY KEY,
@@ -338,7 +338,10 @@ useSSL INTEGER,
 typeRaw INTEGER NOT NULL,
 trusted INTEGER NOT NULL,
 socksProxyAddress TEXT,
-isEnabledForAutoSwitching INTEGER NOT NULL
+isEnabledForAutoSwitching BOOLEAN DEFAULT FALSE,
+isOfficial BOOLEAN DEFAULT FALSE,
+isBuiltin BOOLEAN DEFAULT FALSE,
+isDefault BOOLEAN DEFAULT FALSE
 );
         """);
 }

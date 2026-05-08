@@ -63,6 +63,7 @@ class NodeListRow extends StandardListRow {
 
   @override
   Widget buildTrailing(BuildContext context) {
+    if(node.isBuiltin) return SizedBox.shrink();
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(
         isPow ? Routes.newPowNode : Routes.newNode,

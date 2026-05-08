@@ -18,6 +18,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
+import 'package:cw_core/node_list.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
@@ -68,7 +69,7 @@ Future<void> defaultSettingsMigration(
   }
 
   // check current nodes for nullability regardless of the version
-  await checkCurrentNodes(sharedPreferences);
+  // await checkCurrentNodes(sharedPreferences);
 
   final isNewInstall =
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
@@ -187,7 +188,7 @@ Future<void> defaultSettingsMigration(
           break;
 
         case 12:
-          await checkCurrentNodes(sharedPreferences);
+          // await checkCurrentNodes(sharedPreferences);
           break;
 
         case 13:
@@ -201,7 +202,7 @@ Future<void> defaultSettingsMigration(
             type: WalletType.litecoin,
             currentNodePreferenceKey: PreferencesKey.currentLitecoinElectrumSererIdKey,
           );
-          await checkCurrentNodes(sharedPreferences);
+          // await checkCurrentNodes(sharedPreferences);
           break;
 
         case 16:
@@ -211,7 +212,7 @@ Future<void> defaultSettingsMigration(
             type: WalletType.haven,
             currentNodePreferenceKey: PreferencesKey.currentHavenNodeIdKey,
           );
-          await checkCurrentNodes(sharedPreferences);
+          // await checkCurrentNodes(sharedPreferences);
           break;
 
         case 17:
@@ -1115,199 +1116,6 @@ Future<void> updateBtcNanoWalletInfos() async {}
 //     }
 //   }
 // }
-
-Future<void> checkCurrentNodes(
-    SharedPreferences sharedPreferences) async {
-  final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
-  final currentBitcoinElectrumSeverId =
-      sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
-  final currentLitecoinElectrumSeverId =
-      sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
-  final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
-  final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
-  final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
-  final currentBaseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
-  final currentArbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
-  final currentBscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
-  final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
-  final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
-  final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
-  final currentBitcoinCashNodeId =
-      sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
-  final currentDogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
-  final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
-  final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
-  final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
-  final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
-  final currentZcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
-  List<Node> nodeSource = await Node.getAll();
-  List<Node> powNodeSource = await Node.getAllPow();
-
-  final currentMoneroNode =
-      nodeSource.firstWhereOrNull((node) => node.id == currentMoneroNodeId);
-  final currentBitcoinElectrumServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentBitcoinElectrumSeverId);
-  final currentLitecoinElectrumServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentLitecoinElectrumSeverId);
-  final currentHavenNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentHavenNodeId);
-  final currentEthereumNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentEthereumNodeId);
-  final currentPolygonNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentPolygonNodeId);
-  final currentBaseNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentBaseNodeId);
-  final currentArbitrumNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentArbitrumNodeId);
-  final currentBscNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentBscNodeId);
-  final currentNanoNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentNanoNodeId);
-  final currentDecredNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentDecredNodeId);
-  final currentNanoPowNodeServer =
-      powNodeSource.firstWhereOrNull((node) => node.id == currentNanoPowNodeId);
-  final currentBitcoinCashNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentBitcoinCashNodeId);
-  final currentDogecoinNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentDogecoinNodeId);
-  final currentSolanaNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentSolanaNodeId);
-  final currentTronNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentTronNodeId);
-  final currentWowneroNodeServer =
-      nodeSource.firstWhereOrNull((node) => node.id == currentWowneroNodeId);
-  final currentZanoNode =
-      nodeSource.firstWhereOrNull((node) => node.id == currentZanoNodeId);
-  final currentZcashNode =
-      nodeSource.firstWhereOrNull((node) => node.id == currentZcashNodeId);
-
-  if (currentMoneroNode == null) {
-    final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
-    await newCakeWalletNode.save();
-    await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.id);
-  }
-
-  if (currentBitcoinElectrumServer == null) {
-    final cakeWalletElectrum =
-    Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
-    await cakeWalletElectrum.save();
-    final cakeWalletElectrumTestnet =
-    Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
-    await cakeWalletElectrumTestnet.save();
-    await sharedPreferences.setInt(
-        PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrum.id);
-  }
-
-  if (currentLitecoinElectrumServer == null) {
-    final cakeWalletElectrum =
-    Node(uri: cakeWalletLitecoinElectrumUri, type: WalletType.litecoin, useSSL: false);
-    await cakeWalletElectrum.save();
-    await sharedPreferences.setInt(
-        PreferencesKey.currentLitecoinElectrumSererIdKey, cakeWalletElectrum.id);
-  }
-
-  if (currentHavenNodeServer == null) {
-    final node = Node(uri: havenDefaultNodeUri, type: WalletType.haven);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.id);
-  }
-
-  if (currentEthereumNodeServer == null) {
-    final node = Node(uri: ethereumDefaultNodeUri, type: WalletType.ethereum);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.id);
-  }
-
-  if (currentNanoNodeServer == null) {
-    final node = Node(uri: nanoDefaultNodeUri, useSSL: true, type: WalletType.nano);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.id);
-  }
-
-  if (currentNanoPowNodeServer == null) {
-    Node? node = powNodeSource
-        .firstWhereOrNull((node) => node.uri.toString() == nanoDefaultPowNodeUri);
-    if (node == null) {
-      node = Node(uri: nanoDefaultPowNodeUri, useSSL: true, type: WalletType.nano, isPow:true);
-      await node.save();
-    }
-    await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.id);
-  }
-
-  if (currentBitcoinCashNodeServer == null) {
-    final node =
-    Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash, useSSL: false);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.id);
-  }
-
-  if (currentDogecoinNodeServer == null) {
-    final node = Node(uri: dogecoinDefaultNodeUri, type: WalletType.dogecoin, useSSL: true);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.id);
-  }
-
-  if (currentPolygonNodeServer == null) {
-    final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.id);
-  }
-
-  if (currentBaseNodeServer == null) {
-    final node = Node(uri: baseDefaultNodeUri, type: WalletType.base);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.id);
-  }
-
-  if (currentArbitrumNodeServer == null) {
-    final node = Node(uri: arbitrumDefaultNodeUri, type: WalletType.arbitrum);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentArbitrumNodeIdKey, node.id);
-  }
-
-  if (currentBscNodeServer == null) {
-    final node = Node(uri: bscDefaultNodeUri, type: WalletType.bsc);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentBscNodeIdKey, node.id);
-  }
-
-  if (currentSolanaNodeServer == null) {
-    final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.id);
-  }
-
-  if (currentTronNodeServer == null) {
-    final node = Node(uri: tronDefaultNodeUri, type: WalletType.tron);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.id);
-  }
-
-  if (currentWowneroNodeServer == null) {
-    final node = Node(uri: wowneroDefaultNodeUri, type: WalletType.wownero);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.id);
-  }
-
-  if (currentZanoNode == null) {
-    final node = Node(uri: zanoDefaultNodeUri, type: WalletType.zano);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.id);
-  }
-
-  if (currentDecredNodeServer == null) {
-    final node = Node(uri: decredDefaultUri, type: WalletType.decred);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.id);
-  }
-
-  if (currentZcashNode == null) {
-    final node = Node(uri: zcashDefaultNodeUri, type: WalletType.zcash, useSSL: true);
-    await node.save();
-    await sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.id);
-  }
-}
 
 Future<void> resetBitcoinElectrumServer(SharedPreferences sharedPreferences) async {
   final nodeSource = await Node.getAll();
