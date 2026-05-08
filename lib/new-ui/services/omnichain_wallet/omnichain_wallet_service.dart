@@ -67,8 +67,8 @@ class OmniChainWalletCreationService {
 
   Future<void> createGroup({required OmniChainCreateGroupRequest request}) async {
     try {
-      final types = request.selectedTypes;
       final primaryType = request.primaryType;
+      final types = <WalletType>{primaryType, ...request.selectedTypes}.toSet();
       final groupName = request.groupName;
       final mnemonic = request.mnemonic;
 
@@ -98,9 +98,6 @@ class OmniChainWalletCreationService {
       if (wallet == null) throw Exception('First wallet was not set as current.');
 
       final groupKey = walletManager.resolveGroupKey(wallet.walletInfo);
-      await walletManager.updateWalletGroups();
-
-      walletManager.setGroupName(groupKey, groupName);
 
       String? sharedMnemonic = mnemonic;
       sharedMnemonic ??= wallet.seed;
@@ -117,6 +114,9 @@ class OmniChainWalletCreationService {
         groupName: groupName,
         restTypes: restTypesRaw,
       );
+
+      await walletManager.updateWalletGroups();
+      walletManager.setGroupName(groupKey, groupName);
       await walletManager.updateWalletGroups();
     } catch (e) {
       throw Exception('Failed to create wallet group: ${e.toString()}');

@@ -64,14 +64,7 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OmniChainWalletBloc, OmniChainWalletState>(
-      listener: (context, state) {
-        if (state.groupCreated) {
-          Navigator.of(context).pushNamed(
-            Routes.newOmniChainSummaryPage,
-            arguments: context.read<OmniChainWalletBloc>(),
-          );
-        }
-      },
+      listener: (context, state) {},
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -156,7 +149,7 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                                     key: const ValueKey('new_wallet_continue_button_key'),
                                     borderRadius: BorderRadius.circular(999999),
                                     onPressed: () {
-                                      //TODO: continue action
+                                      // TODO: manage networks action
                                     },
                                     text: 'Manage',
                                     borderColor:

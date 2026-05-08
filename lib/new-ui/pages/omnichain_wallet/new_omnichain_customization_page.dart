@@ -81,29 +81,29 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                         color: Theme.of(context).colorScheme.surfaceContainerLowest,
                       ),
                     ),
-                    Positioned(
-                      right: -2,
-                      bottom: 4,
-                      child: Material(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        shape: const CircleBorder(),
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: () {
-                            // TODO: add icon picker action
-                          },
-                          child: SizedBox(
-                            width: 36,
-                            height: 36,
-                            child: Icon(
-                              Icons.add,
-                              size: 22,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Positioned(
+                    //   right: -2,
+                    //   bottom: 4,
+                    //   child: Material(
+                    //     color: Theme.of(context).colorScheme.surfaceContainer,
+                    //     shape: const CircleBorder(),
+                    //     child: InkWell(
+                    //       customBorder: const CircleBorder(),
+                    //       onTap: () {
+                    //         // TODO: add icon picker action
+                    //       },
+                    //       child: SizedBox(
+                    //         width: 36,
+                    //         height: 36,
+                    //         child: Icon(
+                    //           Icons.add,
+                    //           size: 22,
+                    //           color: Theme.of(context).colorScheme.primary,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -196,7 +196,7 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                   key: const ValueKey('new_wallet_customization_continue_button_key'),
                   onPressed: () {
                     Navigator.of(context).pushNamed(
-                      Routes.newOmniChainOpenNetworkPage,
+                      Routes.newOmniChainSummaryPage,
                       arguments: context.read<OmniChainWalletBloc>(),
                     );
                   },

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -133,8 +134,13 @@ class NewOmnichainSummaryPageBody extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: PrimaryButton(
-                  key: const ValueKey('new_wallet_summary_open_wallet_button_key'),
-                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                  key: const ValueKey('new_wallet_summary_continue_button_key'),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(
+                      Routes.newOmniChainOpenNetworkPage,
+                      arguments: context.read<OmniChainWalletBloc>(),
+                    );
+                  },
                   borderRadius: BorderRadius.circular(999999),
                   text: 'Open Wallet',
                   color: Theme.of(context).colorScheme.primary,
