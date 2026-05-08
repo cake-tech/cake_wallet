@@ -1,12 +1,15 @@
 -
   uri: arbitrum.nownodes.io
-  is_default: true
+  isDefault: true
   useSSL: true
   isEnabledForAutoSwitching: true
+  label: "NOWNodes"
 -
   uri: arbitrum.drpc.org
   useSSL: true
+  label: "dRPC"
 -
   uri: arbitrum-one-rpc.publicnode.com
   useSSL: true
   isEnabledForAutoSwitching: true
+  label: "PublicNode"
