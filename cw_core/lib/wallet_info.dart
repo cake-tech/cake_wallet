@@ -7,9 +7,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
 import 'package:cw_core/wallet_type.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
-import "package:cw_core/node_legacy.dart" as node_legacy;
 
 Future<void> performHiveMigration() async {
   try {
@@ -27,8 +24,6 @@ Future<void> performHiveMigration() async {
     }
     final walletInfoBox = await CakeHive.openBox<wiLegacy.WalletInfo>(wiLegacy.WalletInfo.boxName);
     await wiLegacy.WalletInfo.migrateAllToSqlite(walletInfoBox);
-
-
   } catch (e) {
     printV('Error performing Hive migration: $e, continuing anyway');
   }

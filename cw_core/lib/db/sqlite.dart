@@ -131,8 +131,8 @@ CREATE TABLE WalletInfo (
 );
 ''');
 
-  await db.execute(
-      '''
+      await db.execute(
+        '''
 CREATE TABLE WalletInfoDerivationInfo (
 	walletInfoDerivationInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	address TEXT NOT NULL,
@@ -145,8 +145,8 @@ CREATE TABLE WalletInfoDerivationInfo (
 );
 ''');
 
-  await db.execute(
-      '''
+      await db.execute(
+        '''
 CREATE TABLE WalletInfoAddress (
 	walletInfoAddressId INTEGER PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER,
@@ -156,8 +156,8 @@ CREATE TABLE WalletInfoAddress (
 );
 ''');
 
-  await db.execute(
-      '''
+      await db.execute(
+        '''
 CREATE TABLE WalletInfoAddressInfo (
 	walletInfoAddressInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,
@@ -169,8 +169,8 @@ CREATE TABLE WalletInfoAddressInfo (
 );
 ''');
 
-  await db.execute(
-      '''
+      await db.execute(
+        '''
 CREATE TABLE "WalletInfoAddressMap" (
 	walletInfoAddressMapId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,

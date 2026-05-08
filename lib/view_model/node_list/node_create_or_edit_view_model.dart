@@ -7,7 +7,6 @@ import 'package:collection/collection.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -321,15 +320,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     }
   }
 
-  Future<Node?> _existingNode(Node node)async {
-    final nodes = isPow ? await Node.getAllPow() : await Node.getAll();
-    nodes.forEach((item) {
-      item.login ??= '';
-      item.password ??= '';
-      item.useSSL ??= false;
-    });
-    return nodes.firstWhereOrNull((item) => item == node);
-  }
 
   @action
   void setAsCurrent(Node node) => _settingsStore.nodes[walletType] = node;
