@@ -15,6 +15,9 @@ class OmniChainWalletManagingBloc
     on<OmniChainWalletManagingSearchChanged>(_onSearchChanged);
     on<OmniChainWalletManagingCurrentWalletSelected>(_onCurrentWalletSelected);
     on<OmniChainWalletManagingWalletSelected>(_onWalletSelected);
+    on<OmniChainWalletManagingActivateSelectedWallet>(
+      _onActivateSelectedWallet,
+    );
   }
 
   final OmniChainWalletCreationService omniChainWalletCreationService;
@@ -68,6 +71,31 @@ class OmniChainWalletManagingBloc
     Emitter<OmniChainWalletManagingState> emit,
   ) {
     emit(state.copyWith(selectedWallet: event.walletInfo));
+  }
+
+  Future<void> _onActivateSelectedWallet(
+      OmniChainWalletManagingActivateSelectedWallet event,
+      Emitter<OmniChainWalletManagingState> emit,
+      ) async {
+    if (event.walletInfo.type == state.currentNetwork) {
+      return;
+    }
+
+    emit(state.copyWith(
+      selectedWallet: event.walletInfo,
+      isLoading: true,
+    ));
+
+    try {
+      await omniChainWalletCreationService.activatePlaceholderWallet(event.walletInfo);
+
+      emit(state.copyWith(isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
+    }
   }
 
   List<WalletInfo> _filterWallets(List<WalletInfo> wallets, String query) {

@@ -464,6 +464,7 @@ Future<void> setup({
       walletCreationService: getIt.get<WalletCreationService>(param1: WalletType.none),
       walletNewVMBuilder: (newWalletArguments) => getIt.get<WalletNewVM>(param1: newWalletArguments),
       walletManager: getIt.get<WalletManager>(),
+      walletLoadingService: getIt.get<WalletLoadingService>(),
       appStore: getIt.get<AppStore>(),
     ),
   );

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart';
@@ -19,12 +20,14 @@ class OmniChainWalletCreationService {
     required this.walletNewVMBuilder,
     required this.walletManager,
     required this.appStore,
+    required this.walletLoadingService,
   });
 
   final WalletCreationService walletCreationService;
   final WalletNewVM Function(NewWalletArguments) walletNewVMBuilder;
   final WalletManager walletManager;
   final AppStore appStore;
+  final WalletLoadingService walletLoadingService;
 
   static const defaultMoneroOptions = [defaultSeedLanguage, MoneroSeedType.bip39];
 
@@ -121,6 +124,51 @@ class OmniChainWalletCreationService {
     } catch (e) {
       throw Exception('Failed to create wallet group: ${e.toString()}');
     }
+  }
+
+  Future<void> activatePlaceholderWallet(WalletInfo walletInfo) async {
+
+    if (walletInfo.isReady) {
+      final wallet = await walletLoadingService.load(
+        walletInfo.type,
+        walletInfo.name,
+      );
+
+      await appStore.changeCurrentWallet(wallet);
+      await walletManager.updateWalletGroups();
+      return;
+    }
+
+    final currentWallet = appStore.wallet;
+
+    if (currentWallet == null) {
+      throw Exception('Current wallet is null');
+    }
+
+    final mnemonic = currentWallet.seed;
+
+    if (mnemonic == null || mnemonic.isEmpty) {
+      throw Exception('Failed to resolve shared mnemonic');
+    }
+
+    dynamic options;
+
+    if (walletInfo.type == WalletType.monero) {
+      options = defaultMoneroOptions;
+    }
+
+    await WalletInfo.delete(walletInfo);
+
+    await _createSingleWallet(
+      type: walletInfo.type,
+      finalName: walletInfo.name,
+      isChildWallet: true,
+      mnemonic: mnemonic,
+      options: options,
+      makeCurrent: true,
+    );
+
+    await walletManager.updateWalletGroups();
   }
 
   Future<void> _createSingleWallet({

@@ -105,6 +105,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             final currentColor = item.isCurrent
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface;
+            final walletNameToDisplay = item.name.split('_');
+
             return ListTile(
               contentPadding: EdgeInsets.zero,
               key: ValueKey(item.name),

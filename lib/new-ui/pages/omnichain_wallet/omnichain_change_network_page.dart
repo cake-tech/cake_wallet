@@ -106,24 +106,17 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                     ListItemCheckbox(
                                       keyValue: 'current_network_button_key',
                                       label: walletTypeToString(currentNetwork),
-                                      iconPath: getCryptoCurrencyIconForWalletListItem(currentNetwork),
+                                      iconPath:
+                                          getCryptoCurrencyIconForWalletListItem(currentNetwork),
                                       value: state.selectedWallet == null,
-                                      onChanged: (_) {
-                                        context.read<OmniChainWalletManagingBloc>().add(
-                                              OmniChainWalletManagingCurrentWalletSelected(),
-                                            );
-                                      },
+                                      onChanged: (_) {},
                                     )
                                   else
                                     ListItemCheckbox(
                                       keyValue: 'current_network_button_key',
                                       label: 'No Network',
                                       value: state.selectedWallet == null,
-                                      onChanged: (_) {
-                                        context.read<OmniChainWalletManagingBloc>().add(
-                                              OmniChainWalletManagingCurrentWalletSelected(),
-                                            );
-                                      },
+                                      onChanged: (_) {},
                                     ),
                                 ],
                                 'Other Chains': [
@@ -135,7 +128,7 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                       value: state.selectedWallet?.type == info.type,
                                       onChanged: (_) {
                                         context.read<OmniChainWalletManagingBloc>().add(
-                                              OmniChainWalletManagingWalletSelected(info),
+                                              OmniChainWalletManagingActivateSelectedWallet(info),
                                             );
                                       },
                                     ),
@@ -170,7 +163,7 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                                 'change_network_wallet_manage_button_key'),
                                             buttonText: 'Manage',
                                             onPressed: () {
-                                              //TODO: continue action
+                                              // TODO: manage networks action
                                             }),
                                       ),
                                     ],

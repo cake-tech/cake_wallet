@@ -220,7 +220,9 @@ class WalletListBodyState extends State<WalletListBody> {
                                     );
                                   },
                                 ),
-                                childWallets: group.wallets.map((walletInfo) {
+                                childWallets: group.wallets
+                                    .where((walletInfo) => walletInfo.isReady)
+                                    .map((walletInfo) {
                                   return widget.walletListViewModel
                                       .convertWalletInfoToWalletListItem(walletInfo);
                                 }).toList(),

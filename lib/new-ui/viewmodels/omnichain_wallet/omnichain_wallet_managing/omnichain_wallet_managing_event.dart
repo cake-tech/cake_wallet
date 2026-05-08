@@ -12,6 +12,13 @@ class OmniChainWalletManagingSearchChanged extends OmniChainWalletManagingEvent 
 
 class OmniChainWalletManagingCurrentWalletSelected extends OmniChainWalletManagingEvent {}
 
+class OmniChainWalletManagingActivateSelectedWallet
+    extends OmniChainWalletManagingEvent {
+  OmniChainWalletManagingActivateSelectedWallet(this.walletInfo);
+
+  final WalletInfo walletInfo;
+}
+
 class OmniChainWalletManagingWalletSelected extends OmniChainWalletManagingEvent {
   OmniChainWalletManagingWalletSelected(this.walletInfo);
 
