@@ -236,13 +236,14 @@ class CWMonero extends Monero {
     required String name,
     required String password,
     required int height,
-    required ledger.LedgerConnection ledgerConnection,
+    required HardwareWalletService hardwareWalletService,
   }) =>
       MoneroRestoreWalletFromHardwareCredentials(
-          name: name,
-          password: password,
-          height: height,
-          ledgerConnection: ledgerConnection);
+        name: name,
+        password: password,
+        height: height,
+        hardwareWalletService: hardwareWalletService,
+      );
 
   @override
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
@@ -416,9 +417,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  void monerocCheck() {
-    checkIfMoneroCIsFine();
-  }
+  void monerocCheck() => checkIfMoneroCIsFine();
 
   @override
   Future<void> setLedgerConnection(Object wallet, ledger.LedgerConnection connection) async {
@@ -427,29 +426,25 @@ class CWMonero extends Monero {
   }
 
   @override
-  void resetLedgerConnection() {
-    disableLedgerExchange();
-  }
+  void resetLedgerConnection() => disableLedgerExchange();
 
   @override
-  void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
-    gLedger = connection;
-  }
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection) => gLedger = connection;
 
   @override
   String? getLastLedgerCommand() => latestLedgerCommand;
 
-  bool isViewOnly() {
-    return isViewOnlyBySpendKey(null);
-  }
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
+      MoneroLedgerService(connection);
+
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorClient client) =>
+      MoneroTrezorService(client);
+
+  bool isViewOnly() => isViewOnlyBySpendKey(null);
 
   @override
-  Map<String, List<int>> debugCallLength() {
-    return monero_wallet_api.debugCallLength();
-  }
+  Map<String, List<int>> debugCallLength() => monero_wallet_api.debugCallLength();
 
   @override
-  Map<String, dynamic> getWalletCacheDebug() {
-    return monero_wallet_api.getWalletCacheDebug();
-  }
+  Map<String, dynamic> getWalletCacheDebug() => monero_wallet_api.getWalletCacheDebug();
 }

@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/new-ui/widgets/hardware_wallet/trezor_paring_sheet.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
@@ -11,6 +14,7 @@ import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:trezor_connect/trezor_connect.dart' as connect_sdk;
@@ -25,6 +29,8 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   late final sdk.TrezorInterface trezorBLE;
   late final sdk.TrezorInterface trezorUSB;
+
+  sdk.ThpState _state = sdk.ThpState();
 
   TrezorConnectViewModelBase(this.trezorConnect) {
     if (_doesSupportHardwareWallets) {
@@ -42,7 +48,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   bool get _doesSupportHardwareWallets {
     if (isMoneroOnly) {
       return DeviceConnectionType.supportedConnectionTypes(
-          WalletType.monero, HardwareWalletType.trezor, Platform.isIOS)
+              WalletType.monero, HardwareWalletType.trezor, Platform.isIOS)
           .isNotEmpty;
     }
 
@@ -50,6 +56,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   }
 
   bool _bleIsInitialized = false;
+
   Future<void> _initBLE() async {
     if (isBleEnabled && !_bleIsInitialized) {
       trezorBLE = sdk.TrezorInterface.ble(
@@ -80,7 +87,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   @override
   bool get hasBluetooth => true;
 
-
   @override
   Future<void> updateBleState() async {
     final bleState = await sdk.UniversalBle.getBluetoothAvailabilityState();
@@ -104,8 +110,50 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (!Platform.isIOS) await trezorUSB.stopScanning();
   }
 
+  bool _isConnecting = false;
+  sdk.TrezorClient? _client;
+
   @override
-  Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async => true;
+  Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
+    if (!(device is TrezorHardwareWalletDevice)) return false;
+    if (_isConnecting) return false;
+    _isConnecting = true;
+
+    try {
+      final trezorInterface =
+          device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
+      final connection = await trezorInterface.connect(device.device);
+
+      Future<String> onPinCode() async {
+        final res = await showModalBottomSheet<String?>(
+          isScrollControlled: true,
+          context: navigatorKey.currentContext!,
+          backgroundColor: Colors.transparent,
+          builder: (context) => HardwareWalletTrezorParingSheet(),
+        );
+
+        if (res == null) throw Exception();
+        return res;
+      }
+
+      _client = sdk.TrezorClient.getClientForConnection(
+        connection,
+        _state,
+        "Cake Wallet",
+        "Phone",
+        onPinCode,
+      );
+
+      await _client!.createChannel();
+
+      return true;
+    } catch (e) {
+      await _client?.connection.disconnect();
+      _isConnecting = false;
+      _client = null;
+      rethrow;
+    }
+  }
 
   @override
   bool get isConnected => true;
@@ -113,6 +161,8 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {
     switch (type) {
+      case WalletType.monero:
+        return monero!.getTrezorHardwareWalletService(_client!);
       case WalletType.bitcoin:
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, true);
       case WalletType.litecoin:
