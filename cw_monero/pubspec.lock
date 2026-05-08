@@ -342,10 +342,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_web_bluetooth
-      sha256: "1363831def5eed1e1064d1eca04e8ccb35446e8f758579c3c519e156b77926da"
+      sha256: ad26a1b3fef95b86ea5f63793b9a0cdc1a33490f35d754e4e711046cae3ebbf8
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.1.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -494,18 +494,18 @@ packages:
     dependency: "direct main"
     description:
       name: ledger_flutter_plus
-      sha256: "1c03f3c4a9754b5f0170a9eb9552ec54fa86e985f8ee71a255ee2c5629b53d31"
+      sha256: "59c5a6062505c721c2ca909fa085c52cffe93de995174b8418b54a6acf52eb70"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.1"
+    version: "1.5.6"
   ledger_usb_plus:
     dependency: transitive
     description:
       name: ledger_usb_plus
-      sha256: "21cc5d976cf7edb3518bd2a0c4164139cbb0817d2e4f2054707fc4edfdf9ce87"
+      sha256: "911df2d1d55cdae612ff2c9db140cf71a9b28a67ba16adfdc4983cd9f02c531e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.8"
   logging:
     dependency: transitive
     description:
@@ -724,6 +724,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "68645b24e0716782e58948f8467fd42a880f255096a821f9e7d0ec625b00c84d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   provider:
     dependency: transitive
     description:
@@ -962,6 +970,20 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  trezor_flutter:
+    dependency: "direct main"
+    description:
+      path: "../../trezor-flutter/trezor-flutter"
+      relative: true
+    source: path
+    version: "0.1.0"
+  trezor_usb_transport:
+    dependency: transitive
+    description:
+      path: "../../trezor-flutter/trezor_usb_transport"
+      relative: true
+    source: path
+    version: "0.0.1"
   tuple:
     dependency: transitive
     description:
@@ -982,10 +1004,10 @@ packages:
     dependency: transitive
     description:
       name: universal_ble
-      sha256: "1fad089150a29db82b3b7d60327e18c5ad6b3a5bb509defc1c690b0a76b9c098"
+      sha256: "8325ca9f5cce2fba2b4efef74a4fcfe7144f303b409d6fc6ed16197b00a1a241"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.0"
+    version: "1.2.0"
   universal_platform:
     dependency: transitive
     description:
