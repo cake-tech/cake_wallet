@@ -32,7 +32,7 @@ class LightningSwitcher extends StatelessWidget {
             shape: RoundedSuperellipseBorder(
               borderRadius: BorderRadiusGeometry.circular(900.0),
             ),
-            color: Theme.of(context).colorScheme.surfaceContainer,
+            color: Theme.of(context).colorScheme.surfaceContainerLowest,
           ),
           child: Stack(
             children: [
