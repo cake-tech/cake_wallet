@@ -1182,6 +1182,7 @@ Future<void> setup({
           getIt.get<PowNodeListViewModel>(),
           type,
           getIt.get<SettingsStore>(),
+          editingNode: editingNode
         );
       }
   );

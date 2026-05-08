@@ -20,20 +20,24 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
 
 abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(
-      this.isPow, this.nodeListViewModel,this.powNodeListViewModel, this.walletType, this._settingsStore)
+      this.isPow, this.nodeListViewModel,this.powNodeListViewModel, this.walletType, this._settingsStore, {this.editingNode})
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
-        useSSL = false,
-        address = '',
-        label = "",
-        path = '',
-        port = '',
-        login = '',
-        password = '',
-        trusted = false,
-        isEnabledForAutoSwitching = false,
-        useSocksProxy = false,
-        socksProxyAddress = '';
+        label = editingNode?.label ?? '',
+        address = editingNode?.uri.host.toString() ?? '',
+        path = editingNode?.path.toString() ?? '',
+        port = (editingNode != null && editingNode.uri.hasPort)
+            ? editingNode.uri.port.toString()
+            : '',
+        login = editingNode?.login ?? '',
+        password = editingNode?.password ?? '',
+        socksProxyAddress = editingNode?.socksProxyAddress ?? '',
+        trusted = editingNode?.trusted ?? false,
+        isEnabledForAutoSwitching =
+            editingNode?.isEnabledForAutoSwitching ?? false,
+        useSocksProxy = editingNode?.socksProxyAddress != null &&
+            editingNode!.socksProxyAddress!.isNotEmpty,
+        useSSL = editingNode?.useSSL ?? false {}
 
   final nodeLabelUIKey = 'node_label_row_key';
   final nodeAddressUIKey = 'node_address_row_key';
@@ -105,6 +109,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   String socksProxyAddress;
+
+  @observable
+  Node? editingNode;
 
   @observable
   bool isPow;
