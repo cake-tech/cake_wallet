@@ -108,6 +108,7 @@ class Node {
       'uri': uriRaw,
       'path': path,
       'login': login,
+      "label": label,
       'password': password,
       "isPow": isPow,
       'useSSL': useSSL,
