@@ -244,8 +244,13 @@ abstract class WalletListViewModelBase with Store {
   }
 
   WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
+    String formatedName = info.name;
+    final list = info.name.split('_');
+    if (list.length > 1) {
+      formatedName= list.last;
+    }
     return WalletListItem(
-      name: info.name,
+      name: formatedName,
       type: info.type,
       key: info.id,
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,

@@ -238,6 +238,12 @@ String walletTypeToString(WalletType type) {
   }
 }
 
+String walletTypeToDescription(WalletType type) {
+  return switch (type) {
+    WalletType.bitcoin => 'Mainnet + Lightning',
+    _=> '' };
+}
+
 String walletTypeToDisplayName(WalletType type) {
   switch (type) {
     case WalletType.monero:

@@ -23,6 +23,9 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+import 'omnichain_manage_networks.dart';
 
 class NewChainSelectionPage extends BasePage {
   NewChainSelectionPage({
@@ -146,6 +149,27 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
                   '': [
                     ListItemRegularRow(
                       keyValue: 'all_chains',
+                      onTap: () {
+                        final bloc = context.read<OmniChainWalletBloc>();
+
+                        showCupertinoModalBottomSheet(
+                          context: context,
+                          barrierColor: Colors.black.withAlpha(85),
+                          builder: (_) => FractionallySizedBox(
+                            child: Material(
+                              child: OmniChainManageNetworksPage(
+                                availableNetworks: types,
+                                selectedNetworks: Set<WalletType>.from(bloc.state.selectedTypes),
+                                onChanged: (selectedTypes) {
+                                  bloc.add(
+                                    OmniChainWalletTypesSelectionChanged(selectedTypes),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                       label: 'All chains',
                       trailingText: '${types.length} items',
                       iconPath: 'assets/new-ui/chains.svg',
@@ -216,7 +240,10 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
                               (type) => ListItemCheckbox(
                                 keyValue: 'new_wallet_${type.name}_button_key',
                                 iconPath: getCryptoCurrencyIconForWalletListItem(type),
-                                label: walletTypeToDisplayName(type),
+                                label: walletTypeToString(type),
+                                subtitle: walletTypeToDescription(type).isEmpty
+                                    ? null
+                                    : walletTypeToDescription(type),
                                 value: state.isSelected(type),
                                 onChanged: (bool value) => context.read<OmniChainWalletBloc>().add(
                                       OmniChainWalletTypeToggled(
@@ -254,7 +281,7 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
                                   child: PrimaryButton(
                                     key: const ValueKey('new_wallet_continue_button_key'),
                                     borderRadius: BorderRadius.circular(999999),
-                                      height: 40,
+                                    height: 40,
                                     onPressed: () {
                                       Navigator.of(context).pushNamed(
                                         Routes.newChainCustomizationPage,

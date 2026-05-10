@@ -27,3 +27,9 @@ class OmniChainWalletTypesDeselected extends OmniChainWalletEvent {}
 class OmniChainWalletTypesSelected extends OmniChainWalletEvent {}
 
 class OmniChainWalletGroupCreateRequested extends OmniChainWalletEvent {}
+
+class OmniChainWalletTypesSelectionChanged extends OmniChainWalletEvent {
+  OmniChainWalletTypesSelectionChanged(this.selectedTypes);
+
+  final Set<WalletType> selectedTypes;
+}

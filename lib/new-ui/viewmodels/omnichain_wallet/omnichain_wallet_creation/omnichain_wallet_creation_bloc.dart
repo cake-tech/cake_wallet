@@ -5,6 +5,7 @@ import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_
 import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 
 class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletState> {
   OmniChainWalletBloc({
@@ -18,19 +19,32 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     on<OmniChainWalletGroupNameChanged>(_onGroupNameChanged);
     on<OmniChainWalletGroupNameGenerated>(_onGroupNameGenerated);
     on<OmniChainWalletGroupCreateRequested>(_onGroupCreateRequested);
+    on<OmniChainWalletTypesSelectionChanged>(_onWalletTypesSelectionChanged);
   }
 
   final OmniChainWalletCreationService creationService;
 
   void _onWalletTypeToggled(OmniChainWalletTypeToggled event, Emitter<OmniChainWalletState> emit) {
     final updatedSelectedTypes = Set<WalletType>.from(state.selectedTypes);
+    final isBip39Type = isBIP39Wallet(event.type);
+
     if (event.isSelected) {
-      updatedSelectedTypes.add(event.type);
+      if (isBip39Type) {
+        updatedSelectedTypes.removeWhere((type) => !isBIP39Wallet(type));
+        updatedSelectedTypes.add(event.type);
+      } else {
+        updatedSelectedTypes
+          ..clear()
+          ..add(event.type);
+      }
     } else {
       updatedSelectedTypes.remove(event.type);
     }
 
-    emit(state.copyWith(selectedTypes: updatedSelectedTypes));
+    emit(state.copyWith(
+      selectedTypes: updatedSelectedTypes,
+      primaryType: updatedSelectedTypes.contains(state.primaryType) ? state.primaryType : null,
+    ));
   }
 
   void _onPrimaryTypeSelected(
@@ -51,8 +65,48 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
   void _onWalletTypesSelected(
       OmniChainWalletTypesSelected event, Emitter<OmniChainWalletState> emit) {
     emit(state.copyWith(
-      selectedTypes: Set<WalletType>.from(state.allWalletTypes),
+      selectedTypes: state.allWalletTypes.where((type) => isBIP39Wallet(type)).toSet(),
+      primaryType: state.primaryType != null && isBIP39Wallet(state.primaryType!)
+          ? state.primaryType
+          : null,
     ));
+  }
+
+  void _onWalletTypesSelectionChanged(
+    OmniChainWalletTypesSelectionChanged event,
+    Emitter<OmniChainWalletState> emit,
+  ) {
+    final selectedTypes = Set<WalletType>.from(event.selectedTypes);
+    final nonBip39Types = selectedTypes.where((type) => !isBIP39Wallet(type)).toList();
+
+    final normalizedSelectedTypes = nonBip39Types.isNotEmpty
+        ? <WalletType>{nonBip39Types.last}
+        : selectedTypes.where((type) => isBIP39Wallet(type)).toSet();
+
+    emit(state.copyWith(
+      selectedTypes: normalizedSelectedTypes,
+      primaryType: normalizedSelectedTypes.contains(state.primaryType) ? state.primaryType : null,
+    ));
+  }
+
+  String? _validateGroupName(String groupName) {
+    final trimmedGroupName = groupName.trim();
+
+    if (trimmedGroupName.isEmpty) {
+      return 'Group name is required';
+    }
+
+    final invalidCharacters = RegExp(r'''[\\/:*?"<>|_']''');
+
+    if (invalidCharacters.hasMatch(trimmedGroupName)) {
+      return 'Group name contains invalid characters';
+    }
+
+    if (creationService.groupNameExists(trimmedGroupName)) {
+      return 'Group name already exists';
+    }
+
+    return null;
   }
 
   void _onGroupNameChanged(
@@ -60,17 +114,10 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     Emitter<OmniChainWalletState> emit,
   ) {
     final groupName = event.groupName.trim();
-    String? error;
-
-    if (groupName.isEmpty) {
-      error = 'Group name is required';
-    } else if (creationService.groupNameExists(groupName)) {
-      error = 'Group name already exists';
-    }
 
     emit(state.copyWith(
       groupName: groupName,
-      groupNameError: error,
+      groupNameError: _validateGroupName(groupName),
     ));
   }
 
@@ -79,17 +126,10 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     Emitter<OmniChainWalletState> emit,
   ) async {
     final groupName = await generateName();
-    String? error;
-
-    if (groupName.trim().isEmpty) {
-      error = 'Group name is required';
-    } else if (creationService.groupNameExists(groupName)) {
-      error = 'Group name already exists';
-    }
 
     emit(state.copyWith(
       groupName: groupName,
-      groupNameError: error,
+      groupNameError: _validateGroupName(groupName),
     ));
   }
 
@@ -128,12 +168,10 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
     WalletType.monero,
     WalletType.bitcoin,
     WalletType.ethereum,
-    WalletType.litecoin,
-    WalletType.zcash,
     WalletType.solana,
-    WalletType.tron,
-    WalletType.dogecoin,
+    WalletType.zcash,
+    WalletType.base,
+    WalletType.arbitrum,
     WalletType.bsc,
-    WalletType.bitcoinCash,
   };
 }
