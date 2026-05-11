@@ -191,8 +191,8 @@ class CWSolana extends Solana {
     String base64Transaction,
     String requestId,
     String destinationAddress,
-    double amount,
-    double fee,
+    Money amount,
+    Money fee,
   ) async {
     final solanaWallet = wallet as SolanaWallet;
     final privateKey = solanaWallet.solanaPrivateKey;
@@ -274,11 +274,11 @@ class CWSolana extends Solana {
     }
 
     return PendingSolanaTransaction(
-      amount: Money.tryParse(amount.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
+      amount: amount,
       serializedTransaction: signedTransactionBase64,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
-      fee: Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
+      fee: fee,
     );
   }
 

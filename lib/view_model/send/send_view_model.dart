@@ -820,7 +820,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             // Fallback to estimate if not available
             final fee = actualFee > 0 ? actualFee : 0.0005;
 
-            final amount = double.tryParse(trade.amount) ?? 0.0;
+            final fromCurrency = trade.from ?? CryptoCurrency.sol;
+            final amount = Money.tryParse(trade.amount, fromCurrency) ?? Money.zero(fromCurrency);
 
             pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
@@ -828,7 +829,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               requestId!,
               trade.payoutAddress ?? '',
               amount,
-              fee,
+              Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
             );
 
             state = ExecutedSuccessfullyState();

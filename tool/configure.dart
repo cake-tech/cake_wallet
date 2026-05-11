@@ -972,8 +972,8 @@ abstract class Solana {
     String base64Transaction,
     String requestId,
     String destinationAddress,
-    double amount,
-    double fee,
+    Money amount,
+    Money fee,
   );
 
   // Fast transaction update after sending
