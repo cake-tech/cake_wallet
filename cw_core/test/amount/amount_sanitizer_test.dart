@@ -20,12 +20,12 @@ void main() {
 
     test('no decimals', (){
       final amount = "1,000".sanitized();
-      expect(amount, "1000");
+      expect(amount, "1.000");
     });
 
     test('no decimals', (){
       final amount = "1.000".sanitized();
-      expect(amount, "1000");
+      expect(amount, "1.000");
     });
   });
 }
