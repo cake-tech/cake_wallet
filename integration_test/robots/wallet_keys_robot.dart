@@ -5,7 +5,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
-import 'package:cw_wownero/wownero_wallet.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -51,19 +50,6 @@ class WalletKeysAndSeedPageRobot {
         appStore,
         walletName,
         moneroWallet.seed,
-        legacySeed,
-      );
-    }
-
-    if (walletType == WalletType.wownero) {
-      final wowneroWallet = appStore.wallet as WowneroWallet;
-      final lang = PolyseedLang.getByPhrase(wowneroWallet.seed);
-      final legacySeed = wowneroWallet.seedLegacy(lang.nameEnglish);
-
-      await _confirmMoneroWalletCredentials(
-        appStore,
-        walletName,
-        wowneroWallet.seed,
         legacySeed,
       );
     }

@@ -216,7 +216,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       id: data['id'] as String,
       height: data['height'] as int?,
       amount: Money.fromInt(data['amount'] as int, currency),
-      fee: Money.fromInt(data['fee'] as int, currency),
+      fee: data['fee'] != null ? Money.fromInt(data['fee'] as int, currency) : null,
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,

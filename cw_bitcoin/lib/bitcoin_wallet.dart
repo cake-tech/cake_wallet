@@ -100,7 +100,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
     // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
 
-    if (mnemonic != null && this.useLightning) {
+    if (mnemonic != null && this.useLightning && LightningWallet.isAvailable) {
       try {
         lightningWallet = LightningWallet(
           mnemonic: mnemonic,
@@ -142,7 +142,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     });
     
     reaction((_) => this.useLightning, (bool useLightning) {
-      if (useLightning) {
+      if (useLightning && LightningWallet.isAvailable) {
         if (mnemonic != null) {
           lightningWallet = LightningWallet(
             mnemonic: mnemonic,

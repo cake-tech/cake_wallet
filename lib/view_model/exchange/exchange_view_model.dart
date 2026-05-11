@@ -43,6 +43,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
 import "package:cw_core/wallet_info.dart";
@@ -50,6 +51,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
@@ -68,7 +70,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -96,7 +97,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   ExchangeViewModelBase(
     this._appStore,
-    this.trades,
     this._exchangeTemplateStore,
     this.tradesStore,
     this.sharedPreferences,
@@ -251,6 +251,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
         return true;
       });
+    } else if (isEVMCompatibleChain(wallet.type)) {
+      final currency = depositCurrency;
+      final balanceCurrency = wallet.balance.keys.firstWhereOrNull(
+        (c) =>
+            c.title == depositCurrency.title &&
+            (c.tag == depositCurrency.tag || c.tag == depositCurrency.title),
+      );
+      final balanceForCurrency =
+          balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
+      if (depositCurrency == currency && balanceForCurrency != null) {
+        depositAvailableAmount = balanceForCurrency.available.toStringWithSymbol();
+      }
     } else {
       final currency = depositCurrency;
       final sendingBalance = Money.fromInt(
@@ -295,7 +307,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           isElectrumWallet;
 
   bool _useTorOnly;
-  final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
@@ -303,7 +314,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   List<ExchangeProvider> get _allProviders => [
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         // SideShiftExchangeProvider(),
-        ChainflipExchangeProvider(tradesStore: trades),
+        ChainflipExchangeProvider(),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
         LetsExchangeExchangeProvider(),
@@ -481,8 +492,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String? get balanceDisplay {
-    final bal = wallet.balance[depositCurrency]?.available;
-    if(bal == null) return null;
+    CryptoCurrency? balanceCurrency;
+    if (isEVMCompatibleChain(wallet.type)) {
+      balanceCurrency = wallet.balance.keys.firstWhereOrNull(
+        (c) =>
+            c.title == depositCurrency.title &&
+            (c.tag == depositCurrency.tag || c.tag == depositCurrency.title),
+      );
+    } else {
+      balanceCurrency = depositCurrency;
+    }
+    final bal = balanceCurrency != null ? wallet.balance[balanceCurrency]?.available : null;
+    if (bal == null) return null;
     return amountParsingProxy.asDisplayString(bal);
   }
 
@@ -518,15 +539,23 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return priority;
   }
 
-  bool get hasAllAmount =>
-      [
-        WalletType.monero,
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.bitcoinCash,
-        WalletType.dogecoin,
-      ].contains(wallet.type) &&
-      (depositCurrency == wallet.currency);
+  bool get hasAllAmount {
+    if ([
+      WalletType.monero,
+      WalletType.bitcoin,
+      WalletType.litecoin,
+      WalletType.bitcoinCash,
+      WalletType.dogecoin,
+    ].contains(wallet.type)) return (depositCurrency == wallet.currency);
+
+    if (!isEVMCompatibleChain(wallet.type)) return false;
+
+    if (depositCurrency == wallet.currency) return true;
+
+    return wallet.balance.keys.any((c) =>
+        c.title == depositCurrency.title &&
+        (c.tag == depositCurrency.tag || c.tag == depositCurrency.title));
+  }
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
@@ -710,26 +739,38 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void changeDepositCurrency({required CryptoCurrency currency}) {
+    final previousCurrency = depositCurrency;
+    final wasSendAllEnabled = isSendAllEnabled;
+
     depositCurrency = currency;
     isFixedRateMode = false;
-    _onPairChange();
     isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
+
+    if (previousCurrency != currency) {
+      _onPairChange(clearBoth: wasSendAllEnabled);
+    }
     fetchFiatPrice(currency);
     updateDepositAvailableAmount();
   }
 
   @action
   void changeReceiveCurrency({required CryptoCurrency currency}) {
+    final previousCurrency = receiveCurrency;
+
     if (!(currency.tag == receiveCurrency.tag ||
         currency.tag == receiveCurrency.title ||
         currency.title == receiveCurrency.tag ||
         currency == receiveCurrency)) {
       receiveAddress = "";
     }
+
     receiveCurrency = currency;
     isFixedRateMode = false;
-    _onPairChange();
     isDepositAddressEnabled = !useSameWalletAddress(depositCurrency);
+
+    if (previousCurrency != currency) {
+      _onPairChange();
+    }
     fetchFiatPrice(currency);
   }
 
@@ -742,9 +783,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     _receiveAmount = isCanonical
-        ? Money.tryParse(amount.replaceAll(',', '.'), receiveCurrency)
-        : _appStore.amountParsingProxy
-            .tryParseCryptoString(amount.replaceAll(',', '.'), receiveCurrency);
+        ? Money.tryParse(amount.sanitized(), receiveCurrency)
+        : _appStore.amountParsingProxy.tryParseCryptoString(amount.sanitized(), receiveCurrency);
 
     if (_receiveAmount == null) {
       _depositAmount = null;
@@ -765,7 +805,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void setReceiveAmountFromFiat({required String fiatAmount}) {
-    final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
+    final _enteredAmount = double.tryParse(fiatAmount.sanitized()) ?? 0.0;
     final price = fiatConversionStore.prices[receiveCurrency];
     if (price == null || price == 0.0) return;
 
@@ -778,7 +818,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void setDepositAmountFromFiat({required String fiatAmount}) {
-    final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
+    final _enteredAmount = double.tryParse(fiatAmount.sanitized()) ?? 0.0;
     final price = fiatConversionStore.prices[depositCurrency];
     if (price == null || price == 0.0) return;
 
@@ -798,9 +838,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     _depositAmount = isCanonical
-        ? Money.tryParse(amount.replaceAll(',', '.'), depositCurrency)
-        : _appStore.amountParsingProxy
-            .tryParseCryptoString(amount.replaceAll(',', '.'), depositCurrency);
+        ? Money.tryParse(amount.sanitized(), depositCurrency)
+        : _appStore.amountParsingProxy.tryParseCryptoString(amount.sanitized(), depositCurrency);
 
     if (_depositAmount == null) {
       _receiveAmount = null;
@@ -824,7 +863,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
-    final _enteredAmount = double.tryParse(input.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(input.sanitized()) ?? 0;
     double minLimit = limits.min ?? 0;
     double? maxLimit = limits.max;
 
@@ -853,6 +892,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         isReceiveAmount: isFixedRateMode);
   }
 
+  bool _excludeProviderForSwapAll(ExchangeProvider provider) =>
+      isSendAllEnabled &&
+      (provider.description == ExchangeProviderDescription.swapsXyz ||
+          provider.description == ExchangeProviderDescription.nearIntents);
+
   Future<void> calculateBestRate() async {
     if (depositCurrency == receiveCurrency) {
       bestRate = 0.0;
@@ -864,6 +908,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
+      if (_excludeProviderForSwapAll(provider)) return false;
+
       final limits = _providerLimits[provider];
 
       if (limits == null) return false;
@@ -980,7 +1026,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (lowestMin != double.maxFinite) {
       limits = Limits(min: lowestMin, max: highestMax);
-
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } else {
       limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
@@ -1106,6 +1151,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
         printV('createTrade: trying provider=${provider.title}');
 
+        if (_excludeProviderForSwapAll(provider)) {
+          printV('Skipping Swaps.xyz or Near Intents for swap all');
+          continue;
+        }
         // should not happen but just as an extra check
         if (isFixedRateMode && provider.supportsFixedRate == false) {
           continue;
@@ -1181,7 +1230,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               }
 
               tradesStore.setTrade(trade);
-              if (trade.provider != ExchangeProviderDescription.thorChain) await trades.add(trade);
+              if (trade.provider != ExchangeProviderDescription.thorChain) await trade.save();
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
 
               /// return after the first successful trade
@@ -1278,6 +1327,56 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
 
       changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(amount)), isCanonical: true);
+    } else if (isEVMCompatibleChain(wallet.type)) {
+      final balanceCurrency = wallet.balance.keys.firstWhereOrNull(
+        (currency) =>
+            currency.title == depositCurrency.title &&
+            (currency.tag == depositCurrency.tag || currency.tag == depositCurrency.title),
+      );
+
+      final balanceForCurrency = balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
+      if (balanceForCurrency == null) {
+        changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.zero), isCanonical: true);
+        return;
+      }
+
+      final balanceAmount = _appStore.amountParsingProxy.asDisplayString(balanceForCurrency.available);
+      final balanceDouble = double.tryParse(balanceAmount.replaceAll(',', '.')) ?? 0.0;
+      if (balanceDouble <= 0) {
+        changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.zero), isCanonical: true);
+        return;
+      }
+
+      final isNative = depositCurrency == wallet.currency;
+
+      if (!isNative) {
+        changeDepositAmount(amount: balanceAmount, isCanonical: true);
+        return;
+      }
+
+      try {
+        final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
+        await wallet.updateEstimatedFeesParams(priority);
+
+        String? feeString;
+        if (isEVMCompatibleChain(wallet.type)) {
+          feeString = evm!.getEVMNativeEstimatedFee(wallet);
+        }
+
+        if (feeString == null || feeString.isEmpty) {
+          changeDepositAmount(amount: balanceAmount, isCanonical: true);
+          return;
+        }
+
+        final balanceWei = balanceForCurrency.available.amount;
+        final feeWei = BigInt.parse(feeString);
+        final amountAfterFeeWei = balanceWei > feeWei ? balanceWei - feeWei : BigInt.zero;
+        changeDepositAmount(
+          amount: wallet.currency.formatAmount(amountAfterFeeWei), isCanonical: true);
+      } catch (e) {
+        printV('Error calculating send all for EVM: $e');
+        changeDepositAmount(amount: balanceAmount, isCanonical: true);
+      }
     }
   }
 
@@ -1317,13 +1416,26 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void removeTemplate({required ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);
 
-  void _onPairChange() {
-    _depositAmount = null;
-    _receiveAmount = null;
+  void _onPairChange({bool clearBoth = false}) {
+    if (clearBoth) {
+      _depositAmount = null;
+      _receiveAmount = null;
+      if (!hasAllAmount) isSendAllEnabled = false;
+    } else {
+      if (isFixedRateMode) {
+        _depositAmount = null;
+      } else {
+        _receiveAmount = null;
+      }
+    }
     bestRate = 0.0;
     bestRateProvider = null;
     _sortedAvailableProviders.clear();
-    loadLimits();
+    loadLimits().then((_) {
+      if (clearBoth && hasAllAmount) {
+        calculateDepositAllAmount();
+      }
+    });
     _setAvailableProviders();
   }
 
@@ -1546,7 +1658,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (trade.provider == ExchangeProviderDescription.swapsXyz) {
 
-      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+      final tradeFrom = trade.from;
 
       if (tradeFrom == null) {
         return CreateTradeResult(

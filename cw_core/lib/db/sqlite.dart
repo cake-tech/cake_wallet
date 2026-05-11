@@ -41,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 6,
+  db = await openDatabase(dbFile.path, version: 7,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -94,6 +94,10 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _createBridgeTransferTable(db);
       }
       if (oldVersion <= 5) {
+        await _createTradeTable(db);
+      }
+
+      if (oldVersion <= 6) {
         await _addColumnIfNotExists(
           db,
           table: 'WalletInfo',
@@ -200,8 +204,71 @@ CREATE TABLE BalanceCardStyleSettings (
 );
         ''');
       await _createBridgeTransferTable(db);
+      await _createTradeTable(db);
     }
   );
+}
+
+Future<void> _createTradeTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS Trade (
+  tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id TEXT NOT NULL,
+  providerRaw INTEGER NOT NULL DEFAULT 0,
+  fromTitle TEXT,
+  fromName TEXT,
+  fromTag TEXT,
+  fromFullName TEXT,
+  fromDecimals INTEGER,
+  fromRaw INTEGER,
+  fromIconPath TEXT,
+  fromFlatIconPath TEXT,
+  fromChainIconPath TEXT,
+  toTitle TEXT,
+  toName TEXT,
+  toTag TEXT,
+  toFullName TEXT,
+  toDecimals INTEGER,
+  toRaw INTEGER,
+  toIconPath TEXT,
+  toFlatIconPath TEXT,
+  toChainIconPath TEXT,
+  stateRaw TEXT NOT NULL DEFAULT '',
+  createdAt INTEGER,
+  expiredAt INTEGER,
+  amount TEXT NOT NULL DEFAULT '',
+  receiveAmount TEXT,
+  inputAddress TEXT,
+  extraId TEXT,
+  outputTransaction TEXT,
+  refundAddress TEXT,
+  walletId TEXT,
+  payoutAddress TEXT,
+  password TEXT,
+  providerId TEXT,
+  providerName TEXT,
+  fromWalletAddress TEXT,
+  memo TEXT,
+  txId TEXT,
+  isRefund INTEGER DEFAULT 0,
+  isSendAll INTEGER DEFAULT 0,
+  router TEXT,
+  needToRegisterInSwapXyz INTEGER DEFAULT 0,
+  sourceTokenAddress TEXT,
+  sourceTokenDecimals INTEGER,
+  routerData TEXT,
+  routerValue TEXT,
+  routerChainId INTEGER,
+  sourceTokenAmountRaw TEXT,
+  requiresTokenApproval INTEGER DEFAULT 0,
+  chainId INTEGER,
+  fee REAL
+);
+''');
+  await db.execute('''
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
+ON Trade (id);
+''');
 }
 
 Future<Map<String, dynamic>> dumpDb() async {

@@ -209,8 +209,8 @@ import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
-import 'package:cake_wallet/view_model/bridge_details_view_model.dart';
-import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_details_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
@@ -335,7 +335,6 @@ var _isSetupFinished = false;
 late Box<Node> _nodeSource;
 late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
-late Box<Trade> _tradesSource;
 late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
@@ -347,7 +346,6 @@ Future<void> setup({
   required Box<Node> nodeSource,
   required Box<Node> powNodeSource,
   required Box<Contact> contactSource,
-  required Box<Trade> tradesSource,
   required Box<Template> templates,
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
@@ -361,7 +359,6 @@ Future<void> setup({
   _nodeSource = nodeSource;
   _powNodeSource = powNodeSource;
   _contactSource = contactSource;
-  _tradesSource = tradesSource;
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
@@ -408,7 +405,7 @@ Future<void> setup({
       nodeListStore: getIt.get<NodeListStore>(),
       themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
-      TradesStore(tradesSource: _tradesSource, appStore: getIt.get<AppStore>()));
+      TradesStore(appStore: getIt.get<AppStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
@@ -585,7 +582,6 @@ Future<void> setup({
   getIt.registerFactory(
     () => ExchangeViewModel(
       getIt.get<AppStore>(),
-      _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
       getIt.get<SharedPreferences>(),
@@ -599,7 +595,6 @@ Future<void> setup({
   getIt.registerSingleton(
     TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
-      trades: _tradesSource,
       appStore: getIt.get<AppStore>(),
       preferences: getIt.get<SharedPreferences>(),
     ),
@@ -1274,7 +1269,6 @@ Future<void> setup({
   getIt.registerFactory(
     () => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet!,
-      trades: _tradesSource,
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>(),
       feesViewModel: getIt.get<FeesViewModel>(),
@@ -1501,11 +1495,8 @@ Future<void> setup({
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
           (content, _) => TransactionSuccessPage(content: content));
 
-  getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
-      TradeDetailsViewModel(
-          tradeForDetails: trade,
-          trades: _tradesSource,
-          appStore: getIt.get<AppStore>()));
+  getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>(
+      (trade, _) => TradeDetailsViewModel(tradeForDetails: trade, appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 

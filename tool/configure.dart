@@ -917,6 +917,11 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
@@ -972,8 +977,8 @@ abstract class Solana {
     String base64Transaction,
     String requestId,
     String destinationAddress,
-    double amount,
-    double fee,
+    Money amount,
+    Money fee,
   );
 
   // Fast transaction update after sending
@@ -993,6 +998,8 @@ abstract class Solana {
     WalletBase wallet, {
     List<String>? tokenMints,
   });
+
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
 class JupiterSwapFailedException implements Exception {
@@ -1532,7 +1539,7 @@ abstract class EVM {
   bool isUSDT0Token(WalletBase wallet, CryptoCurrency token);
   List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet);
 
-  Future<USDT0Quote> quoteUSDT0Transfer({
+  Future<BridgeQuote> quoteUSDT0Transfer({
     required WalletBase wallet,
     required int sourceChainId,
     required int destinationChainId,
@@ -1547,7 +1554,7 @@ abstract class EVM {
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-    required USDT0Quote quote,
+    required BridgeQuote quote,
     required TransactionPriority priority,
     bool useBlinkProtection = true,
   });
@@ -1592,6 +1599,16 @@ class EvmWalletConnectFeeQuote {
   final int maxFeePerGasWei;
   final int maxPriorityFeePerGasWei;
   final int? latestBaseFeeWei;
+}
+
+class BridgeQuote {
+  const BridgeQuote({
+    required this.nativeFee,
+    required this.lzTokenFee,
+  });
+
+  final BigInt nativeFee;
+  final BigInt lzTokenFee;
 }
   """;
 

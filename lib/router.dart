@@ -140,7 +140,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
-import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';

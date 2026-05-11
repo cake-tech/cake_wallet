@@ -36,8 +36,10 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
-    this.cachedAddress
+    this.cachedAddress,
   });
+
+  static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
   Currency get currency => CryptoCurrency.btcln;
 

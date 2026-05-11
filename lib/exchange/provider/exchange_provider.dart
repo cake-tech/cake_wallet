@@ -1,4 +1,3 @@
-import 'package:cake_wallet/exchange/exchange_pair.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -31,13 +30,12 @@ abstract class ExchangeProvider {
 
   Future<Trade> findTradeById({required String id});
 
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  });
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount});
 
   Future<bool> checkIsAvailable();
 }

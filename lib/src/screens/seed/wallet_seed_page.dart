@@ -158,6 +158,7 @@ class WalletSeedPage extends BasePage {
         final path = await FilePicker.platform.saveFile(
           dialogTitle: "Save seed as",
           fileName: "${walletSeedViewModel.name}-seed.txt",
+          lockParentWindow: true,
         );
         if(path != null) {
           final file = File(path);

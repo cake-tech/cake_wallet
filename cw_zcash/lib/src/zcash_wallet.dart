@@ -136,7 +136,7 @@ abstract class ZcashWalletBase
     await updateBalance();
 
     final zcashBalance = balance[CryptoCurrency.zec];
-    final availableBalance = zcashBalance?.confirmed ?? Money.zero(currency);
+    final availableBalance = zcashBalance?.available ?? Money.zero(currency);
 
     final recipients = <Recipient>[];
     var totalAmount = Money.zero(currency);
@@ -796,8 +796,8 @@ abstract class ZcashWalletBase
       unawaited(_autoShield());
 
       balance[CryptoCurrency.zec] = ZcashBalance(
-        confirmed: Money.fromInt(confirmedSpendable, currency),
-        unconfirmed: Money.fromInt(spendable - confirmedSpendable, currency),
+        Money.fromInt(confirmedSpendable, currency),
+        Money.fromInt(spendable - confirmedSpendable, currency),
         frozen: Money.zero(currency),
       );
     } catch (e, stackTrace) {
@@ -1147,8 +1147,8 @@ abstract class ZcashWalletBase
     }
     _didRunRescanInternalChange = true;
     final bal =
-        balance[CryptoCurrency.zec]!.confirmed +
-        balance[CryptoCurrency.zec]!.unconfirmed +
+        balance[CryptoCurrency.zec]!.available +
+        balance[CryptoCurrency.zec]!.unavailable +
         (balance[CryptoCurrency.zec]!.frozen ?? Money.zero(CryptoCurrency.zec));
     final osCacheDir = await getApplicationCacheDirectory();
     final cacheDir = osCacheDir.createTempSync("zkool-import");

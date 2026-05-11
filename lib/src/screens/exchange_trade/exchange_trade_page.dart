@@ -29,7 +29,7 @@ void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
-  final from = trade.from?.toString() ?? trade.userCurrencyFrom.toString();
+  final from = trade.from?.toString() ?? '';
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_trade_result_confirm(trade.amount, from, walletName) +
@@ -336,7 +336,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       if (bottomSheetContext.mounted && Navigator.canPop(bottomSheetContext)) Navigator.of(bottomSheetContext).pop(true);
 
                       sendVM.commitTransaction(context);
-                      widget.exchangeTradeViewModel.registerSwapsXyzTransaction();
                     },
                     amountParsingProxy: sendVM.amountParsingProxy,
                   );
