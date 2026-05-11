@@ -66,3 +66,13 @@ class RestoreFromSeedException implements Exception {
 
   RestoreFromSeedException(this.message);
 }
+
+class WalletDeprecationException implements Exception {
+  final String seed;
+  final CryptoCurrency curr;
+
+  @override
+  String toString() => "Wallet type no longer supported";
+
+  WalletDeprecationException({required this.seed, required this.curr});
+}

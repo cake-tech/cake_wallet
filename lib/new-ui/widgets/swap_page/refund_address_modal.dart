@@ -53,7 +53,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                 spacing: 24,
                 children: [
                   CakeImageWidget(
-                    imageUrl:"assets/new-ui/refund_address.svg.vec",
+                    imageUrl:"assets/new-ui/refund_address.svg",
                     colorFilter:
                         ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                   ),

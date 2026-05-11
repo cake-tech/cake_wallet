@@ -94,8 +94,8 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                                 title: wallet.name,
                                 isSelected:
                                     walletGroupsDisplayViewModel.selectedSingleWallet == wallet,
-                                leadingWidget: Image.asset(
-                                  getCryptoCurrencyIconForWalletListItem(wallet.type),
+                                leadingWidget: CakeImageWidget(
+                                  imageUrl: getCryptoCurrencyIconForWalletListItem(wallet.type),
                                   width: 32,
                                   height: 32,
                                 ),
@@ -170,8 +170,8 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
       children: [
         CakeImageWidget(
           imageUrl: currentTheme.isDark
-              ? 'assets/images/wallet_group_empty_dark.png'
-              : 'assets/images/wallet_group_empty_light.png',
+              ? 'assets/new-ui/hero/wallet_group_empty_dark.svg'
+              : 'assets/new-ui/hero/wallet_group_empty_light.svg',
           height: 200,
         ),
         SizedBox(height: 60),
