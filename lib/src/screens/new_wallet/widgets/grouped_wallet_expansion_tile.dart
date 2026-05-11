@@ -105,7 +105,6 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             final currentColor = item.isCurrent
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface;
-            final walletNameToDisplay = item.name.split('_');
 
             return ListTile(
               contentPadding: EdgeInsets.zero,
@@ -139,7 +138,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 ),
               ),
               title: Text(
-                item.name,
+                item.formatedName ?? item.name,
                 maxLines: 2,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 18,

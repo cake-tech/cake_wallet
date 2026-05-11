@@ -119,7 +119,7 @@ abstract class WalletListViewModelBase with Store {
 
       for (var group in walletGroupsFromManager) {
         if (group.wallets.length == 1) {
-          singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
+          singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first, true));
           continue;
         }
 
@@ -243,14 +243,15 @@ abstract class WalletListViewModelBase with Store {
     }
   }
 
-  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info, [bool isSingleWallet = false]) {
     String formatedName = info.name;
     final list = info.name.split('_');
     if (list.length > 1) {
-      formatedName= list.last;
+      formatedName= isSingleWallet ? list.first : list.last;
     }
     return WalletListItem(
-      name: formatedName,
+      name: info.name,
+      formatedName: formatedName,
       type: info.type,
       key: info.id,
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,

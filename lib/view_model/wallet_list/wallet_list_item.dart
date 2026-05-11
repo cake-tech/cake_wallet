@@ -6,6 +6,7 @@ class WalletListItem {
     required this.type,
     required this.key,
     required this.isHardware,
+    this.formatedName,
     this.isCurrent = false,
     this.isEnabled = true,
     this.isTestnet = false,
@@ -18,4 +19,5 @@ class WalletListItem {
   final bool isEnabled;
   final bool isTestnet;
   final bool isHardware;
+  final String? formatedName;
 }

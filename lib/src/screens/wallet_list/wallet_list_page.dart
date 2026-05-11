@@ -308,7 +308,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                     ],
                                   ),
                                 ),
-                                title: wallet.name,
+                                title: wallet.formatedName ?? wallet.name,
                                 isSelected: false,
                                 borderRadius: BorderRadius.all(Radius.circular(18)),
                                 margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
