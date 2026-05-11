@@ -1034,8 +1034,8 @@ abstract class ElectrumWalletBase
       utxos: utxoDetails.utxos,
       inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
       publicKeys: utxoDetails.publicKeys,
-      fee: fee,
-      amount: amount.toInt(),
+      fee: Money.fromInt(fee, currency),
+      amount: Money(amount, currency),
       isSendAll: true,
       hasChange: false,
       memo: memo,
@@ -1224,8 +1224,8 @@ abstract class ElectrumWalletBase
             utxos: utxoDetails.utxos,
             inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
             publicKeys: utxoDetails.publicKeys,
-            fee: finalFee,
-            amount: amount.amount.toInt(),
+            fee: Money.fromInt(finalFee, currency),
+            amount: amount,
             hasChange: false,
             isSendAll: spendingAllCoins,
             memo: memo,
@@ -1259,8 +1259,8 @@ abstract class ElectrumWalletBase
         utxos: utxoDetails.utxos,
         inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
         publicKeys: utxoDetails.publicKeys,
-        fee: fee,
-        amount: amount.amount.toInt(),
+        fee: Money.fromInt(fee, currency),
+        amount: amount,
         hasChange: false,
         isSendAll: spendingAllCoins,
         memo: memo,
@@ -1286,8 +1286,8 @@ abstract class ElectrumWalletBase
         utxos: utxoDetails.utxos,
         inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
         publicKeys: utxoDetails.publicKeys,
-        fee: fee,
-        amount: amount.amount.toInt(),
+        fee: Money.fromInt(fee, currency),
+        amount: amount,
         hasChange: true,
         isSendAll: spendingAllCoins,
         memo: memo,
@@ -1465,7 +1465,7 @@ abstract class ElectrumWalletBase
           utxos: estimatedTx.utxos,
           outputs: updatedOutputs,
           publicKeys: estimatedTx.publicKeys,
-          fee: BigInt.from(estimatedTx.fee),
+          fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
@@ -1477,8 +1477,8 @@ abstract class ElectrumWalletBase
           transaction,
           type,
           electrumClient: electrumClient,
-          amount: Money.fromInt(estimatedTx.amount, currency),
-          fee: Money.fromInt(estimatedTx.fee, currency),
+          amount: estimatedTx.amount,
+          fee: estimatedTx.fee,
           feeRate: feeRateInt.toString(),
           network: network,
           hasChange: estimatedTx.hasChange,
@@ -1498,7 +1498,7 @@ abstract class ElectrumWalletBase
         txb = ForkedTransactionBuilder(
           utxos: estimatedTx.utxos,
           outputs: updatedOutputs,
-          fee: BigInt.from(estimatedTx.fee),
+          fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
@@ -1508,7 +1508,7 @@ abstract class ElectrumWalletBase
         txb = BitcoinTransactionBuilder(
           utxos: estimatedTx.utxos,
           outputs: updatedOutputs,
-          fee: BigInt.from(estimatedTx.fee),
+          fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
@@ -1561,8 +1561,8 @@ abstract class ElectrumWalletBase
         transaction,
         type,
         electrumClient: electrumClient,
-        amount: Money.fromInt(estimatedTx.amount, currency),
-        fee: Money.fromInt(estimatedTx.fee, currency),
+        amount: estimatedTx.amount,
+        fee: estimatedTx.fee,
         feeRate: feeRateInt.toString(),
         network: network,
         hasChange: estimatedTx.hasChange,
@@ -4237,8 +4237,8 @@ class EstimatedTxResult {
   final List<UtxoWithAddress> utxos;
   final List<ECPrivateInfo> inputPrivKeyInfos;
   final Map<String, PublicKeyWithDerivationPath> publicKeys; // PubKey to derivationPath
-  final int fee;
-  final int amount;
+  final Money fee;
+  final Money amount;
   final bool spendsSilentPayment;
 
   // final bool sendsToSilentPayment;
