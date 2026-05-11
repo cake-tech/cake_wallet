@@ -43,6 +43,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
 import "package:cw_core/wallet_info.dart";
@@ -742,9 +743,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     _receiveAmount = isCanonical
-        ? Money.tryParse(amount.replaceAll(',', '.'), receiveCurrency)
-        : _appStore.amountParsingProxy
-            .tryParseCryptoString(amount.replaceAll(',', '.'), receiveCurrency);
+        ? Money.tryParse(amount.sanitized(), receiveCurrency)
+        : _appStore.amountParsingProxy.tryParseCryptoString(amount.sanitized(), receiveCurrency);
 
     if (_receiveAmount == null) {
       _depositAmount = null;
@@ -765,7 +765,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void setReceiveAmountFromFiat({required String fiatAmount}) {
-    final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
+    final _enteredAmount = double.tryParse(fiatAmount.sanitized()) ?? 0.0;
     final price = fiatConversionStore.prices[receiveCurrency];
     if (price == null || price == 0.0) return;
 
@@ -778,7 +778,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void setDepositAmountFromFiat({required String fiatAmount}) {
-    final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
+    final _enteredAmount = double.tryParse(fiatAmount.sanitized()) ?? 0.0;
     final price = fiatConversionStore.prices[depositCurrency];
     if (price == null || price == 0.0) return;
 
@@ -798,9 +798,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     _depositAmount = isCanonical
-        ? Money.tryParse(amount.replaceAll(',', '.'), depositCurrency)
-        : _appStore.amountParsingProxy
-            .tryParseCryptoString(amount.replaceAll(',', '.'), depositCurrency);
+        ? Money.tryParse(amount.sanitized(), depositCurrency)
+        : _appStore.amountParsingProxy.tryParseCryptoString(amount.sanitized(), depositCurrency);
 
     if (_depositAmount == null) {
       _receiveAmount = null;
@@ -824,7 +823,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
-    final _enteredAmount = double.tryParse(input.replaceAll(',', '.')) ?? 0;
+    final _enteredAmount = double.tryParse(input.sanitized()) ?? 0;
     double minLimit = limits.min ?? 0;
     double? maxLimit = limits.max;
 

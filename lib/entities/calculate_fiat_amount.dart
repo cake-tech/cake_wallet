@@ -1,9 +1,11 @@
+import 'package:cw_core/amount/amount_sanitizer.dart';
+
 String calculateFiatAmount({double? price, String? cryptoAmount, bool raw = false}) {
   if (price == null || cryptoAmount == null) {
     return '0.00';
   }
 
-  cryptoAmount = cryptoAmount.replaceAll(',', '.');
+  cryptoAmount = cryptoAmount.sanitized();
 
   final _amount = double.tryParse(cryptoAmount);
   if (_amount == null || _amount.isNaN) return '0.00';

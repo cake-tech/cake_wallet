@@ -7,6 +7,7 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -167,7 +168,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     final batchContactTitle =
                         '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
                     final _address = item.isParsedAddress ? item.extractedAddress : item.address;
-                    final _amount = '${item.cryptoAmount.replaceAll(',', '.')} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}';
+                    final _amount = '${item.cryptoAmount.sanitized()} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}';
                     return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
                         ? ExpansionAddressTile(
                             contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
