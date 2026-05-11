@@ -76,7 +76,7 @@ class BalanceRecord {
       _withLocalSeperator(((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
               (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
           .toString()
-          .withMaxDecimals(8));
+          .withMaxDecimals(2));
 
   String get fiatAvailableBalance =>
       fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw)}": "";
