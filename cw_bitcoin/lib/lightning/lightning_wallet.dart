@@ -60,7 +60,7 @@ class LightningWallet {
         logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
       } catch (e) {
         // Silently fail or use printV(e) so it doesn't crash the app
-        print("Failed to write to log: $e");
+        printV("Failed to write to log: $e");
       }
     }, onError: (e) {
       try {
@@ -69,7 +69,7 @@ class LightningWallet {
         }
         logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
       } catch (err) {
-        print("Failed to write error to log: $err");
+        printV("Failed to write error to log: $err");
       }
     });
   }
