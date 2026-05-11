@@ -250,13 +250,13 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  String additionalBalance(CryptoCurrency cryptoCurrency) {
+  Money additionalBalance(CryptoCurrency cryptoCurrency) {
     final balance = _currencyBalance(cryptoCurrency);
 
     if (displayMode == BalanceDisplayMode.hiddenBalance || balance.unavailable.isZero)
-      return Money.zero(cryptoCurrency).toString();
+      return Money.zero(cryptoCurrency);
 
-    return balance.unavailable.toString();
+    return balance.unavailable;
   }
 
   @computed
@@ -271,7 +271,7 @@ abstract class BalanceViewModelBase with Store {
           BalanceRecord(
             raw: value,
             availableBalance: '●●●●●●',
-            additionalBalance: additionalBalance(key),
+            additionalBalance: '',
             frozenBalance: '',
             secondAvailableBalance: '●●●●●●',
             secondAdditionalBalance: '●●●●●●',
@@ -344,7 +344,7 @@ abstract class BalanceViewModelBase with Store {
 
   bool hasAdditionalBalance(CryptoCurrency currency) {
     final isWalletTypeActivated = _hasAdditionalBalanceForWalletType(wallet.type);
-    final isNotZeroAmount = additionalBalance(currency) != "0.0";
+    final isNotZeroAmount = !additionalBalance(currency).isZero;
 
     return isWalletTypeActivated && isNotZeroAmount;
   }
