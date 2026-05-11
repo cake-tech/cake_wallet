@@ -109,10 +109,10 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
   }
 
   Future<void> _autoSelectToken() async {
-    final initial = selectedNetwork;
-    if (initial == null || !mounted) return;
+    final initialNetwork = selectedNetwork;
+    if (initialNetwork == null || !mounted) return;
 
-    final network = _resolveGenericETHDetectionResultToSpecificChain(initial);
+    final network = _resolveGenericETHDetectionResultToSpecificChain(initialNetwork);
 
     setState(() {
       selectedNetwork = network;
