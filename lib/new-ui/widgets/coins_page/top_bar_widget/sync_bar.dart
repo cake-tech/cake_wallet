@@ -43,11 +43,13 @@ class SyncBar extends StatelessWidget {
         final status = dashboardViewModel.status;
         final Widget? icon = _getIcon(context, status.runtimeType);
 
-        return Expanded(
+        return SizedBox(
+          height: 36,
+          width: showFullBar ? 220 : null,
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [
-              if (!_showFullBar())
+              if (!showFullBar)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: 6,
@@ -58,17 +60,17 @@ class SyncBar extends StatelessWidget {
                         width: 20,
                         height: 20,
                       ),
-                    if (_showDot()) PulsingDot(),
+                    _showDot() ? PulsingDot() : SizedBox(width: 5)
                   ],
                 ),
-              if (_showFullBar())
+              if (showFullBar)
                 GestureDetector(
                   onTap: () {
                     CupertinoScaffold.showCupertinoModalBottomSheet(
                         context: context,
                         barrierColor: Colors.black.withAlpha(85),
                         builder: (context) => FractionallySizedBox(
-                            child: Material(
+                                child: Material(
                               child: getIt.get<ManageNodesPage>(param1: false),
                             )));
                   },
@@ -147,15 +149,15 @@ class SyncBar extends StatelessWidget {
 
   Widget? _getIcon(BuildContext context, Type status) {
     if (status == LostConnectionSyncStatus || status == FailedSyncStatus) {
-      return CakeImageWidget(imageUrl:
-        "assets/new-ui/offline.svg",
+      return CakeImageWidget(
+        imageUrl: "assets/new-ui/offline.svg",
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
       );
     }
 
     if (failStatuses.contains(status)) {
-      return CakeImageWidget(imageUrl:
-        "assets/new-ui/warning.svg",
+      return CakeImageWidget(
+        imageUrl: "assets/new-ui/warning.svg",
         colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
       );
     }
@@ -163,19 +165,20 @@ class SyncBar extends StatelessWidget {
     final List<Widget> children = [];
 
     if (dashboardViewModel.isTorEnabled) {
-      children.add(CakeImageWidget(imageUrl:"assets/new-ui/tor_sync.svg",
+      children.add(CakeImageWidget(
+          imageUrl: "assets/new-ui/tor_sync.svg",
           colorFilter: ColorFilter.mode(Color(0xFF8A38F5), BlendMode.srcIn)));
     }
     if (dashboardViewModel.hasMweb) {
-      children.add(CakeImageWidget(imageUrl:
-        "assets/new-ui/mweb_sync.svg",
+      children.add(CakeImageWidget(
+        imageUrl: "assets/new-ui/mweb_sync.svg",
         colorFilter:
-        ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+            ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
       ));
     }
     if (dashboardViewModel.hasSilentPayments) {
-      children.add(CakeImageWidget(imageUrl:
-        "assets/new-ui/silent_sync.svg",
+      children.add(CakeImageWidget(
+        imageUrl: "assets/new-ui/silent_sync.svg",
         colorFilter: ColorFilter.mode(Color(0xFFEFBA5E), BlendMode.srcIn),
       ));
     }
@@ -186,7 +189,7 @@ class SyncBar extends StatelessWidget {
     );
   }
 
-  bool _showFullBar() {
+  bool get showFullBar {
     if (dashboardViewModel.status.runtimeType == SyncedSyncStatus) return false;
     return isSyncHeavy || failStatuses.contains(dashboardViewModel.status.runtimeType);
   }

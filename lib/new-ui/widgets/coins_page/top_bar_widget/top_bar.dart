@@ -33,48 +33,125 @@ class TopBar extends StatelessWidget {
     final truncatedWalletName = walletNameToDisplay.length > 20
         ? '${walletNameToDisplay.substring(0, 17)}...'
         : walletNameToDisplay;
+
     return Padding(
-      padding: EdgeInsets.only(bottom: 10, left: 18, right:18, top: 10+_additionalTopPadding(context)),
+      padding: EdgeInsets.only(
+          bottom: 10, left: 18, right: 18, top: 10 + _additionalTopPadding(context)),
       child: Observer(
-        builder: (_) => Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ChainIcon(
-                    iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
-                    dashboardViewModel: dashboardViewModel,
-                    isSyncHeavy: dashboardViewModel.isSyncHeavy,
-                    openChainSelection: openChainSelection),
-            Spacer(),
-            WalletInfoBar(
-                hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
-                name: truncatedWalletName,
-                hasCustomize: hasCustomize,
-                onCustomizeButtonTap: openAccountCustomizer),
-            SizedBox(width: 12),
-            SyncBar(
-              dashboardViewModel: dashboardViewModel,
-              isSyncHeavy: dashboardViewModel.isSyncHeavy,
-            ),
-            Spacer(),
-            ModernButton.svg(
-              iconColor: Theme.of(context).colorScheme.primary,
-              size: 36,
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                onSettingsButtonPress();
-              },
-              svgPath: "assets/new-ui/top-settings.svg",
-            ),
-          ],
-        ),
+        builder: (_) {
+          final syncBar = SyncBar(
+            dashboardViewModel: dashboardViewModel,
+            isSyncHeavy: dashboardViewModel.isSyncHeavy,
+          );
+          final shouldUseColumn = syncBar.showFullBar;
+
+          final chainIcon = ChainIcon(
+            iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
+            dashboardViewModel: dashboardViewModel,
+            isSyncHeavy: dashboardViewModel.isSyncHeavy,
+            openChainSelection: openChainSelection,
+          );
+
+          final walletInfoBar = WalletInfoBar(
+            hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
+            name: truncatedWalletName,
+            hasCustomize: hasCustomize,
+            onCustomizeButtonTap: openAccountCustomizer,
+          );
+
+          final settingsButton = ModernButton.svg(
+            iconColor: Theme.of(context).colorScheme.primary,
+            size: 36,
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              onSettingsButtonPress();
+            },
+            svgPath: "assets/new-ui/top-settings.svg",
+          );
+
+          if (shouldUseColumn) {
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 420),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 420),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: shouldUseColumn
+                    ? Column(
+                        key: const ValueKey('column_layout'),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              chainIcon,
+                              const Spacer(),
+                              syncBar,
+                              const Spacer(),
+                              settingsButton,
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              const SizedBox(width: 58),
+                              Expanded(
+                                child: Center(child: walletInfoBar),
+                              ),
+                              const SizedBox(width: 36),
+                            ],
+                          ),
+                        ],
+                      )
+                    : Row(
+                        key: const ValueKey('row_layout'),
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          chainIcon,
+                          const Spacer(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              walletInfoBar,
+                              const SizedBox(width: 12),
+                              syncBar,
+                            ],
+                          ),
+                          const Spacer(),
+                          settingsButton,
+                        ],
+                      ),
+              ),
+            );
+          }
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              chainIcon,
+              const Spacer(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  walletInfoBar,
+                  const SizedBox(width: 12),
+                  syncBar,
+                ],
+              ),
+              const Spacer(),
+              settingsButton,
+            ],
+          );
+        },
       ),
     );
   }
 
-
   //FIXME remove after this gets fixed flutter-side
   double _additionalTopPadding(BuildContext context) {
-    if(Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) return 24;
+    if (Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) return 24;
 
     return 0;
   }
