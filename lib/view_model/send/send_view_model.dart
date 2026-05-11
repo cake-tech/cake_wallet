@@ -488,6 +488,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get shouldDisplayTOTP2FAForSendsToInternalWallet =>
       _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
 
+  @computed
+  TransactionInfo? get transactionInfo => wallet.transactionHistory.transactions[pendingTransaction?.id];
+
   //* Still open to further optimize these checks
   //* It works but can be made better
   @action

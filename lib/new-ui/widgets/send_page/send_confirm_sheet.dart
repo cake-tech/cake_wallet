@@ -2,15 +2,22 @@ import 'dart:io';
 
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/utilities.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -33,13 +40,6 @@ class SendConfirmSheet extends StatefulWidget {
 class _SendConfirmSheetState extends State<SendConfirmSheet> {
   void initState() {
     super.initState();
-    reaction((context) => widget.sendViewModel.state, (state) {
-      if (state is TransactionCommitted) {
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) Navigator.of(context).maybePop();
-        });
-      }
-    });
   }
 
   @override
@@ -71,7 +71,7 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
                       offset: commited ? Offset.zero : const Offset(1, 0),
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOutCubic,
-                      child: const TransactionCommitedScreen(),
+                      child: TransactionCommitedScreen(sendViewModel: widget.sendViewModel,),
                     )),
                     AnimatedSlide(
                       offset: commited ? const Offset(-1, 0) : Offset.zero,
@@ -405,28 +405,117 @@ class SendTransactionDetails extends StatelessWidget {
 }
 
 class TransactionCommitedScreen extends StatelessWidget {
-  const TransactionCommitedScreen({super.key});
+  const TransactionCommitedScreen({super.key, this.sendViewModel});
+
+  final SendViewModel? sendViewModel;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24.0),
-      child: Column(
+    return Observer(
+      builder: (_) => Column(
         spacing: 12,
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          SizedBox(),
           Text(
             S.of(context).transaction_sent_new,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
-          Image.asset(width: 256, height: 256, "assets/images/birthday_cake.png")
+          CakeImageWidget(width: 200, height: 200, imageUrl: "assets/new-ui/birthday_cake.svg"),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              spacing: 12,
+              children: [
+                if (sendViewModel != null)
+                  Row(
+                    spacing: 8,
+                    children: [
+                      if (!(sendViewModel!
+                          .checkIfAddressIsAContact(sendViewModel!.outputs.first.address)))
+                        TransactionCommittedScreenActionButton(
+                            text: S.of(context).save_contact,
+                            iconPath: "assets/new-ui/save_contact.svg",
+                            onTap: () {
+                              Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                                  arguments: ContactRecord(
+                                      CakeHive.box<Contact>(Contact.boxName),
+                                      Contact(
+                                          name: "",
+                                          address: sendViewModel!.outputs.first.address,
+                                          type: sendViewModel!.wallet.currency)));
+                            }),
+                      if (sendViewModel!.transactionInfo != null)
+                        TransactionCommittedScreenActionButton(
+                            text: S.of(context).add_a_note,
+                            iconPath: "assets/new-ui/add_note.svg",
+                            onTap: () {
+                              final page = getIt.get<TransactionDetailsModal>(
+                                  param1: sendViewModel!.transactionInfo!, param2: true);
+                              showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) => page);
+                            }),
+                    ],
+                  ),
+                NewPrimaryButton(
+                    onPressed: Navigator.of(context).maybePop,
+                    text: S.of(context).done,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary)
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
+class TransactionCommittedScreenActionButton extends StatelessWidget {
+  const TransactionCommittedScreenActionButton(
+      {super.key, required this.text, required this.iconPath, required this.onTap});
+
+  final String text;
+  final String iconPath;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+        child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Theme.of(context).colorScheme.surfaceContainer),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 10,
+                  children: [
+                    CakeImageWidget(
+                      imageUrl: iconPath,
+                      width: 24,
+                      height: 24,
+                      colorFilter:
+                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                    ),
+                    Text(
+                      text,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w500),
+                    )
+                  ],
+                ),
+              ),
+            )));
+  }
+}
 
 class MultiSendAddressPreview extends StatefulWidget {
   const MultiSendAddressPreview(
