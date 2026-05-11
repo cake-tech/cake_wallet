@@ -593,14 +593,14 @@ abstract class TransactionDetailsViewModelBase with Store {
     if (wallet.type == WalletType.bitcoin) {
       final crypto = isLightning(transactionInfo) ? CryptoCurrency.btcln : CryptoCurrency.btc;
       final amount = _appStore.amountParsingProxy
-          .getDisplayCryptoString(transactionInfo.amount, crypto)
+          .asDisplayString(transactionInfo.amount)
           .withMaxDecimals(8)
           .withLocalSeperator(_appStore.settingsStore.languageCode);
 
       return '$amount ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
     }
 
-    return transactionInfo.amountFormatted();
+    return transactionInfo.amount.toStringWithSymbol();
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee);

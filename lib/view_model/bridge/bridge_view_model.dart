@@ -17,6 +17,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -135,7 +136,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     if (selectedToken == null) return "0.00";
 
     return amountParsingProxy.asDisplayString(
-      Money(selectedTokenBalance, selectedToken),
+      Money(selectedTokenBalance, selectedToken!),
     );
   }
 
@@ -217,10 +218,10 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     if (amountError != null) return false;
 
     final validAmount = amountParsingProxy.tryParseCryptoString(
-      amount.replaceAll(',', '.'),
+      amount.sanitized(),
       selectedToken!,
     );
-    return validAmount != null && validAmount > Money(BigInt.zero, token);
+    return validAmount != null && validAmount > Money.zero(selectedToken!);
   }
 
   @computed
@@ -230,7 +231,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     try {
       final bal = wallet.balance[selectedToken!];
 
-      return bal?.fullAvailableBalance ?? BigInt.zero;
+      return bal?.available.amount ?? BigInt.zero;
     } catch (e) {
       return BigInt.zero;
     }
@@ -246,7 +247,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     );
 
     if (amountBigInt == null || amountBigInt == BigInt.zero) return null;
-    if (amountBigInt > selectedTokenBalance) {
+    if (amountBigInt.amount > selectedTokenBalance) {
       return 'Insufficient balance for ${selectedToken!.title} token.';
     }
 

@@ -499,12 +499,10 @@ abstract class BalanceViewModelBase with Store {
     double ret = 0.0;
     for (final curr in wallet.balance.keys) {
       final record = wallet.balance[curr]!;
-      final available = evm?.getERC20AvailableBalance(record) ??
-          (record.fullAvailableBalance - (record.secondAvailable ?? BigInt.zero));
+      final available = record.available - (record.secondAvailable ?? Money.zero(curr));
       final price = fiatConversionStore.prices[curr] ?? 0;
-      printV(record.fiatAvailableBalanceRaw);
-      ret += double.tryParse(calculateFiatAmount(
-                  price: price, cryptoAmount: curr.formatAmount(available).replaceAll(",", ""))
+      printV(record.available);
+      ret += double.tryParse(calculateFiatAmount(price: price, cryptoAmount: available.toString())
               .replaceAll(",", "")) ??
           0;
     }

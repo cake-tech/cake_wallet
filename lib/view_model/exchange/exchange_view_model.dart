@@ -261,9 +261,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final balanceForCurrency =
           balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
       if (depositCurrency == currency && balanceForCurrency != null) {
-        depositAvailableAmount = _appStore.amountParsingProxy
-            .getDisplayCryptoStringFromBigInt(
-                balanceForCurrency.fullAvailableBalance, balanceCurrency!);
+        depositAvailableAmount = balanceForCurrency.available.toStringWithSymbol();
       }
     } else {
       final currency = depositCurrency;
@@ -504,10 +502,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     } else {
       balanceCurrency = depositCurrency;
     }
-    final bal = balanceCurrency != null ? wallet.balance[balanceCurrency]?.fullAvailableBalance : null;
+    final bal = balanceCurrency != null ? wallet.balance[balanceCurrency]?.available : null;
     if (bal == null) return null;
-    return amountParsingProxy.getDisplayCryptoStringFromBigInt(
-        bal, balanceCurrency ?? depositCurrency);
+    return amountParsingProxy.asDisplayString(bal);
   }
 
   //* Still open to further optimize these checks
@@ -1343,7 +1340,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         return;
       }
 
-      final balanceAmount = _appStore.amountParsingProxy.getDisplayCryptoStringFromBigInt(balanceForCurrency.fullAvailableBalance, balanceCurrency!);
+      final balanceAmount = _appStore.amountParsingProxy.asDisplayString(balanceForCurrency.available);
       final balanceDouble = double.tryParse(balanceAmount.replaceAll(',', '.')) ?? 0.0;
       if (balanceDouble <= 0) {
         changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.zero), isCanonical: true);
@@ -1371,7 +1368,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           return;
         }
 
-        final balanceWei = balanceForCurrency.fullAvailableBalance;
+        final balanceWei = balanceForCurrency.available.amount;
         final feeWei = BigInt.parse(feeString);
         final amountAfterFeeWei = balanceWei > feeWei ? balanceWei - feeWei : BigInt.zero;
         changeDepositAmount(
@@ -1426,9 +1423,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (!hasAllAmount) isSendAllEnabled = false;
     } else {
       if (isFixedRateMode) {
-        _depositAmount = '';
+        _depositAmount = null;
       } else {
-        _receiveAmount = '';
+        _receiveAmount = null;
       }
     }
     bestRate = 0.0;

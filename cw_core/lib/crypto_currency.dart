@@ -35,8 +35,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   final String? iconPath;
-  final String? flatIconPath;
-  final String? chainIconPath;
+
   @override
   final int decimals;
 

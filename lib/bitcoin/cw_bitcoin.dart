@@ -203,7 +203,7 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
         );
 
-        return estimatedTx.amount;
+        return estimatedTx.amount.amount.toInt();
       }
 
 
@@ -215,7 +215,7 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinTransactionPriority),
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
-        return estimatedTx.amount;
+        return estimatedTx.amount.amount.toInt();
       }
 
       final p2shAddr = sk.getPublic().toP2pkhAddress();
@@ -230,7 +230,7 @@ class CWBitcoin extends Bitcoin {
         coinTypeToSpendFrom: coinTypeToSpendFrom,
       );
 
-      return estimatedTx.amount;
+      return estimatedTx.amount.amount.toInt();
     } catch (_) {
       return 0;
     }
