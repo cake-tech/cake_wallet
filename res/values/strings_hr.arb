@@ -40,6 +40,8 @@
   "address_from_yat": "Ova adresa je od ${emoji} na Yat-u",
   "address_label": "Oznaka adrese",
   "address_label_explainer": "Možete pristupiti svim prethodno korištenim adresama i upravljati njima pritiskom na Adrese",
+  "address_not_allowed_as_receive": "adresa nije dopuštena kao adresa primanja",
+  "address_not_allowed_as_refund": "adresa nije dopuštena kao adresa za povrat novca",
   "address_or_alias": "Adresa ili alias",
   "address_remove_contact": "Ukloni kontakt",
   "address_remove_content": "Jeste li sigurni da želite ukloniti odabrani kontakt?",

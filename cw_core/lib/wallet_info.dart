@@ -457,7 +457,8 @@ class WalletInfo {
     await WalletInfoAddressInfo.deleteByWalletInfoId(internalId);
     final entries = addressInfos.entries.toList();
     for (final addressInfo in entries) {
-      for (final info in addressInfo.value) {
+      final infoList = addressInfo.value.toList();
+      for (final info in infoList) {
         await WalletInfoAddressInfo.insert(
           walletInfoId: internalId,
           mapKey: addressInfo.key,
