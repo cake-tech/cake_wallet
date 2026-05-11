@@ -875,6 +875,7 @@
   "save": "Save",
   "save_backup_password": "Please make sure that you have saved your backup password.  You will not be able to import your backup files without it.",
   "save_backup_password_alert": "Save backup password",
+  "save_contact": "Save Contact",
   "save_to_downloads": "Save to Downloads",
   "saved_the_trade_id": "I've saved the trade ID",
   "savings": "Savings",
