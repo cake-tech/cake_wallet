@@ -1142,7 +1142,6 @@ class SolanaWalletClient {
   SolanaRPC? get getSolanaProvider => _provider;
 
   Future<PendingSolanaTransaction> signSolanaTransaction({
-    required CryptoCurrency currency,
     required Money inputAmount,
     required String destinationAddress,
     required SolanaPrivateKey ownerPrivateKey,
@@ -1153,7 +1152,7 @@ class SolanaWalletClient {
   }) async {
     const commitment = Commitment.confirmed;
 
-    if (currency == CryptoCurrency.sol) {
+    if (inputAmount.currency == CryptoCurrency.sol) {
       return _signNativeTokenTransaction(
         inputAmount: inputAmount,
         destinationAddress: destinationAddress,
@@ -1164,7 +1163,7 @@ class SolanaWalletClient {
       );
     } else {
       return _signSPLTokenTransaction(
-        tokenDecimals: currency.decimals,
+        tokenDecimals: inputAmount.currency.decimals,
         tokenMint: tokenMint!,
         inputAmount: inputAmount,
         ownerPrivateKey: ownerPrivateKey,

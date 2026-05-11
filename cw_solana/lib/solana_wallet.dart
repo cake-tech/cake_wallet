@@ -273,7 +273,6 @@ abstract class SolanaWalletBase
 
     return _client.signSolanaTransaction(
       tokenMint: tokenMint,
-      currency: transactionCurrency,
       inputAmount: totalAmount,
       ownerPrivateKey: _solanaPrivateKey,
       destinationAddress: solCredentials.outputs.first.isParsedAddress
