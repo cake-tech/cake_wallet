@@ -133,8 +133,23 @@ class _NumberTextInputFormatter extends TextInputFormatter {
     if (const ['-', ''].contains(newValue.text)) return newValue;
     final intValue = int.tryParse(newValue.text);
     if (intValue == null) return oldValue;
-    if (intValue < min) return newValue.copyWith(text: min.toString());
-    if (intValue > max) return newValue.copyWith(text: max.toString());
+
+    if (intValue < min) {
+      final text = min.toString();
+      return TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
+    }
+
+    if (intValue > max) {
+      final text = max.toString();
+      return TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
+    }
+
     return newValue.copyWith(text: intValue.toString());
   }
 }

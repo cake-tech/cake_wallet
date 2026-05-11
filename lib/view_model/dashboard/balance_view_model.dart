@@ -22,6 +22,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -252,7 +253,7 @@ abstract class BalanceViewModelBase with Store {
   String additionalBalance(CryptoCurrency cryptoCurrency) {
     final balance = _currencyBalance(cryptoCurrency);
 
-    if (displayMode == BalanceDisplayMode.hiddenBalance || balance.unavailable.isZero) 
+    if (displayMode == BalanceDisplayMode.hiddenBalance || balance.unavailable.isZero)
       return Money.zero(cryptoCurrency).toString();
 
     return balance.unavailable.toString();
@@ -411,9 +412,11 @@ abstract class BalanceViewModelBase with Store {
         if (a.asset == wallet.currency) return -1;
       }
 
-      if (isEVMCompatibleChain(wallet.type)) {
-        final aIsToken = a.asset is Erc20Token;
-        final bIsToken = b.asset is Erc20Token;
+      final isTokenWallet = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+
+      if (isTokenWallet) {
+        final aIsToken = a.asset is Erc20Token || a.asset is SPLToken;
+        final bIsToken = b.asset is Erc20Token || b.asset is SPLToken;
 
         final aHasBalance = (double.tryParse(a.availableBalance) ?? 0) > 0;
         final bHasBalance = (double.tryParse(b.availableBalance) ?? 0) > 0;
@@ -494,13 +497,19 @@ abstract class BalanceViewModelBase with Store {
     }
 
     double ret = 0.0;
-    for(final record in balances.values) {
+    for (final curr in wallet.balance.keys) {
+      final record = wallet.balance[curr]!;
+      final available = evm?.getERC20AvailableBalance(record) ??
+          (record.fullAvailableBalance - (record.secondAvailable ?? BigInt.zero));
+      final price = fiatConversionStore.prices[curr] ?? 0;
       printV(record.fiatAvailableBalanceRaw);
-      ret += double.tryParse(record.fiatAvailableBalanceRaw) ?? 0;
+      ret += double.tryParse(calculateFiatAmount(
+                  price: price, cryptoAmount: curr.formatAmount(available).replaceAll(",", ""))
+              .replaceAll(",", "")) ??
+          0;
     }
     return ret.toStringAsFixed(2).withLocalSeperator(settingsStore.languageCode);
   }
-
 
   Balance _currencyBalance(CryptoCurrency cryptoCurrency) {
     final balance = wallet.balance[cryptoCurrency];

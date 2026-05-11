@@ -22,6 +22,7 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
@@ -984,6 +985,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
 
+      if (_currentTrade != null) {
+        final provider = _currentTrade!.provider;
+        if (provider == ExchangeProviderDescription.swapsXyz) {
+          registerSwapsXyzTransaction(_currentTrade!);
+        }
+      }
+
       await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
 
       if (walletType == WalletType.solana) {
@@ -1093,9 +1101,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     _currentTrade!.stateRaw = isSuccess ? TradeState.completed.raw : TradeState.failed.raw;
 
-    if (_currentTrade!.isInBox) {
-      await _currentTrade!.save();
-    }
+    await _currentTrade!.save();
   }
 
   @action
@@ -1560,6 +1566,54 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return false;
+  }
+
+  Future<void> registerSwapsXyzTransaction(Trade trade) async {
+    try {
+
+      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
+      final needToRegister = trade.needToRegisterInSwapXyz ?? false;
+      if (!needToRegister) return;
+
+      final vmId = (trade.providerId ?? '').toLowerCase();
+      if (vmId.isEmpty) {
+        printV('SwapsXyz: transaction register: skipped (vmId empty)');
+        return;
+      }
+
+      final txHash = pendingTransaction?.evmTxHashFromRawHex
+          ?? pendingTransaction?.id
+          ?? '';
+
+      if (txHash.isEmpty) {
+        printV('SwapsXyz: transaction register: skipped (txHash empty)');
+        return;
+      }
+
+      final chainId = int.tryParse(trade.router ?? '') ?? 0;
+      if (chainId <= 0) {
+        printV('SwapsXyz: transaction register: skipped (invalid chainId)');
+        return;
+      }
+
+      printV(
+          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
+
+      final registered = await SwapsXyzExchangeProvider.registerAltVmTx(
+        txId: trade.id,
+        txHash: txHash,
+        chainId: chainId,
+        vmId: vmId,
+      );
+
+      if (!registered) {
+        printV('SwapsXyz: transaction register: failed');
+      } else {
+        printV('SwapsXyz: transaction register: success');
+      }
+    } catch (e) {
+      printV('registerSwapsXyzTransaction error: $e');
+    }
   }
 
   @computed

@@ -212,8 +212,11 @@ class SendTransactionDetails extends StatelessWidget {
           )
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
-    final showAddress = !sendViewModel.outputs.any(
-        (e) => RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()));
+    final showAddress = !sendViewModel.outputs.any((e) =>
+        RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
+        RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
+        RegExp(AddressValidator.lnurlMatcher)
+            .hasMatch(e.parsedAddress.addresses.first.toLowerCase()));
 
     final outputs = sendViewModel.outputs;
 

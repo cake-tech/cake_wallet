@@ -45,11 +45,16 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   void Function()? onBridgeSuccess;
-  final Map<String, Completer<void>> _pollingCancellers = {};
-  final BridgeTransfersStore bridgeTransfersStore;
   final WalletManager walletManager;
-  final FiatConversionStore fiatConversionStore;
   final SettingsStore settingsStore;
+  final FiatConversionStore fiatConversionStore;
+  final BridgeTransfersStore bridgeTransfersStore;
+  final Map<String, Completer<void>> _pollingCancellers = {};
+
+  static const _pollInterval = Duration(seconds: 2);
+  static const _pollTimeout = Duration(minutes: 5);
+  static const _destinationPollInterval = Duration(seconds: 5);
+  static const _destinationPollTimeout = Duration(minutes: 10);
 
   @observable
   ObservableList<BridgeReceivingWalletOption> bridgeReceivingWalletOptions =
@@ -74,7 +79,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   String? destinationWalletName;
 
   @observable
-  USDT0Quote? quote;
+  BridgeQuote? quote;
 
   @observable
   bool isQuoteLoading = false;
@@ -101,6 +106,9 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   String get sourceAddress => wallet.walletAddresses.address;
 
   @computed
+  String get fiatCurrencyTitle => settingsStore.fiatCurrency.title;
+
+  @computed
   List<ChainInfo> get availableDestinationChains {
     if (!isEVMCompatibleChain(wallet.type)) return [];
 
@@ -124,26 +132,22 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @computed
   String get tokenBalanceFormatted {
-    final token = selectedToken;
-    if (token is! Erc20Token) return '0.00';
+    if (selectedToken == null) return "0.00";
 
     return amountParsingProxy.asDisplayString(
-      Money(selectedTokenBalance, token),
+      Money(selectedTokenBalance, selectedToken),
     );
   }
 
   @computed
   String get amountDisplayFormatted {
-    if (amount.isEmpty) return '';
-    final token = selectedToken;
-    if (token is! Erc20Token) return amount.replaceAll(',', '.');
+        if (selectedToken == null) return "0.00";
 
-    return amountParsingProxy.getDisplayCryptoAmount(
-      amount.replaceAll(',', '.'),
-      token,
-    );
-  }
-
+        return amountParsingProxy.getDisplayCryptoAmount(
+              amount.replaceAll(',', '.'),
+              selectedToken!,
+            );
+    }
 
   DecimalAmountValidator get decimalAmountValidator => DecimalAmountValidator(
         currency: selectedToken!,
@@ -152,34 +156,27 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @computed
   String get fiatAmountFormatted {
-    if (amount.isEmpty) return '';
-    final token = selectedToken;
-    if (token is! Erc20Token) return '';
+    try {
+      if (amount.isEmpty) return '';
 
-    final price = fiatConversionStore.prices[token];
-    if (price == null) return '';
+      final price = fiatConversionStore.prices[selectedToken!];
+      if (price == null) return '';
 
-    final forFiat = amountParsingProxy.getDisplayCryptoAmount(
-      amount.replaceAll(',', '.'),
-      token,
-    );
+      final forFiat =
+          amountParsingProxy.getDisplayCryptoAmount(amount.replaceAll(',', '.'), selectedToken!);
 
-    return calculateFiatAmount(
-      price: price,
-      cryptoAmount: forFiat,
-    );
+      return calculateFiatAmount(price: price, cryptoAmount: forFiat);
+    } catch (_) {
+      return '';
+    }
   }
-
-  @computed
-  String get fiatCurrencyTitle => settingsStore.fiatCurrency.title;
 
   @computed
   String get quoteNativeFee {
     if (quote == null) return '—';
 
-    final cur = wallet.currency;
     return amountParsingProxy.asDisplayString(
-      Money(quote!.nativeFee, cur));
+      Money(quote!.nativeFee, wallet.currency));
   }
 
   @computed
@@ -191,70 +188,93 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @computed
   String get quoteNativeFiatFeeFormattedForDisplay {
-    if (quote == null || quoteNativeFee.isEmpty) return '';
+    try {
+      if (quote == null || quoteNativeFee.isEmpty) return '';
 
-    final price = fiatConversionStore.prices[wallet.currency];
-    if (price == null) return '';
+      final price = fiatConversionStore.prices[wallet.currency];
+      if (price == null) return '';
 
-    final fiatFeeFormatted = calculateFiatAmount(
-      price: price,
-      cryptoAmount: amountParsingProxy.getDisplayCryptoAmount(
-        quoteNativeFee.replaceAll(',', '.'),
-        wallet.currency,
-      ),
-    );
+      final fiatFeeFormatted = calculateFiatAmount(
+        price: price,
+        cryptoAmount: amountParsingProxy.getDisplayCryptoAmount(
+          quoteNativeFee.replaceAll(',', '.'),
+          wallet.currency,
+        ),
+      );
 
-    return '(${settingsStore.fiatCurrency.title} $fiatFeeFormatted)';
+      return '(${fiatCurrencyTitle} $fiatFeeFormatted)';
+    } catch (_) {
+      return '';
+    }
   }
 
   @computed
   bool get canProceedToDestinationNetwork {
     if (amount.isEmpty) return false;
 
-    if (selectedToken == null || selectedToken is! Erc20Token) return false;
+    if (selectedToken.isNotErc20) return false;
 
     if (amountError != null) return false;
 
-    final token = selectedToken as Erc20Token;
     final validAmount = amountParsingProxy.tryParseCryptoString(
       amount.replaceAll(',', '.'),
-      token,
+      selectedToken!,
     );
     return validAmount != null && validAmount > Money(BigInt.zero, token);
   }
 
+  @computed
+  BigInt get selectedTokenBalance {
+    if (selectedToken == null) return BigInt.zero;
+
+    try {
+      final bal = wallet.balance[selectedToken!];
+
+      return bal?.fullAvailableBalance ?? BigInt.zero;
+    } catch (e) {
+      return BigInt.zero;
+    }
+  }
+
+  @computed
+  String? get amountError {
+    if (selectedToken == null) return null;
+
+    final amountBigInt = amountParsingProxy.tryParseCryptoString(
+      amount.replaceAll(',', '.'),
+      selectedToken!,
+    );
+
+    if (amountBigInt == null || amountBigInt == BigInt.zero) return null;
+    if (amountBigInt > selectedTokenBalance) {
+      return 'Insufficient balance for ${selectedToken!.title} token.';
+    }
+
+    return null;
+  }
+
   @action
   void applyInitialBridgeToken(CryptoCurrency asset) {
-    for (final t in availableUSDT0Tokens) {
-      if (t == asset) {
-        setSelectedToken(t);
-        break;
-      }
+    final token = availableUSDT0Tokens.firstWhereOrNull((t) => t == asset);
+    if (token != null) {
+      setSelectedToken(token);
     }
   }
 
   @action
-  void setDestinationChain(int chainId) {
-    destinationChainId = chainId;
-    _clearQuoteState();
-  }
+  void setDestinationChain(int chainId) => destinationChainId = chainId;
 
   @action
-  void setSelectedToken(CryptoCurrency token) {
-    selectedToken = token;
-    _clearQuoteState();
-  }
+  void setSelectedToken(CryptoCurrency token) => selectedToken = token;
 
   @action
-  void setAmount(String value) {
-    amount = value;
-    _clearQuoteState();
-  }
+  void setAmount(String value) => amount = value;
 
   @action
   void setMaxAmount() {
-    final token = selectedToken;
-    if (token is! Erc20Token) return;
+    final token = selectedToken.asErc20;
+    if (token == null) return;
+
     if (selectedTokenBalance == BigInt.zero) {
       setAmount('');
       return;
@@ -271,27 +291,24 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   void setRecipientAddress(String value, {String? destWalletName}) {
     recipientAddress = value;
     destinationWalletName = destWalletName;
-    _clearQuoteState();
-  }
-
-  void _clearQuoteState() {
-    quote = null;
-    quoteError = null;
-    executeError = null;
   }
 
   Future<void> _ensureFiatPriceFor(CryptoCurrency crypto) async {
     if (fiatConversionStore.prices[crypto] != null) return;
 
-    final p = await FiatConversionService.fetchPrice(
-      crypto: crypto,
-      fiat: settingsStore.fiatCurrency,
-      torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-    );
+    try {
+      final p = await FiatConversionService.fetchPrice(
+        crypto: crypto,
+        fiat: settingsStore.fiatCurrency,
+        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+      );
 
-    runInAction(() {
-      fiatConversionStore.prices[crypto] = p;
-    });
+      runInAction(() {
+        fiatConversionStore.prices[crypto] = p;
+      });
+    } catch (e) {
+      printV('Error ensuring fiat price for $crypto: $e');
+    }
   }
 
   @action
@@ -304,34 +321,11 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     await _ensureFiatPriceFor(wallet.currency);
   }
 
-  @computed
-  BigInt get selectedTokenBalance {
-    final bal = wallet.balance[selectedToken];
-
-    return bal?.available.amount ?? BigInt.zero;
-  }
-
-  @computed
-  String? get amountError {
-    if (selectedToken == null || amount.isEmpty) return null;
-    if (selectedToken is! Erc20Token) return null;
-
-    final token = selectedToken as Erc20Token;
-    final parsedAmount = amountParsingProxy.tryParseCryptoString(
-      amount.replaceAll(',', '.'),
-      token,
-    );
-    if (parsedAmount == null || parsedAmount == Money(BigInt.zero, token)) return null;
-    if (parsedAmount.amount > selectedTokenBalance) {
-      return 'Insufficient balance for ${token.title} token.';
-    }
-
-    return null;
-  }
-
   @action
   Future<void> loadReceivingWalletOptions() async {
     if (!isEVMCompatibleChain(wallet.type)) return;
+
+    if (destinationChainId == null) return;
 
     final destWalletType = evm!.getWalletTypeByChainId(destinationChainId!);
 
@@ -364,6 +358,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       bridgeReceivingWalletOptions
         ..clear()
         ..addAll(options);
+    } catch (e) {
+      printV('Error loading receiving wallet options: $e');
     } finally {
       isBridgeReceivingWalletListLoading = false;
     }
@@ -412,8 +408,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       return;
     }
 
-    final token = selectedToken!;
-    if (token is! Erc20Token) return;
+    final token = selectedToken.asErc20;
+    if (token == null) return;
 
     final check = _parseAndValidateAmount(token);
     if (check.error != null) {
@@ -426,9 +422,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final amountBigInt = check.parsedAmount!;
 
     isQuoteLoading = true;
-    quoteError = null;
-    quote = null;
-    executeError = null;
+    _clearQuoteState();
 
     try {
       quote = await evm!.quoteUSDT0Transfer(
@@ -458,8 +452,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       return;
     }
 
-    final token = selectedToken!;
-    if (token is! Erc20Token) return;
+    final token = selectedToken.asErc20;
+    if (token == null) return;
 
     final check = _parseAndValidateAmount(token);
     if (check.error != null) {
@@ -511,7 +505,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         lastCreatedBridgeTransfer = record;
       });
       onBridgeSuccess?.call();
-      _pollForSourceConfirmation(record, wallet);
+      _pollForConfirmation(record, wallet, isSource: true);
     } catch (e) {
       executeError = e.toString();
     } finally {
@@ -519,24 +513,10 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     }
   }
 
-  static const _pollInterval = Duration(seconds: 2);
-  static const _pollTimeout = Duration(minutes: 3);
-  static const _destinationPollInterval = Duration(seconds: 5);
-  static const _destinationPollTimeout = Duration(minutes: 10);
-
   @override
   void onWalletChange(WalletBase wallet) {
     _cancelAllPolling();
     _resumePollingForActiveTransfers(wallet);
-  }
-
-  void _cancelAllPolling() {
-    for (final canceller in _pollingCancellers.values) {
-      if (!canceller.isCompleted) {
-        canceller.complete();
-      }
-    }
-    _pollingCancellers.clear();
   }
 
   void _resumePollingForActiveTransfers(WalletBase wallet) {
@@ -548,9 +528,9 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
     for (final transfer in activeTransfers) {
       if (transfer.status == 'submitted' || transfer.status == 'confirming') {
-        _pollForSourceConfirmation(transfer, wallet);
+        _pollForConfirmation(transfer, wallet, isSource: true);
       } else if (transfer.status == 'initiated') {
-        _pollForDestinationCompletion(transfer, wallet);
+        _pollForConfirmation(transfer, wallet, isSource: false);
       }
     }
   }
@@ -577,130 +557,134 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       if (statusMessage != null) record.statusMessage = statusMessage;
       if (confirmedAt != null) record.confirmedAt = confirmedAt;
     });
-    await bridgeTransfersStore.updateTransfer(record);
-  }
-
-  Future<void> _pollForSourceConfirmation(
-    BridgeTransfer record,
-    WalletBase wallet,
-  ) async {
-    final canceller = Completer<void>();
-    _pollingCancellers[record.id] = canceller;
-    final walletId = wallet.name;
-    final deadline = DateTime.now().add(_pollTimeout);
 
     try {
-      while (DateTime.now().isBefore(deadline)) {
-        await Future.any([
-          Future.delayed(_pollInterval),
-          canceller.future,
-        ]);
-
-        if (canceller.isCompleted || !_isValidWalletContext(walletId)) return;
-
-        bool? receipt;
-        try {
-          receipt = await evm!.getTransactionReceipt(wallet, record.sourceTxHash);
-        } catch (e) {
-          printV('USDT0 bridge: Error fetching receipt: $e');
-          continue;
-        }
-
-        if (receipt == null) continue;
-
-        if (receipt == true) {
-          await _updateTransferStatus(
-            record,
-            'confirming',
-            confirmedAt: DateTime.now(),
-          );
-
-          await Future.delayed(const Duration(seconds: 1));
-          if (canceller.isCompleted || !_isValidWalletContext(walletId)) return;
-
-          await _updateTransferStatus(record, 'initiated');
-          _pollForDestinationCompletion(record, wallet);
-
-          return;
-        } else if (receipt == false) {
-          await _updateTransferStatus(
-            record,
-            'failed',
-            errorMessage: 'Transaction reverted',
-          );
-          return;
-        }
-      }
-
-      if (!_isValidWalletContext(walletId)) return;
-
-      await _updateTransferStatus(record, 'initiated');
-      _pollForDestinationCompletion(record, wallet);
-    } finally {
-      _pollingCancellers.remove(record.id);
+      await bridgeTransfersStore.updateTransfer(record);
+    } catch (e) {
+      printV('USDT0 bridge: Error updating transfer status: $e');
     }
   }
 
-  Future<void> _pollForDestinationCompletion(
+  Future<void> _pollForConfirmation(
     BridgeTransfer record,
-    WalletBase wallet,
-  ) async {
+    WalletBase wallet, {
+    required bool isSource,
+  }) async {
     final canceller = Completer<void>();
-    _pollingCancellers['${record.id}_dest'] = canceller;
+    final recordId = isSource ? record.id : '${record.id}_dest';
+    final pollInterval = isSource ? _pollInterval : _destinationPollInterval;
+    final pollTimeout = isSource ? _pollTimeout : _destinationPollTimeout;
     final walletId = wallet.name;
-    final deadline = DateTime.now().add(_destinationPollTimeout);
+    final deadline = DateTime.now().add(pollTimeout);
+
+    _pollingCancellers[recordId] = canceller;
 
     try {
       while (DateTime.now().isBefore(deadline)) {
         await Future.any([
-          Future.delayed(_destinationPollInterval),
+          Future.delayed(pollInterval),
           canceller.future,
         ]);
 
         if (canceller.isCompleted || !_isValidWalletContext(walletId)) return;
 
-        LayerZeroMessageStatus? status;
-        try {
-          status = await LayerZeroScanService.getMessageStatus(record.sourceTxHash);
-        } catch (e) {
-          printV('USDT0 bridge: Error fetching LayerZero status: $e');
+        if (isSource) {
+          final receipt = await _fetchTransactionReceipt(record, wallet);
+
+          if (receipt != null) {
+            final isTransactionSuccessful = receipt == true;
+            await _updateTransferStatus(
+              record,
+              isTransactionSuccessful ? 'initiated' : 'failed',
+              confirmedAt: isTransactionSuccessful ? DateTime.now() : null,
+              errorMessage: !isTransactionSuccessful ? 'Transaction reverted' : null,
+            );
+
+            if (isTransactionSuccessful) {
+              await Future.delayed(const Duration(seconds: 1));
+              if (_isValidWalletContext(walletId)) {
+                _pollForConfirmation(record, wallet, isSource: false);
+              }
+            }
+
+            return;
+          }
+
+          continue;
+        } else {
+          final status = await _fetchLayerZeroMessageStatus(record, wallet);
+
+          if (status != null) {
+            final statusMessage = _getStatusMessage(status, record);
+            await _updateTransferStatus(
+              record,
+              statusMessage,
+              errorMessage:
+                  status.isFailed ? status.status?.message ?? 'Bridge message failed' : null,
+              statusMessage: status.status?.message,
+            );
+
+            if (status.isDelivered || status.isFailed) return;
+          }
+
           continue;
         }
+      }
 
-        if (status == null) continue;
-
-        if (status.isDelivered) {
-          await _updateTransferStatus(
-            record,
-            'completed',
-            statusMessage: status.status?.message,
-          );
-          return;
-        }
-
-        if (status.isFailed) {
-          await _updateTransferStatus(
-            record,
-            'failed',
-            errorMessage: status.status?.message ?? 'Bridge message failed',
-            statusMessage: status.status?.message,
-          );
-          return;
-        }
-
+      if (isSource && _isValidWalletContext(walletId)) {
         await _updateTransferStatus(
           record,
-          record.status,
-          statusMessage: status.status?.message,
+          'failed',
+          errorMessage: 'Source confirmation timed out',
         );
       }
+    } catch (e) {
+      printV('USDT0 bridge: Error polling for confirmation: $e');
     } finally {
-      _pollingCancellers.remove('${record.id}_dest');
+      _pollingCancellers.remove(recordId);
+    }
+  }
+
+  String _getStatusMessage(LayerZeroMessageStatus status, BridgeTransfer record) {
+    if (status.isDelivered) {
+      return 'completed';
+    }
+
+    if (status.isFailed) {
+      return 'failed';
+    }
+
+    return record.status;
+  }
+
+  Future<bool?> _fetchTransactionReceipt(BridgeTransfer record, WalletBase wallet) async {
+    try {
+      return await evm!.getTransactionReceipt(wallet, record.sourceTxHash);
+    } catch (e) {
+      printV('USDT0 bridge: Error fetching receipt: $e');
+      return null;
+    }
+  }
+
+  Future<LayerZeroMessageStatus?> _fetchLayerZeroMessageStatus(
+      BridgeTransfer record, WalletBase wallet) async {
+    try {
+      return await LayerZeroScanService.getMessageStatus(record.sourceTxHash);
+    } catch (e) {
+      printV('USDT0 bridge: Error fetching LayerZero status: $e');
+      return null;
     }
   }
 
   @action
-  void clearBridgeSuccess() {
+  void _clearQuoteState() {
+    quote = null;
+    quoteError = null;
+    executeError = null;
+  }
+
+  @action
+  void clearOnBridgeSuccess() {
     amount = '';
     recipientAddress = '';
     destinationWalletName = null;
@@ -710,7 +694,25 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     _clearQuoteState();
   }
 
+  void _cancelAllPolling() {
+    for (final canceller in _pollingCancellers.values) {
+      if (!canceller.isCompleted) {
+        canceller.complete();
+      }
+    }
+    _pollingCancellers.clear();
+  }
+
   void dispose() {
     _cancelAllPolling();
   }
+}
+
+extension CryptoCurrencyX on CryptoCurrency? {
+  Erc20Token? get asErc20 {
+    final token = this;
+    return token is Erc20Token ? token : null;
+  }
+
+  bool get isNotErc20 => this == null || this is! Erc20Token;
 }
