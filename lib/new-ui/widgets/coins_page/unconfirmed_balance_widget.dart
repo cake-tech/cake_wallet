@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -47,12 +48,10 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                 showMaterialModalBottomSheet(
                                     backgroundColor: Colors.transparent,
                                     context: context,
-                                    builder: (context) {
-                                      return UnconfirmedBalanceModal(
-                                        balance: "${balance} ${currency.title}",
+                                    builder: (context) => UnconfirmedBalanceModal(
+                                        balance: balance.toStringWithSymbol(),
                                         currencyIconPath: currency.iconPath ?? "",
-                                      );
-                                    });
+                                      ));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -100,9 +99,8 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                     ),
                   ],
                 )
-              : const SizedBox(
-                  width: double.infinity,
-                ));
+              : const SizedBox(width: double.infinity),
+      );
     });
   }
 }
@@ -137,7 +135,7 @@ class UnconfirmedBalanceModal extends StatelessWidget {
                   Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      Image.asset(currencyIconPath, height: 100, width: 100),
+                      CakeImageWidget(imageUrl: currencyIconPath, height: 100, width: 100),
                       Container(
                         width: 36,
                         height: 36,

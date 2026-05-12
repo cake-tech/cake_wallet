@@ -8,6 +8,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
@@ -236,7 +237,7 @@ class TronClient {
   }
 
   Future<int> getTRCEstimatedFee(TronAddress ownerAddress) async {
-    const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+    final usdtContractAddress = DefaultTronTokens().usdt.contractAddress;
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
     final function = contract.functionFromName("transfer");
 

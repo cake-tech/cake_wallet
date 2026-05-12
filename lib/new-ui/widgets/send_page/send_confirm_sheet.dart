@@ -177,19 +177,22 @@ class SendTransactionDetails extends StatelessWidget {
           }, sendViewModel.selectedCryptoCurrency))
         : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount);
 
-    final fee = "${(transaction == null) ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(
-        sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-        (o) {
-          final zero = Money.zero(sendViewModel.currency);
-          if (sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln) {
-            return sendViewModel.amountParsingProxy.tryParseCryptoString(
-                    o.estimatedFee.replaceAll(",", ""), sendViewModel.selectedCryptoCurrency) ??
-                zero;
-          }
-          return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ?? zero;
-        },
-        sendViewModel.currency,
-      )) : sendViewModel.amountParsingProxy.asDisplayString(transaction.fee)} ${sendViewModel.currencySymbol}";
+    final fee = (transaction == null)
+        ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(
+            sendViewModel.outputs.where((e) => !e.sendAll).toList(),
+            (o) {
+              final zero = Money.zero(sendViewModel.currency);
+              if (sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln) {
+                return sendViewModel.amountParsingProxy.tryParseCryptoString(
+                        o.estimatedFee.replaceAll(",", ""), sendViewModel.selectedCryptoCurrency) ??
+                    zero;
+              }
+              return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
+                  zero;
+            },
+            sendViewModel.currency,
+          ))
+        : sendViewModel.amountParsingProxy.asDisplayString(transaction.fee);
 
     final fiatAmount = (transaction == null)
         ? sumWithUnit(
@@ -209,8 +212,11 @@ class SendTransactionDetails extends StatelessWidget {
           )
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
-    final showAddress = !sendViewModel.outputs.any(
-        (e) => RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()));
+    final showAddress = !sendViewModel.outputs.any((e) =>
+        RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
+        RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
+        RegExp(AddressValidator.lnurlMatcher)
+            .hasMatch(e.parsedAddress.addresses.first.toLowerCase()));
 
     final outputs = sendViewModel.outputs;
 
@@ -324,7 +330,7 @@ class SendTransactionDetails extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              fee.withLocalSeperator(sendViewModel.languageCode),
+                              "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,

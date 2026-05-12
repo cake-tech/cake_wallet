@@ -32,4 +32,11 @@ class ERC20Currency implements Currency {
 
   @override
   String? get tag => null;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ERC20Currency && other.decimals == decimals && other.symbol == symbol;
+
+  @override
+  int get hashCode => decimals.hashCode ^ symbol.hashCode;
 }

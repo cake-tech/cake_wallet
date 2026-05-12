@@ -191,8 +191,8 @@ class CWSolana extends Solana {
     String base64Transaction,
     String requestId,
     String destinationAddress,
-    double amount,
-    double fee,
+    Money amount,
+    Money fee,
   ) async {
     final solanaWallet = wallet as SolanaWallet;
     final privateKey = solanaWallet.solanaPrivateKey;
@@ -274,11 +274,11 @@ class CWSolana extends Solana {
     }
 
     return PendingSolanaTransaction(
-      amount: Money.tryParse(amount.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
+      amount: amount,
       serializedTransaction: signedTransactionBase64,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
-      fee: Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
+      fee: fee,
     );
   }
 
@@ -347,5 +347,60 @@ class CWSolana extends Solana {
   }) async {
     final solanaWallet = wallet as SolanaWallet;
     await solanaWallet.updateTokenBalance(tokenMints: tokenMints);
+  }
+
+  static const _minTokenUsdValue = 0.1;
+
+  Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
+    SPLToken token,
+    double balance,
+  ) async {
+    try {
+      final settingsStore = getIt.get<SettingsStore>();
+      final torOnly = settingsStore.fiatApiMode == FiatApiMode.torOnly;
+
+      final price = await FiatConversionService.fetchPrice(
+        crypto: token,
+        fiat: FiatCurrency.usd,
+        torOnly: torOnly,
+      );
+
+      final hasValidFiatPrice = price > 0;
+      final usdValue = balance * price;
+
+      return (usdValue: usdValue, hasValidFiatPrice: hasValidFiatPrice);
+    } catch (e) {
+      return (usdValue: 0.0, hasValidFiatPrice: false);
+    }
+  }
+
+  @override
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
+    if (wallet is! SolanaWallet) return;
+
+    try {
+      final result = await wallet.discoverTokensFromMoralis();
+
+      if (result.newTokens.isEmpty) return;
+
+      final List<Future<void>> tokenChecks = [];
+
+      for (final item in result.newTokens) {
+        tokenChecks.add((() async {
+          final token = item.token;
+
+          final fiatResult = await _getTokenUsdValueAndFiatCheck(token, item.balance);
+
+          final isSpam = !fiatResult.hasValidFiatPrice;
+
+          token.isPotentialScam = isSpam;
+          token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
+
+          await wallet.addSPLToken(token);
+        })());
+      }
+
+      await Future.wait(tokenChecks);
+    } catch (_) {}
   }
 }

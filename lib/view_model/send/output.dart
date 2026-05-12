@@ -17,6 +17,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_amount_format.dart';
@@ -117,7 +118,7 @@ abstract class OutputBase with Store {
     if (cryptoAmount.isEmpty) return Money.zero(cryptoCurrencyHandler());
 
     try {
-      return cryptoCurrencyHandler().parseAmount(cryptoAmount.replaceAll(',', '.'));
+      return cryptoCurrencyHandler().parseAmount(cryptoAmount.sanitized());
     } catch (e) {
       return Money.zero(cryptoCurrencyHandler());
     }

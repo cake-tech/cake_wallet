@@ -21,18 +21,18 @@ String _getSvgPathForChain(String chainName) {
 
   switch (name) {
     case 'ethereum':
-      return 'assets/images/crypto/ethereum.webp';
+      return 'assets/new-ui/crypto_full_icons/ethereum.svg';
     case 'polygon':
-      return 'assets/images/crypto/polygon.webp';
+      return 'assets/new-ui/crypto_full_icons/polygon.svg';
     case 'arbitrum':
-      return 'assets/images/crypto/arbitrum.webp';
+      return 'assets/new-ui/crypto_full_icons/arbitrum.svg';
     case 'base':
-      return 'assets/images/crypto/base_icon.webp';
+      return 'assets/new-ui/crypto_full_icons/base.svg';
     case 'bnb':
     case 'bsc':
-      return 'assets/images/crypto/BNB.webp';
+      return 'assets/new-ui/crypto_full_icons/bnb.svg';
     default:
-      return 'assets/images/crypto/ethereum.webp';
+      return 'assets/new-ui/crypto_full_icons/ethereum.svg';
   }
 }
 

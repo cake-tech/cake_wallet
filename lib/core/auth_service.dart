@@ -96,8 +96,7 @@ class AuthService with Store {
     }
 
     // Check for duress pin
-    final duressKey =
-    generateStoreKeyFor(key: SecretStoreKey.duressPinCodePassword);
+    final duressKey = generateStoreKeyFor(key: SecretStoreKey.duressPinCodePassword);
     final encodedDuressPin = await secureStorage.read(key: duressKey);
 
     String? decodedDuressPin;
@@ -110,12 +109,12 @@ class AuthService with Store {
     }
 
     if (decodedDuressPin == pin) {
-      await _handleDuressLogin(secureStorage, sharedPreferences,
-          authenticationStore, appStore, resetService, walletList);
+      await _handleDuressLogin(secureStorage, sharedPreferences, authenticationStore, appStore,
+          resetService, walletList);
 
       navigatorKey.currentState?.pushNamedAndRemoveUntil(
         Routes.welcome,
-            (route) => false,
+        (route) => false,
       );
 
       return false;
@@ -167,52 +166,53 @@ class AuthService with Store {
       }
     }
 
-    Navigator.of(context).pushNamed(Routes.auth,
-        arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-      if (!isAuthenticatedSuccessfully) {
-        onAuthSuccess?.call(false);
-        return;
-      } else {
-        if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
-          auth.close(
-            route: Routes.totpAuthCodePage,
-            arguments: TotpAuthArgumentsModel(
-              isForSetup: !settingsStore.useTOTP2FA,
-              onTotpAuthenticationFinished:
-                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
-                if (!isAuthenticatedSuccessfully) {
-                  onAuthSuccess?.call(false);
-                  return;
-                }
-                if (onAuthSuccess != null) {
-                  totpAuth.close().then((value) => onAuthSuccess.call(true));
-                } else {
-                  totpAuth.close(route: route, arguments: arguments);
-                }
-              },
-            ),
-          );
+    if (context.mounted) {
+      Navigator.of(context).pushNamed(Routes.auth,
+          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+        if (!isAuthenticatedSuccessfully) {
+          onAuthSuccess?.call(false);
+          return;
         } else {
-          if (onAuthSuccess != null) {
-            auth.close().then((value) => onAuthSuccess.call(true));
+          if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
+            auth.close(
+              route: Routes.totpAuthCodePage,
+              arguments: TotpAuthArgumentsModel(
+                isForSetup: !settingsStore.useTOTP2FA,
+                onTotpAuthenticationFinished:
+                    (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
+                  if (!isAuthenticatedSuccessfully) {
+                    onAuthSuccess?.call(false);
+                    return;
+                  }
+                  if (onAuthSuccess != null) {
+                    totpAuth.close().then((value) => onAuthSuccess.call(true));
+                  } else {
+                    totpAuth.close(route: route, arguments: arguments);
+                  }
+                },
+              ),
+            );
           } else {
-            auth.close(route: route, arguments: arguments);
+            if (onAuthSuccess != null) {
+              auth.close().then((value) => onAuthSuccess.call(true));
+            } else {
+              auth.close(route: route, arguments: arguments);
+            }
           }
         }
-      }
-    });
+      });
+    }
   }
 }
 
-
 Future<void> _handleDuressLogin(
-    SecureStorage secureStorage,
-    SharedPreferences sharedPreferences,
-    AuthenticationStore authenticationStore,
-    AppStore appStore,
-    ResetService resetService,
-    List<WalletInfo> wallets,
-    ) async {
+  SecureStorage secureStorage,
+  SharedPreferences sharedPreferences,
+  AuthenticationStore authenticationStore,
+  AppStore appStore,
+  ResetService resetService,
+  List<WalletInfo> wallets,
+) async {
   printV('[DURESS] START FULL WIPE PROCESS');
 
   // Close wallet instance if opened
@@ -278,4 +278,3 @@ Future<void> _handleDuressLogin(
 
   printV('[DURESS] FULL WIPE COMPLETED');
 }
-

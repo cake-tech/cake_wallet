@@ -540,7 +540,7 @@ abstract class TronWalletBase
       await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
 
       // Check USDT token balance
-      const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+      final usdtContractAddress = DefaultTronTokens().usdt.contractAddress;
       await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress,
           throwOnError: true, currency: CryptoCurrency.usdttrc20);
 
