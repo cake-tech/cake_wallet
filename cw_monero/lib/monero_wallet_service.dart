@@ -581,7 +581,7 @@ class MoneroWalletService extends WalletService<
     if (walletInfo == null) {
       return false;
     }
-    return walletInfo.isHardwareWallet;
+    return walletInfo.hardwareWalletType == HardwareWalletType.ledger;
   }
 }
 
