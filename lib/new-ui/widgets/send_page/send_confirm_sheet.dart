@@ -38,8 +38,17 @@ class SendConfirmSheet extends StatefulWidget {
 }
 
 class _SendConfirmSheetState extends State<SendConfirmSheet> {
+  bool _committed = false;
+
   void initState() {
     super.initState();
+    reaction((_)=>widget.sendViewModel.state, (state){
+      if(state is TransactionCommitted) {
+        setState(() {
+          _committed = true;
+        });
+      }
+    });
   }
 
   @override
@@ -62,19 +71,18 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
           child: SafeArea(
             child: Observer(
               builder: (_) {
-                final commited = widget.sendViewModel.state is TransactionCommitted;
                 return Stack(
                   fit: StackFit.loose,
                   children: [
                     Positioned.fill(
                         child: AnimatedSlide(
-                      offset: commited ? Offset.zero : const Offset(1, 0),
+                      offset: _committed ? Offset.zero : const Offset(1, 0),
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOutCubic,
                       child: TransactionCommitedScreen(sendViewModel: widget.sendViewModel,),
                     )),
                     AnimatedSlide(
-                      offset: commited ? const Offset(-1, 0) : Offset.zero,
+                      offset: _committed ? const Offset(-1, 0) : Offset.zero,
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOutCubic,
                       child: SendTransactionDetails(
