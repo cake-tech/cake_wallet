@@ -20,6 +20,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -412,10 +413,17 @@ class SendTransactionDetails extends StatelessWidget {
   }
 }
 
-class TransactionCommitedScreen extends StatelessWidget {
+class TransactionCommitedScreen extends StatefulWidget {
   const TransactionCommitedScreen({super.key, this.sendViewModel});
 
   final SendViewModel? sendViewModel;
+
+  @override
+  State<TransactionCommitedScreen> createState() => _TransactionCommitedScreenState();
+}
+
+class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
+  bool _isNoteButtonLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -436,12 +444,12 @@ class TransactionCommitedScreen extends StatelessWidget {
             child: Column(
               spacing: 12,
               children: [
-                if (sendViewModel != null)
+                if (widget.sendViewModel != null)
                   Row(
                     spacing: 8,
                     children: [
-                      if (!(sendViewModel!
-                          .checkIfAddressIsAContact(sendViewModel!.outputs.first.address)))
+                      if (!(widget.sendViewModel!
+                          .checkIfAddressIsAContact(widget.sendViewModel!.outputs.first.address)))
                         TransactionCommittedScreenActionButton(
                             text: S.of(context).save_contact,
                             iconPath: "assets/new-ui/save_contact.svg",
@@ -451,16 +459,31 @@ class TransactionCommitedScreen extends StatelessWidget {
                                       CakeHive.box<Contact>(Contact.boxName),
                                       Contact(
                                           name: "",
-                                          address: sendViewModel!.outputs.first.address,
-                                          type: sendViewModel!.wallet.currency)));
+                                          address: widget.sendViewModel!.outputs.first.address,
+                                          type: widget.sendViewModel!.wallet.currency)));
                             }),
-                      if (sendViewModel!.transactionInfo != null)
+                      // lightning has to be hacked in here as it doesn't get added to tx history for a few secs after committing.
+                      if (widget.sendViewModel!.transactionInfo != null ||
+                          widget.sendViewModel!.currency == CryptoCurrency.btcln)
                         TransactionCommittedScreenActionButton(
                             text: S.of(context).add_a_note,
                             iconPath: "assets/new-ui/add_note.svg",
-                            onTap: () {
+                            isLoading: _isNoteButtonLoading,
+                            onTap: () async {
+                              setState(() {
+                                _isNoteButtonLoading = true;
+                              });
+
+                              // for ln, we want to show the button and just have it wait until it appears in tx history
+                              // for other currs this is instant
+                              await asyncWhen((_) => widget.sendViewModel!.transactionInfo != null);
+
+                              setState(() {
+                                _isNoteButtonLoading = false;
+                              });
+
                               final page = getIt.get<TransactionDetailsModal>(
-                                  param1: sendViewModel!.transactionInfo!, param2: true);
+                                  param1: widget.sendViewModel!.transactionInfo!, param2: true);
                               showModalBottomSheet(
                                   isScrollControlled: true,
                                   context: context,
@@ -484,11 +507,16 @@ class TransactionCommitedScreen extends StatelessWidget {
 
 class TransactionCommittedScreenActionButton extends StatelessWidget {
   const TransactionCommittedScreenActionButton(
-      {super.key, required this.text, required this.iconPath, required this.onTap});
+      {super.key,
+      required this.text,
+      required this.iconPath,
+      required this.onTap,
+      this.isLoading = false});
 
   final String text;
   final String iconPath;
   final VoidCallback onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -505,13 +533,15 @@ class TransactionCommittedScreenActionButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 10,
                   children: [
-                    CakeImageWidget(
-                      imageUrl: iconPath,
-                      width: 24,
-                      height: 24,
-                      colorFilter:
-                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                    ),
+                    isLoading
+                        ? CupertinoActivityIndicator()
+                        : CakeImageWidget(
+                            imageUrl: iconPath,
+                            width: 24,
+                            height: 24,
+                            colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                          ),
                     Text(
                       text,
                       style: TextStyle(
