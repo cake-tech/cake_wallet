@@ -290,6 +290,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 

@@ -57,6 +57,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/sync_status.dart';
@@ -890,6 +891,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       (provider.description == ExchangeProviderDescription.swapsXyz ||
           provider.description == ExchangeProviderDescription.nearIntents);
 
+  bool _excludeProviderForReceiveExtraId(ExchangeProvider provider) =>
+      memoLabelTypeFor(receiveCurrency) != null && !provider.supportsMemoOrDestinationTag;
+
   Future<void> calculateBestRate() async {
     if (depositCurrency == receiveCurrency) {
       bestRate = 0.0;
@@ -901,6 +905,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       if (_excludeProviderForSwapAll(provider)) return false;
+      if (_excludeProviderForReceiveExtraId(provider)) return false;
 
       final limits = _providerLimits[provider];
 
@@ -978,6 +983,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     try {
       final futures = selectedProviders
           .where((provider) => providerList.contains(provider))
+          .where((provider) => !_excludeProviderForReceiveExtraId(provider))
           .map((provider) async {
         final limits = await provider
             .fetchLimits(
@@ -1054,6 +1060,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (invoice != null) {
         receiveAddress = invoice;
       }
+    }
+
+    if (forcedProvider != null && _excludeProviderForReceiveExtraId(forcedProvider!)) {
+      tradeState = TradeIsCreatedFailure(
+          title: S.current.trade_not_created,
+          error: S.current.none_of_selected_providers_can_exchange);
+      return;
     }
 
     Map<double, ExchangeProvider> providers;

@@ -42,6 +42,9 @@ class JupiterExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false; // Jupiter doesn't support fixed rate
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.jupiter;
 
   @override

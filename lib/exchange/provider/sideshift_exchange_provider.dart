@@ -337,6 +337,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
       extraId: depositMemo,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 

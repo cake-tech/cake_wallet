@@ -249,6 +249,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       state: TradeState.created,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 

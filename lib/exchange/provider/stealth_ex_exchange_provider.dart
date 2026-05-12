@@ -300,6 +300,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         expiredAt: expiredAt,
         extraId: extraId,
         isSendAll: isSendAll,
+        toAddressExtraId: request.toAddressExtraId,
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(

@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/currencies_with_memo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -191,7 +192,16 @@ class SwapTransactionDetails extends StatelessWidget {
                           showArrow: false,
                           trailingText: exchangeViewModel.receiveAddressDisplayName ??
                               middleTruncate(
-                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
+                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8)),
+                      if ((exchangeTradeViewModel.trade.toAddressExtraId ?? '').isNotEmpty)
+                        ListItemRegularRow(
+                            keyValue: "receive memo",
+                            showArrow: false,
+                            label: memoLabelTypeFor(exchangeViewModel.receiveCurrency) ==
+                                    MemoLabelType.destinationTag
+                                ? S.of(context).destination_tag
+                                : S.of(context).memo,
+                            trailingText: exchangeTradeViewModel.trade.toAddressExtraId!),
                     ],
                     "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                       ListItemRegularRow(

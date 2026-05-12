@@ -393,6 +393,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
       extraId: addressProviderMemo,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 

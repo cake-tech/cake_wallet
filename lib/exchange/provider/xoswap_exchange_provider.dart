@@ -425,6 +425,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         payoutAddress: payoutAddress,
         extraId: extraId,
         isSendAll: isSendAll,
+        toAddressExtraId: request.toAddressExtraId,
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
