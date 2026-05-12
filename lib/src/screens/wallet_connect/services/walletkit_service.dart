@@ -149,6 +149,9 @@ abstract class WalletKitServiceBase with Store {
 
     _refreshPairings();
 
+    sessions.clear();
+    auth.clear();
+
     final newSessions = _walletKit.sessions.getAll();
     sessions.addAll(newSessions);
 
@@ -185,12 +188,12 @@ abstract class WalletKitServiceBase with Store {
     final isOnline = _walletKit.core.connectivity.isOnline.value;
     if (!isOnline) {
       await Future.delayed(const Duration(milliseconds: 500));
-      _emitEvent();
+      await _emitEvent();
       return;
     }
 
-    final sessions = _walletKit.sessions.getAll();
-    for (var session in sessions) {
+    final engineSessions = _walletKit.sessions.getAll();
+    for (var session in engineSessions) {
       final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       for (var chain in chainKeys) {
         for (var chainID in chain.chains) {
@@ -200,13 +203,12 @@ abstract class WalletKitServiceBase with Store {
               namespaces: session.namespaces,
             );
             if (events.contains('accountsChanged')) {
-              final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
-              _walletKit.emitSessionEvent(
+              await _walletKit.emitSessionEvent(
                 topic: session.topic,
                 chainId: chainID,
                 event: SessionEventParams(
                   name: 'accountsChanged',
-                  data: [chainKeys.first.publicKey],
+                  data: [chain.publicKey],
                 ),
               );
             }
@@ -215,6 +217,7 @@ abstract class WalletKitServiceBase with Store {
               try {
                 await deletePairing(topic: session.pairingTopic);
               } catch (_) {}
+              sessions.removeWhere((s) => s.topic == session.topic);
               _refreshPairings();
             }
           } catch (_) {}
@@ -241,6 +244,10 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+
+    sessions.clear();
+    auth.clear();
+    pairings.clear();
 
     isInitialized = false;
   }
