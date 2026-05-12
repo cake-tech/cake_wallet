@@ -62,7 +62,7 @@ class _HDSet {
 /// Builds the HD structure that ElectrumWallet creates for a BIP39 Bitcoin
 /// wallet (coin type 0) on mainnet.
 _HDSet _buildBitcoinHDs(Uint8List seedBytes) {
-  final master = Bip32Slip10Secp256k1.fromSeed(seedBytes) as Bip32Slip10Secp256k1;
+  final master = Bip32Slip10Secp256k1.fromSeed(seedBytes);
   Bip32Slip10Secp256k1 d(String p) => master.derivePath(p) as Bip32Slip10Secp256k1;
 
   final mainHdByType = <BitcoinAddressType, Bip32Slip10Secp256k1>{
@@ -83,8 +83,8 @@ _HDSet _buildBitcoinHDs(Uint8List seedBytes) {
   return _HDSet(
     mainHdByType: mainHdByType,
     sideHdByType: sideHdByType,
-    legacyMainHd: accountHD.childKey(Bip32KeyIndex(0)) as Bip32Slip10Secp256k1,
-    legacySideHd: accountHD.childKey(Bip32KeyIndex(1)) as Bip32Slip10Secp256k1,
+    legacyMainHd: accountHD.childKey(Bip32KeyIndex(0)),
+    legacySideHd: accountHD.childKey(Bip32KeyIndex(1)),
     master: master,
   );
 }
@@ -93,7 +93,7 @@ _HDSet _buildBitcoinHDs(Uint8List seedBytes) {
 /// wallet (coin type 2) on mainnet.  Note: the wallet only puts p2wpkh into
 /// mainHdByType by default (LITECOIN_ADDRESS_TYPES = [p2wpkh, mweb]).
 _HDSet _buildLitecoinHDs(Uint8List seedBytes) {
-  final master = Bip32Slip10Secp256k1.fromSeed(seedBytes) as Bip32Slip10Secp256k1;
+  final master = Bip32Slip10Secp256k1.fromSeed(seedBytes);
   Bip32Slip10Secp256k1 d(String p) => master.derivePath(p) as Bip32Slip10Secp256k1;
 
   // Litecoin's LITECOIN_ADDRESS_TYPES only includes p2wpkh (+ mweb which
@@ -108,10 +108,39 @@ _HDSet _buildLitecoinHDs(Uint8List seedBytes) {
   return _HDSet(
     mainHdByType: mainHdByType,
     sideHdByType: sideHdByType,
-    legacyMainHd: accountHD.childKey(Bip32KeyIndex(0)) as Bip32Slip10Secp256k1,
-    legacySideHd: accountHD.childKey(Bip32KeyIndex(1)) as Bip32Slip10Secp256k1,
+    legacyMainHd: accountHD.childKey(Bip32KeyIndex(0)),
+    legacySideHd: accountHD.childKey(Bip32KeyIndex(1)),
     master: master,
   );
+}
+
+/// Mirrors the address-generation logic of _initAltSeedAddresses (post 200-address
+/// expansion).  Returns every P2WPKH address that would be subscribed on restore:
+/// both seeds × (Electrum m/0' + all BIP purposes × {coinType, 0}) × 200 indices.
+Set<String> _simulateAltSeedAddresses({
+  required Bip32Slip10Secp256k1 primaryMaster,
+  required Bip32Slip10Secp256k1 altMaster,
+  required int coinType,
+  required BasedUtxoNetwork network,
+  int count = 200,
+}) {
+  final addresses = <String>{};
+  for (final master in [primaryMaster, altMaster]) {
+    Bip32Slip10Secp256k1 d(String p) => master.derivePath(p) as Bip32Slip10Secp256k1;
+    void fromBranch(Bip32Slip10Secp256k1 rx, Bip32Slip10Secp256k1 ch) {
+      for (int i = 0; i < count; i++) {
+        addresses.add(generateP2WPKHAddress(hd: rx, index: i, network: network));
+        addresses.add(generateP2WPKHAddress(hd: ch, index: i, network: network));
+      }
+    }
+    fromBranch(d("m/0'/0"), d("m/0'/1"));
+    for (final ct in {coinType, 0}) {
+      for (final purpose in [44, 49, 84, 86]) {
+        fromBranch(d("m/$purpose'/$ct'/0'/0"), d("m/$purpose'/$ct'/0'/1"));
+      }
+    }
+  }
+  return addresses;
 }
 
 /// Verifies that [privkey] derives to [expectedAddress] when encoded as [type].
@@ -400,61 +429,61 @@ void main() {
       _expectKeyMatchesAddress(result!, addr, type, network);
     });
 
-    // test('finds real-world P2WPKH address regardless of seed derivation algorithm', () async {
-    //   const mnemonic = 'other other other';
-    //   const type = SegwitAddresType.p2wpkh;
-    //   const addr = "";
-    //   const maxIndex = 1000;
-    //
-    //   ECPrivate? result;
-    //   String? foundSeedType;
-    //   String? foundPath;
-    //   int? foundIndex;
-    //
-    //   final seedEntries = <MapEntry<String, Uint8List>>[
-    //     MapEntry('bip39',    bip39.mnemonicToSeed(mnemonic)),
-    //     MapEntry('electrum', await electrum_mnemonic.mnemonicToSeedBytes(mnemonic)),
-    //   ];
-    //
-    //   outer:
-    //   for (final seedEntry in seedEntries) {
-    //     final seedBytes = seedEntry.value;
-    //     final master = Bip32Slip10Secp256k1.fromSeed(seedBytes) as Bip32Slip10Secp256k1;
-    //
-    //     // Build labeled (path → HD) map mirroring expandedHDs().
-    //     final labeledHDs = <String, Bip32Slip10Secp256k1>{
-    //       "m/0'/0":  master.derivePath("m/0'/0")  as Bip32Slip10Secp256k1,
-    //       "m/0'/1":  master.derivePath("m/0'/1")  as Bip32Slip10Secp256k1,
-    //     };
-    //     for (final coinType in {0, nativeCoinType}) {
-    //       for (final purpose in [44, 49, 84, 86]) {
-    //         final base = "m/$purpose'/$coinType'/0'";
-    //         labeledHDs["$base/0"] = master.derivePath("$base/0") as Bip32Slip10Secp256k1;
-    //         labeledHDs["$base/1"] = master.derivePath("$base/1") as Bip32Slip10Secp256k1;
-    //       }
-    //     }
-    //
-    //     for (final hdEntry in labeledHDs.entries) {
-    //       for (int i = 0; i < maxIndex; i++) {
-    //         if (generateAddressForType(
-    //                 hd: hdEntry.value, index: i, type: type, network: network) ==
-    //             addr) {
-    //           result = generateECPrivate(hd: hdEntry.value, index: i, network: network);
-    //           foundSeedType = seedEntry.key;
-    //           foundPath = hdEntry.key;
-    //           foundIndex = i;
-    //           break outer;
-    //         }
-    //       }
-    //     }
-    //   }
-    //
-    //   print('Seed type: $foundSeedType, Path: $foundPath, Index: $foundIndex');
-    //
-    //   expect(result, isNotNull,
-    //       reason: 'Address must be found with either BIP39 or Electrum seed derivation');
-    //   _expectKeyMatchesAddress(result!, addr, type, network);
-    // });
+    test('finds real-world P2WPKH address regardless of seed derivation algorithm', () async {
+      const mnemonic = 'other other other';
+      const type = SegwitAddresType.p2wpkh;
+      const addr = "";
+      const maxIndex = 1000;
+
+      ECPrivate? result;
+      String? foundSeedType;
+      String? foundPath;
+      int? foundIndex;
+
+      final seedEntries = <MapEntry<String, Uint8List>>[
+        MapEntry('bip39',    bip39.mnemonicToSeed(mnemonic)),
+        MapEntry('electrum', await electrum_mnemonic.mnemonicToSeedBytes(mnemonic)),
+      ];
+
+      outer:
+      for (final seedEntry in seedEntries) {
+        final seedBytes = seedEntry.value;
+        final master = Bip32Slip10Secp256k1.fromSeed(seedBytes) as Bip32Slip10Secp256k1;
+
+        // Build labeled (path → HD) map mirroring expandedHDs().
+        final labeledHDs = <String, Bip32Slip10Secp256k1>{
+          "m/0'/0":  master.derivePath("m/0'/0")  as Bip32Slip10Secp256k1,
+          "m/0'/1":  master.derivePath("m/0'/1")  as Bip32Slip10Secp256k1,
+        };
+        for (final coinType in {0, nativeCoinType}) {
+          for (final purpose in [44, 49, 84, 86]) {
+            final base = "m/$purpose'/$coinType'/0'";
+            labeledHDs["$base/0"] = master.derivePath("$base/0") as Bip32Slip10Secp256k1;
+            labeledHDs["$base/1"] = master.derivePath("$base/1") as Bip32Slip10Secp256k1;
+          }
+        }
+
+        for (final hdEntry in labeledHDs.entries) {
+          for (int i = 0; i < maxIndex; i++) {
+            if (generateAddressForType(
+                    hd: hdEntry.value, index: i, type: type, network: network) ==
+                addr) {
+              result = generateECPrivate(hd: hdEntry.value, index: i, network: network);
+              foundSeedType = seedEntry.key;
+              foundPath = hdEntry.key;
+              foundIndex = i;
+              break outer;
+            }
+          }
+        }
+      }
+
+      print('Seed type: $foundSeedType, Path: $foundPath, Index: $foundIndex');
+
+      expect(result, isNotNull,
+          reason: 'Address must be found with either BIP39 or Electrum seed derivation');
+      _expectKeyMatchesAddress(result!, addr, type, network);
+    });
 
     // Core Litecoin scenario: address was derived using Bitcoin's coin type 0
     // instead of Litecoin's coin type 2.  This happens when wallets use the
@@ -621,8 +650,8 @@ void main() {
       // Sanity: the two algorithms must produce different seeds.
       expect(bip39Seed, isNot(electrumSeed));
 
-      final bip39Master    = Bip32Slip10Secp256k1.fromSeed(bip39Seed) as Bip32Slip10Secp256k1;
-      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(electrumSeed) as Bip32Slip10Secp256k1;
+      final bip39Master    = Bip32Slip10Secp256k1.fromSeed(bip39Seed);
+      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(electrumSeed);
 
       // Address was originally created with the BIP39 seed.
       final targetHd   = bip39Master.derivePath(targetPath) as Bip32Slip10Secp256k1;
@@ -685,8 +714,8 @@ void main() {
       final bip39Seed    = bip39.mnemonicToSeed(mnemonic);
       final electrumSeed = await electrum_mnemonic.mnemonicToSeedBytes(mnemonic);
 
-      final bip39Master    = Bip32Slip10Secp256k1.fromSeed(bip39Seed) as Bip32Slip10Secp256k1;
-      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(electrumSeed) as Bip32Slip10Secp256k1;
+      final bip39Master    = Bip32Slip10Secp256k1.fromSeed(bip39Seed);
+      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(electrumSeed);
 
       // Address was originally created with the Electrum seed.
       final targetHd   = electrumMaster.derivePath(targetPath) as Bip32Slip10Secp256k1;
@@ -733,6 +762,149 @@ void main() {
       expect(result, isNotNull,
           reason: 'Alt-seed (Electrum) expansion must find the Electrum-derived address');
       _expectKeyMatchesAddress(result!, targetAddr, type, network);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Alt-seed address generation tests (mirrors _initAltSeedAddresses)
+  // -------------------------------------------------------------------------
+
+  group('Alt-seed address generation – Bitcoin (200 per branch)', () {
+    const network = BitcoinNetwork.mainnet;
+    const coinType = 0;
+    const mnemonic =
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+
+    test('Electrum m/0\' path included for both seeds at indices 0 and 199', () async {
+      final bip39Master = Bip32Slip10Secp256k1.fromSeed(bip39.mnemonicToSeed(mnemonic));
+      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(
+              await electrum_mnemonic.mnemonicToSeedBytes(mnemonic));
+      final addrSet = _simulateAltSeedAddresses(
+          primaryMaster: bip39Master,
+          altMaster: electrumMaster,
+          coinType: coinType,
+          network: network);
+
+      for (final master in [bip39Master, electrumMaster]) {
+        final rx = master.derivePath("m/0'/0") as Bip32Slip10Secp256k1;
+        final ch = master.derivePath("m/0'/1") as Bip32Slip10Secp256k1;
+        for (final idx in [0, 199]) {
+          expect(addrSet, contains(generateP2WPKHAddress(hd: rx, index: idx, network: network)),
+              reason: 'm/0\'/0 index $idx must be present');
+          expect(addrSet, contains(generateP2WPKHAddress(hd: ch, index: idx, network: network)),
+              reason: 'm/0\'/1 index $idx must be present');
+        }
+      }
+    });
+
+    test('all BIP purposes × coin type 0 included for both seeds at indices 0 and 199', () async {
+      final bip39Master = Bip32Slip10Secp256k1.fromSeed(bip39.mnemonicToSeed(mnemonic));
+      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(
+              await electrum_mnemonic.mnemonicToSeedBytes(mnemonic));
+      final addrSet = _simulateAltSeedAddresses(
+          primaryMaster: bip39Master,
+          altMaster: electrumMaster,
+          coinType: coinType,
+          network: network);
+
+      for (final master in [bip39Master, electrumMaster]) {
+        for (final purpose in [44, 49, 84, 86]) {
+          final rx = master.derivePath("m/$purpose'/0'/0'/0") as Bip32Slip10Secp256k1;
+          final ch = master.derivePath("m/$purpose'/0'/0'/1") as Bip32Slip10Secp256k1;
+          for (final idx in [0, 199]) {
+            expect(addrSet,
+                contains(generateP2WPKHAddress(hd: rx, index: idx, network: network)),
+                reason: 'purpose $purpose receive[$idx] must be present');
+            expect(addrSet,
+                contains(generateP2WPKHAddress(hd: ch, index: idx, network: network)),
+                reason: 'purpose $purpose change[$idx] must be present');
+          }
+        }
+      }
+    });
+
+    test('index 199 included, index 200 absent', () {
+      final bip39Master = Bip32Slip10Secp256k1.fromSeed(bip39.mnemonicToSeed(mnemonic));
+      final addrSet = _simulateAltSeedAddresses(
+          primaryMaster: bip39Master,
+          altMaster: bip39Master,
+          coinType: coinType,
+          network: network);
+
+      final rx = bip39Master.derivePath("m/84'/0'/0'/0") as Bip32Slip10Secp256k1;
+      expect(addrSet, contains(generateP2WPKHAddress(hd: rx, index: 199, network: network)));
+      expect(addrSet, isNot(contains(generateP2WPKHAddress(hd: rx, index: 200, network: network))));
+    });
+  });
+
+  group('Alt-seed address generation – Litecoin (200 per branch)', () {
+    const network = LitecoinNetwork.mainnet;
+    const coinType = 2;
+    const mnemonic =
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+
+    test('all purposes × native (2) and BTC (0) coin types included for both seeds', () async {
+      final bip39Master = Bip32Slip10Secp256k1.fromSeed(bip39.mnemonicToSeed(mnemonic));
+      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(
+              await electrum_mnemonic.mnemonicToSeedBytes(mnemonic));
+      final addrSet = _simulateAltSeedAddresses(
+          primaryMaster: bip39Master,
+          altMaster: electrumMaster,
+          coinType: coinType,
+          network: network);
+
+      for (final master in [bip39Master, electrumMaster]) {
+        for (final ct in [0, 2]) {
+          for (final purpose in [44, 49, 84, 86]) {
+            final rx = master.derivePath("m/$purpose'/$ct'/0'/0") as Bip32Slip10Secp256k1;
+            final ch = master.derivePath("m/$purpose'/$ct'/0'/1") as Bip32Slip10Secp256k1;
+            for (final idx in [0, 199]) {
+              expect(addrSet,
+                  contains(generateP2WPKHAddress(hd: rx, index: idx, network: network)),
+                  reason: 'purpose $purpose / coinType $ct / receive[$idx] must be present');
+              expect(addrSet,
+                  contains(generateP2WPKHAddress(hd: ch, index: idx, network: network)),
+                  reason: 'purpose $purpose / coinType $ct / change[$idx] must be present');
+            }
+          }
+        }
+      }
+    });
+
+    test('cross-seed: BIP39 address at m/84\'/2\'/0\'/0 index 150 found when primary is Electrum',
+        () async {
+      final bip39Master = Bip32Slip10Secp256k1.fromSeed(bip39.mnemonicToSeed(mnemonic));
+      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(
+              await electrum_mnemonic.mnemonicToSeedBytes(mnemonic));
+      final targetHd = bip39Master.derivePath("m/84'/2'/0'/0") as Bip32Slip10Secp256k1;
+      final targetAddr = generateP2WPKHAddress(hd: targetHd, index: 150, network: network);
+
+      final addrSet = _simulateAltSeedAddresses(
+          primaryMaster: electrumMaster,
+          altMaster: bip39Master,
+          coinType: coinType,
+          network: network);
+
+      expect(addrSet, contains(targetAddr),
+          reason: 'BIP39-seeded address must appear when Electrum is primary');
+    });
+
+    test('cross-seed: Electrum address at m/84\'/0\'/0\'/0 index 150 found when primary is BIP39',
+        () async {
+      final bip39Master = Bip32Slip10Secp256k1.fromSeed(bip39.mnemonicToSeed(mnemonic));
+      final electrumMaster = Bip32Slip10Secp256k1.fromSeed(
+              await electrum_mnemonic.mnemonicToSeedBytes(mnemonic));
+      final targetHd = electrumMaster.derivePath("m/84'/0'/0'/0") as Bip32Slip10Secp256k1;
+      final targetAddr = generateP2WPKHAddress(hd: targetHd, index: 150, network: network);
+
+      final addrSet = _simulateAltSeedAddresses(
+          primaryMaster: bip39Master,
+          altMaster: electrumMaster,
+          coinType: coinType,
+          network: network);
+
+      expect(addrSet, contains(targetAddr),
+          reason: 'Electrum-seeded address must appear when BIP39 is primary');
     });
   });
 }

@@ -3839,14 +3839,9 @@ abstract class ElectrumWalletBase
     final seenAddresses = walletAddresses.allAddresses.map((a) => a.address).toSet();
     final newAddresses = <BitcoinAddressRecord>[];
 
-    // Generate [defaultReceiveAddressesCount] receive and
-    // [defaultChangeAddressesCount] change addresses from a single
-    // (receiveHD, changeHD) branch pair.
     void generateFromBranch(
         Bip32Slip10Secp256k1 receiveHD, Bip32Slip10Secp256k1 changeHD) {
-      for (int i = 0;
-          i < ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
-          i++) {
+      for (int i = 0; i < 200; i++) {
         final addr = generateP2WPKHAddress(hd: receiveHD, index: i, network: network);
         if (seenAddresses.add(addr)) {
           newAddresses.add(BitcoinAddressRecord(addr,
@@ -3856,9 +3851,7 @@ abstract class ElectrumWalletBase
               network: network));
         }
       }
-      for (int i = 0;
-          i < ElectrumWalletAddressesBase.defaultChangeAddressesCount;
-          i++) {
+      for (int i = 0; i < 200; i++) {
         final addr = generateP2WPKHAddress(hd: changeHD, index: i, network: network);
         if (seenAddresses.add(addr)) {
           newAddresses.add(BitcoinAddressRecord(addr,
@@ -3871,19 +3864,20 @@ abstract class ElectrumWalletBase
     }
 
     // Generate addresses from every combination of (seed algorithm) × (HD path).
-    // The primary wallet only generates from one specific path (e.g. m/0' for
-    // Electrum or m/84'/coinType'/0' for BIP39).  Here we cover the other common
-    // paths for BOTH seeds so that wallets created with any reasonable combination
-    // of tool and derivation choice are discovered during restoration.
+    // Covers both master HDs (primary and alt) across the Electrum m/0' path and
+    // all BIP purposes (44/49/84/86) × {native coin type, Bitcoin coin type 0},
+    // matching the full search space used by _bruteForcePrivkeyForAddress.
     for (final masterHD in [_masterHD!, _altMasterHD!]) {
       Bip32Slip10Secp256k1 d(String p) => masterHD.derivePath(p) as Bip32Slip10Secp256k1;
 
       // Electrum classic path: m/0'
       generateFromBranch(d("m/0'/0"), d("m/0'/1"));
 
-      // BIP84 segwit path for native coin type and Bitcoin coin type (0).
+      // All BIP purposes × {native coin type, Bitcoin coin type 0}
       for (final ct in {coinType, 0}) {
-        generateFromBranch(d("m/84'/$ct'/0'/0"), d("m/84'/$ct'/0'/1"));
+        for (final purpose in [44, 49, 84, 86]) {
+          generateFromBranch(d("m/$purpose'/$ct'/0'/0"), d("m/$purpose'/$ct'/0'/1"));
+        }
       }
     }
 
