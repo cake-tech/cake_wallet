@@ -124,12 +124,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt];
-    const excludeReceiveCurrencies = [
-      CryptoCurrency.xlm,
-      CryptoCurrency.xrp,
-      CryptoCurrency.bnb,
-      CryptoCurrency.btt
-    ];
+    const excludeReceiveCurrencies = [CryptoCurrency.btt];
     _initialPairBasedOnWallet();
 
     unspentCoinsListViewModel.initialSetup().then((_) {
@@ -390,6 +385,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @observable
   String receiveAddress;
+
+  @observable
+  String receiveAddressExtraId = '';
 
   @observable
   String? receiveAddressDisplayName;
@@ -760,6 +758,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         currency.title == receiveCurrency.tag ||
         currency == receiveCurrency)) {
       receiveAddress = "";
+    }
+    if (currency != receiveCurrency) {
+      receiveAddressExtraId = "";
     }
 
     receiveCurrency = currency;
@@ -1160,6 +1161,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           toAmount: _receiveAmount.replaceAll(',', '.'),
           refundAddress: depositAddress,
           toAddress: receiveAddress,
+          toAddressExtraId: receiveAddressExtraId.trim(),
           isFixedRate: isFixedRateMode,
         );
 
@@ -1260,6 +1262,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     receiveAddress =
         receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    receiveAddressExtraId = '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();

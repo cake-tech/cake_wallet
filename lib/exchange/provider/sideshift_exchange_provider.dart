@@ -216,6 +216,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final body = {
       'affiliateId': affiliateId,
       'settleAddress': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'settleMemo': request.toAddressExtraId,
       'refundAddress': request.refundAddress,
     };
 

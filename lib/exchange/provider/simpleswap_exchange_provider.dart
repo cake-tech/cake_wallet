@@ -180,7 +180,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "amount": request.fromAmount,
       "fixed": isFixedRateMode,
       "user_refund_address": _normalizeAddress(request.refundAddress),
-      "address_to": _normalizeAddress(request.toAddress)
+      "address_to": _normalizeAddress(request.toAddress),
+      if (request.toAddressExtraId.isNotEmpty) "extra_id_to": request.toAddressExtraId,
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 

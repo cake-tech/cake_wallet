@@ -321,6 +321,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         'fromAddress': request.refundAddress,
         'toAmount': request.toAmount,
         'toAddress': request.toAddress,
+        if (request.toAddressExtraId.isNotEmpty) 'toAddressTag': request.toAddressExtraId,
         'pairId': pairId,
       };
 

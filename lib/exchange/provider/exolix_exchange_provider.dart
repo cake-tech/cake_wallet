@@ -198,6 +198,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
       'withdrawalAddress': await _normalizeAddress(request.toAddress),
+      if (request.toAddressExtraId.isNotEmpty)
+        'withdrawalExtraId': request.toAddressExtraId,
       'refundAddress': await _normalizeAddress(request.refundAddress),
       'rateType': _getRateType(isFixedRateMode),
       'apiToken': apiKey,

@@ -174,7 +174,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         if (!isFixedRateMode) 'deposit_amount': request.fromAmount.toString(),
         'withdrawal': withdrawalAddress,
         if (isFixedRateMode) 'withdrawal_amount': request.toAmount.toString(),
-        'withdrawal_extra_id': '',
+        'withdrawal_extra_id': request.toAddressExtraId,
         'return': returnAddress,
         'rate_id': rateId,
         if (networkFrom != null) 'network_from': networkFrom,

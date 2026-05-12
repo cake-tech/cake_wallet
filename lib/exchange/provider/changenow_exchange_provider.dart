@@ -189,6 +189,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       if (!isFixedRateMode) 'fromAmount': request.fromAmount,
       if (isFixedRateMode) 'toAmount': request.toAmount,
       'address': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'extraId': request.toAddressExtraId,
       'flow': _getFlow(isFixedRateMode),
       'type': type,
       'refundAddress': request.refundAddress,

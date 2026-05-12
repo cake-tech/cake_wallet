@@ -186,6 +186,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         'amount':
             isFixedRateMode ? double.parse(request.toAmount) : double.parse(request.fromAmount),
         'address': _normalizeAddress(request.toAddress),
+        if (request.toAddressExtraId.isNotEmpty) 'extra_id': request.toAddressExtraId,
         'refund_address': _normalizeAddress(request.refundAddress),
         'additional_fee_percent': _additionalFeePercent,
       };

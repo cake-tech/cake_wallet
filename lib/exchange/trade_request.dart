@@ -8,6 +8,7 @@ class TradeRequest {
       required this.refundAddress,
       required this.fromAmount,
       this.toAmount = '',
+      this.toAddressExtraId = '',
       this.isFixedRate = false});
 
   final CryptoCurrency fromCurrency;
@@ -16,5 +17,6 @@ class TradeRequest {
   final String refundAddress;
   final String fromAmount;
   final String toAmount;
+  final String toAddressExtraId;
   final bool isFixedRate;
 }
