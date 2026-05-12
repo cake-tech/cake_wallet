@@ -84,11 +84,14 @@ abstract class DEuroViewModelBase with Store {
   @observable
   Money savingsBalance = ZERO;
 
+  @computed
+  String get fiatSavingsBalanceFormated => _getDEuroFiatAmount(savingsBalance);
+
   @observable
   Money? savingsBalanceV1 = null;
 
   @computed
-  String get fiatSavingsBalanceFormated => _getDEuroFiatAmount(savingsBalance);
+  String get fiatSavingsBalanceV1Formated => _getDEuroFiatAmount(savingsBalanceV1);
 
   @observable
   ExecutionState state = InitialExecutionState();
@@ -279,7 +282,9 @@ abstract class DEuroViewModelBase with Store {
     state = InitialExecutionState();
   }
 
-  String _getDEuroFiatAmount(Money amount) {
+  String _getDEuroFiatAmount(Money? amount) {
+    if (amount == null) return "0.00";
+
     try {
       var dEuro = CryptoCurrency.deuro;
       final keys = _fiatConversationStore.prices.keys.toList();

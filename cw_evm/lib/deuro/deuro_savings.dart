@@ -11,7 +11,7 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 const String savingsGatewayAddress = "0x073493d73258C4BEb6542e8dd3e1b2891C972303";
-const String savingsV2Address = "0x073493d73258C4BEb6542e8dd3e1b2891C972303";
+const String savingsV2Address = "0x760233b90e45d186A9A98E911B115F7F4B90d3D9";
 
 const String dEuroAddress = "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea";
 const String frontendCode = "0x00000000000000000000000000000000000000000043616b652057616c6c6574";
@@ -60,14 +60,14 @@ class DEuro {
   Future<void> _checkEthBalanceForGasFees(EVMChainTransactionPriority priority) async {
     final ethBalance = await _wallet.getWeb3Client()!.getBalance(_address);
     final currentBalance = ethBalance.getInWei;
+    final savings = _getSavingsGateway(_wallet.getWeb3Client()!);
 
     final gasFeesModel = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
       amount: Money.zero(_wallet.currency),
-      contractAddress: _savings.self.address.hexEip55,
-      receivingAddressHex: _savings.self.address.hexEip55,
+      contractAddress: savings.self.address.hexEip55,
+      receivingAddressHex: savings.self.address.hexEip55,
       priority: priority,
-      data: _savings.self.abi.functions[17]
-          .encodeCall([BigInt.zero, hexToBytes(frontendCode)]),
+      data: savings.self.abi.functions[17].encodeCall([BigInt.zero, hexToBytes(frontendCode)]),
     );
 
     final estimatedGasFee = BigInt.from(gasFeesModel.estimatedGasFee);
@@ -96,7 +96,7 @@ class DEuro {
         contractAddress: _savings.self.address.hexEip55,
         receivingAddressHex: _savings.self.address.hexEip55,
         priority: priority,
-        data: _savings.self.abi.functions[17].encodeCall([amount, hexToBytes(frontendCode)]),
+        data: _savings.self.abi.functions[18].encodeCall([amount, true]),
       );
 
       sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
@@ -131,7 +131,7 @@ class DEuro {
         contractAddress: _savings.self.address.hexEip55,
         receivingAddressHex: _savings.self.address.hexEip55,
         priority: priority,
-        data: _savings.self.abi.functions[24].encodeCall([_address, amount, hexToBytes(frontendCode)]),
+        data: _savings.self.abi.functions[23].encodeCall([_address, amount]),
       );
 
       sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
@@ -158,17 +158,18 @@ class DEuro {
 
       // Withdraw at least a million to overflow and close the savings position
       final amount = BigInt.parse("1000000000000000000000000");
-      final signedTransaction = await _getSavingsGateway(_wallet.getWeb3Client()!).withdraw(
+      final savings = _getSavingsGateway(_wallet.getWeb3Client()!);
+      final signedTransaction = await savings.withdraw(
         (target: _address, amount: amount, frontendCode: hexToBytes(frontendCode)),
         credentials: _wallet.evmChainPrivateKey,
       );
 
       final fee = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
         amount: Money.zero(_wallet.currency),
-        contractAddress: _savings.self.address.hexEip55,
-        receivingAddressHex: _savings.self.address.hexEip55,
+        contractAddress: savings.self.address.hexEip55,
+        receivingAddressHex: savings.self.address.hexEip55,
         priority: priority,
-        data: _savings.self.abi.functions[24].encodeCall([_address, amount, hexToBytes(frontendCode)]),
+        data: savings.self.abi.functions[24].encodeCall([_address, amount, hexToBytes(frontendCode)]),
       );
 
       sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
@@ -201,7 +202,7 @@ class DEuro {
         contractAddress: _savings.self.address.hexEip55,
         receivingAddressHex: _savings.self.address.hexEip55,
         priority: priority,
-        data: _savings.self.abi.functions[15].encodeCall([_address]),
+        data: _savings.self.abi.functions[16].encodeCall([_address]),
       );
 
       sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);

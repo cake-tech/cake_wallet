@@ -406,6 +406,7 @@ class CWEVM extends EVM {
   Future<PendingTransaction>? withdrawDEuroSavingV1(
       WalletBase wallet, TransactionPriority priority) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
+      print("------------------------------------------------------------");
       return DEuro(wallet).withdrawSavingsV1(priority as EVMChainTransactionPriority);
     }
     return null;
