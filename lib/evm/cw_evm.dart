@@ -353,6 +353,14 @@ class CWEVM extends EVM {
   }
 
   @override
+  Future<Money>? getDEuroSavingsV1Balance(WalletBase wallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
+      return DEuro(wallet).savingsBalanceV1;
+    }
+    return null;
+  }
+
+  @override
   Future<Money>? getDEuroAccruedInterest(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).accruedInterest;
@@ -390,6 +398,15 @@ class CWEVM extends EVM {
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).withdrawSavings(amount, priority as EVMChainTransactionPriority);
+    }
+    return null;
+  }
+
+  @override
+  Future<PendingTransaction>? withdrawDEuroSavingV1(
+      WalletBase wallet, TransactionPriority priority) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
+      return DEuro(wallet).withdrawSavingsV1(priority as EVMChainTransactionPriority);
     }
     return null;
   }
