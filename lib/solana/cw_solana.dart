@@ -409,4 +409,25 @@ class CWSolana extends Solana {
       await Future.wait(tokenChecks);
     } catch (_) {}
   }
+
+  @override
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required DateTime date,
+    required String to,
+    required String from,
+    required TransactionDirection direction,
+    required Money amount,
+    required bool isPending,
+    required Money fee,
+  }) =>
+      SolanaTransactionInfo(
+          id: id,
+          date: date,
+          to: to,
+          from: from,
+          direction: direction,
+          amount: amount,
+          isPending: isPending,
+          fee: fee);
 }

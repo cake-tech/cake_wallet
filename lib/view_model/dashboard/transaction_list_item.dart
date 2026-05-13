@@ -166,6 +166,10 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   CryptoCurrency? get assetOfTransaction {
+    if(transaction.amount.currency is CryptoCurrency && transaction.amount.currency.iconPath != null) {
+      return transaction.amount.currency as CryptoCurrency;
+    }
+
     try {
       if (isEVMCompatibleChain(balanceViewModel.wallet.type)) {
         final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
@@ -218,7 +222,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
-        final asset = evm!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final asset = assetOfTransaction;
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: evm!.formatterEVMAmountToDouble(transaction: transaction),

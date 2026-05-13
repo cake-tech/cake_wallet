@@ -59,6 +59,7 @@ import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -489,7 +490,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
 
   @computed
-  TransactionInfo? get transactionInfo => wallet.transactionHistory.transactions[pendingTransaction?.id];
+  TransactionInfo? get transactionInfo {
+    if(isEVMCompatibleChain(walletType)) {
+      return wallet.transactionHistory.transactions[pendingTransaction?.evmTxHashFromRawHex];
+    }
+    return wallet.transactionHistory.transactions[pendingTransaction?.id];
+  }
 
   //* Still open to further optimize these checks
   //* It works but can be made better
@@ -1079,6 +1085,45 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             printV('Failed to update transactions after send: $e');
           }
         });
+      }
+
+      // FIXME(malik) ideally, this should be done wallet-side.
+      // it is required because evm, solana and tron don't actually save the transaction info when you send something.
+      // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
+      if(isEVMWallet) {
+        wallet.transactionHistory.addOne(evm!.getTransactionInfo(
+            id: pendingTransaction!.evmTxHashFromRawHex!,
+            height: 0,
+            amount: pendingTransaction!.amount,
+            fee: pendingTransaction!.fee,
+            tokenSymbol: pendingTransaction!.amount.currency.symbol,
+            direction: TransactionDirection.outgoing,
+            isPending: true,
+            date: DateTime.now(),
+            confirmations: 0,
+            chainId: wallet.chainId ?? 0));
+      }
+      
+      if(walletType == WalletType.solana) {
+        wallet.transactionHistory.addOne(solana!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            date: DateTime.now(),
+            to: "",
+            from: "",
+            direction: TransactionDirection.outgoing,
+            amount: pendingTransaction!.amount,
+            isPending: true,
+            fee: pendingTransaction!.fee));
+      }
+
+      if(walletType == WalletType.tron) {
+        wallet.transactionHistory.addOne(tron!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            blockTime: DateTime.now(),
+            direction: TransactionDirection.outgoing,
+            amount: pendingTransaction!.amount,
+            isPending: true,
+            fee: pendingTransaction!.fee));
       }
 
       if (pendingTransaction!.id.isNotEmpty) {

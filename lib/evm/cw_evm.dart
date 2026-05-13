@@ -144,6 +144,39 @@ class CWEVM extends EVM {
   }
 
   @override
+  TransactionInfo getTransactionInfo(
+
+      {
+        required String id,
+        required int height,
+        required Money amount,
+        required Money fee,
+        required String tokenSymbol,
+        int exponent = 18,
+        required TransactionDirection direction,
+        required bool isPending,
+        required DateTime date,
+        required int confirmations,
+        String? to,
+        String? from,
+        String? evmSignatureName,
+        String? contractAddress,
+        required int chainId,
+      }) =>
+      EVMChainTransactionInfo(id: id,
+          height: height,
+          amount: amount,
+          fee: fee,
+          tokenSymbol: tokenSymbol,
+          direction: direction,
+          isPending: isPending,
+          date: date,
+          confirmations: confirmations,
+          to: to,
+          from: from,
+          chainId: chainId);
+
+  @override
   int formatterEVMParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override

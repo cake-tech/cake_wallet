@@ -153,4 +153,24 @@ class CWTron extends Tron {
     return tronWallet.tronTokenCurrencies
         .any((element) => element.contractAddress == contractAddress);
   }
+
+  @override
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required Money amount,
+    Money? fee,
+    required TransactionDirection direction,
+    required DateTime blockTime,
+    String? to,
+    String? from,
+    required bool isPending,
+  }) =>
+      TronTransactionInfo(id: id,
+          amount: amount,
+          fee: fee,
+          direction: direction,
+          blockTime: blockTime,
+          to: to,
+          from: from,
+          isPending: isPending);
 }
