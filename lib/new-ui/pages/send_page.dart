@@ -1300,7 +1300,7 @@ class _NewSendPageState extends State<NewSendPage> {
                 // height: MediaQuery.of(context).size.height*0.4,
                 child: ModalNavigator(
                     parentContext: modalContext,
-                    heightMode: ModalHeightModes.autoLock,
+                    heightMode: ModalHeightModes.natural,
                     rootPage: Material(
                       child: NewPicker(
                           title: S.of(context).set_fees,

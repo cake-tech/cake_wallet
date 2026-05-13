@@ -70,32 +70,48 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: SafeArea(
-            child: Observer(
+            child:                             Observer(
               builder: (_) {
-                return Stack(
-                  fit: StackFit.loose,
-                  children: [
-                    Positioned.fill(
+                return AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  clipBehavior: Clip.hardEdge,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Align(
+                        alignment: Alignment.topCenter,
+                        heightFactor: _committed ? 0.0 : 1.0,
                         child: AnimatedSlide(
-                      offset: _committed ? Offset.zero : const Offset(1, 0),
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      child: TransactionCommitedScreen(sendViewModel: widget.sendViewModel,),
-                    )),
-                    AnimatedSlide(
-                      offset: _committed ? const Offset(-1, 0) : Offset.zero,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      child: SendTransactionDetails(
-                          sendViewModel: widget.sendViewModel,
-                          isPage: widget.isPage,
-                          title: widget.title,
-                          iconPath: widget.iconPath),
-                    ),
-                  ],
+                          offset: _committed ? const Offset(-1, 0) : Offset.zero,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          child: SendTransactionDetails(
+                            sendViewModel: widget.sendViewModel,
+                            isPage: widget.isPage,
+                            title: widget.title,
+                            iconPath: widget.iconPath,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topCenter,
+                        heightFactor: _committed ? 1.0 : 0.0,
+                        child: AnimatedSlide(
+                          offset: _committed ? Offset.zero : const Offset(1, 0),
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          child: TransactionCommitedScreen(
+                            sendViewModel: widget.sendViewModel,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
-            ),
+            )
           ),
         ),
       ),
@@ -430,14 +446,15 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
     return Observer(
       builder: (_) => Column(
         spacing: 12,
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          SizedBox(),
+          SizedBox(height: 12,),
           Text(
             S.of(context).transaction_sent_new,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
+          SizedBox(),
           CakeImageWidget(width: 200, height: 200, imageUrl: "assets/new-ui/birthday_cake.svg"),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -495,7 +512,8 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                     onPressed: Navigator.of(context).maybePop,
                     text: S.of(context).done,
                     color: Theme.of(context).colorScheme.primary,
-                    textColor: Theme.of(context).colorScheme.onPrimary)
+                    textColor: Theme.of(context).colorScheme.onPrimary),
+                SizedBox(height: 12,)
               ],
             ),
           ),
