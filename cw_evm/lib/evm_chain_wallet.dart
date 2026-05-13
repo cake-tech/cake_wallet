@@ -1270,6 +1270,10 @@ abstract class EVMChainWalletBase
           !_hasEvmTokenContractAddress(existingTxInfo)) {
         result[transactionModel.hash] = newTxInfo;
       }
+
+      else if (existingTxInfo.isPending) {
+        result[transactionModel.hash] = newTxInfo;
+      }
     }
 
     return result;

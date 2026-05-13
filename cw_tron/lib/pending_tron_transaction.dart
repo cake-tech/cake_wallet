@@ -11,6 +11,7 @@ class PendingTronTransaction with PendingTransaction {
     required this.signedTransaction,
     required this.fee,
     required this.amount,
+    required this.id,
   });
 
   @override
@@ -29,7 +30,7 @@ class PendingTronTransaction with PendingTransaction {
   String get hex => bytesToHex(signedTransaction);
 
   @override
-  String get id => '';
+  String id;
   
   @override
   Future<Map<String, String>> commitUR() {
