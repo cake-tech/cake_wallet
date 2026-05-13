@@ -48,12 +48,10 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                 showMaterialModalBottomSheet(
                                     backgroundColor: Colors.transparent,
                                     context: context,
-                                    builder: (context) {
-                                      return UnconfirmedBalanceModal(
-                                        balance: "${balance} ${currency.title}",
+                                    builder: (context) => UnconfirmedBalanceModal(
+                                        balance: balance.toStringWithSymbol(),
                                         currencyIconPath: currency.iconPath ?? "",
-                                      );
-                                    });
+                                      ));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -101,9 +99,8 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                     ),
                   ],
                 )
-              : const SizedBox(
-                  width: double.infinity,
-                ));
+              : const SizedBox(width: double.infinity),
+      );
     });
   }
 }

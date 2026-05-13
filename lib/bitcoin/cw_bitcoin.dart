@@ -156,13 +156,12 @@ class CWBitcoin extends Bitcoin {
         outputs
             .map((out) => OutputInfo(
                   fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
                   address: out.address,
                   note: out.note,
                   sendAll: out.sendAll,
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount,
                   memo: out.memo.isNotEmpty ? out.memo : null,
                   extra: out.extra,
                 ))
@@ -204,7 +203,7 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
         );
 
-        return estimatedTx.amount;
+        return estimatedTx.amount.amount.toInt();
       }
 
 
@@ -216,7 +215,7 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinTransactionPriority),
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
-        return estimatedTx.amount;
+        return estimatedTx.amount.amount.toInt();
       }
 
       final p2shAddr = sk.getPublic().toP2pkhAddress();
@@ -231,7 +230,7 @@ class CWBitcoin extends Bitcoin {
         coinTypeToSpendFrom: coinTypeToSpendFrom,
       );
 
-      return estimatedTx.amount;
+      return estimatedTx.amount.amount.toInt();
     } catch (_) {
       return 0;
     }
@@ -246,10 +245,6 @@ class CWBitcoin extends Bitcoin {
   @override
   String formatterBitcoinAmountToString({required int amount}) =>
       bitcoinAmountToString(amount: amount);
-
-  @override
-  double formatterBitcoinAmountToDouble({required int amount}) =>
-      bitcoinAmountToDouble(amount: amount);
 
   @override
   int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);

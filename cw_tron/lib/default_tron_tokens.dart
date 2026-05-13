@@ -104,4 +104,6 @@ class DefaultTronTokens {
 
         return TronToken.copyWith(token, icon: iconPath, tag: 'TRX');
       }).toList();
+
+  TronToken get usdt => _defaultTokens.where((e) => e.symbol == "USDT").first;
 }

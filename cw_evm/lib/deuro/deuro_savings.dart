@@ -1,3 +1,4 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_evm/deuro/deuro_savings_contract.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
@@ -35,10 +36,11 @@ class DEuro {
 
   EthereumAddress get _address => EthereumAddress.fromHex(_wallet.walletAddresses.primaryAddress);
 
-  Future<BigInt> get savingsBalance async =>
-      (await _savingsGateway.savings(accountOwner: _address)).saved;
+  Future<Money> get savingsBalance async =>
+      Money((await _savingsGateway.savings(accountOwner: _address)).saved, CryptoCurrency.deuro);
 
-  Future<BigInt> get accruedInterest => _savingsGateway.accruedInterest(accountOwner: _address);
+  Future<Money> get accruedInterest async =>
+      Money(await _savingsGateway.accruedInterest(accountOwner: _address), CryptoCurrency.deuro);
 
   Future<BigInt> get interestRate => _savingsGateway.currentRatePPM();
 
@@ -49,7 +51,7 @@ class DEuro {
     final currentBalance = ethBalance.getInWei;
 
     final gasFeesModel = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
-      amount: BigInt.zero,
+      amount: Money.zero(_wallet.currency),
       contractAddress: _savingsGateway.self.address.hexEip55,
       receivingAddressHex: _savingsGateway.self.address.hexEip55,
       priority: priority,
@@ -79,22 +81,20 @@ class DEuro {
       );
 
       final fee = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
-        amount: amount,
+        amount: Money.zero(_wallet.currency),
         contractAddress: _savingsGateway.self.address.hexEip55,
         receivingAddressHex: _savingsGateway.self.address.hexEip55,
         priority: priority,
         data: _savingsGateway.self.abi.functions[17].encodeCall([amount, hexToBytes(frontendCode)]),
       );
 
-      final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+      sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
 
       return PendingEVMChainTransaction(
-        feeCurrency: "ETH",
         sendTransaction: sendTransaction,
         signedTransaction: signedTransaction,
-        fee: BigInt.from(fee.estimatedGasFee),
-        amount: amount.toString(),
-        exponent: 18,
+        fee: Money(BigInt.from(fee.estimatedGasFee), CryptoCurrency.eth),
+        amount: Money(amount, CryptoCurrency.deuro),
       );
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {
@@ -116,22 +116,21 @@ class DEuro {
       );
 
       final fee = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
-        amount: amount,
+        amount: Money.zero(_wallet.currency),
         contractAddress: _savingsGateway.self.address.hexEip55,
         receivingAddressHex: _savingsGateway.self.address.hexEip55,
         priority: priority,
         data: _savingsGateway.self.abi.functions[24].encodeCall([_address, amount, hexToBytes(frontendCode)]),
       );
 
-      final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+      sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
 
       return PendingEVMChainTransaction(
-          sendTransaction: sendTransaction,
-          signedTransaction: signedTransaction,
-          fee: BigInt.from(fee.estimatedGasFee),
-          amount: amount.toString(),
-          feeCurrency: "ETH",
-          exponent: 18);
+        sendTransaction: sendTransaction,
+        signedTransaction: signedTransaction,
+        fee: Money(BigInt.from(fee.estimatedGasFee), CryptoCurrency.eth),
+        amount: Money(amount, CryptoCurrency.deuro),
+      );
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {
         final ethBalance = await _wallet.getWeb3Client()!.getBalance(_address);
@@ -150,22 +149,20 @@ class DEuro {
       );
 
       final fee = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
-        amount: BigInt.zero,
+        amount: Money.zero(_wallet.currency),
         contractAddress: _savingsGateway.self.address.hexEip55,
         receivingAddressHex: _savingsGateway.self.address.hexEip55,
         priority: priority,
         data: _savingsGateway.self.abi.functions[15].encodeCall([_address]),
       );
 
-      final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+      sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
 
       return PendingEVMChainTransaction(
-        feeCurrency: "ETH",
         sendTransaction: sendTransaction,
         signedTransaction: signedTransaction,
-        fee: BigInt.from(fee.estimatedGasFee),
-        amount: 0.toString(),
-        exponent: 18,
+        fee: Money(BigInt.from(fee.estimatedGasFee), CryptoCurrency.eth),
+        amount: Money.zero(CryptoCurrency.deuro),
       );
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {
@@ -182,14 +179,12 @@ class DEuro {
       await _checkEthBalanceForGasFees(priority);
 
       return (await _wallet.createApprovalTransaction(
-        BigInt.parse(
+        Money(BigInt.parse(
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
           radix: 16,
-        ),
+        ), CryptoCurrency.deuro),
         _savingsGateway.self.address.hexEip55,
-        CryptoCurrency.deuro,
         priority,
-        "ETH",
       )) as PendingEVMChainTransaction;
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {

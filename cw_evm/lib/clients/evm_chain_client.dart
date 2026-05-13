@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
@@ -297,14 +298,13 @@ class EVMChainClient {
   Future<PendingEVMChainTransaction> signTransaction({
     required Credentials privateKey,
     required String toAddress,
-    required BigInt amount,
-    required BigInt gasFee,
+    required Money amount,
+    required Money gasFee,
     required int estimatedGasUnits,
     required int maxFeePerGas,
     required EVMChainTransactionPriority? priority,
     required CryptoCurrency currency,
     required String feeCurrency,
-    required int exponent,
     String? contractAddress,
     String? data,
     int? gasPrice,
@@ -317,11 +317,13 @@ class EVMChainClient {
         currency == CryptoCurrency.bnb ||
         contractAddress != null);
 
-    bool isNativeToken = currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.maticpoly ||
-        currency == CryptoCurrency.baseEth ||
-        currency == CryptoCurrency.arbEth ||
-        currency == CryptoCurrency.bnb;
+    final isNativeToken = [
+      CryptoCurrency.eth,
+      CryptoCurrency.maticpoly,
+      CryptoCurrency.baseEth,
+      CryptoCurrency.arbEth,
+      CryptoCurrency.bnb
+    ].contains(currency);
 
     // Get nonce with "pending" block tag to include pending transactions
     // This prevents "Nonce too low" errors when sending multiple transactions quickly
@@ -335,7 +337,7 @@ class EVMChainClient {
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas:
           priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
-      amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      amount: isNativeToken ? EtherAmount.inWei(amount.amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
@@ -358,7 +360,7 @@ class EVMChainClient {
 
       signedTransaction = await erc20.transfer(
         EthereumAddress.fromHex(toAddress),
-        amount,
+        amount.amount,
         credentials: privateKey,
         transaction: transaction,
       );
@@ -369,24 +371,20 @@ class EVMChainClient {
 
     return PendingEVMChainTransaction(
       signedTransaction: prepareSignedTransactionForSending(signedTransaction),
-      amount: amount.toString(),
+      amount: amount,
       fee: gasFee,
-      feeCurrency: feeCurrency,
       sendTransaction: _sendTransaction,
-      exponent: exponent,
     );
   }
 
   Future<PendingEVMChainTransaction> signApprovalTransaction({
     required Credentials privateKey,
     required String spender,
-    required BigInt amount,
-    required BigInt gasFee,
-    required String feeCurrency,
+    required Money amount,
+    required Money gasFee,
     required int estimatedGasUnits,
     required int maxFeePerGas,
     required EVMChainTransactionPriority? priority,
-    required int exponent,
     required String contractAddress,
     int? gasPrice,
     bool useBlinkProtection = true,
@@ -416,20 +414,18 @@ class EVMChainClient {
 
     final signedTransaction = await erc20.approve(
       EthereumAddress.fromHex(spender),
-      amount,
+      amount.amount,
       credentials: privateKey,
       transaction: transaction,
     );
 
     return PendingEVMChainTransaction(
       signedTransaction: prepareSignedTransactionForSending(signedTransaction),
-      amount: amount.toString(),
+      amount: amount,
       fee: gasFee,
-      feeCurrency: feeCurrency,
       sendTransaction: () =>
           sendTransaction(signedTransaction, useBlinkProtection: useBlinkProtection),
-      exponent: exponent,
-      isInfiniteApproval: amount.toRadixString(16) ==
+      isInfiniteApproval: amount.amount.toRadixString(16) ==
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     );
   }
@@ -523,20 +519,17 @@ class EVMChainClient {
     */
   }
 
-  Future<EVMChainERC20Balance> fetchERC20Balances(
-      EthereumAddress userAddress, String contractAddress) async {
+  Future<EVMChainERC20Balance> fetchERC20Balances(EthereumAddress userAddress, Erc20Token token) async {
     try {
-      final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+      final erc20 = ERC20(address: EthereumAddress.fromHex(token.contractAddress), client: _client!);
       final balance = await erc20.balanceOf(userAddress);
 
-      int exponent = (await erc20.decimals()).toInt();
-
-      return EVMChainERC20Balance(balance, exponent: exponent);
+      return EVMChainERC20Balance(Money(balance, token));
     } on RangeError catch (_) {
       throw Exception('Invalid token contract for this network.');
     } catch (e) {
       if (e.toString().contains("hostUnreachable")) {
-        return EVMChainERC20Balance(BigInt.zero);
+        return EVMChainERC20Balance(Money.zero(token));
       }
       throw Exception('Could not fetch balances: ${e.toString()}');
     }

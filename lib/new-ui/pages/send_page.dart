@@ -24,6 +24,8 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/wallet_info.dart';
 import "package:cw_core/wallet_type.dart";
@@ -449,11 +451,6 @@ class _NewSendPageState extends State<NewSendPage> {
                                         fiatInputMode: _fiatInputMode,
                                         onSwitchButtonPressed: () {
                                           setState(() {
-                                            if(!_fiatInputMode) {
-                                              widget.sendViewModel.outputs[_selectedOutput]
-                                                      .cryptoAmount =
-                                                  _amountControllers[_selectedOutput].text;
-                                            }
                                             _fiatInputMode = !_fiatInputMode;
                                             _amountControllers[_selectedOutput].text =
                                                 _fiatInputMode
@@ -634,7 +631,7 @@ class _NewSendPageState extends State<NewSendPage> {
         return;
       }
 
-      final amount = _amountControllers[_selectedOutput].text.replaceAll(',', '.');
+      final amount = _amountControllers[_selectedOutput].text.sanitized();
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
       if (_fiatInputMode) {
@@ -701,7 +698,7 @@ class _NewSendPageState extends State<NewSendPage> {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
-              _amountControllers[i].text.replaceAll(",", "."),
+              _amountControllers[i].text.sanitized(),
               widget.sendViewModel.selectedCryptoCurrency);
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
@@ -743,9 +740,9 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (widget.sendViewModel.wallet.type == WalletType.monero) {
-      int amount = 0;
+      var amount = Money.zero(widget.sendViewModel.wallet.currency);
       for (var item in widget.sendViewModel.outputs) {
-        amount += item.formattedCryptoAmount;
+        amount += item.cryptoAmountMoney;
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
         await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,

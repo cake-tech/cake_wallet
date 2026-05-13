@@ -700,4 +700,6 @@ class DefaultSPLTokens {
 
         return SPLToken.copyWith(token, icon: iconPath, tag: 'SOL');
       }).toList();
+
+  SPLToken get usdc => _defaultTokens.where((e) => e.symbol == "USDC").first;
 }

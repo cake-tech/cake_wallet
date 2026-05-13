@@ -11,13 +11,14 @@ void main() {
       expect(content, Uri.parse("https://cake.cash/.well-known/lnurlp/konsti"));
     });
 
-    test('get amount', () async {
-      CakeTor.instance = await CakeTorInstance.getInstance();
-
-      final content = await LNURL.getPayRequestAmount(
-          "LNURL1DP68GURN8GHJ7CTSWQHXY6T5WFJHZAT9WD6ZU6T09AUZ7URJDAU8JTMKXYHKCM308A5N6MNHVVNXJEPAXGMNWWPEX3JRGDTPXVNXZ0FCX5CRQVPSXQNX602VFE24YNP9XGC8W6T5DQJNYVRPD4HH2MN5GTRNLZ");
-      expect(content, 8500);
-    });
+    // This tests includes a rest request to an URL that expired and due to the lack of an alternative URL we ignore this test
+    // test('get amount', () async {
+    //   CakeTor.instance = await CakeTorInstance.getInstance();
+    //
+    //   final content = await LNURL.getPayRequestAmount(
+    //       "LNURL1DP68GURN8GHJ7CTSWQHXY6T5WFJHZAT9WD6ZU6T09AUZ7URJDAU8JTMKXYHKCM308A5N6MNHVVNXJEPAXGMNWWPEX3JRGDTPXVNXZ0FCX5CRQVPSXQNX602VFE24YNP9XGC8W6T5DQJNYVRPD4HH2MN5GTRNLZ");
+    //   expect(content, 8500);
+    // });
 
     test('get no amount', () async {
       CakeTor.instance = await CakeTorInstance.getInstance();

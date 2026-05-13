@@ -40,6 +40,8 @@
   "address_from_yat": "یہ پتہ Yat پر ${emoji} سے ہے۔",
   "address_label": "ایڈریس لیبل",
   "address_label_explainer": "آپ \"Addresses\" دباکر اپنے پہلے استعمال شدہ تمام پتوں تک رسائی حاصل کر سکتے ہیں اور ان کا نظم کر سکتے ہیں",
+  "address_not_allowed_as_receive": "ایڈریس موصول ہونے کی اجازت نہیں ہے۔",
+  "address_not_allowed_as_refund": "ریفنڈ ایڈریس کے طور پر ایڈریس کی اجازت نہیں ہے۔",
   "address_or_alias": "ایڈریس یا عرف",
   "address_remove_contact": "رابطہ حذف کریں",
   "address_remove_content": "کیا آپ واقعی منتخب رابطہ حذف کرنا چاہتے ہیں؟",

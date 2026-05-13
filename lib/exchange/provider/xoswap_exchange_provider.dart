@@ -18,9 +18,11 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   void _addAppVersionHeader() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    final currentVersion = packageInfo.version;
-    _headers['App-Version'] = currentVersion;
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+      _headers['App-Version'] = currentVersion;
+    } catch (_) {}
   }
 
   static const _apiAuthority = 'exchange.exodus.io';

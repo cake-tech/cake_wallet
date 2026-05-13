@@ -11,11 +11,11 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {
@@ -148,8 +148,8 @@ class SendTransactionDetails extends StatelessWidget {
   double sumBy<T>(List<T> list, double Function(T) picker) =>
       list.map(picker).fold(0.0, (a, b) => a + b);
 
-  BigInt sumByBigInt<T>(List<T> list, BigInt Function(T) picker) =>
-      list.map(picker).fold(BigInt.zero, (a, b) => a + b);
+  Money sumByMoney<T>(List<T> list, Money Function(T) picker, CryptoCurrency currency) =>
+      list.map(picker).fold(Money.zero(currency), (a, b) => a + b);
 
   String sumStr<T>(List<T> list, double Function(T) picker) =>
       sumBy(list, picker).toString();
@@ -166,34 +166,33 @@ class SendTransactionDetails extends StatelessWidget {
     final currencySymbol = sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.selectedCryptoCurrency);
 
     final amount = (transaction == null)
-        ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(
-            sumByBigInt(sendViewModel.outputs, (o) {
-              if (o.sendAll)
+        ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(sendViewModel.outputs, (o) {
+            final zero = Money.zero(sendViewModel.selectedCryptoCurrency);
+            if (o.sendAll)
+              return sendViewModel.amountParsingProxy.tryParseCryptoString(
+                      sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
+                  zero;
+
+            return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ?? zero;
+          }, sendViewModel.selectedCryptoCurrency))
+        : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount);
+
+    final fee = (transaction == null)
+        ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(
+            sendViewModel.outputs.where((e) => !e.sendAll).toList(),
+            (o) {
+              final zero = Money.zero(sendViewModel.currency);
+              if (sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln) {
                 return sendViewModel.amountParsingProxy.tryParseCryptoString(
-                        sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
-                    BigInt.zero;
-
-              return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ??
-                  BigInt.zero;
-            }),
-            sendViewModel.selectedCryptoCurrency)
-        : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
-            formatAmount(transaction.amountFormatted), sendViewModel.selectedCryptoCurrency);
-
-    final fee =
-        "${(transaction == null) ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(sumByBigInt(
-              sendViewModel.outputs.where((e) => !e.sendAll).toList(),
-              (o) {
-                if (sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln) {
-                  return sendViewModel.amountParsingProxy.tryParseCryptoString(
-                          o.estimatedFee.replaceAll(",", ""),
-                          sendViewModel.selectedCryptoCurrency) ??
-                      BigInt.zero;
-                }
-                return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
-                    BigInt.zero;
-              },
-            ), sendViewModel.currency) : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(transaction.feeFormattedValue, sendViewModel.currency)} ${sendViewModel.currencySymbol}";
+                        o.estimatedFee.replaceAll(",", ""), sendViewModel.selectedCryptoCurrency) ??
+                    zero;
+              }
+              return sendViewModel.currency.tryParseAmount(o.estimatedFee.replaceAll(",", "")) ??
+                  zero;
+            },
+            sendViewModel.currency,
+          ))
+        : sendViewModel.amountParsingProxy.asDisplayString(transaction.fee);
 
     final fiatAmount = (transaction == null)
         ? sumWithUnit(
@@ -331,7 +330,7 @@ class SendTransactionDetails extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              fee.withLocalSeperator(sendViewModel.languageCode),
+                              "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,

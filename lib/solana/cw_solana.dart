@@ -53,6 +53,8 @@ class CWSolana extends Solana {
   @override
   String getPublicKey(WalletBase wallet) =>
       (wallet as SolanaWallet).solanaPublicKey.toAddress().address;
+
+  @override
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
@@ -60,14 +62,14 @@ class CWSolana extends Solana {
       SolanaTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                ))
             .toList(),
         currency: currency,
       );
@@ -116,21 +118,13 @@ class CWSolana extends Solana {
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as SolanaTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.sol.title) {
+    if (transaction.amount.currency.symbol == CryptoCurrency.sol.symbol) {
       return CryptoCurrency.sol;
     }
 
-    wallet as SolanaWallet;
-
-    return wallet.splTokenCurrencies.firstWhere(
-      (element) => transaction.tokenSymbol == element.symbol,
+    return (wallet as SolanaWallet).splTokenCurrencies.firstWhere(
+      (element) => transaction.amount.currency.symbol == element.symbol,
     );
-  }
-
-  @override
-  double getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    return (transactionInfo as SolanaTransactionInfo).solAmount.toDouble();
   }
 
   @override
@@ -197,8 +191,8 @@ class CWSolana extends Solana {
     String base64Transaction,
     String requestId,
     String destinationAddress,
-    double amount,
-    double fee,
+    Money amount,
+    Money fee,
   ) async {
     final solanaWallet = wallet as SolanaWallet;
     final privateKey = solanaWallet.solanaPrivateKey;

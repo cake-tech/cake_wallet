@@ -52,6 +52,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -308,10 +309,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // Handle case where balance might not be available yet (e.g., during chain switch)
     final balanceForCurrency = wallet.balance[selectedCryptoCurrency];
     if (balanceForCurrency == null) {
-      return _appStore.amountParsingProxy.getDisplayCryptoString(0, selectedCryptoCurrency);
+      return _appStore.amountParsingProxy.asDisplayString(Money.zero(selectedCryptoCurrency));
     }
-    return _appStore.amountParsingProxy.getDisplayCryptoStringFromBigInt(
-        wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance, selectedCryptoCurrency);
+    return _appStore.amountParsingProxy
+        .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
   }
 
   @action
@@ -659,7 +660,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 wallet,
                 routerTo,
                 routerData,
-                BigInt.zero,
+                Money.zero(wallet.currency),
                 priority,
                 useBlinkProtection: canSupportBlinkProtection(selectedChainId)
                     ? _settingsStore.useBlinkProtection
@@ -782,7 +783,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 wallet,
                 routerTo,
                 routerData,
-                routerValueWei,
+                Money(routerValueWei, wallet.currency),
                 priority,
                 sourceTokenAddress: tokenContract,
                 sourceTokenAmount: requiredAmount,
@@ -820,7 +821,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             // Fallback to estimate if not available
             final fee = actualFee > 0 ? actualFee : 0.0005;
 
-            final amount = double.tryParse(trade.amount) ?? 0.0;
+            final fromCurrency = trade.from ?? CryptoCurrency.sol;
+            final amount = Money.tryParse(trade.amount, fromCurrency) ?? Money.zero(fromCurrency);
 
             pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
@@ -828,7 +830,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               requestId!,
               trade.payoutAddress ?? '',
               amount,
-              fee,
+              Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
             );
 
             state = ExecutedSuccessfullyState();
@@ -1348,9 +1350,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return await evm!.createTokenApproval(
       wallet,
-      requiredAmount,
+      Money(requiredAmount, erc20Token),
       spender,
-      erc20Token,
       priority,
       useBlinkProtection:
       canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,

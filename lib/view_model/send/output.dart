@@ -1,6 +1,5 @@
 import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
@@ -9,7 +8,6 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -17,9 +15,10 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -74,8 +73,7 @@ abstract class OutputBase with Store {
   String? displayName;
 
   @computed
-  String get displayCryptoAmount =>
-      _appStore.amountParsingProxy.getDisplayCryptoAmount(cryptoAmount, cryptoCurrencyHandler());
+  String get displayCryptoAmount => _appStore.amountParsingProxy.asDisplayString(cryptoAmountMoney);
 
   @observable
   String cryptoFullBalance;
@@ -116,61 +114,14 @@ abstract class OutputBase with Store {
   String? stealthAddress;
 
   @computed
-  int get formattedCryptoAmount {
-    int amount = 0;
+  Money get cryptoAmountMoney {
+    if (cryptoAmount.isEmpty) return Money.zero(cryptoCurrencyHandler());
 
     try {
-      if (cryptoAmount.isNotEmpty) {
-        final _cryptoAmount = cryptoAmount.replaceAll(',', '.');
-        int _amount = 0;
-        switch (walletType) {
-          case WalletType.monero:
-            _amount = monero!.formatterMoneroParseAmount(amount: _cryptoAmount);
-            break;
-          case WalletType.bitcoin:
-          case WalletType.litecoin:
-          case WalletType.bitcoinCash:
-          case WalletType.dogecoin:
-            _amount = cryptoCurrencyHandler().parseAmount(_cryptoAmount).toInt();
-            break;
-          case WalletType.decred:
-            _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
-            break;
-          case WalletType.ethereum:
-          case WalletType.polygon:
-          case WalletType.base:
-          case WalletType.arbitrum:
-          case WalletType.bsc:
-            _amount = evm!.formatterEVMParseAmount(_cryptoAmount);
-            break;
-          case WalletType.wownero:
-            _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
-            break;
-          case WalletType.zano:
-            _amount = zano!
-                .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
-            break;
-          case WalletType.zcash:
-            _amount = zcash!.formatterZcashParseAmount(_cryptoAmount);
-            break;
-          case WalletType.none:
-          case WalletType.haven:
-          case WalletType.nano:
-          case WalletType.banano:
-          case WalletType.solana:
-          case WalletType.tron:
-            break;
-        }
-
-        if (_amount > 0) {
-          amount = _amount;
-        }
-      }
+      return cryptoCurrencyHandler().parseAmount(cryptoAmount.sanitized());
     } catch (e) {
-      amount = 0;
+      return Money.zero(cryptoCurrencyHandler());
     }
-
-    return amount;
   }
 
   @observable
@@ -188,7 +139,7 @@ abstract class OutputBase with Store {
       if (_settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId) != null) {
         fee = _wallet.calculateEstimatedFee(
           _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId)!,
-          formattedCryptoAmount,
+          cryptoAmountMoney.amount.toInt(),
         );
       }
 
@@ -210,7 +161,7 @@ abstract class OutputBase with Store {
           if (_settingsStore.getPriority(_wallet.type) ==
               bitcoin!.getBitcoinTransactionPriorityCustom()) {
             fee = bitcoin!.getEstimatedFeeWithFeeRate(
-                _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
+                _wallet, _settingsStore.customBitcoinFeeRate, cryptoAmountMoney.amount.toInt());
           }
 
           estimatedFee = _appStore.amountParsingProxy.getDisplayCryptoString(fee, cryptoCurrencyHandler());

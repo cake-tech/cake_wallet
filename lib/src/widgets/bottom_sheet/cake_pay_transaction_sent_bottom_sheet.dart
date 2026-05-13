@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,7 +10,6 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
   const CakePayTransactionSentBottomSheet({
     super.key,
     required this.titleText,
-    required this.currency,
     required this.amount,
     required this.amountValue,
     required this.fiatAmountValue,
@@ -28,7 +26,6 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
 
   final String titleText;
   final Widget? titleIconWidget;
-  final CryptoCurrency currency;
   final String amount;
   final String amountValue;
   final String fiatAmountValue;
@@ -41,32 +38,15 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
   final String paymentId;
   final String paymentIdValue;
 
-  TextStyle _titleStyle(BuildContext ctx) =>
-      Theme
-          .of(ctx)
-          .textTheme
-          .bodyLarge!;
+  TextStyle _titleStyle(BuildContext ctx) => Theme.of(ctx).textTheme.bodyLarge!;
 
-  TextStyle _valueStyle(BuildContext ctx) =>
-      Theme
-          .of(ctx)
-          .textTheme
-          .titleMedium!
-          .copyWith(
+  TextStyle _valueStyle(BuildContext ctx) => Theme.of(ctx).textTheme.titleMedium!.copyWith(
         fontSize: 18,
         fontWeight: FontWeight.w600,
       );
 
-  TextStyle _subStyle(BuildContext ctx) =>
-      Theme
-          .of(ctx)
-          .textTheme
-          .labelSmall!
-          .copyWith(
-        color: Theme
-            .of(ctx)
-            .colorScheme
-            .onSurfaceVariant,
+  TextStyle _subStyle(BuildContext ctx) => Theme.of(ctx).textTheme.labelSmall!.copyWith(
+        color: Theme.of(ctx).colorScheme.onSurfaceVariant,
       );
 
   Widget _buildHeader(BuildContext ctx) =>
@@ -78,10 +58,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
             height: 5,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Theme
-                  .of(ctx)
-                  .colorScheme
-                  .onSurface,
+              color: Theme.of(ctx).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 20),
@@ -92,15 +69,11 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 titleText,
-                style: Theme
-                    .of(ctx)
-                    .textTheme
-                    .titleLarge!
-                    .copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.none,
-                ),
+                style: Theme.of(ctx).textTheme.titleLarge!.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.none,
+                    ),
               ),
             ],
           ),
@@ -116,7 +89,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
             _StandardTile(
               itemTitle: amount,
               titleStyle: _titleStyle(context),
-              itemValue: '$amountValue ${currency.title}',
+              itemValue: amountValue,
               itemValueStyle: _valueStyle(context),
               itemSubTitle: fiatAmountValue,
               itemSubTitleStyle: _subStyle(context),
@@ -143,9 +116,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
             const SizedBox(height: 8),
             _StandardTile(
               itemTitle: paymentId + ': \n' + paymentIdValue,
-              titleStyle: _titleStyle(context).copyWith(
-                  fontSize: 14
-              ),
+              titleStyle: _titleStyle(context).copyWith(fontSize: 14),
               itemValue: '',
               itemValueStyle: _valueStyle(context),
               copyButton: true,
@@ -161,28 +132,15 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
                   Image.asset('assets/images/envelope.png'),
                   const SizedBox(height: 18),
                   Text(
-                    S
-                        .of(context)
-                        .cake_pay_card_email_delivered_message,
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodyLarge,
+                    S.of(context).cake_pay_card_email_delivered_message,
+                    style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   PrimaryButton(
-                    text: S
-                        .of(context)
-                        .close,
-                    color: Theme
-                        .of(context)
-                        .colorScheme
-                        .primary,
-                    textColor: Theme
-                        .of(context)
-                        .colorScheme
-                        .onPrimaryContainer,
+                    text: S.of(context).close,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimaryContainer,
                     onPressed: onClose,
                   ),
                 ],
@@ -194,10 +152,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery
-        .of(context)
-        .size
-        .height * 0.9;
+    final maxHeight = MediaQuery.of(context).size.height * 0.9;
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),

@@ -1,3 +1,4 @@
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/payment_uris.dart';
@@ -106,8 +107,7 @@ class PaymentRequest {
   static bool _isAlreadyUsableAmount(String amount) {
     if (amount.isEmpty) return false;
 
-    // Try to parse as double - if successful, it's already in usable format
-    final parsed = double.tryParse(amount.replaceAll(',', '.'));
+    final parsed = double.tryParse(amount.sanitized());
     if (parsed == null) return false;
 
     // Check if the amount contains a decimal point and is a reasonable number,
