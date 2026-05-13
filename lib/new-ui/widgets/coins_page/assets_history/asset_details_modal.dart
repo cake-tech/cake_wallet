@@ -77,7 +77,16 @@ class AssetDetailsModal extends StatelessWidget {
                       child: Stack(
                         children: [
                           if (iconPath.isNotEmpty)
-                            CakeImageWidget(imageUrl: iconPath, width: 75, height: 75)
+                            Container(
+                              width: 75,
+                              height: 75,
+                              clipBehavior: Clip.hardEdge,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: CakeImageWidget(imageUrl: iconPath, width: 75, height: 75),
+                            )
                           else
                             Container(
                               width: 75,

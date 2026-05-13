@@ -5,14 +5,11 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/favorite_token_modal.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -188,7 +185,10 @@ class HomeSettingsPage extends BasePage {
                           },
                           leading: Container(
                             clipBehavior: Clip.hardEdge,
-                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
                             child: CakeImageWidget(
                               imageUrl: token.iconPath,
                               height: 40,
