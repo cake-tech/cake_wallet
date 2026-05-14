@@ -1326,6 +1326,7 @@
   "warning": "Waarschuwing",
   "wc_approve_request_title": "Aanvraag goedkeuren",
   "wc_connect_request_title": "Verbind verzoek",
+  "wc_connected_to": "Verbonden met ${name}",
   "wc_could_not_verify": "Kan niet verifiëren",
   "wc_message_to_sign": "Bericht om te ondertekenen",
   "wc_permission_other": "Anders: ${method}",

@@ -1329,6 +1329,7 @@
   "warning": "Ìkìlọ̀",
   "wc_approve_request_title": "fọwọsi ìbéèrè",
   "wc_connect_request_title": "Sopọ ìbéèrè",
+  "wc_connected_to": "Sopọ si ${name}",
   "wc_could_not_verify": "Ko le jẹrisi",
   "wc_message_to_sign": "Ifiranṣẹ lati wole",
   "wc_permission_other": "Omiiran: ${method}",

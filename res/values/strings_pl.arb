@@ -1327,6 +1327,7 @@
   "warning": "Ostrzeżenie",
   "wc_approve_request_title": "Zatwierdź żądanie",
   "wc_connect_request_title": "Połącz żądanie",
+  "wc_connected_to": "Połączono z ${name}",
   "wc_could_not_verify": "Nie udało się zweryfikować",
   "wc_message_to_sign": "Wiadomość do podpisania",
   "wc_permission_other": "Inne: ${method}",

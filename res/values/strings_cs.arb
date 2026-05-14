@@ -1329,6 +1329,7 @@
   "warning": "Varování",
   "wc_approve_request_title": "Schválit žádost",
   "wc_connect_request_title": "Žádost o připojení",
+  "wc_connected_to": "Připojeno k ${name}",
   "wc_could_not_verify": "Nelze ověřit",
   "wc_message_to_sign": "Zpráva k podpisu",
   "wc_permission_other": "Jiné: ${method}",

@@ -1329,6 +1329,7 @@
   "warning": "경고",
   "wc_approve_request_title": "요청 승인",
   "wc_connect_request_title": "연결 요청",
+  "wc_connected_to": "${name}에 연결됨",
   "wc_could_not_verify": "확인할 수 없음",
   "wc_message_to_sign": "서명하라는 메시지",
   "wc_permission_other": "기타: ${method}",

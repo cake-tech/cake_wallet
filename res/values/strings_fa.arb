@@ -1326,6 +1326,7 @@
   "warning": "هشدار",
   "wc_approve_request_title": "درخواست را تایید کنید",
   "wc_connect_request_title": "درخواست اتصال",
+  "wc_connected_to": "متصل به ${name}",
   "wc_could_not_verify": "تأیید نشد",
   "wc_message_to_sign": "برای امضا پیام دهید",
   "wc_permission_other": "موارد دیگر: ${method}",

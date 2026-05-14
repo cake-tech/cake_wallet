@@ -1329,6 +1329,7 @@
   "warning": "警告",
   "wc_approve_request_title": "リクエストの承認",
   "wc_connect_request_title": "接続リクエスト",
+  "wc_connected_to": "${name} に接続しました",
   "wc_could_not_verify": "確認できませんでした",
   "wc_message_to_sign": "署名するメッセージ",
   "wc_permission_other": "その他: ${method}",

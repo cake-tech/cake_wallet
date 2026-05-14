@@ -1327,6 +1327,7 @@
   "warning": "Զգուշացում",
   "wc_approve_request_title": "Հաստատել հարցումը",
   "wc_connect_request_title": "Միացման հարցում",
+  "wc_connected_to": "Միացված է ${name}-ին",
   "wc_could_not_verify": "Չհաջողվեց հաստատել",
   "wc_message_to_sign": "Հաղորդագրություն ստորագրելու համար",
   "wc_permission_other": "Այլ՝ ${method}",

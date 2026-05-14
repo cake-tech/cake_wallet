@@ -1338,6 +1338,7 @@
   "warning": "Warning",
   "wc_approve_request_title": "Approve request",
   "wc_connect_request_title": "Connect request",
+  "wc_connected_to": "Connected to ${name}",
   "wc_could_not_verify": "Could not verify",
   "wc_message_to_sign": "Message to sign",
   "wc_permission_other": "Other: ${method}",

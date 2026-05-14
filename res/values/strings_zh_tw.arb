@@ -1139,6 +1139,7 @@
   "warning": "警告",
   "wc_approve_request_title": "批准請求",
   "wc_connect_request_title": "連線請求",
+  "wc_connected_to": "已連線至 ${name}",
   "wc_could_not_verify": "無法驗證",
   "wc_message_to_sign": "要簽署的訊息",
   "wc_permission_other": "其他：${method}",

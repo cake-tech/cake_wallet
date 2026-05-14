@@ -1331,6 +1331,7 @@
   "warning": "Gargaɗi",
   "wc_approve_request_title": "Amincewa da buƙata",
   "wc_connect_request_title": "Buƙatar haɗin kai",
+  "wc_connected_to": "An haɗa zuwa ${name}",
   "wc_could_not_verify": "An kasa tabbatarwa",
   "wc_message_to_sign": "Saƙo don sa hannu",
   "wc_permission_other": "Wani: ${method}",

@@ -1328,6 +1328,7 @@
   "warning": "Babala",
   "wc_approve_request_title": "Aprubahan ang kahilingan",
   "wc_connect_request_title": "Ikonekta ang kahilingan",
+  "wc_connected_to": "Nakakonekta sa ${name}",
   "wc_could_not_verify": "Hindi ma-verify",
   "wc_message_to_sign": "Mensahe para pirmahan",
   "wc_permission_other": "Iba pa: ${method}",

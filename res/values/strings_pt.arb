@@ -1331,6 +1331,7 @@
   "warning": "Aviso",
   "wc_approve_request_title": "Aprovar solicitação",
   "wc_connect_request_title": "Solicitação de conexão",
+  "wc_connected_to": "Conectado a ${name}",
   "wc_could_not_verify": "Não foi possível verificar",
   "wc_message_to_sign": "Mensagem para assinar",
   "wc_permission_other": "Outro: ${method}",

@@ -1332,6 +1332,7 @@
   "warning": "Peringatan",
   "wc_approve_request_title": "Setujui permintaan",
   "wc_connect_request_title": "Hubungkan permintaan",
+  "wc_connected_to": "Terhubung ke ${name}",
   "wc_could_not_verify": "Tidak dapat memverifikasi",
   "wc_message_to_sign": "Pesan untuk ditandatangani",
   "wc_permission_other": "Lainnya: ${method}",

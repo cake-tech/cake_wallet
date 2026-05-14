@@ -1329,6 +1329,7 @@
   "warning": "Предупреждение",
   "wc_approve_request_title": "Утвердить запрос",
   "wc_connect_request_title": "Запрос на подключение",
+  "wc_connected_to": "Подключено к ${name}",
   "wc_could_not_verify": "Не удалось проверить",
   "wc_message_to_sign": "Сообщение для подписи",
   "wc_permission_other": "Другое: ${method}",

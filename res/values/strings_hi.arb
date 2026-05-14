@@ -1331,6 +1331,7 @@
   "warning": "चेतावनी",
   "wc_approve_request_title": "अनुरोध स्वीकृत करें",
   "wc_connect_request_title": "कनेक्ट अनुरोध",
+  "wc_connected_to": "${name} से कनेक्टेड",
   "wc_could_not_verify": "सत्यापित नहीं किया जा सका",
   "wc_message_to_sign": "हस्ताक्षर करने के लिए संदेश",
   "wc_permission_other": "अन्य: ${method}",

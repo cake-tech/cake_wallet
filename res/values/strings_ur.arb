@@ -1330,6 +1330,7 @@
   "warning": "انتباہ",
   "wc_approve_request_title": "درخواست منظور کریں۔",
   "wc_connect_request_title": "رابطہ کی درخواست",
+  "wc_connected_to": "${name} سے منسلک",
   "wc_could_not_verify": "تصدیق نہیں ہو سکی",
   "wc_message_to_sign": "دستخط کرنے کا پیغام",
   "wc_permission_other": "دیگر: ${method}",

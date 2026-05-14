@@ -1328,6 +1328,7 @@
   "warning": "警告",
   "wc_approve_request_title": "批准请求",
   "wc_connect_request_title": "连接请求",
+  "wc_connected_to": "连接到${name}",
   "wc_could_not_verify": "无法验证",
   "wc_message_to_sign": "留言要签名",
   "wc_permission_other": "其他：${method}",

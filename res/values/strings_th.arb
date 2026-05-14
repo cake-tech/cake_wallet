@@ -1328,6 +1328,7 @@
   "warning": "คำเตือน",
   "wc_approve_request_title": "อนุมัติคำขอ",
   "wc_connect_request_title": "เชื่อมต่อคำขอ",
+  "wc_connected_to": "เชื่อมต่อกับ ${name}",
   "wc_could_not_verify": "ไม่สามารถตรวจสอบได้",
   "wc_message_to_sign": "ข้อความที่จะลงนาม",
   "wc_permission_other": "อื่นๆ: ${method}",

@@ -1329,6 +1329,7 @@
   "warning": "تحذير",
   "wc_approve_request_title": "الموافقة على الطلب",
   "wc_connect_request_title": "طلب الاتصال",
+  "wc_connected_to": "متصل بـ ${name}",
   "wc_could_not_verify": "لا يمكن التحقق",
   "wc_message_to_sign": "رسالة للتوقيع",
   "wc_permission_other": "أخرى: ${method}",

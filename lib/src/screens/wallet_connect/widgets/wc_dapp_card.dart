@@ -4,7 +4,7 @@ import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
-enum WCDappCardAction { connect, sign }
+enum WCDappCardAction { connect, sign, connected }
 
 class WCDappCard extends StatelessWidget {
   const WCDappCard({
@@ -28,6 +28,8 @@ class WCDappCard extends StatelessWidget {
         return S.of(context).wc_would_like_to_connect_to(name);
       case WCDappCardAction.sign:
         return S.of(context).wc_would_like_to_sign(name);
+      case WCDappCardAction.connected:
+        return S.of(context).wc_connected_to(name);
     }
   }
 

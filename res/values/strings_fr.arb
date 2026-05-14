@@ -1329,6 +1329,7 @@
   "warning": "Avertissement",
   "wc_approve_request_title": "Approuver la demande",
   "wc_connect_request_title": "Demande de connexion",
+  "wc_connected_to": "Connecté à ${name}",
   "wc_could_not_verify": "Impossible de vérifier",
   "wc_message_to_sign": "Message à signer",
   "wc_permission_other": "Autre : ${method}",

@@ -1329,6 +1329,7 @@
   "warning": "Предупреждение",
   "wc_approve_request_title": "Одобряване на заявката",
   "wc_connect_request_title": "Заявка за свързване",
+  "wc_connected_to": "Свързан с ${name}",
   "wc_could_not_verify": "Не може да се потвърди",
   "wc_message_to_sign": "Съобщение за подпис",
   "wc_permission_other": "Друго: ${method}",

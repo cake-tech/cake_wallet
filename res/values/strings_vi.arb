@@ -1325,6 +1325,7 @@
   "warning": "Cảnh báo",
   "wc_approve_request_title": "Phê duyệt yêu cầu",
   "wc_connect_request_title": "Yêu cầu kết nối",
+  "wc_connected_to": "Đã kết nối với ${name}",
   "wc_could_not_verify": "Không thể xác minh",
   "wc_message_to_sign": "Tin nhắn để ký",
   "wc_permission_other": "Khác: ${method}",

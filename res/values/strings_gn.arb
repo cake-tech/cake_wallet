@@ -1073,6 +1073,7 @@
   "warning": "Kyhyje",
   "wc_approve_request_title": "Omoneĩ mba’ejerure",
   "wc_connect_request_title": "Ombojoaju mba’ejerure",
+  "wc_connected_to": "Oñembojoaju ${name} ndive.",
   "wc_could_not_verify": "Ndikatúi omoañete",
   "wc_message_to_sign": "Marandu ofirma haguã",
   "wc_permission_other": "Ambue: ${method}.",

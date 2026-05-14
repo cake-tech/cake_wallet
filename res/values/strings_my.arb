@@ -1328,6 +1328,7 @@
   "warning": "သတိပေးချက်",
   "wc_approve_request_title": "တောင်းဆိုချက်ကို အတည်ပြုပါ။",
   "wc_connect_request_title": "တောင်းဆိုချက်ကို ချိတ်ဆက်ပါ။",
+  "wc_connected_to": "${name} သို့ ချိတ်ဆက်ထားသည်",
   "wc_could_not_verify": "အတည်မပြုနိုင်ပါ။",
   "wc_message_to_sign": "လက်မှတ်ထိုးရန် မက်ဆေ့ချ်",
   "wc_permission_other": "အခြား- ${method}",

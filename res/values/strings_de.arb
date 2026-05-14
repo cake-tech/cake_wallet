@@ -1333,6 +1333,7 @@
   "warning": "Warnung",
   "wc_approve_request_title": "Anfrage genehmigen",
   "wc_connect_request_title": "Verbindungsanfrage",
+  "wc_connected_to": "Verbunden mit ${name}",
   "wc_could_not_verify": "Konnte nicht überprüft werden",
   "wc_message_to_sign": "Nachricht zum Unterschreiben",
   "wc_permission_other": "Andere: ${method}",

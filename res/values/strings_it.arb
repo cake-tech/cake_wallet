@@ -1330,6 +1330,7 @@
   "warning": "Attenzione",
   "wc_approve_request_title": "Approva la richiesta",
   "wc_connect_request_title": "Richiesta di connessione",
+  "wc_connected_to": "Connesso a ${name}",
   "wc_could_not_verify": "Impossibile verificare",
   "wc_message_to_sign": "Messaggio da firmare",
   "wc_permission_other": "Altro: ${method}",

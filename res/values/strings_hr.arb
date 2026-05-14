@@ -1329,6 +1329,7 @@
   "warning": "Upozorenje",
   "wc_approve_request_title": "Odobri zahtjev",
   "wc_connect_request_title": "Zahtjev za povezivanje",
+  "wc_connected_to": "Povezan s ${name}",
   "wc_could_not_verify": "Nije moguće potvrditi",
   "wc_message_to_sign": "Poruka za potpisivanje",
   "wc_permission_other": "Ostalo: ${method}",
