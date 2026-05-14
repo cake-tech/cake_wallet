@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/wallet_connect/utils/wc_permissions_mapper.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 
 class WCPermissionsCard extends StatelessWidget {
@@ -51,10 +52,10 @@ class _PermissionRow extends StatelessWidget {
               color: colors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              permission.icon,
-              size: 20,
-              color: colors.onSurfaceVariant,
+            child: CakeImageWidget(
+              imageUrl: permission.iconUrl,
+              width: 24,
+              height: 24,
             ),
           ),
           const SizedBox(width: 12),
