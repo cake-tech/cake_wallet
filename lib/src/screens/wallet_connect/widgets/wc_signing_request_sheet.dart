@@ -3,6 +3,7 @@ import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_dapp_card.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_message_card.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_scam_banner.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_sheet_header.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_wallet_card.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class WCSigningRequestSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final showSignAll = (signAllCount ?? 0) > 1;
+    final isScam = verifyContext?.validation.scam ?? false;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -59,6 +61,10 @@ class WCSigningRequestSheet extends StatelessWidget {
                   action: WCDappCardAction.sign,
                   verifyContext: verifyContext,
                 ),
+                if (isScam) ...[
+                  const SizedBox(height: 16),
+                  const WCScamBanner(),
+                ],
                 const SizedBox(height: 24),
                 WCWalletCard(walletName: walletName, address: address),
                 const SizedBox(height: 24),

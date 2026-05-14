@@ -23,7 +23,7 @@ class WCPermissionsCard extends StatelessWidget {
       child: Column(
         children: [
           for (int i = 0; i < permissions.length; i++) ...[
-            if (i > 0) Divider(height: 1, color: colors.outlineVariant, indent: 44,),
+            if (i > 0) Divider(height: 1, color: colors.outlineVariant, indent: 44),
             _PermissionRow(permission: permissions[i]),
           ],
         ],
@@ -39,32 +39,22 @@ class _PermissionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-            ),
             child: CakeImageWidget(
               imageUrl: permission.iconUrl,
-              width: 24,
-              height: 24,
+              width: 28,
+              height: 28,
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               permission.label,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: colors.onSurface,
-                  ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ],

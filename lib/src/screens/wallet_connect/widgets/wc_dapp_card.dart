@@ -78,13 +78,19 @@ class WCDappCard extends StatelessWidget {
                   ),
             ),
           ],
-          if (verifyContext != null) ...[
+          if (_shouldShowBadge()) ...[
             const SizedBox(height: 10),
             _VerifyBadge(verifyContext: verifyContext!),
           ],
         ],
       ),
     );
+  }
+
+  bool _shouldShowBadge() {
+    if (verifyContext == null) return false;
+    if (verifyContext!.validation.scam) return false;
+    return true;
   }
 }
 
@@ -95,28 +101,18 @@ class _VerifyBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     final IconData icon;
     final Color color;
     final String label;
 
-    if (verifyContext.validation.scam) {
-      icon = Icons.error_outline;
-      color = colors.error;
-      label = S.of(context).security_risk;
-    } else if (verifyContext.validation.invalid) {
-      icon = Icons.error_outline;
-      color = colors.error;
-      label = S.of(context).domain_mismatch;
-    } else if (verifyContext.validation.valid) {
+    if (verifyContext.validation.valid) {
       icon = Icons.check_circle;
       color = CustomThemeColors.syncGreen;
       label = S.of(context).wc_verified;
     } else {
-      icon = Icons.shield_outlined;
+      icon = Icons.warning_amber_rounded;
       color = CustomThemeColors.syncYellow;
-      label = S.of(context).wc_could_not_verify;
+      label = S.of(context).wc_not_verified;
     }
 
     return Row(
@@ -126,10 +122,7 @@ class _VerifyBadge extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: color),
         ),
       ],
     );

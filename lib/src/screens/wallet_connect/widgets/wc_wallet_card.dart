@@ -75,7 +75,6 @@ class WalletDetailEntry extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: colors.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
             ),

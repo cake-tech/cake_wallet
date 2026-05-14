@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wall
 import 'package:cake_wallet/src/screens/wallet_connect/utils/wc_permissions_mapper.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_dapp_card.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_permissions_card.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_scam_banner.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_sheet_header.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_wallet_card.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -44,6 +45,7 @@ class WCConnectionRequestSheet extends StatelessWidget {
     final iconUrl = metadata.icons.isNotEmpty ? metadata.icons.first : null;
     final walletName = appStore.wallet?.name ?? '';
     final address = _resolveAddress();
+    final isScam = verifyContext?.validation.scam ?? false;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -61,6 +63,10 @@ class WCConnectionRequestSheet extends StatelessWidget {
                   action: WCDappCardAction.connect,
                   verifyContext: verifyContext,
                 ),
+                if (isScam) ...[
+                  const SizedBox(height: 16),
+                  const WCScamBanner(),
+                ],
                 const SizedBox(height: 24),
                 WCWalletCard(walletName: walletName, address: address),
                 const SizedBox(height: 24),
