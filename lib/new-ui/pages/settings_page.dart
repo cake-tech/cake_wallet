@@ -49,6 +49,7 @@ class SettingsSectionData {
 
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet-setting.svg", [
+    SettingsListItem("assets/new-ui/settings_row_icons/accounts.svg", S.current.accounts, Routes.walletAccountsPage),
     SettingsListItem("assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem("assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,

@@ -50,6 +50,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/src/screens/settings/wallet_accounts_page.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -917,6 +918,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.manageNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
+
+    case Routes.walletAccountsPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<WalletAccountsPage>());
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));

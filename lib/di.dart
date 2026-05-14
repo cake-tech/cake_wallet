@@ -150,6 +150,7 @@ import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
+import 'package:cake_wallet/src/screens/settings/wallet_accounts_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -1150,6 +1151,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(),
       getIt.get<AuthService>(), getIt.get<AppStore>().wallet!.isHardwareWallet));
+
+  getIt.registerFactory(() => WalletAccountsPage(
+      dashboardViewModel: getIt.get<DashboardViewModel>(),
+      accountListViewModel: getIt.get<MoneroAccountListViewModel>(),
+      accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 

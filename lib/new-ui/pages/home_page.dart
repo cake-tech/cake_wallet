@@ -2,7 +2,6 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
-import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
@@ -102,22 +101,22 @@ class _NewHomePageState extends State<NewHomePage> {
                       context: context,
                       barrierColor: Colors.black.withAlpha(85),
                       builder: (context) => FractionallySizedBox(
-                          child: Material(
-                                  child: NewSettingsPage(
+                        child: Material(
+                          child: NewSettingsPage(
                             dashboardViewModel: widget.dashboardViewModel,
-                                    authService: getIt.get<AuthService>(),
-                          ))),
-                    );
-                  },
-                ),
-                Observer(
-                  builder: (_)=>WalletInfoBar(
-                    lightningMode: _lightningMode,
-                    hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
-                    name: widget.dashboardViewModel.wallet.name,
-                            hasCustomize: accountListViewModel != null,
-                            onCustomizeButtonTap: openAccountCustomizer),
+                            authService: getIt.get<AuthService>(),
+                          ),
+                        ),
                       ),
+                    ).then((_) async {
+                      _setAccountViewModel();
+                      await widget.dashboardViewModel.loadCardDesigns();
+                      setState(() {});
+                    });
+                  },
+                ), WalletInfoBar(
+                    hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
+                    name: widget.dashboardViewModel.wallet.name),
                       Column(
                         children: [
                           Observer(
@@ -126,7 +125,7 @@ class _NewHomePageState extends State<NewHomePage> {
                               onCustomizeTapped: openCardCustomizer,
                               dashboardViewModel: widget.dashboardViewModel,
                               accountListViewModel: accountListViewModel,
-                              onCompactModeBackgroundCardsTapped: openAccountCustomizer,
+                              onCompactModeBackgroundCardsTapped: openCardCustomizer,
                               lightningMode: _lightningMode,
                             ),
                           ),
@@ -206,26 +205,6 @@ class _NewHomePageState extends State<NewHomePage> {
       ],
     ),
         );
-  }
-
-  void openAccountCustomizer() async {
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      barrierColor: Colors.black.withAlpha(60),
-      context: context,
-      builder: (context) {
-        return ModalNavigator(
-          parentContext: context,
-          heightMode: ModalHeightModes.fullScreen,
-          rootPage: Material(
-              child: AccountCustomizer(
-            accountListViewModel: accountListViewModel!,
-            accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
-            dashboardViewModel: widget.dashboardViewModel,
-          )),
-        );
-      },
-    );
-    widget.dashboardViewModel.loadCardDesigns();
   }
 
   void openCardCustomizer() async {
