@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/wc_permissions_mapper.dart';
@@ -7,7 +8,6 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_dapp_card.dart
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_permissions_card.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_wallet_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +114,7 @@ class WCCDetailsWidget extends BasePage {
               ),
               const SizedBox(height: 24),
             ],
-            PrimaryButton(
+            NewPrimaryButton(
               onPressed: () => _onDeleteButtonPressed(context, metadata.name, walletKitService),
               text: S.current.delete,
               color: colors.error,
@@ -197,36 +197,44 @@ class _SessionSection extends StatelessWidget {
         const SizedBox(height: 24),
         WCPermissionsCard(permissions: permissions),
         const SizedBox(height: 24),
-        PrimaryButton(
-          onPressed: () async {
-            try {
-              await walletKitService.extendSession(topic: session.topic);
-            } catch (e) {
-              debugPrint(e.toString());
-            }
-          },
-          text: S.of(context).extend_session,
-          color: colors.primary,
-          textColor: colors.onPrimary,
+        Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: NewPrimaryButton(
+                onPressed: () async {
+                  try {
+                    await walletKitService.extendSession(topic: session.topic);
+                  } catch (e) {
+                    debugPrint(e.toString());
+                  }
+                },
+                text: S.of(context).extend_session,
+                color: colors.primary,
+                textColor: colors.onPrimary,
+              ),
+            ),
+            Expanded(
+              child: NewPrimaryButton(
+                onPressed: () async {
+                  try {
+                    await walletKitService.updateSession(
+                      topic: session.topic,
+                      namespaces: session.namespaces,
+                    );
+                  } catch (e) {
+                    debugPrint(e.toString());
+                  }
+                },
+                text: S.of(context).update_session,
+                color: colors.primary,
+                textColor: colors.onPrimary,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        PrimaryButton(
-          onPressed: () async {
-            try {
-              await walletKitService.updateSession(
-                topic: session.topic,
-                namespaces: session.namespaces,
-              );
-            } catch (e) {
-              debugPrint(e.toString());
-            }
-          },
-          text: S.of(context).update_session,
-          color: colors.primary,
-          textColor: colors.onPrimary,
-        ),
-        const SizedBox(height: 10),
-        PrimaryButton(
+        const SizedBox(height: 12),
+        NewPrimaryButton(
           onPressed: () async {
             try {
               await walletKitService.disconnectSession(topic: session.topic);
