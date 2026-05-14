@@ -455,7 +455,7 @@ class EvmChainServiceImpl {
       title: title,
       method: method,
       chainId: chainId,
-      address: address,
+      address: address ?? transaction.from?.hex ?? '',
       transportType: transportType,
       verifyContext: verifyContext,
       extraModels: [
