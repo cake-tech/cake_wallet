@@ -1,8 +1,8 @@
 import 'dart:math' show min;
 
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -84,19 +84,9 @@ class AssetTile extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       iconPath.isNotEmpty
-                          ? Container(
-                              width: 36,
-                              height: 36,
-                              clipBehavior: Clip.hardEdge,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                              child: CakeImageWidget(
-                                imageUrl: iconPath,
-                                width: 36,
-                                height: 36,
-                              ),
+                          ? TokenImageWidget(
+                              imageUrl: iconPath,
+                              size: 36,
                             )
                           : Container(
                               width: 36,

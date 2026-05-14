@@ -5,11 +5,11 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/favorite_token_modal.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -183,32 +183,24 @@ class HomeSettingsPage extends BasePage {
                               'token': token,
                             });
                           },
-                          leading: Container(
-                            clipBehavior: Clip.hardEdge,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: CakeImageWidget(
-                              imageUrl: token.iconPath,
-                              height: 40,
-                              width: 40,
-                              errorWidget: Container(
-                                height: 30.0,
-                                width: 30.0,
-                                child: Center(
-                                  child: Text(
-                                    token.title.substring(0, min(token.title.length, 2)),
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          fontSize: 11,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        ),
-                                  ),
+                          leading: TokenImageWidget(
+                            imageUrl: token.iconPath ?? '',
+                            size: 40,
+                            errorWidget: Container(
+                              height: 30.0,
+                              width: 30.0,
+                              child: Center(
+                                child: Text(
+                                  token.title.substring(0, min(token.title.length, 2)),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        fontSize: 11,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
                                 ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                ),
+                              ),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                               ),
                             ),
                           ),

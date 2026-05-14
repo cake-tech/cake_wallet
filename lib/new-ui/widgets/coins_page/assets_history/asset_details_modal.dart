@@ -6,6 +6,7 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -77,15 +78,9 @@ class AssetDetailsModal extends StatelessWidget {
                       child: Stack(
                         children: [
                           if (iconPath.isNotEmpty)
-                            Container(
-                              width: 75,
-                              height: 75,
-                              clipBehavior: Clip.hardEdge,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                              child: CakeImageWidget(imageUrl: iconPath, width: 75, height: 75),
+                            TokenImageWidget(
+                              imageUrl: iconPath,
+                              size: 75,
                             )
                           else
                             Container(
