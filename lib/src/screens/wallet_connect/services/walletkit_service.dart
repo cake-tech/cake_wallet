@@ -54,8 +54,6 @@ abstract class WalletKitServiceBase with Store {
   bool isInitialized;
 
   /// The list of requests from the dapp
-  /// Potential types include, but aren't limited to:
-  /// [SessionProposalEvent], [SessionAuthRequest]
   @observable
   ObservableList<PairingInfo> pairings;
 
@@ -67,7 +65,6 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   void create() {
-    // Create the walletkit client
     _walletKit = ReownWalletKit(
       core: ReownCore(
         projectId: secrets.walletConnectProjectId,
@@ -83,7 +80,6 @@ abstract class WalletKitServiceBase with Store {
 
     _walletKit.core.addLogListener(_logListener);
 
-    // Setup our listeners
     log('Created instance of walletKit');
 
     _walletKit.core.pairing.onPairingInvalid.subscribe(_onPairingInvalid);
@@ -387,10 +383,8 @@ abstract class WalletKitServiceBase with Store {
     debugPrint('_onPairingCreate $args');
 
     if (args != null && args.topic != null && args.topic!.isNotEmpty) {
-      // Save the pairing topic when pairing is created
       savePairingTopicToLocalStorage(args.topic!);
 
-      // Refresh pairings to show the new pairing in the list
       _refreshPairings();
     }
   }
@@ -457,10 +451,8 @@ abstract class WalletKitServiceBase with Store {
         final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
         final privateKey = '0x${chainKeys.first.privateKey}';
         final credentials = EthPrivateKey.fromHex(privateKey);
-        //
         final messageToSign = formattedMessages.length;
         final count = (result == WCBottomSheetResult.one) ? 1 : messageToSign;
-        //
         final List<Cacao> cacaos = [];
         for (var i = 0; i < count; i++) {
           final iss = formattedMessages[i].keys.first;
@@ -598,7 +590,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   List<SessionData> getSessionsForPairingInfo(PairingInfo pairing) {
-    return sessions.where((element) => element.pairingTopic == pairing.topic).toList();
+    return sessions.where((element) =>  element.pairingTopic == pairing.topic).toList();
   }
 
   String getKeyForStoringTopicsForWallet() {
@@ -629,28 +621,22 @@ abstract class WalletKitServiceBase with Store {
   }
 
   List<String> getPairingTopicsForWallet(String key) {
-    // Get the JSON-encoded string from shared preferences
     final jsonString = sharedPreferences.getString(key);
 
-    // If the string is null, return an empty list
     if (jsonString == null) {
       return [];
     }
 
-    // Decode the JSON string to a list of strings
     final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
 
-    // Cast each item to a string
     return jsonList.map((item) => item as String).toList();
   }
 
   Future<void> savePairingTopicToLocalStorage(String pairingTopic) async {
-    // Get key specific to the current wallet
     final key = getKeyForStoringTopicsForWallet();
 
     if (key.isEmpty) return;
 
-    // Get all pairing topics attached to this key
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);
 
     bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
@@ -658,13 +644,10 @@ abstract class WalletKitServiceBase with Store {
         'Is Pairing Topic Saved: $isPairingTopicAlreadySaved, Key: $key, Topic: $pairingTopic');
 
     if (!isPairingTopicAlreadySaved) {
-      // Update the list with the most recent pairing topic
       pairingTopicsForWallet.add(pairingTopic);
 
-      // Convert the list of updated pairing topics to a JSON-encoded string
       final jsonString = jsonEncode(pairingTopicsForWallet);
 
-      // Save the encoded string to shared preferences
       await sharedPreferences.setString(key, jsonString);
     }
   }

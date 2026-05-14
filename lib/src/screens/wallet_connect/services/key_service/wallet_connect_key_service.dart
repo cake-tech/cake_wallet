@@ -6,12 +6,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletConnectKeyService {
-  /// Returns a list of all the keys.
   List<ChainKeyModel> getKeys(WalletBase wallet);
-
-  /// Returns a list of all the keys for a given chain id.
-  /// If the chain is not found, returns an empty list.
-  ///  - [chain]: The chain to get the keys for.
   List<ChainKeyModel> getKeysForChain(WalletBase wallet);
 }
 

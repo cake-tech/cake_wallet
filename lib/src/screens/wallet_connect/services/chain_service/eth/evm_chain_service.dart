@@ -106,7 +106,6 @@ class EvmChainServiceImpl {
 
     if (isApproved) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -155,7 +154,6 @@ class EvmChainServiceImpl {
 
     if (isApproved) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -297,7 +295,6 @@ class EvmChainServiceImpl {
 
     if (transaction is Transaction) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -309,7 +306,6 @@ class EvmChainServiceImpl {
           chainId: int.parse(chainId),
         );
 
-        // Sign the transaction
         final signedTx = bytesToHex(signature, include0x: true);
         response = response.copyWith(result: signedTx);
       } on RPCError catch (e) {
@@ -349,7 +345,6 @@ class EvmChainServiceImpl {
     );
     if (transaction is Transaction) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
         final chainId = getChainId().split(':').last;
@@ -637,7 +632,6 @@ $messageDetails''';
       if (value == null) continue;
 
       if (types.containsKey(fieldType)) {
-        // Handle nested types
         final nestedFields = types[fieldType] as List<dynamic>;
         if (fieldType == 'Person') {
           // Special formatting for Person type
