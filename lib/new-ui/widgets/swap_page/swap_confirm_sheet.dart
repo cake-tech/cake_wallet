@@ -195,13 +195,16 @@ class SwapTransactionDetails extends StatelessWidget {
                                   exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8)),
                       if ((exchangeTradeViewModel.trade.toAddressExtraId ?? '').isNotEmpty)
                         ListItemRegularRow(
-                            keyValue: "receive memo",
-                            showArrow: false,
-                            label: memoLabelTypeFor(exchangeViewModel.receiveCurrency) ==
-                                    MemoLabelType.destinationTag
-                                ? S.of(context).destination_tag
-                                : S.of(context).memo,
-                            trailingText: exchangeTradeViewModel.trade.toAddressExtraId!),
+                          keyValue: "receive memo",
+                          showArrow: false,
+                          label: memoLabelTypeFor(exchangeViewModel.receiveCurrency) ==
+                                  MemoLabelType.destinationTag
+                              ? S.of(context).destination_tag
+                              : S.of(context).memo,
+                          trailingText: middleTruncate(
+                              exchangeTradeViewModel.trade.toAddressExtraId ?? "", 8, 8),
+                          copyableText: exchangeTradeViewModel.trade.toAddressExtraId,
+                        ),
                     ],
                     "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                       ListItemRegularRow(
