@@ -446,22 +446,24 @@ class EvmChainServiceImpl {
     final valueWei = transaction.value?.getInWei ?? BigInt.zero;
     final amount = valueWei / BigInt.from(1e18);
 
-    final decodedAction = await _describeErc20Action(
+    final decoded = await _describeTxAction(
       transactionJson['data']?.toString(),
       transaction.to?.hex,
+      transaction.from?.hex,
+      nativeSymbol,
     );
 
     final lines = <String>[];
-    if (decodedAction != null) {
-      lines.add(decodedAction);
-    }
-    if (valueWei > BigInt.zero || decodedAction == null) {
+    if (decoded != null) lines.add(decoded.message);
+    final showValueLine = valueWei > BigInt.zero || !(decoded?.hideZeroValue ?? false);
+    if (showValueLine) {
       lines.add('${S.current.value}: ${amount.toStringAsFixed(9)} $nativeSymbol');
     }
     if (transaction.from != null) {
       lines.add('${S.current.from}: ${transaction.from!.hex}');
     }
-    if (decodedAction == null && transaction.to != null) {
+    final hideTo = decoded?.hideTo ?? false;
+    if (!hideTo && transaction.to != null) {
       lines.add('${S.current.to}: ${transaction.to!.hex}');
     }
     final txMessageText = lines.join('\n');
@@ -544,22 +546,38 @@ class EvmChainServiceImpl {
     return value.toStringAsExponential(4);
   }
 
-  /// Decodes the four standard ERC-20 selectors (`approve`, `transfer`,
-  /// `transferFrom`) carried in `transactionJson['data']` and returns a
-  /// human-readable line such as
-  /// `Approve: 0.5 USDT\nSpender: 0xac4c…0b75`.
-  ///
-  /// Returns `null` if the data is empty, the selector is unknown, or the
-  /// payload can't be parsed — in which case the caller falls back to the
-  /// generic Value/From/To layout.
-  Future<String?> _describeErc20Action(String? rawData, String? toAddressHex) async {
-    if (rawData == null || toAddressHex == null) return null;
-
+  Future<_DecodedAction?> _describeTxAction(
+    String? rawData,
+    String? toAddressHex,
+    String? fromAddressHex,
+    String nativeSymbol,
+  ) async {
+    if (rawData == null) return null;
     final hex = rawData.toLowerCase().startsWith('0x') ? rawData.substring(2) : rawData;
     if (hex.length < 8) return null;
 
     final selector = hex.substring(0, 8);
-    final body = hex.substring(8);
+    final body = hex.length > 8 ? hex.substring(8) : '';
+
+    final erc20 = await _describeErc20Action(selector, body, toAddressHex);
+    if (erc20 != null) return erc20;
+
+    final swap = await _describeSwapAction(selector, body, fromAddressHex, nativeSymbol);
+    if (swap != null) return swap;
+
+    return _DecodedAction(
+      message: '${S.current.wc_contract_call}: 0x$selector',
+      hideTo: false,
+      hideZeroValue: true,
+    );
+  }
+
+  Future<_DecodedAction?> _describeErc20Action(
+    String selector,
+    String body,
+    String? toAddressHex,
+  ) async {
+    if (toAddressHex == null) return null;
 
     String addrAt(int wordIndex) {
       final start = wordIndex * 64;
@@ -581,8 +599,12 @@ class EvmChainServiceImpl {
         final token = await _resolveErc20Token(toAddressHex);
         final amountStr = _formatErc20Amount(rawAmount, token);
         final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
-        return '${S.current.wc_action_approve}: $amountStr $symbol\n'
-            '${S.current.wc_spender}: $spender';
+        return _DecodedAction(
+          message: '${S.current.wc_action_approve}: $amountStr $symbol\n'
+              '${S.current.wc_spender}: $spender',
+          hideTo: true,
+          hideZeroValue: true,
+        );
       case 'a9059cbb':
         final recipient = addrAt(0);
         final rawAmount = uintAt(1);
@@ -590,8 +612,12 @@ class EvmChainServiceImpl {
         final token = await _resolveErc20Token(toAddressHex);
         final amountStr = _formatErc20Amount(rawAmount, token);
         final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
-        return '${S.current.wc_action_transfer}: $amountStr $symbol\n'
-            '${S.current.to}: $recipient';
+        return _DecodedAction(
+          message: '${S.current.wc_action_transfer}: $amountStr $symbol\n'
+              '${S.current.to}: $recipient',
+          hideTo: true,
+          hideZeroValue: true,
+        );
       case '23b872dd':
         final fromAddr = addrAt(0);
         final toAddr = addrAt(1);
@@ -600,16 +626,81 @@ class EvmChainServiceImpl {
         final token = await _resolveErc20Token(toAddressHex);
         final amountStr = _formatErc20Amount(rawAmount, token);
         final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
-        return '${S.current.wc_action_transfer}: $amountStr $symbol\n'
-            '${S.current.from}: $fromAddr\n'
-            '${S.current.to}: $toAddr';
+        return _DecodedAction(
+          message: '${S.current.wc_action_transfer}: $amountStr $symbol\n'
+              '${S.current.from}: $fromAddr\n'
+              '${S.current.to}: $toAddr',
+          hideTo: true,
+          hideZeroValue: true,
+        );
     }
     return null;
   }
 
-  /// Looks up the ERC-20 token by contract address. First checks the wallet's
-  /// already-loaded list (no network) and otherwise falls back to a bounded
-  /// remote lookup so the approval flow never hangs waiting on it.
+  Future<_DecodedAction?> _describeSwapAction(
+    String selector,
+    String body,
+    String? fromAddressHex,
+    String nativeSymbol,
+  ) async {
+    if (fromAddressHex == null) return null;
+    if (body.length < 64 * 5) return null;
+
+    String addrAt(int wordIndex) {
+      final start = wordIndex * 64;
+      final prefix = body.substring(start, start + 24);
+      if (prefix.replaceAll('0', '').isNotEmpty) return '';
+      return '0x${body.substring(start + 24, start + 64)}';
+    }
+
+    BigInt? uintAt(int wordIndex) =>
+        BigInt.tryParse(body.substring(wordIndex * 64, wordIndex * 64 + 64), radix: 16);
+
+    final tokenIn = addrAt(0);
+    final amountIn = uintAt(1);
+    final sender = addrAt(2);
+    final tokenOut = addrAt(3);
+    final amountOut = uintAt(4);
+
+    if (tokenIn.isEmpty ||
+        tokenOut.isEmpty ||
+        sender.isEmpty ||
+        amountIn == null ||
+        amountOut == null ||
+        amountIn == BigInt.zero ||
+        amountOut == BigInt.zero) {
+      return null;
+    }
+
+    if (sender.toLowerCase() != fromAddressHex.toLowerCase()) return null;
+
+    final (inSym, inAmt) = await _resolveTokenAmount(tokenIn, amountIn, nativeSymbol);
+    final (outSym, outAmt) = await _resolveTokenAmount(tokenOut, amountOut, nativeSymbol);
+
+    return _DecodedAction(
+      message: '${S.current.wc_action_swap}: $inAmt $inSym → ≥ $outAmt $outSym',
+      hideTo: false,
+      hideZeroValue: true,
+    );
+  }
+
+  Future<(String, String)> _resolveTokenAmount(
+    String address,
+    BigInt rawAmount,
+    String nativeSymbol,
+  ) async {
+    final lower = address.toLowerCase();
+    const nativeSentinel = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+    const zeroAddress = '0x0000000000000000000000000000000000000000';
+    if (lower == nativeSentinel || lower == zeroAddress) {
+      final native = rawAmount.toDouble() / 1e18;
+      return (nativeSymbol, _formatNativeAmount(native));
+    }
+    final token = await _resolveErc20Token(address);
+    final symbol = token?.symbol.toUpperCase() ?? _shortAddress(address);
+    return (symbol, _formatErc20Amount(rawAmount, token));
+  }
+
   Future<Erc20Token?> _resolveErc20Token(String contractAddress) async {
     final wallet = appStore.wallet;
     if (wallet == null || evm == null) return null;
@@ -650,10 +741,6 @@ class EvmChainServiceImpl {
     final trimmed = fractional.replaceFirst(RegExp(r'0+$'), '');
     return trimmed.isEmpty ? whole.toString() : '$whole.$trimmed';
   }
-
-  /// dApps frequently request `2^256 - 1` (or close) to mean "infinite
-  /// allowance". Treat anything ≥ 2^200 as unlimited so the user sees a
-  /// clear label instead of an absurd 78-digit number.
   bool _isUnlimitedApproval(BigInt rawAmount) {
     return rawAmount >= BigInt.from(2).pow(200);
   }
@@ -880,4 +967,16 @@ $messageDetails''';
     final name = decodedResponse['name'] ?? '';
     return '$name ($symbol)';
   }
+}
+
+class _DecodedAction {
+  const _DecodedAction({
+    required this.message,
+    required this.hideTo,
+    required this.hideZeroValue,
+  });
+
+  final String message;
+  final bool hideTo;
+  final bool hideZeroValue;
 }
