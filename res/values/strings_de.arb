@@ -1328,8 +1328,10 @@
   "wc_approve_request_title": "Anfrage genehmigen",
   "wc_connect_request_title": "Verbindungsanfrage",
   "wc_connected_to": "Verbunden mit ${name}",
-  "wc_not_verified": "Nicht verifiziert",
+  "wc_max_network_fee": "Maximale Netzwerkgebühr",
   "wc_message_to_sign": "Nachricht zum Unterschreiben",
+  "wc_network_fee": "Netzwerkgebühr",
+  "wc_not_verified": "Nicht verifiziert",
   "wc_permission_other": "Andere: ${method}",
   "wc_permission_request_approval": "Fordern Sie die Genehmigung für Transaktionen an",
   "wc_permission_sign_messages": "Signieren Sie Nachrichten und geben Sie Daten ein",
@@ -1387,5 +1389,6 @@
   "zcash_card_enable_later": "Sie können diese Karte jederzeit später in den Einstellungen aktivieren",
   "zcash_card_missing_funds": "Fehlende Gelder?",
   "zcash_card_scan": "Scannen",
-  "zcash_card_warning": "Schließen Sie die App nicht, bis der Vorgang abgeschlossen ist. Andernfalls muss der Vorgang von Grund auf neu gestartet werden."
+  "zcash_card_warning": "Schließen Sie die App nicht, bis der Vorgang abgeschlossen ist. Andernfalls muss der Vorgang von Grund auf neu gestartet werden.",
+  "wc_action_approve": "Genehmigen"
 }

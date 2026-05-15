@@ -1324,8 +1324,10 @@
   "wc_approve_request_title": "Одобряване на заявката",
   "wc_connect_request_title": "Заявка за свързване",
   "wc_connected_to": "Свързан с ${name}",
-  "wc_not_verified": "Не е проверено",
+  "wc_max_network_fee": "Максимална мрежова такса",
   "wc_message_to_sign": "Съобщение за подпис",
+  "wc_network_fee": "Мрежова такса",
+  "wc_not_verified": "Не е проверено",
   "wc_permission_other": "Друго: ${method}",
   "wc_permission_request_approval": "Поискайте одобрение за транзакции",
   "wc_permission_sign_messages": "Подписвайте съобщения и въведени данни",
@@ -1383,5 +1385,6 @@
   "zcash_card_enable_later": "Винаги можете да активирате тази карта по-късно в настройките",
   "zcash_card_missing_funds": "Липсват средства?",
   "zcash_card_scan": "Сканирай",
-  "zcash_card_warning": "Не затваряйте приложението, докато процедурата не приключи. Ако го направите, процесът ще трябва да започне отначало."
+  "zcash_card_warning": "Не затваряйте приложението, докато процедурата не приключи. Ако го направите, процесът ще трябва да започне отначало.",
+  "wc_action_approve": "Одобряване"
 }

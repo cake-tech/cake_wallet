@@ -1324,8 +1324,10 @@
   "wc_approve_request_title": "Schválit žádost",
   "wc_connect_request_title": "Žádost o připojení",
   "wc_connected_to": "Připojeno k ${name}",
-  "wc_not_verified": "Neověřeno",
+  "wc_max_network_fee": "Max síťový poplatek",
   "wc_message_to_sign": "Zpráva k podpisu",
+  "wc_network_fee": "Síťový poplatek",
+  "wc_not_verified": "Neověřeno",
   "wc_permission_other": "Jiné: ${method}",
   "wc_permission_request_approval": "Požádejte o schválení transakcí",
   "wc_permission_sign_messages": "Podepisujte zprávy a zadaná data",
@@ -1383,5 +1385,6 @@
   "zcash_card_enable_later": "Tuto kartu můžete kdykoli později povolit v nastavení",
   "zcash_card_missing_funds": "Chybějící prostředky?",
   "zcash_card_scan": "Skenovat",
-  "zcash_card_warning": "Nezavírejte aplikaci, dokud se postup nedokončí. Pokud tak učiníte, bude nutné tento proces spustit znovu od začátku."
+  "zcash_card_warning": "Nezavírejte aplikaci, dokud se postup nedokončí. Pokud tak učiníte, bude nutné tento proces spustit znovu od začátku.",
+  "wc_action_approve": "Schvalovat"
 }

@@ -1326,8 +1326,10 @@
   "wc_approve_request_title": "अनुरोध स्वीकृत करें",
   "wc_connect_request_title": "कनेक्ट अनुरोध",
   "wc_connected_to": "${name} से कनेक्टेड",
-  "wc_not_verified": "सत्यापित नहीं है",
+  "wc_max_network_fee": "अधिकतम नेटवर्क शुल्क",
   "wc_message_to_sign": "हस्ताक्षर करने के लिए संदेश",
+  "wc_network_fee": "नेटवर्क शुल्क",
+  "wc_not_verified": "सत्यापित नहीं है",
   "wc_permission_other": "अन्य: ${method}",
   "wc_permission_request_approval": "लेन-देन के लिए अनुमोदन का अनुरोध करें",
   "wc_permission_sign_messages": "संदेशों पर हस्ताक्षर करें और डेटा टाइप करें",
@@ -1385,5 +1387,6 @@
   "zcash_card_enable_later": "आप इस कार्ड को बाद में सेटिंग्स में कभी भी सक्षम कर सकते हैं",
   "zcash_card_missing_funds": "फंड गायब हैं?",
   "zcash_card_scan": "स्कैन",
-  "zcash_card_warning": "प्रक्रिया पूरी होने तक ऐप बंद न करें। यदि आप ऐसा करते हैं, तो यह प्रक्रिया शुरू से फिर से शुरू करनी होगी।"
+  "zcash_card_warning": "प्रक्रिया पूरी होने तक ऐप बंद न करें। यदि आप ऐसा करते हैं, तो यह प्रक्रिया शुरू से फिर से शुरू करनी होगी।",
+  "wc_action_approve": "मंज़ूरी देना"
 }

@@ -1324,8 +1324,10 @@
   "wc_approve_request_title": "الموافقة على الطلب",
   "wc_connect_request_title": "طلب الاتصال",
   "wc_connected_to": "متصل بـ ${name}",
-  "wc_not_verified": "لم يتم التحقق منها",
+  "wc_max_network_fee": "الحد الأقصى لرسوم الشبكة",
   "wc_message_to_sign": "رسالة للتوقيع",
+  "wc_network_fee": "رسوم الشبكة",
+  "wc_not_verified": "لم يتم التحقق منها",
   "wc_permission_other": "أخرى: ${method}",
   "wc_permission_request_approval": "طلب الموافقة على المعاملات",
   "wc_permission_sign_messages": "توقيع الرسائل والبيانات المكتوبة",
@@ -1383,5 +1385,6 @@
   "zcash_card_enable_later": "يمكنك دائمًا تفعيل هذه البطاقة لاحقًا من الإعدادات",
   "zcash_card_missing_funds": "هل أموالك مفقودة؟",
   "zcash_card_scan": "مسح",
-  "zcash_card_warning": "لا تُغلق التطبيق حتى يكتمل الإجراء، لأنك إن فعلت ذلك فستحتاج هذه العملية إلى البدء من جديد من البداية."
+  "zcash_card_warning": "لا تُغلق التطبيق حتى يكتمل الإجراء، لأنك إن فعلت ذلك فستحتاج هذه العملية إلى البدء من جديد من البداية.",
+  "wc_action_approve": "يعتمد"
 }

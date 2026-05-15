@@ -1333,8 +1333,10 @@
   "wc_approve_request_title": "Approve request",
   "wc_connect_request_title": "Connect request",
   "wc_connected_to": "Connected to ${name}",
-  "wc_not_verified": "Not Verified",
+  "wc_max_network_fee": "Max network fee",
   "wc_message_to_sign": "Message to sign",
+  "wc_network_fee": "Network fee",
+  "wc_not_verified": "Not Verified",
   "wc_permission_other": "Other: ${method}",
   "wc_permission_request_approval": "Request approval for transactions",
   "wc_permission_sign_messages": "Sign messages and typed data",
@@ -1392,5 +1394,6 @@
   "zcash_card_enable_later": "You can always enable this card later in settings",
   "zcash_card_missing_funds": "Missing funds?",
   "zcash_card_scan": "Scan",
-  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch."
+  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch.",
+  "wc_action_approve": "Approve"
 }

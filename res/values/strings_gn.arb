@@ -1074,8 +1074,10 @@
   "wc_approve_request_title": "Omoneĩ mba’ejerure",
   "wc_connect_request_title": "Ombojoaju mba’ejerure",
   "wc_connected_to": "Oñembojoaju ${name} ndive.",
-  "wc_not_verified": "Ndojehechái",
+  "wc_max_network_fee": "Max cuota red rehegua",
   "wc_message_to_sign": "Marandu ofirma haguã",
+  "wc_network_fee": "Cuota de red rehegua",
+  "wc_not_verified": "Ndojehechái",
   "wc_permission_other": "Ambue: ${method}.",
   "wc_permission_request_approval": "Ojerure aprobación umi transacción rehegua",
   "wc_permission_sign_messages": "Marandu ofirma ha dato ojehaipyréva",
@@ -1128,5 +1130,6 @@
   "zcash_card_enable_later": "Ikatu emboguata hag̃ua ko tarjeta ag̃ave, ñembohekorãme.",
   "zcash_card_missing_funds": "¿Nde fondo okañy?",
   "zcash_card_scan": "Escanear",
-  "zcash_card_warning": "Ani remboty pe app pe procedimiento opa hag̃ua, rejapo ramo upéicha ko proceso tekotevẽta oñepyrũ jey cero guive."
+  "zcash_card_warning": "Ani remboty pe app pe procedimiento opa hag̃ua, rejapo ramo upéicha ko proceso tekotevẽta oñepyrũ jey cero guive.",
+  "wc_action_approve": "Hasapyre"
 }

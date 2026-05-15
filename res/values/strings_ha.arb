@@ -1326,8 +1326,10 @@
   "wc_approve_request_title": "Amincewa da buƙata",
   "wc_connect_request_title": "Buƙatar haɗin kai",
   "wc_connected_to": "An haɗa zuwa ${name}",
-  "wc_not_verified": "Ba a Tabbatarwa ba",
+  "wc_max_network_fee": "Matsakaicin kuɗin hanyar sadarwa",
   "wc_message_to_sign": "Saƙo don sa hannu",
+  "wc_network_fee": "Kudin hanyar sadarwa",
+  "wc_not_verified": "Ba a Tabbatarwa ba",
   "wc_permission_other": "Wani: ${method}",
   "wc_permission_request_approval": "Nemi izini don ma'amaloli",
   "wc_permission_sign_messages": "Sa hannu kan saƙonni da rubutattun bayanai",
@@ -1386,5 +1388,6 @@
   "zcash_card_enable_later": "Kuna iya kunna wannan katin daga baya a cikin saituna.",
   "zcash_card_missing_funds": "Kuɗi sun ɓace?",
   "zcash_card_scan": "Duba",
-  "zcash_card_warning": "Kada ku rufe manhajar har sai an kammala aikin; idan kun yi haka, wannan tsari zai buƙaci a sake farawa daga farko."
+  "zcash_card_warning": "Kada ku rufe manhajar har sai an kammala aikin; idan kun yi haka, wannan tsari zai buƙaci a sake farawa daga farko.",
+  "wc_action_approve": "Amincewa"
 }

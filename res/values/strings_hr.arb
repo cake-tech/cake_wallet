@@ -1324,8 +1324,10 @@
   "wc_approve_request_title": "Odobri zahtjev",
   "wc_connect_request_title": "Zahtjev za povezivanje",
   "wc_connected_to": "Povezan s ${name}",
-  "wc_not_verified": "Nije potvrđeno",
+  "wc_max_network_fee": "Maksimalna mrežna naknada",
   "wc_message_to_sign": "Poruka za potpisivanje",
+  "wc_network_fee": "Mrežna naknada",
+  "wc_not_verified": "Nije potvrđeno",
   "wc_permission_other": "Ostalo: ${method}",
   "wc_permission_request_approval": "Zatražite odobrenje za transakcije",
   "wc_permission_sign_messages": "Potpisivati ​​poruke i upisane podatke",
@@ -1383,5 +1385,6 @@
   "zcash_card_enable_later": "Ovu karticu uvijek možete omogućiti kasnije u postavkama",
   "zcash_card_missing_funds": "Nedostaju sredstva?",
   "zcash_card_scan": "Skeniraj",
-  "zcash_card_warning": "Ne zatvarajte aplikaciju dok se postupak ne dovrši; ako to učinite, postupak će se morati ponovno pokrenuti ispočetka."
+  "zcash_card_warning": "Ne zatvarajte aplikaciju dok se postupak ne dovrši; ako to učinite, postupak će se morati ponovno pokrenuti ispočetka.",
+  "wc_action_approve": "Odobriti"
 }

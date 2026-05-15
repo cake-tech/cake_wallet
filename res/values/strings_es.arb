@@ -1325,8 +1325,10 @@
   "wc_approve_request_title": "Aprobar solicitud",
   "wc_connect_request_title": "Solicitud de conexión",
   "wc_connected_to": "Conectado a ${name}",
-  "wc_not_verified": "No verificado",
+  "wc_max_network_fee": "Tarifa máxima de red",
   "wc_message_to_sign": "Mensaje para firmar",
+  "wc_network_fee": "Tarifa de red",
+  "wc_not_verified": "No verificado",
   "wc_permission_other": "Otro: ${method}",
   "wc_permission_request_approval": "Solicitar aprobación para transacciones",
   "wc_permission_sign_messages": "Firmar mensajes y datos escritos",
@@ -1385,5 +1387,6 @@
   "zcash_card_enable_later": "Siempre puedes habilitar esta tarjeta más adelante en la configuración",
   "zcash_card_missing_funds": "¿Faltan fondos?",
   "zcash_card_scan": "Escanear",
-  "zcash_card_warning": "No cierre la aplicación hasta que se complete el procedimiento; si lo hace, este proceso deberá reiniciarse desde cero."
+  "zcash_card_warning": "No cierre la aplicación hasta que se complete el procedimiento; si lo hace, este proceso deberá reiniciarse desde cero.",
+  "wc_action_approve": "Aprobar"
 }
