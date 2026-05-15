@@ -19,14 +19,13 @@ class TokenImageWidget extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      clipBehavior: Clip.hardEdge,
-      decoration: const BoxDecoration(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
       child: Transform.scale(
-        scale: 1.02,
-        alignment: Alignment.center,
+        scale: 1.08,
         child: CakeImageWidget(
           imageUrl: imageUrl,
           width: size,

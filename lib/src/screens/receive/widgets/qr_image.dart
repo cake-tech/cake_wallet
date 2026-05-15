@@ -1,7 +1,5 @@
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
 class QrImage extends StatelessWidget {
@@ -44,10 +42,9 @@ class QrImage extends StatelessWidget {
             backgroundColor: backgroundColor,
             padding: const EdgeInsets.all(12.0),
           ),
-          CakeImageWidget(imageUrl:
-            imagePath,
-            width: logoSize * 0.8,
-            height: logoSize * 0.8,
+          TokenImageWidget(
+            imageUrl: imagePath,
+            size: logoSize * 0.8,
           ),
         ],
       );

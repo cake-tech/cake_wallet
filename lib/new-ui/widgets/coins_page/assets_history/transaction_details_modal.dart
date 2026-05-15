@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
@@ -70,11 +71,12 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             controller: controller,
                             child: Column(
                               children: [
-                                CakeImageWidget(
-                                    imageUrl: widget.transactionDetailsViewModel.transactionAsset.iconPath ??
-                                        "",
-                                    width: 64,
-                                    height: 64),
+                                TokenImageWidget(
+                                  imageUrl: widget
+                                          .transactionDetailsViewModel.transactionAsset.iconPath ??
+                                      "",
+                                  size: 64,
+                                ),
                                 SizedBox(height: 10),
                                 Text(
                                   widget.transactionDetailsViewModel.formattedTitle +
