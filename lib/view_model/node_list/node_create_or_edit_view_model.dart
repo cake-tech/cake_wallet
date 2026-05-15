@@ -3,10 +3,7 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/node.dart';
-import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
-import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +17,7 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
 
 abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(
-      this.isPow, this.nodeListViewModel,this.powNodeListViewModel, this.walletType, this._settingsStore, {this.editingNode})
+      this.isPow, this.walletType, this._settingsStore, {this.editingNode})
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         label = editingNode?.label ?? '',
@@ -116,8 +113,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @observable
   bool isPow;
 
-  final NodeListViewModel? nodeListViewModel;
-  final PowNodeListViewModel? powNodeListViewModel;
 
   @computed
   bool get isReady =>
@@ -257,12 +252,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   Future<void> delete({required Node editingNode}) async {
     await editingNode.delete();
-    if(nodeListViewModel != null) {
-      nodeListViewModel!.bindNodes();
-    }
-    if(powNodeListViewModel != null) {
-      powNodeListViewModel!.bindNodes();
-    }
   }
 
   @action
@@ -287,12 +276,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       }
 
       state = ExecutedSuccessfullyState();
-      if(nodeListViewModel != null) {
-        nodeListViewModel!.bindNodes();
-      }
-      if(powNodeListViewModel != null) {
-        powNodeListViewModel!.bindNodes();
-      }
 
     } catch (e) {
       state = FailureState(e.toString());
