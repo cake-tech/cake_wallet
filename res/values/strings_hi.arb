@@ -1323,6 +1323,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "वॉलेट्स",
   "warning": "चेतावनी",
+  "wc_action_approve": "मंज़ूरी देना",
+  "wc_action_transfer": "स्थानांतरण",
   "wc_approve_request_title": "अनुरोध स्वीकृत करें",
   "wc_connect_request_title": "कनेक्ट अनुरोध",
   "wc_connected_to": "${name} से कनेक्टेड",
@@ -1339,8 +1341,10 @@
   "wc_scam_warning_title": "चेतावनी!",
   "wc_sign_all_count": "सभी ${count} संदेशों पर हस्ताक्षर करें",
   "wc_signing_request_title": "अनुरोध पर हस्ताक्षर",
+  "wc_spender": "व्यय करनेवाला",
   "wc_swipe_to_approve": "स्वीकृत करने के लिए स्वाइप करें",
   "wc_swipe_to_sign": "हस्ताक्षर करने के लिए स्वाइप करें",
+  "wc_unlimited": "असीमित",
   "wc_verified": "सत्यापित",
   "wc_would_like_to_connect_to": "${name} कनेक्ट करना चाहेंगे",
   "wc_would_like_to_sign": "${name} हस्ताक्षर करना चाहेंगे",
@@ -1387,6 +1391,5 @@
   "zcash_card_enable_later": "आप इस कार्ड को बाद में सेटिंग्स में कभी भी सक्षम कर सकते हैं",
   "zcash_card_missing_funds": "फंड गायब हैं?",
   "zcash_card_scan": "स्कैन",
-  "zcash_card_warning": "प्रक्रिया पूरी होने तक ऐप बंद न करें। यदि आप ऐसा करते हैं, तो यह प्रक्रिया शुरू से फिर से शुरू करनी होगी।",
-  "wc_action_approve": "मंज़ूरी देना"
+  "zcash_card_warning": "प्रक्रिया पूरी होने तक ऐप बंद न करें। यदि आप ऐसा करते हैं, तो यह प्रक्रिया शुरू से फिर से शुरू करनी होगी।"
 }

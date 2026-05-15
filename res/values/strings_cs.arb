@@ -1321,6 +1321,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "Peněženky",
   "warning": "Varování",
+  "wc_action_approve": "Schvalovat",
+  "wc_action_transfer": "Převod",
   "wc_approve_request_title": "Schválit žádost",
   "wc_connect_request_title": "Žádost o připojení",
   "wc_connected_to": "Připojeno k ${name}",
@@ -1337,8 +1339,10 @@
   "wc_scam_warning_title": "VAROVÁNÍ!",
   "wc_sign_all_count": "Podepište všechny ${count} zprávy",
   "wc_signing_request_title": "Žádost o podpis",
+  "wc_spender": "Spender",
   "wc_swipe_to_approve": "Schválení přejetím prstem",
   "wc_swipe_to_sign": "Podepište přejetím prstem",
+  "wc_unlimited": "Neomezený",
   "wc_verified": "Ověřeno",
   "wc_would_like_to_connect_to": "${name} se chce připojit",
   "wc_would_like_to_sign": "${name} chce podepsat",
@@ -1385,6 +1389,5 @@
   "zcash_card_enable_later": "Tuto kartu můžete kdykoli později povolit v nastavení",
   "zcash_card_missing_funds": "Chybějící prostředky?",
   "zcash_card_scan": "Skenovat",
-  "zcash_card_warning": "Nezavírejte aplikaci, dokud se postup nedokončí. Pokud tak učiníte, bude nutné tento proces spustit znovu od začátku.",
-  "wc_action_approve": "Schvalovat"
+  "zcash_card_warning": "Nezavírejte aplikaci, dokud se postup nedokončí. Pokud tak učiníte, bude nutné tento proces spustit znovu od začátku."
 }

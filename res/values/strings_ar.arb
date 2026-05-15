@@ -1321,6 +1321,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "المحافظ",
   "warning": "تحذير",
+  "wc_action_approve": "يعتمد",
+  "wc_action_transfer": "تحويل",
   "wc_approve_request_title": "الموافقة على الطلب",
   "wc_connect_request_title": "طلب الاتصال",
   "wc_connected_to": "متصل بـ ${name}",
@@ -1337,8 +1339,10 @@
   "wc_scam_warning_title": "تحذير!",
   "wc_sign_all_count": "قم بالتوقيع على جميع رسائل ${count}.",
   "wc_signing_request_title": "طلب التوقيع",
+  "wc_spender": "منفق",
   "wc_swipe_to_approve": "اسحب للموافقة",
   "wc_swipe_to_sign": "اسحب للتوقيع",
+  "wc_unlimited": "غير محدود",
   "wc_verified": "تم التحقق منه",
   "wc_would_like_to_connect_to": "${name} يرغب في الاتصال",
   "wc_would_like_to_sign": "${name} يرغب في التوقيع",
@@ -1385,6 +1389,5 @@
   "zcash_card_enable_later": "يمكنك دائمًا تفعيل هذه البطاقة لاحقًا من الإعدادات",
   "zcash_card_missing_funds": "هل أموالك مفقودة؟",
   "zcash_card_scan": "مسح",
-  "zcash_card_warning": "لا تُغلق التطبيق حتى يكتمل الإجراء، لأنك إن فعلت ذلك فستحتاج هذه العملية إلى البدء من جديد من البداية.",
-  "wc_action_approve": "يعتمد"
+  "zcash_card_warning": "لا تُغلق التطبيق حتى يكتمل الإجراء، لأنك إن فعلت ذلك فستحتاج هذه العملية إلى البدء من جديد من البداية."
 }

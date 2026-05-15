@@ -1071,6 +1071,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "Billetera kuéra",
   "warning": "Kyhyje",
+  "wc_action_approve": "Hasapyre",
+  "wc_action_transfer": "Mbohasa",
   "wc_approve_request_title": "Omoneĩ mba’ejerure",
   "wc_connect_request_title": "Ombojoaju mba’ejerure",
   "wc_connected_to": "Oñembojoaju ${name} ndive.",
@@ -1087,8 +1089,10 @@
   "wc_scam_warning_title": "ÑEMONGYHYJE!",
   "wc_sign_all_count": "Efirma opaite ${count} marandu",
   "wc_signing_request_title": "Ofirma pedido",
+  "wc_spender": "Gastador rehegua",
   "wc_swipe_to_approve": "Emboguejy emoneĩ hag̃ua",
   "wc_swipe_to_sign": "Emboguejy eñefirma hag̃ua",
+  "wc_unlimited": "Ilímite’ỹva",
   "wc_verified": "Ojehecháma",
   "wc_would_like_to_connect_to": "${name} oñembojoajuse",
   "wc_would_like_to_sign": "${name} ofirmase",
@@ -1130,6 +1134,5 @@
   "zcash_card_enable_later": "Ikatu emboguata hag̃ua ko tarjeta ag̃ave, ñembohekorãme.",
   "zcash_card_missing_funds": "¿Nde fondo okañy?",
   "zcash_card_scan": "Escanear",
-  "zcash_card_warning": "Ani remboty pe app pe procedimiento opa hag̃ua, rejapo ramo upéicha ko proceso tekotevẽta oñepyrũ jey cero guive.",
-  "wc_action_approve": "Hasapyre"
+  "zcash_card_warning": "Ani remboty pe app pe procedimiento opa hag̃ua, rejapo ramo upéicha ko proceso tekotevẽta oñepyrũ jey cero guive."
 }

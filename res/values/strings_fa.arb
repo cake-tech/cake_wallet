@@ -1318,6 +1318,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "کیف پول‌ها",
   "warning": "هشدار",
+  "wc_action_approve": "تایید کنید",
+  "wc_action_transfer": "انتقال",
   "wc_approve_request_title": "درخواست را تایید کنید",
   "wc_connect_request_title": "درخواست اتصال",
   "wc_connected_to": "متصل به ${name}",
@@ -1334,8 +1336,10 @@
   "wc_scam_warning_title": "هشدار!",
   "wc_sign_all_count": "همه پیام‌های ${count} را امضا کنید",
   "wc_signing_request_title": "درخواست امضا",
+  "wc_spender": "خرج کننده",
   "wc_swipe_to_approve": "برای تأیید، انگشت خود را بکشید",
   "wc_swipe_to_sign": "برای امضا، انگشت خود را بکشید",
+  "wc_unlimited": "نامحدود",
   "wc_verified": "تایید شده است",
   "wc_would_like_to_connect_to": "${name} مایل به اتصال است",
   "wc_would_like_to_sign": "${name} می‌خواهد امضا کند",
@@ -1382,6 +1386,5 @@
   "zcash_card_enable_later": "می‌توانید همیشه این کارت را بعداً در تنظیمات فعال کنید",
   "zcash_card_missing_funds": "موجودی گم شده؟",
   "zcash_card_scan": "اسکن",
-  "zcash_card_warning": "تا زمانی که این فرایند کامل نشده است، برنامه را نبندید؛ در غیر این صورت، این فرایند باید از ابتدا دوباره شروع شود.",
-  "wc_action_approve": "تایید کنید"
+  "zcash_card_warning": "تا زمانی که این فرایند کامل نشده است، برنامه را نبندید؛ در غیر این صورت، این فرایند باید از ابتدا دوباره شروع شود."
 }

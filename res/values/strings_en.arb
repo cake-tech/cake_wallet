@@ -1330,6 +1330,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "Wallets",
   "warning": "Warning",
+  "wc_action_approve": "Approve",
+  "wc_action_transfer": "Transfer",
   "wc_approve_request_title": "Approve request",
   "wc_connect_request_title": "Connect request",
   "wc_connected_to": "Connected to ${name}",
@@ -1346,8 +1348,10 @@
   "wc_scam_warning_title": "WARNING!",
   "wc_sign_all_count": "Sign all ${count} messages",
   "wc_signing_request_title": "Signing request",
+  "wc_spender": "Spender",
   "wc_swipe_to_approve": "Swipe to approve",
   "wc_swipe_to_sign": "Swipe to sign",
+  "wc_unlimited": "Unlimited",
   "wc_verified": "Verified",
   "wc_would_like_to_connect_to": "${name} would like to connect",
   "wc_would_like_to_sign": "${name} would like to sign",
@@ -1394,6 +1398,5 @@
   "zcash_card_enable_later": "You can always enable this card later in settings",
   "zcash_card_missing_funds": "Missing funds?",
   "zcash_card_scan": "Scan",
-  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch.",
-  "wc_action_approve": "Approve"
+  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch."
 }

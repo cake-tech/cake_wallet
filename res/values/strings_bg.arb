@@ -1321,6 +1321,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "Портфейли",
   "warning": "Предупреждение",
+  "wc_action_approve": "Одобряване",
+  "wc_action_transfer": "Трансфер",
   "wc_approve_request_title": "Одобряване на заявката",
   "wc_connect_request_title": "Заявка за свързване",
   "wc_connected_to": "Свързан с ${name}",
@@ -1337,8 +1339,10 @@
   "wc_scam_warning_title": "ПРЕДУПРЕЖДЕНИЕ!",
   "wc_sign_all_count": "Подпишете всички ${count} съобщения",
   "wc_signing_request_title": "Искане за подписване",
+  "wc_spender": "Разпоредител",
   "wc_swipe_to_approve": "Плъзнете, за да одобрите",
   "wc_swipe_to_sign": "Плъзнете, за да подпишете",
+  "wc_unlimited": "Неограничен",
   "wc_verified": "Проверен",
   "wc_would_like_to_connect_to": "${name} иска да се свърже",
   "wc_would_like_to_sign": "${name} иска да подпише",
@@ -1385,6 +1389,5 @@
   "zcash_card_enable_later": "Винаги можете да активирате тази карта по-късно в настройките",
   "zcash_card_missing_funds": "Липсват средства?",
   "zcash_card_scan": "Сканирай",
-  "zcash_card_warning": "Не затваряйте приложението, докато процедурата не приключи. Ако го направите, процесът ще трябва да започне отначало.",
-  "wc_action_approve": "Одобряване"
+  "zcash_card_warning": "Не затваряйте приложението, докато процедурата не приключи. Ако го направите, процесът ще трябва да започне отначало."
 }

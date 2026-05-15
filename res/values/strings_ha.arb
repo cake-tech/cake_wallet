@@ -1323,6 +1323,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "Walati",
   "warning": "Gargaɗi",
+  "wc_action_approve": "Amincewa",
+  "wc_action_transfer": "Canja wurin",
   "wc_approve_request_title": "Amincewa da buƙata",
   "wc_connect_request_title": "Buƙatar haɗin kai",
   "wc_connected_to": "An haɗa zuwa ${name}",
@@ -1339,8 +1341,10 @@
   "wc_scam_warning_title": "GARGADI!",
   "wc_sign_all_count": "Shiga duk saƙon ${count}",
   "wc_signing_request_title": "Bukatar sa hannu",
+  "wc_spender": "Mai kashe kudi",
   "wc_swipe_to_approve": "Dokewa don amincewa",
   "wc_swipe_to_sign": "Danna don sa hannu",
+  "wc_unlimited": "Unlimited",
   "wc_verified": "Tabbatarwa",
   "wc_would_like_to_connect_to": "${name} yana son haɗi",
   "wc_would_like_to_sign": "${name} na son sanya hannu",
@@ -1388,6 +1392,5 @@
   "zcash_card_enable_later": "Kuna iya kunna wannan katin daga baya a cikin saituna.",
   "zcash_card_missing_funds": "Kuɗi sun ɓace?",
   "zcash_card_scan": "Duba",
-  "zcash_card_warning": "Kada ku rufe manhajar har sai an kammala aikin; idan kun yi haka, wannan tsari zai buƙaci a sake farawa daga farko.",
-  "wc_action_approve": "Amincewa"
+  "zcash_card_warning": "Kada ku rufe manhajar har sai an kammala aikin; idan kun yi haka, wannan tsari zai buƙaci a sake farawa daga farko."
 }

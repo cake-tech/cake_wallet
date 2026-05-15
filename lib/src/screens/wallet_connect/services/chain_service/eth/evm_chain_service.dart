@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
@@ -442,11 +443,28 @@ class EvmChainServiceImpl {
     final nativeCurrency = evm?.getChainInfoByChainId(reference.chainId ?? 1)?.currency;
     final nativeSymbol = nativeCurrency?.title ?? 'ETH';
 
-    final amount = (transaction.value?.getInWei ?? BigInt.zero) / BigInt.from(1e18);
+    final valueWei = transaction.value?.getInWei ?? BigInt.zero;
+    final amount = valueWei / BigInt.from(1e18);
 
-    final txMessageText = '${S.current.value}: ${amount.toStringAsFixed(9)} $nativeSymbol\n'
-        '${S.current.from}: ${transaction.from?.hex}\n'
-        '${S.current.to}: ${transaction.to?.hex}';
+    final decodedAction = await _describeErc20Action(
+      transactionJson['data']?.toString(),
+      transaction.to?.hex,
+    );
+
+    final lines = <String>[];
+    if (decodedAction != null) {
+      lines.add(decodedAction);
+    }
+    if (valueWei > BigInt.zero || decodedAction == null) {
+      lines.add('${S.current.value}: ${amount.toStringAsFixed(9)} $nativeSymbol');
+    }
+    if (transaction.from != null) {
+      lines.add('${S.current.from}: ${transaction.from!.hex}');
+    }
+    if (decodedAction == null && transaction.to != null) {
+      lines.add('${S.current.to}: ${transaction.to!.hex}');
+    }
+    final txMessageText = lines.join('\n');
 
     final feeRows = _buildFeeExtraModels(transaction, nativeCurrency, nativeSymbol);
 
@@ -524,6 +542,125 @@ class EvmChainServiceImpl {
     if (value == 0) return '0';
     if (value >= 0.0001) return value.toStringAsFixed(6);
     return value.toStringAsExponential(4);
+  }
+
+  /// Decodes the four standard ERC-20 selectors (`approve`, `transfer`,
+  /// `transferFrom`) carried in `transactionJson['data']` and returns a
+  /// human-readable line such as
+  /// `Approve: 0.5 USDT\nSpender: 0xac4c…0b75`.
+  ///
+  /// Returns `null` if the data is empty, the selector is unknown, or the
+  /// payload can't be parsed — in which case the caller falls back to the
+  /// generic Value/From/To layout.
+  Future<String?> _describeErc20Action(String? rawData, String? toAddressHex) async {
+    if (rawData == null || toAddressHex == null) return null;
+
+    final hex = rawData.toLowerCase().startsWith('0x') ? rawData.substring(2) : rawData;
+    if (hex.length < 8) return null;
+
+    final selector = hex.substring(0, 8);
+    final body = hex.substring(8);
+
+    String addrAt(int wordIndex) {
+      final start = wordIndex * 64;
+      if (body.length < start + 64) return '';
+      return '0x${body.substring(start + 24, start + 64)}';
+    }
+
+    BigInt? uintAt(int wordIndex) {
+      final start = wordIndex * 64;
+      if (body.length < start + 64) return null;
+      return BigInt.tryParse(body.substring(start, start + 64), radix: 16);
+    }
+
+    switch (selector) {
+      case '095ea7b3':
+        final spender = addrAt(0);
+        final rawAmount = uintAt(1);
+        if (spender.isEmpty || rawAmount == null) return null;
+        final token = await _resolveErc20Token(toAddressHex);
+        final amountStr = _formatErc20Amount(rawAmount, token);
+        final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
+        return '${S.current.wc_action_approve}: $amountStr $symbol\n'
+            '${S.current.wc_spender}: $spender';
+      case 'a9059cbb':
+        final recipient = addrAt(0);
+        final rawAmount = uintAt(1);
+        if (recipient.isEmpty || rawAmount == null) return null;
+        final token = await _resolveErc20Token(toAddressHex);
+        final amountStr = _formatErc20Amount(rawAmount, token);
+        final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
+        return '${S.current.wc_action_transfer}: $amountStr $symbol\n'
+            '${S.current.to}: $recipient';
+      case '23b872dd':
+        final fromAddr = addrAt(0);
+        final toAddr = addrAt(1);
+        final rawAmount = uintAt(2);
+        if (fromAddr.isEmpty || toAddr.isEmpty || rawAmount == null) return null;
+        final token = await _resolveErc20Token(toAddressHex);
+        final amountStr = _formatErc20Amount(rawAmount, token);
+        final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
+        return '${S.current.wc_action_transfer}: $amountStr $symbol\n'
+            '${S.current.from}: $fromAddr\n'
+            '${S.current.to}: $toAddr';
+    }
+    return null;
+  }
+
+  /// Looks up the ERC-20 token by contract address. First checks the wallet's
+  /// already-loaded list (no network) and otherwise falls back to a bounded
+  /// remote lookup so the approval flow never hangs waiting on it.
+  Future<Erc20Token?> _resolveErc20Token(String contractAddress) async {
+    final wallet = appStore.wallet;
+    if (wallet == null || evm == null) return null;
+
+    final target = contractAddress.toLowerCase();
+    try {
+      final known = evm!.getERC20Currencies(wallet);
+      for (final token in known) {
+        if (token.contractAddress.toLowerCase() == target) return token;
+      }
+    } catch (e) {
+      debugPrint('Failed to read wallet ERC-20 list: $e');
+    }
+
+    try {
+      return await evm!
+          .getErc20Token(wallet, contractAddress)
+          .timeout(const Duration(seconds: 3), onTimeout: () => null);
+    } catch (e) {
+      debugPrint('Failed to fetch ERC-20 metadata for $contractAddress: $e');
+      return null;
+    }
+  }
+
+  String _formatErc20Amount(BigInt rawAmount, Erc20Token? token) {
+    if (_isUnlimitedApproval(rawAmount)) return S.current.wc_unlimited;
+    if (token == null) return rawAmount.toString();
+
+    final decimals = token.decimal;
+    if (decimals <= 0) return rawAmount.toString();
+
+    final divisor = BigInt.from(10).pow(decimals);
+    final whole = rawAmount ~/ divisor;
+    final remainder = rawAmount % divisor;
+    if (remainder == BigInt.zero) return whole.toString();
+
+    final fractional = remainder.toString().padLeft(decimals, '0');
+    final trimmed = fractional.replaceFirst(RegExp(r'0+$'), '');
+    return trimmed.isEmpty ? whole.toString() : '$whole.$trimmed';
+  }
+
+  /// dApps frequently request `2^256 - 1` (or close) to mean "infinite
+  /// allowance". Treat anything ≥ 2^200 as unlimited so the user sees a
+  /// clear label instead of an absurd 78-digit number.
+  bool _isUnlimitedApproval(BigInt rawAmount) {
+    return rawAmount >= BigInt.from(2).pow(200);
+  }
+
+  String _shortAddress(String address) {
+    if (address.length <= 10) return address;
+    return '${address.substring(0, 6)}…${address.substring(address.length - 4)}';
   }
 
   Future<Transaction> _ensureWCTransactionHasGasLimit(Transaction transaction) async {

@@ -738,8 +738,8 @@
   "please_choose_one": "Bitte wählen Sie eine Option",
   "please_fill_totp": "Bitte geben Sie den 8-stelligen Code ein, der auf Ihrem anderen Gerät angezeigt wird",
   "please_make_selection": "Bitte treffen Sie unten eine Auswahl, um Ihre Wallet zu erstellen oder wiederherzustellen.",
-  "Please_reference_document": "Weitere Informationen finden Sie in den Dokumenten unten.",
   "please_reference_document": "Bitte beachten Sie die untenstehenden Dokumente für weitere Informationen.",
+  "Please_reference_document": "Weitere Informationen finden Sie in den Dokumenten unten.",
   "please_select": "Bitte auswählen:",
   "please_select_backup_file": "Bitte wählen Sie eine Sicherungsdatei aus und geben Sie das Sicherungskennwort ein.",
   "please_try_to_connect_to_another_node": "Bitte versuchen Sie, eine Verbindung zu einem anderen Node herzustellen",
@@ -1325,6 +1325,8 @@
   "walletConnect": "WalletConnect",
   "wallets": "Wallets",
   "warning": "Warnung",
+  "wc_action_approve": "Genehmigen",
+  "wc_action_transfer": "Überweisen",
   "wc_approve_request_title": "Anfrage genehmigen",
   "wc_connect_request_title": "Verbindungsanfrage",
   "wc_connected_to": "Verbunden mit ${name}",
@@ -1341,8 +1343,10 @@
   "wc_scam_warning_title": "WARNUNG!",
   "wc_sign_all_count": "Signieren Sie alle ${count} Nachrichten",
   "wc_signing_request_title": "Signierungsanfrage",
+  "wc_spender": "Spender",
   "wc_swipe_to_approve": "Zum Genehmigen wischen",
   "wc_swipe_to_sign": "Zum Signieren wischen",
+  "wc_unlimited": "Unbegrenzt",
   "wc_verified": "Verifiziert",
   "wc_would_like_to_connect_to": "${name} möchte eine Verbindung herstellen",
   "wc_would_like_to_sign": "${name} möchte unterschreiben",
@@ -1389,6 +1393,5 @@
   "zcash_card_enable_later": "Sie können diese Karte jederzeit später in den Einstellungen aktivieren",
   "zcash_card_missing_funds": "Fehlende Gelder?",
   "zcash_card_scan": "Scannen",
-  "zcash_card_warning": "Schließen Sie die App nicht, bis der Vorgang abgeschlossen ist. Andernfalls muss der Vorgang von Grund auf neu gestartet werden.",
-  "wc_action_approve": "Genehmigen"
+  "zcash_card_warning": "Schließen Sie die App nicht, bis der Vorgang abgeschlossen ist. Andernfalls muss der Vorgang von Grund auf neu gestartet werden."
 }
