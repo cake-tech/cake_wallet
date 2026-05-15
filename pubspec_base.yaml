@@ -285,6 +285,7 @@ flutter:
     - assets/new-ui/changelog/icons/
     - assets/new-ui/changelog/text/
     - assets/new-ui/crypto_full_icons/
+    - assets/new-ui/node_speed_badges/
 
   fonts:
     - family: Lato
