@@ -193,7 +193,7 @@ class MoneroWalletService extends WalletService<
           unspentCoinsInfo: unspentCoinsInfoSource,
           password: password);
 
-      if (wallet.isHardwareWallet) {
+      if (wallet.hardwareWalletType == HardwareWalletType.ledger) {
         wallet.setLedgerConnection(gLedger!);
         gLedger = null;
       }

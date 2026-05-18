@@ -37,6 +37,7 @@ import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
+import 'package:cw_monero/trezor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
@@ -383,6 +384,20 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return (currentWallet!.viewOnlyBalance(
                 accountIndex: walletAddresses.account!.id) < amount) ||
               currentWallet!.hasUnknownKeyImages();
+  }
+
+  MoneroTrezorService? trezorService;
+  Future<void> syncTrezor() async {
+    if (trezorService == null) throw Exception("Trezor not connected");
+
+    final ptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
+    final tdis = monero.Wallet_exportTrezorTdis(ptr);
+
+    final response = await Trezor(trezorService!).keyImageSync(tdis);
+
+    final success = monero.Wallet_importTrezorEncryptedKeyImagesJson(ptr, response);
+
+    if (!success) throw Exception(monero.Wallet_errorString(ptr));
   }
 
   @override

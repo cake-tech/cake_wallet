@@ -434,11 +434,27 @@ class CWMonero extends Monero {
   @override
   String? getLastLedgerCommand() => latestLedgerCommand;
 
+  @override
+  void setHardwareWalletService(Object wallet, HardwareWalletService service) {
+    final moneroWallet = wallet as MoneroWallet;
+    moneroWallet.trezorService = service as MoneroTrezorService;
+  }
+
+
+  @override
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
       MoneroLedgerService(connection);
 
+  @override
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorClient client) =>
       MoneroTrezorService(client);
+
+  @override
+  Future<void> syncTrezor(Object wallet) async {
+    final moneroWallet = wallet as MoneroWallet;
+
+    return moneroWallet.syncTrezor();
+  }
 
   bool isViewOnly() => isViewOnlyBySpendKey(null);
 

@@ -726,7 +726,8 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (widget.sendViewModel.wallet.isHardwareWallet) {
-      if (!widget.sendViewModel.hardwareWalletViewModel!.isConnected) {
+      if (!widget.sendViewModel.hardwareWalletViewModel!
+          .isConnected(widget.sendViewModel.walletType)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: widget.sendViewModel.walletType,
@@ -748,8 +749,12 @@ class _NewSendPageState extends State<NewSendPage> {
         amount += item.formattedCryptoAmount;
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
-        await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-            arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet));
+        if (widget.sendViewModel.wallet.hardwareWalletType == HardwareWalletType.trezor) {
+          monero!.syncTrezor(widget.sendViewModel.wallet);
+        } else {
+          await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
+              arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet));
+        }
         await Future.delayed(Duration(seconds: 1)); // wait for monero to refresh the state
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {

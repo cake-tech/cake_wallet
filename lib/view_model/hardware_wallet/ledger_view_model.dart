@@ -114,7 +114,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
     if (_isConnecting) return false;
     _isConnecting = true;
     _connectingWalletType = type;
-    if (isConnected) {
+    if (isConnected(type)) {
       try {
         await _connection!.disconnect().catchError((_) {});
       } catch (_) {}
@@ -172,7 +172,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
-  bool get isConnected => _connection != null && !(_connection!.isDisconnected);
+  bool isConnected(WalletType type) => _connection != null && !(_connection!.isDisconnected);
 
   sdk.LedgerConnection get connection => _connection!;
 

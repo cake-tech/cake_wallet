@@ -3,9 +3,6 @@ import 'dart:io';
 
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_message.dart';
-import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_sheet.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
@@ -175,7 +172,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     // if (ctx != null) {
     //   Navigator.pop(ctx!);
     // }
-    if (isConnected) widget.onConnectDevice(context, widget.hardwareWalletVM);
+    if (isConnected && context.mounted) widget.onConnectDevice(context, widget.hardwareWalletVM);
   }
 
   String _getDeviceTileLeading(HardwareWalletDeviceType deviceType) {

@@ -11,6 +11,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -151,12 +152,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       await _client?.connection.disconnect();
       _isConnecting = false;
       _client = null;
-      rethrow;
+      _state = sdk.ThpState();
+      // rethrow;
+      printV(e);
+      return false;
     }
   }
 
   @override
-  bool get isConnected => true;
+  bool isConnected(WalletType type) => type == WalletType.monero
+      ? _client != null && _client?.connection.isDisconnected == false
+      : true;
 
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {
@@ -178,13 +184,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   @override
   Future<void> initWallet(WalletBase wallet) async {
     switch (wallet.type) {
+      case WalletType.monero:
+        return monero!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!
-            .setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
       case WalletType.polygon:
-        return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type} for trezor');
     }
