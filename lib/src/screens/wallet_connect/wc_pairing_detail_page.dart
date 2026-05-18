@@ -110,10 +110,10 @@ class WCCDetailsWidget extends BasePage {
               _SessionSection(
                 session: session,
                 walletName: walletName,
-                walletKitService: walletKitService,
               ),
               const SizedBox(height: 24),
             ],
+            const SizedBox(height: 24),
             NewPrimaryButton(
               onPressed: () => _onDeleteButtonPressed(context, metadata.name, walletKitService),
               text: S.current.delete,
@@ -168,12 +168,10 @@ class _SessionSection extends StatelessWidget {
   const _SessionSection({
     required this.session,
     required this.walletName,
-    required this.walletKitService,
   });
 
   final SessionData session;
   final String walletName;
-  final WalletKitService walletKitService;
 
   String _firstAddress() {
     for (final namespace in session.namespaces.values) {
@@ -186,7 +184,6 @@ class _SessionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final permissions = WCPermissionsMapper.fromGeneratedNamespaces(session.namespaces);
     final address = _firstAddress();
 
@@ -196,56 +193,6 @@ class _SessionSection extends StatelessWidget {
         WCWalletCard(walletName: walletName, address: address),
         const SizedBox(height: 24),
         WCPermissionsCard(permissions: permissions),
-        const SizedBox(height: 24),
-        Row(
-          spacing: 12,
-          children: [
-            Expanded(
-              child: NewPrimaryButton(
-                onPressed: () async {
-                  try {
-                    await walletKitService.extendSession(topic: session.topic);
-                  } catch (e) {
-                    debugPrint(e.toString());
-                  }
-                },
-                text: S.of(context).extend_session,
-                color: colors.primary,
-                textColor: colors.onPrimary,
-              ),
-            ),
-            Expanded(
-              child: NewPrimaryButton(
-                onPressed: () async {
-                  try {
-                    await walletKitService.updateSession(
-                      topic: session.topic,
-                      namespaces: session.namespaces,
-                    );
-                  } catch (e) {
-                    debugPrint(e.toString());
-                  }
-                },
-                text: S.of(context).update_session,
-                color: colors.primary,
-                textColor: colors.onPrimary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        NewPrimaryButton(
-          onPressed: () async {
-            try {
-              await walletKitService.disconnectSession(topic: session.topic);
-            } catch (e) {
-              debugPrint(e.toString());
-            }
-          },
-          text: S.of(context).disconnect_session,
-          color: colors.error,
-          textColor: colors.onError,
-        ),
       ],
     );
   }
