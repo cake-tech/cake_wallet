@@ -1321,6 +1321,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Portefeuilles",
   "warning": "Avertissement",
+  "wc_action_approve": "Approuver",
   "wc_approve_request_title": "Approuver la demande",
   "wc_connect_request_title": "Demande de connexion",
   "wc_connected_to": "Connecté à ${name}",
@@ -1328,6 +1329,8 @@
   "wc_message_to_sign": "Message à signer",
   "wc_network_fee": "Frais de réseau",
   "wc_not_verified": "Non vérifié",
+  "wc_pairing_list_header_subtitle": "Connectez votre portefeuille avec WalletConnect ou gérez les applications existantes.",
+  "wc_paste_link": "Coller le lien WalletConnect",
   "wc_permission_other": "Autre : ${method}",
   "wc_permission_request_approval": "Demander l'approbation des transactions",
   "wc_permission_sign_messages": "Signer les messages et les données saisies",
@@ -1335,6 +1338,7 @@
   "wc_permission_view_balance": "Consultez le solde et l'activité de votre portefeuille",
   "wc_scam_warning_message": "Cette demande semble provenir d'une arnaque connue. Veuillez procéder avec prudence.",
   "wc_scam_warning_title": "AVERTISSEMENT!",
+  "wc_scan_qr": "Scanner le QR",
   "wc_sign_all_count": "Signer tous les ${count} messages",
   "wc_signing_request_title": "Demande de signature",
   "wc_swipe_to_approve": "Glissez pour approuver",
@@ -1385,6 +1389,5 @@
   "zcash_card_enable_later": "Vous pouvez toujours activer cette carte plus tard dans les paramètres",
   "zcash_card_missing_funds": "Fonds manquants ?",
   "zcash_card_scan": "Scanner",
-  "zcash_card_warning": "Ne fermez pas l'application tant que la procédure n'est pas terminée. Si vous le faites, ce processus devra redémarrer depuis le début.",
-  "wc_action_approve": "Approuver"
+  "zcash_card_warning": "Ne fermez pas l'application tant que la procédure n'est pas terminée. Si vous le faites, ce processus devra redémarrer depuis le début."
 }

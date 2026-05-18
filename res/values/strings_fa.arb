@@ -1318,6 +1318,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "کیف پول‌ها",
   "warning": "هشدار",
+  "wc_action_approve": "تایید کنید",
   "wc_approve_request_title": "درخواست را تایید کنید",
   "wc_connect_request_title": "درخواست اتصال",
   "wc_connected_to": "متصل به ${name}",
@@ -1325,6 +1326,8 @@
   "wc_message_to_sign": "برای امضا پیام دهید",
   "wc_network_fee": "هزینه شبکه",
   "wc_not_verified": "تایید نشده است",
+  "wc_pairing_list_header_subtitle": "کیف پول خود را با WalletConnect وصل کنید یا برنامه های موجود را مدیریت کنید.",
+  "wc_paste_link": "پیوند WalletConnect را جایگذاری کنید",
   "wc_permission_other": "موارد دیگر: ${method}",
   "wc_permission_request_approval": "درخواست تایید برای معاملات",
   "wc_permission_sign_messages": "پیام ها و داده های تایپ شده را امضا کنید",
@@ -1332,6 +1335,7 @@
   "wc_permission_view_balance": "موجودی و فعالیت کیف پول خود را مشاهده کنید",
   "wc_scam_warning_message": "به نظر می رسد این درخواست از یک کلاهبرداری شناخته شده باشد. لطفا با احتیاط ادامه دهید",
   "wc_scam_warning_title": "هشدار!",
+  "wc_scan_qr": "اسکن QR",
   "wc_sign_all_count": "همه پیام‌های ${count} را امضا کنید",
   "wc_signing_request_title": "درخواست امضا",
   "wc_swipe_to_approve": "برای تأیید، انگشت خود را بکشید",
@@ -1382,6 +1386,5 @@
   "zcash_card_enable_later": "می‌توانید همیشه این کارت را بعداً در تنظیمات فعال کنید",
   "zcash_card_missing_funds": "موجودی گم شده؟",
   "zcash_card_scan": "اسکن",
-  "zcash_card_warning": "تا زمانی که این فرایند کامل نشده است، برنامه را نبندید؛ در غیر این صورت، این فرایند باید از ابتدا دوباره شروع شود.",
-  "wc_action_approve": "تایید کنید"
+  "zcash_card_warning": "تا زمانی که این فرایند کامل نشده است، برنامه را نبندید؛ در غیر این صورت، این فرایند باید از ابتدا دوباره شروع شود."
 }

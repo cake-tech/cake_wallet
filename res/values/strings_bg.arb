@@ -1321,6 +1321,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Портфейли",
   "warning": "Предупреждение",
+  "wc_action_approve": "Одобряване",
   "wc_approve_request_title": "Одобряване на заявката",
   "wc_connect_request_title": "Заявка за свързване",
   "wc_connected_to": "Свързан с ${name}",
@@ -1328,6 +1329,8 @@
   "wc_message_to_sign": "Съобщение за подпис",
   "wc_network_fee": "Мрежова такса",
   "wc_not_verified": "Не е проверено",
+  "wc_pairing_list_header_subtitle": "Свържете портфейла си с WalletConnect или управлявайте съществуващи приложения.",
+  "wc_paste_link": "Поставете връзката WalletConnect",
   "wc_permission_other": "Друго: ${method}",
   "wc_permission_request_approval": "Поискайте одобрение за транзакции",
   "wc_permission_sign_messages": "Подписвайте съобщения и въведени данни",
@@ -1335,6 +1338,7 @@
   "wc_permission_view_balance": "Вижте баланса и активността на вашия портфейл",
   "wc_scam_warning_message": "Тази заявка изглежда е от известна измама. Моля, продължете с повишено внимание.",
   "wc_scam_warning_title": "ПРЕДУПРЕЖДЕНИЕ!",
+  "wc_scan_qr": "Сканирайте QR",
   "wc_sign_all_count": "Подпишете всички ${count} съобщения",
   "wc_signing_request_title": "Искане за подписване",
   "wc_swipe_to_approve": "Плъзнете, за да одобрите",
@@ -1385,6 +1389,5 @@
   "zcash_card_enable_later": "Винаги можете да активирате тази карта по-късно в настройките",
   "zcash_card_missing_funds": "Липсват средства?",
   "zcash_card_scan": "Сканирай",
-  "zcash_card_warning": "Не затваряйте приложението, докато процедурата не приключи. Ако го направите, процесът ще трябва да започне отначало.",
-  "wc_action_approve": "Одобряване"
+  "zcash_card_warning": "Не затваряйте приложението, докато процедурата не приключи. Ако го направите, процесът ще трябва да започне отначало."
 }

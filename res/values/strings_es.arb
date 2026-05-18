@@ -1322,6 +1322,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Carteras",
   "warning": "Advertencia",
+  "wc_action_approve": "Aprobar",
   "wc_approve_request_title": "Aprobar solicitud",
   "wc_connect_request_title": "Solicitud de conexión",
   "wc_connected_to": "Conectado a ${name}",
@@ -1329,6 +1330,8 @@
   "wc_message_to_sign": "Mensaje para firmar",
   "wc_network_fee": "Tarifa de red",
   "wc_not_verified": "No verificado",
+  "wc_pairing_list_header_subtitle": "Conecte su billetera con WalletConnect o administre aplicaciones existentes.",
+  "wc_paste_link": "Pegar enlace de WalletConnect",
   "wc_permission_other": "Otro: ${method}",
   "wc_permission_request_approval": "Solicitar aprobación para transacciones",
   "wc_permission_sign_messages": "Firmar mensajes y datos escritos",
@@ -1336,6 +1339,7 @@
   "wc_permission_view_balance": "Ver el saldo y la actividad de su billetera",
   "wc_scam_warning_message": "Esta solicitud parece provenir de una estafa conocida. Proceda con precaución.",
   "wc_scam_warning_title": "¡ADVERTENCIA!",
+  "wc_scan_qr": "Escanear QR",
   "wc_sign_all_count": "Firmar todos los mensajes de ${count}",
   "wc_signing_request_title": "Solicitud de firma",
   "wc_swipe_to_approve": "Desliza para aprobar",
@@ -1387,6 +1391,5 @@
   "zcash_card_enable_later": "Siempre puedes habilitar esta tarjeta más adelante en la configuración",
   "zcash_card_missing_funds": "¿Faltan fondos?",
   "zcash_card_scan": "Escanear",
-  "zcash_card_warning": "No cierre la aplicación hasta que se complete el procedimiento; si lo hace, este proceso deberá reiniciarse desde cero.",
-  "wc_action_approve": "Aprobar"
+  "zcash_card_warning": "No cierre la aplicación hasta que se complete el procedimiento; si lo hace, este proceso deberá reiniciarse desde cero."
 }

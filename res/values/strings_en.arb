@@ -1330,6 +1330,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Wallets",
   "warning": "Warning",
+  "wc_action_approve": "Approve",
   "wc_approve_request_title": "Approve request",
   "wc_connect_request_title": "Connect request",
   "wc_connected_to": "Connected to ${name}",
@@ -1337,6 +1338,8 @@
   "wc_message_to_sign": "Message to sign",
   "wc_network_fee": "Network fee",
   "wc_not_verified": "Not Verified",
+  "wc_pairing_list_header_subtitle": "Connect your wallet with WalletConnect or manage existing apps.",
+  "wc_paste_link": "Paste WalletConnect link",
   "wc_permission_other": "Other: ${method}",
   "wc_permission_request_approval": "Request approval for transactions",
   "wc_permission_sign_messages": "Sign messages and typed data",
@@ -1344,6 +1347,7 @@
   "wc_permission_view_balance": "View your wallet balance and activity",
   "wc_scam_warning_message": "This request appears to be from a known scam. Please proceed with caution.",
   "wc_scam_warning_title": "WARNING!",
+  "wc_scan_qr": "Scan QR",
   "wc_sign_all_count": "Sign all ${count} messages",
   "wc_signing_request_title": "Signing request",
   "wc_swipe_to_approve": "Swipe to approve",
@@ -1394,6 +1398,5 @@
   "zcash_card_enable_later": "You can always enable this card later in settings",
   "zcash_card_missing_funds": "Missing funds?",
   "zcash_card_scan": "Scan",
-  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch.",
-  "wc_action_approve": "Approve"
+  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch."
 }

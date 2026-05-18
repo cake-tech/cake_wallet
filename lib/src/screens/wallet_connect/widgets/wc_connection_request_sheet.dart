@@ -87,6 +87,7 @@ class WCConnectionRequestSheet extends StatelessWidget {
             },
           ),
         ),
+        const SizedBox(height: 16),
       ],
     );
   }

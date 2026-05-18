@@ -1321,6 +1321,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Novčanici",
   "warning": "Upozorenje",
+  "wc_action_approve": "Odobriti",
   "wc_approve_request_title": "Odobri zahtjev",
   "wc_connect_request_title": "Zahtjev za povezivanje",
   "wc_connected_to": "Povezan s ${name}",
@@ -1328,6 +1329,8 @@
   "wc_message_to_sign": "Poruka za potpisivanje",
   "wc_network_fee": "Mrežna naknada",
   "wc_not_verified": "Nije potvrđeno",
+  "wc_pairing_list_header_subtitle": "Povežite svoj novčanik s WalletConnectom ili upravljajte postojećim aplikacijama.",
+  "wc_paste_link": "Zalijepi vezu WalletConnect",
   "wc_permission_other": "Ostalo: ${method}",
   "wc_permission_request_approval": "Zatražite odobrenje za transakcije",
   "wc_permission_sign_messages": "Potpisivati ​​poruke i upisane podatke",
@@ -1335,6 +1338,7 @@
   "wc_permission_view_balance": "Pogledajte svoj novčanik i aktivnost",
   "wc_scam_warning_message": "Čini se da ovaj zahtjev potječe iz poznate prijevare. Molimo nastavite s oprezom.",
   "wc_scam_warning_title": "UPOZORENJE!",
+  "wc_scan_qr": "Skeniraj QR",
   "wc_sign_all_count": "Potpišite svih ${count} poruka",
   "wc_signing_request_title": "Zahtjev za potpisivanje",
   "wc_swipe_to_approve": "Prijeđite prstom za odobrenje",
@@ -1385,6 +1389,5 @@
   "zcash_card_enable_later": "Ovu karticu uvijek možete omogućiti kasnije u postavkama",
   "zcash_card_missing_funds": "Nedostaju sredstva?",
   "zcash_card_scan": "Skeniraj",
-  "zcash_card_warning": "Ne zatvarajte aplikaciju dok se postupak ne dovrši; ako to učinite, postupak će se morati ponovno pokrenuti ispočetka.",
-  "wc_action_approve": "Odobriti"
+  "zcash_card_warning": "Ne zatvarajte aplikaciju dok se postupak ne dovrši; ako to učinite, postupak će se morati ponovno pokrenuti ispočetka."
 }

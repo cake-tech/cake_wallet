@@ -1323,6 +1323,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Walati",
   "warning": "Gargaɗi",
+  "wc_action_approve": "Amincewa",
   "wc_approve_request_title": "Amincewa da buƙata",
   "wc_connect_request_title": "Buƙatar haɗin kai",
   "wc_connected_to": "An haɗa zuwa ${name}",
@@ -1330,6 +1331,8 @@
   "wc_message_to_sign": "Saƙo don sa hannu",
   "wc_network_fee": "Kudin hanyar sadarwa",
   "wc_not_verified": "Ba a Tabbatarwa ba",
+  "wc_pairing_list_header_subtitle": "Haɗa walat ɗin ku tare da WalletConnect ko sarrafa ƙa'idodin da ke akwai.",
+  "wc_paste_link": "Manna hanyar haɗin WalletConnect",
   "wc_permission_other": "Wani: ${method}",
   "wc_permission_request_approval": "Nemi izini don ma'amaloli",
   "wc_permission_sign_messages": "Sa hannu kan saƙonni da rubutattun bayanai",
@@ -1337,6 +1340,7 @@
   "wc_permission_view_balance": "Duba ma'auni na walat ɗin ku da aiki",
   "wc_scam_warning_message": "Wannan buƙatar ta bayyana daga wata zamba da aka sani. Da fatan za a ci gaba da taka tsantsan.",
   "wc_scam_warning_title": "GARGADI!",
+  "wc_scan_qr": "Duba QR",
   "wc_sign_all_count": "Shiga duk saƙon ${count}",
   "wc_signing_request_title": "Bukatar sa hannu",
   "wc_swipe_to_approve": "Dokewa don amincewa",
@@ -1388,6 +1392,5 @@
   "zcash_card_enable_later": "Kuna iya kunna wannan katin daga baya a cikin saituna.",
   "zcash_card_missing_funds": "Kuɗi sun ɓace?",
   "zcash_card_scan": "Duba",
-  "zcash_card_warning": "Kada ku rufe manhajar har sai an kammala aikin; idan kun yi haka, wannan tsari zai buƙaci a sake farawa daga farko.",
-  "wc_action_approve": "Amincewa"
+  "zcash_card_warning": "Kada ku rufe manhajar har sai an kammala aikin; idan kun yi haka, wannan tsari zai buƙaci a sake farawa daga farko."
 }
