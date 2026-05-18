@@ -473,8 +473,10 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
   String? getLastLedgerCommand();
+  void setHardwareWalletService(Object wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorClient client);
+  Future<void> syncTrezor(Object wallet);
   Map<String, List<int>> debugCallLength();
   Map<String, dynamic> getWalletCacheDebug();
 }

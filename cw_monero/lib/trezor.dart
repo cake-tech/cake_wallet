@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:trezor_flutter/trezor_flutter.dart';
 
@@ -25,10 +27,23 @@ class Trezor {
     return MoneroTrezorWatchCredentials(credentials.$1, credentials.$2);
   }
 
-  Future<void> keyImageSync() async {
-    // final txIds = <MoneroKeyImageTxId>[];
-    //
-    //
-    // TrezorMonero(service.client).syncKeyImages(txIds);
+  Future<String> keyImageSync(String tdis) async {
+    final tdisMap = jsonDecode(tdis) as Map<String, dynamic>;
+    final tdisList = tdisMap["tdis"] as List<dynamic>;
+
+    final txIds = <MoneroKeyImageTxData>[];
+    for (final tdi in tdisList) {
+      txIds.add(MoneroKeyImageTxData(
+        outKey: tdi["out_key"],
+        txPubKey: tdi["tx_pub_key"],
+        internalOutputIndex: tdi["internal_output_index"],
+        subAddrMajor: tdi["sub_addr_major"],
+        subAddrMinor: tdi["sub_addr_minor"],
+        additionalTxPubKeys: (tdi["additional_tx_pub_keys"] as List?)?.map((e) => e as String).toList() ?? []
+      ));
+    }
+    final keyImages = await TrezorMonero(service.client).syncKeyImages(txIds);
+
+    return jsonEncode(keyImages.toMap());
   }
 }
