@@ -29,7 +29,6 @@ import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
-import 'package:cw_evm/evm_erc20_currency.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -416,7 +415,12 @@ abstract class EVMChainWalletBase
     final tokenSymbol = transactionModel.tokenSymbol ??
         EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId);
 
-    final amountCurrency = ERC20Currency(decimals: decimals, symbol: tokenSymbol);
+    final amountCurrency = Erc20Token(
+      name: '',
+      contractAddress: transactionModel.contractAddress,
+      decimal: decimals,
+      symbol: tokenSymbol,
+    );
     return EVMChainTransactionInfo(
       id: transactionModel.hash,
       height: transactionModel.blockNumber,

@@ -1,14 +1,11 @@
 // ignore_for_file: overridden_fields, annotate_overrides
-import 'dart:math';
-
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
-import 'package:cw_evm/evm_erc20_currency.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
 
 class EVMChainTransactionInfo extends TransactionInfo {
@@ -50,13 +47,6 @@ class EVMChainTransactionInfo extends TransactionInfo {
   /// Get fee currency symbol based on wallet type
   String get feeCurrency => EVMChainUtils.getFeeCurrency(chainId);
 
-  String get _displayTokenSymbol {
-    if (chainId == 56 && tokenSymbol.toUpperCase() == 'BSC-USD') return 'USDT';
-
-    return tokenSymbol;
-  }
-
-
   @override
   String fiatAmount() => _fiatAmount ?? '';
 
@@ -64,10 +54,10 @@ class EVMChainTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
-
     final decimals = data['exponent'] as int? ?? 18;
     final tokenSymbol = data['tokenSymbol'] as String;
-    final currency = ERC20Currency(decimals: decimals, symbol: tokenSymbol);
+    final currency =
+        Erc20Token(name: '', symbol: tokenSymbol, contractAddress: '', decimal: decimals);
 
     final feeCurrency =
         EvmChainRegistry().getChainConfig(chainId)?.nativeCurrency ?? CryptoCurrency.eth;
