@@ -9,10 +9,14 @@ class NanoBalance extends Balance {
   NanoBalance({required this.currentBalance, required this.receivableBalance})
       : super(currentBalance, receivableBalance);
 
-  factory NanoBalance.fromRawString(
-          {required String currentBalance, required String receivableBalance}) =>
+  factory NanoBalance.fromRawString({
+    required String currentBalance,
+    required String receivableBalance,
+  }) =>
       NanoBalance(
-        currentBalance: Money(BigInt.parse(currentBalance), CryptoCurrency.nano),
-        receivableBalance: Money(BigInt.parse(receivableBalance), CryptoCurrency.nano),
+        currentBalance:
+            Money.tryParse(currentBalance, CryptoCurrency.nano) ?? Money.zero(CryptoCurrency.nano),
+        receivableBalance: Money.tryParse(receivableBalance, CryptoCurrency.nano) ??
+            Money.zero(CryptoCurrency.nano),
       );
 }
