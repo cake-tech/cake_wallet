@@ -370,6 +370,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   Money? _depositAmount;
 
   @computed
+  bool get hasDepositAmount => _depositAmount != null;
+
+  @computed
   String get depositAmount =>
       _depositAmount == null ? "..." : amountParsingProxy.asDisplayString(_depositAmount!);
 

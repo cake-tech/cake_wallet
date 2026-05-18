@@ -13,4 +13,11 @@ abstract class Currency {
 
   /// Try parsing the [value] and turn it into [Money]
   Money? tryParseAmount(String value);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Currency && other.decimals == decimals && other.symbol == symbol && other.tag == tag;
+
+  @override
+  int get hashCode => decimals.hashCode ^ symbol.hashCode ^ tag.hashCode;
 }

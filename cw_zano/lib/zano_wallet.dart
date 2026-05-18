@@ -555,32 +555,37 @@ abstract class ZanoWalletBase
       for (final b in walletInfo.wi.balances) {
         if (b.assetId == zanoAssetId) {
           balance[CryptoCurrency.zano] = ZanoBalance(
-              total: Money(b.total, CryptoCurrency.zano),
-              unlocked: Money(b.unlocked, CryptoCurrency.zano));
+            total: Money(b.total, CryptoCurrency.zano),
+            unlocked: Money(b.unlocked, CryptoCurrency.zano),
+          );
         } else {
           final asset = zanoAssets[b.assetId];
           if (asset == null) {
             printV('balance for an unknown asset ${b.assetInfo.assetId}');
             continue;
           }
-          if (balance.keys
-              .any((element) => element is ZanoAsset && element.assetId == b.assetInfo.assetId)) {
-            balance[balance.keys.firstWhere(
-                    (element) => element is ZanoAsset && element.assetId == b.assetInfo.assetId)] =
-                ZanoBalance(total: Money(b.total, asset), unlocked: Money(b.unlocked, asset));
+
+          final assetBalanceKey =
+              balance.keys.where((e) => e is ZanoAsset && e.assetId == asset.assetId).firstOrNull;
+          if (assetBalanceKey != null) {
+            balance[assetBalanceKey] = ZanoBalance(
+              total: Money(b.total, assetBalanceKey),
+              unlocked: Money(b.unlocked, assetBalanceKey),
+            );
           } else {
-            balance[asset] =
-                ZanoBalance(total: Money(b.total, asset), unlocked: Money(b.unlocked, asset));
+            balance[asset] = ZanoBalance(
+              total: Money(b.total, asset),
+              unlocked: Money(b.unlocked, asset),
+            );
           }
         }
       }
       await updateTransactions();
       // removing balances for assets missing in wallet info balances
       balance.removeWhere(
-            (key, _) =>
-        key != CryptoCurrency.zano &&
-            !walletInfo.wi.balances
-                .any((element) => element.assetId == (key as ZanoAsset).assetId),
+        (key, _) =>
+            key != CryptoCurrency.zano &&
+            !walletInfo.wi.balances.any((element) => element.assetId == (key as ZanoAsset).assetId),
       );
     }
   }
