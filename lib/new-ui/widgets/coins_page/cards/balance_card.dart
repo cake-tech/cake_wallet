@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class BalanceCardAction {
   final String label;
@@ -70,8 +69,6 @@ class BalanceCard extends StatelessWidget {
         resolvedAssetName.isNotEmpty;
 
     final height = width * 0.62;
-
-
 
     return AnimatedContainer(
       duration: designSwitchDuration,
@@ -209,7 +206,7 @@ class BalanceCard extends StatelessWidget {
                           },
                           child: Text(
                             key: ValueKey(fiatFirst ? balance : fiatBalance),
-                            fiatFirst ? "$assetName $balance" : "$fiatCurrencyTitle $fiatBalance",
+                            fiatFirst ? "$assetName $balance" : fiatBalance,
                           ),
                         ),
                       ),
