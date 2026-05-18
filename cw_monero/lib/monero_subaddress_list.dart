@@ -34,8 +34,9 @@ abstract class MoneroSubaddressListBase with Store {
     try {
       _isUpdating = true;
       refresh(accountIndex: accountIndex);
+      final newAddrs = await getAll();
       subaddresses.clear();
-      subaddresses.addAll(await getAll());
+      subaddresses.addAll(newAddrs);
       _isUpdating = false;
     } catch (e) {
       _isUpdating = false;
