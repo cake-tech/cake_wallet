@@ -240,14 +240,14 @@ class LightningWallet {
       PrepareLnurlPayRequest request;
       if (inputType is InputType_LightningAddress) {
         request = PrepareLnurlPayRequest(
-          amount: amountSats!,
+          amountSats: amountSats!,
           payRequest: inputType.field0.payRequest,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
           feePolicy: feePolicy,
         );
       } else {
         request = PrepareLnurlPayRequest(
-          amount: amountSats!,
+          amountSats: amountSats!,
           payRequest: (inputType as InputType_LnurlPay).field0,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
           feePolicy: feePolicy,
