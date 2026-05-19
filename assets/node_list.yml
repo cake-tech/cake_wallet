@@ -32,3 +32,10 @@
   uri: xmr.stormycloud.org:18089
   useSSL: true
   is_default: false
+-
+  uri: node.joelovestech.com:443
+  useSSL: true
+  is_default: false
+-
+  uri: xmrjoeeo3bnoiwz6xiuphbhhmrcnm3lgveeqhxjiohmn2gyrpslmjsqd.onion:18081
+  is_default: false
