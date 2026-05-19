@@ -336,7 +336,7 @@ abstract class TronWalletBase
       if (shouldSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        totalAmount = output.cryptoAmount;
+        totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
       if (walletBalanceForCurrency < totalAmount || totalAmount < Money.zero(transactionCurrency)) {
