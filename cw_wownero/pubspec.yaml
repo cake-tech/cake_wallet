@@ -24,7 +24,7 @@ dependencies:
   monero:
     git:
       url: http://git-private.cyanek.com/monero_c.git
-      ref: b51693c76f60fac497a26b0761fa6d3125c91420
+      ref: a47ff403f4c3244e6782d2474c9b208f786f6da3
       path: impls/monero.dart
   mutex: ^3.1.0
 

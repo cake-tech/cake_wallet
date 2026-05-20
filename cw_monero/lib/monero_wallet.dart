@@ -400,6 +400,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     if (!success) throw Exception(monero.Wallet_errorString(ptr));
   }
 
+  Future<String> signTrezorTransaction(String json) async {
+    if (trezorService == null) throw Exception("Trezor not connected");
+
+    final response = await Trezor(trezorService!).signTransaction(json);
+
+    return response;
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
