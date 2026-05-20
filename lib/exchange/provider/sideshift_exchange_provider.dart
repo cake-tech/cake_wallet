@@ -216,6 +216,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final body = {
       'affiliateId': affiliateId,
       'settleAddress': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'settleMemo': request.toAddressExtraId,
       'refundAddress': request.refundAddress,
     };
 
@@ -336,6 +337,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
       extraId: depositMemo,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
