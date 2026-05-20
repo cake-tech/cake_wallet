@@ -1,5 +1,8 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cw_core/db/currency_picker_recents_storage.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -216,15 +219,19 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     );
   }
 
-  void _presentTokenCurrencyPicker(BuildContext context) async {
-    await showPopUp(
-      builder: (_) => CurrencyPicker(
-        selectedAtIndex: widget.walletAddressListViewModel.tokenCurrencyIndex,
-        items: widget.walletAddressListViewModel.tokenCurrencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: widget.walletAddressListViewModel.setTokenCurrency,
-      ),
+  void _presentTokenCurrencyPicker(BuildContext context) {
+    final items = widget.walletAddressListViewModel.tokenCurrencies
+        .whereType<CryptoCurrency>()
+        .toList();
+    CurrencyPickerSheet.show(
       context: context,
+      args: CurrencyPickerArgs(
+        items: items,
+        selected: widget.walletAddressListViewModel.tokenCurrency,
+        pickerContext: CurrencyPickerContexts.receive,
+        onSelected: widget.walletAddressListViewModel.setTokenCurrency,
+        symbolResolver: widget.walletAddressListViewModel.amountParsingProxy.getCryptoSymbol,
+      ),
     );
   }
 

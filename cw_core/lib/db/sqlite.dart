@@ -41,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 6,
+  db = await openDatabase(dbFile.path, version: 7,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -95,6 +95,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       }
       if (oldVersion <= 5) {
         await _createTradeTable(db);
+      }
+      if (oldVersion <= 6) {
+        await _createCurrencyPickerRecentsTable(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -195,8 +198,25 @@ CREATE TABLE BalanceCardStyleSettings (
         ''');
       await _createBridgeTransferTable(db);
       await _createTradeTable(db);
+      await _createCurrencyPickerRecentsTable(db);
     }
   );
+}
+
+Future<void> _createCurrencyPickerRecentsTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS CurrencyPickerRecents (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  currency_key TEXT NOT NULL,
+  context TEXT NOT NULL,
+  last_used_at INTEGER NOT NULL,
+  UNIQUE(currency_key, context)
+);
+''');
+  await db.execute('''
+CREATE INDEX IF NOT EXISTS idx_currency_picker_recents_context_time
+ON CurrencyPickerRecents(context, last_used_at DESC);
+''');
 }
 
 Future<void> _createTradeTable(Database db) async {

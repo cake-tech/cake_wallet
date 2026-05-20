@@ -4,7 +4,6 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -13,6 +12,10 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cw_core/db/currency_picker_recents_storage.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
@@ -36,7 +39,6 @@ import 'package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
 import 'package:cake_wallet/routes.dart' show Routes;
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
@@ -51,7 +53,6 @@ import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 
@@ -804,26 +805,41 @@ class _NewSendPageState extends State<NewSendPage> {
 
     final output = widget.sendViewModel.outputs[_selectedOutput];
 
-    showPopUp<void>(
-      context: context,
-      builder: (_) => CurrencyPicker(
-        key: ValueKey('send_page_currency_picker_dialog_button_key'),
-        selectedAtIndex: _fiatInputMode
-            ? widget.sendViewModel.fiatCurrencies.indexOf(widget.sendViewModel.fiatCurrency)
-            : widget.sendViewModel.currencies.indexOf(widget.sendViewModel.selectedCryptoCurrency),
-        items:
-            _fiatInputMode ? widget.sendViewModel.fiatCurrencies : widget.sendViewModel.currencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) async {
-          late final selectedCurrency;
-          if (_fiatInputMode) {
-            selectedCurrency = widget.sendViewModel.setFiatCurrency(cur as FiatCurrency);
-          } else {
-            selectedCurrency =
-                widget.sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency);
-          }
+    if (_fiatInputMode) {
+      FiatCurrencyPickerSheet.show(
+        context: context,
+        selected: widget.sendViewModel.fiatCurrency,
+        onSelected: (cur) async {
+          widget.sendViewModel.setFiatCurrency(cur);
           await output.calculateEstimatedFee();
-          return selectedCurrency;
+        },
+      );
+      return;
+    }
+
+    final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
+    final balanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
+      for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
+        r.asset: CurrencyPickerBalance(
+          amount: '${r.availableBalance} ${r.asset.title}',
+          fiat: isFiatDisabled
+              ? null
+              : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrencyTicker}',
+        ),
+    };
+
+    CurrencyPickerSheet.show(
+      context: context,
+      args: CurrencyPickerArgs(
+        items: widget.sendViewModel.currencies,
+        selected: widget.sendViewModel.selectedCryptoCurrency,
+        pickerContext: CurrencyPickerContexts.send,
+        filterByNetwork: widget.sendViewModel.walletType,
+        balanceByAsset: balanceByAsset,
+        symbolResolver: widget.sendViewModel.amountParsingProxy.getCryptoSymbol,
+        onSelected: (currency) {
+          widget.sendViewModel.selectedCryptoCurrency = currency;
+          output.calculateEstimatedFee();
         },
       ),
     );

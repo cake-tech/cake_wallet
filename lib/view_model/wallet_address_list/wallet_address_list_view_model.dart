@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:developer' as dev;
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -166,6 +167,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   // payjoinEndpoint getter is broken, but uri works
   bool get hasPayjoin =>
       wallet.type == WalletType.bitcoin && !isLightning && !isSilentPayments && uri.toString().contains("payjo.in");
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @computed
   FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;

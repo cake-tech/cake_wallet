@@ -1,4 +1,5 @@
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/format_fixed.dart';
@@ -17,6 +18,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     this.chainIconPath,
     this.enabled = false,
     this.isPotentialScam = false,
+    this.groups = const {},
   }) : super(title: title, raw: raw);
 
   final String name;
@@ -29,6 +31,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   final int decimals;
   final bool enabled;
   final bool isPotentialScam;
+  final Set<String> groups;
 
   set enabled(bool value) => this.enabled = value;
 
@@ -154,15 +157,15 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const bch = CryptoCurrency(title: 'BCH', fullName: 'Bitcoin Cash', raw: 2, name: 'bch', iconPath: 'assets/new-ui/crypto_full_icons/bitcoin-cash.svg', decimals: 8, flatIconPath: "assets/new-ui/balance_card_icons/bitcoin_cash.svg");
   static const bnb = CryptoCurrency(title: 'BNB', tag: 'BSC', fullName: 'BNB', raw: 3, name: 'bnb', iconPath: 'assets/new-ui/crypto_full_icons/bnb.svg', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/bnb.svg", chainIconPath: "assets/new-ui/chain_badges/bnb.svg");
   static const btc = CryptoCurrency(title: 'BTC', fullName: 'Bitcoin', raw: 4, name: 'btc', iconPath: 'assets/new-ui/crypto_full_icons/bitcoin.svg' ,decimals: 8, flatIconPath: "assets/new-ui/balance_card_icons/bitcoin.svg");
-  static const dai = CryptoCurrency(title: 'DAI', tag: 'ETH', fullName: 'Dai', raw: 5, name: 'dai', iconPath: 'assets/new-ui/crypto_full_icons/dai.svg', decimals: 18);
+  static const dai = CryptoCurrency(title: 'DAI', tag: 'ETH', fullName: 'Dai', raw: 5, name: 'dai', iconPath: 'assets/new-ui/crypto_full_icons/dai.svg', decimals: 18, groups: const {CurrencyGroups.stablecoin});
   static const dash = CryptoCurrency(title: 'DASH', fullName: 'Dash', raw: 6, name: 'dash', iconPath: 'assets/images/dash_icon.png', decimals: 8);
   static const eos = CryptoCurrency(title: 'EOS', fullName: 'EOS', raw: 7, name: 'eos', iconPath: 'assets/images/eos_icon.png', decimals: 4);
   static const eth = CryptoCurrency(title: 'ETH', fullName: 'Ethereum', raw: 8, name: 'eth', iconPath: 'assets/new-ui/crypto_full_icons/ethereum.svg', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/ethereum.svg", chainIconPath: "assets/new-ui/chain_badges/ethereum.svg");
   static const ltc = CryptoCurrency(title: 'LTC', fullName: 'Litecoin', raw: 9, name: 'ltc', iconPath: 'assets/new-ui/crypto_full_icons/litecoin.svg', decimals: 8, flatIconPath: "assets/new-ui/balance_card_icons/litecoin.svg", chainIconPath: "assets/new-ui/chain_badges/mweb.svg");
   static const nano = CryptoCurrency(title: 'XNO', fullName: 'Nano', raw: 10, name: 'xno', iconPath: 'assets/new-ui/crypto_full_icons/nano.svg', decimals: 30, flatIconPath: "assets/new-ui/balance_card_icons/nano.svg");
   static const trx = CryptoCurrency(title: 'TRX', fullName: 'TRON', raw: 11, name: 'trx', iconPath: 'assets/new-ui/crypto_full_icons/tron.svg', decimals: 6, flatIconPath: "assets/new-ui/balance_card_icons/tron.svg", chainIconPath: "assets/new-ui/chain_badges/tron.svg");
-  static const usdt = CryptoCurrency(title: 'USDT', tag: 'OMNI', fullName: 'Tether', raw: 12, name: 'usdt', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6);
-  static const usdterc20 = CryptoCurrency(title: 'USDT', tag: 'ETH', fullName: 'Tether', raw: 13, name: 'usdterc20', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6);
+  static const usdt = CryptoCurrency(title: 'USDT', tag: 'OMNI', fullName: 'Tether', raw: 12, name: 'usdt', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
+  static const usdterc20 = CryptoCurrency(title: 'USDT', tag: 'ETH', fullName: 'Tether', raw: 13, name: 'usdterc20', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const xlm = CryptoCurrency(title: 'XLM', fullName: 'Stellar', raw: 14, name: 'xlm', iconPath: 'assets/images/xlm_icon.png', decimals: 7);
   static const xrp = CryptoCurrency(title: 'XRP', fullName: 'Ripple', raw: 15, name: 'xrp', iconPath: 'assets/images/xrp_icon.png', decimals: 6);
   static const xhv = CryptoCurrency(title: 'XHV', fullName: 'Haven Protocol', raw: 16, name: 'xhv', iconPath: 'assets/images/xhv_logo.png', decimals: 12);
@@ -187,18 +190,18 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const bttc = CryptoCurrency(title: 'BTTC', tag: 'TRX', fullName: 'BitTorrent-NEW', raw: 33, name: 'bttc', iconPath: 'assets/images/btt_icon.png', decimals: 18);
   static const doge = CryptoCurrency(title: 'DOGE', fullName: 'Dogecoin', raw: 34, name: 'doge', iconPath: 'assets/new-ui/crypto_full_icons/dogecoin.svg', decimals: 8, flatIconPath: "assets/new-ui/balance_card_icons/dogecoin.svg");
   static const firo = CryptoCurrency(title: 'FIRO', raw: 35, name: 'firo', iconPath: 'assets/images/firo_icon.png', decimals: 8);
-  static const usdttrc20 = CryptoCurrency(title: 'USDT', tag: 'TRX', fullName: 'Tether', raw: 36, name: 'usdttrc20', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6);
+  static const usdttrc20 = CryptoCurrency(title: 'USDT', tag: 'TRX', fullName: 'Tether', raw: 36, name: 'usdttrc20', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const hbar = CryptoCurrency(title: 'HBAR', fullName: 'Hedera', raw: 37, name: 'hbar', iconPath: 'assets/images/hbar_icon.png', decimals: 8);
   static const sc = CryptoCurrency(title: 'SC', fullName: 'Siacoin', raw: 38, name: 'sc', iconPath: 'assets/images/sc_icon.png', decimals: 16);
   static const sol = CryptoCurrency(title: 'SOL', fullName: 'Solana', raw: 39, name: 'sol', iconPath: 'assets/new-ui/crypto_full_icons/solana.svg', decimals: 9, flatIconPath: "assets/new-ui/balance_card_icons/solana.svg", chainIconPath: "assets/new-ui/chain_badges/solana.svg");
-  static const usdc = CryptoCurrency(title: 'USDC', tag: 'ETH', fullName: 'USDC', raw: 40, name: 'usdc', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6);
-  static const usdcsol = CryptoCurrency(title: 'USDC', tag: 'SOL', fullName: 'USDC Coin', raw: 41, name: 'usdcsol', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg',  decimals: 6);
+  static const usdc = CryptoCurrency(title: 'USDC', tag: 'ETH', fullName: 'USDC', raw: 40, name: 'usdc', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
+  static const usdcsol = CryptoCurrency(title: 'USDC', tag: 'SOL', fullName: 'USDC Coin', raw: 41, name: 'usdcsol', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg',  decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', fullName: 'Shielded Zcash', raw: 42, name: 'zaddr', iconPath: 'assets/new-ui/crypto_full_icons/zcash.svg', decimals: 8);
   static const tzec = CryptoCurrency(title: 'tZEC', tag: 'ZEC', fullName: 'Transparent Zcash', raw: 43, name: 'zec', iconPath: 'assets/new-ui/crypto_full_icons/zcash.svg', decimals: 8);
   static const zen = CryptoCurrency(title: 'ZEN', fullName: 'Horizen', raw: 44, name: 'zen', iconPath: 'assets/images/zen_icon.png', decimals: 8);
   static const xvg = CryptoCurrency(title: 'XVG', fullName: 'Verge', raw: 45, name: 'xvg', iconPath: 'assets/images/xvg_icon.png', decimals: 8);
 
-  static const usdcpoly = CryptoCurrency(title: 'USDC', tag: 'POL', fullName: 'USDC', raw: 46, name: 'usdcpoly', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6);
+  static const usdcpoly = CryptoCurrency(title: 'USDC', tag: 'POL', fullName: 'USDC', raw: 46, name: 'usdcpoly', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const dcr = CryptoCurrency(title: 'DCR', fullName: 'Decred', raw: 47, name: 'dcr', iconPath: 'assets/new-ui/crypto_full_icons/decred.svg', decimals: 8, flatIconPath: "assets/new-ui/balance_card_icons/decred.svg");
   static const kmd = CryptoCurrency(title: 'KMD', fullName: 'Komodo', raw: 48, name: 'kmd', iconPath: 'assets/images/kmd_icon.png', decimals: 8);
   static const mana = CryptoCurrency(title: 'MANA', tag: 'ETH', fullName: 'Decentraland', raw: 49, name: 'mana', iconPath: 'assets/images/mana_icon.png', decimals: 18);
@@ -207,7 +210,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const mkr = CryptoCurrency(title: 'MKR', tag: 'ETH', fullName: 'Maker', raw: 52, name: 'mkr', iconPath: 'assets/images/mkr_icon.png', decimals: 18);
   static const near = CryptoCurrency(title: 'NEAR', fullName: 'NEAR Protocol', raw: 53, name: 'near', iconPath: 'assets/images/near_icon.png', decimals: 24);
   static const oxt = CryptoCurrency(title: 'OXT', tag: 'ETH', fullName: 'Orchid', raw: 54, name: 'oxt', iconPath: 'assets/images/oxt_icon.png', decimals: 18);
-  static const paxg = CryptoCurrency(title: 'PAXG', tag: 'ETH', fullName: 'Pax Gold', raw: 55, name: 'paxg', iconPath: 'assets/new-ui/crypto_full_icons/paxg.svg', decimals: 18);
+  static const paxg = CryptoCurrency(title: 'PAXG', tag: 'ETH', fullName: 'Pax Gold', raw: 55, name: 'paxg', iconPath: 'assets/new-ui/crypto_full_icons/paxg.svg', decimals: 18, groups: const {CurrencyGroups.stablecoin});
   static const pivx = CryptoCurrency(title: 'PIVX', raw: 56, name: 'pivx', iconPath: 'assets/images/pivx_icon.png', decimals: 8);
   static const rune = CryptoCurrency(title: 'RUNE', fullName: 'Thorchain', raw: 57, name: 'rune', iconPath: 'assets/images/rune_icon.png', decimals: 18);
   static const rvn = CryptoCurrency(title: 'RVN', fullName: 'Ravencoin', raw: 58, name: 'rvn', iconPath: 'assets/images/rvn_icon.png', decimals: 8);
@@ -223,8 +226,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const cro = CryptoCurrency(title: 'CRO', tag: 'ETH', fullName: 'Crypto.com Cronos', raw: 68, name: 'cro', iconPath: 'assets/images/cro_icon.png', decimals: 8);
   static const ens = CryptoCurrency(title: 'ENS', tag: 'ETH', fullName: 'Ethereum Name Service', raw: 69, name: 'ens', iconPath: 'assets/images/ens_icon.png', decimals: 18);
   static const ftm = CryptoCurrency(title: 'FTM', tag: 'ETH', fullName: 'Fantom', raw: 70, name: 'ftm', iconPath: 'assets/images/ftm_icon.png', decimals: 18);
-  static const frax = CryptoCurrency(title: 'FRAX', tag: 'ETH', fullName: 'Frax', raw: 71, name: 'frax', iconPath: 'assets/images/frax_icon.png', decimals: 18);
-  static const gusd = CryptoCurrency(title: 'GUSD', tag: 'ETH', fullName: 'Gemini USD', raw: 72, name: 'gusd', iconPath: 'assets/images/gusd_icon.png', decimals: 2);
+  static const frax = CryptoCurrency(title: 'FRAX', tag: 'ETH', fullName: 'Frax', raw: 71, name: 'frax', iconPath: 'assets/images/frax_icon.png', decimals: 18, groups: const {CurrencyGroups.stablecoin});
+  static const gusd = CryptoCurrency(title: 'GUSD', tag: 'ETH', fullName: 'Gemini USD', raw: 72, name: 'gusd', iconPath: 'assets/images/gusd_icon.png', decimals: 2, groups: const {CurrencyGroups.stablecoin});
   static const gtc = CryptoCurrency(title: 'GTC', tag: 'ETH', fullName: 'Gitcoin', raw: 73, name: 'gtc', iconPath: 'assets/images/gtc_icon.png', decimals: 18);
   static const grt = CryptoCurrency(title: 'GRT', tag: 'ETH', fullName: 'The Graph', raw: 74, name: 'grt', iconPath: 'assets/images/grt_icon.png', decimals: 18);
   static const ldo = CryptoCurrency(title: 'LDO', tag: 'ETH', fullName: 'Lido DAO', raw: 75, name: 'ldo', iconPath: 'assets/images/ldo_icon.png', decimals: 18);
@@ -232,36 +235,36 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const cake = CryptoCurrency(title: 'CAKE', tag: 'BSC', fullName: 'PancakeSwap', raw: 77, name: 'cake', iconPath: 'assets/images/cake_icon.png', decimals: 18);
   static const pepe = CryptoCurrency(title: 'PEPE', tag: 'ETH', fullName: 'Pepe', raw: 78, name: 'pepe', iconPath: 'assets/images/pepe_icon.png', decimals: 18);
   static const storj = CryptoCurrency(title: 'STORJ', tag: 'ETH', fullName: 'Storj', raw: 79, name: 'storj', iconPath: 'assets/images/storj_icon.png', decimals: 8);
-  static const tusd = CryptoCurrency(title: 'TUSD', tag: 'ETH', fullName: 'TrueUSD', raw: 80, name: 'tusd', iconPath: 'assets/images/tusd_icon.png', decimals: 18);
+  static const tusd = CryptoCurrency(title: 'TUSD', tag: 'ETH', fullName: 'TrueUSD', raw: 80, name: 'tusd', iconPath: 'assets/images/tusd_icon.png', decimals: 18, groups: const {CurrencyGroups.stablecoin});
   static const wbtc = CryptoCurrency(title: 'WBTC', tag: 'ETH', fullName: 'Wrapped Bitcoin', raw: 81, name: 'wbtc', iconPath: 'assets/new-ui/crypto_full_icons/wbtc.svg', decimals: 8);
   static const weth = CryptoCurrency(title: 'WETH', tag: 'ETH', fullName: 'Wrapped Ethereum', raw: 82, name: 'weth', iconPath: 'assets/new-ui/crypto_full_icons/ethereum.svg', decimals: 18);
   static const zrx = CryptoCurrency(title: 'ZRX', tag: 'ETH', fullName: '0x Protocol', raw: 83, name: 'zrx', iconPath: 'assets/images/zrx_icon.png', decimals: 18);
   static const dydx = CryptoCurrency(title: 'DYDX', tag: 'ETH', fullName: 'dYdX', raw: 84, name: 'dydx', iconPath: 'assets/images/dydx_icon.png', decimals: 18);
   static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/new-ui/crypto_full_icons/ethereum.svg', decimals: 18);
   static const banano = CryptoCurrency(title: 'BAN', fullName: 'Banano', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png', decimals: 29,flatIconPath: "assets/new-ui/balance_card_icons/nano.svg");
-  static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POL', fullName: 'Tether (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6);
-  static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POL', fullName: 'USDC (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6);
+  static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POL', fullName: 'Tether (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
+  static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POL', fullName: 'USDC (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kas', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
   static const digibyte = CryptoCurrency(title: 'DGB', fullName: 'DigiByte', raw: 90, name: 'dgb', iconPath: 'assets/images/digibyte.png', decimals: 8);
-  static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6);
-  static const usdcTrc20 = CryptoCurrency(title: 'USDC', tag: 'TRX', fullName: 'USDC Coin', raw: 92, name: 'usdctrc20', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6);
+  static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
+  static const usdcTrc20 = CryptoCurrency(title: 'USDC', tag: 'TRX', fullName: 'USDC Coin', raw: 92, name: 'usdctrc20', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg', decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const tbtc = CryptoCurrency(title: 'tBTC', fullName: 'Testnet Bitcoin', raw: 93, name: 'tbtc', iconPath: 'assets/images/tbtc.png', decimals: 8);
   static const wow = CryptoCurrency(title: 'WOW', fullName: 'Wownero', raw: 94, name: 'wow', iconPath: 'assets/images/crypto/wownero.svg', decimals: 11);
   static const ton = CryptoCurrency(title: 'TON', fullName: 'Toncoin', raw: 95, name: 'ton', iconPath: 'assets/new-ui/crypto_full_icons/ton.svg', decimals: 8);
   static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 96, name: 'zano', iconPath: 'assets/new-ui/crypto_full_icons/zano.svg', decimals: 12, flatIconPath: "assets/new-ui/balance_card_icons/zano.svg", chainIconPath: "assets/new-ui/chain_badges/zano.svg");
   static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 97, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
-  static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png',decimals: 18);
-  static const usdtbsc = CryptoCurrency(title: 'USDT', tag: 'BSC', fullName: 'USDT Binance coin', raw: 99, name: 'usdtbsc', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 18);
+  static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png',decimals: 18, groups: const {CurrencyGroups.stablecoin});
+  static const usdtbsc = CryptoCurrency(title: 'USDT', tag: 'BSC', fullName: 'USDT Binance coin', raw: 99, name: 'usdtbsc', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg', decimals: 18, groups: const {CurrencyGroups.stablecoin});
   static const ndeps = CryptoCurrency(title: 'NDEPS', tag: 'ETH', fullName: 'Native Decentralized Euro Protocol Share', raw: 100, name: 'ndeps', iconPath: 'assets/images/ndeps_icon.png', decimals: 18);
   static const deps = CryptoCurrency(title: 'DEPS', tag: 'ETH', fullName: 'Decentralized Euro Protocol Share', raw: 101, name: 'deps', iconPath: 'assets/images/deps_icon.png', decimals: 18);
   static const kbtc = CryptoCurrency(title: 'KBTC', tag: 'ETH', fullName: 'Kraken Wrapped Bitcoin', raw: 102, name: 'kbtc', iconPath: 'assets/images/kbtc_icon.png', decimals: 8);
   static const cbbtc = CryptoCurrency(title: 'CBBTC', tag: 'ETH', fullName: 'Coinbase Wrapped BTC', raw: 103, name: 'cbbtc', iconPath: 'assets/images/cbbtc_icon.png', decimals: 8);
   static const baseEth = CryptoCurrency(title: 'ETH', tag: 'BASE', fullName: 'Ethereum', raw: 104, name: 'baseth', iconPath: 'assets/new-ui/crypto_full_icons/base.svg', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/base.svg", chainIconPath: "assets/new-ui/chain_badges/base.svg");
-  static const usde = CryptoCurrency(title: 'USDE', tag: 'BASE', fullName: 'Ethena USDE', raw: 105, name: 'usde', iconPath: 'assets/new-ui/crypto_full_icons/usde.svg',  decimals: 18);
+  static const usde = CryptoCurrency(title: 'USDE', tag: 'BASE', fullName: 'Ethena USDE', raw: 105, name: 'usde', iconPath: 'assets/new-ui/crypto_full_icons/usde.svg',  decimals: 18, groups: const {CurrencyGroups.stablecoin});
   static const arbEth = CryptoCurrency(title: 'ETH', tag: 'ARB', fullName: 'Ethereum', raw: 106, name: 'arbeth', iconPath: 'assets/new-ui/crypto_full_icons/ethereum.svg', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/arbitrum.svg");
   static const zec = CryptoCurrency(title: 'ZEC', fullName: 'Zcash', raw: 107, name: 'zec', iconPath: 'assets/new-ui/crypto_full_icons/zcash.svg', decimals: 8,flatIconPath: "assets/new-ui/balance_card_icons/zcash.svg");
-  static const usdcArb = CryptoCurrency(title: 'USDC', tag: 'ARB', fullName: 'USDC Coin', raw: 108, name: 'usdcarb', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg',  decimals: 6);
-  static const usdtArb = CryptoCurrency(title: 'USDT', tag: 'ARB', fullName: 'USDT Tether', raw: 109, name: 'usdtarb', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg',  decimals: 6);
+  static const usdcArb = CryptoCurrency(title: 'USDC', tag: 'ARB', fullName: 'USDC Coin', raw: 108, name: 'usdcarb', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg',  decimals: 6, groups: const {CurrencyGroups.stablecoin});
+  static const usdtArb = CryptoCurrency(title: 'USDT', tag: 'ARB', fullName: 'USDT Tether', raw: 109, name: 'usdtarb', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg',  decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const ltcmweb = CryptoCurrency(title: 'LTC', fullName: 'Litecoin MWeb', raw: 110, name: 'ltcmweb', iconPath: 'assets/new-ui/crypto_full_icons/litecoin.svg', decimals: 8);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
@@ -409,6 +412,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     int? decimals,
     bool? enabled,
     bool? isPotentialScam,
+    Set<String>? groups,
   }) =>
       CryptoCurrency(
         title: title ?? this.title,
@@ -420,6 +424,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
         decimals: decimals ?? this.decimals,
         enabled: enabled ?? this.enabled,
         isPotentialScam: isPotentialScam ?? this.isPotentialScam,
+        groups: groups ?? this.groups,
       );
 
   @override

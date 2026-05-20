@@ -1,11 +1,11 @@
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart';
@@ -179,35 +179,11 @@ class DisplaySettingsPage extends StatelessWidget {
                             keyValue: "display_settings_fiat_currency",
                             label: S.of(context).settings_currency,
                             options: [_displaySettingsViewModel.fiatCurrency.title],
-                            onTap: () async {
-                              final items = FiatCurrency.all;
-
-                              final selectedAtIndex =
-                              items.indexOf(_displaySettingsViewModel.fiatCurrency);
-
-                              await showPopUp<void>(
-                                context: context,
-                                builder: (_) => Picker(
-                                  items: items,
-                                  selectedAtIndex: selectedAtIndex,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  onItemSelected: (FiatCurrency currency) {
-                                    _displaySettingsViewModel.setFiatCurrency(currency);
-                                  },
-                                  images: FiatCurrency.all
-                                      .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
-                                      .toList(),
-                                  hintText: S.of(context).search_currency,
-                                  isGridView: true,
-                                  matchingCriteria: (FiatCurrency currency, String searchText) {
-                                    return currency.title.toLowerCase().contains(searchText) ||
-                                        currency.fullName.toLowerCase().contains(searchText);
-                                  },
-                                  isSeparated: false,
-
-                                ),
-                              );
-                            }),
+                            onTap: () => FiatCurrencyPickerSheet.show(
+                                  context: context,
+                                  selected: _displaySettingsViewModel.fiatCurrency,
+                                  onSelected: _displaySettingsViewModel.setFiatCurrency,
+                                )),
                       ListItemSelector(
                           keyValue: "display_settings_language",
                           label: S.of(context).settings_change_language,
