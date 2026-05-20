@@ -32,7 +32,7 @@
           "hidden" : false,
           "image-name-specializations" : [
             {
-              "value" : "Group 5.svg"
+              "value" : "base.svg"
             },
             {
               "appearance" : "dark",
