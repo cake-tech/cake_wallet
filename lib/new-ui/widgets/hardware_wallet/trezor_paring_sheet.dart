@@ -90,9 +90,7 @@ class _HardwareWalletTrezorParingSheetState extends State<HardwareWalletTrezorPa
                     SizedBox(),
                     NewPrimaryButton(
                       text: S.of(context).continue_text,
-                      onPressed: () {
-                        Navigator.of(context).pop(_paringCodeController.text);
-                      },
+                      onPressed: () => Navigator.of(context).pop(_paringCodeController.text),
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,
                     )

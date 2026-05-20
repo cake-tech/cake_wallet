@@ -46,4 +46,11 @@ class Trezor {
 
     return jsonEncode(keyImages.toMap());
   }
+
+  Future<String> signTransaction(String json) async {
+    final res = await TrezorMonero(service.client).signTransaction(jsonDecode(json));
+
+    print("extra: ${res["extra"]}");
+    return jsonEncode(res);
+  }
 }

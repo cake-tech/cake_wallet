@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
@@ -157,22 +158,11 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   Future<void> _connectToDevice(HardwareWalletDevice device) async {
-    // BuildContext? ctx;
-    // showModalBottomSheet(
-    //     isScrollControlled: true,
-    //     context: navigatorKey.currentContext ?? context,
-    //     backgroundColor: Colors.transparent,
-    //     builder: (context) {
-    //       ctx = context;
-    //       return HardwareWalletProceedOnDeviceSheet(
-    //         hardwareWalletType: HardwareWalletType.trezor,
-    //       );
-    //     });
     final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
-    // if (ctx != null) {
-    //   Navigator.pop(ctx!);
-    // }
-    if (isConnected && context.mounted) widget.onConnectDevice(context, widget.hardwareWalletVM);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isConnected) widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
+    });
   }
 
   String _getDeviceTileLeading(HardwareWalletDeviceType deviceType) {
