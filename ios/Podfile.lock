@@ -1,6 +1,8 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - Flutter
+  - breez_sdk_spark_flutter (0.14.0):
+    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
   - CryptoSwift (1.8.4)
@@ -252,8 +254,9 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
-  connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
+  bitbox_flutter: 9505732798041c413152669751beeaecc5fe400f
+  breez_sdk_spark_flutter: ed3b6709b8ce9b40309d8728640eade5b19e8a0d
+  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
