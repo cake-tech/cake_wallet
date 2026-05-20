@@ -959,8 +959,8 @@ abstract class EVMChainWalletBase
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
 
-      totalAmount = outputs.fold<Money>(
-          Money.zero(transactionCurrency), (acc, output) => acc + output.cryptoAmount);
+      totalAmount = outputs.fold<Money>(Money.zero(transactionCurrency),
+          (acc, output) => acc + output.cryptoAmount.copyWith(currency: transactionCurrency));
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -980,7 +980,7 @@ abstract class EVMChainWalletBase
     } else {
       final output = outputs.first;
       if (!output.sendAll) {
-        totalAmount = output.cryptoAmount;
+        totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
