@@ -18,6 +18,7 @@
 		724FDA327BF191BC29DCAA2E /* Constants.swift in Resources */ = {isa = PBXBuildFile; fileRef = 0CCA7ADAD6FF9185EBBB2BCA /* Constants.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		73138617307FA4F838D21D62 /* ServiceLogger.swift in Resources */ = {isa = PBXBuildFile; fileRef = F42258C3697CFE3C8C8D1933 /* ServiceLogger.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
+		8482AC522FBB29FF00FFF059 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8482AC512FBB29FF00FFF059 /* AppIcon.icon */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -73,6 +74,7 @@
 		78D25C60B94E9D9E48D52E5E /* ResourceHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ResourceHelper.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/ResourceHelper.swift"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7D3364C03978A8A74B6D586E /* LnurlPay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LnurlPay.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/Task/LnurlPay.swift"; sourceTree = "<group>"; };
+		8482AC512FBB29FF00FFF059 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		91C524F800843E0A3F17E004 /* ReceivePayment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReceivePayment.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/Task/ReceivePayment.swift"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				97C146EF1CF9000F007C117D /* Products */,
 				84389F1A05D5860790D82820 /* Pods */,
 				06957875428D0F5AAE053765 /* Frameworks */,
+				8482AC512FBB29FF00FFF059 /* AppIcon.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -301,6 +304,7 @@
 				2193F104374FA2746CE8945B /* ResourceHelper.swift in Resources */,
 				F5EE19868D6F10D814BF73AD /* SDKNotificationService.swift in Resources */,
 				B6C6E59403ACDE44724C12F4 /* ServiceConfig.swift in Resources */,
+				8482AC522FBB29FF00FFF059 /* AppIcon.icon in Resources */,
 				73138617307FA4F838D21D62 /* ServiceLogger.swift in Resources */,
 				495FEFF9B395392FED3425DE /* TaskProtocol.swift in Resources */,
 				A1B4A70C9CFA13AB71662216 /* LnurlPay.swift in Resources */,
@@ -519,7 +523,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fotolockr.cakewallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cakewallet.monero;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -671,7 +675,7 @@
 				);
 				MARKETING_VERSION = 1.0.1;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fotolockr.cakewallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cakewallet.monero;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -714,7 +718,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fotolockr.cakewallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cakewallet.monero;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
