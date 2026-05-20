@@ -77,48 +77,77 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
   @override
   void initState() {
     super.initState();
-    selectedNetwork = widget.fixedNetwork ?? WalletType.ethereum;
+    final baseNetwork = widget.fixedNetwork ?? WalletType.ethereum;
+    selectedNetwork = _resolveGenericETHDetectionResultToSpecificChain(baseNetwork);
     _autoSelectToken();
   }
 
   bool get _isNetworkSelectable =>
       widget.fixedNetwork == null || isEVMCompatibleChain(widget.fixedNetwork!);
 
+  CryptoCurrency? _tokenMatchingContract(List<CryptoCurrency> tokens, String? rawContract) {
+    final trimmed = rawContract?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+
+    for (final token in tokens) {
+      if (token is Erc20Token && token.contractAddress.toLowerCase() == trimmed.toLowerCase()) {
+        return token;
+      } else if (token is SPLToken && token.mintAddress == trimmed) {
+        return token;
+      } else if (token is TronToken && token.contractAddress == trimmed) {
+        return token;
+      }
+    }
+    return null;
+  }
+
+  WalletType _resolveGenericETHDetectionResultToSpecificChain(WalletType network) {
+    if (network != WalletType.ethereum) return network;
+    final current = widget.paymentViewModel.currentWalletType;
+    if (isEVMCompatibleChain(current)) return current;
+    return network;
+  }
+
   Future<void> _autoSelectToken() async {
-    if (selectedNetwork == null) return;
+    final initialNetwork = selectedNetwork;
+    if (initialNetwork == null || !mounted) return;
+
+    final network = _resolveGenericETHDetectionResultToSpecificChain(initialNetwork);
 
     setState(() {
+      selectedNetwork = network;
       isLoadingTokens = true;
       tokenLoadError = null;
     });
 
     try {
-      final tokens = await TokenUtilities.getAvailableTokensForNetwork(
-        selectedNetwork!,
-      );
+      final tokens = await TokenUtilities.getAvailableTokensForNetwork(network);
+      if (!mounted) return;
 
       if (tokens.isEmpty) {
         setState(() {
           tokenLoadError = 'No tokens available';
           isLoadingTokens = false;
+          selectedToken = null;
         });
         return;
       }
 
+      final matchedToken =
+          _tokenMatchingContract(tokens, widget.paymentRequest.contractAddress) ?? tokens.first;
+
       setState(() {
-        selectedToken = tokens.firstWhere((e) {
-          return (e is Erc20Token && e.contractAddress == widget.paymentRequest.contractAddress) ||
-              (e is SPLToken && e.mintAddress == widget.paymentRequest.contractAddress) ||
-              (e is TronToken && e.contractAddress == widget.paymentRequest.contractAddress);
-        }, orElse: () => tokens.first);
+        selectedToken = matchedToken;
         isLoadingTokens = false;
+        tokenLoadError = null;
       });
     } catch (e) {
       printV('Auto-select token error: $e');
+      if (!mounted) return;
       setState(() {
         tokenLoadError = 'Failed to load tokens';
         isLoadingTokens = false;
-        selectedToken = walletTypeToCryptoCurrency(selectedNetwork!);
+        selectedToken = walletTypeToCryptoCurrency(network);
       });
     }
   }
