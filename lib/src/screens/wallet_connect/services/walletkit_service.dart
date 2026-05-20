@@ -185,14 +185,10 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
-  Future<void> _emitEvent() async {
+  Future<void> _emitEvent({int retries = 0}) async {
     final isOnline = _walletKit.core.connectivity.isOnline.value;
-    if (!isOnline) {
+    if (!isOnline && retries < 3) {
       await Future.delayed(const Duration(milliseconds: 500));
-Future<void> _emitEvent({int retries = 0}) async {
-final isOnline = _walletKit.core.connectivity.isOnline.value;
-if (!isOnline && retries < 3) {
-await Future.delayed(const Duration(milliseconds: 500));
       await _emitEvent(retries: ++retries);
       return;
     }
