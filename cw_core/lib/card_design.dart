@@ -384,7 +384,7 @@ class CardDesign {
     CryptoCurrency.btcln: _CurrencyIconNames(ticker: 'ln', longName: 'lightning'),
     CryptoCurrency.ltc: _CurrencyIconNames(ticker: 'ltc', longName: 'litecoin'),
     CryptoCurrency.xmr: _CurrencyIconNames(
-        ticker: 'xmr', longName: 'monero', ogPath: 'assets/images/crypto/xmr-og.webp'),
+        ticker: 'xmr', longName: 'monero', ogPath: 'assets/images/xmr-og.webp'),
     CryptoCurrency.nano: _CurrencyIconNames(ticker: 'xno', longName: 'nano'),
     CryptoCurrency.maticpoly: _CurrencyIconNames(ticker: 'pol', longName: 'polygon'),
     CryptoCurrency.sol: _CurrencyIconNames(ticker: 'sol', longName: 'solana'),
