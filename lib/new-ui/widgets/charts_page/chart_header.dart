@@ -110,6 +110,10 @@ class _ChartHeaderState extends State<ChartHeader> {
                                   HapticFeedback.selectionClick();
                                   setState(() {
                                     _viewedPrice = newPrice;
+                                  });
+                                }
+                                if (_viewedTime != newTime) {
+                                  setState(() {
                                     _viewedTime = newTime;
                                   });
                                 }
