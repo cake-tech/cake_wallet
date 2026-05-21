@@ -534,11 +534,6 @@ class _SeeAllRow extends StatelessWidget {
                     ),
               ),
             ),
-            Icon(
-              expanded ? Icons.expand_less : Icons.expand_more,
-              size: 20,
-              color: colors.primary,
-            ),
           ],
         ),
       ),
