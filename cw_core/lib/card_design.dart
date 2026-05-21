@@ -477,6 +477,7 @@ class CardDesign {
   CardDesign withIconStyleIndex(int iconStyleIndex, CryptoCurrency currency) {
     final paths = iconPathsForWalletType(currency);
     if (paths.isEmpty) return this;
+    if (iconStyleIndex < 0 || iconStyleIndex >= paths.length) return this;
     return withIcon(paths[iconStyleIndex]);
   }
 
