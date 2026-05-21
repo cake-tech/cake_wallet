@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class ChartHeader extends StatefulWidget {
   const ChartHeader(
@@ -32,6 +33,7 @@ class ChartHeader extends StatefulWidget {
 
 class _ChartHeaderState extends State<ChartHeader> {
   String? _viewedPrice;
+  String? _viewedTime;
 
   @override
   Widget build(BuildContext context) {
@@ -66,12 +68,23 @@ class _ChartHeaderState extends State<ChartHeader> {
                       crossAxisAlignment:
                           widget.centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
+                        Container(
                           // has to be constant-size, otherwise will jump around when loading
                           height: 36,
+                          alignment: widget.centered ? Alignment.center : Alignment.centerLeft,
                           child: (s is ChartsLoaded)
-                              ? ChangeDisplay(
-                                  changeData: s.changeDataFor(widget.currency), ticker: s.fiatTicker)
+                              ? (_viewedPrice != null && _viewedTime != null)
+                                  ? Text(
+                                      _viewedTime!,
+                                      style: TextStyle(
+                                          fontFamily: "IBM Plex Mono",
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          fontSize: 16),
+                                    )
+                                  : ChangeDisplay(
+                                      changeData: s.changeDataFor(widget.currency),
+                                      ticker: s.fiatTicker)
                               : SizedBox.shrink(),
                         ),
                         if (s is ChartsLoaded)
@@ -85,16 +98,19 @@ class _ChartHeaderState extends State<ChartHeader> {
                                 if (!event.isInterestedForInteractions) {
                                   setState(() {
                                     _viewedPrice = null;
+                                    _viewedTime = null;
                                   });
                                   return;
                                 }
 
                                 final newPrice =
                                     response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
+                                final newTime = DateFormat("M/d/y HH:mm").format(DateTime.fromMillisecondsSinceEpoch(response?.lineBarSpots?.firstOrNull?.x.toInt()??0));
                                 if (_viewedPrice != newPrice) {
                                   HapticFeedback.selectionClick();
                                   setState(() {
                                     _viewedPrice = newPrice;
+                                    _viewedTime = newTime;
                                   });
                                 }
                               },
