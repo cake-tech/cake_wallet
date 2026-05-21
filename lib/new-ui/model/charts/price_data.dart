@@ -16,7 +16,7 @@ Currency currencyFromApiString(String key) {
     case "crypto":
       return CryptoCurrency.fromString(id);
     case "evm":
-      throw UnimplementedError("i promise i'll take care of this, i really want a working build");
+      throw UnimplementedError();
     case "sol":
       throw UnimplementedError();
   }

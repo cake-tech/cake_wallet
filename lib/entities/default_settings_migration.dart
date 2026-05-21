@@ -633,7 +633,7 @@ Future<void> defaultSettingsMigration(
             oldUri: ['base.nownodes.io'],
           );
           break;
-        case 65:
+        case 66:
           await createDefaultChartsData();
           break;
         default:
