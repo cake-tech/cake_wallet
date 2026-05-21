@@ -203,11 +203,10 @@ CREATE TABLE BalanceCardStyleSettings (
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
+        ''');
       await _createBridgeTransferTable(db);
       await _createTradeTable(db);
       _createChartsTables(db);
-
-        ''');
     }
   );
 }
