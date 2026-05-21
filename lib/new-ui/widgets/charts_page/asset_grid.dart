@@ -184,7 +184,7 @@ class ChartsAssetCard extends StatelessWidget {
                   spacing: 8,
                   children: [
                     CakeImageWidget(
-                      imageUrl: currency.iconSvgPath ?? currency.iconPath,
+                      imageUrl: currency.iconPath,
                       width: 24,
                       height: 24,
                     ),

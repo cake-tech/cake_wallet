@@ -19,7 +19,7 @@ class ChartViewCoinHeader extends StatelessWidget {
           children: [
             if(isFavorite)
             CakeImageWidget(
-              imageUrl: currency.iconSvgPath ?? currency.iconPath ?? "",
+              imageUrl: currency.iconPath ?? "",
               width: 30,
               height: 30,
             ),

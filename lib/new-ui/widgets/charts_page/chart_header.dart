@@ -54,7 +54,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                   children: [
                     if (!widget.favorite)
                       CakeImageWidget(
-                        imageUrl: widget.currency.iconSvgPath ?? widget.currency.iconPath ?? "",
+                        imageUrl: widget.currency.iconPath ?? "",
                         width: 60,
                         height: 60,
                       ),
