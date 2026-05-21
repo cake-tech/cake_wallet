@@ -27,6 +27,7 @@ class NodeListRow extends StatelessWidget {
     final hasLabel = node.label != null && node.label!.isNotEmpty;
     final uriText = "${node.uri.host}:${node.uri.port}";
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12),
@@ -72,6 +73,7 @@ class NodeListRow extends StatelessWidget {
       children: [
         if (speed != null) CakeImageWidget(imageUrl: speed!.iconPath, width: 24, height: 24),
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () async {
             final res = await Navigator.of(context).pushNamed(isPow ? Routes.newPowNode : Routes.newNode,
                 arguments: {'editingNode': node, 'isSelected': isSelected});
