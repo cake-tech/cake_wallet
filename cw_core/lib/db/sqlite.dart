@@ -7,6 +7,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Database? db;
 
+
+
 Future<void> _addColumnIfNotExists(
   Database db, {
   required String table,
@@ -39,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 3,
+  db = await openDatabase(dbFile.path, version: 7,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -81,6 +83,27 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: 'INTEGER DEFAULT 0',
         );
       }
+      if (oldVersion <= 3) {
+        await _addColumnIfNotExists(db, table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
+        // null - primary token (eth, sol etc)
+        // not null - address of fav token
+        // if address doesn't correspond to a valid token, fallback to primary token
+        await _addColumnIfNotExists(db, table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
+      }
+      if (oldVersion <= 4) {
+        await _createBridgeTransferTable(db);
+      }
+      if (oldVersion <= 5) {
+        await _createTradeTable(db);
+      }
+      if (oldVersion <= 6) {
+        await _addColumnIfNotExists(
+          db,
+          table: 'Trade',
+          column: 'toAddressExtraId',
+          definition: 'TEXT',
+        );
+      }
     },
     onCreate: (Database db, int version) async {
       await db.execute(
@@ -107,7 +130,9 @@ CREATE TABLE WalletInfo (
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
   sortOrder INTEGER DEFAULT (0) NOT NULL,
-  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE
+  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
+  showCombinedBalance BOOLEAN DEFAULT TRUE,
+  favoriteTokenAddress TEXT DEFAULT NULL
 );
 ''');
 
@@ -176,8 +201,73 @@ CREATE TABLE BalanceCardStyleSettings (
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
+      await _createBridgeTransferTable(db);
+      await _createTradeTable(db);
     }
   );
+}
+
+Future<void> _createTradeTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS Trade (
+  tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id TEXT NOT NULL,
+  providerRaw INTEGER NOT NULL DEFAULT 0,
+  fromTitle TEXT,
+  fromName TEXT,
+  fromTag TEXT,
+  fromFullName TEXT,
+  fromDecimals INTEGER,
+  fromRaw INTEGER,
+  fromIconPath TEXT,
+  fromFlatIconPath TEXT,
+  fromChainIconPath TEXT,
+  toTitle TEXT,
+  toName TEXT,
+  toTag TEXT,
+  toFullName TEXT,
+  toDecimals INTEGER,
+  toRaw INTEGER,
+  toIconPath TEXT,
+  toFlatIconPath TEXT,
+  toChainIconPath TEXT,
+  stateRaw TEXT NOT NULL DEFAULT '',
+  createdAt INTEGER,
+  expiredAt INTEGER,
+  amount TEXT NOT NULL DEFAULT '',
+  receiveAmount TEXT,
+  inputAddress TEXT,
+  extraId TEXT,
+  outputTransaction TEXT,
+  refundAddress TEXT,
+  walletId TEXT,
+  payoutAddress TEXT,
+  toAddressExtraId TEXT,
+  password TEXT,
+  providerId TEXT,
+  providerName TEXT,
+  fromWalletAddress TEXT,
+  memo TEXT,
+  txId TEXT,
+  isRefund INTEGER DEFAULT 0,
+  isSendAll INTEGER DEFAULT 0,
+  router TEXT,
+  needToRegisterInSwapXyz INTEGER DEFAULT 0,
+  sourceTokenAddress TEXT,
+  sourceTokenDecimals INTEGER,
+  routerData TEXT,
+  routerValue TEXT,
+  routerChainId INTEGER,
+  sourceTokenAmountRaw TEXT,
+  requiresTokenApproval INTEGER DEFAULT 0,
+  chainId INTEGER,
+  fee REAL
+);
+''');
+  await db.execute('''
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
+ON Trade (id);
+''');
 }
 
 Future<Map<String, dynamic>> dumpDb() async {
@@ -213,4 +303,31 @@ Future<Map<String, dynamic>> dumpCustomDb(String path) async {
     ret[tableName] = await db.query(tableName);
   }
   return ret;
+}
+
+Future<void> _createBridgeTransferTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS BridgeTransfer (
+  id TEXT NOT NULL PRIMARY KEY,
+  wallet_id TEXT NOT NULL,
+  source_chain_id INTEGER NOT NULL,
+  destination_chain_id INTEGER NOT NULL,
+  token_symbol TEXT NOT NULL,
+  token_contract TEXT NOT NULL,
+  amount TEXT NOT NULL,
+  recipient_address TEXT NOT NULL,
+  source_tx_hash TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER,
+  confirmed_at INTEGER,
+  amount_raw TEXT,
+  error_message TEXT,
+  status_message TEXT
+);
+''');
+  await db.execute('''
+CREATE INDEX IF NOT EXISTS idx_bridgetransfer_wallet_id
+ON BridgeTransfer(wallet_id);
+''');
 }

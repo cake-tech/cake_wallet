@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -60,7 +59,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -217,6 +216,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final body = {
       'affiliateId': affiliateId,
       'settleAddress': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'settleMemo': request.toAddressExtraId,
       'refundAddress': request.refundAddress,
     };
 
@@ -337,8 +337,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
       extraId: depositMemo,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
@@ -377,19 +376,25 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
     final depositMemo = responseJSON['depositMemo'] as String?;
 
+    final fromParsed = CryptoCurrency.safeParseCurrencyFromString(
+      fromCurrency,
+      tag: fromNetwork,
+    );
+    final toParsed = CryptoCurrency.safeParseCurrencyFromString(
+      toCurrency,
+      tag: toNetwork,
+    );
     return Trade(
-        id: id,
-        from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
-        to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
-        provider: description,
-        inputAddress: inputAddress,
-        amount: expectedSendAmount ?? '',
-        state: TradeState.deserialize(raw: status ?? 'created'),
-        expiredAt: expiredAt,
-        payoutAddress: settleAddress,
-        extraId: depositMemo,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(fromNetwork ?? ''),
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(toNetwork ?? ''),
+      id: id,
+      from: fromParsed,
+      to: toParsed,
+      provider: description,
+      inputAddress: inputAddress,
+      amount: expectedSendAmount ?? '',
+      state: TradeState.deserialize(raw: status ?? 'created'),
+      expiredAt: expiredAt,
+      payoutAddress: settleAddress,
+      extraId: depositMemo,
     );
   }
 

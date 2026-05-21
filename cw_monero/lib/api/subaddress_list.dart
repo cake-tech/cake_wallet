@@ -65,25 +65,33 @@ int lastWptr = 0;
 int lastTxCount = 0;
 List<TinyTransactionDetails> ttDetails = [];
 
-List<Subaddress> getAllSubaddresses() {
-  txhistory = currentWallet!.history();
-  final txCount = txhistory!.count();
-  if (lastTxCount != txCount && lastWptr != currentWallet!.ffiAddress()) {
-    final List<TinyTransactionDetails> newttDetails = [];
-    lastTxCount = txCount;
-    lastWptr = currentWallet!.ffiAddress();
-    for (var i = 0; i < txCount; i++) {
-      final tx = txhistory!.transaction(i);
-      if (tx.direction() == TransactionInfo_Direction.Out.index) continue;
-      final subaddrs = tx.subaddrIndex().split(",");
-      final account = tx.subaddrAccount();
-      newttDetails.add(TinyTransactionDetails(
-        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex: int.tryParse(subaddrs[index])??0)),
-        amount: tx.amount(),
-      ));
+Future<List<Subaddress>> getAllSubaddresses() async {
+  try {
+    await txHistoryMutex.acquire();
+    txhistory = currentWallet!.history();
+    final txCount = txhistory!.count();
+    if (lastTxCount != txCount && lastWptr != currentWallet!.ffiAddress()) {
+      final List<TinyTransactionDetails> newttDetails = [];
+      lastTxCount = txCount;
+      lastWptr = currentWallet!.ffiAddress();
+      for (var i = 0; i < txCount; i++) {
+        final tx = txhistory!.transaction(i);
+        if (tx.direction() == TransactionInfo_Direction.Out.index) continue;
+        final subaddrs = tx.subaddrIndex().split(",");
+        final account = tx.subaddrAccount();
+        newttDetails.add(TinyTransactionDetails(
+          address: List.generate(
+              subaddrs.length,
+              (index) => getAddress(
+                  accountIndex: account, addressIndex: int.tryParse(subaddrs[index]) ?? 0)),
+          amount: tx.amount(),
+        ));
+      }
+      ttDetails.clear();
+      ttDetails.addAll(newttDetails);
     }
-    ttDetails.clear();
-    ttDetails.addAll(newttDetails);
+  } finally {
+    txHistoryMutex.release();
   }
   final size = currentWallet!.numSubaddresses(accountIndex: subaddress!.accountIndex);
   final list = List.generate(size, (index) {

@@ -13,24 +13,20 @@ import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
-import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -56,7 +52,7 @@ const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
-const baseDefaultNodeUri = 'base.nownodes.io';
+const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
@@ -67,11 +63,10 @@ Future<void> defaultSettingsMigration(
     required SecureStorage secureStorage,
     required Box<Node> nodes,
     required Box<Node> powNodes,
-    required Box<Trade> tradeSource,
     required Box<Contact> contactSource,
     required Box<HavenSeedStore> havenSeedStore}) async {
   if (Platform.isIOS) {
-    await ios_migrate_v1(tradeSource, contactSource);
+    await ios_migrate_v1(contactSource);
   }
 
   // check current nodes for nullability regardless of the version
@@ -595,6 +590,46 @@ Future<void> defaultSettingsMigration(
         case 60: // BalanceCardStyleSettings.cardOrder no-op (handled in sqlite.dart)
         // Do not migrate SQLite here, do that in sqlite.dart in order to prevent runtime
         // errors, missing row and missing tables.
+        case 61:
+          // reset force dex option only 1 time and let users pick it from the swap settings preference
+          await sharedPreferences.setBool(PreferencesKey.forceDecentralizedExchanges, false);
+          break;
+        case 62:
+          await _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: false,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "StealthEX",
+            enabled: false,
+          );
+          break;
+        case 63:
+          await _addXaut0TokenToExistingSolanaWallets();
+          break;
+        case 64:
+          await _backupWowneroSeeds(havenSeedStore);
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "LetsExchange",
+            enabled: false,
+          );
+          await _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: true,
+          );
+          break;
+        case 65:
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.base,
+            currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
+            oldUri: ['base.nownodes.io'],
+          );
           break;
         default:
           break;
@@ -718,15 +753,15 @@ String _getDefaultNodeUri(WalletType type) {
   }
 }
 
-void _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
-    {required String providerName, required bool enabled}) {
+Future<void> _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
+    {required String providerName, required bool enabled}) async {
   final Map<String, dynamic> exchangeProvidersSelection =
       json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
           as Map<String, dynamic>;
 
   exchangeProvidersSelection[providerName] = enabled;
 
-  sharedPreferences.setString(
+  await sharedPreferences.setString(
     PreferencesKey.exchangeProvidersSelection,
     json.encode(exchangeProvidersSelection),
   );
@@ -1482,5 +1517,41 @@ Future<void> _addXautTokenToExistingEthereumWallets() async {
     }
   } catch (e) {
     printV('Error in XAUT migration: $e');
+  }
+}
+Future<void> _addXaut0TokenToExistingSolanaWallets() async {
+  try {
+    final xaut0Token = SPLToken(
+      name: "Tether Gold",
+      symbol: "XAUT0",
+      mintAddress: "AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P",
+      decimal: 6,
+      mint: 'xaut0',
+      enabled: false,
+      iconPath: "assets/images/xau_sol.png",
+    );
+
+    final allWallets = await WalletInfo.getAll();
+
+    final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
+
+    for (final walletInfo in solanaWallets) {
+      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
+      final boxName = '${sanitizedName}_${SPLToken.boxName}';
+
+      Box<SPLToken> tokenBox;
+      if (CakeHive.isBoxOpen(boxName)) {
+        tokenBox = CakeHive.box<SPLToken>(boxName);
+      } else {
+        tokenBox = await CakeHive.openBox<SPLToken>(boxName);
+      }
+
+      final xaut0Address = xaut0Token.mintAddress;
+      if (!tokenBox.containsKey(xaut0Address)) {
+        await tokenBox.put(xaut0Address, xaut0Token);
+      }
+    }
+  } catch (e) {
+    printV('Error in XAUT0 migration: $e');
   }
 }

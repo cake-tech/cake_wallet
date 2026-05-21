@@ -103,7 +103,10 @@ class NewListSections extends StatelessWidget {
         showArrow: item.showArrow,
         truncateTrailingText: item.truncateTrailingText,
         foregroundColor: item.foregroundColor,
+        copyableText: item.copyableText,
         trailingIconSize: item.trailingIconSize,
+        trailingWidget: item.trailingWidget,
+        bottomWidget: item.bottomWidget,
       );
     }
 

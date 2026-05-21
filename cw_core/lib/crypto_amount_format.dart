@@ -17,6 +17,26 @@ extension MaxDecimals on String {
     return parts.join(".");
   }
 
+  String withDecimals(int decimals) {
+    var parts = split(".");
+
+    if (parts.length > 2) {
+      parts = [parts.first, parts.sublist(1).join("")];
+    }
+
+    if (parts.length == 1) {
+      parts.add("");
+    }
+
+    if (parts[1].length > decimals) {
+      parts[1] = parts[1].substring(0, decimals);
+    } else {
+      parts[1] = parts[1].padRight(decimals, '0');
+    }
+
+    return parts.join(".");
+  }
+
 
   /// Format a stringified number to a localized representation
   ///     1.000.000,00 in de_DE

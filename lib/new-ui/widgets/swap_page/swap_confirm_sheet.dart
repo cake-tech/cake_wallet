@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/currencies_with_memo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -191,7 +192,19 @@ class SwapTransactionDetails extends StatelessWidget {
                           showArrow: false,
                           trailingText: exchangeViewModel.receiveAddressDisplayName ??
                               middleTruncate(
-                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
+                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8)),
+                      if ((exchangeTradeViewModel.trade.toAddressExtraId ?? '').isNotEmpty)
+                        ListItemRegularRow(
+                          keyValue: "receive memo",
+                          showArrow: false,
+                          label: memoLabelTypeFor(exchangeViewModel.receiveCurrency) ==
+                                  MemoLabelType.destinationTag
+                              ? S.of(context).destination_tag
+                              : S.of(context).memo,
+                          trailingText: middleTruncate(
+                              exchangeTradeViewModel.trade.toAddressExtraId ?? "", 8, 8),
+                          copyableText: exchangeTradeViewModel.trade.toAddressExtraId,
+                        ),
                     ],
                     "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                       ListItemRegularRow(
@@ -202,9 +215,19 @@ class SwapTransactionDetails extends StatelessWidget {
                           label: exchangeTradeViewModel.trade.provider.title,
                           iconPath: exchangeTradeViewModel.trade.provider.image,
                           trailingIconPath: "assets/new-ui/copy.svg",
-                          trailingText: exchangeTradeViewModel.trade.id,
-                          truncateTrailingText:
-                              !exchangeTradeViewModel.trade.provider.isCentralized),
+                          trailingText: exchangeTradeViewModel.trade.id.toString().length > 18
+                              ? null
+                              : exchangeTradeViewModel.trade.id,
+                          bottomWidget: exchangeTradeViewModel.trade.id.toString().length <= 18
+                              ? null
+                              : Padding(
+                                  padding: const EdgeInsets.only(top: 12.0),
+                                  child: Text(
+                                    exchangeTradeViewModel.trade.id,
+                                    style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  ),
+                                )),
                       if (exchangeTradeViewModel.trade.provider ==
                           ExchangeProviderDescription.trocador)
                         ListItemRegularRow(

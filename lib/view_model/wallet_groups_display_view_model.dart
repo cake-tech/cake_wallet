@@ -104,7 +104,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
     await _walletManager.updateWalletGroups();
 
-    final walletGroups = _walletManager.walletGroups;
+    final walletGroups = List<WalletGroup>.from(_walletManager.walletGroups);
 
     // Iterate through the wallet groups to filter and categorize wallets
     for (var group in walletGroups) {

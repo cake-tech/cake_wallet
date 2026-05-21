@@ -1,27 +1,18 @@
 [
   {
-    "icon": "star",
-    "title": "New look",
-    "description": "Redesigned from the ground up"
+    "title": "Performance enhancements",
+    "description": "Improve app performance and speed"
   },
   {
-    "icon": "nav",
-    "title": "Easier navigation",
-    "description": "Improved navbar, layouts and flows"
+    "title": "Add USDT bridging",
+    "description": "Bridge your USDT from one chain to another"
   },
   {
-    "icon": "cards",
-    "title": "Improved account management",
-    "description": "Easier than ever"
+    "title": "Wallets improvements",
+    "description": "Improve wallets UI and functionality"
   },
   {
-    "icon": "pallete",
-    "title": "Balance card customization",
-    "description": "Make it yours!"
-  },
-  {
-    "icon": "trans",
-    "title": "Quick transactions view",
-    "description": ""
+    "title": "Bug fixes",
+    "description": "Squash more bugs, to make your experience smooth"
   }
 ]

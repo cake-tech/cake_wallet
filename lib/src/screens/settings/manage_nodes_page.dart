@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -101,7 +100,7 @@ class ManageNodesPage extends BasePage {
                       }
                       final nodeListRow = NodeListRow(
                         title: node.uriRaw,
-                        subtitle: node.label!,
+                        subtitle: node.label ?? '',
                         node: node,
                         isSelected: isSelected,
                         isPow: isPow,

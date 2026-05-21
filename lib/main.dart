@@ -19,7 +19,7 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -37,7 +37,6 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -65,7 +64,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_core/root_dir.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -165,12 +163,17 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     if (FeatureFlag.hasDevOptions) {
       ProxyWrapper.logger = MemoryProxyLogger();
     }
-    var zcashPassword = await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
-    if (zcashPassword == null || zcashPassword.isEmpty) {
-      zcashPassword = generateKey().substring(0, 32);
-      secureStorageShared.write(key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+
+    if (!Platform.isWindows) {
+      var zcashPassword = await secureStorageShared.read(
+          key: "com.cakewallet.cw_zcash/zec.db");
+      if (zcashPassword == null || zcashPassword.isEmpty) {
+        zcashPassword = generateKey().substring(0, 32);
+        secureStorageShared.write(
+            key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+      }
+      zcash?.unlockDatabase(zcashPassword);
     }
-    zcash?.unlockDatabase(zcashPassword);
 
     // Basically when we're running a test
     if (topLevelKey != null) {
@@ -223,10 +226,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
-    CakeHive.registerAdapter(TradeAdapter());
   }
 
   if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
@@ -285,7 +284,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final nodes = await CakeHive.openBox<Node>(Node.boxName);
@@ -294,7 +292,8 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
-  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  await performTradeHiveMigration(secureStorage);
+
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
@@ -313,7 +312,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     nodes: nodes,
     powNodes: powNodes,
     contactSource: contacts,
-    tradesSource: trades,
     ordersSource: orders,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     // fiatConvertationService: fiatConvertationService,
@@ -324,7 +322,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 60,
+    initialMigrationVersion: 65,
   );
 }
 
@@ -334,7 +332,6 @@ Future<void> initialSetup({
   required Box<Node> nodes,
   required Box<Node> powNodes,
   required Box<Contact> contactSource,
-  required Box<Trade> tradesSource,
   required Box<Order> ordersSource,
   // required FiatConvertationService fiatConvertationService,
   required Box<Template> templates,
@@ -349,23 +346,22 @@ Future<void> initialSetup({
 }) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
-      secureStorage: secureStorage,
-      version: initialMigrationVersion,
-      sharedPreferences: sharedPreferences,
-      contactSource: contactSource,
-      tradeSource: tradesSource,
-      nodes: nodes,
-      powNodes: powNodes,
-      havenSeedStore: havenSeedStore);
+    secureStorage: secureStorage,
+    version: initialMigrationVersion,
+    sharedPreferences: sharedPreferences,
+    contactSource: contactSource,
+    nodes: nodes,
+    powNodes: powNodes,
+    havenSeedStore: havenSeedStore,
+  );
   await setup(
     nodeSource: nodes,
     powNodeSource: powNodes,
     contactSource: contactSource,
-    tradesSource: tradesSource,
+    ordersSource: ordersSource,
     templates: templates,
     exchangeTemplates: exchangeTemplates,
     transactionDescriptionBox: transactionDescriptions,
-    ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     payjoinSessionSource: payjoinSessionSource,

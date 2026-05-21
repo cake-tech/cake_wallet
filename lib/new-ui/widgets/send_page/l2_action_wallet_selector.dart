@@ -57,7 +57,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
     if (widget.showOtherWallets) {
       () async {
         items.addAll((await WalletInfo.getAll())
-            .where((item) => item.type == widget.sendViewModel.walletType));
+            .where((item) => item.type == widget.sendViewModel.walletType && item.hardwareWalletType == null));
         items.sort((a, b) {
           if (a.name == widget.sendViewModel.wallet.name)
             return -1;

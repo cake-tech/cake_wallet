@@ -7,13 +7,21 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
-  XOSwapExchangeProvider();
+  XOSwapExchangeProvider() {
+    _addAppVersionHeader();
+  }
+
+  void _addAppVersionHeader() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+    _headers['App-Version'] = currentVersion;
+  }
 
   static const _apiAuthority = 'exchange.exodus.io';
   static const _apiPath = '/v3';
@@ -22,7 +30,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   static const _orders = '/orders';
   static const _assets = '/assets';
 
-  static const _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
+  static final _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
 
   final _networks = <String, String>{
     'POL': 'matic',
@@ -150,7 +158,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -313,6 +321,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         'fromAddress': request.refundAddress,
         'toAmount': request.toAmount,
         'toAddress': request.toAddress,
+        if (request.toAddressExtraId.isNotEmpty) 'toAddressTag': request.toAddressExtraId,
         'pairId': pairId,
       };
 
@@ -415,9 +424,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
         isSendAll: isSendAll,
+        toAddressExtraId: request.toAddressExtraId,
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
@@ -521,14 +529,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final createdAt = DateTime.parse(createdAtString).toLocal();
       final extraId = responseJSON['payInAddressTag'] as String?;
 
-      final userCurrencyFromRaw = fromCurrency != null
-          ? '${fromCurrency.title}' + '_' + '${fromCurrency.tag ?? ''}'
-          : '${fromAssetBase}' + '_' + '${fromAssetTag ?? ''}';
-
-      final userCurrencyToRaw = toCurrency != null
-          ? '${toCurrency.title}' + '_' + '${toCurrency.tag ?? ''}'
-          : '${toAssetBase}' + '_' + '${toAssetTag ?? ''}';
-
       return Trade(
         id: orderId,
         from: fromCurrency,
@@ -542,8 +542,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
-        userCurrencyFromRaw: userCurrencyFromRaw,
-        userCurrencyToRaw: userCurrencyToRaw,
       );
     } catch (e) {
       printV(e.toString());

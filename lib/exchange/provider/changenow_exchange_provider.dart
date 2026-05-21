@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -22,7 +21,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider({required SettingsStore settingsStore})
       : _settingsStore = settingsStore,
         _lastUsedRateId = '';
-
 
   static final apiKey =
       isMoneroOnly ? secrets.changeNowMoneroApiKey : secrets.changeNowCakeWalletApiKey;
@@ -55,7 +53,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -81,18 +79,19 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    return Limits(
-        min: responseJSON['minAmount'] as double?, max: responseJSON['maxAmount'] as double?);
+    final min = double.tryParse(responseJSON['minAmount']?.toString() ?? '');
+    final max = double.tryParse(responseJSON['maxAmount']?.toString() ?? '');
+    if (max == 0) return null;
+    return Limits(min: min, max: max);
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -117,8 +116,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final fromAmount = double.parse(responseJSON['fromAmount'].toString());
-      final toAmount = double.parse(responseJSON['toAmount'].toString());
+      final fromAmount = double.tryParse(responseJSON['fromAmount']?.toString() ?? '') ?? 0.0;
+      final toAmount = double.tryParse(responseJSON['toAmount']?.toString() ?? '') ?? 0.0;
+      if (fromAmount <= 0 || toAmount <= 0) return 0.0;
       final rateId = responseJSON['rateId'] as String? ?? '';
 
       if (rateId.isNotEmpty) _lastUsedRateId = rateId;
@@ -189,6 +189,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       if (!isFixedRateMode) 'fromAmount': request.fromAmount,
       if (isFixedRateMode) 'toAmount': request.toAmount,
       'address': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'extraId': request.toAddressExtraId,
       'flow': _getFlow(isFixedRateMode),
       'type': type,
       'refundAddress': request.refundAddress,
@@ -247,9 +248,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       receiveAmount: toAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
@@ -278,14 +278,18 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final fromCurrency = responseJSON['fromCurrency'] as String;
     final fromNetwork = responseJSON['fromNetwork'] as String?;
     final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
-    final fromTag = fromCurrency.toUpperCase() == _normalizedFromNetwork.toUpperCase() ? null : _normalizedFromNetwork;
+    final fromTag = fromCurrency.toUpperCase() == _normalizedFromNetwork.toUpperCase()
+        ? null
+        : _normalizedFromNetwork;
     final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
 
     // Parsing 'to' currency
     final toCurrency = responseJSON['toCurrency'] as String;
     final toNetwork = responseJSON['toNetwork'] as String?;
     final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
-    final toTag = toCurrency.toUpperCase() == _normalizedToNetwork.toUpperCase() ? null : _normalizedToNetwork;
+    final toTag = toCurrency.toUpperCase() == _normalizedToNetwork.toUpperCase()
+        ? null
+        : _normalizedToNetwork;
     final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
 
     final inputAddress = responseJSON['payinAddress'] as String;
@@ -310,8 +314,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       outputTransaction: outputTransaction,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
 
@@ -363,6 +365,4 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       _ => network,
     };
   }
-
-
 }

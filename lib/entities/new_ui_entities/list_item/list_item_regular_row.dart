@@ -11,17 +11,23 @@ class ListItemRegularRow extends ListItem {
     this.onTap,
     this.trailingIconPath,
     this.showArrow = true,
+    this.bottomWidget,
+    this.trailingWidget,
     this.truncateTrailingText = false,
     this.foregroundColor,
-    this.trailingIconSize
+    this.trailingIconSize,
+    this.copyableText
   });
 
   final String? subtitle;
   final String? trailingText;
   final String? iconPath;
   final String? trailingIconPath;
+  final String? copyableText;
   final VoidCallback? onTap;
   final bool showArrow;
+  final Widget? bottomWidget;
+  final Widget? trailingWidget;
   final bool truncateTrailingText;
   final Color? foregroundColor;
   final double? trailingIconSize;

@@ -6,21 +6,24 @@ class ListItemStyleWrapper extends StatelessWidget {
     required this.isFirstInSection,
     required this.isLastInSection,
     required this.builder,
+    this.backgroundColor,
     this.onTap,
-    this.height = 50,
     this.iconPath,
+    this.contentPadding,
+    this.height,
   });
 
   final String? iconPath;
   final bool isFirstInSection;
   final bool isLastInSection;
-  final double height;
+  final double? height;
   final VoidCallback? onTap;
+  final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
+  final EdgeInsets? contentPadding;
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
 
     final textStyle = TextStyle(
@@ -52,14 +55,14 @@ class ListItemStyleWrapper extends StatelessWidget {
                   shape: RoundedSuperellipseBorder(
                     borderRadius: radius,
                   ),
-                  color: theme.colorScheme.surfaceContainer,
+                  color: backgroundColor ?? theme.colorScheme.surfaceContainer,
                 ),
                 child: Material(
                     color: Colors.transparent,
                     child: InkWell(
                         onTap: onTap,
                         child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: height == null ? 11 : 0),
                             child: builder(context, textStyle, labelStyle))))),
             if(iconPath != null && isLastInSection == false) Container(
               color: theme.colorScheme.surfaceContainer,
@@ -68,15 +71,16 @@ class ListItemStyleWrapper extends StatelessWidget {
                 child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )
-            else if(!isLastInSection) Container(
+          else if (!isLastInSection)
+            Container(
               color: theme.colorScheme.surfaceContainer,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )
-          ],
-            ),
-      );
+        ],
+      ),
+    );
   }
 }

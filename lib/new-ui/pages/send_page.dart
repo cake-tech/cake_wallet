@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
@@ -62,7 +63,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -514,8 +514,11 @@ class _NewSendPageState extends State<NewSendPage> {
                                           ListItemRegularRowWidget(
                                             keyValue: "",
                                             label: "Coin Control",
-                                            onTap: () => Navigator.of(context)
-                                                .pushNamed(Routes.unspentCoinsList),
+                                            onTap: () {
+                                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
+                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,);
+                                              });
+                                            }
                                           ),
                                       ]),
                                     )
@@ -640,7 +643,7 @@ class _NewSendPageState extends State<NewSendPage> {
           output.setFiatAmount(amount);
         }
       } else {
-        final isAll = context.mounted && amount != S.of(context).all;
+        final isAll = mounted && amount != S.of(context).all;
         if (output.sendAll && isAll) {
           output.sendAll = false;
         }
@@ -692,12 +695,15 @@ class _NewSendPageState extends State<NewSendPage> {
   void _handleSend() async {
     //TODO refactor this action. code was copied over from old ui. i don't like it.
 
-    for(int i=0; i<widget.sendViewModel.outputs.length; i++) {
-      if(i < _amountControllers.length) {
-        if(_fiatInputMode) {
+    for (var i = 0; i < widget.sendViewModel.outputs.length; i++) {
+      if (i < _amountControllers.length && !widget.sendViewModel.outputs[i].sendAll) {
+        if (_fiatInputMode) {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
-          widget.sendViewModel.outputs[i].cryptoAmount = _amountControllers[i].text;
+          final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+              _amountControllers[i].text.replaceAll(",", "."),
+              widget.sendViewModel.selectedCryptoCurrency);
+          widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
       }
     }
@@ -757,7 +763,7 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (!widget.mode.popOnConfirmation) {
+          if (!widget.mode.popOnConfirmation && Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
           }
           showModalBottomSheet(
@@ -838,7 +844,9 @@ class _NewSendPageState extends State<NewSendPage> {
 
     if (OpenCryptoPayService.isOpenCryptoPayQR(uri) &&
         widget.sendViewModel.selectedCryptoCurrency != CryptoCurrency.btcln) {
-      widget.sendViewModel.createOpenCryptoPayTransaction(uri);
+      final request = await widget.sendViewModel.getOpenCryptoPayRequest(uri);
+      if (request == null) return;
+      _applyPaymentRequest(request);
       return;
     }
 
