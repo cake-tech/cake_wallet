@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
@@ -14,9 +13,9 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/generate_name.dart';
@@ -43,8 +42,8 @@ class WalletAccountsPage extends StatefulWidget {
       required this.accountEditOrCreateViewModel,
       required this.dashboardViewModel});
 
-  final MoneroAccountListViewModel accountListViewModel;
-  final MoneroAccountEditOrCreateViewModel accountEditOrCreateViewModel;
+  final WalletAccountListViewModel accountListViewModel;
+  final WalletAccountEditOrCreateViewModel accountEditOrCreateViewModel;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -64,10 +63,10 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       await widget.dashboardViewModel.loadCardDesigns();
       loadCards();
 
-      final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
+      final activeId = widget.accountListViewModel.selectedAccount?.id;
 
       for (int i = 0; i < _items.length - 1; i++) {
-        if (_items[i].accountListItem.id == activeId) {
+        if (activeId != null && _items[i].accountListItem.id == activeId) {
           final lastIndex = _items.length - 1;
           final temp = _items[i];
           _items[i] = _items[lastIndex];
@@ -400,7 +399,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 class AccountCreationModal extends StatefulWidget {
   const AccountCreationModal({super.key, required this.accountEditOrCreateViewModel});
 
-  final MoneroAccountEditOrCreateViewModel accountEditOrCreateViewModel;
+  final WalletAccountEditOrCreateViewModel accountEditOrCreateViewModel;
 
   @override
   State<AccountCreationModal> createState() => _AccountCreationModalState();

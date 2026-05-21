@@ -117,35 +117,30 @@ abstract class ElectrumWalletBase
     sharedPrefs.complete(SharedPreferences.getInstance());
 
     final supportedTypes = supportedAddressTypes(walletInfo.type);
-    mainHdByType = <BitcoinAddressType, Bip32Slip10Secp256k1>{};
-    sideHdByType = <BitcoinAddressType, Bip32Slip10Secp256k1>{};
 
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
 
     final canDeriveFromSeed = _masterHD != null && currency != null;
+    final accountIndex = currentAccountIndex;
 
-    if (isElectrumDerivation) {
-      // Electrum derivation does not follow BIP44/49/84 etc. standards
-      for (final type in supportedTypes) {
-        mainHdByType[type] = mainHd; // accountHD.child(0)
-        sideHdByType[type] = sideHd; // accountHD.child(1)
-      }
-    } else if (canDeriveFromSeed) {
+    final mainMap = mainHdByTypeAndAccount[accountIndex] ??= {};
+    final sideMap = sideHdByTypeAndAccount[accountIndex] ??= {};
+
+    if (canDeriveFromSeed && !isElectrumDerivation) {
       final coinType = _coinTypeFor(currency);
-      final accountIndex = _parseAccountIndex(derivationInfo.derivationPath);
 
       for (final type in supportedTypes) {
         final purpose = _purposeForType(type);
         final accountPath = "m/$purpose'/$coinType'/$accountIndex'";
 
-        mainHdByType[type] = _masterHD!.derivePath("$accountPath/0") as Bip32Slip10Secp256k1;
-        sideHdByType[type] = _masterHD!.derivePath("$accountPath/1") as Bip32Slip10Secp256k1;
+        mainMap[type] = _masterHD!.derivePath("$accountPath/0") as Bip32Slip10Secp256k1;
+        sideMap[type] = _masterHD!.derivePath("$accountPath/1") as Bip32Slip10Secp256k1;
       }
     } else {
-      // View-only wallet (xpub only)
+      // case for Electrum derivation or when we don't have seed but only xpub (view only wallet)
       for (final type in supportedTypes) {
-        mainHdByType[type] = mainHd;
-        sideHdByType[type] = sideHd;
+        mainMap[type] = mainHd; // accountHD.child(0)
+        sideMap[type] = sideHd; // accountHD.child(1)
       }
     }
 
@@ -198,8 +193,7 @@ abstract class ElectrumWalletBase
 
     final coinType = _coinTypeFor(currency);
     final purpose = _purposeForType(record.type);
-    final accountIndex = _parseAccountIndex(derivationInfo.derivationPath);
-    return "m/$purpose'/$coinType'/$accountIndex'";
+    return "m/$purpose'/$coinType'/$currentAccountIndex'";
   }
 
   List<BitcoinAddressType> supportedAddressTypes(WalletType type) {
@@ -312,8 +306,8 @@ abstract class ElectrumWalletBase
   final Bip32Slip10Secp256k1 accountHD;
   final String? _mnemonic;
 
-  late final Map<BitcoinAddressType, Bip32Slip10Secp256k1> mainHdByType;
-  late final Map<BitcoinAddressType, Bip32Slip10Secp256k1> sideHdByType;
+  final mainHdByTypeAndAccount = <int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>>{};
+  final sideHdByTypeAndAccount = <int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>>{};
 
   Bip32Slip10Secp256k1 get mainHd => accountHD.childKey(Bip32KeyIndex(0));
 
@@ -359,6 +353,8 @@ abstract class ElectrumWalletBase
       .toList();
 
   String get xpub => accountHD.publicKey.toExtended;
+
+  int get currentAccountIndex => _parseAccountIndex(derivationInfo.derivationPath);
 
   @override
   String? get seed => _mnemonic;
@@ -448,7 +444,8 @@ abstract class ElectrumWalletBase
     String? privateKey;
     String? publicKey;
 
-    final hd = mainHdByType[SegwitAddresType.p2wpkh] ?? mainHd;
+    final accountIndex = currentAccountIndex;
+    final hd = mainHdByTypeAndAccount[accountIndex]?[SegwitAddresType.p2wpkh] ?? mainHd;
 
     try {
       wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
@@ -3811,10 +3808,12 @@ abstract class ElectrumWalletBase
       }
     }
 
+    final accountIndex = currentAccountIndex;
+
     if (record.isHidden) {
-      return sideHdByType[addrType] ?? sideHd;
+      return sideHdByTypeAndAccount[accountIndex]?[addrType] ?? sideHd;
     } else {
-      return mainHdByType[addrType] ?? mainHd;
+      return mainHdByTypeAndAccount[accountIndex]?[addrType] ?? mainHd;
     }
   }
 }

@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cw_core/account.dart';
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -254,7 +255,7 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroAccountChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
-          (wow.Account account) => _onMoneroAccountChange(_wallet));
+          (Account account) => _onMoneroAccountChange(_wallet));
 
       _onMoneroBalanceChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
@@ -1247,7 +1248,7 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroAccountChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
-          (wow.Account account) => _onMoneroAccountChange(wallet));
+          (Account account) => _onMoneroAccountChange(wallet));
 
       _onMoneroBalanceChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
