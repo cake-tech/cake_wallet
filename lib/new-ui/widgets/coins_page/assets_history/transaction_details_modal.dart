@@ -6,6 +6,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -69,8 +70,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             controller: controller,
                             child: Column(
                               children: [
-                                Image.asset(
-                                    widget.transactionDetailsViewModel.transactionAsset.iconPath ??
+                                CakeImageWidget(
+                                    imageUrl: widget.transactionDetailsViewModel.transactionAsset.iconPath ??
                                         "",
                                     width: 64,
                                     height: 64),
@@ -81,8 +82,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  widget.transactionDetailsViewModel.transactionInfo
-                                      .amountFormatted(),
+                                  widget.transactionDetailsViewModel.formattedCryptoAmount,
                                   style: TextStyle(fontSize: 28),
                                 ),
                                 Padding(
@@ -99,10 +99,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                   item.value.length > 25;
 
                                               return ListItemRegularRow(
-                                                  onTap: () {
-                                                    Clipboard.setData(
-                                                        ClipboardData(text: item.value));
-                                                  },
+                                                copyableText: item.value,
                                                   showArrow: false,
                                                   keyValue:
                                                       ((item.key as ValueKey?)?.value as String?) ??
@@ -192,21 +189,24 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
   }
 
   Widget _buildTrailingWIdget(TransactionDetailsListItem item) {
-    return switch (item.runtimeType) {
-      ConfirmationsListItem => Row(
-          children: [
-            Text((item as ConfirmationsListItem).current.toString(),
-                style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-            if (item.needed > 0)
-              Text("/${item.needed}",
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))
-          ],
-        ),
-      _ => Text(
-          item.value,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        )
-    };
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: switch (item.runtimeType) {
+        ConfirmationsListItem => Row(
+            children: [
+              Text((item as ConfirmationsListItem).current.toString(),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+              if (item.needed > 0)
+                Text("/${item.needed}",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))
+            ],
+          ),
+        _ => Text(
+            item.value,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          )
+      },
+    );
   }
 
   Widget _buildBottomWidget(TransactionDetailsListItem item) {

@@ -32,6 +32,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -53,6 +54,9 @@ import 'package:cake_wallet/new-ui/model/charts/price_store.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
@@ -166,6 +170,8 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
@@ -186,6 +192,7 @@ import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
+import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
@@ -205,6 +212,8 @@ import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_details_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
@@ -272,6 +281,7 @@ import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -313,6 +323,7 @@ import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
+import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 
 final getIt = GetIt.instance;
@@ -321,7 +332,6 @@ var _isSetupFinished = false;
 late Box<Node> _nodeSource;
 late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
-late Box<Trade> _tradesSource;
 late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
@@ -329,12 +339,10 @@ late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
-
 Future<void> setup({
   required Box<Node> nodeSource,
   required Box<Node> powNodeSource,
   required Box<Contact> contactSource,
-  required Box<Trade> tradesSource,
   required Box<Template> templates,
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
@@ -348,7 +356,6 @@ Future<void> setup({
   _nodeSource = nodeSource;
   _powNodeSource = powNodeSource;
   _contactSource = contactSource;
-  _tradesSource = tradesSource;
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
@@ -395,9 +402,10 @@ Future<void> setup({
       nodeListStore: getIt.get<NodeListStore>(),
       themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
-      TradesStore(tradesSource: _tradesSource, appStore: getIt.get<AppStore>()));
+      TradesStore(appStore: getIt.get<AppStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
   getIt.registerFactory(() =>
       PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
@@ -561,7 +569,6 @@ Future<void> setup({
   getIt.registerFactory(
     () => ExchangeViewModel(
       getIt.get<AppStore>(),
-      _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
       getIt.get<SharedPreferences>(),
@@ -575,7 +582,6 @@ Future<void> setup({
   getIt.registerSingleton(
     TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
-      trades: _tradesSource,
       appStore: getIt.get<AppStore>(),
       preferences: getIt.get<SharedPreferences>(),
     ),
@@ -609,7 +615,7 @@ Future<void> setup({
   getIt.registerLazySingleton<PriceStore>(()=>PriceStore());
 
   getIt.registerFactory<ChartsBloc>(()=>ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));
-  
+
   getIt.registerFactory<ChartsPage>(()=>ChartsPage(chartsBloc: getIt.get<ChartsBloc>(),));
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
@@ -888,6 +894,11 @@ Future<void> setup({
       AddressLabelInputPopup(
           walletAddressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+
+  getIt.registerFactoryParam<AddressInfoPopup, dynamic, void>((dynamic item, _) =>
+      AddressInfoPopup(
+          walletAddressEditOrCreateViewModel:
+          getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactoryParam<ReceiveLabelModal, dynamic, void>((dynamic item, _) =>
       ReceiveLabelModal(
@@ -1251,7 +1262,6 @@ Future<void> setup({
   getIt.registerFactory(
     () => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet!,
-      trades: _tradesSource,
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>(),
       feesViewModel: getIt.get<FeesViewModel>(),
@@ -1464,11 +1474,8 @@ Future<void> setup({
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
           (content, _) => TransactionSuccessPage(content: content));
 
-  getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
-      TradeDetailsViewModel(
-          tradeForDetails: trade,
-          trades: _tradesSource,
-          appStore: getIt.get<AppStore>()));
+  getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>(
+      (trade, _) => TradeDetailsViewModel(tradeForDetails: trade, appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
@@ -1764,11 +1771,45 @@ Future<void> setup({
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
 
+  getIt.registerFactory(() => BridgeViewModel(
+        appStore: getIt.get<AppStore>(),
+        bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
+        walletManager: getIt.get<WalletManager>(),
+        fiatConversionStore: getIt.get<FiatConversionStore>(),
+        settingsStore: getIt.get<SettingsStore>(),
+      ));
+
+  getIt.registerFactory(() => BridgeHistoryViewModel(
+        bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
+        appStore: getIt.get<AppStore>(),
+      ));
+  getIt.registerFactoryParam<BridgeDetailsViewModel, BridgeTransfer, void>(
+      (BridgeTransfer transfer, _) {
+    final appStore = getIt.get<AppStore>();
+    return BridgeDetailsViewModel(
+      transferForDetails: transfer,
+      bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
+      walletId: appStore.wallet?.name ?? transfer.walletId,
+    );
+  });
+  getIt.registerFactoryParam<BridgeDetailPage, BridgeTransfer, void>(
+      (BridgeTransfer transfer, _) => BridgeDetailPage(
+            viewModel: getIt.get<BridgeDetailsViewModel>(param1: transfer),
+          ));
+
   getIt.registerLazySingleton(() => NodeSwitchingService(
     appStore: getIt.get<AppStore>(),
     settingsStore: getIt.get<SettingsStore>(),
     nodeSource: _nodeSource,
   ));
+
+  getIt.registerFactoryParam<BridgeAmountPage, CryptoCurrency, void>(
+    (CryptoCurrency initialToken, _) => BridgeAmountPage(
+      bridgeViewModel: getIt.get<BridgeViewModel>(),
+      bridgeHistoryViewModel: getIt.get<BridgeHistoryViewModel>(),
+      initialToken: initialToken,
+    ),
+  );
 
   _isSetupFinished = true;
 }

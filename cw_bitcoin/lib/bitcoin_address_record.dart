@@ -54,6 +54,8 @@ abstract class BaseBitcoinAddressRecord {
 
   BitcoinAddressType type;
 
+  String get derivationPath;
+
   String toJSON();
 }
 
@@ -118,6 +120,31 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   String? scriptHash;
 
+  static int _purposeForType(BitcoinAddressType type) {
+    if (type == P2pkhAddressType.p2pkh) return 44;
+    if (type == P2shAddressType.p2wpkhInP2sh) return 49;
+    if (type == SegwitAddresType.p2wsh) return 48;
+    if (type == SegwitAddresType.p2tr) return 86;
+    return 84;
+  }
+
+  int _coinTypeForNetwork() {
+    if (!(network?.isMainnet ?? true)) return 1;
+
+    switch (network) {
+      case BitcoinNetwork.mainnet:
+        return 0;
+      case LitecoinNetwork.mainnet:
+        return 2;
+      case BitcoinCashNetwork.mainnet:
+        return 145;
+      case DogecoinNetwork.mainnet:
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
     try {
@@ -126,6 +153,21 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       return '';
     }
     return scriptHash!;
+  }
+  @override
+  String get derivationPath {
+    if (type == SegwitAddresType.mweb) {
+      return "m/1000'/$index";
+    }
+
+    final coinType = _coinTypeForNetwork();
+    final purpose = _purposeForType(type);
+    final accountPath = isLegacyDerivation
+        ? electrum_path
+        : "m/$purpose'/$coinType'/0'";
+
+    final chain = isHidden ? 1 : 0;
+    return "$accountPath/$chain/$index";
   }
 
   @override
@@ -185,6 +227,9 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 
   final String? silentPaymentTweak;
   final String spendDerivationPath;
+
+  @override
+  String get derivationPath => spendDerivationPath;
 
   @override
   String toJSON() => json.encode({

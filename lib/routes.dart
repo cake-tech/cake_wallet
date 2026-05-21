@@ -144,4 +144,8 @@ class Routes {
 
   static const lightningUsernamePage = "/lightning_username_page";
   static const aboutPage = "/about_page";
+
+  static const bridgeHistoryPage = '/bridge_history_page';
+  static const bridgeDestinationNetworkPage = '/bridge_destination_network_page';
+  static const bridgeReceivingWalletPage = '/bridge_receiving_wallet_page';
 }

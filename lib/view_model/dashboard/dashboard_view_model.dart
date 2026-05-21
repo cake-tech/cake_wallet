@@ -393,6 +393,14 @@ abstract class DashboardViewModelBase with Store {
     return false;
   }
 
+  bool showBridge(CryptoCurrency currency) {
+    if(!isEVMCompatibleChain(wallet.type)) return false;
+
+    if(evm!.isUSDT0Token(wallet, currency)) return true;
+
+    return false;
+  }
+
   @action
   Future<void> loadCardDesigns() async {
     final accountStyleSettings =
@@ -482,14 +490,16 @@ abstract class DashboardViewModelBase with Store {
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
-      String _txIdentityString(String txHash, TransactionDirection direction) => '${txHash}_$direction';
+      String _txIdentityString(String txHash, TransactionDirection direction) => "${txHash}_$direction";
+      String _txIdentityStringConfirmations(String txHash, TransactionDirection direction, int confirmations) => "${txHash}_${direction}_$confirmations";
+
 
       final existingKeys = transactions
-          .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
+          .map((item) => _txIdentityStringConfirmations(item.transaction.txHash, item.transaction.direction, item.transaction.confirmations))
           .toSet();
 
       final newTransactions = relevantTxs
-          .where((tx) => !existingKeys.contains(_txIdentityString(tx.txHash, tx.direction)))
+          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(tx.txHash, tx.direction, tx.confirmations)))
           .map((tx) => TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
@@ -760,9 +770,9 @@ abstract class DashboardViewModelBase with Store {
         "public view key is 0",
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
-      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
-          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-        "primary address is invalid, you won't be able to receive / spend funds",
+      // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+      //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
+        // "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }

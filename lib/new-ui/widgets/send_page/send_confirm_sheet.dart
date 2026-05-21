@@ -15,7 +15,6 @@ import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {
@@ -213,8 +212,13 @@ class SendTransactionDetails extends StatelessWidget {
           )
         : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
-    final showAddress = !sendViewModel.outputs.any(
-        (e) => RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()));
+    final showAddress = !sendViewModel.outputs.any((e) =>
+        RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
+        RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
+        (e.isParsedAddress &&
+            e.parsedAddress.addresses.isNotEmpty &&
+            RegExp(AddressValidator.lnurlMatcher)
+                .hasMatch(e.parsedAddress.addresses.first.toLowerCase())));
 
     final outputs = sendViewModel.outputs;
 

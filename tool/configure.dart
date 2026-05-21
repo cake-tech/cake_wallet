@@ -161,7 +161,7 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
 
-  class ElectrumSubAddress {
+class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
     required this.name,
@@ -169,13 +169,16 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
     required this.txCount,
     required this.balance,
     required this.isChange,
-    this.isLegacyDerivation = false});
+    this.derivationPath,
+    this.isLegacyDerivation = false
+  });
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final String? derivationPath;
   final bool isLegacyDerivation;
 }
 
@@ -487,9 +490,9 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
 
 abstract class MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {required int accountIndex});
+  Future<void> update(Object wallet, {required int accountIndex});
   void refresh(Object wallet, {required int accountIndex});
-  List<Subaddress> getAll(Object wallet);
+  Future<List<Subaddress>> getAll(Object wallet);
   Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
   Future<void> setLabelSubaddress(Object wallet,
       {required int accountIndex, required int addressIndex, required String label});
@@ -939,6 +942,11 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
@@ -1016,6 +1024,8 @@ abstract class Solana {
     WalletBase wallet, {
     List<String>? tokenMints,
   });
+
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
 
 class JupiterSwapFailedException implements Exception {
@@ -1389,7 +1399,13 @@ import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/deuro/deuro_savings.dart';
+import 'package:cw_evm/usdt0/usdt0_config.dart';
+import 'package:cw_evm/usdt0/usdt0_quote.dart';
+import 'package:cw_evm/usdt0/usdt0_service.dart';
 import 'package:eth_sig_util/util/utils.dart';
+export 'package:cw_evm/evm_chain_transaction_priority.dart';
+export 'package:cw_evm/evm_erc20_balance.dart';
+export 'package:cw_evm/usdt0/usdt0_quote.dart';
 
 """;
   const evmCwPart = "part 'cw_evm.dart';";
@@ -1543,17 +1559,48 @@ abstract class EVM {
   WalletType? getWalletTypeByChainId(int chainId);
   String getChainNameByChainId(int chainId);
   String getTokenNameByChainId(int chainId);
-  
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
+  ChainInfo? getChainInfoByChainId(int chainId);
+
 
   int? getSelectedChainId(WalletBase wallet);
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
   
   String? getExplorerUrlForChainId(int chainId, {bool showProtocol = true});
   
+  Future<bool?> getTransactionReceipt(WalletBase wallet, String txHash);
+
   bool hasPriorityFee(int chainId);
+
+  bool isUSDT0Token(WalletBase wallet, CryptoCurrency token);
+  List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet);
+
+  Future<BridgeQuote> quoteUSDT0Transfer({
+    required WalletBase wallet,
+    required int sourceChainId,
+    required int destinationChainId,
+    required BigInt amount,
+    required String recipientAddress,
+  });
+
+  Future<PendingTransaction> executeUSDT0Transfer({
+    required WalletBase wallet,
+    required CryptoCurrency token,
+    required int sourceChainId,
+    required int destinationChainId,
+    required BigInt amount,
+    required String recipientAddress,
+    required BridgeQuote quote,
+    required TransactionPriority priority,
+    bool useBlinkProtection = true,
+  });
+  
+  Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
+    WalletBase wallet,
+    TransactionPriority priority,
+  );
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
@@ -1563,11 +1610,13 @@ class ChainInfo {
     required this.chainId,
     required this.name,
     required this.shortCode,
+    required this.currency,
   });
   
   final int chainId;
   final String name;
   final String shortCode;
+  final CryptoCurrency currency;
 
   @override
   bool operator ==(Object other) =>
@@ -1576,6 +1625,28 @@ class ChainInfo {
 
   @override
   int get hashCode => chainId.hashCode;
+}
+
+class EvmWalletConnectFeeQuote {
+  const EvmWalletConnectFeeQuote({
+    required this.maxFeePerGasWei,
+    required this.maxPriorityFeePerGasWei,
+    this.latestBaseFeeWei,
+  });
+
+  final int maxFeePerGasWei;
+  final int maxPriorityFeePerGasWei;
+  final int? latestBaseFeeWei;
+}
+
+class BridgeQuote {
+  const BridgeQuote({
+    required this.nativeFee,
+    required this.lzTokenFee,
+  });
+
+  final BigInt nativeFee;
+  final BigInt lzTokenFee;
 }
   """;
 

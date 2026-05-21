@@ -109,7 +109,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                     spacing: 8,
                                     children: [
                                       if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                        Image.asset(widget.currencyIconPath, width: 24, height: 24),
+                                        CakeImageWidget(imageUrl: widget.currencyIconPath, width: 24, height: 24),
                                       Text(widget.currency),
                                       if (widget.hasPicker)
                                         CakeImageWidget(imageUrl:

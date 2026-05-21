@@ -12,7 +12,6 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -20,6 +19,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -62,12 +62,9 @@ class BalanceRecord {
           .toString().withMaxDecimals(8);
 
   String get combinedFiatAvailableBalance =>
-      fiatCurrencyTicker +
-      " " +
       ((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
               (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
-          .toString()
-          .withMaxDecimals(8);
+          .toStringAsFixed(2);
 
   String get fiatAvailableBalanceRaw => fiatAvailableBalance.split(" ").last;
   String get fiatSecondAvailableBalanceRaw => fiatSecondAvailableBalance.split(" ").last;
@@ -251,7 +248,7 @@ abstract class BalanceViewModelBase with Store {
                 fiatAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatFrozenBalance: isFiatDisabled ? '' : '',
                 fiatSecondAvailableBalance:
-                    isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                    isFiatDisabled ? '' : '${fiatCurrency.toString()}',
                 fiatSecondAdditionalBalance:
                     isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
@@ -386,9 +383,11 @@ abstract class BalanceViewModelBase with Store {
         if (a.asset == wallet.currency) return -1;
       }
 
-      if (isEVMCompatibleChain(wallet.type)) {
-        final aIsToken = a.asset is Erc20Token;
-        final bIsToken = b.asset is Erc20Token;
+      final isTokenWallet = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+
+      if (isTokenWallet) {
+        final aIsToken = a.asset is Erc20Token || a.asset is SPLToken;
+        final bIsToken = b.asset is Erc20Token || b.asset is SPLToken;
 
         final aHasBalance = (double.tryParse(a.availableBalance) ?? 0) > 0;
         final bHasBalance = (double.tryParse(b.availableBalance) ?? 0) > 0;
@@ -464,13 +463,23 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get combinedFiatBalance {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return "●●●●●";
+    }
+
     double ret = 0.0;
-    for(final record in balances.values) {
-      ret += double.tryParse(record.fiatAvailableBalanceRaw) ?? 0;
+    for (final curr in wallet.balance.keys) {
+      final record = wallet.balance[curr]!;
+      final available = evm?.getERC20AvailableBalance(record) ??
+          (record.fullAvailableBalance - (record.secondAvailable ?? BigInt.zero));
+      final price = fiatConversionStore.prices[curr] ?? 0;
+      ret += double.tryParse(calculateFiatAmount(
+                  price: price, cryptoAmount: curr.formatAmount(available).replaceAll(",", ""))
+              .replaceAll(",", "")) ??
+          0;
     }
     return ret.toStringAsFixed(2);
   }
-
 
   Balance _currencyBalance(CryptoCurrency cryptoCurrency) {
     final balance = wallet.balance[cryptoCurrency];

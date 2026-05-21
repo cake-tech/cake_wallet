@@ -226,6 +226,7 @@ dependency_overrides:
       ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
   decimal: ^2.3.3
   flutter_rust_bridge: 2.11.1
+  flutter_secure_storage_windows: 3.1.2
   vector_math: 2.3.0
 
 flutter_icons:
@@ -244,7 +245,6 @@ flutter:
     - assets/images/evm_switcher_icons/
     - assets/images/flags/
     - assets/images/hardware_wallet/
-    - assets/images/crypto/
     - assets/images/stocks/
     - assets/images/main_actions/
     - assets/images/wallet_connect_step_icons/
@@ -273,6 +273,8 @@ flutter:
     - scripts/zcash_lib/assets/sapling-spend.params
     - scripts/zcash_lib/assets/sapling-output.params
     - assets/new-ui/
+    - assets/new-ui/icons/
+    - assets/new-ui/hero/
     - assets/new-ui/balance_card_icons/
     - assets/new-ui/balance_card_backgrounds/
     - assets/new-ui/settings_row_icons/

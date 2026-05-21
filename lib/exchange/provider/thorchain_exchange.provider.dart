@@ -6,15 +6,13 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider({required this.tradesStore});
+  ThorChainExchangeProvider();
 
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 
@@ -25,8 +23,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
   static const _nameLookUpPath = 'v2/thorname/lookup/';
-
-  final Box<Trade> tradesStore;
 
   @override
   String get title => 'THORChain';
@@ -39,6 +35,9 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   @override
   bool get supportsFixedRate => false;
+
+  @override
+  bool get supportsMemoOrDestinationTag => false;
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.thorChain;
@@ -195,8 +194,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       payoutAddress: request.toAddress,
       memo: memo,
       isSendAll: isSendAll,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -254,8 +251,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       state: currentState,
       memo: memo,
       isRefund: isRefund,
-      userCurrencyFromRaw: '${tx['chain'] as String? ?? ''}' + '_',
-      userCurrencyToRaw: '$toAsset' + '_',
     );
   }
 

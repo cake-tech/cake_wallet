@@ -38,6 +38,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
   static const _headers = <String, String>{'Content-Type': 'application/json'};
@@ -94,6 +97,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
+      if (isFixedRateMode && !supportsFixedRate) {
+        return 0.0;
+      }
       if(from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
 
       final params = <String, dynamic>{};
@@ -192,7 +198,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
-        'markup': int.tryParse(markup.toString()) ?? 0,
+        'markup': double.tryParse(markup.toString()) ?? 0,
         'refund_address': request.refundAddress,
       };
 
@@ -294,8 +300,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         state: TradeState.created,
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
@@ -371,8 +375,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
-        userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
-        userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");

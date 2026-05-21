@@ -28,31 +28,33 @@ class _MwebNodePageState extends State<MwebNodePage> {
 
   @override
   Widget build(BuildContext context) {
-    return ModalPageWrapper(
-        topBar: ModalTopBar(
-          title: S.current.litecoin_mweb_settings,
-          onLeadingPressed: Navigator.of(context).pop,
-          leadingIcon: Icon(Icons.arrow_back_ios_new)),
-        content: Container(
-          child: NewListSections(
-              controllers: {
-                widget.mwebSettingsViewModelBase.mwebNodeUri: _nodeUriController,
-              },
-              sections: {
-            'main': [
-              ListItemTextField(
-                keyValue: widget.mwebSettingsViewModelBase.mwebNodeUri,
-                label: S.current.node_address,
-                validator: NodePathValidator(),
-              ),
-            ]
-          }),
+    return SafeArea(
+      child: ModalPageWrapper(
+          topBar: ModalTopBar(
+            title: S.current.litecoin_mweb_settings,
+            onLeadingPressed: Navigator.of(context).pop,
+            leadingIcon: Icon(Icons.arrow_back_ios_new)),
+          content: Container(
+            child: NewListSections(
+                controllers: {
+                  widget.mwebSettingsViewModelBase.mwebNodeUri: _nodeUriController,
+                },
+                sections: {
+              'main': [
+                ListItemTextField(
+                  keyValue: widget.mwebSettingsViewModelBase.mwebNodeUri,
+                  label: S.current.node_address,
+                  validator: NodePathValidator(),
+                ),
+              ]
+            }),
+          ),
+          bottomContent: LoadingPrimaryButton(
+        onPressed: () => save(context),
+        text: S.of(context).save,
+        color: Theme.of(context).colorScheme.primary,
+        textColor: Theme.of(context).colorScheme.onPrimary,
         ),
-        bottomContent: LoadingPrimaryButton(
-      onPressed: () => save(context),
-      text: S.of(context).save,
-      color: Theme.of(context).colorScheme.primary,
-      textColor: Theme.of(context).colorScheme.onPrimary,
       ),
     );
   }
