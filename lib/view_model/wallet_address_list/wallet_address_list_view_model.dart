@@ -214,7 +214,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     final addressList = ObservableList<ListItem>();
 
     if (wallet.type == WalletType.monero) {
-      final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
+      final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.firstOrNull;
       final addressItems = monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
@@ -409,7 +409,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     // update the address list:
     await wallet.walletAddresses.saveAddressesInBox();
     if (wallet.type == WalletType.monero) {
-      monero!
+      await monero!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
     } else if (wallet.type == WalletType.wownero) {
@@ -470,7 +470,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       switch (chainId) {
         case 1:
           return [
-            'assets/images/crypto/ethereum.webp',
+            'assets/new-ui/crypto_full_icons/ethereum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
             'assets/images/deuro_icon.svg',
@@ -486,7 +486,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 8453:
           return [
-            'assets/images/crypto/ethereum.webp',
+            'assets/new-ui/crypto_full_icons/ethereum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];

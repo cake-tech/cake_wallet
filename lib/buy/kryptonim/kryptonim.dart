@@ -65,15 +65,15 @@ class KryptonimBuyProvider extends BuyProvider {
       'Authorization': _kryptonimApiKey,
     };
 
-    final body = jsonEncode({
-      'amount': amount,
-      'currency': fiatCurrency,
-      'converted_currency': cryptoCurrency.title,
-      'blockchain': _normalizeBlockChain(cryptoCurrency),
-      'quote_currency': fiatCurrency,
-    });
-
     try {
+      final body = jsonEncode({
+        'amount': amount,
+        'currency': fiatCurrency,
+        'converted_currency': cryptoCurrency.title,
+        'blockchain': _normalizeBlockChain(cryptoCurrency),
+        'quote_currency': fiatCurrency,
+      });
+
       final response = await ProxyWrapper().post(
         clearnetUri: url,
         headers: headers,

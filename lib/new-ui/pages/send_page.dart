@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
@@ -513,8 +514,11 @@ class _NewSendPageState extends State<NewSendPage> {
                                           ListItemRegularRowWidget(
                                             keyValue: "",
                                             label: "Coin Control",
-                                            onTap: () => Navigator.of(context)
-                                                .pushNamed(Routes.unspentCoinsList),
+                                            onTap: () {
+                                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
+                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,);
+                                              });
+                                            }
                                           ),
                                       ]),
                                     )
@@ -759,7 +763,7 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (!widget.mode.popOnConfirmation) {
+          if (!widget.mode.popOnConfirmation && Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
           }
           showModalBottomSheet(

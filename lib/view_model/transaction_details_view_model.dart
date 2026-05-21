@@ -6,6 +6,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -69,7 +70,7 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_height_key",
         title: S.current.transaction_details_height,
-        valueGetter: (vm) => vm.transactionInfo.height.toString(),
+        valueGetter: (vm) => vm.transactionInfo.height?.toString() ?? "",
         applicable: (vm) => !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) &&
             !isLightning(vm.transactionInfo))),
 
@@ -98,22 +99,30 @@ class TxDetailRowDefinition {
         keyString: "standard_list_item_transaction_details_recipient_address_key",
         title: S.current.transaction_details_recipient_address,
         valueGetter: (vm) {
-          vm.isRecipientAddressShown = true;
+          String? ret = null;
+
           switch (vm.wallet.type) {
             case WalletType.monero:
-              return monero!.getTransactionAddress(
-                  vm.wallet,
-                  vm.transactionInfo.additionalInfo['accountIndex'] as int,
-                  vm.transactionInfo.additionalInfo['addressIndex'] as int);
+              if (vm.transactionInfo.direction == TransactionDirection.incoming) {
+                ret = monero!.getTransactionAddress(
+                    vm.wallet,
+                    vm.transactionInfo.additionalInfo['accountIndex'] as int,
+                    vm.transactionInfo.additionalInfo['addressIndex'] as int);
+              }
             case WalletType.bitcoin:
-              return (bitcoin!.getTransactionAddresses(vm.wallet, vm.transactionInfo) ?? [])
+              ret = (bitcoin!.getTransactionAddresses(vm.wallet, vm.transactionInfo) ?? [])
                       .firstOrNull ??
                   "";
             case WalletType.tron:
-              return tron!.getTronBase58Address(vm.transactionInfo.to!, vm.wallet);
+              ret = tron!.getTronBase58Address(vm.transactionInfo.to!, vm.wallet);
             default:
-              return vm.transactionInfo.to!;
+              break;
           }
+          if(ret == null) {
+            ret = vm.transactionInfo.to ?? "";
+          }
+          vm.isRecipientAddressShown = ret.isNotEmpty;
+          return ret;
         },
         applicable: (vm) =>
             vm.showRecipientAddress &&
@@ -577,6 +586,20 @@ abstract class TransactionDetailsViewModelBase with Store {
             transactionInfo.outputAddresses?.length ?? 1);
 
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
+  }
+
+  String get formattedCryptoAmount {
+    if (wallet.type == WalletType.bitcoin) {
+      final crypto = isLightning(transactionInfo) ? CryptoCurrency.btcln : CryptoCurrency.btc;
+      final amount = _appStore.amountParsingProxy
+          .getDisplayCryptoString(transactionInfo.amount, crypto)
+          .withMaxDecimals(8)
+          .withLocalSeperator(_appStore.settingsStore.languageCode);
+
+      return '$amount ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
+    }
+
+    return transactionInfo.amountFormatted();
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee);
