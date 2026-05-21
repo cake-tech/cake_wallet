@@ -48,26 +48,16 @@ class _CardCustomizerState extends State<CardCustomizer> {
   }
 
   bool _showIconStylePanel(CardCustomizerState state) {
-    if (state.selectedDesignIndex >= state.availableDesigns.length) {
-      return false;
-    }
-
     final design = state.availableDesigns[state.selectedDesignIndex];
     return design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
         state.availableIconPaths.isNotEmpty;
   }
 
   CardDesign _cardStylePreviewDesign(CardCustomizerState state, int index) {
-    if (index >= state.availableDesigns.length) {
-      return state.availableDesigns.isNotEmpty
-          ? state.availableDesigns.first.withGradient(state.selectedColor)
-          : CardDesign.genericDefault;
-    }
     var design = state.availableDesigns[index].withGradient(state.selectedColor);
     if (design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
         state.availableIconPaths.isNotEmpty) {
-      final clamped = state.selectedIconIndex.clamp(0, state.availableIconPaths.length - 1);
-      design = design.withImagePath(state.availableIconPaths[clamped]);
+      design = design.withIcon(state.availableIconPaths[state.selectedIconIndex]);
     }
     return design;
   }
@@ -231,7 +221,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                     separatorBuilder: (context, _) =>
                                                         const SizedBox(width: 8.0),
                                                     itemBuilder: (context, index) {
-                                                      final path = state.availableIconPaths[index];
+                                                      final icon = state.availableIconPaths[index];
                                                       final isSelected =
                                                           index == state.selectedIconIndex;
                                                       return GestureDetector(
@@ -261,7 +251,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                           ),
                                                           child: Padding(
                                                             padding: const EdgeInsets.all(10.0),
-                                                            child: CakeImageWidget(imageUrl: path),
+                                                            child: CakeImageWidget(imageUrl: icon.path),
                                                           ),
                                                         ),
                                                       );

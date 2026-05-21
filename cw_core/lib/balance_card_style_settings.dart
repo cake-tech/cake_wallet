@@ -51,13 +51,13 @@ class BalanceCardStyleSettings {
     );
   }
 
-  static BalanceCardStyleSettings fromCardDesign(
-      int walletInfoId,
-      int accountIndex,
-      int cardOrder,
-      CardDesign design, {
-      int iconStyleIndex = 0,
-      int? gradientIndexOverride,
+  static BalanceCardStyleSettings fromCardDesign({
+    required int walletInfoId,
+    required int accountIndex,
+    required int cardOrder,
+    required CardDesign design,
+    int iconStyleIndex = 0,
+    int? gradientIndexOverride,
   }) {
     final int gradientIndex = gradientIndexOverride ??
         CardDesign.allGradients.indexOf(design.gradient);

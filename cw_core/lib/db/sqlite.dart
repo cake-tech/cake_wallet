@@ -41,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 7,
+  db = await openDatabase(dbFile.path, version: 8,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {

@@ -246,7 +246,7 @@ class BalanceCard extends StatelessWidget {
                       switchInCurve: Curves.easeInOut,
                       switchOutCurve: Curves.easeInOut,
                       child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
-                          ? cornerSvgIcon(design, iconWidth)
+                          ? _CornerSvgIcon(design: design, iconWidth: iconWidth)
                           : const SizedBox.shrink(
                               key: ValueKey('svgIconOff'),
                             ),
@@ -285,29 +285,6 @@ class BalanceCard extends StatelessWidget {
     );
   }
 
-  Widget cornerSvgIcon(CardDesign design, double iconWidth) {
-    final path = design.imagePath;
-    final isColoredAsset = path.contains('chain_icons') ||
-        path.contains('og_icons');
-
-    final image = CakeImageWidget(
-      imageUrl: path,
-      key: ValueKey(path),
-      height: iconWidth,
-      width: iconWidth,
-      colorFilter: isColoredAsset
-          ? null
-          : ColorFilter.mode(
-              design.colors.backgroundImageColor.withValues(alpha: 0.33),
-              BlendMode.dstIn,
-            ),
-    );
-    if (isColoredAsset) {
-      return Opacity(opacity: 0.85, child: image);
-    }
-    return image;
-  }
-
   Widget getBalanceCardActionButton(BalanceCardAction action) => GestureDetector(
         onTap: action.onTap,
         child: Container(
@@ -332,4 +309,27 @@ class BalanceCard extends StatelessWidget {
           ),
         ),
       );
+}
+
+class _CornerSvgIcon extends StatelessWidget {
+  const _CornerSvgIcon({required this.design, required this.iconWidth});
+
+  final CardDesign design;
+  final double iconWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return CakeImageWidget(
+      imageUrl: design.imagePath,
+      key: ValueKey(design.imagePath),
+      height: iconWidth,
+      width: iconWidth,
+      colorFilter: design.preColoredIcon
+          ? null
+          : ColorFilter.mode(
+              design.colors.backgroundImageColor.withValues(alpha: 0.33),
+              BlendMode.dstIn,
+            ),
+    );
+  }
 }

@@ -73,11 +73,11 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   int _initSelectedIconIndex(
     BalanceCardStyleSettings? settings,
-    List<String> availableIconPaths,
+    List<CardIconPath> availableIconPaths,
   ) {
     if (settings == null || availableIconPaths.isEmpty) return 0;
-
-    return settings.iconStyleIndex.clamp(0, availableIconPaths.length - 1);
+    if (settings.iconStyleIndex >= availableIconPaths.length) return 0;
+    return settings.iconStyleIndex;
   }
 
   int _initSelectedColor(CardDesign currentDesign) {
@@ -160,10 +160,10 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) {
     BalanceCardStyleSettings.fromCardDesign(
-            _wallet.walletInfo.internalId,
-            state.accountIndex,
-            state.cardOrder,
-            state.selectedDesign,
+            walletInfoId: _wallet.walletInfo.internalId,
+            accountIndex: state.accountIndex,
+            cardOrder: state.cardOrder,
+            design: state.selectedDesign,
             iconStyleIndex: state.selectedIconIndex,
             gradientIndexOverride: state.selectedColorIndex)
         .insert()

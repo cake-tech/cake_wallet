@@ -9,7 +9,7 @@ sealed class CardCustomizerState {
   final bool displaySats;
   final List<CardDesign> availableDesigns;
   final List<Gradient> availableColors;
-  final List<String> availableIconPaths;
+  final List<CardIconPath> availableIconPaths;
   final int selectedIconIndex;
 
   CardCustomizerState(
@@ -40,9 +40,7 @@ sealed class CardCustomizerState {
 
     if (design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
         availableIconPaths.isNotEmpty) {
-      final clamped = selectedIconIndex.clamp(
-          0, availableIconPaths.length - 1);
-      design = design.withImagePath(availableIconPaths[clamped]);
+      design = design.withIcon(availableIconPaths[selectedIconIndex]);
     }
     return design;
   }
@@ -55,17 +53,11 @@ sealed class CardCustomizerState {
     String? accountName,
     int? accountIndex,
     int? cardOrder,
-    List<String>? availableIconPaths,
+    List<CardIconPath>? availableIconPaths,
     int? selectedIconIndex,
   });
 
-  Gradient get selectedColor {
-    if (availableColors.isEmpty) {
-      return CardDesign.gradientBlue;
-    }
-    final i = selectedColorIndex.clamp(0, availableColors.length - 1);
-    return availableColors[i];
-  }
+  Gradient get selectedColor => availableColors[selectedColorIndex];
 }
 
 final class CardCustomizerNotLoaded extends CardCustomizerState {
@@ -80,7 +72,7 @@ final class CardCustomizerNotLoaded extends CardCustomizerState {
       String? accountName,
       int? accountIndex,
       int? cardOrder,
-      List<String>? availableIconPaths,
+      List<CardIconPath>? availableIconPaths,
       int? selectedIconIndex}) {
     // this is never gonna be copied. it's near-instantly replaced with initial
     throw UnimplementedError();
@@ -97,7 +89,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
     int accountIndex,
     bool displaySats,
     int cardOrder, {
-    List<String> availableIconPaths = const [],
+    List<CardIconPath> availableIconPaths = const [],
     int selectedIconIndex = 0,
   }) : super(selectedDesignIndex, selectedColorIndex, availableDesigns,
             availableColors, accountName, accountIndex, displaySats, cardOrder,
@@ -113,7 +105,7 @@ final class CardCustomizerInitial extends CardCustomizerState {
     int? accountIndex,
     bool? displaySats,
     int? cardOrder,
-    List<String>? availableIconPaths,
+    List<CardIconPath>? availableIconPaths,
     int? selectedIconIndex,
   }) {
     return CardCustomizerInitial(
@@ -147,7 +139,7 @@ final class CardCustomizerSaved extends CardCustomizerState {
       int? accountIndex,
       bool? displaySats,
       int? cardOrder,
-      List<String>? availableIconPaths,
+      List<CardIconPath>? availableIconPaths,
       int? selectedIconIndex}) {
     return CardCustomizerSaved(
       selectedDesignIndex ?? this.selectedDesignIndex,
