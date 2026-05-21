@@ -189,6 +189,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       if (!isFixedRateMode) 'fromAmount': request.fromAmount,
       if (isFixedRateMode) 'toAmount': request.toAmount,
       'address': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'extraId': request.toAddressExtraId,
       'flow': _getFlow(isFixedRateMode),
       'type': type,
       'refundAddress': request.refundAddress,
@@ -248,6 +249,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       state: TradeState.created,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
