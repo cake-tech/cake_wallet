@@ -1045,8 +1045,8 @@ abstract class SettingsStoreBase with Store {
           final node = nodes[walletTypeForChain];
           if (node != null) {
             if (node.type != walletTypeForChain) {
-              throw Exception(
-                  'Node is not valid for $walletTypeForChain (found: ${node.type})');
+              printV('getCurrentNode: type mismatch for $walletTypeForChain '
+                  '(stored type: ${node.type}); returning anyway');
             }
             return node;
           }
