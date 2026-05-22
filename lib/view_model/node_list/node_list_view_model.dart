@@ -113,6 +113,7 @@ abstract class NodeListViewModelBase with Store {
     try {
       isTestingNodeSpeed = true;
       _nodeSpeeds.clear();
+      final nodes = this.nodes.toList();
       for(final node in nodes) {
         final sw = Stopwatch()..start();
         final res = await node.requestNode();
