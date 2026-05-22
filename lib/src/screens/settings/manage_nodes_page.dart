@@ -96,7 +96,7 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                 return ListView.separated(
                   controller: ModalScrollController.of(context),
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: BouncingScrollPhysics(),
                   itemCount: itemsCount,
                   separatorBuilder: (context, index) => Padding(
                     padding: EdgeInsets.symmetric(horizontal: 12),
