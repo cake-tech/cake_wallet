@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
@@ -149,6 +150,9 @@ abstract class WalletKitServiceBase with Store {
 
     _refreshPairings();
 
+    sessions.clear();
+    auth.clear();
+
     final newSessions = _walletKit.sessions.getAll();
     sessions.addAll(newSessions);
 
@@ -181,16 +185,16 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
-  Future<void> _emitEvent() async {
+  Future<void> _emitEvent({int retries = 0}) async {
     final isOnline = _walletKit.core.connectivity.isOnline.value;
-    if (!isOnline) {
+    if (!isOnline && retries < 3) {
       await Future.delayed(const Duration(milliseconds: 500));
-      _emitEvent();
+      await _emitEvent(retries: ++retries);
       return;
     }
 
-    final sessions = _walletKit.sessions.getAll();
-    for (var session in sessions) {
+    final engineSessions = _walletKit.sessions.getAll();
+    for (var session in engineSessions) {
       final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       for (var chain in chainKeys) {
         for (var chainID in chain.chains) {
@@ -200,13 +204,12 @@ abstract class WalletKitServiceBase with Store {
               namespaces: session.namespaces,
             );
             if (events.contains('accountsChanged')) {
-              final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
-              _walletKit.emitSessionEvent(
+              await _walletKit.emitSessionEvent(
                 topic: session.topic,
                 chainId: chainID,
                 event: SessionEventParams(
                   name: 'accountsChanged',
-                  data: [chainKeys.first.publicKey],
+                  data: [chain.publicKey],
                 ),
               );
             }
@@ -215,6 +218,7 @@ abstract class WalletKitServiceBase with Store {
               try {
                 await deletePairing(topic: session.pairingTopic);
               } catch (_) {}
+              sessions.removeWhere((s) => s.topic == session.topic);
               _refreshPairings();
             }
           } catch (_) {}
@@ -241,6 +245,10 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+
+    sessions.clear();
+    auth.clear();
+    pairings.clear();
 
     isInitialized = false;
   }
@@ -511,23 +519,57 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> deletePairing({required String topic}) async {
-    final topicSessions = sessions.where((element) => element.pairingTopic == topic);
+    final topicSessions =
+        sessions.where((element) => element.pairingTopic == topic).toList();
 
     await _walletKit.core.pairing.disconnect(topic: topic);
     for (var session in topicSessions) {
-      await _walletKit.disconnectSession(
-        topic: session.topic,
-        reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
-      );
+      try {
+        await _walletKit.disconnectSession(
+          topic: session.topic,
+          reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
+        );
+      } catch (_) {}
     }
+
+    await _removePairingTopicFromLocalStorage(topic);
+    sessions.clear();
+    sessions.addAll(_walletKit.sessions.getAll());
+    _refreshPairings();
   }
 
   @action
   Future<void> disconnectSession({required String topic}) async {
-    await walletKit.disconnectSession(
-      topic: topic,
-      reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
-    );
+    String? pairingTopic;
+    for (final s in sessions) {
+      if (s.topic == topic) {
+        pairingTopic = s.pairingTopic;
+        break;
+      }
+    }
+    pairingTopic ??= _walletKit.sessions.get(topic)?.pairingTopic;
+
+    try {
+      await walletKit.disconnectSession(
+        topic: topic,
+        reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
+      );
+    } catch (e) {
+     printV('disconnectSession: $e');
+    }
+
+    sessions.clear();
+    sessions.addAll(_walletKit.sessions.getAll());
+
+    if (pairingTopic != null &&
+        !_walletKit.sessions.getAll().any((s) => s.pairingTopic == pairingTopic)) {
+      await _removePairingTopicFromLocalStorage(pairingTopic);
+      try {
+        await _walletKit.core.pairing.disconnect(topic: pairingTopic);
+      } catch (_) {}
+    }
+
+    _refreshPairings();
   }
 
   @action
@@ -635,6 +677,17 @@ abstract class WalletKitServiceBase with Store {
 
     // Cast each item to a string
     return jsonList.map((item) => item as String).toList();
+  }
+
+  Future<void> _removePairingTopicFromLocalStorage(String pairingTopic) async {
+    final key = getKeyForStoringTopicsForWallet();
+    if (key.isEmpty) return;
+
+    final topics = getPairingTopicsForWallet(key);
+    if (!topics.contains(pairingTopic)) return;
+
+    topics.remove(pairingTopic);
+    await sharedPreferences.setString(key, jsonEncode(topics));
   }
 
   Future<void> savePairingTopicToLocalStorage(String pairingTopic) async {

@@ -214,7 +214,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     final addressList = ObservableList<ListItem>();
 
     if (wallet.type == WalletType.monero) {
-      final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
+      final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.firstOrNull;
       final addressItems = monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
