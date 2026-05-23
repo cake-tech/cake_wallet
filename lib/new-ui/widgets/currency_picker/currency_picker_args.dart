@@ -14,6 +14,8 @@ class CurrencyPickerBalance {
   final String? fiat;
 }
 
+enum RecentsSource { none, trades, orders }
+
 class CurrencyPickerArgs {
   const CurrencyPickerArgs({
     this.selected,
@@ -22,7 +24,7 @@ class CurrencyPickerArgs {
     this.filterByNetwork,
     required this.onSelected,
     required this.symbolResolver,
-    this.showRecentsFromTrades = false,
+    this.recentsSource = RecentsSource.none,
   });
 
   final CryptoCurrency? selected;
@@ -31,7 +33,7 @@ class CurrencyPickerArgs {
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
-  final bool showRecentsFromTrades;
+  final RecentsSource recentsSource;
 
   bool get isPreFiltered => filterByNetwork != null;
 }

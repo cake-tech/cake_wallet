@@ -3,6 +3,9 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
@@ -398,6 +401,7 @@ class BuySellPage extends BasePage {
         showLimitsField: false,
         currencies: buySellViewModel.fiatCurrencies,
         onCurrencySelected: (currency) => buySellViewModel.changeFiatCurrency(currency: currency),
+        onTapCurrencyPicker: _presentFiatPicker,
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_purple_icon.png',
           color: Theme.of(context).colorScheme.primary,
@@ -435,6 +439,7 @@ class BuySellPage extends BasePage {
         isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
         currencies: buySellViewModel.cryptoCurrencies,
         onCurrencySelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
+        onTapCurrencyPicker: _presentCryptoPicker,
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_cake_green.png',
           color: Theme.of(context).colorScheme.primary,
@@ -501,6 +506,27 @@ class BuySellPage extends BasePage {
           );
         }
       },
+    );
+  }
+
+  void _presentFiatPicker(BuildContext context) {
+    FiatCurrencyPickerSheet.show(
+      context: context,
+      selected: buySellViewModel.fiatCurrency,
+      onSelected: (currency) => buySellViewModel.changeFiatCurrency(currency: currency),
+    );
+  }
+
+  void _presentCryptoPicker(BuildContext context) {
+    CurrencyPickerSheet.show(
+      context: context,
+      args: CurrencyPickerArgs(
+        items: buySellViewModel.cryptoCurrencies,
+        selected: buySellViewModel.cryptoCurrency,
+        recentsSource: RecentsSource.orders,
+        onSelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
+        symbolResolver: buySellViewModel.amountParsingProxy.getCryptoSymbol,
+      ),
     );
   }
 

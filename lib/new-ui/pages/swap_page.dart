@@ -1232,7 +1232,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       args: CurrencyPickerArgs(
         items: currencies,
         selected: selected,
-        showRecentsFromTrades: true,
+        recentsSource: RecentsSource.trades,
         onSelected: widget.onCurrencySelected,
         symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
       ),

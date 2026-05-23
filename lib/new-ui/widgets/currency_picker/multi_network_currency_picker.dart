@@ -1,8 +1,7 @@
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/chain_chip_strip.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_recents_loader.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart';
@@ -28,16 +27,6 @@ class MultiNetworkCurrencyPicker extends StatefulWidget {
 }
 
 class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker> {
-  static const int _recentsLimit = 6;
-  static final Set<TradeState> _executedTradeStates = {
-    TradeState.complete,
-    TradeState.completed,
-    TradeState.finished,
-    TradeState.success,
-    TradeState.settled,
-    TradeState.traded,
-  };
-
   bool _recentsLoaded = false;
   WalletType? _selectedNetwork;
   List<CryptoCurrency> _recents = const [];
@@ -74,45 +63,19 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   }
 
   Future<void> _loadRecents() async {
-    if (!widget.args.showRecentsFromTrades) {
-      if (!mounted) return;
-      setState(() => _recentsLoaded = true);
-      return;
-    }
-
     try {
-      final trades = await Trade.getAll();
-      final ordered = trades.where((t) => _executedTradeStates.contains(t.state)).toList()
-        ..sort((a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
-            .compareTo(a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0)));
-
-      final currenciesSet = widget.args.items.toSet();
-      final seen = <CryptoCurrency>{};
-      final collected = <CryptoCurrency>[];
-
-      for (final trade in ordered) {
-        for (final currency in [trade.from, trade.to]) {
-          if (currency == null) continue;
-          if (!currenciesSet.contains(currency)) continue;
-          if (!seen.add(currency)) continue;
-
-          collected.add(currency);
-
-          if (collected.length >= _recentsLimit) break;
-        }
-
-        if (collected.length >= _recentsLimit) break;
-      }
-
+      final recents = await PickerRecentsLoader.load(
+        source: widget.args.recentsSource,
+        visibleItems: widget.args.items,
+      );
       if (!mounted) return;
       setState(() {
-        _recents = collected;
+        _recents = recents;
         _recentsLoaded = true;
       });
     } catch (e, s) {
-      printV('load recent trades failed: $e\n$s');
+      printV('load picker recents failed: $e\n$s');
       if (!mounted) return;
-      
       setState(() => _recentsLoaded = true);
     }
   }
