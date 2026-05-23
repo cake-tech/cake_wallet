@@ -736,6 +736,7 @@
   "payments": "Pagamentos",
   "pending": " (pendente)",
   "percentageOf": "de ${amount}",
+  "picker_section_crypto": "Cripto",
   "picker_section_more_cryptocurrencies": "Mais criptomoedas",
   "picker_section_tokens_standard": "Tokens (${standard})",
   "picker_see_all": "Ver tudo",

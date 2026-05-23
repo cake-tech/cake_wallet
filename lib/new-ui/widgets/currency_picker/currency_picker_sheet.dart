@@ -18,6 +18,8 @@ class CurrencyPickerSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      enableDrag: false,
+      isDismissible: false,
       backgroundColor: Colors.transparent,
       builder: (_) => CurrencyPickerSheet(args: args),
     );
@@ -26,25 +28,28 @@ class CurrencyPickerSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        color: colors.surface,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          ModalTopBar(
-            title: S.of(context).select_asset,
-            leadingIcon: const Icon(Icons.close),
-            onLeadingPressed: () => Navigator.of(context).maybePop(),
-          ),
-          Expanded(
-            child: args.isPreFiltered
-                ? SingleNetworkCurrencyPicker(args: args)
-                : MultiNetworkCurrencyPicker(args: args),
-          ),
-        ],
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          color: colors.surface,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            ModalTopBar(
+              title: S.of(context).select_asset,
+              leadingIcon: const Icon(Icons.close),
+              onLeadingPressed: () => Navigator.of(context).maybePop(),
+            ),
+            Expanded(
+              child: args.isPreFiltered
+                  ? SingleNetworkCurrencyPicker(args: args)
+                  : MultiNetworkCurrencyPicker(args: args),
+            ),
+          ],
+        ),
       ),
     );
   }

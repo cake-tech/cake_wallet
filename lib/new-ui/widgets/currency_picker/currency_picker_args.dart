@@ -21,17 +21,17 @@ class CurrencyPickerArgs {
     this.balanceByAsset,
     this.filterByNetwork,
     required this.onSelected,
-    required this.pickerContext,
     required this.symbolResolver,
+    this.showRecentsFromTrades = false,
   });
 
-  final String pickerContext;
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
+  final bool showRecentsFromTrades;
 
   bool get isPreFiltered => filterByNetwork != null;
 }

@@ -635,6 +635,7 @@
   "payments": "支付",
   "pending": " (待處理)",
   "percentageOf": "的 ${amount}",
+  "picker_section_crypto": "加密貨幣",
   "picker_section_more_cryptocurrencies": "更多加密貨幣",
   "picker_section_tokens_standard": "代幣（${standard}）",
   "picker_see_all": "查看全部",

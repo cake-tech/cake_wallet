@@ -7,7 +7,6 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/db/currency_picker_recents_storage.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -38,10 +37,6 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
   }
 
   void _selectCurrency(CryptoCurrency currency) {
-    CurrencyPickerRecentsStorage.recordRecent(
-      currency: currency,
-      context: _args.pickerContext,
-    );
     _args.onSelected(currency);
     Navigator.of(context).maybePop();
   }

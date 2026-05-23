@@ -13,7 +13,6 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
-import 'package:cw_core/db/currency_picker_recents_storage.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
@@ -833,7 +832,6 @@ class _NewSendPageState extends State<NewSendPage> {
       args: CurrencyPickerArgs(
         items: widget.sendViewModel.currencies,
         selected: widget.sendViewModel.selectedCryptoCurrency,
-        pickerContext: CurrencyPickerContexts.send,
         filterByNetwork: widget.sendViewModel.walletType,
         balanceByAsset: balanceByAsset,
         symbolResolver: widget.sendViewModel.amountParsingProxy.getCryptoSymbol,

@@ -16,8 +16,9 @@ class ChainChipStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
+    return Container(
+      padding: const EdgeInsets.only(bottom: 4),
+      height: 48,
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),

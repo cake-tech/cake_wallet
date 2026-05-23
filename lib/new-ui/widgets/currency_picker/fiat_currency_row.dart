@@ -45,15 +45,15 @@ class FiatCurrencyRow extends StatelessWidget {
                   Text(
                     currency.fullName,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     currency.title,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                          color: colors.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),

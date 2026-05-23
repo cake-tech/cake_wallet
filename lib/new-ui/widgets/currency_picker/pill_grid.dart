@@ -66,9 +66,8 @@ class _PillCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
-          borderRadius: BorderRadius.circular(16),
-          border:
-              isSelected ? Border.all(color: colors.primary, width: 1.5) : null,
+          borderRadius: BorderRadius.circular(80),
+          border: isSelected ? Border.all(color: colors.primary, width: 1.5) : null,
         ),
         child: Row(
           children: [
@@ -84,8 +83,8 @@ class _PillCard extends StatelessWidget {
                 label,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ),
             Icon(

@@ -21,7 +21,6 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
-import 'package:cw_core/db/currency_picker_recents_storage.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -1233,9 +1232,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       args: CurrencyPickerArgs(
         items: currencies,
         selected: selected,
-        pickerContext: widget.isReceiverCard
-            ? CurrencyPickerContexts.swapReceive
-            : CurrencyPickerContexts.swapDeposit,
+        showRecentsFromTrades: true,
         onSelected: widget.onCurrencySelected,
         symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
       ),

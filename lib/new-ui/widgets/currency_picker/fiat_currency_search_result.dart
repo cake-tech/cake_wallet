@@ -26,8 +26,8 @@ class FiatCurrencySearchResults extends StatelessWidget {
             S.of(context).picker_no_matches,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ),
       );

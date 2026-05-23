@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:cw_core/root_dir.dart';
@@ -41,7 +40,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 8,
+  db = await openDatabase(dbFile.path, version: 7,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -104,9 +103,6 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: 'TEXT',
         );
       }
-    if (oldVersion <= 7) {
-      await _createCurrencyPickerRecentsTable(db);
-    }
     },
     onCreate: (Database db, int version) async {
       await db.execute(
@@ -204,27 +200,9 @@ CREATE TABLE BalanceCardStyleSettings (
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
-      await _createBridgeTransferTable(db);
-      await _createTradeTable(db);
-      await _createCurrencyPickerRecentsTable(db);
-    }
-  );
-}
-
-Future<void> _createCurrencyPickerRecentsTable(Database db) async {
-  await db.execute('''
-CREATE TABLE IF NOT EXISTS CurrencyPickerRecents (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  currency_key TEXT NOT NULL,
-  context TEXT NOT NULL,
-  last_used_at INTEGER NOT NULL,
-  UNIQUE(currency_key, context)
-);
-''');
-  await db.execute('''
-CREATE INDEX IF NOT EXISTS idx_currency_picker_recents_context_time
-ON CurrencyPickerRecents(context, last_used_at DESC);
-''');
+    await _createBridgeTransferTable(db);
+    await _createTradeTable(db);
+  });
 }
 
 Future<void> _createTradeTable(Database db) async {

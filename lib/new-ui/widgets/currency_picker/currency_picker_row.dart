@@ -54,9 +54,9 @@ class CurrencyPickerRow extends StatelessWidget {
                       child: Text(
                         chainPillLabel!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: colors.onSecondaryContainer,
-                          ),
+                              fontWeight: FontWeight.w500,
+                              color: colors.onSecondaryContainer,
+                            ),
                       ),
                     ),
                   ],
@@ -106,18 +106,25 @@ class _IconWithBadge extends StatelessWidget {
         children: [
           icon,
           Positioned(
-            right: 2,
-            bottom: 2,
+            right: -2,
+            bottom: -2,
             child: Container(
+              width: 18,
+              height: 18,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  width: 2,
+                ),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               padding: const EdgeInsets.all(2),
               child: CakeImageWidget(
                 imageUrl: badgePath,
-                width: 12,
-                height: 12,
+                color: Theme.of(context).colorScheme.surface,
+                width: 13,
+                height: 13,
                 fit: BoxFit.cover,
               ),
             ),
