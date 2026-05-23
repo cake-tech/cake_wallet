@@ -1157,6 +1157,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (isFixedRateMode && provider.supportsFixedRate == false) {
           continue;
         }
+        
+        if (_excludeProviderForReceiveExtraId(provider)) {
+          continue;
+        }
 
         // Skip Swaps.xyz when sending from external
         if (isSendFromExternal &&
