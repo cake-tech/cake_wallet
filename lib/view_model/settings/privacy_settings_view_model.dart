@@ -100,6 +100,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get looksUpENS => _settingsStore.lookupsENS;
 
   @computed
+  bool get lookupsZcashNames => _settingsStore.lookupsZcashNames;
+
+  @computed
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
   @computed
