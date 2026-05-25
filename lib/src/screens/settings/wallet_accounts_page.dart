@@ -1,16 +1,15 @@
 import 'dart:ui';
 
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
-import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
@@ -18,7 +17,6 @@ import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dar
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
-import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,6 +59,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await widget.dashboardViewModel.loadCardDesigns();
+      if (!mounted) return;
       loadCards();
 
       final activeId = widget.accountListViewModel.selectedAccount?.id;
@@ -83,6 +82,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   @override
   void dispose() {
+    widget.accountListViewModel.reload();
     saveCardOrder().then((value) => widget.dashboardViewModel.loadCardDesigns());
     super.dispose();
   }
@@ -94,7 +94,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     for (int i = 0; i < accounts.length; i++) {
       final index = widget.dashboardViewModel.cardOrder[i];
 
-      if (index == null || index >= accounts.length) {
+      if (index == null || index < 0 || index >= accounts.length) {
         // db order broken.
         reset();
         break;
@@ -263,14 +263,30 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) {
-          final modal = getIt.get<AccountCreationModal>();
-          return Material(child: modal);
+          return Material(
+            child: AccountCreationModal(
+              state: () => widget.accountEditOrCreateViewModel.state,
+              onPressed: (label) async {
+                widget.accountEditOrCreateViewModel.label = label;
+                await widget.accountEditOrCreateViewModel.save();
+                if (!context.mounted) return;
+
+                if (widget.accountEditOrCreateViewModel.state is ExecutedSuccessfullyState) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+            ),
+          );
         });
 
     if (res != null && res is bool && res == true) {
+      widget.accountListViewModel.reload();
+      await Future<void>.delayed(Duration.zero);
+
       await widget.dashboardViewModel.loadCardDesigns();
       loadCards();
       await saveCardOrder();
+      await widget.dashboardViewModel.loadCardDesigns();
     }
   }
 
@@ -336,15 +352,15 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   }
 
   Future<void> saveCardOrder() async {
-    for (int i = 0; i < _items.length; i++) {
-      final idx = _items.indexWhere((element) => element.accountListItem.id == i);
-      printV("$i: $idx");
+    for (int orderIndex = 0; orderIndex < _items.length; orderIndex++) {
+      final item = _items[orderIndex];
+      printV("${item.accountListItem.id}: $orderIndex");
 
       await BalanceCardStyleSettings.fromCardDesign(
               widget.dashboardViewModel.wallet.walletInfo.internalId,
-              i,
-              idx,
-              _items[idx].card.design)
+              item.accountListItem.id,
+              orderIndex,
+              item.card.design)
           .insert();
     }
   }
@@ -393,98 +409,5 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
     saveCardOrder();
     setState(() {});
-  }
-}
-
-class AccountCreationModal extends StatefulWidget {
-  const AccountCreationModal({super.key, required this.accountEditOrCreateViewModel});
-
-  final WalletAccountEditOrCreateViewModel accountEditOrCreateViewModel;
-
-  @override
-  State<AccountCreationModal> createState() => _AccountCreationModalState();
-}
-
-class _AccountCreationModalState extends State<AccountCreationModal> {
-  final TextEditingController _controller = TextEditingController();
-  bool _loading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ModalGrabHandle(),
-                ModalTopBar(title: S.of(context).create_account),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: Column(
-                    spacing: 50,
-                    children: [
-                      SizedBox(),
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(16)),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _controller,
-                                decoration: InputDecoration(hintText: S.of(context).account_name),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: GestureDetector(
-                                onTap: () async {
-                                  _controller.text = await generateName();
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                      borderRadius: BorderRadius.circular(5)),
-                                  child: CakeImageWidget(
-                                    imageUrl: "assets/new-ui/randomize.svg",
-                                    colorFilter: ColorFilter.mode(
-                                        Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      NewPrimaryButton(
-                        onPressed: () async {
-                          if (_loading) return;
-                          setState(() {
-                            _loading = true;
-                          });
-                          widget.accountEditOrCreateViewModel.label = _controller.text;
-                          await widget.accountEditOrCreateViewModel.save();
-                          Navigator.of(context).pop(true);
-                        },
-                        text: S.of(context).continue_text,
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        isLoading: _loading,
-                      ),
-                      SizedBox(),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ));
   }
 }

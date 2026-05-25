@@ -14,8 +14,8 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +34,7 @@ class NewHomePage extends StatefulWidget {
 }
 
 class _NewHomePageState extends State<NewHomePage> {
-  MoneroAccountListViewModel? accountListViewModel;
+  WalletAccountListViewModel? accountListViewModel;
   bool _lightningMode = false;
 
   @override
@@ -50,8 +50,9 @@ class _NewHomePageState extends State<NewHomePage> {
   }
 
   void _setAccountViewModel() {
-    accountListViewModel = widget.dashboardViewModel.balanceViewModel.hasAccounts
-        ? getIt.get<MoneroAccountListViewModel>()
+    accountListViewModel = widget.dashboardViewModel.balanceViewModel.hasAccounts ||
+        widget.dashboardViewModel.wallet.type == WalletType.bitcoin
+        ? getIt.get<WalletAccountListViewModel>()
         : null;
   }
 
@@ -119,15 +120,13 @@ class _NewHomePageState extends State<NewHomePage> {
                     name: widget.dashboardViewModel.wallet.name),
                       Column(
                         children: [
-                          Observer(
-                            builder: (_) => CardsView(
-                              key: ValueKey(widget.dashboardViewModel.wallet.name),
-                              onCustomizeTapped: openCardCustomizer,
-                              dashboardViewModel: widget.dashboardViewModel,
-                              accountListViewModel: accountListViewModel,
-                              onCompactModeBackgroundCardsTapped: openCardCustomizer,
-                              lightningMode: _lightningMode,
-                            ),
+                          CardsView(
+                            key: ValueKey(widget.dashboardViewModel.wallet.name),
+                            onCustomizeTapped: openCardCustomizer,
+                            dashboardViewModel: widget.dashboardViewModel,
+                            accountListViewModel: accountListViewModel,
+                            onCompactModeBackgroundCardsTapped: openCardCustomizer,
+                            lightningMode: _lightningMode,
                           ),
                           Observer(builder: (_) {
                             return AnimatedSize(

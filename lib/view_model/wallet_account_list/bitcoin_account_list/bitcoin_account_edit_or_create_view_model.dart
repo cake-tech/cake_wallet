@@ -49,19 +49,24 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
   }
 
   Future<void> _createAccount(String label) async {
-    // TODO: connect this to Bitcoin wallet account storage/service.
-    // Expected behavior:
-    // 1. Get next account index.
-    // 2. Save account label.
-    // 3. Generate initial receive/change addresses for this account if needed.
-    debugPrint('Create Bitcoin account: $label');
+    final accounts = await _wallet.walletInfo.getAccounts();
+
+    final nextIndex = accounts.isEmpty
+        ? 0
+        : accounts.map((e) => e.accountIndex).reduce((a, b) => a > b ? a : b) + 1;
+
+    await _wallet.walletInfo.addAccount(
+      accountIndex: nextIndex,
+      label: label.isEmpty ? 'Account $nextIndex' : label,
+    );
+
+    await _wallet.walletInfo.setSelectedAccount(nextIndex);
   }
 
   Future<void> _renameAccount(int accountIndex, String label) async {
-    // TODO: connect this to Bitcoin wallet account storage/service.
-    // Expected behavior:
-    // 1. Find account by index.
-    // 2. Update label.
-    debugPrint('Rename Bitcoin account $accountIndex: $label');
+    await _wallet.walletInfo.renameAccount(
+      accountIndex: accountIndex,
+      label: label.isEmpty ? 'Account $accountIndex' : label,
+    );
   }
 }

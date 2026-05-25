@@ -68,6 +68,10 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
 
   final WalletBase _wallet;
 
+  @override
+  void reload() {}
+
+  @override
   void select(AccountListItem item) {
     if (_wallet.type == WalletType.monero) {
       monero!.setCurrentAccount(

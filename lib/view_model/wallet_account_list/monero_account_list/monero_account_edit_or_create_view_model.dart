@@ -17,12 +17,14 @@ part 'monero_account_edit_or_create_view_model.g.dart';
 class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBase
     with _$MoneroAccountEditOrCreateViewModel;
 
-abstract class MoneroAccountEditOrCreateViewModelBase with Store implements WalletAccountEditOrCreateViewModel{
+abstract class MoneroAccountEditOrCreateViewModelBase
+    with Store
+    implements WalletAccountEditOrCreateViewModel {
   MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._wowneroAccountList,
       {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
-        label = accountListItem?.label??'',
+        label = accountListItem?.label ?? '',
         _accountListItem = accountListItem,
         _wallet = wallet;
 
@@ -62,58 +64,51 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store implements Wall
   }
 
   Future<void> save() async {
-    await _saveRandomCardDesign();
-    if (_wallet.type == WalletType.monero) {
-      await saveMonero();
-    }
+    try {
+      state = IsExecutingState();
 
-    if (_wallet.type == WalletType.wownero) {
-      await saveWownero();
+      if (!isEdit) await _saveRandomCardDesign();
+
+      if (_wallet.type == WalletType.monero) {
+        await saveMonero();
+      } else if (_wallet.type == WalletType.wownero) {
+        await saveWownero();
+      }
+
+      await _wallet.save();
+      state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
     }
   }
 
   Future<void> saveMonero() async {
-    try {
-      state = IsExecutingState();
-
-      if (_accountListItem != null) {
-        await _moneroAccountList.setLabelAccount(
-            _wallet,
-            accountIndex: _accountListItem.id,
-            label: label);
-      } else {
-        await _moneroAccountList.addAccount(
-          _wallet,
-          label: label);
-      }
-
-      await _wallet.save();
-      state = ExecutedSuccessfullyState();
-    } catch (e) {
-      state = FailureState(e.toString());
+    if (_accountListItem != null) {
+      await _moneroAccountList.setLabelAccount(
+        _wallet,
+        accountIndex: _accountListItem.id,
+        label: label,
+      );
+    } else {
+      await _moneroAccountList.addAccount(
+        _wallet,
+        label: label,
+      );
     }
   }
 
   Future<void> saveWownero() async {
-    try {
-      state = IsExecutingState();
-
-      if (_accountListItem != null) {
-        await _wowneroAccountList?.setLabelAccount(
-            _wallet,
-            accountIndex: _accountListItem.id,
-            label: label);
-      } else {
-        await _wowneroAccountList?.addAccount(
-          _wallet,
-          label: label);
-      }
-
-      await _wallet.save();
-      state = ExecutedSuccessfullyState();
-    } catch (e) {
-      state = FailureState(e.toString());
+    if (_accountListItem != null) {
+      await _wowneroAccountList?.setLabelAccount(
+        _wallet,
+        accountIndex: _accountListItem.id,
+        label: label,
+      );
+    } else {
+      await _wowneroAccountList?.addAccount(
+        _wallet,
+        label: label,
+      );
     }
   }
-
 }

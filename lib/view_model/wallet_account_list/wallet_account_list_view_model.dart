@@ -9,4 +9,6 @@ abstract class WalletAccountListViewModel {
   CryptoCurrency get currency;
 
   void select(AccountListItem account);
+
+  void reload();
 }

@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart' show WalletBase;
 import 'package:mobx/mobx.dart';
@@ -13,6 +14,7 @@ class BitcoinAccountListViewModel = BitcoinAccountListViewModelBase
 
 abstract class BitcoinAccountListViewModelBase with Store implements WalletAccountListViewModel {
   BitcoinAccountListViewModelBase(this._wallet, this.settingsStore) : scrollOffsetFromTop = 0 {
+    _setDefaultAccountUntilStorageLoads();
     _loadAccounts();
   }
 
@@ -29,6 +31,10 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     this.scrollOffsetFromTop = scrollOffsetFromTop;
   }
 
+  void init() {
+    _loadAccounts();
+  }
+
   @override
   @observable
   ObservableList<AccountListItem> accounts = ObservableList<AccountListItem>();
@@ -41,18 +47,32 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
   @action
   void select(AccountListItem account) {
     selectedAccount = account;
-
-    // TODO: connect this to Bitcoin selected account storage/service.
-    // Expected behavior:
-    // 1. Save selected account index.
-    // 2. Update wallet derivation/account context.
-    // 3. Refresh receive/change addresses for selected account.
+    unawaited(_wallet.walletInfo.setSelectedAccount(account.id));
   }
 
   @action
   void _loadAccounts() {
-    // TODO: load accounts from Bitcoin account storage/service.
-    // Temporary fallback: Bitcoin account 0.
+    _wallet.walletInfo.getAccounts().then((storedAccounts) {
+      final items = storedAccounts
+          .map((account) => AccountListItem(
+                id: account.accountIndex,
+                label: account.label,
+                balance: null,
+                isSelected: account.isSelected,
+              ))
+          .toList();
+
+      runInAction(() {
+        accounts = ObservableList<AccountListItem>.of(items);
+        selectedAccount = accounts.firstWhere(
+          (account) => account.isSelected,
+          orElse: () => accounts.first,
+        );
+      });
+    });
+  }
+
+  void _setDefaultAccountUntilStorageLoads() {
     final defaultAccount = AccountListItem(
       id: 0,
       label: 'Account 0',
@@ -64,6 +84,7 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     selectedAccount = defaultAccount;
   }
 
+  @override
   @action
   void reload() {
     _loadAccounts();

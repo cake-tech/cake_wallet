@@ -11,7 +11,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -34,7 +34,7 @@ class CardsView extends StatefulWidget {
       required this.onCompactModeBackgroundCardsTapped, required this.onCustomizeTapped});
 
   final DashboardViewModel dashboardViewModel;
-  final MoneroAccountListViewModel? accountListViewModel;
+  final WalletAccountListViewModel? accountListViewModel;
   final VoidCallback onCompactModeBackgroundCardsTapped;
   final VoidCallback onCustomizeTapped;
   final bool lightningMode;
@@ -279,7 +279,7 @@ class _CardsViewState extends State<CardsView> {
         if (visualIndex == _selectedIndex &&
             widget.accountListViewModel != null &&
             realIndex < widget.accountListViewModel!.accounts.length &&
-            widget.accountListViewModel?.selected.label !=
+            widget.accountListViewModel?.selectedAccount?.label !=
                 widget.accountListViewModel?.accounts[realIndex].label) {
           widget.accountListViewModel!
               .select(widget.accountListViewModel!.accounts[realIndex]);
