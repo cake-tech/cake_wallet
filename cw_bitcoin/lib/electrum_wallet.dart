@@ -3521,11 +3521,11 @@ abstract class ElectrumWalletBase
 
     // if we have a peg out transaction with the same value
     // that matches this received transaction, mark it as being from a peg out:
-    for (final tx in transactionHistory.transactions.values) {
-      final heightDiff = ((tx.height ?? 0) - (tx.height ?? 0)).abs();
+    for (final tx2 in transactionHistory.transactions.values) {
+      final heightDiff = ((tx2.height ?? 0) - (tx.height ?? 0)).abs();
     // this isn't a perfect matching algorithm since we don't have the right input/output information from these transaction models (the addresses are in different formats), but this should be more than good enough for now as it's extremely unlikely a user receives the EXACT same amount from 2 different sources and one of them is a peg out and the other isn't WITHIN 5 blocks of each other
-      if (tx.additionalInfo["isPegOut"] == true &&
-          tx.amount == tx.amount &&
+      if (tx2.additionalInfo["isPegOut"] == true &&
+          tx2.amount == tx.amount &&
           heightDiff <= 5) {
         tx.additionalInfo["fromPegOut"] = true;
       }
