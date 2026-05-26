@@ -131,6 +131,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsUnstoppableDomains,
       required this.lookupsOpenAlias,
       required this.lookupsENS,
+      required this.lookupsZcashNames,
       required this.lookupsWellKnown,
       required this.usePayjoin,
       required this.showPayjoinCard,
@@ -562,6 +563,11 @@ abstract class SettingsStoreBase with Store {
         (bool looksUpENS) => _sharedPreferences.setBool(PreferencesKey.lookupsENS, looksUpENS));
 
     reaction(
+        (_) => lookupsZcashNames,
+        (bool looksUpZcashNames) => _sharedPreferences.setBool(
+            PreferencesKey.lookupsZcashNames, looksUpZcashNames));
+
+    reaction(
         (_) => lookupsWellKnown,
         (bool looksUpWellKnown) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
@@ -954,6 +960,9 @@ abstract class SettingsStoreBase with Store {
   bool lookupsENS;
 
   @observable
+  bool lookupsZcashNames;
+
+  @observable
   bool lookupsWellKnown;
 
   @observable
@@ -1260,6 +1269,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
+    final lookupsZcashNames =
+        sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
     final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
     final showPayjoinCard = sharedPreferences.getBool(PreferencesKey.showPayjoinCard) ?? true;
@@ -1625,6 +1636,7 @@ abstract class SettingsStoreBase with Store {
       lookupsUnstoppableDomains: lookupsUnstoppableDomains,
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
+      lookupsZcashNames: lookupsZcashNames,
       lookupsWellKnown: lookupsWellKnown,
       usePayjoin: usePayjoin,
       showPayjoinCard: showPayjoinCard,
@@ -1851,6 +1863,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
+    lookupsZcashNames =
+        sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
     lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     silentPaymentsCardDisplay =
