@@ -456,10 +456,10 @@ abstract class BalanceViewModelBase with Store {
     if (wallet.walletInfo.favoriteTokenAddress != null) {
       return formattedBalances.firstWhereOrNull((item) => (getTokenAddressBasedOnWallet(item.asset) ==
                   wallet.walletInfo.favoriteTokenAddress)) ??
-          formattedBalances.elementAt(0);
+          formattedBalances.elementAtOrNull(0);
     }
 
-    return formattedBalances.elementAt(0);
+    return formattedBalances.elementAtOrNull(0);
   }
 
   String? getTokenAddressBasedOnWallet(CryptoCurrency asset) {

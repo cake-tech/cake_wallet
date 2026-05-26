@@ -27,6 +27,7 @@ class Trade {
     this.refundAddress,
     this.walletId,
     this.payoutAddress,
+    this.toAddressExtraId,
     this.password,
     this.providerId,
     this.providerName,
@@ -86,6 +87,9 @@ class Trade {
   String? refundAddress;
   String? walletId;
   String? payoutAddress;
+
+  // holds the receive address memo or destination tag that was passed for this trade
+  String? toAddressExtraId;
   String? password;
   String? providerId;
   String? providerName;
@@ -221,6 +225,7 @@ class Trade {
       'refundAddress': refundAddress,
       'walletId': walletId,
       'payoutAddress': payoutAddress,
+      'toAddressExtraId': toAddressExtraId,
       'password': password,
       'providerId': providerId,
       'providerName': providerName,
@@ -264,6 +269,7 @@ class Trade {
       refundAddress: row['refundAddress'] as String?,
       walletId: row['walletId'] as String?,
       payoutAddress: row['payoutAddress'] as String?,
+      toAddressExtraId: row['toAddressExtraId'] as String?,
       password: row['password'] as String?,
       providerId: row['providerId'] as String?,
       providerName: row['providerName'] as String?,

@@ -41,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 7,
+  db = await openDatabase(dbFile.path, version: 8,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -96,7 +96,15 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       if (oldVersion <= 5) {
         await _createTradeTable(db);
       }
-      if(oldVersion <= 6) {
+      if (oldVersion <= 6) {
+        await _addColumnIfNotExists(
+          db,
+          table: 'Trade',
+          column: 'toAddressExtraId',
+          definition: 'TEXT',
+        );
+      }
+      if(oldVersion <= 7) {
         await _createNodeTable(db);
       }
     },
@@ -238,6 +246,7 @@ CREATE TABLE IF NOT EXISTS Trade (
   refundAddress TEXT,
   walletId TEXT,
   payoutAddress TEXT,
+  toAddressExtraId TEXT,
   password TEXT,
   providerId TEXT,
   providerName TEXT,
