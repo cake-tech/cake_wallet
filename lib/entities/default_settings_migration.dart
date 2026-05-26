@@ -593,6 +593,12 @@ Future<void> defaultSettingsMigration(
             oldUri: ['base.nownodes.io'],
           );
           break;
+        case 66:
+          await _changeDefaultNode(
+              sharedPreferences: sharedPreferences,
+              type: WalletType.arbitrum,
+              currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
+              oldUri: ["arbitrum.nownodes.io"]);
         default:
           break;
       }
@@ -647,12 +653,12 @@ Future<void> _changeDefaultNode({
   if (currentNodeId == null) {
     shouldReplace = true;
   } else {
-    final currentNode = nodes.firstWhere((node) => node.id == currentNodeId);
-    shouldReplace = oldUri?.any((e) => currentNode.uriRaw.contains(e)) ?? true;
+    final currentNode = nodes.firstWhereOrNull((node) => node.id == currentNodeId);
+    shouldReplace = oldUri?.any((e) => currentNode?.uriRaw.contains(e) ?? true) ?? true;
   }
 
   if (shouldReplace) {
-    newDefaultUri ??= _getDefaultNodeUri(type);
+    newDefaultUri ??= (await getDefaultNodeFromFiles(type)).uriRaw;
     var newNodeId =
         nodes.firstWhereOrNull((element) => element.uriRaw == newDefaultUri)?.id;
 
@@ -670,50 +676,6 @@ Future<void> _changeDefaultNode({
     }
 
     await sharedPreferences.setInt(currentNodePreferenceKey, newNodeId);
-  }
-}
-
-String _getDefaultNodeUri(WalletType type) {
-  switch (type) {
-    case WalletType.monero:
-      return newCakeWalletMoneroUri;
-    case WalletType.bitcoin:
-      return newCakeWalletBitcoinUri;
-    case WalletType.litecoin:
-      return cakeWalletLitecoinElectrumUri;
-    case WalletType.haven:
-      return havenDefaultNodeUri;
-    case WalletType.ethereum:
-      return ethereumDefaultNodeUri;
-    case WalletType.nano:
-      return nanoDefaultNodeUri;
-    case WalletType.bitcoinCash:
-      return cakeWalletBitcoinCashDefaultNodeUri;
-    case WalletType.polygon:
-      return polygonDefaultNodeUri;
-    case WalletType.solana:
-      return solanaDefaultNodeUri;
-    case WalletType.tron:
-      return tronDefaultNodeUri;
-    case WalletType.wownero:
-      return wowneroDefaultNodeUri;
-    case WalletType.zano:
-      return zanoDefaultNodeUri;
-    case WalletType.decred:
-      return decredDefaultUri;
-    case WalletType.dogecoin:
-      return dogecoinDefaultNodeUri;
-    case WalletType.base:
-      return baseDefaultNodeUri;
-    case WalletType.arbitrum:
-      return arbitrumDefaultNodeUri;
-    case WalletType.bsc:
-      return bscDefaultNodeUri;
-    case WalletType.zcash:
-      return zcashDefaultNodeUri;
-    case WalletType.banano:
-    case WalletType.none:
-      return '';
   }
 }
 
