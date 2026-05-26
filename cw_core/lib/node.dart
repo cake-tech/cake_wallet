@@ -205,7 +205,7 @@ class Node {
   }
 
   static Future<Node?> get(int id) async {
-    return select("id = ?", [id]);
+    return select("${selfIdColumn} = ?", [id]);
   }
 
 
