@@ -46,6 +46,11 @@ class DomainLookupsPage extends BasePage {
                   value: _connectionsSyncViewModel.looksUpENS,
                   onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsENS(value)),
               SettingsSwitcherCell(
+                  title: 'Zcash Names',
+                  value: _connectionsSyncViewModel.lookupsZcashNames,
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsZcashNames(value)),
+              SettingsSwitcherCell(
                   title: '.well-known',
                   value: _connectionsSyncViewModel.looksUpWellKnown,
                   onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsWellKnown(value)),
