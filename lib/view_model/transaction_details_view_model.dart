@@ -37,6 +37,8 @@ part 'transaction_details_view_model.g.dart';
 
 bool _trueFunc(_) => true;
 
+// We're adding a regex here so we can remove any already saved address that has the account in it.
+// In the refactor, we will make another separate variable for accounts and the UI would handle it as needed.
 String _moneroRecipientAddressForDisplay(String raw, WalletType walletType) {
   if (walletType != WalletType.monero || raw.isEmpty) return raw;
 
