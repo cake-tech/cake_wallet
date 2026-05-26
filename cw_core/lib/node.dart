@@ -155,8 +155,20 @@ class Node {
       whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
       orderBy: orderBy,
     );
-    printV("selectList: $list");
     return List.generate(list.length, (index) => Node.fromMap(list[index]));
+  }
+
+  static Future<Node?> select(String where, List<dynamic> whereArgs, {String? orderBy}) async {
+    if(orderBy == null) {
+      orderBy = selfIdColumn;
+    }
+    final list = await db!.query(
+      tableName,
+      where: where.isNotEmpty ? where : "1 = 1",
+      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+      orderBy: orderBy,
+    );
+    return list.isEmpty ? null : Node.fromMap(list.first);
   }
 
 
@@ -190,6 +202,10 @@ class Node {
 
   static Future<List<Node>> getAllPow() async {
     return selectList("isPow = ?", [true]);
+  }
+
+  static Future<Node?> get(int id) async {
+    return select("id = ?", [id]);
   }
 
 

@@ -1712,7 +1712,7 @@ abstract class SettingsStoreBase with Store {
     );
   }
 
-  Future<void> reload({required Box<Node> nodeSource}) async {
+  Future<void> reload() async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
 
     fiatCurrency = FiatCurrency.deserialize(
@@ -1917,24 +1917,25 @@ abstract class SettingsStoreBase with Store {
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
-    final moneroNode = nodeSource.get(nodeId);
-    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
-    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
-    final havenNode = nodeSource.get(havenNodeId);
-    final ethereumNode = nodeSource.get(ethereumNodeId);
-    final polygonNode = nodeSource.get(polygonNodeId);
-    final baseNode = nodeSource.get(baseNodeId);
-    final arbitrumNode = nodeSource.get(arbitrumNodeId);
-    final bscNode = nodeSource.get(bscNodeId);
-    final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
-    final nanoNode = nodeSource.get(nanoNodeId);
-    final solanaNode = nodeSource.get(solanaNodeId);
-    final tronNode = nodeSource.get(tronNodeId);
-    final wowneroNode = nodeSource.get(wowneroNodeId);
-    final zanoNode = nodeSource.get(zanoNodeId);
-    final zcashNode = nodeSource.get(zcashNodeId);
-    final decredNode = nodeSource.get(decredNodeId);
-    final dogecoinNode = nodeSource.get(dogecoinNodeId);
+    final moneroNode = await Node.get(nodeId ?? -1);
+    final bitcoinElectrumServer = await Node.get(bitcoinElectrumServerId ?? -1);
+    final litecoinElectrumServer = await Node.get(litecoinElectrumServerId ?? -1);
+    final havenNode = await Node.get(havenNodeId ?? -1);
+    final ethereumNode = await Node.get(ethereumNodeId ?? -1);
+    final polygonNode = await Node.get(polygonNodeId ?? -1);
+    final baseNode = await Node.get(baseNodeId ?? -1);
+    final arbitrumNode = await Node.get(arbitrumNodeId ?? -1);
+    final bscNode = await Node.get(bscNodeId ?? -1);
+    final bitcoinCashNode = await Node.get(bitcoinCashElectrumServerId ?? -1);
+    final nanoNode = await Node.get(nanoNodeId ?? -1);
+    final solanaNode = await Node.get(solanaNodeId ?? -1);
+    final tronNode = await Node.get(tronNodeId ?? -1);
+    final wowneroNode = await Node.get(wowneroNodeId ?? -1);
+    final zanoNode = await Node.get(zanoNodeId ?? -1);
+    final zcashNode = await Node.get(zcashNodeId ?? -1);
+    final decredNode = await Node.get(decredNodeId ?? -1);
+    final dogecoinNode = await Node.get(dogecoinNodeId ?? -1);
+
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
