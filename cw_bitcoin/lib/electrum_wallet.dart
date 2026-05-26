@@ -2693,10 +2693,10 @@ abstract class ElectrumWalletBase
     if (!shouldDiscover) return;
 
 
-    final discoveredAddresses = await walletAddresses.discoverAddressesBatch(
+    final newAddresses = await walletAddresses.discoverAddressesBatch(
       currentBranch,
       isHidden,
-          (newAddresses) async {
+      (newAddresses) async {
         final newHistory = await _fetchBatchAddressHistory(
           newAddresses,
           tip,
@@ -2715,9 +2715,13 @@ abstract class ElectrumWalletBase
       type: type,
     );
 
-    if (discoveredAddresses.isNotEmpty && isHidden) {
-      walletAddresses.hiddenAddresses.addAll(discoveredAddresses.map((e) => e.address));
-      await walletAddresses.saveAddressesInBox();
+    if (newAddresses.isNotEmpty) {
+      currentBranch.addAll(newAddresses);
+
+      if (isHidden) {
+        walletAddresses.hiddenAddresses.addAll(newAddresses.map((e) => e.address));
+        await walletAddresses.saveAddressesInBox();
+      }
     }
   }
 
