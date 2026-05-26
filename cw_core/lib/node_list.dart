@@ -76,6 +76,8 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     if (raw is Map) {
       final map = Map.from(raw);
       map["isBuiltin"] = 1;
+      map["isOfficial"] = ((map["isOfficial"] as bool? ?? false) ? 1 : 0);
+      map["isDefault"] = ((map["isDefault"] as bool? ?? false) ? 1 : 0);
       final node = Node.fromMap(Map<String, Object>.from(map));
       node.type = type;
       nodes.add(node);
