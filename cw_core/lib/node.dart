@@ -38,8 +38,8 @@ Future<void> validateBuiltinNodes() async {
   final nodesToDelete = dbSet.difference(listSet);
   final nodesToAdd = listSet.difference(dbSet);
 
-  for (final node in nodesToDelete) node.delete();
-  for (final node in nodesToAdd) node.save();
+  for (final node in nodesToDelete) await node.delete();
+  for (final node in nodesToAdd) await node.save();
 }
 
 class Node {

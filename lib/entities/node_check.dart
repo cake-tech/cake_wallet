@@ -60,10 +60,10 @@ Future<void> checkNodeForWalletType(SharedPreferences sharedPreferences, Setting
 
 Future<void> checkCurrentNodes(SharedPreferences sharedPreferences, SettingsStore settingsStore) async {
   for(final walletType in nodePreferenceKeys.keys) {
-    checkNodeForWalletType(sharedPreferences, settingsStore, walletType, false);
+    await checkNodeForWalletType(sharedPreferences, settingsStore, walletType, false);
   }
 
   for(final walletType in powNodePreferenceKeys.keys) {
-    checkNodeForWalletType(sharedPreferences, settingsStore, walletType, true);
+    await checkNodeForWalletType(sharedPreferences, settingsStore, walletType, true);
   }
 }

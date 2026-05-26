@@ -160,7 +160,7 @@ Future<void> resetToDefault() async {
 
   await Node.deleteAll();
   for(final node in nodes) {
-    node.save();
+    await node.save();
   }
 }
 
