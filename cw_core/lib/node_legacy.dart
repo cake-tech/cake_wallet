@@ -88,6 +88,7 @@ class Node extends HiveObject with Keyable {
 
   Future<void> migrateToSqlite({required bool isPow, required bool isBuiltin, required bool isOfficial}) async {
     final newNode = node_new.Node(
+      id: key as int,
       login: login,
       label: label,
       password: password,
