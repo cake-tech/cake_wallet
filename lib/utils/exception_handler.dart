@@ -117,7 +117,7 @@ class ExceptionHandler {
     if (await onLedgerError(errorDetails)) return;
 
     if (kDebugMode || kProfileMode) {
-      if (_ignoreError(errorDetails.exception.toString()) ||
+      if(_ignoreError(errorDetails.exception.toString()) ||
           _ignoreError(errorDetails.stack.toString())) {
         printV("(BELOW ERROR IS IGNORED AND WILL NOT TRIGGER POPUP IN PROD)");
       }
@@ -127,8 +127,7 @@ class ExceptionHandler {
     }
 
     if (_ignoreError(errorDetails.exception.toString()) ||
-        _ignoreError(errorDetails.stack.toString()) ||
-        _flutterErrorIgnore(errorDetails)) {
+        _ignoreError(errorDetails.stack.toString())) {
       return;
     }
 
@@ -216,7 +215,8 @@ class ExceptionHandler {
         return S.current.ledger_error_tx_rejected_by_user;
       } else if (errorCode.contains("5515")) {
         return S.current.ledger_error_device_locked;
-      } else if (["6e01", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+      } else
+      if (["6e01", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
         return S.current.ledger_error_wrong_app;
       }
       return null;
@@ -229,8 +229,9 @@ class ExceptionHandler {
         context: navigatorKey.currentContext!,
         builder: (context) => AlertWithOneAction(
           alertTitle: "Ledger Error",
-          alertContent: interpretErrorCode(errorDetails.exception.toString()) ??
-              S.of(context).ledger_connection_error,
+          alertContent:
+              interpretErrorCode(errorDetails.exception.toString()) ??
+                  S.of(context).ledger_connection_error,
           buttonText: S.of(context).close,
           buttonAction: () => Navigator.of(context).pop(),
         ),
@@ -295,7 +296,7 @@ class ExceptionHandler {
     "Wallet is null",
     "Wrong Device Status: 0x5515 (UNKNOWN)",
     "Command handling failed. With error: hostUnreachable",
-
+    
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
@@ -437,11 +438,5 @@ class ExceptionHandler {
     }
 
     _hasError = false;
-  }
-
-  static bool _flutterErrorIgnore(FlutterErrorDetails errorDetails) {
-    // most probably a flutter context error so just ignore it if there is no stack we can debug with
-    return errorDetails.exception.toString().contains("Null check operator used on a null value") &&
-        errorDetails.stack == null;
   }
 }

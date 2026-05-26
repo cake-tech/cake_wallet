@@ -1,33 +1,62 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:cw_core/keyable.dart';
+import 'dart:math' as math;
+
+import 'package:blockchain_utils/hex/hex.dart';
+import 'package:cw_core/node_list.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'dart:convert';
-import 'package:hive/hive.dart';
-import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'dart:math' as math;
-import 'package:convert/convert.dart';
-
 import 'package:crypto/crypto.dart';
+import 'package:sqflite/sqflite.dart';
 
-part 'node.g.dart';
+import 'db/sqlite.dart';
 
 Uri createUriFromElectrumAddress(String address, String path) =>
     Uri.tryParse('tcp://$address$path')!;
 
-@HiveType(typeId: Node.typeId)
-class Node extends HiveObject with Keyable {
+Future<void> validateBuiltinNodes() async {
+  // ensures nodes stored as builtin in the db correspond to the nodes in the .yml files
+
+  final builtinFromDb = await Node.getAllBuiltin();
+  final builtinFromList = await loadAllDefaultNodes();
+
+  for (final listNode in builtinFromList) {
+    // preserve proxy settings from user
+    try {
+      final matchedDbNode = builtinFromDb.firstWhere(
+              (dbNode) => dbNode.uri == listNode.uri
+      );
+      listNode.socksProxyAddress = matchedDbNode.socksProxyAddress;
+    } catch(e) {}
+  }
+
+  final dbSet = builtinFromDb.toSet();
+  final listSet = builtinFromList.toSet();
+
+  final nodesToDelete = dbSet.difference(listSet);
+  final nodesToAdd = listSet.difference(dbSet);
+
+  for (final node in nodesToDelete) await node.delete();
+  for (final node in nodesToAdd) await node.save();
+}
+
+class Node {
   Node({
+    this.id = 0,
     this.label,
     this.login,
     this.password,
     this.useSSL,
+    this.isPow = false,
     this.trusted = false,
     this.socksProxyAddress,
     this.path = '',
     this.isEnabledForAutoSwitching = false,
+    this.isOfficial = false,
+    this.isBuiltin = false,
+    this.isDefault = false,
     String? uri,
     WalletType? type,
   }) {
@@ -50,61 +79,143 @@ class Node extends HiveObject with Keyable {
   trusted: $trusted,
   socksProxyAddress: $socksProxyAddress,
   isEnabledForAutoSwitching: $isEnabledForAutoSwitching,
+  isOfficial: $isOfficial,
+  isBuiltin: $isBuiltin,
+  isDefault: $isDefault
  })""";
   }
 
   Node.fromMap(Map<String, Object?> map)
-      : uriRaw = map['uri'] as String? ?? '',
+      : id = (map[selfIdColumn] ?? 0) as int,
+        uriRaw = map['uri'] as String? ?? '',
         path = map['path'] as String? ?? '',
         login = map['login'] as String?,
         label = map['label'] as String?,
         password = map['password'] as String?,
-        useSSL = map['useSSL'] as bool?,
-        trusted = map['trusted'] as bool? ?? false,
-        socksProxyAddress = map['socksProxyPort'] as String?,
-        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] as bool? ?? false;
+        isPow = (map["isPow"] != null && map['isPow'] != 0) as bool? ?? false,
+        useSSL = (map['useSSL'] != 0) as bool?,
+        typeRaw = (map["typeRaw"] ?? 0) as int,
+        trusted = (map['trusted'] != 0) as bool? ?? false,
+        socksProxyAddress = map['socksProxyAddress'] as String?,
+        isEnabledForAutoSwitching = (map['isEnabledForAutoSwitching'] != 0) as bool? ?? false,
+        isOfficial = (map['isOfficial'] != 0) as bool? ?? false,
+        isBuiltin = (map['isBuiltin'] != 0) as bool? ?? false,
+        isDefault = (map['isDefault'] != 0) as bool? ?? false;
 
-  static const typeId = NODE_TYPE_ID;
-  static const boxName = 'Nodes';
+  Map<String, dynamic> toMap() {
+    return {
+      selfIdColumn: id,
+      'uri': uriRaw,
+      'path': path,
+      'login': login,
+      "label": label,
+      'password': password,
+      "isPow": isPow,
+      'useSSL': useSSL,
+      "typeRaw": typeRaw,
+      'trusted': trusted,
+      'socksProxyAddress': socksProxyAddress,
+      'isEnabledForAutoSwitching': isEnabledForAutoSwitching,
+      "isOfficial": isOfficial,
+      "isBuiltin": isBuiltin,
+      "isDefault": isDefault
+    };
+  }
 
-  @HiveField(0, defaultValue: '')
+  Future<int> delete() async {
+    return await db!.delete(tableName, where: '${selfIdColumn} = ?', whereArgs: [id]);
+  }
+
+  static Future<int> deleteAll() async {
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [false]);
+  }
+
+  static Future<int> deleteAllPow() async {
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [true]);
+  }
+
+  Future<int> save() async {
+
+    final json = toMap();
+    if (json[selfIdColumn] == 0) {
+      json[selfIdColumn] = null;
+    }
+    id = await db!.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
+    return id;
+  }
+
+
+  static Future<List<Node>> selectList(String where, List<dynamic> whereArgs, {String? orderBy}) async {
+    if(orderBy == null) {
+      orderBy = selfIdColumn;
+    }
+    final list = await db!.query(
+      tableName,
+      where: where.isNotEmpty ? where : "1 = 1",
+      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+      orderBy: orderBy,
+    );
+    printV("selectList: $list");
+    return List.generate(list.length, (index) => Node.fromMap(list[index]));
+  }
+
+
+  static Future<List<Node>> getAll() async {
+    return selectList("isPow = ?", [false]);
+  }
+
+  static Future<List<Node>> getAllBuiltin() async {
+    return selectList("isPow = ? AND isBuiltin = ?", [false, true]);
+  }
+
+  static Future<List<Node>> getAllPowBuiltin() async {
+    return selectList("isPow = ? AND isBuiltin = ?", [true, true]);
+  }
+
+  static Future<List<Node>> getAllForWalletType(WalletType type) async {
+    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), false]);
+  }
+
+  static Future<Node?> getDefaultForWalletType(WalletType type) async {
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), false, true])).firstOrNull;
+  }
+
+  static Future<Node?> getDefaultPowForWalletType(WalletType type) async {
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), true, true])).firstOrNull;
+  }
+
+  static Future<List<Node>> getAllForWalletTypePow(WalletType type) async {
+    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), true]);
+  }
+
+  static Future<List<Node>> getAllPow() async {
+    return selectList("isPow = ?", [true]);
+  }
+
+
+  int id;
   late String uriRaw;
-
-  @HiveField(1)
   String? login;
-
-  @HiveField(2)
   String? password;
-
-  @HiveField(3, defaultValue: 0)
   late int typeRaw;
-
-  @HiveField(4)
   bool? useSSL;
-
-  @HiveField(5, defaultValue: false)
   bool trusted;
-
-  @HiveField(6)
+  bool isPow;
   String? socksProxyAddress;
-
-  @HiveField(7, defaultValue: '')
   String? path;
-
-  @HiveField(8)
   bool? isElectrs;
-
-  @HiveField(9)
   bool? supportsSilentPayments;
-
-  @HiveField(10)
   bool? supportsMweb;
-
-  @HiveField(11, defaultValue: false)
   bool isEnabledForAutoSwitching;
+  bool isOfficial;
+  bool isBuiltin;
+  bool isDefault;
 
-  @HiveField(12, defaultValue: '')
   String? label;
+
+  static String get tableName => "Node";
+  static String get selfIdColumn => "${tableName}Id";
+
 
   bool get isSSL => useSSL ?? false;
 
@@ -167,17 +278,10 @@ class Node extends HiveObject with Keyable {
       socksProxyAddress.hashCode ^
       path.hashCode;
 
-  @override
-  dynamic get keyIndex {
-    _keyIndex ??= key;
-    return _keyIndex;
-  }
 
   WalletType get type => deserializeFromInt(typeRaw);
 
   set type(WalletType type) => typeRaw = serializeToInt(type);
-
-  dynamic _keyIndex;
 
   Future<bool> requestNode() async {
     try {
@@ -228,7 +332,7 @@ class Node extends HiveObject with Keyable {
         body: jsonBody,
       );
 
-      
+
       final resBody = json.decode(response.body) as Map<String, dynamic>;
 
       return resBody['result']['height'] != null;

@@ -41,7 +41,7 @@ Future<void> initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 7,
+  db = await openDatabase(dbFile.path, version: 8,
     onUpgrade: (Database db, int oldVersion, int newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -103,6 +103,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           column: 'toAddressExtraId',
           definition: 'TEXT',
         );
+      }
+      if(oldVersion <= 7) {
+        await _createNodeTable(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -202,6 +205,7 @@ CREATE TABLE BalanceCardStyleSettings (
 );
         ''');
       await _createBridgeTransferTable(db);
+      await _createNodeTable(db);
       await _createTradeTable(db);
     }
   );
@@ -330,4 +334,26 @@ CREATE TABLE IF NOT EXISTS BridgeTransfer (
 CREATE INDEX IF NOT EXISTS idx_bridgetransfer_wallet_id
 ON BridgeTransfer(wallet_id);
 ''');
+}
+
+Future<void> _createNodeTable(Database db) async {
+  db.execute("""
+CREATE TABLE Node (
+NodeId INTEGER PRIMARY KEY,
+uri TEXT NOT NULL,
+path TEXT,
+login TEXT,
+label TEXT,
+password TEXT,
+isPow INTEGER NOT NULL,
+useSSL INTEGER,
+typeRaw INTEGER NOT NULL,
+trusted INTEGER NOT NULL,
+socksProxyAddress TEXT,
+isEnabledForAutoSwitching BOOLEAN DEFAULT FALSE,
+isOfficial BOOLEAN DEFAULT FALSE,
+isBuiltin BOOLEAN DEFAULT FALSE,
+isDefault BOOLEAN DEFAULT FALSE
+);
+        """);
 }
