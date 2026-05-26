@@ -654,7 +654,7 @@ Future<void> _changeDefaultNode({
     shouldReplace = true;
   } else {
     final currentNode = nodes.firstWhereOrNull((node) => node.id == currentNodeId);
-    shouldReplace = oldUri?.any((e) => currentNode?.uriRaw.contains(e) ?? true) ?? true;
+    shouldReplace = currentNode == null || oldUri?.any((e) => currentNode!.uriRaw.contains(e)) ?? true;
   }
 
   if (shouldReplace) {
