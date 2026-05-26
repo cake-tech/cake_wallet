@@ -89,7 +89,7 @@ abstract class NodeListViewModelBase with Store {
       if (chainId != null) {
         final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
         if (nodeWalletType != null) {
-          node = (await getDefaultNode(type: nodeWalletType))!;
+          node = (await Node.getDefaultForWalletType(nodeWalletType))!;
         } else {
           throw Exception(
               'Cannot reset node for EVM wallet: wallet type not found for chainId: $chainId');
@@ -98,7 +98,7 @@ abstract class NodeListViewModelBase with Store {
         throw Exception('Cannot reset node for EVM wallet: chainId is null');
       }
     } else {
-      node = (await getDefaultNode(type: _appStore.wallet!.type))!;
+      node = (await Node.getDefaultForWalletType(_appStore.wallet!.type))!;
     }
 
     await setAsCurrent(node);

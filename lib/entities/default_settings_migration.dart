@@ -912,13 +912,6 @@ Future<Node?> getBitcoinTestnetDefaultElectrumServer()async {
       nodes.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
 }
 
-Future<Node?> getDefaultNode({required WalletType type}) async {
-  final nodes = await Node.getAll();
-  final defaultUri = _getDefaultNodeUri(type);
-  return nodes.firstWhereOrNull((Node node) => node.uriRaw == defaultUri) ??
-      nodes.firstWhereOrNull((node) => node.type == type);
-}
-
 Future<void> insecureStorageMigration({
   required SharedPreferences sharedPreferences,
   required SecureStorage secureStorage,
