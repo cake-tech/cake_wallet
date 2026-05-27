@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -76,7 +77,7 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
-    this.useLightning = true,
+    bool useLightning = true,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
             currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
@@ -102,6 +103,7 @@ abstract class ElectrumWalletBase
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.isTestnet = !network.isMainnet,
         this._mnemonic = mnemonic,
+        _useLightning = useLightning,
         super(walletInfo, derivationInfo) {
     this.electrumClient = electrumClient ?? electrum.ElectrumClient();
     this.walletInfo = walletInfo;
@@ -305,8 +307,13 @@ abstract class ElectrumWalletBase
   @observable
   bool? alwaysScan;
 
+  @computed
+  bool get useLightning => _useLightning && LightningWallet.isAvailable;
+
+  set useLightning(bool val) => _useLightning = val && LightningWallet.isAvailable;
+  
   @observable
-  bool useLightning;
+  bool _useLightning;
 
   final Bip32Slip10Secp256k1? _masterHD;
   final Bip32Slip10Secp256k1 accountHD;

@@ -92,15 +92,15 @@ class Node {
         login = map['login'] as String?,
         label = map['label'] as String?,
         password = map['password'] as String?,
-        isPow = (map["isPow"] != null && map['isPow'] != 0) as bool? ?? false,
-        useSSL = (map['useSSL'] != 0) as bool?,
+        isPow = map['isPow'] is bool? ? map['isPow'] as bool? ?? false: (map['isPow'] as int?) == 1,
+        useSSL = map['useSSL'] is bool? ? map['useSSL'] as bool? ?? false : (map['useSSL'] as int?) == 1,
         typeRaw = (map["typeRaw"] ?? 0) as int,
-        trusted = (map['trusted'] != 0) as bool? ?? false,
+        trusted = map['trusted'] is bool? ? map['trusted'] as bool? ?? false : (map['trusted'] as int?) == 1,
         socksProxyAddress = map['socksProxyAddress'] as String?,
-        isEnabledForAutoSwitching = (map['isEnabledForAutoSwitching'] != 0) as bool? ?? false,
-        isOfficial = (map['isOfficial'] != 0) as bool? ?? false,
-        isBuiltin = (map['isBuiltin'] != 0) as bool? ?? false,
-        isDefault = (map['isDefault'] != 0) as bool? ?? false;
+        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] is bool? ? map['isEnabledForAutoSwitching'] as bool? ?? false : (map['isEnabledForAutoSwitching'] as int?) == 1,
+        isOfficial = map['isOfficial'] is bool? ? map['isOfficial'] as bool? ?? false : (map['isOfficial'] as int?) == 1,
+        isBuiltin = map['isBuiltin'] is bool? ? map['isBuiltin'] as bool? ?? false : (map['isBuiltin'] as int?) == 1,
+        isDefault = map['isDefault'] is bool? ? map['isDefault'] as bool? ?? false : (map['isDefault'] as int?) == 1;
 
   Map<String, dynamic> toMap() {
     return {
@@ -110,15 +110,15 @@ class Node {
       'login': login,
       "label": label,
       'password': password,
-      "isPow": isPow,
-      'useSSL': useSSL,
+      "isPow": isPow ? 1 : 0,
+      'useSSL': (useSSL??false) ? 1 : 0,
       "typeRaw": typeRaw,
-      'trusted': trusted,
+      'trusted': trusted ? 1 : 0,
       'socksProxyAddress': socksProxyAddress,
-      'isEnabledForAutoSwitching': isEnabledForAutoSwitching,
-      "isOfficial": isOfficial,
-      "isBuiltin": isBuiltin,
-      "isDefault": isDefault
+      'isEnabledForAutoSwitching': isEnabledForAutoSwitching ? 1 : 0,
+      "isOfficial": isOfficial ? 1 : 0,
+      "isBuiltin": isBuiltin ? 1 : 0,
+      "isDefault": isDefault ? 1 : 0
     };
   }
 
@@ -127,11 +127,11 @@ class Node {
   }
 
   static Future<int> deleteAll() async {
-    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [false]);
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [0]);
   }
 
   static Future<int> deleteAllPow() async {
-    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [true]);
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [1]);
   }
 
   Future<int> save() async {
@@ -173,35 +173,35 @@ class Node {
 
 
   static Future<List<Node>> getAll() async {
-    return selectList("isPow = ?", [false]);
+    return selectList("isPow = ?", [0]);
   }
 
   static Future<List<Node>> getAllBuiltin() async {
-    return selectList("isPow = ? AND isBuiltin = ?", [false, true]);
+    return selectList("isPow = ? AND isBuiltin = ?", [0, 1]);
   }
 
   static Future<List<Node>> getAllPowBuiltin() async {
-    return selectList("isPow = ? AND isBuiltin = ?", [true, true]);
+    return selectList("isPow = ? AND isBuiltin = ?", [1, 1]);
   }
 
   static Future<List<Node>> getAllForWalletType(WalletType type) async {
-    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), false]);
+    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), 0]);
   }
 
   static Future<Node?> getDefaultForWalletType(WalletType type) async {
-    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), false, true])).firstOrNull;
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 0, 1])).firstOrNull;
   }
 
   static Future<Node?> getDefaultPowForWalletType(WalletType type) async {
-    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), true, true])).firstOrNull;
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 1, 1])).firstOrNull;
   }
 
   static Future<List<Node>> getAllForWalletTypePow(WalletType type) async {
-    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), true]);
+    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), 1]);
   }
 
   static Future<List<Node>> getAllPow() async {
-    return selectList("isPow = ?", [true]);
+    return selectList("isPow = ?", [1]);
   }
 
   static Future<Node?> get(int id) async {
