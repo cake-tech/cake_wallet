@@ -792,9 +792,10 @@ abstract class ElectrumWalletBase
 
       if (server.toLowerCase().contains('electrs')) {
         node!.isElectrs = true;
-        if (node!.isInBox) {
+        // TODO figure out why condition was needed
+        // if (node!.isInBox) {
           node!.save();
-        }
+        // }
         return node!.isElectrs!;
       }
     }
