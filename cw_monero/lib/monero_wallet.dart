@@ -402,10 +402,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<String> signTrezorTransaction(String json) async {
     if (trezorService == null) throw Exception("Trezor not connected");
-
-    final response = await Trezor(trezorService!).signTransaction(json);
-
-    return response;
+    return Trezor(trezorService!).signTransaction(json);
   }
 
   @override

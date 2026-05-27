@@ -48,9 +48,6 @@ class Trezor {
   }
 
   Future<String> signTransaction(String json) async {
-    final res = await TrezorMonero(service.client).signTransaction(jsonDecode(json));
-
-    print("extra: ${res["extra"]}");
-    return jsonEncode(res);
+    return TrezorMonero(service.client).signTransaction(jsonDecode(json));
   }
 }

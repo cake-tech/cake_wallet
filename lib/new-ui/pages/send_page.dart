@@ -747,7 +747,7 @@ class _NewSendPageState extends State<NewSendPage> {
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
         if (widget.sendViewModel.wallet.hardwareWalletType == HardwareWalletType.trezor) {
-          monero!.syncTrezor(widget.sendViewModel.wallet);
+          await monero!.syncTrezor(widget.sendViewModel.wallet);
         } else {
           await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
               arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet));
