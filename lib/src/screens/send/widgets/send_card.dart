@@ -153,7 +153,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
-    if (uri.contains('@') || paymentRequest.address.contains('@')) return;
+    if (paymentRequest.address.contains('@')) return;
 
     if (OpenCryptoPayService.isOpenCryptoPayQR(uri)) {
       sendViewModel.createOpenCryptoPayTransaction(uri);
