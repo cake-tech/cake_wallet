@@ -462,8 +462,9 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                   Row(
                     spacing: 8,
                     children: [
-                      if (!(widget.sendViewModel!
-                          .checkIfAddressIsAContact(widget.sendViewModel!.outputs.first.address)))
+                      if (!(widget.sendViewModel!.checkIfAddressIsAContact(
+                              widget.sendViewModel!.outputs.first.address)) &&
+                          !(widget.sendViewModel!.outputs.first.isParsedAddress))
                         TransactionCommittedScreenActionButton(
                             text: S.of(context).save_contact,
                             iconPath: "assets/new-ui/save_contact.svg",
