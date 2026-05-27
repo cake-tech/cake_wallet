@@ -730,10 +730,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     addAddresses(newAddresses);
 
     final usedAddresses = await getUsedAddresses(newAddresses);
-    final isLastAddressUsed =
-        newAddresses.isNotEmpty && usedAddresses.contains(newAddresses.last.address);
 
-    if (!isLastAddressUsed) {
+    final hasUsedAddressInGap = newAddresses.any(
+          (addressRecord) => usedAddresses.contains(addressRecord.address));
+
+    if (!hasUsedAddressInGap) {
       return newAddresses;
     }
 
