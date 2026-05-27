@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart'
@@ -45,10 +46,28 @@ class PendingMoneroTransaction with PendingTransaction {
       CryptoCurrency.xmr, pendingTransactionDescription.fee);
 
   @override
-  bool shouldCommitUR() => isViewOnly;
+  bool shouldCommitUR() => isViewOnly && wallet.hardwareWalletType != HardwareWalletType.trezor;
 
   @override
   Future<void> commit() async {
+
+    final ptr = Pointer<Void>.fromAddress(pendingTransactionDescription.pointerAddress);
+    final ret = await monero.PendingTransaction_commitTrezor(ptr, 0);
+
+    final json = await wallet.signTrezorTransaction(ret);
+
+    print(json);
+    final wptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
+
+    final suc = await monero.Wallet_submitTransactionHex(wptr, json);
+
+    if (!suc) {
+      final err = monero.UnsignedTransaction_errorString(ptr);
+      print(err);
+    }
+
+    return;
+
     try {
       await monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
@@ -71,18 +90,6 @@ class PendingMoneroTransaction with PendingTransaction {
 
   @override
   Future<Map<String, String>> commitUR() async {
-    final ptr = Pointer<Void>.fromAddress(pendingTransactionDescription.pointerAddress);
-    final ret = await monero.PendingTransaction_commitTrezor(ptr, 0);
-
-    final json = await wallet.signTrezorTransaction(ret);
-
-    print(json);
-    final ret2 = await monero.PendingTransaction_commitTrezorNext(ptr, json, 0);
-    printV(ret);
-    printV(monero.UnsignedTransaction_errorString(ptr));
-    // printV(monero.Wallet_errorString(Pointer<Void>.fromAddress(currentWallet!.ffiAddress())));
-
-    throw UnimplementedError();
     try {
       final ret = await monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
