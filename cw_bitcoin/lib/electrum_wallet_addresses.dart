@@ -720,12 +720,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       bool isHidden,
       Future<Set<String>> Function(List<BitcoinAddressRecord>) getUsedAddresses, {
         BitcoinAddressType type = SegwitAddresType.p2wpkh,
+        required bool isLegacyDerivation,
       }) async {
     final newAddresses = await _createNewAddresses(
       gap,
       startIndex: addressList.length,
       isHidden: isHidden,
       type: type,
+      isLegacyDerivation: isLegacyDerivation,
     );
     addAddresses(newAddresses);
 
@@ -745,6 +747,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       isHidden,
       getUsedAddresses,
       type: type,
+      isLegacyDerivation: isLegacyDerivation,
     );
 
     return [...newAddresses, ...moreNewAddresses];
