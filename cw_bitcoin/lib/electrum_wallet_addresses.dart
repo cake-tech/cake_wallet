@@ -819,6 +819,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     this._addresses.clear();
     this._addresses.addAll(addressesSet);
     updateAddressesByMatch();
+    updateReceiveAddresses();
+    updateChangeAddresses();
   }
 
   @action
