@@ -8,6 +8,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -493,6 +494,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   TransactionInfo? get transactionInfo {
     if(isEVMCompatibleChain(walletType)) {
       return wallet.transactionHistory.transactions[pendingTransaction?.evmTxHashFromRawHex];
+    }
+    if (walletType == WalletType.monero) {
+      // monero tx history keys are in format txhash_amount_accountindex_addressindex
+      return wallet.transactionHistory.transactions[wallet.transactionHistory.transactions.keys
+          .firstWhereOrNull((item) => item.split("_").first == pendingTransaction?.id)];
+    }
+    if (walletType == WalletType.zcash) {
+      // zcash has a txHash getter, but the pendingTransaction id contains quotation marks for whatever reason?
+      final txIdNoQuotes = pendingTransaction?.id.replaceAll("\"", "");
+      return wallet.transactionHistory.transactions.values
+          .firstWhereOrNull((item) => item.txHash == txIdNoQuotes);
     }
     return wallet.transactionHistory.transactions[pendingTransaction?.id];
   }
