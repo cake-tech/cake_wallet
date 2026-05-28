@@ -92,15 +92,25 @@ class Node {
         login = map['login'] as String?,
         label = map['label'] as String?,
         password = map['password'] as String?,
-        isPow = map['isPow'] is bool? ? map['isPow'] as bool? ?? false: (map['isPow'] as int?) == 1,
-        useSSL = map['useSSL'] is bool? ? map['useSSL'] as bool? ?? false : (map['useSSL'] as int?) == 1,
+        isPow = _getBoolFromDB(map['isPow']),
+        useSSL = _getBoolFromDB(map['useSSL']),
         typeRaw = (map["typeRaw"] ?? 0) as int,
-        trusted = map['trusted'] is bool? ? map['trusted'] as bool? ?? false : (map['trusted'] as int?) == 1,
+        trusted = _getBoolFromDB(map['trusted']),
         socksProxyAddress = map['socksProxyAddress'] as String?,
-        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] is bool? ? map['isEnabledForAutoSwitching'] as bool? ?? false : (map['isEnabledForAutoSwitching'] as int?) == 1,
-        isOfficial = map['isOfficial'] is bool? ? map['isOfficial'] as bool? ?? false : (map['isOfficial'] as int?) == 1,
-        isBuiltin = map['isBuiltin'] is bool? ? map['isBuiltin'] as bool? ?? false : (map['isBuiltin'] as int?) == 1,
-        isDefault = map['isDefault'] is bool? ? map['isDefault'] as bool? ?? false : (map['isDefault'] as int?) == 1;
+        isEnabledForAutoSwitching = _getBoolFromDB(map['isEnabledForAutoSwitching']),
+        isOfficial = _getBoolFromDB(map['isOfficial']),
+        isBuiltin = _getBoolFromDB(map['isBuiltin']),
+        isDefault = _getBoolFromDB(map['isDefault']);
+
+  static bool _getBoolFromDB(value, {bool? defaultValue}) {
+    if (value is bool) {
+      return value;
+    } else if (value is int) {
+      return value == 1;
+    } else {
+      return defaultValue ?? false;
+    }
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -475,7 +485,7 @@ class Node {
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body);
       if (response.statusCode != 200 ||
           data["error"] != null ||
