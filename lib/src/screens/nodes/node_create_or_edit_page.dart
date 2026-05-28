@@ -128,15 +128,16 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                         ),
                                       ) ??
                                       false;
-        
+
                                   if (confirmed) {
-                                    await widget.editingNode!.delete();
+                                    await widget.nodeCreateOrEditViewModel.delete(editingNode: widget.editingNode!);
                                     Navigator.of(context).pop();
                                   }
                                 },
                                 text: S.of(context).delete,
                                 isDisabled: widget.editingNode == null ||
                                     !widget.nodeCreateOrEditViewModel.isReady ||
+                                    widget.editingNode!.isBuiltin ||
                                     (widget.isSelected ?? false),
                                 color: Theme.of(context).colorScheme.errorContainer,
                                 textColor: Theme.of(context).colorScheme.onErrorContainer,
@@ -151,9 +152,9 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                   if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
                                     return;
                                   }
-        
+
                                   await widget.nodeCreateOrEditViewModel.save(
-                                      editingNode: widget.editingNode, saveAsCurrent: widget.isSelected ?? false);
+                                       saveAsCurrent: widget.isSelected ?? false);
                                   if (context.mounted) {
                                     Navigator.of(context).pop();
                                   }
