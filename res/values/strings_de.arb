@@ -208,7 +208,7 @@
   "coin_control": "Coin Control (optional)",
   "coin_control_desc": "Filtern Sie die Outputs für diese Transaktion. Die hier vorgenommenen Änderungen wirken sich nur auf die aktuelle Transaktion aus.",
   "coin_control_load_failed": "Nicht ausgegebene Coins konnten nicht geladen werden",
-  "cold_or_recover_wallet": "Fügen Sie eine schreibgeschützte Wallet von Cupcake oder eine Cold Wallet hinzu oder stellen Sie eine Paper Wallet wieder her.",
+  "cold_or_recover_wallet": "Fügen Sie eine air-gapped Cold Wallet hinzu oder stellen Sie eine Paper Wallet wieder her.",
   "collection_address": "Sammeladresse",
   "collection_description": "Sammlungsbeschreibung",
   "collection_name": "Sammlungsname",
