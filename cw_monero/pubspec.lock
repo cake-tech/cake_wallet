@@ -590,9 +590,9 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: "883d69804bc8c984085b84604788383e57274280"
-      resolved-ref: "883d69804bc8c984085b84604788383e57274280"
-      url: "http://git-private.cyanek.com/monero_c.git"
+      ref: "3bfb3856a838f2bf6b729501837bb0295dedf25d"
+      resolved-ref: "3bfb3856a838f2bf6b729501837bb0295dedf25d"
+      url: "http://github.com/mrcyjanek/monero_c.git"
     source: git
     version: "0.0.0"
   mutex:
@@ -981,16 +981,20 @@ packages:
   trezor_flutter:
     dependency: "direct main"
     description:
-      path: "../../trezor-flutter/trezor-flutter"
-      relative: true
-    source: path
+      path: trezor-flutter
+      ref: "00808ab1b02c2580ace67026e85771cd2c700532"
+      resolved-ref: "00808ab1b02c2580ace67026e85771cd2c700532"
+      url: "https://github.com/cake-tech/trezor-flutter.git"
+    source: git
     version: "0.1.0"
   trezor_usb_transport:
     dependency: transitive
     description:
-      path: "../../trezor-flutter/trezor_usb_transport"
-      relative: true
-    source: path
+      path: trezor_usb_transport
+      ref: "00808ab1b02c2580ace67026e85771cd2c700532"
+      resolved-ref: "00808ab1b02c2580ace67026e85771cd2c700532"
+      url: "https://github.com/cake-tech/trezor-flutter.git"
+    source: git
     version: "0.0.1"
   tuple:
     dependency: transitive

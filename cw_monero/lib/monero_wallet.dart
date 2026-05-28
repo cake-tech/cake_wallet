@@ -407,6 +407,21 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    if (hardwareWalletType == HardwareWalletType.trezor) {
+      for (int i = 0; i < 2; i++) {
+        try {
+          return await _createTransaction(credentials);
+        } catch (e) {
+          printV(e);
+        }
+        await save();
+        await Future.delayed(Duration(seconds: i));
+      }
+    }
+    return await _createTransaction(credentials);
+  }
+  
+  Future<PendingTransaction> _createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
     final inputs = <String>[];
     final outputs = _credentials.outputs;

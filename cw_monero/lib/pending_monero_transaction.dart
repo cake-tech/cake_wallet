@@ -45,36 +45,37 @@ class PendingMoneroTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
+    if (wallet.hardwareWalletType == HardwareWalletType.trezor) {
+      final ptr = Pointer<Void>.fromAddress(pendingTransactionDescription.pointerAddress);
+      final ret = await monero.PendingTransaction_commitTrezor(ptr, 0);
 
-    final ptr = Pointer<Void>.fromAddress(pendingTransactionDescription.pointerAddress);
-    final ret = await monero.PendingTransaction_commitTrezor(ptr, 0);
+      final json = await wallet.signTrezorTransaction(ret);
 
-    final json = await wallet.signTrezorTransaction(ret);
+      print(json);
+      final wptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
 
-    print(json);
-    final wptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
+      final suc = await monero.Wallet_submitTransactionHex(wptr, json);
 
-    final suc = await monero.Wallet_submitTransactionHex(wptr, json);
-
-    if (!suc) {
-      final err = monero.UnsignedTransaction_errorString(ptr);
-      print(err);
-    }
-
-    return;
-
-    try {
-      await monero_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress,
-          useUR: false);
-    } catch (e) {
-      final message = e.toString();
-
-      if (message.contains('Reason: double spend')) {
-        throw DoubleSpendException();
+      if (!suc) {
+        final err = monero.UnsignedTransaction_errorString(ptr);
+        print(err);
       }
 
-      rethrow;
+      return;
+    } else {
+      try {
+        await monero_transaction_history.commitTransactionFromPointerAddress(
+            address: pendingTransactionDescription.pointerAddress,
+            useUR: false);
+      } catch (e) {
+        final message = e.toString();
+
+        if (message.contains('Reason: double spend')) {
+          throw DoubleSpendException();
+        }
+
+        rethrow;
+      }
     }
     storeSync(force: true);
     unawaited(() async {
