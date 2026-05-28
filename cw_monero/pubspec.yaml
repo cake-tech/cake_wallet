@@ -25,13 +25,16 @@ dependencies:
     path: ../cw_core
   monero:
     git:
-      url: http://git-private.cyanek.com/monero_c.git
-      ref: 883d69804bc8c984085b84604788383e57274280
+      url: http://github.com/mrcyjanek/monero_c.git
+      ref: 3bfb3856a838f2bf6b729501837bb0295dedf25d
       path: impls/monero.dart
   mutex: ^3.1.0
   ledger_flutter_plus: ^1.4.1
   trezor_flutter:
-    path: ../../trezor-flutter/trezor-flutter
+    git:
+      url: https://github.com/cake-tech/trezor-flutter.git
+      ref: 00808ab1b02c2580ace67026e85771cd2c700532
+      path: trezor-flutter
 
 dev_dependencies:
   flutter_test:
