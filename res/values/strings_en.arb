@@ -722,6 +722,7 @@
   "overshot": "Overshot",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Pairing Invalid Event",
+  "pairing_code": "Pairing Code",
   "pairing_code_desc_1": "Your device will show a pairing code.",
   "pairing_code_desc_2": "Input here to continue",
   "passphrase": "Passphrase (Optional)",

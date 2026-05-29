@@ -57,9 +57,13 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
               children: [
                 ModalTopBar(
                   title: "",
-                  leadingWidget: Text(
-                    S.of(context).device_confirmation,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  leadingWidget: AnimatedSwitcher(
+                    duration: pinOpenDuration,
+                    child: Text(
+                      key: ValueKey(pageTitle),
+                      pageTitle,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
                   ),
                   trailingIcon: Icon(
                     Icons.close,
@@ -212,6 +216,12 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
         ),
       ),
     );
+  }
+
+  String get pageTitle {
+    if(_isAwaitingConnection) return "";
+    if(_isAwaitingPin) return S.of(context).pairing_code;
+    return S.of(context).device_confirmation;
   }
 
   bool get hasFullPin =>
