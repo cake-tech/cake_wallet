@@ -58,6 +58,15 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                 ModalTopBar(
                   title: "",
                   leadingWidget: AnimatedSwitcher(
+                    layoutBuilder: (currentChild, previousChildren) {
+                      return Stack(
+                        alignment: Alignment.centerLeft,
+                        children: <Widget>[
+                          ...previousChildren,
+                          if (currentChild != null) currentChild,
+                        ],
+                      );
+                    },
                     duration: pinOpenDuration,
                     child: Text(
                       key: ValueKey(pageTitle),
