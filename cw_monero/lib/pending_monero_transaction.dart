@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
@@ -56,14 +57,13 @@ class PendingMoneroTransaction with PendingTransaction {
 
       final json = await wallet.signTrezorTransaction(ret);
 
-      print(json);
       final wptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
 
       final suc = await monero.Wallet_submitTransactionHex(wptr, json);
 
       if (!suc) {
         final err = monero.UnsignedTransaction_errorString(ptr);
-        print(err);
+        printV(err);
       }
 
       return;
