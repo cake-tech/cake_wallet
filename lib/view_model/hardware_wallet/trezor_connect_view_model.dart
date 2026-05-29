@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/trezor_paring_sheet.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
@@ -124,6 +125,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       final trezorInterface =
           device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
       final connection = await trezorInterface.connect(device.device);
+
+      showModalBottomSheet(
+          context: navigatorKey.currentContext!,
+          isScrollControlled: true,
+          isDismissible: false,
+          enableDrag: false,
+
+          useSafeArea: true,
+          builder: (context) => HardwareWalletProceedOnDeviceSheet(
+                hardwareWalletType: hardwareWalletType,
+              ));
 
       Future<String> onPinCode() async {
         final res = await showModalBottomSheet<String?>(
