@@ -37,6 +37,19 @@ part 'transaction_details_view_model.g.dart';
 
 bool _trueFunc(_) => true;
 
+/// We're adding a regex here so we can remove any already saved address that has the account in it.
+/// In the refactor, we will make another separate variable for accounts and the UI would handle it as needed.
+String _moneroRecipientAddressForDisplay(String raw, WalletType walletType) {
+  if (walletType != WalletType.monero || raw.isEmpty) return raw;
+
+  final compact = raw.replaceAll(RegExp(r'\s'), '');
+  final match = RegExp(
+    r'4[0-9a-zA-Z]{94}|8[0-9a-zA-Z]{94}|[0-9a-zA-Z]{106}',
+    caseSensitive: false,
+  ).firstMatch(compact);
+  return match?.group(0) ?? raw.trim();
+}
+
 bool isLightning(TransactionInfo tx) {
   printV(tx.additionalInfo);
   return (tx.additionalInfo["isLightning"] as bool?) ?? false;
@@ -121,8 +134,9 @@ class TxDetailRowDefinition {
           if(ret == null) {
             ret = vm.transactionInfo.to ?? "";
           }
-          vm.isRecipientAddressShown = ret.isNotEmpty;
-          return ret;
+          final resolvedAddress = _moneroRecipientAddressForDisplay(ret, vm.wallet.type);
+          vm.isRecipientAddressShown = resolvedAddress.isNotEmpty;
+          return resolvedAddress;
         },
         applicable: (vm) =>
             vm.showRecipientAddress &&
@@ -252,11 +266,12 @@ abstract class TransactionDetailsViewModelBase with Store {
       final recipientAddress = description.recipientAddress;
 
       if (recipientAddress?.isNotEmpty ?? false) {
+        final recipientAddressForDisplay = _moneroRecipientAddressForDisplay(recipientAddress!, wallet.type);
         items.add(
           AddressListItem(
             title: S.current.transaction_details_recipient_address,
-            value: recipientAddress!,
-            key: ValueKey('standard_list_item_${recipientAddress}_key'),
+            value: recipientAddressForDisplay,
+            key: ValueKey('standard_list_item_${recipientAddressForDisplay}_key'),
           ),
         );
       }

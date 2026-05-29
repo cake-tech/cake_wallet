@@ -256,28 +256,33 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   static Future<Map<String, String>?>? lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
-    final response = await ProxyWrapper().get(clearnetUri: uri);
-    
-    if (response.statusCode != 200) {
-      return null;
-    }
-
-    final body = json.decode(response.body) as Map<String, dynamic>;
-    final entries = body['entries'] as List<dynamic>?;
-
-    if (entries == null || entries.isEmpty) {
-      return null;
-    }
-
-    Map<String, String> chainToAddressMap = {};
-
-    for (final entry in entries) {
-      final chain = entry['chain'] as String;
-      final address = entry['address'] as String;
-      chainToAddressMap[chain] = address;
-    }
-
-    return chainToAddressMap;
+    try {
+  final response = await ProxyWrapper().get(clearnetUri: uri);
+  
+  if (response.statusCode != 200) {
+    return null;
+  }
+  
+  final body = json.decode(response.body) as Map<String, dynamic>;
+  final entries = body['entries'] as List<dynamic>?;
+  
+  if (entries == null || entries.isEmpty) {
+    return null;
+  }
+  
+  Map<String, String> chainToAddressMap = {};
+  
+  for (final entry in entries) {
+    final chain = entry['chain'] as String;
+    final address = entry['address'] as String;
+    chainToAddressMap[chain] = address;
+  }
+  
+  return chainToAddressMap;
+}  catch (e) {
+  printV(e.toString());
+  return null;
+}
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {

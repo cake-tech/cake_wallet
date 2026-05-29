@@ -204,7 +204,7 @@
   "coin_control": "Kiểm soát coin (tùy chọn)",
   "coin_control_desc": "Lọc các đầu ra cho giao dịch này. Những thay đổi bạn thực hiện ở đây sẽ chỉ áp dụng cho giao dịch hiện tại.",
   "coin_control_load_failed": "Không thể tải các coin chưa sử dụng",
-  "cold_or_recover_wallet": "Thêm ví chỉ đọc từ Cupcake hoặc ví lạnh hoặc khôi phục ví giấy",
+  "cold_or_recover_wallet": "Thêm ví lạnh air-gapped hoặc khôi phục ví giấy.",
   "collection_address": "Địa chỉ thu tiền",
   "collection_description": "Mô tả bộ sưu tập",
   "collection_name": "Tên bộ sưu tập",

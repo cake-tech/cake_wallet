@@ -173,6 +173,7 @@ class ElectrumClient {
 
       if (isJSONStringCorrect(unterminatedString)) {
         final response = json.decode(unterminatedString);
+        _handleResponse(response);
         // unterminatedString = null;
         unterminatedString = '';
       }
@@ -338,6 +339,80 @@ class ElectrumClient {
     }
 
     return historyMap;
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>> getBatchUnspent(
+      List<String> scriptHashes, {
+        int timeout = 10000,
+      }) async {
+    final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
+
+    final batchResults = await callBatchWithTimeout(
+      method: 'blockchain.scripthash.listunspent',
+      paramsList: paramsList,
+      timeout: timeout,
+    );
+
+    final unspentMap = <String, List<Map<String, dynamic>>>{};
+
+    for (int i = 0; i < scriptHashes.length; i++) {
+      final sh = scriptHashes[i];
+
+      if (i >= batchResults.length) {
+        unspentMap[sh] = const [];
+        continue;
+      }
+
+      final result = batchResults[i];
+
+      if (result is List) {
+        unspentMap[sh] = result
+            .whereType<Map<dynamic, dynamic>>()
+            .map((m) => m.map((k, v) => MapEntry(k.toString(), v)))
+            .cast<Map<String, dynamic>>()
+            .toList();
+      } else {
+        unspentMap[sh] = const [];
+      }
+    }
+
+    return unspentMap;
+  }
+
+  Future<Map<String, Map<String, dynamic>>> getBatchBalance(
+      List<String> scriptHashes, {
+        int timeout = 10000,
+      }) async {
+    final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
+
+    final batchResults = await callBatchWithTimeout(
+      method: 'blockchain.scripthash.get_balance',
+      paramsList: paramsList,
+      timeout: timeout,
+    );
+
+    final balanceMap = <String, Map<String, dynamic>>{};
+
+    for (int i = 0; i < scriptHashes.length; i++) {
+      final sh = scriptHashes[i];
+
+      if (i >= batchResults.length) {
+        balanceMap[sh] = <String, dynamic>{};
+        continue;
+      }
+
+      final result = batchResults[i];
+
+      if (result is Map<String, dynamic>) {
+        balanceMap[sh] = result;
+      } else if (result is Map) {
+        balanceMap[sh] = Map<String, dynamic>.from(result);
+      } else {
+        balanceMap[sh] = <String, dynamic>{};
+      }
+    }
+
+    return balanceMap;
   }
 
   Future<Map<String, Map<String, dynamic>>> getBatchTransactionVerbose(

@@ -206,7 +206,7 @@
   "coin_control": "Coin control (ရွေးချယ်နိုင်သည်)",
   "coin_control_desc": "ဤငွေလွှဲပြောင်းမှုအတွက် အထွက်များကို စစ်ထုတ်ပါ။ ဤနေရာတွင် သင်ပြုလုပ်သော အပြောင်းအလဲများသည် လက်ရှိ ငွေလွှဲပြောင်းမှုတွင်သာ သက်ရောက်ပါမည်။",
   "coin_control_load_failed": "မသုံးရသေးသော ကွိုင်များကို ဖွင့်၍မရပါ။",
-  "cold_or_recover_wallet": "Cupcake သို့မဟုတ် cold wallet မှ read-only wallet ကို ထည့်ပါ သို့မဟုတ် paper wallet ကို ပြန်လည်ရယူပါ",
+  "cold_or_recover_wallet": "Air-gapped cold wallet ထည့်ပါ သို့မဟုတ် paper wallet ကို ပြန်လည်ရယူပါ။",
   "collection_address": "စုဆောင်းရန် လိပ်စာ",
   "collection_description": "စုစည်းမှု ဖော်ပြချက်",
   "collection_name": "စုစည်းမှုအမည်",

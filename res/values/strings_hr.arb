@@ -206,7 +206,7 @@
   "coin_control": "Kontrola kovanica (nije obavezno)",
   "coin_control_desc": "Filtrirajte izlaze za ovu transakciju. Promjene koje ovdje napravite odrazit će se samo na trenutnu transakciju.",
   "coin_control_load_failed": "Učitavanje nepotrošenih kovanica nije uspjelo",
-  "cold_or_recover_wallet": "Dodajte novčanik samo za čitanje iz Cupcakea ili hladni novčanik ili oporavite papirnati novčanik",
+  "cold_or_recover_wallet": "Dodajte air-gapped cold wallet ili oporavite paper wallet.",
   "collection_address": "Adresa za prikupljanje",
   "collection_description": "Opis kolekcije",
   "collection_name": "Naziv kolekcije",

@@ -204,7 +204,7 @@
   "coin_control": "Coin Control (optioneel)",
   "coin_control_desc": "Filter de outputs voor deze transactie. De wijzigingen die je hier aanbrengt, worden alleen toegepast op de huidige transactie.",
   "coin_control_load_failed": "Kan niet-uitgegeven munten niet laden",
-  "cold_or_recover_wallet": "Voeg een alleen-lezen wallet toe van Cupcake of een koude wallet of herstel een papieren wallet",
+  "cold_or_recover_wallet": "Voeg een air-gapped cold wallet toe of herstel een paper wallet.",
   "collection_address": "Verzameladres",
   "collection_description": "Verzamelingsbeschrijving",
   "collection_name": "Verzamelnaam",

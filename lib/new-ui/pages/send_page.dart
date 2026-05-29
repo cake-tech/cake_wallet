@@ -972,7 +972,7 @@ class _NewSendPageState extends State<NewSendPage> {
           onNext: (PaymentFlowResult newResult) {
             final selectedChainId = newResult.chainId;
             final isCompatible =
-                selectedChainId == evm!.getSelectedChainId(widget.sendViewModel.wallet);
+                selectedChainId == evm?.getSelectedChainId(widget.sendViewModel.wallet);
 
             if (isCompatible) {
               widget.sendViewModel.setSelectedCryptoCurrency(

@@ -15,6 +15,7 @@ import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {

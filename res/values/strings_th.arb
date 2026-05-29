@@ -206,7 +206,7 @@
   "coin_control": "การควบคุมเหรียญ (ไม่บังคับ)",
   "coin_control_desc": "กรองเอาต์พุตสำหรับธุรกรรมนี้ การเปลี่ยนแปลงที่คุณทำที่นี่จะมีผลกับธุรกรรมปัจจุบันเท่านั้น",
   "coin_control_load_failed": "ไม่สามารถโหลดเหรียญที่ยังไม่ได้ใช้จ่าย",
-  "cold_or_recover_wallet": "เพิ่มกระเป๋าเงินแบบอ่านอย่างเดียวจาก Cupcake หรือเพิ่มกระเป๋าเงินแบบ Cold Wallet หรือกู้คืนกระเป๋าเงินกระดาษ",
+  "cold_or_recover_wallet": "เพิ่ม cold wallet แบบ air-gapped หรือกู้คืน paper wallet",
   "collection_address": "ที่อยู่สำหรับรับเงิน",
   "collection_description": "คำอธิบายคอลเลกชัน",
   "collection_name": "ชื่อคอลเลกชัน",

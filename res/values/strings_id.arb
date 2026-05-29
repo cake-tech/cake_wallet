@@ -206,7 +206,7 @@
   "coin_control": "Kontrol koin (opsional)",
   "coin_control_desc": "Filter output untuk transaksi ini. Perubahan yang Anda buat di sini hanya akan berlaku pada transaksi saat ini.",
   "coin_control_load_failed": "Gagal memuat koin yang belum dibelanjakan",
-  "cold_or_recover_wallet": "Tambahkan dompet hanya-baca dari Cupcake atau dompet dingin, atau pulihkan dompet kertas",
+  "cold_or_recover_wallet": "Tambahkan cold wallet air-gapped atau pulihkan paper wallet.",
   "collection_address": "Alamat Penagihan",
   "collection_description": "Deskripsi Koleksi",
   "collection_name": "Nama Koleksi",

@@ -206,7 +206,7 @@
   "coin_control": "Ìṣàkóso ẹyọ (àṣàyàn)",
   "coin_control_desc": "Àlẹmọ àwọn àbájáde (outputs) fún ìdúnàdúrà yìí. Àwọn àtúnṣe tí o ṣe níbí yóò kan ìdúnàdúrà lọ́wọ́lọ́wọ́ nìkan.",
   "coin_control_load_failed": "Kuna lati kojọpọ awọn owó tí a kò tíì ná",
-  "cold_or_recover_wallet": "Ṣafikun apamọwọ kika-nìkan láti Cupcake tàbí apamọwọ tútù, tàbí gba apamọwọ ìwé padà",
+  "cold_or_recover_wallet": "Ṣafikun air-gapped cold wallet tabi gba paper wallet padà.",
   "collection_address": "Adirẹsi ìkójọpọ̀",
   "collection_description": "Apejuwe akojọpọ",
   "collection_name": "Orúkọ Àkójọpọ̀",

@@ -206,7 +206,7 @@
   "coin_control": "Contrôle des pièces (optionnel)",
   "coin_control_desc": "Filtrer les sorties pour cette transaction. Les modifications que vous apportez ici ne s’appliqueront qu’à la transaction en cours.",
   "coin_control_load_failed": "Échec du chargement des sorties non dépensées",
-  "cold_or_recover_wallet": "Ajoutez un portefeuille en lecture seule depuis Cupcake, un portefeuille froid ou récupérez un portefeuille papier",
+  "cold_or_recover_wallet": "Ajoutez un cold wallet air-gapped ou récupérez un paper wallet.",
   "collection_address": "Adresse de collecte",
   "collection_description": "Description de la collection",
   "collection_name": "Nom de la collection",
