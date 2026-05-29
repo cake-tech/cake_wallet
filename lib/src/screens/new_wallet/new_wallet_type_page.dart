@@ -11,7 +11,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_aler
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -20,6 +19,25 @@ import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+
+class NewWalletTypePageHeader extends StatelessWidget {
+  const NewWalletTypePageHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 138,height: 75,
+      child: Stack(
+        children: [
+          Positioned(left: 0, child: CakeImageWidget(imageUrl: "assets/new-ui/hardware_wallet.svg", width:75, height: 75,)),
+          Positioned(left: 63, child: CakeImageWidget(imageUrl: "assets/new-ui/cake_coin.svg", width:75, height: 75,))
+
+        ],
+      ),
+    );
+  }
+}
+
 
 class NewWalletTypePage extends BasePage {
   NewWalletTypePage({
@@ -77,9 +95,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   static const aspectRatioImage = 1.22;
 
-  final TextEditingController searchController = TextEditingController();
 
-  WalletType? selected;
   List<WalletType> types;
   List<WalletType> filteredTypes = [];
 
@@ -94,14 +110,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         .toList();
     super.initState();
 
-    searchController.addListener(() {
-      setState(() {
-        filteredTypes = List.from(types.where((type) => walletTypeToDisplayName(type)
-            .toLowerCase()
-            .contains(searchController.text.toLowerCase())));
-        return;
-      });
-    });
   }
 
   @override
@@ -110,82 +118,59 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
         child: Column(
+          spacing: 24,
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 48),
-              child: Text(
-                S.of(context).choose_wallet_currency,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+            SizedBox(),
+            NewWalletTypePageHeader(),
+            Text(
+              S.of(context).choose_wallet_currency,
+              textAlign: TextAlign.center,
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(24, 24, 24, 12),
-              child: SearchBarWidget(searchController: searchController),
-            ),
-            Expanded(
-              child: ScrollableWithBottomSection(
-                contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                scrollableKey: ValueKey('new_wallet_type_scrollable_key'),
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    ...filteredTypes.map(
-                          (type) => Padding(
-                        padding: EdgeInsets.only(top: 12),
-                        child: SelectButton(
-                          key: ValueKey('new_wallet_type_${type.name}_button_key'),
-                          image: CakeImageWidget(
-                            imageUrl: getCryptoCurrencyIconForWalletListItem(type),
-                            height: 24,
-                            width: 24,
-                          ),
-                          text: walletTypeToDisplayName(type),
-                          showTrailingIcon: false,
-                          height: 54,
-                          isSelected: selected == type,
-                          onTap: () => setState(() => selected = type),
-                          deviceConnectionTypes: widget.isHardwareWallet
-                              ? DeviceConnectionType.supportedConnectionTypes(
-                              type, widget.hardwareWalletType!, Platform.isIOS)
-                              : [],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                bottomSection: PrimaryButton(
-                  key: ValueKey('new_wallet_type_next_button_key'),
-                  onPressed: () => onTypeSelected(),
-                  text: S.of(context).seed_language_next,
-                  color: Theme.of(context).colorScheme.primary,
-                  textColor: Theme.of(context).colorScheme.onPrimary,
-                  isDisabled: selected == null,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 18),
+          child: Container(
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainer, borderRadius: BorderRadius.circular(18)),
+            child: ListView.separated(itemCount: filteredTypes.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        final item = filteredTypes[index];
+                        final curr = getCryptoCurrencyForWalletListItem(item);
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            onTypeSelected(item);
+                          },
+                          child: SizedBox(
+                                          height: 48,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
+                                              Row(children: [
+                          CakeImageWidget(height: 24, width: 24, imageUrl: curr.iconPath,),
+                          SizedBox(width:12),
+                          Text(curr.fullName??curr.name),
+                          SizedBox(width:4),
+                          Text(curr.symbol, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),)
+                                              ],),
+                                              CakeImageWidget(imageUrl: "assets/new-ui/arrow_forward.svg",height:16, colorFilter:ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn))
+                                            ],),
+                                          ),
+                                        ),
+                        );
+                },
+                separatorBuilder: (context, index) =>
+                    Container(height: 1, color: Theme
+                        .of(context)
+                        .colorScheme
+                        .surfaceContainerHigh)),
+          ),
+        )])
+    ));
   }
 
-  Future<void> onTypeSelected() async {
-    if (selected == null) throw Exception('Wallet Type is not selected yet.');
+  Future<void> onTypeSelected(WalletType selected) async {
 
-    if (selected == WalletType.haven && widget.isCreate) {
-      return await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) => PopUpCancellableAlertDialog(
-          contentText: S.of(context).pause_wallet_creation,
-          actionButtonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        ),
-      );
-    }
+
 
     // If it's a restore flow, trigger the external callback
     // If it's not a BIP39 Wallet or if there are no other wallets, route to the newWallet page
