@@ -14,7 +14,7 @@ else
 fi
 
 # NOTE: Make sure to update monero_c prebuilds link in workflow files
-# https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC1/release-bundle.zip
+# https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC2/release-bundle.zip
 git fetch -a
 git checkout 3bfb3856a838f2bf6b729501837bb0295dedf25d
 git reset --hard

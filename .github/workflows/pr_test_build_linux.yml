@@ -118,7 +118,7 @@ jobs:
           pushd scripts/monero_c/release
             mkdir -p $(git describe --tags)
             pushd $(git describe --tags)
-              wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC1/release-bundle.zip
+              wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC2/release-bundle.zip
               unzip release-bundle.zip
               rm release-bundle.zip
             popd

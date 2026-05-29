@@ -51,14 +51,13 @@ class PendingMoneroTransaction with PendingTransaction {
 
       final json = await wallet.signTrezorTransaction(ret);
 
-      print(json);
       final wptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
 
       final suc = await monero.Wallet_submitTransactionHex(wptr, json);
 
       if (!suc) {
         final err = monero.UnsignedTransaction_errorString(ptr);
-        print(err);
+        printV(err);
       }
 
       return;
