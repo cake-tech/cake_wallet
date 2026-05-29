@@ -111,6 +111,11 @@ void startCurrentWalletChangeReaction(
       if (isEVMCompatibleChain(wallet.type)) {
         await evm!.discoverAndAddWalletTokens(wallet);
       }
+
+      if (wallet.type == WalletType.solana) {
+        await solana!
+            .discoverAndAddWalletTokens(wallet);
+      }
     } catch (e) {
       printV(e.toString());
     }

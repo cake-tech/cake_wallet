@@ -116,6 +116,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
 
+  @action
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
       item.isBeingSaved = true;
@@ -131,7 +132,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
       await existingInfo.save();
       item.isBeingSaved = false;
       isSavingItems = false;
-      _updateUnspentCoinsInfo();
     } catch (e) {
       printV('Error saving coin info: $e');
       item.isBeingSaved = false;

@@ -1,20 +1,21 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart' show WalletType;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SwapAddressSelectionResult {
   String? address;
-  String? walletName;
+  WalletInfo? walletInfo;
   String? accountName;
 
-  SwapAddressSelectionResult({this.address, this.walletName, this.accountName});
+  SwapAddressSelectionResult({this.address, this.walletInfo, this.accountName});
 }
 
 class SwapAddressSelectionModal extends StatefulWidget {
@@ -51,8 +52,8 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
           ? await widget.exchangeViewModel.receiveWallets
           : await widget.exchangeViewModel.depositWallets;
       for (final item in items) {
-        if (item.type.toString() == "WalletType.monero") {
-          accounts[item.id] = await widget.exchangeViewModel.addressesForWallet(item);
+        if (item.type == WalletType.monero) {
+          accounts[item.id] = await widget.exchangeViewModel.addressesForAccountsWallet(item);
         }
       }
       setState(() {
@@ -106,10 +107,10 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
                       final String currencyIconPath = walletTypeToCryptoCurrency(item.type).iconPath ?? "";
 
-                      final bool hasAccounts =
-                          item.type.toString() == "WalletType.monero" && widget.isSelectingReceiver;
+                            final bool hasAccounts =
+                                item.type == WalletType.monero && widget.isSelectingReceiver;
 
-                      List<WalletInfoAddressInfo>? accounts =
+                            List<WalletInfoAddressInfo>? accounts =
                           hasAccounts ? this.accounts[item.id] : null;
 
                       return Padding(
@@ -122,7 +123,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                           onAddressChosen: (address, accountName) {
                                   Navigator.of(context).pop(SwapAddressSelectionResult(
                                       address: address,
-                                      walletName: item.name,
+                                      walletInfo: item,
                                       accountName: accountName));
                                 },
                         ),
@@ -152,7 +153,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 10,
                             children: [
-                              SvgPicture.asset("assets/new-ui/send_from_external.svg",
+                              CakeImageWidget(imageUrl:"assets/new-ui/send_from_external.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
                               Text(S.of(context).send_from_external,
@@ -262,7 +263,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                     Row(
                       spacing: 12,
                       children: [
-                        Image.asset(widget.iconPath, width: 24, height: 24),
+                        CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24),
                         Text(widget.wallet.name)
                       ],
                     ),
@@ -271,7 +272,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                             duration: Duration(milliseconds: 200),
                             curve: Curves.easeOutCubic,
                             turns: _isExpanded ? 0 : 0.5,
-                            child: SvgPicture.asset(
+                            child:CakeImageWidget(imageUrl:
                               "assets/new-ui/dropdown_arrow.svg",
                               colorFilter: ColorFilter.mode(
                                   Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
@@ -315,7 +316,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                                 child: Row(
                                   spacing: 12,
                                   children: [
-                                    SvgPicture.asset(
+                                    CakeImageWidget(imageUrl:
                                       "assets/new-ui/account.svg",
                                       colorFilter: ColorFilter.mode(
                                           Theme.of(context).colorScheme.onSurfaceVariant,

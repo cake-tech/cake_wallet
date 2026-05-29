@@ -636,8 +636,6 @@ class ExchangePage extends BasePage {
     key.currentState!.changeAddress(
         address:
             isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '');
-
-    key.currentState!.changeAmount(amount: '');
   }
 
   void _onWalletNameChange(ExchangeViewModel exchangeViewModel, CryptoCurrency currency,

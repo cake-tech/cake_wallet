@@ -33,19 +33,23 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
-    this.cachedAddress
+    this.cachedAddress,
   });
+
+  static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
 
   StreamSubscription<LogEntry>? _logSubscription;
 
+  bool get isInitialized => _eventStream != null;
+
   void _subscribeToLogStream(File logFile) {
     _logSubscription = _logStream?.listen((logEntry) {
-      logFile.writeAsString("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+      logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
     }, onError: (e) {
-      logFile.writeAsString("[ERROR] $e\n", mode: FileMode.append);
+      logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
     });
   }
 
@@ -77,8 +81,6 @@ class LightningWallet {
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
       _logStream ??= initLogging().asBroadcastStream();
 
-      await sdk.syncWallet(request: SyncWalletRequest());
-
       try {
         final logFile = File("$appPath/lightning.log")
           ..createSync();
@@ -86,6 +88,8 @@ class LightningWallet {
       } catch (e) {
         printV(e);
       }
+
+      await sdk.syncWallet(request: SyncWalletRequest());
 
       return true;
     } catch (e) {
@@ -137,17 +141,24 @@ class LightningWallet {
         .lightningAddress;
   }
 
-  Future<String> getBolt11Invoice(BigInt? amount, String description) async {
-    final response = await sdk.receivePayment(
-      request: ReceivePaymentRequest(
-        paymentMethod: ReceivePaymentMethod.bolt11Invoice(
-          description: description,
-          amountSats: amount,
+  Future<String?> getBolt11Invoice(BigInt? amount, String description) async {
+    try {
+      final response = await sdk.receivePayment(
+        request: ReceivePaymentRequest(
+          paymentMethod: ReceivePaymentMethod.bolt11Invoice(
+            description: description,
+            amountSats: amount,
+          ),
         ),
-      ),
-    );
+      );
 
-    return response.paymentRequest;
+      return response.paymentRequest;
+    } on SdkError_NetworkError catch (_) {
+      return null;
+    } on SdkError_SparkError catch (e) {
+      if (!e.field0.contains("dns") && !e.field0.contains("TimedOut")) rethrow;
+      return null;
+    }
   }
 
   Future<bool> isCompatible(String input) async {
@@ -162,12 +173,14 @@ class LightningWallet {
   }
 
   Future<PendingLightningTransaction> createTransaction(
-      String address, BigInt? amountSats, BitcoinTransactionPriority? priority) async {
+      String address, BigInt? amountSats, BitcoinTransactionPriority? priority, bool feesIncluded) async {
     final inputType = await sdk.parse(input: address);
+
+    final feePolicy = feesIncluded ? FeePolicy.feesIncluded : FeePolicy.feesExcluded;
 
     if (inputType is InputType_Bolt11Invoice) {
       final request = PrepareSendPaymentRequest(
-          paymentRequest: inputType.field0.invoice.bolt11, amount: amountSats);
+          paymentRequest: inputType.field0.invoice.bolt11, amount: amountSats, feePolicy: feePolicy);
       final prepareResponse = await sdk.prepareSendPayment(request: request);
 
       final paymentMethod = prepareResponse.paymentMethod;
@@ -177,7 +190,7 @@ class LightningWallet {
 
         return PendingLightningTransaction(
           id: paymentMethod.invoiceDetails.paymentHash,
-          amount: amountSats?.toInt() ??
+          amount: request.amount?.toInt() ?? amountSats?.toInt() ??
               ((paymentMethod.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
           fee: lightningFeeSats.toInt() + (sparkTransferFeeSats?.toInt() ?? 0),
           commitOverride: () async {
@@ -200,15 +213,17 @@ class LightningWallet {
       PrepareLnurlPayRequest request;
       if (inputType is InputType_LightningAddress) {
         request = PrepareLnurlPayRequest(
-          amountSats: amountSats!,
+          amount: amountSats!,
           payRequest: inputType.field0.payRequest,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+          feePolicy: feePolicy,
         );
       } else {
         request = PrepareLnurlPayRequest(
-          amountSats: amountSats!,
+          amount: amountSats!,
           payRequest: (inputType as InputType_LnurlPay).field0,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+          feePolicy: feePolicy,
         );
       }
 
@@ -218,7 +233,7 @@ class LightningWallet {
 
       return PendingLightningTransaction(
         id: prepareResponse.invoiceDetails.paymentHash,
-        amount: ((prepareResponse.invoiceDetails.amountMsat?.toInt() ?? 0) / 1000).round(),
+        amount: prepareResponse.amountSats.toInt(),
         fee: feeSats.toInt(),
         commitOverride: () async {
           final res =
@@ -227,8 +242,11 @@ class LightningWallet {
         },
       );
     } else if (inputType is InputType_BitcoinAddress) {
-      final request =
-          PrepareSendPaymentRequest(paymentRequest: inputType.field0.address, amount: amountSats);
+      final request = PrepareSendPaymentRequest(
+        paymentRequest: inputType.field0.address,
+        amount: amountSats,
+        feePolicy: feePolicy,
+      );
       final prepareResponse = await sdk.prepareSendPayment(request: request);
 
       final paymentMethod = prepareResponse.paymentMethod;
@@ -355,8 +373,12 @@ class LightningWallet {
     return response.txHex;
   }
 
-  void setEventListener(
-      {required Function(ElectrumTransactionInfo) onTransactionEvent, required Function onBalanceChangedEvent}) {
+  void setEventListener({
+    required Function(ElectrumTransactionInfo) onTransactionEvent,
+    required Function onBalanceChangedEvent,
+    required Function(Map<String, ElectrumTransactionInfo>) onCreateDepositTransactionEvent,
+    required Function(List<ElectrumTransactionInfo>) onUpdateDepositTransactionEvent,
+  }) {
     _eventSubscription = _eventStream?.listen((sdkEvent) {
       if (sdkEvent is SdkEvent_PaymentSucceeded) {
         onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
@@ -364,6 +386,16 @@ class LightningWallet {
         onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
       } else if (sdkEvent is SdkEvent_ClaimedDeposits) {
         onBalanceChangedEvent();
+        onUpdateDepositTransactionEvent(
+            sdkEvent.claimedDeposits.map(_getElectrumTransactionInfoFromDepositInfo).toList());
+      } else if (sdkEvent is SdkEvent_UnclaimedDeposits) {
+        final unclaimedDeposits = <String, ElectrumTransactionInfo>{};
+
+        for (final deposit in sdkEvent.unclaimedDeposits) {
+          unclaimedDeposits[deposit.txid] = _getElectrumTransactionInfoFromDepositInfo(deposit);
+        }
+
+        onCreateDepositTransactionEvent(unclaimedDeposits);
       }
     });
   }
@@ -390,32 +422,18 @@ class LightningWallet {
       additionalInfo: {"isLightning": true},
     );
   }
-}
 
-extension _ConfigCopyWith on Config {
-  Config copyWith({
-    String? apiKey,
-    String? lnurlDomain,
-    Network? network,
-    int? syncIntervalSecs,
-    MaxFee? maxDepositClaimFee,
-    bool? preferSparkOverLightning,
-    bool? useDefaultExternalInputParsers,
-    bool? privateEnabledDefault,
-    OptimizationConfig? optimizationConfig,
-    int? maxConcurrentClaims,
-  }) =>
-      Config(
-        lnurlDomain: lnurlDomain ?? this.lnurlDomain,
-        apiKey: apiKey ?? this.apiKey,
-        network: network ?? this.network,
-        syncIntervalSecs: syncIntervalSecs ?? this.syncIntervalSecs,
-        maxDepositClaimFee: maxDepositClaimFee ?? this.maxDepositClaimFee,
-        preferSparkOverLightning: preferSparkOverLightning ?? this.preferSparkOverLightning,
-        useDefaultExternalInputParsers:
-            useDefaultExternalInputParsers ?? this.useDefaultExternalInputParsers,
-        privateEnabledDefault: privateEnabledDefault ?? this.privateEnabledDefault,
-        optimizationConfig: optimizationConfig ?? this.optimizationConfig,
-        maxConcurrentClaims: maxConcurrentClaims ?? this.maxConcurrentClaims,
-      );
+  ElectrumTransactionInfo _getElectrumTransactionInfoFromDepositInfo(DepositInfo deposit) {
+    return ElectrumTransactionInfo(
+      WalletType.bitcoin,
+      id: deposit.txid,
+      amount: deposit.amountSats.toInt(),
+      direction: TransactionDirection.incoming,
+      isPending: true,
+      fee: 0,
+      date: DateTime.now(),
+      confirmations: 0,
+      additionalInfo: {"isLightning": true, "isSparkDeposit": true},
+    );
+  }
 }

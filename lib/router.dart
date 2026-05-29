@@ -4,6 +4,10 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_confirm_sheet.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
@@ -89,7 +93,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
-import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
@@ -136,6 +139,8 @@ import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
@@ -629,9 +634,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newPowNode:
       final args = settings.arguments as Map<String, dynamic>?;
+      final page = getIt.get<PowNodeCreateOrEditPage>(
+        param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<PowNodeCreateOrEditPage>(
-              param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
+          builder: (_) => page);
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
@@ -1032,6 +1038,21 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.dEuroSavings:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DEuroSavingsPage>(),
+      );
+
+    case Routes.bridgeHistoryPage:
+      return handleRouteWithPlatformAwareness(
+        (context) => BridgeHistoryPage(settings.arguments as BridgeHistoryViewModel),
+      );
+
+    case Routes.bridgeDestinationNetworkPage:
+      return handleRouteWithPlatformAwareness(
+        (context) => BridgeNetworkPage(settings.arguments as BridgeViewModel),
+      );
+
+    case Routes.bridgeReceivingWalletPage:
+      return handleRouteWithPlatformAwareness(
+        (context) => BridgeReceivingWalletPage(settings.arguments as BridgeViewModel),
       );
 
     default:

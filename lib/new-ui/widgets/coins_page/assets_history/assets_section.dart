@@ -15,45 +15,63 @@ class AssetsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 64.0),
-      child: Observer(
-        builder: (context) {
-          final hasMweb = dashboardViewModel.hasMweb && dashboardViewModel.mwebEnabled;
-          return ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length + (hasMweb ? 1 : 0),
-            itemBuilder: (context, index) {
-              return Observer(builder: (context) {
-                if (hasMweb) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 64.0),
+        child: Observer(
+          builder: (context) {
+            final hasMweb = dashboardViewModel.hasMweb && dashboardViewModel.mwebEnabled;
+            return ListView.separated(
+              shrinkWrap: true,
+              padding: EdgeInsets.symmetric(vertical: 18),
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length + (hasMweb ? 1 : 0),
+              separatorBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Container(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  height:1,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Container(color: Theme.of(context).colorScheme.surfaceContainerHigh,),
+                  ),
+                ),
+              ),
+              itemBuilder: (context, index) {
+                return Observer(builder: (context) {
+                  if (hasMweb) {
+                    return AssetTile(
+                      showSwap: dashboardViewModel.isEnabledSwapAction,
+                      balance: dashboardViewModel.balanceViewModel.formattedBalances.first,
+                      showSecondary: index > 0 ? true : false,
+                      wallet: dashboardViewModel.wallet,
+                      chainIconPath: index > 0 ? dashboardViewModel.wallet.currency.chainIconPath! : "",
+                      trailingText: index > 0 ? "MWEB" : null,
+                      modalMode: index > 0
+                          ? AssetDetailsModalModes.ltcPrivate
+                          : AssetDetailsModalModes.ltcTransparent,
+                      isFirst: index == 0,
+                      isLast: index != 0,
+                      title: index > 0 ? "Litecoin Private" : null,
+                    );
+                  }
+      
+                  final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
                   return AssetTile(
                     showSwap: dashboardViewModel.isEnabledSwapAction,
-                    balance: dashboardViewModel.balanceViewModel.formattedBalances.first,
-                    showSecondary: index > 0 ? true : false,
+                    showBridgeButton: dashboardViewModel.showBridge(balance.asset),
+                    balance: balance,
                     wallet: dashboardViewModel.wallet,
-                    chainIconPath: index > 0 ? dashboardViewModel.wallet.currency.chainIconPath! : "",
-                    trailingText: index > 0 ? "MWEB" : null,
-                    modalMode: index > 0
-                        ? AssetDetailsModalModes.ltcPrivate
-                        : AssetDetailsModalModes.ltcTransparent,
-                    title: index > 0 ? "Litecoin Private" : null,
+                    isFirst: index == 0,
+                    isLast: index == dashboardViewModel.balanceViewModel.formattedBalances.length-1,
+                    chainIconPath: _getChainIconPath(),
                   );
-                }
-
-                final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
-                return AssetTile(
-                  showSwap: dashboardViewModel.isEnabledSwapAction,
-                  balance: balance,
-                  wallet: dashboardViewModel.wallet,
-                  chainIconPath: _getChainIconPath(),
-                );
-              });
-
-            },
-          );
-        }
+                });
+      
+              },
+            );
+          }
+        ),
       ),
     );
   }

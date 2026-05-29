@@ -23,8 +23,10 @@ class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAd
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
+    required super.mainHdByType,
+    required super.sideHdByType,
+    required super.legacySideHd,
+    required super.legacyMainHd,
     required super.network,
     required super.isHardwareWallet,
     required this.payjoinManager,
@@ -72,7 +74,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   Future<void> initPayjoin() async {
     try {
       await payjoinManager.initPayjoin();
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
+      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(payjoinCompatibleAddress);
       payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
 
       payjoinManager.resumeSessions();
@@ -86,7 +88,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @action
   Future<void> newPayjoinReceiver() async {
     try {
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
+      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(payjoinCompatibleAddress);
       payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
 
       payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);

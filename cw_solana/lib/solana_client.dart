@@ -111,22 +111,24 @@ class SolanaWalletClient {
         return null;
       }
 
-      // Sum the balances of all accounts with the specified mint address
-      double totalBalance = 0.0;
+      // Sum raw amounts and ui amounts across all token accounts
+      BigInt totalRaw = BigInt.zero;
+      double totalUi = 0.0;
 
       for (var tokenAccount in tokenAccounts) {
         final tokenAmountResult = await _provider!.request(
           SolanaRPCGetTokenAccountBalance(account: tokenAccount.pubkey),
         );
 
-        final balance = tokenAmountResult.uiAmountString;
+        final raw = BigInt.tryParse(tokenAmountResult.amount) ?? BigInt.zero;
+        totalRaw += raw;
 
-        final balanceAsDouble = double.tryParse(balance ?? '0.0') ?? 0.0;
-
-        totalBalance += balanceAsDouble;
+        final ui = tokenAmountResult.uiAmount ??
+            (double.tryParse(tokenAmountResult.uiAmountString ?? '0') ?? 0.0);
+        totalUi += ui;
       }
 
-      return SolanaBalance(totalBalance, true);
+      return SolanaBalance.forToken(totalRaw, totalUi);
     } catch (_) {
       if (throwOnError) {
         rethrow;
@@ -1856,4 +1858,89 @@ class SolanaWalletClient {
       return null;
     }
   }
+
+  Future<List<MoralisSolanaTokenBalance>> fetchWalletTokensFromMoralis(
+    String address,
+  ) async {
+    try {
+      if (secrets.moralisApiKey.isEmpty) {
+        printV('Moralis API key is empty, cannot fetch wallet tokens');
+        return [];
+      }
+
+      final uri = Uri.https(
+        'solana-gateway.moralis.io',
+        '/account/mainnet/$address/tokens',
+      );
+
+      final response = await client.get(
+        uri,
+        headers: {
+          "Accept": "application/json",
+          "X-API-Key": secrets.moralisApiKey,
+        },
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        printV(
+          'Moralis Solana API returned status: '
+          '${response.statusCode}',
+        );
+        return [];
+      }
+
+      final decodedResponse = jsonDecode(response.body) as List;
+
+      final List<MoralisSolanaTokenBalance> tokens = [];
+
+      for (final item in decodedResponse) {
+        final tokenData = item as Map<String, dynamic>;
+
+        final amountStr = tokenData['amount'] as String? ?? '0';
+        final amount = double.tryParse(amountStr) ?? 0.0;
+
+        if (amount <= 0) continue;
+
+        final mint = tokenData['mint'] as String? ?? '';
+        if (mint.isEmpty) continue;
+
+        final amountRaw = tokenData['amountRaw'] as String? ?? '0';
+
+        final decimals = tokenData['decimals'] as int? ?? 0;
+
+        final associatedTokenAddress = tokenData['associatedTokenAddress'] as String? ?? '';
+
+        tokens.add(
+          MoralisSolanaTokenBalance(
+            mint: mint,
+            amount: amount,
+            amountRaw: amountRaw,
+            decimals: decimals,
+            associatedTokenAddress: associatedTokenAddress,
+          ),
+        );
+      }
+
+      return tokens;
+    } catch (e) {
+      printV('Error fetching wallet tokens from Moralis: ${e.toString()}');
+      return [];
+    }
+  }
+}
+
+class MoralisSolanaTokenBalance {
+  final String mint;
+  final double amount;
+  final String amountRaw;
+  final int decimals;
+  final String associatedTokenAddress;
+
+  const MoralisSolanaTokenBalance({
+    required this.mint,
+    required this.amount,
+    required this.amountRaw,
+    required this.decimals,
+    required this.associatedTokenAddress,
+  });
 }

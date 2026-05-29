@@ -1,8 +1,8 @@
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class NewSendAmountInput extends StatefulWidget {
   const NewSendAmountInput(
@@ -38,6 +38,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
   Widget build(BuildContext context) {
     return FormField<String>(
       key: formFieldKey,
+      initialValue: widget.amountController.text,
       validator: widget.validator,
       builder: (state) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +65,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                               keyboardType:
                                   TextInputType.numberWithOptions(signed: false, decimal: true),
                               inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d*$'))
                               ],
                               onChanged: state.didChange,
                               controller: widget.amountController,
@@ -108,10 +109,10 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                     spacing: 8,
                                     children: [
                                       if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                        Image.asset(widget.currencyIconPath, width: 24, height: 24),
+                                        CakeImageWidget(imageUrl: widget.currencyIconPath, width: 24, height: 24),
                                       Text(widget.currency),
                                       if (widget.hasPicker)
-                                        SvgPicture.asset(
+                                        CakeImageWidget(imageUrl:
                                           "assets/new-ui/chooser.svg",
                                           width: 12,
                                           height: 12,

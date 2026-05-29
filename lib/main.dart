@@ -16,10 +16,11 @@ import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/node_check.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -37,7 +38,6 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -47,6 +47,7 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
@@ -65,7 +66,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_core/root_dir.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -165,12 +165,17 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     if (FeatureFlag.hasDevOptions) {
       ProxyWrapper.logger = MemoryProxyLogger();
     }
-    var zcashPassword = await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
-    if (zcashPassword == null || zcashPassword.isEmpty) {
-      zcashPassword = generateKey().substring(0, 32);
-      secureStorageShared.write(key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+
+    if (!Platform.isWindows) {
+      var zcashPassword = await secureStorageShared.read(
+          key: "com.cakewallet.cw_zcash/zec.db");
+      if (zcashPassword == null || zcashPassword.isEmpty) {
+        zcashPassword = generateKey().substring(0, 32);
+        secureStorageShared.write(
+            key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+      }
+      zcash?.unlockDatabase(zcashPassword);
     }
-    zcash?.unlockDatabase(zcashPassword);
 
     // Basically when we're running a test
     if (topLevelKey != null) {
@@ -217,16 +222,9 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(ContactAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
-    CakeHive.registerAdapter(NodeAdapter());
-  }
 
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
-    CakeHive.registerAdapter(TradeAdapter());
   }
 
   if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
@@ -285,16 +283,15 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
-  final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes =
-      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
-  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  await performTradeHiveMigration(secureStorage);
+  await performNodeHiveMigration();
+  await validateBuiltinNodes();
+
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
@@ -310,10 +307,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await initialSetup(
     loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
-    nodes: nodes,
-    powNodes: powNodes,
     contactSource: contacts,
-    tradesSource: trades,
     ordersSource: orders,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     // fiatConvertationService: fiatConvertationService,
@@ -324,17 +318,14 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 60,
+    initialMigrationVersion: 66,
   );
 }
 
 Future<void> initialSetup({
   required bool loadWallet,
   required SharedPreferences sharedPreferences,
-  required Box<Node> nodes,
-  required Box<Node> powNodes,
   required Box<Contact> contactSource,
-  required Box<Trade> tradesSource,
   required Box<Order> ordersSource,
   // required FiatConvertationService fiatConvertationService,
   required Box<Template> templates,
@@ -349,34 +340,30 @@ Future<void> initialSetup({
 }) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
-      secureStorage: secureStorage,
-      version: initialMigrationVersion,
-      sharedPreferences: sharedPreferences,
-      contactSource: contactSource,
-      tradeSource: tradesSource,
-      nodes: nodes,
-      powNodes: powNodes,
-      havenSeedStore: havenSeedStore);
-  await setup(
-    nodeSource: nodes,
-    powNodeSource: powNodes,
+    secureStorage: secureStorage,
+    version: initialMigrationVersion,
+    sharedPreferences: sharedPreferences,
     contactSource: contactSource,
-    tradesSource: tradesSource,
+    havenSeedStore: havenSeedStore,
+  );
+  await setup(
+    contactSource: contactSource,
+    ordersSource: ordersSource,
     templates: templates,
     exchangeTemplates: exchangeTemplates,
     transactionDescriptionBox: transactionDescriptions,
-    ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     payjoinSessionSource: payjoinSessionSource,
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
+  final settingsStore = getIt<SettingsStore>();
+  await checkCurrentNodes(sharedPreferences, settingsStore);
 
   await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
 
   await bootstrapOffline();
-  final settingsStore = getIt<SettingsStore>();
   if (!settingsStore.currentBuiltinTor) {
     bootstrapOnline(navigatorKey, loadWallet: loadWallet);
   }

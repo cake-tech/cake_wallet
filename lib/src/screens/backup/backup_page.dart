@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -116,6 +117,8 @@ class BackupPage extends BasePage {
           alertContent: S.of(context).save_backup_password,
           rightButtonText: S.of(context).seed_alert_yes,
           leftButtonText: S.of(context).seed_alert_back,
+          leftAlertButtonStyle: AlertButtonStyle.error(context),
+          rightAlertButtonStyle: AlertButtonStyle.secondary(context),
           actionRightButton: () async {
             Navigator.of(dialogContext).pop();
             final backupFuture = backupViewModelBase.exportBackup();
@@ -169,10 +172,15 @@ class BackupPage extends BasePage {
 
   Future<void> _saveFile(BackupExportFile backup) async {
     String? outputFile = await FilePicker.platform
-        .saveFile(dialogTitle: 'Save Your File to desired location', fileName: backup.name);
+        .saveFile(
+            dialogTitle: 'Save Your File to desired location',
+            fileName: backup.name,
+            lockParentWindow: true);
+
+    if (outputFile == null) return;
 
     try {
-      await backup.file.copy(outputFile!);
+      await backup.file.copy(outputFile);
     } catch (exception, stackTrace) {
       await ExceptionHandler.onError(FlutterErrorDetails(
         exception: exception,

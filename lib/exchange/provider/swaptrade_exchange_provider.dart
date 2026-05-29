@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -39,6 +38,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
   static const _headers = <String, String>{'Content-Type': 'application/json'};
@@ -47,7 +49,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -55,29 +57,33 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
 
-      final coinsInfo = responseJSON['data'] as List<dynamic>;
+      final coinsInfoRaw = responseJSON['data'];
+      final coinsInfo = coinsInfoRaw is List<dynamic> ? coinsInfoRaw : <dynamic>[];
 
-      final coin = coinsInfo.firstWhere(
-            (coin) => coin['id'].toString().toUpperCase() == _normalizeCurrency(from),
-        orElse: () => null,
+      final normalized = _normalizeCurrency(from);
+      final coin = coinsInfo.cast<Map<String, dynamic>>().firstWhere(
+            (c) => (c['id']?.toString().toUpperCase() ?? '') == normalized,
+        orElse: () => <String, dynamic>{},
       );
 
-      if (coin == null) throw Exception('Coin not found: ${_normalizeCurrency(from)}');
+      if (coin.isEmpty) {
+        // Currency not supported by SwapTrade (e.g. USDC, DOGE).
+        return null;
+      }
 
-      return Limits(
-        min: double.parse(coin['min'].toString()),
-        max: double.parse(coin['max'].toString()),
-      );
+      final min = double.tryParse(coin['min']?.toString() ?? '') ?? 0.0;
+      final max = double.tryParse(coin['max']?.toString() ?? '') ?? 0.0;
+      if (max == 0) return null;
+      return Limits(min: min, max: max);
     } catch (e) {
       printV(e.toString());
-      throw Exception('Error fetching limits: ${e.toString()}');
+      return null;
     }
   }
 
@@ -91,6 +97,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       if (amount == 0) return 0.0;
+      if (isFixedRateMode && !supportsFixedRate) {
+        return 0.0;
+      }
       if(from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
 
       final params = <String, dynamic>{};
@@ -189,7 +198,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
-        'markup': markup,
+        'markup': double.tryParse(markup.toString()) ?? 0,
         'refund_address': request.refundAddress,
       };
 
@@ -291,8 +300,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         state: TradeState.created,
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
@@ -368,8 +375,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
-        userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
-        userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");
@@ -394,7 +399,15 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       CryptoCurrency.bnb => 'BNB_BSC',
       CryptoCurrency.usdterc20 => 'USDT_ERC20',
       CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
-      _ => '',
+      CryptoCurrency.usdtbsc => 'USDT_BSC',
+      CryptoCurrency.sol => 'SOL',
+      CryptoCurrency.btc => 'BTC',
+      CryptoCurrency.xmr => 'XMR',
+      CryptoCurrency.ltc => 'LTC',
+      CryptoCurrency.ada => 'ADA',
+      CryptoCurrency.bch => 'BCH',
+      CryptoCurrency.zec => 'ZEC',
+      _ => currency.title.toUpperCase(),
     };
     return network;
   }

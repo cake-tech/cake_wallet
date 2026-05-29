@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,8 @@ class HistoryTile extends StatelessWidget {
     required this.direction,
     required this.pending,
     required this.bottomSeparator,
+    required this.hasTokens,
+    this.chainIconPath,
     this.asset,
   });
 
@@ -26,6 +29,8 @@ class HistoryTile extends StatelessWidget {
   final bool roundedTop;
   final bool roundedBottom;
   final bool bottomSeparator;
+  final bool hasTokens;
+  final String? chainIconPath;
   final TransactionDirection direction;
   final bool pending;
   final CryptoCurrency? asset;
@@ -61,8 +66,8 @@ class HistoryTile extends StatelessWidget {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
-          SvgPicture.asset(
-            "assets/images/lightning-icon.svg",
+          CakeImageWidget(imageUrl:
+            "assets/new-ui/lightning-icon.svg",
             width: 34,
             height: 34,
           ),
@@ -73,7 +78,7 @@ class HistoryTile extends StatelessWidget {
               width: 16,
               height: 16,
               decoration: BoxDecoration(color: Theme.of(context).colorScheme.onInverseSurface, shape: BoxShape.circle),
-              child: SvgPicture.asset(
+              child: CakeImageWidget(imageUrl:
                   _getDirectionIconToken(),
                 colorFilter: ColorFilter.mode(
                     direction == TransactionDirection.outgoing
@@ -92,7 +97,34 @@ class HistoryTile extends StatelessWidget {
       );
     }
 
-    return SvgPicture.asset(_getDirectionIcon(),
+    if(hasTokens) {
+      return Stack(children: [
+        Opacity(
+          opacity: pending ? 0.5 : 1,
+          child: CakeImageWidget(imageUrl: asset?.iconPath ??"", width: 34,
+            height: 34,),
+        ),
+        Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+                decoration: ShapeDecoration(
+                    shape: RoundedSuperellipseBorder(
+                        borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
+                    color: Colors.white),
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: CakeImageWidget(
+                    imageUrl: chainIconPath,
+                    width: 12,
+                    height: 12,
+                    colorFilter:
+                    ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  ),
+                )))
+      ],);
+    }
+
+    return CakeImageWidget(imageUrl:_getDirectionIcon(),
         colorFilter: ColorFilter.mode(
             direction == TransactionDirection.outgoing
                 ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)

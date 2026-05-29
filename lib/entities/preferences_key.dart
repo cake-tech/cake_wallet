@@ -101,6 +101,7 @@ class PreferencesKey {
   static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
+  static const lookupsZcashNames = 'looks_up_zcash_names';
   static const lookupsWellKnown = 'looks_up_well_known';
   static const useBlinkProtection = 'use_blink_protection';
   static const usePayjoin = 'use_payjoin';
@@ -136,4 +137,5 @@ class PreferencesKey {
   static const syncStatusDisplayMode = 'sync_status_display_mode';
   static const backgroundImage = 'background_image';
   static const mwebAdDismissed = "mweb_ad_dismissed";
+  static const balanceHideCounter = "balance_hide_counter";
 }

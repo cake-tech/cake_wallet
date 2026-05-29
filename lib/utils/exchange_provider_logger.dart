@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 
 class ExchangeProviderLogEntry {
   final DateTime timestamp;
-  final ExchangeProviderDescription provider;
+  final ExchangeProviderDescription? provider;
   final String function;
   final String? error;
   final String? stackTrace;
@@ -14,8 +15,8 @@ class ExchangeProviderLogEntry {
 
   ExchangeProviderLogEntry({
     required this.timestamp,
-    required this.provider,
     required this.function,
+    this.provider,
     this.error,
     this.stackTrace,
     this.callStack,
@@ -26,7 +27,7 @@ class ExchangeProviderLogEntry {
 
   String toLogString() {
     final buffer = StringBuffer();
-    buffer.writeln('Provider: ${provider.title}');
+    buffer.writeln('Provider: ${provider?.title ?? 'Unknown/Empty'}');
     buffer.writeln('Function: $function');
     buffer.writeln('Timestamp: ${timestamp.toIso8601String()}');
     buffer.writeln('Success: $isSuccess');
@@ -58,7 +59,7 @@ class ExchangeProviderLogEntry {
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp.toIso8601String(),
-      'provider': provider.title,
+      'provider': provider?.title,
       'function': function,
       'error': error,
       'stackTrace': stackTrace,
@@ -85,14 +86,14 @@ class ExchangeProviderLogEntry {
       ExchangeProviderDescription.stealthEx,
       ExchangeProviderDescription.chainflip,
       ExchangeProviderDescription.xoSwap,
+      ExchangeProviderDescription.swapsXyz,
+      ExchangeProviderDescription.nearIntents,
+      ExchangeProviderDescription.jupiter,
     ];
 
     return ExchangeProviderLogEntry(
       timestamp: DateTime.parse(json['timestamp'] as String),
-      provider: allProviders.firstWhere(
-        (p) => p.title == json['provider'] as String,
-        orElse: () => ExchangeProviderDescription.changeNow,
-      ),
+      provider: allProviders.firstWhereOrNull((p) => p.title == json['provider'] as String),
       function: json['function'] as String,
       error: json['error'] as String?,
       stackTrace: json['stackTrace'] as String?,
@@ -131,9 +132,9 @@ class ExchangeProviderLogger {
   }
 
   static void logError({
-    required ExchangeProviderDescription provider,
     required String function,
     required dynamic error,
+    ExchangeProviderDescription? provider,
     StackTrace? stackTrace,
     Map<String, dynamic>? requestData,
     String? callStack,

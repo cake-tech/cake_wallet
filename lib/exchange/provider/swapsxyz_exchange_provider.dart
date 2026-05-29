@@ -8,7 +8,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -20,7 +19,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   static final List<CryptoCurrency> _notSupportedAsSourceToken = [
     CryptoCurrency.sol,
     ...CryptoCurrency.all.where(
-          (c) => (c.tag ?? '').toUpperCase() == 'SOL',
+          (c) => (c.tag ?? '').toUpperCase() == 'SOL' || c.tag == CryptoCurrency.bnb.tag,
     ),
   ];
 
@@ -56,6 +55,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.swapsXyz;
 
@@ -63,7 +65,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -209,7 +211,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       required bool isReceiveAmount}) async {
     try {
 
-      if(_notSupportedAsSourceToken.contains(from)) {
+      if(_notSupportedAsSourceToken.contains(from) || _notSupportedAsSourceToken.contains(to)) {
         printV(
             'fetchRate: source token ${from.title} is not supported as source token');
         return 0.0;
@@ -383,7 +385,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final reqAmountRaw = reqAmountStr.replaceAll('n', '');
 
       final needToRegisterInSwapXyz =
-          vmId == 'alt-vm' || bridgeIds.contains('alt-vm');
+          vmId == 'alt-vm' || bridgeIds.contains('alt-vm')
+              || chainId == 'solana' || bridgeIds.contains('solana');
 
       final trade = Trade(
         id: txId,
@@ -408,10 +411,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         requiresTokenApproval: requiresTokenApproval,
         routerData: routerData,
         routerValue: txValue,
-        userCurrencyFromRaw:
-            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw:
-            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
 
       return trade;
@@ -422,7 +421,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }
 
   /// Register a broadcasted tx with Swaps.xyz (required for alt-vm).
-  Future<bool> registerAltVmTx({
+  static Future<bool> registerAltVmTx({
     required String txId,
     required String txHash,
     required int chainId,
@@ -555,8 +554,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       state: state,
       createdAt: createdAt,
       refundAddress: refundAddress,
-      userCurrencyFromRaw: '${fromSymbol.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toSymbol.toUpperCase()}' + '_',
     );
   }
 

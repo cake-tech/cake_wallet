@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -302,11 +303,11 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     if (!_checkReadyToManage()) {
       return;
     }
-    
+
     widget.accountListViewModel.select(_items[_items.length-1].accountListItem);
 
     final bloc = getIt.get<CardCustomizerBloc>(param1: false);
-    
+
 
     Navigator.of(context).push(CupertinoPageRoute(
       builder: (context) {
@@ -489,8 +490,8 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                                   decoration: BoxDecoration(
                                       color: Theme.of(context).colorScheme.surfaceContainerHigh,
                                       borderRadius: BorderRadius.circular(5)),
-                                  child: SvgPicture.asset(
-                                    "assets/new-ui/randomize.svg",
+                                  child: CakeImageWidget(
+                                    imageUrl: "assets/new-ui/randomize.svg",
                                     colorFilter: ColorFilter.mode(
                                         Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                                   ),

@@ -5,6 +5,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -89,7 +90,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
               title: widget.editingNode != null ? S.current.edit_node : S.current.node_new,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: Navigator.of(context).pop,
-              trailingIcon: SvgPicture.asset(
+              trailingIcon: CakeImageWidget(imageUrl:
                 "assets/new-ui/scan.svg",width:24,height:24,
                 colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
@@ -127,15 +128,16 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                         ),
                                       ) ??
                                       false;
-        
+
                                   if (confirmed) {
-                                    await widget.editingNode!.delete();
+                                    await widget.nodeCreateOrEditViewModel.delete(editingNode: widget.editingNode!);
                                     Navigator.of(context).pop();
                                   }
                                 },
                                 text: S.of(context).delete,
                                 isDisabled: widget.editingNode == null ||
                                     !widget.nodeCreateOrEditViewModel.isReady ||
+                                    widget.editingNode!.isBuiltin ||
                                     (widget.isSelected ?? false),
                                 color: Theme.of(context).colorScheme.errorContainer,
                                 textColor: Theme.of(context).colorScheme.onErrorContainer,
@@ -150,9 +152,9 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                   if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
                                     return;
                                   }
-        
+
                                   await widget.nodeCreateOrEditViewModel.save(
-                                      editingNode: widget.editingNode, saveAsCurrent: widget.isSelected ?? false);
+                                       saveAsCurrent: widget.isSelected ?? false);
                                   if (context.mounted) {
                                     Navigator.of(context).pop();
                                   }

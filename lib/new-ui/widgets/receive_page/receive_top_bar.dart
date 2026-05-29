@@ -6,14 +6,15 @@ void nothing(){}
 class ModalTopBar extends StatelessWidget {
   ModalTopBar(
       {super.key,
-      required this.title,
+        required this.title,
         this.subtitle,
-      this.onLeadingPressed=nothing,
-      this.onTrailingPressed=nothing,
-      this.leadingIcon,
-      this.trailingIcon,
-      this.leadingWidget,
-      this.trailingWidget}) {
+        this.onLeadingPressed=nothing,
+        this.onTrailingPressed=nothing,
+        this.leadingIcon,
+        this.trailingIcon,
+        this.padding,
+        this.leadingWidget,
+        this.trailingWidget}) {
     if(leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }
@@ -27,6 +28,7 @@ class ModalTopBar extends StatelessWidget {
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
+  final EdgeInsets? padding;
   final Widget? trailingIcon;
   final Widget? leadingWidget;
   final Widget? trailingWidget;
@@ -36,12 +38,12 @@ class ModalTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(18),
+      padding: padding??EdgeInsets.all(18),
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         children: [
-          Align(
-            alignment: Alignment.center,
+          Positioned(
+            top: 6,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -72,11 +74,11 @@ class ModalTopBar extends StatelessWidget {
               if (leadingIcon != null || leadingWidget != null)
                 leadingIcon != null
                     ? ModernButton(
-                        key: ValueKey(leadingIcon.hashCode),
-                        size: buttonSize,
-                        onPressed: onLeadingPressed,
-                        icon: leadingIcon!,
-                        iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
+                    key: ValueKey(leadingIcon.hashCode),
+                    size: buttonSize,
+                    onPressed: onLeadingPressed,
+                    icon: leadingIcon!,
+                    iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
                     : leadingWidget!
               else
                 Container(width: buttonSize),
@@ -85,10 +87,10 @@ class ModalTopBar extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   child: trailingIcon != null
                       ? ModernButton(
-                          key: ValueKey(trailingIcon.hashCode),
-                          size: buttonSize,
-                          onPressed: onTrailingPressed,
-                          icon: trailingIcon!,)
+                    key: ValueKey(trailingIcon.hashCode),
+                    size: buttonSize,
+                    onPressed: onTrailingPressed,
+                    icon: trailingIcon!,)
                       : trailingWidget!,
                 )
               else

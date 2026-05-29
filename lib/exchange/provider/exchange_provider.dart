@@ -1,4 +1,3 @@
-import 'package:cake_wallet/exchange/exchange_pair.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -20,10 +19,12 @@ abstract class ExchangeProvider {
 
   bool get supportsOnionAddress => false;
 
+  bool get supportsMemoOrDestinationTag => true;
+
   @override
   String toString() => title;
 
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode});
 
   Future<Trade> createTrade(
@@ -31,13 +32,12 @@ abstract class ExchangeProvider {
 
   Future<Trade> findTradeById({required String id});
 
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  });
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount});
 
   Future<bool> checkIsAvailable();
 }

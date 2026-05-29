@@ -20,7 +20,11 @@ dependencies:
       ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
   http: ^1.1.0
   path_provider: ^2.0.11
-  modal_bottom_sheet: ^3.0.0
+  modal_bottom_sheet:
+    git:
+      url: https://github.com/cake-tech/modal_bottom_sheet
+      ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
+      path: modal_bottom_sheet
   mobx: ^2.1.4
   flutter_mobx: 2.0.6+5
   flutter_slidable: ^3.0.1
@@ -222,6 +226,7 @@ dependency_overrides:
       ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
   decimal: ^2.3.3
   flutter_rust_bridge: 2.11.1
+  flutter_secure_storage_windows: 3.1.2
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -239,7 +244,6 @@ flutter:
     - assets/images/evm_switcher_icons/
     - assets/images/flags/
     - assets/images/hardware_wallet/
-    - assets/images/crypto/
     - assets/images/stocks/
     - assets/images/main_actions/
     - assets/images/wallet_connect_step_icons/
@@ -268,6 +272,8 @@ flutter:
     - scripts/zcash_lib/assets/sapling-spend.params
     - scripts/zcash_lib/assets/sapling-output.params
     - assets/new-ui/
+    - assets/new-ui/icons/
+    - assets/new-ui/hero/
     - assets/new-ui/balance_card_icons/
     - assets/new-ui/balance_card_backgrounds/
     - assets/new-ui/settings_row_icons/
@@ -278,6 +284,7 @@ flutter:
     - assets/new-ui/navbar/
     - assets/new-ui/changelog/icons/
     - assets/new-ui/changelog/text/
+    - assets/new-ui/crypto_full_icons/
 
   fonts:
     - family: Lato

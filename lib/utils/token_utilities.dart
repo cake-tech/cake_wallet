@@ -152,6 +152,7 @@ class TokenUtilities {
     required WalletType walletType,
     required String address,
   }) async {
+    if(address.isEmpty) return null;
     final lower = address.toLowerCase();
     switch (walletType) {
       case WalletType.ethereum:
@@ -231,6 +232,15 @@ class TokenUtilities {
     return null;
   }
 
+  static Erc20Token? findErc20TokenForSwap(CryptoCurrency currency) {
+    if (currency is Erc20Token) return currency;
+
+    for (final token in loadDefaultEvmTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token;
+    }
+    return null;
+  }
+
   static bool isNativeToken(CryptoCurrency currency) {
     final title = currency.title.toLowerCase();
     final tag = currency.tag?.toLowerCase();
@@ -262,12 +272,12 @@ class TokenUtilities {
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
       if (tag != null) {
-        final chainId = evm!.getChainIdByTag(tag);
+        final chainId = evm?.getChainIdByTag(tag);
         if (chainId != null) return chainId;
       }
 
       // Try by title (case-insensitive)
-      final titleChainId = evm!.getChainIdByTitle(title);
+      final titleChainId = evm?.getChainIdByTitle(title);
       if (titleChainId != null) return titleChainId;
     }
 

@@ -588,7 +588,8 @@ abstract class SolanaWalletBase
       for (final entry in results) {
         final token = entry.key;
         final fetchedBalance = entry.value;
-        final currentBalance = balance[token] ?? SolanaBalance(0.0, true);
+        final currentBalance = balance[token] ??
+            SolanaBalance.forToken(BigInt.zero, 0.0);
         balance[token] = fetchedBalance ?? currentBalance;
       }
     }
@@ -630,13 +631,72 @@ abstract class SolanaWalletBase
     }
   }
 
+  Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {
+    try {
+      if (!splTokensBox.isOpen) return SolanaMoralisDiscoveryResult.empty;
+
+      final address = walletAddresses.address;
+      if (address.isEmpty) return SolanaMoralisDiscoveryResult.empty;
+
+      final walletTokens = await _client.fetchWalletTokensFromMoralis(address);
+      if (walletTokens.isEmpty) return SolanaMoralisDiscoveryResult.empty;
+
+      final existingMints = {
+        for (final token in splTokensBox.values) token.mintAddress: token,
+      };
+
+      final defaultMints = DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+
+      final newTokens = <DiscoveredSPLToken>[];
+
+      for (final moralisToken in walletTokens) {
+        final mint = moralisToken.mint;
+
+        final existingToken = existingMints[mint];
+        if (existingToken != null) {
+          if (defaultMints.contains(mint) && !existingToken.enabled) {
+            existingToken.enabled = true;
+            await existingToken.save();
+            await addSPLToken(existingToken);
+          }
+          continue;
+        }
+
+        final tokenInfo = await _client.fetchSPLTokenInfo(mint);
+        if (tokenInfo == null) continue;
+
+        final discoveredToken = SPLToken(
+          name: tokenInfo.name,
+          symbol: tokenInfo.symbol,
+          mintAddress: mint,
+          decimal: moralisToken.decimals,
+          mint: tokenInfo.mint,
+          iconPath: tokenInfo.iconPath,
+          tag: 'SOL',
+        );
+
+        newTokens.add(
+          DiscoveredSPLToken(
+            token: discoveredToken,
+            balance: moralisToken.amount,
+          ),
+        );
+      }
+
+      return SolanaMoralisDiscoveryResult(newTokens: newTokens);
+    } catch (e) {
+      printV('Error discovering SPL tokens from Moralis: ${e.toString()}');
+      return SolanaMoralisDiscoveryResult.empty;
+    }
+  }
+
   Future<void> addSPLToken(SPLToken token) async {
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {
       final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
           balance[token] ??
-          SolanaBalance(0.0, true);
+          SolanaBalance.forToken(BigInt.zero, 0.0);
 
       balance[token] = tokenBalance;
     } else {
@@ -764,4 +824,22 @@ abstract class SolanaWalletBase
 
   @override
   final String? passphrase;
+}
+
+class DiscoveredSPLToken {
+  final SPLToken token;
+  final double balance;
+
+  const DiscoveredSPLToken({
+    required this.token,
+    required this.balance,
+  });
+}
+
+class SolanaMoralisDiscoveryResult {
+  final List<DiscoveredSPLToken> newTokens;
+
+  const SolanaMoralisDiscoveryResult({required this.newTokens});
+
+  static const SolanaMoralisDiscoveryResult empty = SolanaMoralisDiscoveryResult(newTokens: []);
 }

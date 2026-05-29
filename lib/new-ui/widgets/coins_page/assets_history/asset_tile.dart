@@ -1,10 +1,12 @@
+import 'dart:math' show min;
+
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class AssetTile extends StatelessWidget {
   const AssetTile(
@@ -12,19 +14,23 @@ class AssetTile extends StatelessWidget {
       required this.balance,
       required this.chainIconPath,
       this.showSecondary = false,
+      this.showBridgeButton = false,
       this.title,
       this.trailingText,
       this.modalMode = AssetDetailsModalModes.normal,
-      required this.wallet, required this.showSwap});
+      required this.wallet, required this.showSwap, required this.isFirst, required this.isLast});
 
   final BalanceRecord balance;
   final bool showSecondary;
   final bool showSwap;
+  final bool showBridgeButton;
   final String chainIconPath;
   final String? title;
   final String? trailingText;
   final AssetDetailsModalModes modalMode;
   final WalletBase wallet;
+  final bool isFirst;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +44,11 @@ class AssetTile extends StatelessWidget {
             builder: (context) {
               return AssetDetailsModal(
                 showSwap: showSwap,
+                showBridgeButton: showBridgeButton,
                 asset: balance.asset,
                 title: title ?? balance.asset.fullName ?? balance.asset.name,
-                chainTitle: _getChainTitle(),
-                subtitle: trailingText ?? "",
+                chainTitle: "",
+                subtitle: trailingText ?? _getChainTitle(),
                 amount: showSecondary ? balance.secondAvailableBalance : balance.availableBalance,
                 currencyTitle: balance.asset.title,
                 fiatAmount: showSecondary
@@ -55,23 +62,15 @@ class AssetTile extends StatelessWidget {
             });
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 18.0),
         child: Container(
           width: double.infinity,
-          height: 80,
+          height: 72,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.surfaceContainerHigh,
-                Theme.of(context).colorScheme.surfaceContainer,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              width: 1,
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.vertical(
+              top: isFirst ? Radius.circular(18) : Radius.zero,
+              bottom: isLast ? Radius.circular(18) : Radius.zero,
             ),
           ),
           child: Padding(
@@ -85,47 +84,47 @@ class AssetTile extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                          width: 45,
-                          height: 45,
+                          width: 36,
+                          height: 36,
                           child: Stack(
                             children: [
                               if((iconPath).isNotEmpty)
-                              Image.asset(iconPath)
+                              CakeImageWidget(imageUrl: iconPath)
                               else
                                 Container(
-                                  width: 45,
-                                  height: 45,
+                                  width: 36,
+                                  height: 36,
                                   decoration: BoxDecoration(
                                       color: Theme.of(context).colorScheme.primary,
                                       borderRadius: BorderRadius.circular(99999)),
                                   child: Center(
                                       child: Text(
-                                    balance.asset.name.substring(0, 2),
+                                    balance.asset.name.substring(0, min(2, balance.asset.name.length)),
                                     style: TextStyle(
                                         fontSize: 20, color: Theme.of(context).colorScheme.onPrimary),
                                   )),
                                 ),
-                              if (chainIconPath.isNotEmpty)
-                                Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Container(
-                                        decoration: ShapeDecoration(
-                                            shape: RoundedSuperellipseBorder(
-                                                borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
-                                            color: Colors.white),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(2.0),
-                                          child: SvgPicture.asset(
-                                            chainIconPath,
-                                            width: 12,
-                                            height: 12,
-                                            colorFilter:
-                                                ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                                          ),
-                                        )))
+                              // if (chainIconPath.isNotEmpty)
+                              //   Align(
+                              //       alignment: Alignment.bottomRight,
+                              //       child: Container(
+                              //           decoration: ShapeDecoration(
+                              //               shape: RoundedSuperellipseBorder(
+                              //                   borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
+                              //               color: Colors.white),
+                              //           child: Padding(
+                              //             padding: const EdgeInsets.all(2.0),
+                              //             child: CakeImageWidget(
+                              //               imageUrl: chainIconPath,
+                              //               width: 12,
+                              //               height: 12,
+                              //               colorFilter:
+                              //                   ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                              //             ),
+                              //           )))
                             ],
                           )),
-                      SizedBox(width: 8.0),
+                      SizedBox(width: 12.0),
                       Expanded(
                         child: Column(
                           spacing: 4.0,
@@ -137,7 +136,7 @@ class AssetTile extends StatelessWidget {
                               children: [
                                 Text(
                                   title ?? balance.asset.fullName ?? balance.asset.name,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontWeight: FontWeight.w500),
                                 ),
                                 if(trailingText != null)
                                 Text(
@@ -182,15 +181,15 @@ class AssetTile extends StatelessWidget {
 
   String _getChainTitle() {
     try {
-      return CryptoCurrency.fromString(wallet.currency.tag ??wallet.currency.title).title;
+      return CryptoCurrency.fromString(wallet.currency.tag ??wallet.currency.title).fullName ?? "";
     } catch(e) {
-      return wallet.currency.title;
+      return wallet.currency.fullName ?? "";
     }
   }
 
   String _getIconPath() {
     if(balance.asset == CryptoCurrency.baseEth)
-      return "assets/images/crypto/ethereum.webp";
+      return "assets/new-ui/crypto_full_icons/base.svg";
 
     return balance.asset.iconPath ?? "";
   }

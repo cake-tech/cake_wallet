@@ -25,6 +25,21 @@ const walletTypes = [
   WalletType.bsc,
 ];
 
+const electrumWalletTypes = [
+  WalletType.bitcoin,
+  WalletType.litecoin,
+  WalletType.bitcoinCash,
+  WalletType.dogecoin
+];
+
+const evmWalletTypes = [
+  WalletType.ethereum,
+  WalletType.polygon,
+  WalletType.base,
+  WalletType.arbitrum,
+  WalletType.bsc
+];
+
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
   @HiveField(0)
@@ -286,6 +301,7 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
     case CryptoCurrency.baseEth:
       return WalletType.base;
     case CryptoCurrency.arbEth:
+    case CryptoCurrency.arb:
       return WalletType.arbitrum;
     case CryptoCurrency.bnb:
       return WalletType.bsc;

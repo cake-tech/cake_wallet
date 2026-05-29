@@ -23,6 +23,7 @@ import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
@@ -191,12 +192,12 @@ abstract class DashboardViewModelBase with Store {
                 value: () => tradeFilterStore.displaySwapXyz,
                 caption: ExchangeProviderDescription.swapsXyz.title,
                 onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
             FilterItem(
                 value: () => tradeFilterStore.displayNearIntents,
                 caption: ExchangeProviderDescription.nearIntents.title,
-                onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
           ]
         },
         subname = '',
@@ -327,7 +328,7 @@ abstract class DashboardViewModelBase with Store {
         } catch (_) {}
       }
       return length * confirmations;
-    }, _transactionDisposerCallback);
+    }, _transactionDisposerCallback, delay: 300);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -371,7 +372,13 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get isSyncHeavy {
-    if ([WalletType.monero, WalletType.wownero, WalletType.decred, WalletType.zcash, WalletType.zano].contains(wallet.type)) {
+    if ([
+      WalletType.monero,
+      WalletType.wownero,
+      WalletType.decred,
+      WalletType.zcash,
+      WalletType.zano
+    ].contains(wallet.type)) {
       return true;
     }
 
@@ -386,31 +393,39 @@ abstract class DashboardViewModelBase with Store {
     return false;
   }
 
+  bool showBridge(CryptoCurrency currency) {
+    if(!isEVMCompatibleChain(wallet.type)) return false;
+
+    if(evm!.isUSDT0Token(wallet, currency)) return true;
+
+    return false;
+  }
+
   @action
   Future<void> loadCardDesigns() async {
     final accountStyleSettings =
         await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
 
-      late final int numAccounts;
-      if (wallet.type == WalletType.monero) {
-        numAccounts = monero!.getAccountList(wallet).accounts.length;
-      } else if (wallet.type == WalletType.wownero) {
-        numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
-      } else  if (wallet.type == WalletType.bitcoin) {
-        // bitcoin and lightning
-        numAccounts = 2;
-      } else {
-        numAccounts = 1;
-      }
+    late final int numAccounts;
+    if (wallet.type == WalletType.monero) {
+      numAccounts = monero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.wownero) {
+      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.bitcoin) {
+      // bitcoin and lightning
+      numAccounts = 2;
+    } else {
+      numAccounts = 1;
+    }
     cardDesigns.clear();
       Map<int, int> newOrder = {};
       List<int> hidden = [];
 
     for (int i = 0; i < numAccounts; i++) {
       late final int index;
-      if(balanceViewModel.hasAccounts) {
+      if (balanceViewModel.hasAccounts) {
         index = i;
-      } else if(wallet.type == WalletType.bitcoin && i == 1) {
+      } else if (wallet.type == WalletType.bitcoin && i == 1) {
         index = 0;
       } else {
         index = -1;
@@ -427,16 +442,15 @@ abstract class DashboardViewModelBase with Store {
       }
 
       late final CryptoCurrency curr;
-      if(wallet.type == WalletType.bitcoin && i == 1) {
+      if (wallet.type == WalletType.bitcoin && i == 1) {
         curr = CryptoCurrency.btcln;
       } else {
         curr = wallet.currency;
       }
 
-
       cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
-      if(setting?.cardOrder != null) {
-          newOrder[setting!.cardOrder] = i;
+      if (setting?.cardOrder != null) {
+        newOrder[setting!.cardOrder] = i;
       }
     }
 
@@ -447,12 +461,11 @@ abstract class DashboardViewModelBase with Store {
         while (newOrder.containsValue(free)) {
           free++;
         }
-        if(wallet.type == WalletType.bitcoin) {
+        if (wallet.type == WalletType.bitcoin) {
           newOrder[free] = 0;
         } else {
           newOrder[free] = i;
         }
-
       }
     }
     cardOrder = newOrder.asObservable();
@@ -486,13 +499,40 @@ abstract class DashboardViewModelBase with Store {
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
-      transactions.clear();
-      transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
-            transaction: tx,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-          )));
+      String _txIdentityString(String txHash, TransactionDirection direction) => "${txHash}_$direction";
+      String _txIdentityStringConfirmations(String txHash, TransactionDirection direction, int confirmations) => "${txHash}_${direction}_$confirmations";
+
+
+      final existingKeys = transactions
+          .map((item) => _txIdentityStringConfirmations(item.transaction.txHash, item.transaction.direction, item.transaction.confirmations))
+          .toSet();
+
+      final newTransactions = relevantTxs
+          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(tx.txHash, tx.direction, tx.confirmations)))
+          .map((tx) => TransactionListItem(
+                transaction: tx,
+                balanceViewModel: balanceViewModel,
+                appStore: appStore,
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+              ))
+          .toList();
+
+      final newKeys = newTransactions
+          .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
+          .toSet();
+
+      transactions.removeWhere(
+        (item) => newKeys.contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
+      );
+
+      transactions.addAll(newTransactions);
+      // transactions.clear();
+      // transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
+      //       transaction: tx,
+      //       balanceViewModel: balanceViewModel,
+      //       appStore: appStore,
+      //       key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+      //     )));
     } finally {
       _isTransactionDisposerCallbackRunning = false;
     }
@@ -539,25 +579,25 @@ abstract class DashboardViewModelBase with Store {
   String get address => wallet.walletAddresses.address;
 
   @computed
-  bool get isTorEnabled => CakeTor.instance!.enabled;
+  bool get isTorEnabled => settingsStore.currentBuiltinTor;
 
   @computed
   SyncStatus get status => wallet.syncStatus;
 
   @computed
   bool get shouldShowMwebAd {
-    if(wallet.type != WalletType.litecoin) return false;
+    if (wallet.type != WalletType.litecoin) return false;
 
-    if(mwebEnabled) return false;
+    if (mwebEnabled) return false;
 
-    if(settingsStore.mwebAdDismissed) return false;
+    if (settingsStore.mwebAdDismissed) return false;
 
-    return true;
+    return Platform.isAndroid || Platform.isIOS;
   }
 
   @action
   void dismissMwebAd(bool enableMweb) {
-    if(enableMweb) setMwebEnabled();
+    if (enableMweb) setMwebEnabled();
 
     settingsStore.mwebAdDismissed = true;
   }
@@ -591,7 +631,7 @@ abstract class DashboardViewModelBase with Store {
         continue;
       }
 
-      if(transaction.transaction.confirmations >= transaction.neededConfirmations) {
+      if (transaction.transaction.confirmations >= transaction.neededConfirmations) {
         continue;
       }
 
@@ -616,11 +656,15 @@ abstract class DashboardViewModelBase with Store {
   bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  List<TradeListItem> get trades =>
-      tradesStore.trades.where((trade) {
-        final isSameChain = trade.trade.chainId != null ? trade.trade.chainId == wallet.chainId : true; // returning default as true here so it falls back to the default checks if there's no chainId
+  List<TradeListItem> get trades => tradesStore.trades.where((trade) {
+        final isSameChain = trade.trade.chainId != null
+            ? trade.trade.chainId == wallet.chainId
+            : true; // returning default as true here so it falls back to the default checks if there's no chainId
         return trade.trade.walletId == wallet.id && isSameChain;
       }).toList();
+
+  @computed
+  bool get shouldShowBalanceHiddenMessage => balanceDisplayMode == BalanceDisplayMode.hiddenBalance && appStore.settingsStore.balanceHideCounter < 10;
 
   @computed
   List<OrderListItem> get orders =>
@@ -677,6 +721,10 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
 
   @computed
+  bool get hasWalletConnect =>
+      isWalletConnectCompatibleChain(wallet.type) && !wallet.isHardwareWallet;
+
+  @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed
@@ -731,9 +779,9 @@ abstract class DashboardViewModelBase with Store {
         "public view key is 0",
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
-      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
-          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-        "primary address is invalid, you won't be able to receive / spend funds",
+      // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+      //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
+        // "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }
@@ -830,7 +878,8 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void toggleSwitchStatusDisplayMode() {
-    if (status is SyncingSyncStatus && !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
+    if (status is SyncingSyncStatus &&
+        !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
       if (settingsStore.syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
         settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.blocksRemaining;
       } else {
@@ -1253,7 +1302,7 @@ abstract class DashboardViewModelBase with Store {
         } catch (_) {}
       }
       return length * confirmations;
-    }, _transactionDisposerCallback);
+    }, _transactionDisposerCallback, delay: 300);
   }
 
   @action

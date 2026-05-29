@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/core/lightning_invoice_service.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -41,7 +42,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -142,7 +143,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         throw Exception(message);
       }
 
-      final rate = responseJSON['rate'] as double;
+      final rate = double.tryParse(responseJSON['rate']?.toString() ?? '') ?? 0.0;
 
       ExchangeProviderLogger.logSuccess(
         provider: description,
@@ -196,8 +197,10 @@ class ExolixExchangeProvider extends ExchangeProvider {
       'coinTo': _normalizeCurrency(_overrideToCryptoCurrency(request.toCurrency, request.toAddress)),
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
-      'withdrawalAddress': _normalizeAddress(request.toAddress),
-      'refundAddress': _normalizeAddress(request.refundAddress),
+      'withdrawalAddress': await _normalizeAddress(request.toAddress),
+      if (request.toAddressExtraId.isNotEmpty)
+        'withdrawalExtraId': request.toAddressExtraId,
+      'refundAddress': await _normalizeAddress(request.refundAddress),
       'rateType': _getRateType(isFixedRateMode),
       'apiToken': apiKey,
     };
@@ -213,7 +216,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -314,9 +316,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
@@ -363,18 +364,16 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
 
     return Trade(
-        id: id,
-        from: from,
-        to: to,
-        provider: description,
-        inputAddress: inputAddress,
-        amount: amount,
-        state: TradeState.deserialize(raw: _prepareStatus(status)),
-        extraId: extraId,
-        outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
+      id: id,
+      from: from,
+      to: to,
+      provider: description,
+      inputAddress: inputAddress,
+      amount: amount,
+      state: TradeState.deserialize(raw: _prepareStatus(status)),
+      extraId: extraId,
+      outputTransaction: outputTransaction,
+      payoutAddress: payoutAddress,
     );
   }
 
@@ -446,8 +445,17 @@ class ExolixExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _normalizeAddress(String address) =>
-      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
+  Future<String> _normalizeAddress(String address) async {
+    if (address.startsWith('bitcoincash:'))
+      return address.replaceFirst('bitcoincash:', '');
+
+    // Lightning addresses
+    if(address.contains("@"))
+      return await getBolt11FromLightingAddress(address) ?? address;
+
+    return address;
+  }
+
 
   static double? _toDouble(dynamic value) {
     if (value is int) {

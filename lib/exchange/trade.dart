@@ -1,19 +1,22 @@
+import 'dart:async';
+
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/generate_name.dart';
-import 'package:cw_core/hive_type_ids.dart';
-import 'package:hive/hive.dart';
+import 'package:sqflite/sqflite.dart';
 
-class Trade extends HiveObject {
+class Trade {
   Trade({
+    this.internalId = 0,
     required this.id,
     required this.amount,
     ExchangeProviderDescription? provider,
-    CryptoCurrency? from,
-    CryptoCurrency? to,
+    this.from,
+    this.to,
     TradeState? state,
     this.receiveAmount,
     this.createdAt,
@@ -24,6 +27,7 @@ class Trade extends HiveObject {
     this.refundAddress,
     this.walletId,
     this.payoutAddress,
+    this.toAddressExtraId,
     this.password,
     this.providerId,
     this.providerName,
@@ -34,8 +38,6 @@ class Trade extends HiveObject {
     this.isRefund,
     this.isSendAll,
     this.router,
-    this.userCurrencyFromRaw,
-    this.userCurrencyToRaw,
     // The following fields are used for SwapXyz trades only
     this.needToRegisterInSwapXyz,
     this.sourceTokenAddress,
@@ -48,172 +50,68 @@ class Trade extends HiveObject {
     this.chainId,
   }) {
     if (provider != null) providerRaw = provider.raw;
-
-    fromRaw = from?.raw ?? -1;
-    toRaw = to?.raw ?? -1;
-
     if (state != null) stateRaw = state.raw;
   }
 
-  static const typeId = TRADE_TYPE_ID;
+  static const tableName = 'Trade';
+  static const selfIdColumn = 'tradeId';
+
   static const boxName = 'Trades';
   static const boxKey = 'tradesBoxKey';
 
-  @HiveField(0, defaultValue: '')
+  static final StreamController<void> onChanged = StreamController<void>.broadcast();
+
+  int internalId;
+
   String id;
 
-  @HiveField(1, defaultValue: 0)
-  late int providerRaw;
+  int providerRaw = 0;
 
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  @HiveField(2, defaultValue: -1)
-  int fromRaw = -1;
+  CryptoCurrency? from;
+  CryptoCurrency? to;
 
-  CryptoCurrency? get from => CryptoCurrency.safeDeserialize(raw: fromRaw);
-
-  @HiveField(3, defaultValue: -1)
-  int toRaw = -1;
-
-  CryptoCurrency? get to => CryptoCurrency.safeDeserialize(raw: toRaw);
-
-  @HiveField(4, defaultValue: '')
-  late String stateRaw;
+  String stateRaw = '';
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
 
-  @HiveField(5)
   DateTime? createdAt;
-
-  @HiveField(6)
   DateTime? expiredAt;
-
-  @HiveField(7, defaultValue: '')
   String amount;
-
-  @HiveField(8)
+  String? receiveAmount;
   String? inputAddress;
-
-  @HiveField(9)
   String? extraId;
-
-  @HiveField(10)
   String? outputTransaction;
-
-  @HiveField(11)
   String? refundAddress;
-
-  @HiveField(12)
   String? walletId;
-
-  @HiveField(13)
   String? payoutAddress;
 
-  @HiveField(14)
+  // holds the receive address memo or destination tag that was passed for this trade
+  String? toAddressExtraId;
   String? password;
-
-  @HiveField(15)
   String? providerId;
-
-  @HiveField(16)
   String? providerName;
-
-  @HiveField(17)
   String? fromWalletAddress;
-
-  @HiveField(18)
   String? memo;
-
-  @HiveField(19)
   String? txId;
-
-  @HiveField(20)
   bool? isRefund;
-
-  @HiveField(21)
   bool? isSendAll;
-
-  /// Must be set on createTrade;
-
-  @HiveField(22)
   String? router;
 
-  @HiveField(23, defaultValue: '')
-  String? receiveAmount;
-
-  @HiveField(24, defaultValue: '')
-  String? userCurrencyFromRaw;
-
-  @HiveField(25, defaultValue: '')
-  String? userCurrencyToRaw;
-
   // The following fields are used for SwapXyz trades only
-  @HiveField(26)
   bool? needToRegisterInSwapXyz;
-
-  @HiveField(27)
   String? sourceTokenAddress;
-
-  @HiveField(28)
   int? sourceTokenDecimals;
-
-  @HiveField(29)
   String? routerData;
-
-  @HiveField(30)
   String? routerValue;
-
-  @HiveField(31)
   int? routerChainId;
-
-  @HiveField(32)
   String? sourceTokenAmountRaw;
-
-  @HiveField(33, defaultValue: false)
   bool? requiresTokenApproval;
 
-  @HiveField(34)
   int? chainId;
-
-  @HiveField(35)
   double? fee;
-
-  CryptoCurrency? get userCurrencyFrom {
-    if (userCurrencyFromRaw == null || userCurrencyFromRaw!.isEmpty) {
-      return null;
-    }
-    final underscoreIndex = userCurrencyFromRaw!.indexOf('_');
-    final title = userCurrencyFromRaw!.substring(0, underscoreIndex);
-    String tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
-
-    if (tag.contains('ARB')) tag = 'ARB';
-
-    return CryptoCurrency(
-      title: title,
-      tag: tag.isNotEmpty ? tag : null,
-      name: '',
-      raw: -1,
-      decimals: 1,
-    );
-  }
-
-  CryptoCurrency? get userCurrencyTo {
-    if (userCurrencyToRaw == null || userCurrencyToRaw!.isEmpty) {
-      return null;
-    }
-    final underscoreIndex = userCurrencyToRaw!.indexOf('_');
-    final title = userCurrencyToRaw!.substring(0, underscoreIndex);
-    final tag = userCurrencyToRaw!.substring(underscoreIndex + 1);
-
-    return CryptoCurrency(
-      title: title,
-      tag: tag.isNotEmpty ? tag : null,
-      name: '',
-      raw: -1,
-      decimals: 1,
-    );
-  }
 
   String get chainName {
     if (chainId == null) return '';
@@ -221,191 +119,207 @@ class Trade extends HiveObject {
     return evm!.getChainNameByChainId(chainId!).capitalized();
   }
 
-  static Trade fromMap(Map<String, Object?> map) {
-    return Trade(
-      id: map['id'] as String,
-      provider: ExchangeProviderDescription.deserialize(raw: map['provider'] as int),
-      from: CryptoCurrency.deserialize(raw: map['input'] as int),
-      to: CryptoCurrency.deserialize(raw: map['output'] as int),
-      createdAt:
-          map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
-      amount: map['amount'] as String,
-      receiveAmount: map['receive_amount'] as String?,
-      walletId: map['wallet_id'] as String,
-      fromWalletAddress: map['from_wallet_address'] as String?,
-      memo: map['memo'] as String?,
-      txId: map['tx_id'] as String?,
-      isRefund: map['isRefund'] as bool?,
-      isSendAll: map['isSendAll'] as bool?,
-      router: map['router'] as String?,
-      extraId: map['extra_id'] as String?,
-      chainId: map['chain_id'] as int?,
+  // ── SQLite CRUD ──────────────────────────────────────
+
+  Future<int> save() async {
+    final json = toSqliteMap();
+    if (json[selfIdColumn] == 0) {
+      json[selfIdColumn] = null;
+    }
+    internalId = await db!.insert(
+      tableName,
+      json,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    onChanged.add(null);
+    return internalId;
+  }
+
+  static Future<List<Trade>> getAll({String? orderBy}) async {
+    final list = await db!.query(
+      tableName,
+      orderBy: orderBy ?? 'createdAt DESC',
+    );
+    return List.generate(
+      list.length,
+      (i) => Trade.fromSqliteRow(list[i]),
     );
   }
 
-  Map<String, dynamic> toMap() {
+  static Future<Trade?> getByTradeId(String id) async {
+    final list = await db!.query(
+      tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (list.isEmpty) return null;
+    return Trade.fromSqliteRow(list.first);
+  }
+
+  static Future<int> deleteTrade(Trade trade) async {
+    final rows = await db!.delete(
+      tableName,
+      where: '$selfIdColumn = ?',
+      whereArgs: [trade.internalId],
+    );
+    onChanged.add(null);
+    return rows;
+  }
+
+  // ── SQLite serialization ─────────────────────────────
+  void mergeFindTradeByIdResult(Trade updated) {
+    if (updated.stateRaw.isNotEmpty) stateRaw = updated.stateRaw;
+    if (createdAt == null && updated.createdAt != null) {
+      createdAt = updated.createdAt;
+    }
+    if (updated.expiredAt != null) expiredAt = updated.expiredAt;
+    if (updated.isRefund != null) isRefund = updated.isRefund;
+
+    if (updated.receiveAmount != null) receiveAmount = updated.receiveAmount;
+    if (updated.inputAddress != null) inputAddress = updated.inputAddress;
+    if (updated.extraId != null) extraId = updated.extraId;
+    if (updated.outputTransaction != null) {
+      outputTransaction = updated.outputTransaction;
+    }
+    if (updated.refundAddress != null) refundAddress = updated.refundAddress;
+    if (updated.payoutAddress != null) payoutAddress = updated.payoutAddress;
+    if (updated.password != null) password = updated.password;
+    if (updated.providerId != null) providerId = updated.providerId;
+    if (updated.providerName != null) providerName = updated.providerName;
+    if (updated.memo != null) memo = updated.memo;
+    if (updated.txId != null) txId = updated.txId;
+  }
+
+  Map<String, dynamic> toSqliteMap() {
     return <String, dynamic>{
+      selfIdColumn: internalId,
       'id': id,
-      'provider': provider.serialize(),
-      'input': fromRaw,
-      'output': toRaw,
-      'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
+      'providerRaw': providerRaw,
+      'fromTitle': from?.title,
+      'fromName': from?.name,
+      'fromTag': from?.tag,
+      'fromFullName': from?.fullName,
+      'fromDecimals': from?.decimals,
+      'fromRaw': from?.raw,
+      'fromIconPath': from?.iconPath,
+      'fromFlatIconPath': from?.flatIconPath,
+      'fromChainIconPath': from?.chainIconPath,
+      'toTitle': to?.title,
+      'toName': to?.name,
+      'toTag': to?.tag,
+      'toFullName': to?.fullName,
+      'toDecimals': to?.decimals,
+      'toRaw': to?.raw,
+      'toIconPath': to?.iconPath,
+      'toFlatIconPath': to?.flatIconPath,
+      'toChainIconPath': to?.chainIconPath,
+      'stateRaw': stateRaw,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'expiredAt': expiredAt?.millisecondsSinceEpoch,
       'amount': amount,
-      'receive_amount': receiveAmount,
-      'wallet_id': walletId,
-      'from_wallet_address': fromWalletAddress,
+      'receiveAmount': receiveAmount,
+      'inputAddress': inputAddress,
+      'extraId': extraId,
+      'outputTransaction': outputTransaction,
+      'refundAddress': refundAddress,
+      'walletId': walletId,
+      'payoutAddress': payoutAddress,
+      'toAddressExtraId': toAddressExtraId,
+      'password': password,
+      'providerId': providerId,
+      'providerName': providerName,
+      'fromWalletAddress': fromWalletAddress,
       'memo': memo,
-      'tx_id': txId,
-      'isRefund': isRefund,
-      'isSendAll': isSendAll,
+      'txId': txId,
+      'isRefund': isRefund == true ? 1 : 0,
+      'isSendAll': isSendAll == true ? 1 : 0,
       'router': router,
-      'extra_id': extraId,
-      'chain_id': chainId,
+      'needToRegisterInSwapXyz': needToRegisterInSwapXyz == true ? 1 : 0,
+      'sourceTokenAddress': sourceTokenAddress,
+      'sourceTokenDecimals': sourceTokenDecimals,
+      'routerData': routerData,
+      'routerValue': routerValue,
+      'routerChainId': routerChainId,
+      'sourceTokenAmountRaw': sourceTokenAmountRaw,
+      'requiresTokenApproval': requiresTokenApproval == true ? 1 : 0,
+      'chainId': chainId,
       'fee': fee,
     };
   }
 
+  factory Trade.fromSqliteRow(Map<String, dynamic> row) {
+    final trade = Trade(
+      id: row['id'] as String? ?? '',
+      amount: row['amount'] as String? ?? '',
+      receiveAmount: row['receiveAmount'] as String?,
+      createdAt: row['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              row['createdAt'] as int,
+            )
+          : null,
+      expiredAt: row['expiredAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              row['expiredAt'] as int,
+            )
+          : null,
+      inputAddress: row['inputAddress'] as String?,
+      extraId: row['extraId'] as String?,
+      outputTransaction: row['outputTransaction'] as String?,
+      refundAddress: row['refundAddress'] as String?,
+      walletId: row['walletId'] as String?,
+      payoutAddress: row['payoutAddress'] as String?,
+      toAddressExtraId: row['toAddressExtraId'] as String?,
+      password: row['password'] as String?,
+      providerId: row['providerId'] as String?,
+      providerName: row['providerName'] as String?,
+      fromWalletAddress: row['fromWalletAddress'] as String?,
+      memo: row['memo'] as String?,
+      fee: row['fee'] as double?,
+      txId: row['txId'] as String?,
+      isRefund: (row['isRefund'] as int?) == 1,
+      isSendAll: (row['isSendAll'] as int?) == 1,
+      router: row['router'] as String?,
+      from: _currencyFromRow(row, 'from'),
+      to: _currencyFromRow(row, 'to'),
+      needToRegisterInSwapXyz: (row['needToRegisterInSwapXyz'] as int?) == 1,
+      sourceTokenAddress: row['sourceTokenAddress'] as String?,
+      sourceTokenDecimals: row['sourceTokenDecimals'] as int?,
+      routerData: row['routerData'] as String?,
+      routerValue: row['routerValue'] as String?,
+      routerChainId: row['routerChainId'] as int?,
+      sourceTokenAmountRaw: row['sourceTokenAmountRaw'] as String?,
+      requiresTokenApproval: (row['requiresTokenApproval'] as int?) == 1,
+      chainId: row['chainId'] as int?,
+    );
+    trade.internalId = row[selfIdColumn] as int? ?? 0;
+    trade.providerRaw = row['providerRaw'] as int? ?? 0;
+    trade.stateRaw = row['stateRaw'] as String? ?? '';
+    return trade;
+  }
+
+  static CryptoCurrency? _currencyFromRow(Map<String, dynamic> row, String prefix) {
+    final title = row['${prefix}Title'] as String?;
+    if (title == null || title.isEmpty) return null;
+
+    final tag = row['${prefix}Tag'] as String?;
+
+    final live = CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
+    if (live != null) return live;
+
+    return CryptoCurrency(
+      title: title,
+      name: row['${prefix}Name'] as String? ?? '',
+      tag: tag,
+      fullName: row['${prefix}FullName'] as String?,
+      decimals: row['${prefix}Decimals'] as int? ?? 1,
+      raw: row['${prefix}Raw'] as int? ?? -1,
+      iconPath: row['${prefix}IconPath'] as String?,
+      flatIconPath: row['${prefix}FlatIconPath'] as String?,
+      chainIconPath: row['${prefix}ChainIconPath'] as String?,
+    );
+  }
+
   String amountFormatted() => formatAmount(amount);
   String receiveAmountFormatted() => formatAmount(receiveAmount ?? '');
-}
-
-class TradeAdapter extends TypeAdapter<Trade> {
-  @override
-  final int typeId = Trade.typeId;
-
-  @override
-  Trade read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{};
-    for (int i = 0; i < numOfFields; i++) {
-      try {
-        fields[reader.readByte()] = reader.read();
-      } catch (_) {}
-    }
-
-    return Trade(
-      id: fields[0] == null ? '' : fields[0] as String,
-      amount: fields[7] == null ? '' : fields[7] as String,
-      receiveAmount: fields[23] as String?,
-      createdAt: fields[5] as DateTime?,
-      expiredAt: fields[6] as DateTime?,
-      inputAddress: fields[8] as String?,
-      extraId: fields[9] as String?,
-      outputTransaction: fields[10] as String?,
-      refundAddress: fields[11] as String?,
-      walletId: fields[12] as String?,
-      payoutAddress: fields[13] as String?,
-      password: fields[14] as String?,
-      providerId: fields[15] as String?,
-      providerName: fields[16] as String?,
-      fromWalletAddress: fields[17] as String?,
-      memo: fields[18] as String?,
-      txId: fields[19] as String?,
-      isRefund: fields[20] as bool?,
-      isSendAll: fields[21] as bool?,
-      router: fields[22] as String?,
-      userCurrencyFromRaw: fields[24] as String?,
-      userCurrencyToRaw: fields[25] as String?,
-      needToRegisterInSwapXyz: fields[26] as bool?,
-      sourceTokenAddress: fields[27] as String?,
-      sourceTokenDecimals: fields[28] as int?,
-      routerData: fields[29] as String?,
-      routerValue: fields[30] as String?,
-      routerChainId: fields[31] as int?,
-      sourceTokenAmountRaw: fields[32] as String?,
-      requiresTokenApproval: fields[33] as bool?,
-      chainId: fields[34] as int?,
-      fee: fields[35] as double?,
-    )
-      ..providerRaw = fields[1] == null ? 0 : fields[1] as int
-      ..fromRaw = (fields[2] as int?) ?? -1
-      ..toRaw = (fields[3] as int?) ?? -1
-      ..stateRaw = fields[4] == null ? '' : fields[4] as String;
-  }
-
-  @override
-  void write(BinaryWriter writer, Trade obj) {
-    writer
-      ..writeByte(26)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.providerRaw)
-      ..writeByte(2)
-      ..write(obj.fromRaw)
-      ..writeByte(3)
-      ..write(obj.toRaw)
-      ..writeByte(4)
-      ..write(obj.stateRaw)
-      ..writeByte(5)
-      ..write(obj.createdAt)
-      ..writeByte(6)
-      ..write(obj.expiredAt)
-      ..writeByte(7)
-      ..write(obj.amount)
-      ..writeByte(8)
-      ..write(obj.inputAddress)
-      ..writeByte(9)
-      ..write(obj.extraId)
-      ..writeByte(10)
-      ..write(obj.outputTransaction)
-      ..writeByte(11)
-      ..write(obj.refundAddress)
-      ..writeByte(12)
-      ..write(obj.walletId)
-      ..writeByte(13)
-      ..write(obj.payoutAddress)
-      ..writeByte(14)
-      ..write(obj.password)
-      ..writeByte(15)
-      ..write(obj.providerId)
-      ..writeByte(16)
-      ..write(obj.providerName)
-      ..writeByte(17)
-      ..write(obj.fromWalletAddress)
-      ..writeByte(18)
-      ..write(obj.memo)
-      ..writeByte(19)
-      ..write(obj.txId)
-      ..writeByte(20)
-      ..write(obj.isRefund)
-      ..writeByte(21)
-      ..write(obj.isSendAll)
-      ..writeByte(22)
-      ..write(obj.router)
-      ..writeByte(23)
-      ..write(obj.receiveAmount)
-      ..writeByte(24)
-      ..write(obj.userCurrencyFromRaw)
-      ..writeByte(25)
-      ..write(obj.userCurrencyToRaw)
-      ..writeByte(26)
-      ..write(obj.needToRegisterInSwapXyz)
-      ..writeByte(27)
-      ..write(obj.sourceTokenAddress)
-      ..writeByte(28)
-      ..write(obj.sourceTokenDecimals)
-      ..writeByte(29)
-      ..write(obj.routerData)
-      ..writeByte(30)
-      ..write(obj.routerValue)
-      ..writeByte(31)
-      ..write(obj.routerChainId)
-      ..writeByte(32)
-      ..write(obj.sourceTokenAmountRaw)
-      ..writeByte(33)
-      ..write(obj.requiresTokenApproval)
-      ..writeByte(34)
-      ..write(obj.chainId)
-      ..writeByte(35)
-      ..write(obj.fee);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TradeAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
