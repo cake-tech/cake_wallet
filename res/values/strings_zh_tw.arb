@@ -172,7 +172,7 @@
   "clearnet_link": "Clearnet 連結",
   "close": "關閉",
   "coin_control": "幣種控制（可選）",
-  "cold_or_recover_wallet": "新增來自 Cupcake 的唯讀錢包、冷錢包，或復原紙錢包",
+  "cold_or_recover_wallet": "新增氣隙冷錢包或復原紙錢包。",
   "collection_address": "收款地址",
   "collection_description": "收藏描述",
   "collection_name": "收藏名稱",

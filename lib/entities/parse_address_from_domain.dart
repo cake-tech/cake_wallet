@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/entities/zano_alias.dart';
+import 'package:cake_wallet/entities/zcash_names_record.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
@@ -454,6 +455,16 @@ class AddressResolver {
           } catch (e) {
             printV('Bip353Record.fetchBip353AddressAddress error: $e');
             return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+          }
+        }
+      }
+
+      final lowerText = text.toLowerCase();
+      if (lowerText.endsWith(".zec") || lowerText.endsWith(".zcash")) {
+        if (settingsStore.lookupsZcashNames) {
+          final address = await ZcashNamesRecord.fetchZcashNamesAddress(text);
+          if (address != null && address.isNotEmpty) {
+            return ParsedAddress.zcashNameAddress(address: address, name: text);
           }
         }
       }

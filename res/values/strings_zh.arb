@@ -208,7 +208,7 @@
   "coin_control": "币种控制（可选）",
   "coin_control_desc": "筛选此交易的输出。您在此处所做的更改仅会影响当前交易。",
   "coin_control_load_failed": "无法加载未花费的币",
-  "cold_or_recover_wallet": "添加来自 Cupcake 的只读钱包、冷钱包，或恢复纸钱包",
+  "cold_or_recover_wallet": "添加气隙冷钱包或恢复纸钱包。",
   "collection_address": "收款地址",
   "collection_description": "收藏描述",
   "collection_name": "收藏名称",

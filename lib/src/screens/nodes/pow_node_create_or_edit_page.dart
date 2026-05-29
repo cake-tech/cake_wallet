@@ -143,7 +143,7 @@ class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
                                       }
         
                                       await widget.nodeCreateOrEditViewModel.save(
-                                          editingNode: widget.editingNode, saveAsCurrent: widget.isSelected ?? false);
+                                          saveAsCurrent: widget.isSelected ?? false);
                                       Navigator.of(context).pop();
                                     },
                                     text: S.of(context).save,

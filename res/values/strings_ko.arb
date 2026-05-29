@@ -208,7 +208,7 @@
   "coin_control": "코인 컨트롤(선택 사항)",
   "coin_control_desc": "이 거래의 출력(UTXO)을 필터링합니다. 여기에서 변경한 내용은 현재 거래에만 반영됩니다.",
   "coin_control_load_failed": "미사용 코인을 불러오지 못했습니다",
-  "cold_or_recover_wallet": "Cupcake 또는 콜드 월렛에서 읽기 전용 지갑을 추가하거나 페이퍼 월렛을 복구합니다",
+  "cold_or_recover_wallet": "에어갭 콜드 월렛을 추가하거나 페이퍼 월렛을 복구하세요.",
   "collection_address": "컬렉션 주소",
   "collection_description": "컬렉션 설명",
   "collection_name": "컬렉션 이름",

@@ -208,7 +208,7 @@
   "coin_control": "Coin kontrolü (isteğe bağlı)",
   "coin_control_desc": "Bu işlem için çıktıları filtreleyin. Burada yapacağınız değişiklikler yalnızca mevcut işleme yansıyacaktır.",
   "coin_control_load_failed": "Harcanmamış coin'ler yüklenemedi",
-  "cold_or_recover_wallet": "Cupcake’ten veya bir soğuk cüzdandan salt okunur bir cüzdan ekleyin ya da bir kâğıt cüzdanı kurtarın",
+  "cold_or_recover_wallet": "Hava boşluklu bir cold wallet ekleyin veya bir paper wallet kurtarın.",
   "collection_address": "Tahsilat Adresi",
   "collection_description": "Koleksiyon Açıklaması",
   "collection_name": "Koleksiyon Adı",
