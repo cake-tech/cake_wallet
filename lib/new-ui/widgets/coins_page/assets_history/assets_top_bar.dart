@@ -62,7 +62,7 @@ class AssetsTopBar extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.file_download_outlined,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                 ),
