@@ -500,6 +500,8 @@ class WalletInfo {
 
   int internalId;
 
+  int? selectedAccount;
+
   String id;
   String name;
   WalletType type;
@@ -602,18 +604,43 @@ class WalletInfo {
   Future<List<WalletInfoAccount>> getAccounts() async {
     final accounts = await WalletInfoAccount.selectList(internalId);
 
-    if (accounts.isNotEmpty) {
-      return accounts;
+    if (accounts.isEmpty) {
+      await WalletInfoAccount.insertOrUpdate(
+        walletInfoId: internalId,
+        accountIndex: 0,
+        label: 'Account 0',
+        isSelected: true,
+      );
+
+      final defaultAccounts = await WalletInfoAccount.selectList(internalId);
+      selectedAccount = defaultAccounts.firstWhere((account) => account.isSelected).accountIndex;
+      return defaultAccounts;
     }
 
-    await WalletInfoAccount.insertOrUpdate(
-      walletInfoId: internalId,
-      accountIndex: 0,
-      label: 'Account 0',
-      isSelected: true,
+    final selected = accounts.firstWhere(
+          (account) => account.isSelected,
+      orElse: () => accounts.first,
     );
 
-    return WalletInfoAccount.selectList(internalId);
+    if (!selected.isSelected) {
+      await WalletInfoAccount.setSelected(
+        walletInfoId: internalId,
+        accountIndex: selected.accountIndex,
+      );
+      selected.isSelected = true;
+    }
+
+    selectedAccount = selected.accountIndex;
+    return accounts;
+  }
+
+  Future<void> setSelectedAccount(int accountIndex) async {
+    selectedAccount = accountIndex;
+
+    await WalletInfoAccount.setSelected(
+      walletInfoId: internalId,
+      accountIndex: accountIndex,
+    );
   }
 
   Future<void> setAccounts(List<WalletInfoAccount> accounts) async {
@@ -652,13 +679,6 @@ class WalletInfo {
       accountIndex: accountIndex,
       label: label,
       isSelected: account.isSelected,
-    );
-  }
-
-  Future<void> setSelectedAccount(int accountIndex) async {
-    await WalletInfoAccount.setSelected(
-      walletInfoId: internalId,
-      accountIndex: accountIndex,
     );
   }
 

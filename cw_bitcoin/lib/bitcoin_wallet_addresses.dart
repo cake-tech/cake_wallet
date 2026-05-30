@@ -23,8 +23,10 @@ class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAd
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHdByType,
-    required super.sideHdByType,
+    required super.mainHdByTypeAndAccount,
+    required super.sideHdByTypeAndAccount,
+    required super.accountIndexes,
+    required super.currentAccountIndex,
     required super.legacySideHd,
     required super.legacyMainHd,
     required super.network,
@@ -144,7 +146,11 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     try {
       return super
           .allAddresses
-          .firstWhere((e) => e.type == SegwitAddresType.p2wpkh && !e.isHidden && !e.isUsed)
+          .firstWhere((e) =>
+      e.accountIndex == currentAccountIndex &&
+          e.type == SegwitAddresType.p2wpkh &&
+          !e.isHidden &&
+          !e.isUsed)
           .address;
     } catch (_) {
       return super.addressForBuy;

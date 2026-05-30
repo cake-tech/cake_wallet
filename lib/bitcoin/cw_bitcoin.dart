@@ -926,4 +926,16 @@ class CWBitcoin extends Bitcoin {
     }
     return null;
   }
+
+  @override
+  ElectrumBalance balanceForAccount(Object wallet, int accountIndex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.balanceForAccount(accountIndex);
+  }
+
+  @override
+  Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.setCurrentAccount(accountIndex);
+  }
 }

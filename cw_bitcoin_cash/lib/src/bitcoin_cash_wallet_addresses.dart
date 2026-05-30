@@ -8,13 +8,17 @@ import 'package:mobx/mobx.dart';
 
 part 'bitcoin_cash_wallet_addresses.g.dart';
 
-class BitcoinCashWalletAddresses = BitcoinCashWalletAddressesBase with _$BitcoinCashWalletAddresses;
+class BitcoinCashWalletAddresses = BitcoinCashWalletAddressesBase
+    with _$BitcoinCashWalletAddresses;
 
-abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses with Store {
+abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses
+    with Store {
   BitcoinCashWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHdByType,
-    required super.sideHdByType,
+    required super.mainHdByTypeAndAccount,
+    required super.sideHdByTypeAndAccount,
+    required super.accountIndexes,
+    required super.currentAccountIndex,
     required super.legacyMainHd,
     required super.legacySideHd,
     required super.network,
@@ -33,5 +37,6 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
       generateP2PKHAddress(hd: hd, index: index, network: network);
 
   @override
-  PaymentURI getPaymentUri(String amount) => BitcoinCashURI(address: address, amount: amount);
+  PaymentURI getPaymentUri(String amount) =>
+      BitcoinCashURI(address: address, amount: amount);
 }

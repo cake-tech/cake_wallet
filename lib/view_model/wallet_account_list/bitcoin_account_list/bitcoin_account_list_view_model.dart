@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_base.dart' show WalletBase;
+import 'package:cw_core/wallet_base.dart';
 import 'package:mobx/mobx.dart';
 
 part 'bitcoin_account_list_view_model.g.dart';
@@ -16,10 +18,22 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
   BitcoinAccountListViewModelBase(this._wallet, this.settingsStore) : scrollOffsetFromTop = 0 {
     _setDefaultAccountUntilStorageLoads();
     _loadAccounts();
+
+    if (_wallet is ElectrumWallet) {
+      reaction(
+        (_) => (_wallet as ElectrumWallet)
+            .accountBalances
+            .entries
+            .map((entry) =>
+                '${entry.key}:${entry.value.confirmed}:${entry.value.unconfirmed}:${entry.value.frozen}')
+            .join('|'),
+        (_) => _loadAccounts(),
+      );
+    }
   }
 
-  final WalletBase _wallet;
   final SettingsStore settingsStore;
+  final WalletBase _wallet;
 
   CryptoCurrency get currency => _wallet.currency;
 
@@ -47,7 +61,22 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
   @action
   void select(AccountListItem account) {
     selectedAccount = account;
-    unawaited(_wallet.walletInfo.setSelectedAccount(account.id));
+
+    unawaited(() async {
+
+      await bitcoin!.setCurrentAccount(_wallet, account.id);
+
+      if (_wallet is ElectrumWallet) {
+        final electrumWallet = _wallet as ElectrumWallet;
+        final walletAddresses = electrumWallet.walletAddresses;
+
+        final receiveAddresses = walletAddresses.receiveAddresses;
+
+        if (receiveAddresses.isNotEmpty) {
+          final first = receiveAddresses.first;
+        }
+      }
+    }());
   }
 
   @action
@@ -57,7 +86,7 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
           .map((account) => AccountListItem(
                 id: account.accountIndex,
                 label: account.label,
-                balance: null,
+                balance: _balanceForAccount(account.accountIndex),
                 isSelected: account.isSelected,
               ))
           .toList();
@@ -76,7 +105,7 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     final defaultAccount = AccountListItem(
       id: 0,
       label: 'Account 0',
-      balance: null,
+      balance: _balanceForAccount(0),
       isSelected: true,
     );
 
@@ -88,5 +117,11 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
   @action
   void reload() {
     _loadAccounts();
+  }
+
+  String _balanceForAccount(int accountIndex) {
+    final balance = bitcoin!.balanceForAccount(_wallet, accountIndex);
+    final formattedBalance = balance.fullAvailableBalance.toString();
+    return formattedBalance;
   }
 }
