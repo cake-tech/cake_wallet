@@ -78,6 +78,11 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Zcash.me)');
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.zcashName:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Zcash Names)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.bip353:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (BIP-353)');

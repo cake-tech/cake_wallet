@@ -329,8 +329,8 @@ import 'src/screens/buy/buy_sell_page.dart';
 final getIt = GetIt.instance;
 
 var _isSetupFinished = false;
-late Box<Node> _nodeSource;
-late Box<Node> _powNodeSource;
+// late Box<Node> _nodeSource;
+// late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
 late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
@@ -340,8 +340,6 @@ late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future<void> setup({
-  required Box<Node> nodeSource,
-  required Box<Node> powNodeSource,
   required Box<Contact> contactSource,
   required Box<Template> templates,
   required Box<ExchangeTemplate> exchangeTemplates,
@@ -353,8 +351,6 @@ Future<void> setup({
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
 }) async {
-  _nodeSource = nodeSource;
-  _powNodeSource = powNodeSource;
   _contactSource = contactSource;
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
@@ -379,8 +375,6 @@ Future<void> setup({
       (secrets.wyreAccountId.isNotEmpty);
 
   final settingsStore = await SettingsStoreBase.load(
-    nodeSource: _nodeSource,
-    powNodeSource: _powNodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
   );
 
@@ -388,18 +382,16 @@ Future<void> setup({
     return;
   }
 
-  getIt.registerFactory<Box<Node>>(() => _nodeSource);
-  getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
-  getIt.registerSingleton(NodeListStoreBase.instance);
+  // getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
   getIt.registerSingleton<AppStore>(AppStore(
       authenticationStore: getIt.get<AuthenticationStore>(),
       walletList: getIt.get<WalletListStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      nodeListStore: getIt.get<NodeListStore>(),
+      // nodeListStore: getIt.get<NodeListStore>(),
       themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
       TradesStore(appStore: getIt.get<AppStore>()));
@@ -1157,22 +1149,22 @@ Future<void> setup({
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
+  getIt.registerLazySingleton(() {
+    final appStore = getIt.get<AppStore>();
+    return NodeListViewModel(appStore);
+  });
+
   getIt.registerFactoryParam<NewAddressesPage, bool, void>(
-    (showHidden, _) => NewAddressesPage(
+        (showHidden, _) => NewAddressesPage(
       showHidden: showHidden,
       addressListViewModel: getIt<WalletAddressListViewModel>(),
       dashboardViewModel: getIt<DashboardViewModel>(),
     ),
   );
 
-  getIt.registerFactory(() {
+  getIt.registerLazySingleton(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(_nodeSource, appStore);
-  });
-
-  getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    return PowNodeListViewModel(_powNodeSource, appStore);
+    return PowNodeListViewModel(appStore);
   });
 
   getIt.registerFactory(() => ConnectionSyncViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
@@ -1240,12 +1232,14 @@ Future<void> setup({
       final WalletType type = args['type'] as WalletType? ?? getIt.get<AppStore>().wallet!.type;
       final bool isPow = args['isPow'] as bool? ?? false;
       final Node? editingNode = args['editingNode'] as Node?;
-      final nodeSourceArgs = isPow ? _powNodeSource : _nodeSource;
         return NodeCreateOrEditViewModel(
-            nodeSourceArgs,
-            type,
-            editingNode,
-            getIt.get<SettingsStore>());
+          isPow,
+          getIt.get<NodeListViewModel>(),
+          getIt.get<PowNodeListViewModel>(),
+          type,
+          getIt.get<SettingsStore>(),
+          editingNode: editingNode
+        );
       }
   );
 
@@ -1847,7 +1841,6 @@ Future<void> setup({
   getIt.registerLazySingleton(() => NodeSwitchingService(
     appStore: getIt.get<AppStore>(),
     settingsStore: getIt.get<SettingsStore>(),
-    nodeSource: _nodeSource,
   ));
 
   getIt.registerFactoryParam<BridgeAmountPage, CryptoCurrency, void>(

@@ -149,6 +149,7 @@ lib/zcash/zcash.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json
 ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png
+ios/AppIcon.icon/*
 
 ios/Runner/Info.plist
 android/app/src/main/res/mipmap-*
@@ -181,6 +182,7 @@ macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
 macos/Runner/Configs/AppInfo.xcconfig
 macos/Runner.xcodeproj/project.pbxproj
+macos/AppIcon.icon/*
 
 
 integration_test/playground.dart
