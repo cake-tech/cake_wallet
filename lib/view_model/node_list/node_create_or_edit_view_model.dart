@@ -5,10 +5,11 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/node.dart';
+import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -19,7 +20,7 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
 
 abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(
-      this._nodeSource, this.walletType, this.editingNode, this._settingsStore)
+      this.isPow, this.nodeListViewModel,this.powNodeListViewModel, this.walletType, this._settingsStore, {this.editingNode})
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         label = editingNode?.label ?? '',
@@ -36,8 +37,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
             editingNode?.isEnabledForAutoSwitching ?? false,
         useSocksProxy = editingNode?.socksProxyAddress != null &&
             editingNode!.socksProxyAddress!.isNotEmpty,
-        useSSL = editingNode?.useSSL ?? false {
-  }
+        useSSL = editingNode?.useSSL ?? false {}
 
   final nodeLabelUIKey = 'node_label_row_key';
   final nodeAddressUIKey = 'node_address_row_key';
@@ -110,6 +110,15 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @observable
   String socksProxyAddress;
 
+  @observable
+  Node? editingNode;
+
+  @observable
+  bool isPow;
+
+  final NodeListViewModel? nodeListViewModel;
+  final PowNodeListViewModel? powNodeListViewModel;
+
   @computed
   bool get isReady =>
       (address.isNotEmpty) ||
@@ -158,8 +167,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   final WalletType walletType;
-  final Node? editingNode;
-  final Box<Node> _nodeSource;
   final SettingsStore _settingsStore;
 
   void updateViewModelFromText(String key, String value) {
@@ -248,33 +255,45 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setSocksProxyAddress(String val) => socksProxyAddress = val;
 
   @action
-  Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
-    final node = Node(
-        label: label,
-        uri: uri,
-        path: path,
-        type: walletType,
-        login: login,
-        password: password,
-        useSSL: useSSL,
-        trusted: trusted,
-        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
-        socksProxyAddress: socksProxyAddress);
+  Future<void> delete({required Node editingNode}) async {
+    await editingNode.delete();
+    if(nodeListViewModel != null) {
+      nodeListViewModel!.bindNodes();
+    }
+    if(powNodeListViewModel != null) {
+      powNodeListViewModel!.bindNodes();
+    }
+  }
+
+  @action
+  Future<void> save({bool saveAsCurrent = false}) async {
+    editingNode ??= Node();
+    editingNode!.type = walletType;
+    editingNode!.label = label;
+    editingNode!.uriRaw = uri;
+    editingNode!.path = path;
+    editingNode!.login = login;
+    editingNode!.password = password;
+    editingNode!.isPow = isPow;
+    editingNode!.useSSL = useSSL;
+    editingNode!.trusted = trusted;
+    editingNode!.socksProxyAddress = socksProxyAddress;
+
     try {
       state = IsExecutingState();
-      if (editingNode != null) {
-        await _nodeSource.put(editingNode.key, node);
-      } else if (_existingNode(node) != null) {
-        setAsCurrent(_existingNode(node)!);
-      } else {
-        await _nodeSource.add(node);
-        setAsCurrent(_nodeSource.values.last);
-      }
+      await editingNode!.save();
       if (saveAsCurrent) {
-        setAsCurrent(node);
+        setAsCurrent(editingNode!);
       }
 
       state = ExecutedSuccessfullyState();
+      if(nodeListViewModel != null) {
+        nodeListViewModel!.bindNodes();
+      }
+      if(powNodeListViewModel != null) {
+        powNodeListViewModel!.bindNodes();
+      }
+
     } catch (e) {
       state = FailureState(e.toString());
     }
@@ -301,15 +320,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     }
   }
 
-  Node? _existingNode(Node node) {
-    final nodes = _nodeSource.values.toList();
-    nodes.forEach((item) {
-      item.login ??= '';
-      item.password ??= '';
-      item.useSSL ??= false;
-    });
-    return nodes.firstWhereOrNull((item) => item == node);
-  }
 
   @action
   void setAsCurrent(Node node) => _settingsStore.nodes[walletType] = node;

@@ -235,6 +235,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (!isFixedRateMode) 'amount_from': request.fromAmount,
       if (isFixedRateMode) 'amount_to': request.toAmount,
       'address': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'address_memo': request.toAddressExtraId,
       'refund': request.refundAddress,
       'refund_memo': '0',
     };
@@ -392,6 +393,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
       extraId: addressProviderMemo,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 

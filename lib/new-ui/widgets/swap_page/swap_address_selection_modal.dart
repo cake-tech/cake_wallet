@@ -263,7 +263,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                     Row(
                       spacing: 12,
                       children: [
-                        Image.asset(widget.iconPath, width: 24, height: 24),
+                        CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24),
                         Text(widget.wallet.name)
                       ],
                     ),

@@ -26,6 +26,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
@@ -180,6 +181,18 @@ abstract class TradeDetailsViewModelBase with Store {
           showBar<void>(context, S.of(context).copied_to_clipboard);
         },
       ));
+    }
+
+    final destinationMemo = trade.toAddressExtraId;
+    final destinationCurrency = trade.to;
+    if (destinationMemo != null &&
+        destinationMemo.isNotEmpty &&
+        destinationCurrency != null) {
+      final isDestinationTag =
+          memoLabelTypeFor(destinationCurrency) == MemoLabelType.destinationTag;
+      items.add(StandartListItem(
+          title: isDestinationTag ? S.current.destination_tag : S.current.memo,
+          value: destinationMemo));
     }
 
     items.add(StandartListItem(
