@@ -208,7 +208,7 @@
   "coin_control": "Kontrol ng coin (opsyonal)",
   "coin_control_desc": "I-filter ang mga output para sa transaksyong ito. Ang mga pagbabagong gagawin mo rito ay makikita lamang sa kasalukuyang transaksyon.",
   "coin_control_load_failed": "Nabigong i-load ang mga hindi nagastos na coin",
-  "cold_or_recover_wallet": "Magdagdag ng read-only na wallet mula sa Cupcake o cold wallet, o i-recover ang paper wallet",
+  "cold_or_recover_wallet": "Magdagdag ng air-gapped na cold wallet o i-recover ang isang paper wallet.",
   "collection_address": "Address ng Koleksyon",
   "collection_description": "Paglalarawan ng Koleksyon",
   "collection_name": "Pangalan ng Koleksyon",

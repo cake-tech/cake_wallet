@@ -208,7 +208,7 @@
   "coin_control": "Sarrafa tsabar kuɗi (na zaɓi)",
   "coin_control_desc": "Tace fitarwa (outputs) don wannan ma'amala. Canje-canjen da kuke yi a nan za su shafi ma'amalar yanzu kawai.",
   "coin_control_load_failed": "An kasa loda tsabar kuɗin da ba a kashe ba",
-  "cold_or_recover_wallet": "Ƙara walat mai karantawa-kawai daga Cupcake ko walat mai sanyi, ko dawo da walat na takarda",
+  "cold_or_recover_wallet": "Ƙara cold wallet mai air-gapped ko dawo da paper wallet.",
   "collection_address": "Adireshin karɓa",
   "collection_description": "Bayanin Tarin",
   "collection_name": "Sunan tarin",
