@@ -16,6 +16,24 @@ class TokenImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final needsBackdrop = !imageUrl.contains('crypto_full_icons/');
+
+    final image = SizedBox(
+      width: size,
+      height: size,
+      child: CakeImageWidget(
+        imageUrl: imageUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorWidget: errorWidget,
+      ),
+    );
+
+    if (!needsBackdrop) {
+      return ClipOval(child: image);
+    }
+
     return Container(
       width: size,
       height: size,
@@ -24,16 +42,7 @@ class TokenImageWidget extends StatelessWidget {
         shape: BoxShape.circle,
         color: Theme.of(context).colorScheme.onSurface,
       ),
-      child: Transform.scale(
-        scale: 1.08,
-        child: CakeImageWidget(
-          imageUrl: imageUrl,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorWidget: errorWidget,
-        ),
-      ),
+      child: image,
     );
   }
 }
