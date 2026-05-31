@@ -108,10 +108,12 @@ class _CardsViewState extends State<CardsView> {
             HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
-            if(realIndex >= (widget.accountListViewModel?.accounts.length ?? 1)) {
+            if (!widget.lightningMode && realIndex >= (widget.accountListViewModel?.accounts.length ?? 1)) {
               return Container();
             }
-            final account = widget.accountListViewModel?.accounts[realIndex];
+            final account = !widget.lightningMode && realIndex < (widget.accountListViewModel?.accounts.length ?? 0)
+                ? widget.accountListViewModel?.accounts[realIndex]
+                : null;
 
             // The second balance should always be the lightning balance
             // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
@@ -140,13 +142,15 @@ class _CardsViewState extends State<CardsView> {
             // the card designs is empty if widget gets built before it loads.
             // should get populated before user sees anything
             final CardDesign cardDesign;
-            if (widget.dashboardViewModel.cardDesigns.isEmpty ||
-                realIndex >= widget.dashboardViewModel.cardDesigns.length)
+            if (widget.dashboardViewModel.cardDesigns.isEmpty) {
               cardDesign = CardDesign.genericDefault;
-            else if(widget.lightningMode)
-              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex + 1];
-            else
+            } else if (widget.lightningMode) {
+              cardDesign = widget.dashboardViewModel.cardDesigns.last;
+            } else if (realIndex >= widget.dashboardViewModel.cardDesigns.length) {
+              cardDesign = CardDesign.genericDefault;
+            } else {
               cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
+            }
 
             final String accountName;
             final String accountBalance;
@@ -244,10 +248,11 @@ class _CardsViewState extends State<CardsView> {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
-    int numCards = widget.dashboardViewModel.wallet.type == WalletType.bitcoin
-        ? 1
-        : widget.dashboardViewModel.cardDesigns.length;
-        if(numCards == 0) numCards = 1;
+      int numCards = widget.lightningMode
+          ? 1
+          : widget.dashboardViewModel.cardDesigns.length;
+
+      if (numCards == 0) numCards = 1;
 
       if (_selectedIndex >= (numCards)) {
         _selectedIndex = 0;
@@ -276,7 +281,8 @@ class _CardsViewState extends State<CardsView> {
 
         int realIndex = order[visualIndex]!;
 
-        if (visualIndex == _selectedIndex &&
+        if (!widget.lightningMode &&
+            visualIndex == _selectedIndex &&
             widget.accountListViewModel != null &&
             realIndex < widget.accountListViewModel!.accounts.length &&
             widget.accountListViewModel?.selectedAccount?.label !=

@@ -404,43 +404,41 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   Future<void> loadCardDesigns() async {
-    final accountStyleSettings =
-        await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+    final walletCardStyleSettings =
+    await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+    final btcAccounts =
+    wallet.type == WalletType.bitcoin ? await wallet.walletInfo.getAccounts() : null;
+    final lightningCardIndex = btcAccounts?.length;
 
-    late final int numAccounts;
+    int numAccounts = 1;
     if (wallet.type == WalletType.monero) {
       numAccounts = monero!.getAccountList(wallet).accounts.length;
     } else if (wallet.type == WalletType.wownero) {
       numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
     } else if (wallet.type == WalletType.bitcoin) {
-      // bitcoin and lightning
-      numAccounts = 2;
-    } else {
-      numAccounts = 1;
+      numAccounts = btcAccounts!.length + 1; // adding 1 for the lightning account
     }
+
     cardDesigns.clear();
-    Map<int, int> newOrder = {};
+    final newOrder = <int, int>{};
 
     for (int i = 0; i < numAccounts; i++) {
       late final int index;
-      if (balanceViewModel.hasAccounts) {
+      final isLightning = wallet.type == WalletType.bitcoin && i == lightningCardIndex;
+      if (isLightning) {
+        index = -2; // using -2 to differentiate lightning card from regular accounts, which use 0, 1, 2, etc.
+      } else if (balanceViewModel.hasAccounts) {
         index = i;
-      } else if (wallet.type == WalletType.bitcoin && i == 1) {
-        index = 0;
       } else {
         index = -1;
       }
 
-      final setting = accountStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
+      final setting = walletCardStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
 
-      late final CryptoCurrency curr;
-      if (wallet.type == WalletType.bitcoin && i == 1) {
-        curr = CryptoCurrency.btcln;
-      } else {
-        curr = wallet.currency;
-      }
+      final curr = isLightning ? CryptoCurrency.btcln : wallet.currency;
 
       cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
+
       if (setting?.cardOrder != null) {
         newOrder[setting!.cardOrder] = i;
       }
@@ -448,16 +446,12 @@ abstract class DashboardViewModelBase with Store {
 
     // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
     for (int i = 0; i < numAccounts; i++) {
-      if (!newOrder.containsKey(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
+      if (!newOrder.containsValue(i)) {
         int free = 0;
-        while (newOrder.containsValue(free)) {
+        while (newOrder.containsKey(free)) {
           free++;
         }
-        if (wallet.type == WalletType.bitcoin) {
-          newOrder[free] = 0;
-        } else {
-          newOrder[free] = i;
-        }
+        newOrder[free] = i;
       }
     }
     cardOrder = newOrder.asObservable();

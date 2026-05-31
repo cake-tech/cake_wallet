@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
+import 'package:cw_core/balance_card_style_settings.dart';
+import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
 part 'bitcoin_account_edit_or_create_view_model.g.dart';
@@ -31,9 +35,34 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
+  Future<List<Gradient>> _getUsableCardGradients() async {
+    final List<Gradient> ret = List<Gradient>.from(CardDesign.allGradients);
+    final designs = (await BalanceCardStyleSettings.getAll(_wallet.walletInfo.internalId))
+        .map((item) => CardDesign.fromStyleSettings(item, _wallet.currency));
+    for (final design in designs) {
+      ret.remove(design.gradient);
+    }
+    return ret.isNotEmpty ? ret : CardDesign.allGradients;
+  }
+
+  Future<void> _saveRandomCardDesign() async {
+    final gradients = await _getUsableCardGradients();
+    final accounts = await _wallet.walletInfo.getAccounts();
+
+    await BalanceCardStyleSettings.fromCardDesign(
+        _wallet.walletInfo.internalId,
+        accounts.length,
+        accounts.length,
+        CardDesign.specialDesignsForCurrencies[_wallet.currency]!
+            .withGradient(gradients[Random().nextInt(gradients.length)]))
+        .insert();
+  }
+
   Future<void> save() async {
     try {
       state = IsExecutingState();
+
+      if (!isEdit) await _saveRandomCardDesign();
 
       if (_accountListItem != null) {
         await _renameAccount(_accountListItem.id, label);
