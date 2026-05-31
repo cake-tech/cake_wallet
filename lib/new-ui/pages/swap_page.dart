@@ -1215,6 +1215,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
     final currencies = rawCurrencies.whereType<CryptoCurrency>().toList();
+    appendEvmDefaultTokens(currencies);
     if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
       currencies.sort((a, b) {
         if (a == CryptoCurrency.btcln) return -1;

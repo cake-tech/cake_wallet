@@ -518,10 +518,12 @@ class BuySellPage extends BasePage {
   }
 
   void _presentCryptoPicker(BuildContext context) {
+    final items = [...buySellViewModel.cryptoCurrencies];
+    appendEvmDefaultTokens(items);
     CurrencyPickerSheet.show(
       context: context,
       args: CurrencyPickerArgs(
-        items: buySellViewModel.cryptoCurrencies,
+        items: items,
         selected: buySellViewModel.cryptoCurrency,
         recentsSource: RecentsSource.orders,
         onSelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),

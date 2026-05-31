@@ -41,6 +41,13 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     Navigator.of(context).maybePop();
   }
 
+  double _fiatValueFor(CryptoCurrency c) {
+    final raw = _args.balanceByAsset?[c]?.fiat;
+    if (raw == null || raw.isEmpty) return 0;
+    final first = raw.split(' ').first.replaceAll(',', '.');
+    return double.tryParse(first) ?? 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final native = walletTypeToCryptoCurrency(_network);
@@ -48,7 +55,15 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     final tokens = _args.items
         .where((c) => c != native)
         .where((c) => currencyMatchesQuery(c, query))
-        .toList(growable: false);
+        .toList();
+
+    final insertOrder = {for (var i = 0; i < tokens.length; i++) tokens[i]: i};
+    tokens.sort((a, b) {
+      final av = _fiatValueFor(a);
+      final bv = _fiatValueFor(b);
+      if (bv != av) return bv.compareTo(av);
+      return (insertOrder[a] ?? 0).compareTo(insertOrder[b] ?? 0);
+    });
     final nativeMatches = currencyMatchesQuery(native, query);
 
     return Column(

@@ -1,10 +1,37 @@
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/wallet_type.dart';
 
 String chainNameForCurrency(CryptoCurrency c) {
   if (c == CryptoCurrency.btcln) return 'Lightning';
   final wt = cryptoCurrencyOrTokenToWalletType(c);
   return wt != null ? walletTypeToString(wt) : (c.tag ?? '');
+}
+
+final Set<String> _stablecoinSymbols = {
+  for (final c in CryptoCurrency.all)
+    if (c.groups.contains(CurrencyGroups.stablecoin)) c.title.toUpperCase(),
+};
+
+bool isStablecoin(CryptoCurrency c) =>
+    c.groups.contains(CurrencyGroups.stablecoin) ||
+    _stablecoinSymbols.contains(c.title.toUpperCase());
+
+void appendEvmDefaultTokens(List<CryptoCurrency> into) {
+  if (evm == null) return;
+  String keyFor(CryptoCurrency c) {
+    final wt = cryptoCurrencyOrTokenToWalletType(c);
+    final chain = wt?.toString() ?? (c.tag ?? '').toUpperCase();
+    return '${c.title.toUpperCase()}|$chain';
+  }
+
+  final seen = <String>{for (final c in into) keyFor(c)};
+  for (final chainId in const [8453, 42161, 137]) {
+    for (final t in evm!.getDefaultTokensByChainId(chainId)) {
+      if (seen.add(keyFor(t))) into.add(t);
+    }
+  }
 }
 
 class CurrencyPickerBalance {

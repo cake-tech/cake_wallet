@@ -103,7 +103,8 @@ class _NetworkRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final wt = cryptoCurrencyOrTokenToWalletType(variant);
-    final networkIconPath = wt != null ? walletTypeToCryptoCurrency(wt).iconPath : variant.iconPath;
+    final networkIconPath =
+        wt != null ? getCryptoCurrencyIconForWalletListItem(wt) : variant.iconPath;
     final networkName = chainNameForCurrency(variant);
     return InkWell(
       onTap: onTap,

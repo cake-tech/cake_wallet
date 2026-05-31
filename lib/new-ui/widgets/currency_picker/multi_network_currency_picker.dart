@@ -98,14 +98,22 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   }
 
   void _onStablecoinPillTapped(CryptoCurrency tapped) {
-    final variants = widget.args.items
+    var variants = widget.args.items
         .where((c) =>
-            c.groups.contains(CurrencyGroups.stablecoin) &&
-            c.title.toUpperCase() == tapped.title.toUpperCase())
-        .toList(growable: false);
+            isStablecoin(c) &&
+            c.title.toUpperCase() == tapped.title.toUpperCase() &&
+            cryptoCurrencyOrTokenToWalletType(c) != null)
+        .toList();
+
+    if (_selectedNetwork != null) {
+      final filtered = variants
+          .where((c) => cryptoCurrencyOrTokenToWalletType(c) == _selectedNetwork)
+          .toList(growable: false);
+      if (filtered.isNotEmpty) variants = filtered;
+    }
 
     if (variants.length <= 1) {
-      _selectCurrency(tapped);
+      _selectCurrency(variants.isNotEmpty ? variants.first : tapped);
       return;
     }
 
@@ -303,9 +311,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
     final seenStablecoinTitles = <String>{};
     final stablecoins = items
-        .where((c) =>
-            c.groups.contains(CurrencyGroups.stablecoin) &&
-            seenStablecoinTitles.add(c.title.toUpperCase()))
+        .where((c) => isStablecoin(c) && seenStablecoinTitles.add(c.title.toUpperCase()))
         .toList(growable: false);
 
     final cryptocurrencies = items.where(natives.contains).toList(growable: false);
@@ -366,6 +372,8 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                     CurrencyPickerRow(
                       currency: item,
                       isSelected: section == _SelSection.cryptocurrencies && selected == item,
+                      chainPillLabel: _chainPillLabelFor(item),
+                      chainBadgePath: _chainBadgePathFor(item),
                       trailing: _SymbolTrailing(
                         currency: item,
                         symbolResolver: symbolResolver,
@@ -450,16 +458,22 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
   String? _chainPillLabelFor(CryptoCurrency c) {
     if (c == CryptoCurrency.btcln) return chainNameForCurrency(c);
+    if (_isL2NativeEth(c)) return chainNameForCurrency(c);
     if (widget.natives.contains(c)) return null;
     if (cryptoCurrencyOrTokenToWalletType(c) == null) return null;
     return chainNameForCurrency(c);
   }
 
   String? _chainBadgePathFor(CryptoCurrency c) {
+    if (_isL2NativeEth(c)) return c.chainIconPath;
     if (widget.natives.contains(c)) return null;
     final wt = cryptoCurrencyOrTokenToWalletType(c);
-    return wt == null ? null : walletTypeToCryptoCurrency(wt).chainIconPath;
+    if (wt == null) return null;
+    return c.chainIconPath ?? walletTypeToCryptoCurrency(wt).chainIconPath;
   }
+
+  bool _isL2NativeEth(CryptoCurrency c) =>
+      c == CryptoCurrency.arbEth || c == CryptoCurrency.baseEth;
 
   Set<String> _duplicatedTitles(Iterable<CryptoCurrency> list) {
     final seen = <String>{};
