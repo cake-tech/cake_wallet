@@ -53,7 +53,7 @@ class WCPermissionsMapper {
     final wantsMessageSigning = methods.any(_messageSigningMethods.contains);
     if (wantsMessageSigning) {
       permissions.add(WCPermission(
-        iconUrl: "assets/new-ui/set-amount.svg",
+        iconUrl: "assets/new-ui/pencil.svg",
         label: S.current.wc_permission_sign_messages,
       ));
     }

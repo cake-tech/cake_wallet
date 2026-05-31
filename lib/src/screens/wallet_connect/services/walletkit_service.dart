@@ -572,19 +572,6 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
-  Future<void> updateSession({
-    required String topic,
-    required Map<String, Namespace> namespaces,
-  }) async {
-    await walletKit.updateSession(topic: topic, namespaces: namespaces);
-  }
-
-  @action
-  Future<void> extendSession({required String topic}) async {
-    await walletKit.extendSession(topic: topic);
-  }
-
-  @action
   Future<void> pairWithUri(Uri uri) async {
     try {
       debugPrint('pairWithUri - Pairing with URI: $uri');

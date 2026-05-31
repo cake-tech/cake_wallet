@@ -1,121 +1,86 @@
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/enter_wallet_connect_uri_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_hero_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
-import 'package:cake_wallet/entities/qr_scanner.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/utils/permission_handler.dart';
 
-import 'widgets/wc_pairing_item_widget.dart';
 import 'wc_pairing_detail_page.dart';
 
 class WalletConnectConnectionsView extends StatelessWidget {
-  final WalletKitService walletKitService;
-
-  WalletConnectConnectionsView({required this.walletKitService, Uri? launchUri, Key? key})
-      : super(key: key) {
+  WalletConnectConnectionsView({
+    required this.walletKitService,
+    Uri? launchUri,
+    Key? key,
+  }) : super(key: key) {
     _triggerPairingFromDeeplink(launchUri);
   }
+
+  final WalletKitService walletKitService;
 
   void _triggerPairingFromDeeplink(Uri? launchUri) async {
     if (launchUri == null) return;
 
-    if(launchUri.scheme == "wc") {
+    if (launchUri.scheme == 'wc') {
       await walletKitService.pairWithUri(launchUri);
       return;
     }
 
-    final actualLinkList = launchUri.query.split("uri=");
-
+    final actualLinkList = launchUri.query.split('uri=');
     if (actualLinkList.length <= 1) return;
 
-    final query = actualLinkList[1];
-
-    final decoded = Uri.decodeComponent(query).trim();
-
+    final decoded = Uri.decodeComponent(actualLinkList[1]).trim();
     final sanitized = decoded.startsWith('@') ? decoded.substring(1) : decoded;
-
     final uriData = Uri.tryParse(sanitized);
-
-    if (uriData == null || (uriData.scheme.isEmpty)) return;
+    if (uriData == null || uriData.scheme.isEmpty) return;
 
     await walletKitService.pairWithUri(uriData);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WCPairingsWidget(walletKitService: walletKitService);
-  }
-}
+  Future<void> _onScanQrCode(BuildContext context) async {
+    final isCameraPermissionGranted =
+        await PermissionHandler.checkPermission(Permission.camera, context);
+    if (!isCameraPermissionGranted) return;
 
-class WCPairingsWidget extends BasePage {
-  WCPairingsWidget({required this.walletKitService, Key? key})
-      : walletKit = walletKitService.walletKit;
-
-  final ReownWalletKit walletKit;
-  final WalletKitService walletKitService;
-
-  @override
-  String get title => S.current.walletConnect;
-
-  Future<void> _onScanQrCode(BuildContext context, ReownWalletKit web3Wallet) async {
-    final String? uri;
-
-    if (DeviceInfo.instance.isMobile) {
-      bool isCameraPermissionGranted =
-          await PermissionHandler.checkPermission(Permission.camera, context);
-      if (!isCameraPermissionGranted) return;
-      uri = await presentQRScanner(context);
-    } else {
-      uri = await _showEnterWalletConnectURIPopUp(context);
-    }
-
+    final uri = await presentQRScanner(context);
     await _handleWalletConnectURI(uri, context);
   }
 
-  Future<String?> _showEnterWalletConnectURIPopUp(BuildContext context) async {
-    final walletConnectURI = await showPopUp<String>(
+  Future<void> _onPasteLink(BuildContext context) async {
+    final uri = await showPopUp<String>(
       context: context,
-      builder: (BuildContext context) {
-        return EnterWalletConnectURIWrapperWidget();
-      },
+      builder: (BuildContext context) => EnterWalletConnectURIWrapperWidget(),
     );
-    return walletConnectURI;
+    await _handleWalletConnectURI(uri, context);
   }
 
-  Future<void> _handleWalletConnectURI(
-    String? walletConnectURI,
-    BuildContext context,
-  ) async {
+  Future<void> _handleWalletConnectURI(String? walletConnectURI, BuildContext context) async {
     if (walletConnectURI == null) return _invalidUriToast(context, S.current.nullURIError);
 
-    log('_onFoundUri: $walletConnectURI');
-    // Accept either a raw WC URI or a full URL containing `uri=` parameter
     String input = walletConnectURI.trim();
-
     if (input.contains('uri=')) {
       final parts = input.split('uri=');
-      if (parts.length > 1) {
-        input = Uri.decodeComponent(parts.last);
-      }
+      if (parts.length > 1) input = Uri.decodeComponent(parts.last);
     }
+    if (input.startsWith('@')) input = input.substring(1);
 
-    // Some scanners may prefix with '@', strip it
-    if (input.startsWith('@')) {
-      input = input.substring(1);
-    }
-    final Uri? uriData = Uri.tryParse(input);
-    final bool hasValidScheme = uriData != null && uriData.scheme.isNotEmpty;
-    if (!hasValidScheme) {
+    final uriData = Uri.tryParse(input);
+    if (uriData == null || uriData.scheme.isEmpty) {
       return _invalidUriToast(context, S.current.invalid_input);
     }
+
     await walletKitService.pairWithUri(uriData);
   }
 
@@ -134,88 +99,132 @@ class WCPairingsWidget extends BasePage {
     );
   }
 
+  void _openPairingDetails(BuildContext context, PairingInfo pairing) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => WalletConnectPairingDetailsPage(
+          pairing: pairing,
+          walletKitService: walletKitService,
+        ),
+      ),
+    );
+  }
+
   @override
-  Widget body(BuildContext context) {
-    return Observer(
-      builder: (context) {
-        return Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  SizedBox(height: 24),
-                  Text(
-                    S.current.connectWalletPrompt,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                  ),
-                  SizedBox(height: 16),
-                  PrimaryButton(
-                    text: S.current.newConnection,
-                    color: Theme.of(context).colorScheme.primary,
-                    textColor: Theme.of(context).colorScheme.onPrimary,
-                    onPressed: () => _onScanQrCode(context, walletKit),
-                  ),
-                  SizedBox(height: 4),
-                  TextButton(
-                    onPressed: () async {
-                      final uri = await _showEnterWalletConnectURIPopUp(context);
-                      await _handleWalletConnectURI(uri, context);
-                    },
-                    child: Text(
-                      'Click to paste WalletConnect Link',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: Visibility(
-                visible: walletKitService.pairings.isEmpty,
-                child: Center(
-                  child: Text(
-                    S.current.activeConnectionsPrompt,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                  ),
-                ),
-                replacement: ListView.builder(
-                  itemCount: walletKitService.pairings.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final pairing = walletKitService.pairings[index];
-                    return WCPairingItemWidget(
-                      key: ValueKey(pairing.topic),
-                      pairing: pairing,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WalletConnectPairingDetailsPage(
-                              pairing: pairing,
-                              walletKitService: walletKitService,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isMobile = DeviceInfo.instance.isMobile;
+
+    return Scaffold(
+      backgroundColor: colors.surface,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ModernButton(
+                  size: 40,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: Icon(Icons.arrow_back_ios_new, size: 16),
+                  iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-            ),
-            SizedBox(height: 48),
-          ],
-        );
-      },
+              const SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const WCHeroCard(),
+                      const SizedBox(height: 24),
+                      Observer(
+                        builder: (_) {
+                          if (walletKitService.pairings.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Center(
+                                child: Text(
+                                  S.of(context).activeConnectionsPrompt,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+                          final items = <ListItemRegularRow>[];
+                          for (final pairing in walletKitService.pairings) {
+                            final metadata = pairing.peerMetadata;
+                            if (metadata == null) continue;
+                            items.add(
+                              ListItemRegularRow(
+                                keyValue: pairing.topic,
+                                label: metadata.name,
+                                subtitle: metadata.url,
+                                iconPath: metadata.icons.isNotEmpty
+                                    ? metadata.icons.first
+                                    : 'assets/new-ui/walletconnect_icon.svg',
+                                onTap: () => _openPairingDetails(context, pairing),
+                                leadingIconSize: 36,
+                                leadingIconErrorWidget: CakeImageWidget(
+                                  imageUrl: 'assets/new-ui/walletconnect_icon.svg',
+                                  width: 36,
+                                  height: 36,
+                                ),
+                              ),
+                            );
+                          }
+
+                          if (items.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Center(
+                                child: Text(
+                                  S.of(context).activeConnectionsPrompt,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+                          return NewListSections(sections: {'': items});
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              NewPrimaryButton(
+                onPressed: () => _onPasteLink(context),
+                text: S.of(context).wc_paste_link,
+                color: colors.surfaceContainerHigh,
+                textColor: colors.primary,
+              ),
+              if (isMobile) ...[
+                const SizedBox(height: 12),
+                NewPrimaryButton(
+                  onPressed: () => _onScanQrCode(context),
+                  text: S.of(context).wc_scan_qr,
+                  color: colors.primary,
+                  textColor: colors.onPrimary,
+                ),
+              ],
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

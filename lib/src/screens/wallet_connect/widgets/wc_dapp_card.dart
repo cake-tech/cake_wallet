@@ -54,8 +54,10 @@ class WCDappCard extends StatelessWidget {
               borderRadius: 16,
               imageUrl: iconUrl,
               fit: BoxFit.cover,
-              errorWidget: CircleAvatar(
-                backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
+              errorWidget: CakeImageWidget(
+                imageUrl: 'assets/new-ui/walletconnect_icon.svg',
+                width: 40,
+                height: 40,
               ),
             ),
           ),

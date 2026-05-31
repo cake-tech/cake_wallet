@@ -104,6 +104,7 @@ class WCSigningRequestSheet extends StatelessWidget {
             child: Text(S.of(context).wc_sign_all_count(signAllCount!.toString())),
           ),
         ],
+        const SizedBox(height: 16),
       ],
     );
   }
