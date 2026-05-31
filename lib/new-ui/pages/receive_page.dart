@@ -342,7 +342,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
     setState(() {
       _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
               (item) => (item is WalletAddressListItem && item.address == newAddress.address))
-          as WalletAddressListItem;
+          as WalletAddressListItem?;
     });
   }
 }

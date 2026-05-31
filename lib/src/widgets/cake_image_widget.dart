@@ -71,6 +71,7 @@ class CakeImageWidget extends StatelessWidget {
           width: width,
           fit: fit,
           color: color,
+          errorBuilder: (_, __, ___) => _buildErrorWidget(context),
         );
       }
     } else {

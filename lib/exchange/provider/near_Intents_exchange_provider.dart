@@ -251,6 +251,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final quoteObj = quote['quote'] as Map<String, dynamic>;
       final depositAddress = quoteObj['depositAddress'] as String;
       final depositMemo = quoteObj['depositMemo'] as String?;
+      final depositAmount = quoteObj['amountInFormatted'] as String?;
+
+      if (depositAmount == null) {
+        throw Exception('Deposit amount is null in quote response');
+      }
 
       final quoteRequest = quote['quoteRequest'] as Map<String, dynamic>;
       final fromAssetId = quoteRequest['originAsset'] as String;
@@ -284,7 +289,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         inputAddress: depositAddress,
         payoutAddress: request.toAddress,
         refundAddress: request.refundAddress,
-        amount: request.fromAmount,
+        amount: depositAmount,
         receiveAmount: quoteObj['amountOutFormatted']?.toString(),
         memo: depositMemo,
         isSendAll: isSendAll,
