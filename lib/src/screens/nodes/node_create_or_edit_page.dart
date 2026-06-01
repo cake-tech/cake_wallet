@@ -80,7 +80,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
     reaction((_)=>widget.nodeCreateOrEditViewModel.state, (state) async {
       if(state is ExecutedSuccessfullyState) {
         await Future.delayed(Duration(milliseconds: 100));
-        Navigator.of(context).pop(widget.nodeCreateOrEditViewModel.editingNode);
+        if (mounted) Navigator.of(context).pop(widget.nodeCreateOrEditViewModel.editingNode);
       }
 
     });
