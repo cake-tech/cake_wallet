@@ -52,10 +52,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
     final gradients = await _getUsableCardGradients();
 
     await BalanceCardStyleSettings.fromCardDesign(
-            _wallet.walletInfo.internalId,
-            _moneroAccountList.accounts.length,
-            _moneroAccountList.accounts.length,
-            CardDesign.specialDesignsForCurrencies[_wallet.currency]!
+            walletInfoId: _wallet.walletInfo.internalId,
+            accountIndex: _moneroAccountList.accounts.length,
+            cardOrder: _moneroAccountList.accounts.length,
+            design: CardDesign.specialDesignsForCurrencies[_wallet.currency]!
                 .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
   }

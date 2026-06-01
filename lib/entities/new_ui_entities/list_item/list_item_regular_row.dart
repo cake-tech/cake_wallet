@@ -16,7 +16,9 @@ class ListItemRegularRow extends ListItem {
     this.truncateTrailingText = false,
     this.foregroundColor,
     this.trailingIconSize,
-    this.copyableText
+    this.copyableText,
+    this.leadingIconErrorWidget,
+    this.leadingIconSize,
   });
 
   final String? subtitle;
@@ -31,4 +33,6 @@ class ListItemRegularRow extends ListItem {
   final bool truncateTrailingText;
   final Color? foregroundColor;
   final double? trailingIconSize;
+  final Widget? leadingIconErrorWidget;
+  final double? leadingIconSize;
 }
