@@ -50,16 +50,16 @@ class _CardsViewState extends State<CardsView> {
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
+    _selectedIndex = max(0, _visibleCardsCount() - 1);
     reaction(
         (_) => widget.dashboardViewModel.cardOrder.values.toList(),
         (_) => setState(() {
-              _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
+              _selectedIndex = max(0, _visibleCardsCount() - 1);
             }));
   }
 
   static const Duration animDuration = Duration(milliseconds: 200);
-  static const int compactModeTreshold = 4;
+  static const int compactModeTreshold = 6;
   static const int maxCards = 5;
 
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
@@ -94,9 +94,12 @@ class _CardsViewState extends State<CardsView> {
               widget.onCompactModeBackgroundCardsTapped();
             } else if(!compactMode) {
               setState(() {
-                if (widget.accountListViewModel != null)
+                if (!widget.lightningMode &&
+                    widget.accountListViewModel != null &&
+                    realIndex < widget.accountListViewModel!.accounts.length) {
                   widget.accountListViewModel!
                       .select(widget.accountListViewModel!.accounts[realIndex]);
+                }
                 _selectedIndex = visualIndex;
               });
             }
@@ -242,15 +245,30 @@ class _CardsViewState extends State<CardsView> {
             overlapAmount * ((numCards) - 1);
   }
 
+  int _visibleCardsCount() {
+    if (widget.lightningMode) {
+      return 1;
+    }
+
+    return widget.accountListViewModel?.accounts.length ??
+        widget.dashboardViewModel.cardDesigns.length;
+  }
+
+  int _realIndexForVisualIndex(int visualIndex) {
+    if (widget.lightningMode) {
+      return widget.dashboardViewModel.cardDesigns.length - 1;
+    }
+
+    return widget.dashboardViewModel.cardOrder[visualIndex] ?? visualIndex;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (context) {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
-      int numCards = widget.lightningMode
-          ? 1
-          : widget.dashboardViewModel.cardDesigns.length;
+      int numCards = _visibleCardsCount();
 
       if (numCards == 0) numCards = 1;
 
@@ -258,7 +276,7 @@ class _CardsViewState extends State<CardsView> {
         _selectedIndex = 0;
       }
 
-      Map<int, int> order = widget.dashboardViewModel.cardOrder.length != numCards
+      Map<int, int> order = widget.lightningMode || widget.dashboardViewModel.cardOrder.length != numCards
           ? Map<int, int>.fromEntries(
               List.generate(numCards, (i) => MapEntry(i, i)),
             )
@@ -279,7 +297,7 @@ class _CardsViewState extends State<CardsView> {
       for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
-        int realIndex = order[visualIndex]!;
+        final realIndex = _realIndexForVisualIndex(visualIndex);
 
         if (!widget.lightningMode &&
             visualIndex == _selectedIndex &&

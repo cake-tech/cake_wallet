@@ -63,19 +63,8 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     selectedAccount = account;
 
     unawaited(() async {
-
       await bitcoin!.setCurrentAccount(_wallet, account.id);
-
-      if (_wallet is ElectrumWallet) {
-        final electrumWallet = _wallet as ElectrumWallet;
-        final walletAddresses = electrumWallet.walletAddresses;
-
-        final receiveAddresses = walletAddresses.receiveAddresses;
-
-        if (receiveAddresses.isNotEmpty) {
-          final first = receiveAddresses.first;
-        }
-      }
+      reload();
     }());
   }
 
@@ -121,7 +110,6 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
 
   String _balanceForAccount(int accountIndex) {
     final balance = bitcoin!.balanceForAccount(_wallet, accountIndex);
-    final formattedBalance = balance.fullAvailableBalance.toString();
-    return formattedBalance;
+    return balance.confirmed.toString();
   }
 }

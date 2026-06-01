@@ -191,7 +191,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final typeMatchingAddressesAll = _addresses
-        .where((addr) => !addr.isHidden && _isAddressPageTypeMatch(addr))
+        .where((addr) => _isCurrentAccountAddress(addr) && !addr.isHidden && _isAddressPageTypeMatch(addr))
         .toList();
 
     // Prefer standard derivation addresses for the current/active address,
@@ -228,7 +228,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (locked != null) return locked;
 
     final prev = previousAddressRecord;
-    if (prev != null && prev.type == addressPageType && !prev.isUsed && !prev.isLegacyDerivation) {
+    if (prev != null && _isCurrentAccountAddress(prev) && prev.type == addressPageType && !prev.isUsed && !prev.isLegacyDerivation) {
       return prev.address;
     }
 

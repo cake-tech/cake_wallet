@@ -354,7 +354,6 @@ abstract class ElectrumWalletBase
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) {
-    print("Getting balance for account $accountIndex: ${accountBalances.map((key, value) => MapEntry(key, value.fullAvailableBalance.toString()))}");
     return accountBalances[accountIndex] ??
         ElectrumBalance(
           confirmed: 0,
