@@ -620,7 +620,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
       if (wallet.isHardwareWallet) {
-        // state = IsAwaitingDeviceResponseState();
         if (walletType == WalletType.monero) {
           _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
             if (monero!.getLastLedgerCommand() == "INS_CLSAG") {
@@ -628,6 +627,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               state = IsDeviceSigningResponseState();
             }
           });
+        } else {
+          state = IsAwaitingDeviceResponseState();
         }
       }
 
