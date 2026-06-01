@@ -82,7 +82,7 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                 },
                 onTap: () {},
                 isSelected: true,
-                isPow: false)),
+                isPow: widget.isPow)),
       ),
       content: Column(
         children: [
