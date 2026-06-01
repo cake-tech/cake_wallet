@@ -118,13 +118,23 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
     }
 
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => SelectNetworkPage(
+      PageRouteBuilder<void>(
+        opaque: true,
+        transitionDuration: const Duration(milliseconds: 250),
+        reverseTransitionDuration: const Duration(milliseconds: 250),
+        pageBuilder: (_, __, ___) => SelectNetworkPage(
           assetTitle: tapped.title,
           assetFullName: tapped.fullName,
           assetIconPath: tapped.iconPath,
           variants: variants,
           onSelected: widget.args.onSelected,
+        ),
+        transitionsBuilder: (_, animation, __, child) => SlideTransition(
+          position: animation.drive(
+            Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+                .chain(CurveTween(curve: Curves.easeInOut)),
+          ),
+          child: child,
         ),
       ),
     );
@@ -273,7 +283,6 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
     }
 
     if (isSearching) {
-      final duplicated = _duplicatedTitles(items);
       return NotificationListener<ScrollNotification>(
         onNotification: (_) => true,
         child: ListView(
@@ -288,12 +297,8 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                   CurrencyPickerRow(
                     currency: item,
                     isSelected: selected != null && selected == item,
-                    chainPillLabel: duplicated.contains(item.title.toUpperCase())
-                        ? _chainPillLabelFor(item)
-                        : null,
-                    chainBadgePath: duplicated.contains(item.title.toUpperCase())
-                        ? _chainBadgePathFor(item)
-                        : null,
+                    chainPillLabel: _chainPillLabelFor(item),
+                    chainBadgePath: _chainBadgePathFor(item),
                     trailing: _SymbolTrailing(
                       currency: item,
                       symbolResolver: symbolResolver,
@@ -474,16 +479,6 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
   bool _isL2NativeEth(CryptoCurrency c) =>
       c == CryptoCurrency.arbEth || c == CryptoCurrency.baseEth;
-
-  Set<String> _duplicatedTitles(Iterable<CryptoCurrency> list) {
-    final seen = <String>{};
-    final dup = <String>{};
-    for (final c in list) {
-      final key = c.title.toUpperCase();
-      if (!seen.add(key)) dup.add(key);
-    }
-    return dup;
-  }
 
   _SelSection? _selectedSection({
     required List<CryptoCurrency> recents,
