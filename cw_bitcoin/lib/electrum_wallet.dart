@@ -389,6 +389,14 @@ abstract class ElectrumWalletBase
     accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
   }
 
+  void _updateCurrentAccountBalance() {
+    if (type != WalletType.bitcoin) {
+      return;
+    }
+
+    balance[currency] = balanceForAccount(currentAccountIndex);
+  }
+
   Set<String> get addressesSet => walletAddresses.allAddresses
       .where((element) => element.type != SegwitAddresType.mweb)
       .map((addr) => addr.address)
@@ -438,6 +446,7 @@ abstract class ElectrumWalletBase
       walletAddresses.updateReceiveAddresses();
       walletAddresses.updateChangeAddresses();
     }
+    _updateCurrentAccountBalance();
   }
 
   bool get shouldUseBatchFetching => useBatchForHistory && _isBatchSupported == true;
@@ -1920,6 +1929,7 @@ abstract class ElectrumWalletBase
 
     await updateCoins(unspentCoins);
     _updateAccountBalancesFromUnspents();
+    _updateCurrentAccountBalance();
     await _refreshUnspentCoinsInfo();
   }
 
@@ -3581,6 +3591,7 @@ abstract class ElectrumWalletBase
   Future<void> updateBalance() async {
     printV("updateBalance() called!");
     balance[currency] = await fetchBalances();
+    _updateCurrentAccountBalance();
     await save();
   }
 
