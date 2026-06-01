@@ -23,7 +23,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
     this.trailingIconSize,
     this.bottomWidget,
     this.trailingWidget,
-    this.copyableText
+    this.copyableText,
+    this.leadingIconErrorWidget,
+    this.leadingIconSize,
   });
 
   final String keyValue;
@@ -42,6 +44,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final Color? foregroundColor;
   final double? trailingIconSize;
   final String? copyableText;
+  final Widget? leadingIconErrorWidget;
+  final double? leadingIconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +82,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                   padding: const EdgeInsets.only(right: 12.0),
                                   child: CakeImageWidget(
                                     imageUrl: iconPath!,
-                                    width: 24,
-                                    height: 24,
+                                    width: leadingIconSize ?? 24,
+                                    height: leadingIconSize ?? 24,
+                                    errorWidget: leadingIconErrorWidget,
                                   )),
                             Flexible(
                               child: Column(
