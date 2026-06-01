@@ -6,7 +6,7 @@ import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/new-ui/widgets/hardware_wallet/trezor_paring_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_sheet.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
@@ -15,6 +15,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -114,39 +115,65 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   bool _isConnecting = false;
   sdk.TrezorClient? _client;
 
+  Completer<String?>? _pinCompleter;
+
+  @observable
+  TrezorParingState paringState = TrezorParingState.initial;
+
+  void setParingPin(String pin) => _pinCompleter?.complete(pin);
+
   @override
-  Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
+  Future<bool> connectDevice(HardwareWalletDevice device, WalletType type,
+      [bool isRetry = false]) async {
     if (!(device is TrezorHardwareWalletDevice)) return false;
     if (_isConnecting) return false;
     _isConnecting = true;
+    paringState = TrezorParingState.initial;
 
     try {
       final trezorInterface =
           device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
       final connection = await trezorInterface.connect(device.device);
 
-      Future<String> onPinCode() async {
-        final res = await showModalBottomSheet<String?>(
-          isScrollControlled: true,
+      if (!isRetry) {
+        showModalBottomSheet(
           context: navigatorKey.currentContext!,
-          backgroundColor: Colors.transparent,
-          builder: (context) => HardwareWalletTrezorParingSheet(),
+          isScrollControlled: true,
+          isDismissible: false,
+          enableDrag: false,
+          useSafeArea: true,
+          builder: (context) =>
+              HardwareWalletProceedOnDeviceSheet(
+                hardwareWalletType: hardwareWalletType,
+                trezorConnectVM: this,
+                onRetry: () => connectDevice(device, type, true)
+              ),
         );
+      }
 
+      Future<String> onPinCode() async {
+        _pinCompleter = Completer<String?>();
+        paringState = TrezorParingState.enterPin;
+
+        final res = await _pinCompleter!.future;
+        paringState = TrezorParingState.verifyingPin;
         if (res == null) throw Exception();
         return res;
       }
+
+      final deviceInfo = await _deviceName;
 
       _client = sdk.TrezorClient.getClientForConnection(
         connection,
         _state,
         "Cake Wallet",
-        "Phone",
+        deviceInfo,
         onPinCode,
       );
 
       await _client!.createChannel();
 
+      paringState = TrezorParingState.success;
       return true;
     } catch (e) {
       await _client?.connection.disconnect();
@@ -154,9 +181,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       _client = null;
       _state = sdk.ThpState();
       // rethrow;
+      paringState = TrezorParingState.fail(e.toString());
       printV(e);
       return false;
     }
+  }
+
+  Future<String> get _deviceName async {
+    final deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) return (await deviceInfo.androidInfo).model;
+    if (Platform.isIOS) return (await deviceInfo.iosInfo).name;
+    return "Computer";
   }
 
   @override
@@ -196,4 +231,27 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         throw Exception('Unexpected wallet type: ${wallet.type} for trezor');
     }
   }
+}
+
+
+abstract class TrezorParingState {
+  static TrezorParingState initial = InitialTrezorParingState();
+  static TrezorParingState enterPin = EnterPinTrezorParingState();
+  static TrezorParingState verifyingPin = VerifyingPinTrezorParingState();
+  static TrezorParingState success = SuccessTrezorParingState();
+  static TrezorParingState fail(String message) => FailTrezorParingState(message);
+}
+
+class InitialTrezorParingState  extends TrezorParingState {}
+
+class EnterPinTrezorParingState  extends TrezorParingState {}
+
+class VerifyingPinTrezorParingState  extends TrezorParingState {}
+
+class SuccessTrezorParingState extends TrezorParingState {}
+
+class FailTrezorParingState extends TrezorParingState {
+  final String message;
+
+  FailTrezorParingState(this.message);
 }
