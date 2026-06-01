@@ -810,7 +810,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     final amount_ = _enteredAmount / (forcedProvider == null ? bestRate : forcedProviderRate);
-    _depositAmount = Money.parse(amount_.toStringAsFixed(depositCurrency.decimals), depositCurrency);
+    _depositAmount = Money.tryParse(amount_.toStringAsFixed(depositCurrency.decimals), depositCurrency);
   }
 
   @action
@@ -869,7 +869,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     final amount_ = _enteredAmount * (forcedProvider == null ? bestRate : forcedProviderRate);
-    _receiveAmount = Money.parse(amount_.toStringAsFixed(receiveCurrency.decimals), receiveCurrency);
+    _receiveAmount =
+        Money.tryParse(amount_.toStringAsFixed(receiveCurrency.decimals), receiveCurrency);
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
