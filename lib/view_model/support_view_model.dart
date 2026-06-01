@@ -39,8 +39,8 @@ abstract class SupportViewModelBase with Store {
           LinkListItem(
               title: 'Discord',
               icon: 'assets/images/discord.png',
-              linkTitle: 'discord.gg/pwmWa6aFpX',
-              link: 'https://discord.gg/pwmWa6aFpX'),
+              linkTitle: 'discord.gg/2vqYJdXG2H',
+              link: 'https://discord.gg/2vqYJdXG2H'),
           LinkListItem(
               title: 'Telegram',
               icon: 'assets/images/Telegram.png',
