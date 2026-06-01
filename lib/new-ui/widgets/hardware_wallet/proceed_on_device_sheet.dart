@@ -164,23 +164,8 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
 
     if (_paringState is VerifyingPinTrezorParingState) return _verifyingCode();
 
-    if (_paringState is FailTrezorParingState) {
-      return Container(
-        key: ValueKey(2),
-        child: Column(
-          children: [
-            Text((_paringState as FailTrezorParingState).message),
-            ModernButton(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              iconColor: Theme.of(context).colorScheme.onPrimary,
-              size: 36,
-              icon: Icon(Icons.refresh),
-              onPressed: retry,
-            ),
-          ],
-        ),
-      );
-    }
+    if (_paringState is FailTrezorParingState)
+      return _errorBox((_paringState as FailTrezorParingState).message);
 
     return SizedBox.shrink(key: ValueKey(3));
   }
@@ -239,6 +224,64 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
           ],
         ),
       );
+
+  Widget _errorBox(String errorText) => Container(
+      key: ValueKey(2),
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        spacing: 12,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer.withAlpha(64),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                spacing: 12,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 8,
+                    children: [
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/warning.svg",
+                        height: 24,
+                        width: 24,
+                        colorFilter:
+                            ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
+                      ),
+                      Text(
+                        S.of(context).error,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.error),
+                      )
+                    ],
+                  ),
+                  Text(
+                    errorText,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.error),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ModernButton(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            iconColor: Theme.of(context).colorScheme.onPrimary,
+            size: 36,
+            icon: Icon(Icons.refresh),
+            onPressed: retry,
+          ),
+        ],
+      ));
 
   Widget _enterPinCode() => Column(
         key: ValueKey(0),
