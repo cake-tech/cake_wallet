@@ -64,6 +64,7 @@ class PendingMoneroTransaction with PendingTransaction {
       if (!suc) {
         final err = monero.UnsignedTransaction_errorString(ptr);
         printV(err);
+        throw err;
       }
 
       return;
