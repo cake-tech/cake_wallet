@@ -1,5 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_dapp_card.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_message_card.dart';
@@ -15,14 +17,14 @@ class WCSigningRequestSheet extends StatelessWidget {
     required this.title,
     required this.swipeLabel,
     required this.dappName,
-    required this.message,
+    required this.decoded,
     required this.walletName,
     required this.address,
     this.dappIconUrl,
     this.dappSubtitle,
     this.verifyContext,
     this.messageTitle,
-    this.extraRows = const [],
+    this.infoRows = const [],
     this.signAllCount,
   });
 
@@ -31,9 +33,9 @@ class WCSigningRequestSheet extends StatelessWidget {
   final String dappName;
   final String? dappIconUrl;
   final String? dappSubtitle;
-  final String message;
+  final WCDecodedRequest decoded;
   final String? messageTitle;
-  final List<WCMessageRow> extraRows;
+  final List<WCDecodedRow> infoRows;
   final String walletName;
   final String address;
   final VerifyContext? verifyContext;
@@ -70,8 +72,8 @@ class WCSigningRequestSheet extends StatelessWidget {
                 const SizedBox(height: 24),
                 WCMessageCard(
                   title: messageTitle,
-                  message: message,
-                  extraRows: extraRows,
+                  decoded: decoded,
+                  infoRows: infoRows,
                 ),
               ],
             ),

@@ -25,6 +25,7 @@ class WalletConnectConnectionsView extends StatelessWidget {
     Uri? launchUri,
     Key? key,
   }) : super(key: key) {
+    walletKitService.refreshState();
     _triggerPairingFromDeeplink(launchUri);
   }
 

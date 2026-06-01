@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +13,8 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
@@ -123,20 +124,20 @@ abstract class WalletKitServiceBase with Store {
   }
 
   void _logListener(String event) {
-    debugPrint('[WalletKit] $event');
+    printV('[WalletKit] $event');
   }
 
   @action
   Future<void> init() async {
     // Await the initialization of walletKit
-    debugPrint('Intializing walletKit');
+    printV('Intializing walletKit');
     if (!isInitialized) {
       try {
         await _walletKit.init();
-        debugPrint('Initialized');
+        printV('Initialized');
         isInitialized = true;
       } catch (e) {
-        debugPrint('init Error: ${e.toString()}');
+        printV('init Error: ${e.toString()}');
         isInitialized = false;
       }
     }
@@ -253,11 +254,11 @@ abstract class WalletKitServiceBase with Store {
   void _onRelayClientMessage(MessageEvent? event) async {
     if (event != null) {
       final jsonObject = await EthUtils.decodeMessageEvent(event);
-      debugPrint('_onRelayClientMessage $jsonObject');
+      printV('_onRelayClientMessage $jsonObject');
 
       if (jsonObject is JsonRpcRequest) {
-        debugPrint(jsonObject.id.toString());
-        debugPrint(jsonObject.method);
+        printV(jsonObject.id.toString());
+        printV(jsonObject.method);
 
         if (jsonObject.method == 'wc_sessionDelete') {
           await disconnectSession(topic: event.topic);
@@ -278,7 +279,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> _onSessionProposal(SessionProposalEvent? args) async {
-    debugPrint('_onSessionProposal ${jsonEncode(args?.params)}');
+    printV('_onSessionProposal ${jsonEncode(args?.params)}');
 
     if (args != null) {
       final proposer = args.params.proposer;
@@ -324,7 +325,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
-    debugPrint('_onSessionProposalError $args');
+    printV('_onSessionProposalError $args');
 
     if (args != null) {
       String errorMessage = args.error.message;
@@ -347,7 +348,7 @@ abstract class WalletKitServiceBase with Store {
     if (args != null) {
       final session = jsonEncode(args.session.toJson());
 
-      debugPrint('_onSessionConnect $session');
+      printV('_onSessionConnect $session');
 
       await savePairingTopicToLocalStorage(args.session.pairingTopic);
 
@@ -366,7 +367,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   void _onRelayClientError(ErrorEvent? args) {
-    debugPrint('_onRelayClientError ${args?.error}');
+    printV('_onRelayClientError ${args?.error}');
     //  _bottomSheetHandler.queueBottomSheet(
     //     isModalDismissible: true,
     //     widget: BottomSheetMessageDisplayWidget(
@@ -377,7 +378,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   void _onPairingInvalid(PairingInvalidEvent? args) {
-    debugPrint('_onPairingInvalid $args');
+    printV('_onPairingInvalid $args');
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
       widget: BottomSheetMessageDisplayWidget(
@@ -388,7 +389,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   void _onPairingCreate(PairingEvent? args) {
-    debugPrint('_onPairingCreate $args');
+    printV('_onPairingCreate $args');
 
     if (args != null && args.topic != null && args.topic!.isNotEmpty) {
       savePairingTopicToLocalStorage(args.topic!);
@@ -402,7 +403,7 @@ abstract class WalletKitServiceBase with Store {
       final SessionAuthPayload authPayload = args.authPayload;
       final jsonPyaload = jsonEncode(authPayload.toJson());
 
-      debugPrint('_onSessionAuthRequest $jsonPyaload');
+      printV('_onSessionAuthRequest $jsonPyaload');
 
       final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       final supportedChains = chainKeys.first.chains;
@@ -430,14 +431,24 @@ abstract class WalletKitServiceBase with Store {
       }
 
       final requesterMetadata = args.requester.metadata;
-      final requesterIcon = requesterMetadata.icons.isNotEmpty
-          ? requesterMetadata.icons.first
-          : null;
+      final requesterIcon =
+          requesterMetadata.icons.isNotEmpty ? requesterMetadata.icons.first : null;
       final chainKeysForAuth = walletKeyService.getKeysForChain(appStore.wallet!);
-      final addressForAuth =
-          chainKeysForAuth.isNotEmpty ? chainKeysForAuth.first.publicKey : '';
+      final addressForAuth = chainKeysForAuth.isNotEmpty ? chainKeysForAuth.first.publicKey : '';
       final combinedMessageBody =
           formattedMessages.map((m) => m.values.first as String).join('\n\n');
+
+      final authDecoded = WCDecodedRequest(
+        actionTitle: S.current.wc_action_sign_message,
+        rows: [
+          WCDecodedRow(
+            label: S.current.wc_message_label,
+            value: combinedMessageBody,
+          ),
+        ],
+        hideTo: true,
+        hideZeroValue: true,
+      );
 
       final WCBottomSheetResult result = (await _bottomSheetHandler.queueBottomSheet(
             widget: WCSigningRequestSheet(
@@ -446,7 +457,7 @@ abstract class WalletKitServiceBase with Store {
               dappName: requesterMetadata.name,
               dappIconUrl: requesterIcon,
               dappSubtitle: requesterMetadata.url,
-              message: combinedMessageBody,
+              decoded: authDecoded,
               walletName: appStore.wallet?.name ?? '',
               address: addressForAuth,
               verifyContext: args.verifyContext,
@@ -486,7 +497,7 @@ abstract class WalletKitServiceBase with Store {
             auths: cacaos,
           );
 
-          debugPrint('_onSessionAuthRequest - approveSessionAuthenticate $session');
+          printV('_onSessionAuthRequest - approveSessionAuthenticate $session');
 
           MethodsUtils.handleRedirect(
             session.topic,
@@ -518,8 +529,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> deletePairing({required String topic}) async {
-    final topicSessions =
-        sessions.where((element) => element.pairingTopic == topic).toList();
+    final topicSessions = sessions.where((element) => element.pairingTopic == topic).toList();
 
     await _walletKit.core.pairing.disconnect(topic: topic);
     for (var session in topicSessions) {
@@ -554,7 +564,7 @@ abstract class WalletKitServiceBase with Store {
         reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
       );
     } catch (e) {
-     printV('disconnectSession: $e');
+      printV('disconnectSession: $e');
     }
 
     sessions.clear();
@@ -574,7 +584,7 @@ abstract class WalletKitServiceBase with Store {
   @action
   Future<void> pairWithUri(Uri uri) async {
     try {
-      debugPrint('pairWithUri - Pairing with URI: $uri');
+      printV('pairWithUri - Pairing with URI: $uri');
       await _walletKit.pair(uri: uri);
     } on ReownSignError catch (e) {
       _bottomSheetHandler.queueBottomSheet(
@@ -590,8 +600,17 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
+  void refreshState() {
+    if (isInitialized) {
+      sessions.clear();
+      sessions.addAll(_walletKit.sessions.getAll());
+    }
+    _refreshPairings();
+  }
+
+  @action
   void _refreshPairings() {
-    debugPrint('_refreshPairings - Refreshing pairings');
+    printV('_refreshPairings - Refreshing pairings');
 
     pairings.clear();
 
@@ -619,7 +638,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   List<SessionData> getSessionsForPairingInfo(PairingInfo pairing) {
-    return sessions.where((element) =>  element.pairingTopic == pairing.topic).toList();
+    return sessions.where((element) => element.pairingTopic == pairing.topic).toList();
   }
 
   String getKeyForStoringTopicsForWallet() {
@@ -680,8 +699,7 @@ abstract class WalletKitServiceBase with Store {
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);
 
     bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
-    debugPrint(
-        'Is Pairing Topic Saved: $isPairingTopicAlreadySaved, Key: $key, Topic: $pairingTopic');
+    printV('Is Pairing Topic Saved: $isPairingTopicAlreadySaved, Key: $key, Topic: $pairingTopic');
 
     if (!isPairingTopicAlreadySaved) {
       pairingTopicsForWallet.add(pairingTopic);

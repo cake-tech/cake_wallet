@@ -1,28 +1,26 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:eth_sig_util/eth_sig_util.dart';
-import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:reown_walletkit/reown_walletkit.dart';
-
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_request_decoder.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/typed_data_decoder.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/wallet_admin_decoder.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_supported_methods.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:eth_sig_util/eth_sig_util.dart';
+import 'package:eth_sig_util/util/utils.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 
 class EvmChainServiceImpl {
   Map<String, dynamic Function(String, dynamic)> get sessionRequestHandlers => {
@@ -35,6 +33,8 @@ class EvmChainServiceImpl {
   Map<String, dynamic Function(String, dynamic)> get methodRequestHandlers => {
         EVMSupportedMethods.personalSign.name: personalSign,
         EVMSupportedMethods.ethSendTransaction.name: ethSendTransaction,
+        EVMSupportedMethods.switchChain.name: walletSwitchEthereumChain,
+        EVMSupportedMethods.addChain.name: walletAddEthereumChain,
       };
 
   EvmChainServiceImpl({
@@ -44,7 +44,10 @@ class EvmChainServiceImpl {
     required this.bottomSheetService,
     required this.walletKit,
     Web3Client? web3Client,
-  }) : ethClient = web3Client ?? _createWeb3Client(reference, appStore) {
+  })  : ethClient = web3Client ?? _createWeb3Client(reference, appStore),
+        decoder = EvmRequestDecoder(appStore),
+        typedDataDecoder = TypedDataDecoder(),
+        walletAdminDecoder = WalletAdminDecoder() {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
         chainId: getChainId(),
@@ -76,23 +79,23 @@ class EvmChainServiceImpl {
   final ReownWalletKit walletKit;
   final WalletConnectKeyService wcKeyService;
   final BottomSheetService bottomSheetService;
+  final EvmRequestDecoder decoder;
+  final TypedDataDecoder typedDataDecoder;
+  final WalletAdminDecoder walletAdminDecoder;
 
   String getChainId() => reference.chain();
 
   static Web3Client _createWeb3Client(EVMChainId reference, AppStore appStore) {
     if (appStore.wallet != null && isEVMCompatibleChain(appStore.wallet!.type)) {
       final walletClient = evm?.getWeb3Client(appStore.wallet!);
-
       if (walletClient != null) return walletClient;
     }
-
     final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
-
     return Web3Client(node.uri.toString(), ProxyWrapper().getHttpIOClient());
   }
 
   Future<void> personalSign(String topic, dynamic parameters) async {
-    debugPrint('personalSign request: $parameters');
+    printV('personalSign request: $parameters');
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
@@ -100,8 +103,15 @@ class EvmChainServiceImpl {
     final message = EthUtils.getUtf8Message(data.toString());
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
+    final decoded = WCDecodedRequest(
+      actionTitle: S.current.wc_action_sign_message,
+      rows: [WCDecodedRow(label: S.current.wc_message_label, value: message)],
+      hideTo: true,
+      hideZeroValue: true,
+    );
+
     final isApproved = await MethodsUtils.requestApproval(
-      message,
+      decoded,
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
@@ -113,17 +123,14 @@ class EvmChainServiceImpl {
       try {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
-
         final signature = credentials.signPersonalMessageToUint8List(
           utf8.encode(message),
         );
         final signedTx = bytesToHex(signature, include0x: true);
-
         isValidSignature(signedTx, message, credentials.address.hex);
-
         response = response.copyWith(result: signedTx);
       } catch (e) {
-        debugPrint('personalSign error $e');
+        printV('personalSign error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
           error: JsonRpcError(code: error.code, message: error.message),
@@ -140,7 +147,7 @@ class EvmChainServiceImpl {
   }
 
   Future<void> ethSign(String topic, dynamic parameters) async {
-    debugPrint('ethSign request: $parameters');
+    printV('ethSign request: $parameters');
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
@@ -148,8 +155,15 @@ class EvmChainServiceImpl {
     final message = EthUtils.getUtf8Message(data.toString());
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
+    final decoded = WCDecodedRequest(
+      actionTitle: S.current.wc_action_sign_message,
+      rows: [WCDecodedRow(label: S.current.wc_message_label, value: message)],
+      hideTo: true,
+      hideZeroValue: true,
+    );
+
     final isApproved = await MethodsUtils.requestApproval(
-      message,
+      decoded,
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
@@ -161,17 +175,14 @@ class EvmChainServiceImpl {
       try {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
-
         final signature = credentials.signPersonalMessageToUint8List(
           utf8.encode(message),
         );
         final signedTx = bytesToHex(signature, include0x: true);
-
         isValidSignature(signedTx, message, credentials.address.hex);
-
         response = response.copyWith(result: signedTx);
       } catch (e) {
-        debugPrint('ethSign error $e');
+        printV('ethSign error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
           error: JsonRpcError(code: error.code, message: error.message),
@@ -188,15 +199,17 @@ class EvmChainServiceImpl {
   }
 
   Future<void> ethSignTypedData(String topic, dynamic parameters) async {
-    debugPrint('ethSignTypedData request: $parameters');
+    printV('ethSignTypedData request: $parameters');
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
+    final decoded = typedDataDecoder.decode(data);
+
     final isApproved = await MethodsUtils.requestApproval(
-      data,
+      decoded,
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
@@ -207,16 +220,14 @@ class EvmChainServiceImpl {
     if (isApproved) {
       try {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
-
         final signature = EthSigUtil.signTypedData(
           privateKey: keys[0].privateKey,
           jsonData: data,
           version: TypedDataVersion.V4,
         );
-
         response = response.copyWith(result: signature);
       } catch (e) {
-        debugPrint('ethSignTypedData error $e');
+        printV('ethSignTypedData error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
           error: JsonRpcError(code: error.code, message: error.message),
@@ -233,17 +244,17 @@ class EvmChainServiceImpl {
   }
 
   Future<void> ethSignTypedDataV4(String topic, dynamic parameters) async {
-    debugPrint('ethSignTypedDataV4 request: $parameters');
-
-    final permitRequestMessage = await extractPermitData(parameters);
+    printV('ethSignTypedDataV4 request: $parameters');
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
+    final decoded = typedDataDecoder.decode(parameters);
+
     final isApproved = await MethodsUtils.requestApproval(
-      permitRequestMessage,
+      decoded,
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
@@ -254,16 +265,14 @@ class EvmChainServiceImpl {
     if (isApproved) {
       try {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
-
         final signature = EthSigUtil.signTypedData(
           privateKey: keys[0].privateKey,
           jsonData: data,
           version: TypedDataVersion.V4,
         );
-
         response = response.copyWith(result: signature);
       } catch (e) {
-        debugPrint('ethSignTypedDataV4 error $e');
+        printV('ethSignTypedDataV4 error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
           error: JsonRpcError(code: error.code, message: error.message),
@@ -279,11 +288,10 @@ class EvmChainServiceImpl {
   }
 
   Future<void> ethSignTransaction(String topic, dynamic parameters) async {
-    debugPrint('ethSignTransaction request: $parameters');
+    printV('ethSignTransaction request: $parameters');
 
     final SessionRequest pRequest = walletKit.pendingRequests.getAll().last;
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
-
     if (data == null) return;
 
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
@@ -302,24 +310,21 @@ class EvmChainServiceImpl {
       try {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
-
         final chainId = getChainId().split(':').last;
-
         final signature = await ethClient.signTransaction(
           credentials,
           transaction,
           chainId: int.parse(chainId),
         );
-
         final signedTx = bytesToHex(signature, include0x: true);
         response = response.copyWith(result: signedTx);
       } on RPCError catch (e) {
-        debugPrint('ethSignTransaction error $e');
+        printV('ethSignTransaction error $e');
         response = response.copyWith(
           error: JsonRpcError(code: e.errorCode, message: e.message),
         );
       } catch (e) {
-        debugPrint('ethSignTransaction error $e');
+        printV('ethSignTransaction error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
           error: JsonRpcError(code: error.code, message: error.message),
@@ -333,7 +338,7 @@ class EvmChainServiceImpl {
   }
 
   Future<void> ethSendTransaction(String topic, dynamic parameters) async {
-    debugPrint('ethSendTransaction request: $parameters');
+    printV('ethSendTransaction request: $parameters');
     final SessionRequest pRequest = walletKit.pendingRequests.getAll().last;
 
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
@@ -353,21 +358,19 @@ class EvmChainServiceImpl {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
         final chainId = getChainId().split(':').last;
-
         final signedTx = await ethClient.sendTransaction(
           credentials,
           transaction,
           chainId: int.parse(chainId),
         );
-
         response = response.copyWith(result: signedTx);
       } on RPCError catch (e) {
-        debugPrint('ethSendTransaction error $e');
+        printV('ethSendTransaction error $e');
         response = response.copyWith(
           error: JsonRpcError(code: e.errorCode, message: e.message),
         );
       } catch (e) {
-        debugPrint('ethSendTransaction error $e');
+        printV('ethSendTransaction error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
           error: JsonRpcError(code: error.code, message: error.message),
@@ -380,17 +383,65 @@ class EvmChainServiceImpl {
     _handleResponseForTopic(topic, response);
   }
 
+  Future<void> walletSwitchEthereumChain(String topic, dynamic parameters) async {
+    printV('walletSwitchEthereumChain request: $parameters');
+    final pRequest = walletKit.pendingRequests.getAll().last;
+    var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
+
+    final decoded = walletAdminDecoder.decodeSwitchChain(parameters);
+
+    final isApproved = await MethodsUtils.requestApproval(
+      decoded,
+      method: pRequest.method,
+      chainId: pRequest.chainId,
+      transportType: pRequest.transportType.name,
+      verifyContext: pRequest.verifyContext,
+    );
+
+    if (isApproved) {
+      response = response.copyWith(result: null);
+    } else {
+      final error = Errors.getSdkError(Errors.USER_REJECTED);
+      response = response.copyWith(
+        error: JsonRpcError(code: error.code, message: error.message),
+      );
+    }
+
+    _handleResponseForTopic(topic, response);
+  }
+
+  Future<void> walletAddEthereumChain(String topic, dynamic parameters) async {
+    printV('walletAddEthereumChain request: $parameters');
+    final pRequest = walletKit.pendingRequests.getAll().last;
+    var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
+
+    final decoded = walletAdminDecoder.decodeAddChain(parameters);
+
+    final isApproved = await MethodsUtils.requestApproval(
+      decoded,
+      method: pRequest.method,
+      chainId: pRequest.chainId,
+      transportType: pRequest.transportType.name,
+      verifyContext: pRequest.verifyContext,
+    );
+
+    if (isApproved) {
+      response = response.copyWith(result: null);
+    } else {
+      final error = Errors.getSdkError(Errors.USER_REJECTED);
+      response = response.copyWith(
+        error: JsonRpcError(code: error.code, message: error.message),
+      );
+    }
+
+    _handleResponseForTopic(topic, response);
+  }
+
   void _handleResponseForTopic(String topic, JsonRpcResponse<dynamic> response) async {
     final session = walletKit.sessions.get(topic);
-
     try {
-      await walletKit.respondSessionRequest(
-        topic: topic,
-        response: response,
-      );
-
+      await walletKit.respondSessionRequest(topic: topic, response: response);
       if (session == null) return;
-
       MethodsUtils.handleRedirect(
         topic,
         session.peer.metadata.redirect,
@@ -399,7 +450,6 @@ class EvmChainServiceImpl {
       );
     } on ReownSignError catch (error) {
       if (session == null) return;
-
       MethodsUtils.handleRedirect(
         topic,
         session.peer.metadata.redirect,
@@ -428,7 +478,7 @@ class EvmChainServiceImpl {
         );
         transaction = transaction.copyWith(maxGas: gasValue);
       } catch (e) {
-        debugPrint('Failed to parse gas value: $gasHex, error: $e');
+        printV('Failed to parse gas value: $gasHex, error: $e');
       }
     }
 
@@ -444,41 +494,51 @@ class EvmChainServiceImpl {
     final nativeSymbol = nativeCurrency?.title ?? 'ETH';
 
     final valueWei = transaction.value?.getInWei ?? BigInt.zero;
-    final amount = valueWei / BigInt.from(1e18);
 
-    final decoded = await _describeTxAction(
-      transactionJson['data']?.toString(),
-      transaction.to?.hex,
-      transaction.from?.hex,
-      nativeSymbol,
+    final decoded = await decoder.decodeTransaction(
+      rawData: transactionJson['data']?.toString(),
+      toAddress: transaction.to?.hex,
+      fromAddress: transaction.from?.hex,
+      nativeSymbol: nativeSymbol,
+      valueWei: valueWei,
     );
 
-    final lines = <String>[];
-    if (decoded != null) lines.add(decoded.message);
-    final showValueLine = valueWei > BigInt.zero || !(decoded?.hideZeroValue ?? false);
-    if (showValueLine) {
-      lines.add('${S.current.value}: ${amount.toStringAsFixed(9)} $nativeSymbol');
-    }
-    if (transaction.from != null) {
-      lines.add('${S.current.from}: ${transaction.from!.hex}');
-    }
-    final hideTo = decoded?.hideTo ?? false;
-    if (!hideTo && transaction.to != null) {
-      lines.add('${S.current.to}: ${transaction.to!.hex}');
-    }
-    final txMessageText = lines.join('\n');
+    final mergedRows = <WCDecodedRow>[
+      ...decoded.rows,
+      if (transaction.from != null && !decoded.rows.any((r) => r.label == S.current.from))
+        WCDecodedRow(
+          label: S.current.from,
+          value: transaction.from!.hex,
+          kind: WCDecodedRowKind.address,
+        ),
+      if (!decoded.hideTo &&
+          transaction.to != null &&
+          !decoded.rows.any((r) => r.label == S.current.to))
+        WCDecodedRow(
+          label: S.current.to,
+          value: transaction.to!.hex,
+          kind: WCDecodedRowKind.address,
+        ),
+      if (!decoded.hideZeroValue || valueWei > BigInt.zero)
+        WCDecodedRow(
+          label: S.current.wc_value,
+          value: '${decoder.tokenResolver.formatNative(valueWei.toDouble() / 1e18)} $nativeSymbol',
+          kind: WCDecodedRowKind.amount,
+        ),
+    ];
 
-    final feeRows = _buildFeeExtraModels(transaction, nativeCurrency, nativeSymbol);
+    final finalDecoded = decoded.copyWith(rows: mergedRows);
+    final feeRows = _buildFeeRows(transaction, nativeCurrency, nativeSymbol);
 
     if (await MethodsUtils.requestApproval(
-      txMessageText,
+      finalDecoded,
       title: title,
       method: method,
       chainId: chainId,
       address: address ?? transaction.from?.hex ?? '',
       transportType: transportType,
       verifyContext: verifyContext,
-      extraModels: feeRows,
+      extraRows: feeRows,
     )) {
       return transaction;
     }
@@ -486,7 +546,7 @@ class EvmChainServiceImpl {
     return JsonRpcError(code: 5002, message: S.current.user_rejected_method);
   }
 
-  List<WCConnectionModel> _buildFeeExtraModels(
+  List<WCDecodedRow> _buildFeeRows(
     Transaction transaction,
     CryptoCurrency? nativeCurrency,
     String nativeSymbol,
@@ -503,251 +563,19 @@ class EvmChainServiceImpl {
     final feeWei = gasLimitBig * perGasWei;
     final feeNative = feeWei.toDouble() / 1e18;
 
-    final label = isEip1559 ? S.current.wc_max_network_fee : S.current.wc_network_fee;
+    final cryptoPart = '${decoder.tokenResolver.formatNative(feeNative)} $nativeSymbol';
+    final fiat = nativeCurrency == null
+        ? null
+        : decoder.tokenResolver.fiatFor(nativeCurrency, feeNative.toString());
 
     return [
-      WCConnectionModel(
-        title: label,
-        elements: [_formatFeeLine(feeNative, nativeSymbol, nativeCurrency)],
+      WCDecodedRow(
+        label: isEip1559 ? S.current.wc_max_network_fee : S.current.wc_network_fee,
+        value: cryptoPart,
+        kind: WCDecodedRowKind.amount,
+        fiatValue: fiat,
       ),
     ];
-  }
-
-  String _formatFeeLine(
-    double feeNative,
-    String nativeSymbol,
-    CryptoCurrency? nativeCurrency,
-  ) {
-    final cryptoPart = '${_formatNativeAmount(feeNative)} $nativeSymbol';
-
-    if (nativeCurrency == null) return cryptoPart;
-
-    try {
-      final fiatStore = getIt.get<FiatConversionStore>();
-      final price = fiatStore.prices[nativeCurrency];
-      if (price == null || price <= 0) return cryptoPart;
-
-      final fiatSymbol = appStore.settingsStore.fiatCurrency.title;
-      final fiatValue = calculateFiatAmount(
-        price: price,
-        cryptoAmount: feeNative.toString(),
-      );
-      if (fiatValue.isEmpty || fiatValue == '0.00') return cryptoPart;
-
-      return '$cryptoPart (~ $fiatValue $fiatSymbol)';
-    } catch (_) {
-      return cryptoPart;
-    }
-  }
-
-  String _formatNativeAmount(double value) {
-    if (value == 0) return '0';
-    if (value >= 0.0001) return value.toStringAsFixed(6);
-    return value.toStringAsExponential(4);
-  }
-
-  Future<_DecodedAction?> _describeTxAction(
-    String? rawData,
-    String? toAddressHex,
-    String? fromAddressHex,
-    String nativeSymbol,
-  ) async {
-    if (rawData == null) return null;
-    final hex = rawData.toLowerCase().startsWith('0x') ? rawData.substring(2) : rawData;
-    if (hex.length < 8) return null;
-
-    final selector = hex.substring(0, 8);
-    final body = hex.length > 8 ? hex.substring(8) : '';
-
-    final erc20 = await _describeErc20Action(selector, body, toAddressHex);
-    if (erc20 != null) return erc20;
-
-    final swap = await _describeSwapAction(selector, body, fromAddressHex, nativeSymbol);
-    if (swap != null) return swap;
-
-    return _DecodedAction(
-      message: '${S.current.wc_contract_call}: 0x$selector',
-      hideTo: false,
-      hideZeroValue: true,
-    );
-  }
-
-  Future<_DecodedAction?> _describeErc20Action(
-    String selector,
-    String body,
-    String? toAddressHex,
-  ) async {
-    if (toAddressHex == null) return null;
-
-    String addrAt(int wordIndex) {
-      final start = wordIndex * 64;
-      if (body.length < start + 64) return '';
-      return '0x${body.substring(start + 24, start + 64)}';
-    }
-
-    BigInt? uintAt(int wordIndex) {
-      final start = wordIndex * 64;
-      if (body.length < start + 64) return null;
-      return BigInt.tryParse(body.substring(start, start + 64), radix: 16);
-    }
-
-    switch (selector) {
-      case '095ea7b3':
-        final spender = addrAt(0);
-        final rawAmount = uintAt(1);
-        if (spender.isEmpty || rawAmount == null) return null;
-        final token = await _resolveErc20Token(toAddressHex);
-        final amountStr = _formatErc20Amount(rawAmount, token);
-        final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
-        return _DecodedAction(
-          message: '${S.current.wc_action_approve}: $amountStr $symbol\n'
-              '${S.current.wc_spender}: $spender',
-          hideTo: true,
-          hideZeroValue: true,
-        );
-      case 'a9059cbb':
-        final recipient = addrAt(0);
-        final rawAmount = uintAt(1);
-        if (recipient.isEmpty || rawAmount == null) return null;
-        final token = await _resolveErc20Token(toAddressHex);
-        final amountStr = _formatErc20Amount(rawAmount, token);
-        final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
-        return _DecodedAction(
-          message: '${S.current.wc_action_transfer}: $amountStr $symbol\n'
-              '${S.current.to}: $recipient',
-          hideTo: true,
-          hideZeroValue: true,
-        );
-      case '23b872dd':
-        final fromAddr = addrAt(0);
-        final toAddr = addrAt(1);
-        final rawAmount = uintAt(2);
-        if (fromAddr.isEmpty || toAddr.isEmpty || rawAmount == null) return null;
-        final token = await _resolveErc20Token(toAddressHex);
-        final amountStr = _formatErc20Amount(rawAmount, token);
-        final symbol = token?.symbol.toUpperCase() ?? _shortAddress(toAddressHex);
-        return _DecodedAction(
-          message: '${S.current.wc_action_transfer}: $amountStr $symbol\n'
-              '${S.current.from}: $fromAddr\n'
-              '${S.current.to}: $toAddr',
-          hideTo: true,
-          hideZeroValue: true,
-        );
-    }
-    return null;
-  }
-
-  Future<_DecodedAction?> _describeSwapAction(
-    String selector,
-    String body,
-    String? fromAddressHex,
-    String nativeSymbol,
-  ) async {
-    if (fromAddressHex == null) return null;
-    if (body.length < 64 * 5) return null;
-
-    String addrAt(int wordIndex) {
-      final start = wordIndex * 64;
-      final prefix = body.substring(start, start + 24);
-      if (prefix.replaceAll('0', '').isNotEmpty) return '';
-      return '0x${body.substring(start + 24, start + 64)}';
-    }
-
-    BigInt? uintAt(int wordIndex) =>
-        BigInt.tryParse(body.substring(wordIndex * 64, wordIndex * 64 + 64), radix: 16);
-
-    final tokenIn = addrAt(0);
-    final amountIn = uintAt(1);
-    final sender = addrAt(2);
-    final tokenOut = addrAt(3);
-    final amountOut = uintAt(4);
-
-    if (tokenIn.isEmpty ||
-        tokenOut.isEmpty ||
-        sender.isEmpty ||
-        amountIn == null ||
-        amountOut == null ||
-        amountIn == BigInt.zero ||
-        amountOut == BigInt.zero) {
-      return null;
-    }
-
-    if (sender.toLowerCase() != fromAddressHex.toLowerCase()) return null;
-
-    final (inSym, inAmt) = await _resolveTokenAmount(tokenIn, amountIn, nativeSymbol);
-    final (outSym, outAmt) = await _resolveTokenAmount(tokenOut, amountOut, nativeSymbol);
-
-    return _DecodedAction(
-      message: '${S.current.wc_action_swap}: $inAmt $inSym → ≥ $outAmt $outSym',
-      hideTo: false,
-      hideZeroValue: true,
-    );
-  }
-
-  Future<(String, String)> _resolveTokenAmount(
-    String address,
-    BigInt rawAmount,
-    String nativeSymbol,
-  ) async {
-    final lower = address.toLowerCase();
-    const nativeSentinel = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
-    const zeroAddress = '0x0000000000000000000000000000000000000000';
-    if (lower == nativeSentinel || lower == zeroAddress) {
-      final native = rawAmount.toDouble() / 1e18;
-      return (nativeSymbol, _formatNativeAmount(native));
-    }
-    final token = await _resolveErc20Token(address);
-    final symbol = token?.symbol.toUpperCase() ?? _shortAddress(address);
-    return (symbol, _formatErc20Amount(rawAmount, token));
-  }
-
-  Future<Erc20Token?> _resolveErc20Token(String contractAddress) async {
-    final wallet = appStore.wallet;
-    if (wallet == null || evm == null) return null;
-
-    final target = contractAddress.toLowerCase();
-    try {
-      final known = evm!.getERC20Currencies(wallet);
-      for (final token in known) {
-        if (token.contractAddress.toLowerCase() == target) return token;
-      }
-    } catch (e) {
-      debugPrint('Failed to read wallet ERC-20 list: $e');
-    }
-
-    try {
-      return await evm!
-          .getErc20Token(wallet, contractAddress)
-          .timeout(const Duration(seconds: 3), onTimeout: () => null);
-    } catch (e) {
-      debugPrint('Failed to fetch ERC-20 metadata for $contractAddress: $e');
-      return null;
-    }
-  }
-
-  String _formatErc20Amount(BigInt rawAmount, Erc20Token? token) {
-    if (_isUnlimitedApproval(rawAmount)) return S.current.wc_unlimited;
-    if (token == null) return rawAmount.toString();
-
-    final decimals = token.decimal;
-    if (decimals <= 0) return rawAmount.toString();
-
-    final divisor = BigInt.from(10).pow(decimals);
-    final whole = rawAmount ~/ divisor;
-    final remainder = rawAmount % divisor;
-    if (remainder == BigInt.zero) return whole.toString();
-
-    final fractional = remainder.toString().padLeft(decimals, '0');
-    final trimmed = fractional.replaceFirst(RegExp(r'0+$'), '');
-    return trimmed.isEmpty ? whole.toString() : '$whole.$trimmed';
-  }
-  bool _isUnlimitedApproval(BigInt rawAmount) {
-    return rawAmount >= BigInt.from(2).pow(200);
-  }
-
-  String _shortAddress(String address) {
-    if (address.length <= 10) return address;
-    return '${address.substring(0, 6)}…${address.substring(address.length - 4)}';
   }
 
   Future<Transaction> _ensureWCTransactionHasGasLimit(Transaction transaction) async {
@@ -785,7 +613,7 @@ class EvmChainServiceImpl {
         return _mergeWCBufferedFees(transaction, quote);
       }
     } catch (e) {
-      debugPrint('WalletConnect fee refresh failed: $e');
+      printV('WalletConnect fee refresh failed: $e');
     }
 
     if (!transaction.isEIP1559 && transaction.gasPrice == null) {
@@ -797,15 +625,11 @@ class EvmChainServiceImpl {
 
   Transaction _mergeWCBufferedFees(Transaction transaction, EvmWalletConnectFeeQuote quote) {
     if (transaction.isEIP1559) {
-      // the fees coming from the dApp
       final dAppMax = transaction.maxFeePerGas?.getInWei ?? BigInt.zero;
       final dAppPri = transaction.maxPriorityFeePerGas?.getInWei ?? BigInt.zero;
-
-      // the updated fees coming from the wallet, handles buffered fees
       final quoteMax = BigInt.from(quote.maxFeePerGasWei);
       final quotePri = BigInt.from(quote.maxPriorityFeePerGasWei);
 
-      // we'll just use the higher of the two
       var newMaxFeePerGasWei = dAppMax > quoteMax ? dAppMax : quoteMax;
       var newPriorityFeePerGasWei = dAppPri > quotePri ? dAppPri : quotePri;
 
@@ -836,7 +660,7 @@ class EvmChainServiceImpl {
 
   void _onSessionRequest(SessionRequestEvent? args) async {
     if (args != null && args.chainId == getChainId()) {
-      debugPrint('_onSessionRequest ${args.toString()}');
+      printV('_onSessionRequest ${args.toString()}');
       final handler = sessionRequestHandlers[args.method];
       if (handler != null) {
         await handler(args.topic, args.params);
@@ -846,137 +670,13 @@ class EvmChainServiceImpl {
 
   bool isValidSignature(String hexSignature, String message, String hexAddress) {
     try {
-      debugPrint('isValidSignature: $hexSignature, $message, $hexAddress');
       final recoveredAddress = EthSigUtil.recoverPersonalSignature(
         signature: hexSignature,
         message: utf8.encode(message),
       );
-      debugPrint('recoveredAddress: $recoveredAddress');
-
-      final recoveredAddress2 = EthSigUtil.recoverSignature(
-        signature: hexSignature,
-        message: utf8.encode(message),
-      );
-      debugPrint('recoveredAddress2: $recoveredAddress2');
-
-      final isValid = recoveredAddress == hexAddress;
-      return isValid;
+      return recoveredAddress == hexAddress;
     } catch (e) {
       return false;
     }
   }
-
-  Future<String> extractPermitData(dynamic data) async {
-    if (data is List && data.length >= 2) {
-      final typedData = jsonDecode(data[1] as String) as Map<String, dynamic>;
-
-      // Extracting domain details.
-      final domain = typedData['domain'] as Map<String, dynamic>? ?? {};
-      final domainName = domain['name']?.toString() ?? '';
-      final version = domain['version']?.toString() ?? '';
-      final chainId = domain['chainId']?.toString() ?? '';
-      final verifyingContract = domain['verifyingContract']?.toString() ?? '';
-
-      // Get the primary type and types
-      final primaryType = typedData['primaryType']?.toString() ?? '';
-      final types = typedData['types'] as Map<String, dynamic>? ?? {};
-      final message = typedData['message'] as Map<String, dynamic>? ?? {};
-
-      // Build a readable message based on the primary type and its structure
-      String messageDetails = '';
-
-      if (types.containsKey(primaryType)) {
-        final typeFields = types[primaryType] as List<dynamic>;
-        messageDetails = _formatMessageFields(message, typeFields, types);
-      } else {
-        // For unknown types, show the raw message
-        messageDetails = message.toString();
-      }
-
-      return '''Domain Name: $domainName
-Version: $version
-Chain ID: $chainId
-Verifying Contract: $verifyingContract
-Primary Type: $primaryType\n
-Message:
-$messageDetails''';
-    }
-    return 'Invalid typed data format';
-  }
-
-  String _formatMessageFields(
-      Map<String, dynamic> message, List<dynamic> fields, Map<String, dynamic> types) {
-    final buffer = StringBuffer();
-
-    for (var field in fields) {
-      final fieldName = _toCamelCase(field['name'] as String);
-      final fieldType = field['type'] as String;
-      final value = message[field['name'] as String];
-
-      if (value == null) continue;
-
-      if (types.containsKey(fieldType)) {
-        final nestedFields = types[fieldType] as List<dynamic>;
-        if (fieldType == 'Person') {
-          // Special formatting for Person type
-          final name = value['name'] as String;
-          final wallet = value['wallet'] as String;
-          buffer.writeln('$fieldName: $name ($wallet)');
-        } else {
-          // For other nested types, format each field
-          final formattedValue =
-              _formatMessageFields(value as Map<String, dynamic>, nestedFields, types);
-          buffer.writeln('$fieldName: $formattedValue');
-        }
-      } else {
-        // Handle primitive types
-        buffer.writeln('$fieldName: $value');
-      }
-    }
-
-    return buffer.toString();
-  }
-
-  String _toCamelCase(String input) {
-    if (input.isEmpty) return input;
-    return input[0].toUpperCase() + input.substring(1).toLowerCase();
-  }
-
-  Future<String> getTokenDetails(String contractAddress, String chainName) async {
-    final uri = Uri.https(
-      'deep-index.moralis.io',
-      '/api/v2.2/erc20/metadata',
-      {
-        "chain": chainName,
-        "addresses": contractAddress,
-      },
-    );
-
-    final response = await ProxyWrapper().get(
-      clearnetUri: uri,
-      headers: {
-        "Accept": "application/json",
-        "X-API-Key": secrets.moralisApiKey,
-      },
-    );
-
-    final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
-
-    final symbol = (decodedResponse['symbol'] ?? '') as String;
-
-    final name = decodedResponse['name'] ?? '';
-    return '$name ($symbol)';
-  }
-}
-
-class _DecodedAction {
-  const _DecodedAction({
-    required this.message,
-    required this.hideTo,
-    required this.hideZeroValue,
-  });
-
-  final String message;
-  final bool hideTo;
-  final bool hideZeroValue;
 }
