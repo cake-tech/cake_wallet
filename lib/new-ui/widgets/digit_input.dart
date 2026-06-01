@@ -15,9 +15,7 @@ class DigitInputController {
 
   final List<void Function()> _listeners = [];
 
-  void addListener(void Function() listener) {
-    _listeners.add(listener);
-  }
+  void addListener(void Function() listener) => _listeners.add(listener);
 }
 
 class DigitInputPill extends StatelessWidget {
@@ -48,8 +46,12 @@ class DigitInputPill extends StatelessWidget {
 }
 
 class DigitInput extends StatefulWidget {
-  const DigitInput(
-      {super.key, required this.controller, required this.desiredLength, this.breakAt = 3});
+  const DigitInput({
+    super.key,
+    required this.controller,
+    required this.desiredLength,
+    this.breakAt = 3,
+  });
 
   final DigitInputController controller;
   final int desiredLength;
@@ -91,9 +93,7 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
     _textInputConnection!.show();
   }
 
-  void _closeVirtualKeyboard() {
-    _textInputConnection?.close();
-  }
+  void _closeVirtualKeyboard() => _textInputConnection?.close();
 
   @override
   void dispose() {
@@ -128,9 +128,7 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
     final RegExp numberRegExp = RegExp(r'^\d{0,6}$');
 
     if (numberRegExp.hasMatch(value.text)) {
-      setState(() {
-        widget.controller.text = value.text;
-      });
+      setState(() => widget.controller.text = value.text);
     } else {
       // flutter keeps the text editing state regardless of whether you actually used it or not.
       // so, if validation fails, we gotta set it back to what it was explicitly
@@ -144,15 +142,15 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
   }
 
   @override
-  void performAction(TextInputAction action) {}
+  void performAction(TextInputAction action) {
+    print(action);
+  }
 
   @override
   TextEditingValue? get currentTextEditingValue => TextEditingValue(text: widget.controller.text);
 
   @override
-  void connectionClosed() {
-    _textInputConnection = null;
-  }
+  void connectionClosed() => _textInputConnection = null;
 
   @override
   AutofillScope? get currentAutofillScope => null;
@@ -179,10 +177,7 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
   void performSelector(String selectorName) {}
 
   @override
-  void didChangeInputControl(
-    TextInputControl? oldControl,
-    TextInputControl? newControl,
-  ) {}
+  void didChangeInputControl(TextInputControl? oldControl, TextInputControl? newControl) {}
 
   @override
   void insertContent(KeyboardInsertedContent content) {}
