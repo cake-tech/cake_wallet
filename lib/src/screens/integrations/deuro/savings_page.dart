@@ -69,6 +69,10 @@ class DEuroSavingsPage extends BasePage {
                       onTooltipPressed: () => _onSavingsTooltipPressed(context),
                       isEnabled: _dEuroViewModel.isEnabled,
                       isLoading: _dEuroViewModel.isLoading,
+                      onWithdrawV1Pressed: () => _onWithdrawV1(context),
+                      savingsBalanceV1: _dEuroViewModel.savingsBalanceV1
+                          ?.toStringWithPrecision(fractionalDigits: 6),
+                      fiatSavingsBalanceV1: _dEuroViewModel.fiatSavingsBalanceV1Formated,
                     ),
                   ),
                   Observer(
@@ -124,6 +128,16 @@ class DEuroSavingsPage extends BasePage {
       await _requireHardwareWallet(context);
       _dEuroViewModel.prepareSavingsEdit(amount, true);
     }
+    _editSheetIsOpen = false;
+  }
+
+  Future<void> _onWithdrawV1(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    try {
+      await _requireHardwareWallet(context);
+      await _dEuroViewModel.prepareSavingsV1Withdraw();
+    } catch (_) {}
     _editSheetIsOpen = false;
   }
 

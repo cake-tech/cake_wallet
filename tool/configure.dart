@@ -1503,9 +1503,11 @@ abstract class EVM {
   
   // Chain-specific integrations (optional, can be null for non-Ethereum chains)
   Future<Money>? getDEuroSavingsBalance(WalletBase wallet) => null;
+  Future<Money>? getDEuroSavingsV1Balance(WalletBase wallet) => null;
   Future<Money>? getDEuroAccruedInterest(WalletBase wallet) => null;
   Future<BigInt>? getDEuroInterestRate(WalletBase wallet) => null;
   Future<BigInt>? getDEuroSavingsApproved(WalletBase wallet) => null;
+  Future<PendingTransaction>? withdrawDEuroSavingV1(WalletBase wallet, TransactionPriority priority) => null;
   Future<PendingTransaction>? addDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;
   Future<PendingTransaction>? removeDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;
   Future<PendingTransaction>? reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority) => null;
