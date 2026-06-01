@@ -23,7 +23,7 @@ class LightningWallet {
   final String apiKey;
   final String lnurlDomain;
   final Network network;
-  late BreezSdk sdk;
+  BreezSdk? _sdk;
 
   String? cachedAddress;
 
@@ -42,6 +42,8 @@ class LightningWallet {
   static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
   Currency get currency => CryptoCurrency.btcln;
+
+  BreezSdk get sdk => _sdk!;
 
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
@@ -97,7 +99,7 @@ class LightningWallet {
         storageDir: "$appPath/.breez/",
       );
 
-      sdk = await connect(request: connectRequest);
+      _sdk = await connect(request: connectRequest);
 
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
       _logStream ??= initLogging().asBroadcastStream();
@@ -121,7 +123,7 @@ class LightningWallet {
 
   Future<void> close() async {
     _eventSubscription?.cancel();
-    await sdk.disconnect();
+    await _sdk?.disconnect();
     _logSubscription?.cancel();
   }
 
