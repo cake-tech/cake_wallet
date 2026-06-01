@@ -290,6 +290,7 @@ flutter:
     - assets/new-ui/card_icons/outline_icons/
     - assets/new-ui/card_icons/symbol_icons/
     - assets/new-ui/crypto_full_icons/
+    - assets/new-ui/node_speed_badges/
 
   fonts:
     - family: Lato
