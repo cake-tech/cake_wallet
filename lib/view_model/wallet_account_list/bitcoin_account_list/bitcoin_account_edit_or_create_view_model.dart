@@ -50,10 +50,10 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
     final accounts = await _wallet.walletInfo.getAccounts();
 
     await BalanceCardStyleSettings.fromCardDesign(
-        _wallet.walletInfo.internalId,
-        accounts.length,
-        accounts.length,
-        CardDesign.specialDesignsForCurrencies[_wallet.currency]!
+        walletInfoId: _wallet.walletInfo.internalId,
+        accountIndex : accounts.length,
+        cardOrder : accounts.length,
+        design : CardDesign.specialDesignsForCurrencies[_wallet.currency]!
             .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
   }
