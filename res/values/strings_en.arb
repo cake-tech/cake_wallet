@@ -725,6 +725,7 @@
   "pairing_code": "Pairing Code",
   "pairing_code_desc_1": "Your device will show a pairing code.",
   "pairing_code_desc_2": "Input here to continue",
+  "pairing_error": "Pairing Error",
   "passphrase": "Passphrase (Optional)",
   "passphrase_view_keys": "Passphrase",
   "passphrases_doesnt_match": "Passphrases do not match, please try again",
