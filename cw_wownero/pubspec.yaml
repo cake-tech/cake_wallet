@@ -23,7 +23,7 @@ dependencies:
     path: ../cw_core
   monero:
     git:
-      url: http://github.com/mrcyjanek/monero_c.git
+      url: https://github.com/mrcyjanek/monero_c.git
       ref: 3bfb3856a838f2bf6b729501837bb0295dedf25d
       path: impls/monero.dart
   mutex: ^3.1.0
