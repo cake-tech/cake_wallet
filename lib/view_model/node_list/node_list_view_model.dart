@@ -114,13 +114,16 @@ abstract class NodeListViewModelBase with Store {
       isTestingNodeSpeed = true;
       _nodeSpeeds.clear();
       final nodes = this.nodes.toList();
-      for(final node in nodes) {
+      await Future.wait(nodes.map((node) async {
         final sw = Stopwatch()..start();
-        final res = await node.requestNode();
-        if(res) {
+        final res = await node
+            .requestNode()
+            .timeout(const Duration(seconds: 10), onTimeout: () => false);
+        sw.stop();
+        if (res) {
           _nodeSpeeds[node.uriRaw] = sw.elapsedMilliseconds;
         }
-      }
+      }));
     } finally {
       isTestingNodeSpeed = false;
     }
