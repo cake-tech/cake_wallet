@@ -166,19 +166,20 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
 
     if (_paringState is FailTrezorParingState) {
       return Container(
-          key: ValueKey(2),
-          child: Column(
-            children: [
-              Text((_paringState as FailTrezorParingState).message),
-              ModernButton(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                iconColor: Theme.of(context).colorScheme.onPrimary,
-                size: 36,
-                icon: Icon(Icons.refresh),
-                onPressed: retry,
-              ),
-            ],
-          ),);
+        key: ValueKey(2),
+        child: Column(
+          children: [
+            Text((_paringState as FailTrezorParingState).message),
+            ModernButton(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              iconColor: Theme.of(context).colorScheme.onPrimary,
+              size: 36,
+              icon: Icon(Icons.refresh),
+              onPressed: retry,
+            ),
+          ],
+        ),
+      );
     }
 
     return SizedBox.shrink(key: ValueKey(3));
