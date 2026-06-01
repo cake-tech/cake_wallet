@@ -107,6 +107,8 @@ class NewListSections extends StatelessWidget {
         trailingIconSize: item.trailingIconSize,
         trailingWidget: item.trailingWidget,
         bottomWidget: item.bottomWidget,
+        leadingIconErrorWidget: item.leadingIconErrorWidget,
+        leadingIconSize: item.leadingIconSize,
       );
     }
 
