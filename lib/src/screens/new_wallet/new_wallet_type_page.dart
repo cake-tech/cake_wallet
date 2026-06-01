@@ -162,7 +162,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                   Text(curr.fullName ?? curr.name),
                                   const SizedBox(width: 4),
                                   Text(
-                                    curr.symbol,
+                                    curr.title,
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
