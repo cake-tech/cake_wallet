@@ -142,9 +142,7 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
   }
 
   @override
-  void performAction(TextInputAction action) {
-    print(action);
-  }
+  void performAction(TextInputAction action) {}
 
   @override
   TextEditingValue? get currentTextEditingValue => TextEditingValue(text: widget.controller.text);

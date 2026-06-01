@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/digit_input.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -50,7 +51,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
     _paringState = widget.trezorConnectVM.paringState;
     paringStateReaction = reaction((_) => widget.trezorConnectVM.paringState, (paringState) {
       if (paringState is SuccessTrezorParingState) {
-        Navigator.of(context).pop();
+        if (mounted) Navigator.of(context).pop();
         return;
       }
       setState(() => _paringState = paringState);
@@ -226,62 +227,49 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
       );
 
   Widget _errorBox(String errorText) => Container(
-      key: ValueKey(2),
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        spacing: 12,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.errorContainer.withAlpha(64),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                spacing: 12,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 8,
-                    children: [
-                      CakeImageWidget(
-                        imageUrl: "assets/new-ui/warning.svg",
-                        height: 24,
-                        width: 24,
-                        colorFilter:
-                            ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
-                      ),
-                      Text(
-                        S.of(context).error,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.error),
-                      )
-                    ],
-                  ),
-                  Text(
-                    errorText,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).colorScheme.error),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+        key: ValueKey(2),
+        width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 12,
+            children: [
+              const Spacer(),
+              Icon(
+                Icons.error_outline,
+                size: 80,
+                color: Theme.of(context).colorScheme.error,
               ),
-            ),
+              Text(
+                S.of(context).pairing_error,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                errorText,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const Spacer(),
+              NewPrimaryButton(
+                onPressed: retry,
+                text: S.of(context).try_again,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+              )
+            ],
           ),
-          ModernButton(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            iconColor: Theme.of(context).colorScheme.onPrimary,
-            size: 36,
-            icon: Icon(Icons.refresh),
-            onPressed: retry,
-          ),
-        ],
-      ));
+        ),
+      );
 
   Widget _enterPinCode() => Column(
         key: ValueKey(0),
