@@ -760,7 +760,7 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (!widget.mode.popOnConfirmation) {
+          if (!widget.mode.popOnConfirmation && Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
           }
           showModalBottomSheet(
@@ -969,7 +969,7 @@ class _NewSendPageState extends State<NewSendPage> {
           onNext: (PaymentFlowResult newResult) {
             final selectedChainId = newResult.chainId;
             final isCompatible =
-                selectedChainId == evm!.getSelectedChainId(widget.sendViewModel.wallet);
+                selectedChainId == evm?.getSelectedChainId(widget.sendViewModel.wallet);
 
             if (isCompatible) {
               widget.sendViewModel.setSelectedCryptoCurrency(

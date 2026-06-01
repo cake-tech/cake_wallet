@@ -1108,10 +1108,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> updateWalletBalance() async => await wallet.updateBalance();
 
   Future<void> _addTransactionDescription() async {
-    String address = outputs.fold('', (acc, value) {
-      return value.isParsedAddress
-          ? '$acc${value.address}\n${value.extractedAddress}\n\n'
-          : '$acc${value.address}\n\n';
+       String address = outputs.fold('', (acc, value) {
+      final canonical = value.extractedAddress.trim().isNotEmpty
+          ? value.extractedAddress.trim()
+          : value.address.trim();
+      if (canonical.isEmpty) {
+        return acc;
+      }
+      return '$acc$canonical\n\n';
     });
 
     address = address.trim();

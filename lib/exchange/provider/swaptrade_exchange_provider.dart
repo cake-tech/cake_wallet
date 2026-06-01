@@ -38,6 +38,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
   static const _headers = <String, String>{'Content-Type': 'application/json'};
