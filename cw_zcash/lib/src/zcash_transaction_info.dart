@@ -3,6 +3,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/zkooltx.dart';
 
 class ZcashTransactionInfo extends TransactionInfo {
   ZcashTransactionInfo({
@@ -16,6 +17,9 @@ class ZcashTransactionInfo extends TransactionInfo {
     required final int confirmations,
     required final String to,
     final String? memo,
+    final TxType? txType,
+    final bool isRotationReceive = false,
+    final bool isShieldAction = false,
   }) {
     this.id = id;
     this.amount = amount;
@@ -29,15 +33,17 @@ class ZcashTransactionInfo extends TransactionInfo {
     if (memo != null && memo.isNotEmpty) {
       additionalInfo['memo'] = memo;
     }
-    additionalInfo['autoShield'] = false;
-    if (amount == fee && to.startsWith("u")) {
-      additionalInfo['autoShield'] = true;
+    if (txType != null) {
+      additionalInfo['txType'] = txType.name;
     }
-    additionalInfo['autoShield'] = ZcashWalletService.autoshieldTx.contains(txHash);
-    if (additionalInfo['autoShield'] == true) {
+    additionalInfo['isRotationReceive'] = isRotationReceive;
+    additionalInfo['autoShield'] = ZcashWalletService.isAutoshieldTx(txHash);
+    additionalInfo['isAutoShield'] = isShieldAction;
+
+    if (additionalInfo['isAutoShield'] == true) {
       additionalInfo['memo'] ??= '';
-      additionalInfo['memo'] += '\This is an auto-shielding transaction. Enjoy default privacy!';
-      additionalInfo['memo'] = additionalInfo['memo'].trim();
+      additionalInfo['memo'] =
+          '${additionalInfo['memo']}\nThis is an auto-shielding transaction. Enjoy default privacy!.'.trim();
     }
   }
 

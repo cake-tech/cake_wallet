@@ -129,7 +129,6 @@ class DisplaySettingsPage extends StatelessWidget {
                       options: [_displaySettingsViewModel.syncStatusDisplayMode.title],
                       onTap: () async {
                         final items = SyncStatusDisplayMode.values.toList();
-
                         final selectedAtIndex =
                             items.indexOf(_displaySettingsViewModel.syncStatusDisplayMode);
 

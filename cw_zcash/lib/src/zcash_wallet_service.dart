@@ -38,10 +38,16 @@ class ZcashWalletService
 
   static Set<String> autoshieldTx = {};
 
+  static String normalizeTxId(final String txId) =>
+      txId.replaceAll(RegExp(r'[^a-fA-F0-9]'), '').toLowerCase();
+
+  static bool isAutoshieldTx(final String txHash) =>
+      autoshieldTx.contains(normalizeTxId(txHash));
+
   static Future<void> addShieldedTx(final String txId) async {
     final pathForWalletType = await pathForWalletTypeDir(type: type);
     final shieldedListFile = p.join(pathForWalletType, "autoshield_list.v2.txt");
-    autoshieldTx.add(txId.replaceAll(RegExp(r'[^a-zA-Z0-9 ]'), ''));
+    autoshieldTx.add(normalizeTxId(txId));
     final shieldedList = File(shieldedListFile);
     shieldedList.writeAsStringSync(autoshieldTx.join("\n"));
   }
@@ -54,7 +60,11 @@ class ZcashWalletService
       if (!shieldedList.existsSync()) {
         return;
       }
-      autoshieldTx = shieldedList.readAsLinesSync().toSet();
+      autoshieldTx = shieldedList
+          .readAsLinesSync()
+          .map(normalizeTxId)
+          .where((final line) => line.isNotEmpty)
+          .toSet();
     } catch (e) {
       printV("loadShieldTxs failed: $e");
     }

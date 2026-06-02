@@ -40,6 +40,8 @@ class ZkoolTx {
   }
 
   String? get to => _txAccount.outputs.firstOrNull?.address;
+  Iterable<String> get outputAddresses =>
+      _txAccount.outputs.map((final o) => o.address).whereType<String>();
   String? get memo => _txAccount.memos.firstOrNull?.memo;
 
   String get txHash {

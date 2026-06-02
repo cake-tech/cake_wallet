@@ -17,7 +17,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     addressPageType = ZcashReceivePageOption.typeFromString(walletInfo.addressPageType ?? "");
   }
 
-  final int accountId;
+  int accountId;
 
   static const int transparentType = 0;
   static const int shieldedSaplingType = 1;

@@ -272,40 +272,56 @@ class ZcashTaddressRotation {
       return;
     }
     if (bal < BigInt.from(30000)) {
-      await updateCache();
+      await updateCache(mainAccountId: cId);
       return;
     };
-    
-    final toAddressO = await zkool_account.getAddresses(c: c, uaPools: 7);
-    final toAddress = toAddressO.saddr!;
-    final tx = await zkool_pay.prepare(
-      recipients: [zkool_paydart.Recipient(address: toAddress, amount: bal)],
-      options: zkool_pay.PaymentOptions(
-        srcPools: 7,
-        recipientPaysFee: true,
-        smartTransparent: false,
-      ),
-      c: c,
+
+    final toAddress = await ZcashWalletBase.runWithCoin(
+      accountId: cId,
+      func: (final c) async {
+        final addrs = await zkool_account.getAddresses(c: c, uaPools: 7);
+        final orchard = addrs.oaddr;
+        if (orchard == null || orchard.isEmpty) {
+          throw Exception('Orchard address unavailable for rotation sweep');
+        }
+        return orchard;
+      },
     );
-    printV("getLatestHeight");
-    final height = await zkool_network.getCurrentHeight(c: c);
-    printV("signTransaction");
-    final signTx = await zkool_pay.signTransaction(pczt: tx, c: c);
-    printV("extractTransaction");
-    final txBytes = await zkool_pay.extractTransaction(package: signTx);
-    printV("broadcastTransaction");
-    final result = await zkool_pay.broadcastTransaction(height: height, txBytes: txBytes, c: c);
+    final result = await ZcashWalletBase.runWithCoin(
+      accountId: rotationAccount,
+      func: (final c) async {
+        final tx = await zkool_pay.prepare(
+          recipients: [zkool_paydart.Recipient(address: toAddress, amount: bal)],
+          options: zkool_pay.PaymentOptions(
+            srcPools: 1,
+            recipientPaysFee: true,
+            smartTransparent: false,
+          ),
+          c: c,
+        );
+        printV("getLatestHeight");
+        final height = await zkool_network.getCurrentHeight(c: c);
+        printV("signTransaction");
+        final signTx = await zkool_pay.signTransaction(pczt: tx, c: c);
+        printV("extractTransaction");
+        final txBytes = await zkool_pay.extractTransaction(package: signTx);
+        printV("broadcastTransaction");
+        return zkool_pay.broadcastTransaction(height: height, txBytes: txBytes, c: c);
+      },
+    );
     printV("result");
     if (result.isEmpty) {
       printV("Unknown error");
       throw Exception("Unknown error");
     }
 
+    await updateCache(mainAccountId: cId);
+
     await Future.delayed(Duration(seconds: 120)); // let it be
     return createAndSweepTAddresses();
   }
 
-  static Future<void> updateCache() async {
+  static Future<void> updateCache({required final int mainAccountId}) async {
     final rotationAccount = await getRotationAccountForCurrentAccount();
     if (rotationAccount == null) {
       printV("rotationAccount is null");
@@ -325,12 +341,16 @@ class ZcashTaddressRotation {
     for (int i = 0; i < txsI.length; i++) {
       txs.add(ZkoolTx(txsI[i], txsA[i]));
     }
-    shieldedAccountsTx[c.account] ??= [];
+    shieldedAccountsTx[mainAccountId] ??= [];
     final txsCrc = txs.map((final t) => t.txHash);
-    shieldedAccountsTx[c.account]!.removeWhere((final t) => txsCrc.contains(t.txHash));
-    shieldedAccountsTx[c.account]!.addAll(txs);
+    shieldedAccountsTx[mainAccountId]!.removeWhere((final t) => txsCrc.contains(t.txHash));
+    shieldedAccountsTx[mainAccountId]!.addAll(txs);
+    if (mainAccountId != rotationAccount &&
+        shieldedAccountsTx.containsKey(rotationAccount)) {
+      shieldedAccountsTx.remove(rotationAccount);
+    }
 
-    final txHist = shieldedAccountsTx[c.account]!;
+    final txHist = shieldedAccountsTx[mainAccountId]!;
     for (int i = 0; i < txHist.length; i++) {
       final tx = txHist[i];
       if (tx.value < BigInt.from(0)) {
@@ -339,6 +359,21 @@ class ZcashTaddressRotation {
     }
     await serializeToFile();
     return;
+  }
+
+  static List<ZkoolTx> rotationTxsForMainAccount(final int mainAccountId) {
+    final direct = shieldedAccountsTx[mainAccountId];
+    if (direct != null && direct.isNotEmpty) {
+      return direct;
+    }
+    for (final entry in shieldedAccountsTx.entries) {
+      if (entry.key != mainAccountId && entry.value.isNotEmpty) {
+        shieldedAccountsTx[mainAccountId] = entry.value;
+        shieldedAccountsTx.remove(entry.key);
+        return entry.value;
+      }
+    }
+    return const [];
   }
 
   static Future<zkool_account.Account?> accountForSeed(final zkool_account.Seed seed) async {
