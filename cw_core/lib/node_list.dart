@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import "package:yaml/yaml.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -78,6 +77,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
       map["isBuiltin"] = 1;
       map["isOfficial"] = ((map["isOfficial"] as bool? ?? false) ? 1 : 0);
       map["isDefault"] = ((map["isDefault"] as bool? ?? false) ? 1 : 0);
+
       final node = Node.fromMap(Map<String, Object>.from(map));
       node.type = type;
       nodes.add(node);
@@ -94,7 +94,11 @@ Future<List<Node>> loadDefaultNanoPowNodes() async {
 
   for (final raw in loadedPowNodes) {
     if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
+      final map = Map.from(raw);
+      map["isBuiltin"] = 1;
+      map["isOfficial"] = ((map["isOfficial"] as bool? ?? false) ? 1 : 0);
+      map["isDefault"] = ((map["isDefault"] as bool? ?? false) ? 1 : 0);
+      final node = Node.fromMap(Map<String, Object>.from(map));
       node.isPow = true;
       node.type = WalletType.nano;
       nodes.add(node);

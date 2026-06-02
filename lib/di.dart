@@ -1118,9 +1118,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
-  getIt.registerLazySingleton(() {
+  getIt.registerFactoryParam<NodeListViewModel, bool, void>((isPow, _) {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(appStore);
+    return NodeListViewModel(appStore, isPow);
   });
 
   getIt.registerFactoryParam<NewAddressesPage, bool, void>(
@@ -1130,11 +1130,6 @@ Future<void> setup({
       dashboardViewModel: getIt<DashboardViewModel>(),
     ),
   );
-
-  getIt.registerLazySingleton(() {
-    final appStore = getIt.get<AppStore>();
-    return PowNodeListViewModel(appStore);
-  });
 
   getIt.registerFactory(() => ConnectionSyncViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
@@ -1178,8 +1173,6 @@ Future<void> setup({
       final Node? editingNode = args['editingNode'] as Node?;
         return NodeCreateOrEditViewModel(
           isPow,
-          getIt.get<NodeListViewModel>(),
-          getIt.get<PowNodeListViewModel>(),
           type,
           getIt.get<SettingsStore>(),
           editingNode: editingNode
@@ -1700,10 +1693,7 @@ Future<void> setup({
   );
 
   getIt.registerFactoryParam<ManageNodesPage, bool, void>((bool isPow, _) {
-    if (isPow) {
-      return ManageNodesPage(isPow, powNodeListViewModel: getIt.get<PowNodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
-    }
-    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
+    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>(param1: isPow), dashboardViewModel: getIt.get<DashboardViewModel>());
   });
 
   getIt.registerFactory(
