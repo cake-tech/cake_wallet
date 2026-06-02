@@ -1,6 +1,4 @@
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
@@ -15,7 +13,9 @@ class CakeImageWidget extends StatelessWidget {
     this.errorWidget,
     this.color,
     this.colorFilter,
-    this.borderRadius = 24.0, this.alignment, this.allowDrawingOutsideViewBox,
+    this.borderRadius = 24.0,
+    this.alignment,
+    this.allowDrawingOutsideViewBox,
   });
 
   final String? imageUrl;
@@ -38,8 +38,8 @@ class CakeImageWidget extends StatelessWidget {
 
     final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
     final isAsset = imageUrl!.startsWith('assets/');
-    final effectiveColorFilter = colorFilter ??
-        (color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null);
+    final effectiveColorFilter =
+        colorFilter ?? (color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null);
 
     Widget imageWidget;
     if (isAsset) {
@@ -49,8 +49,7 @@ class CakeImageWidget extends StatelessWidget {
             width: width,
             alignment: alignment ?? Alignment.center,
             allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
-            colorFilter:
-                effectiveColorFilter,
+            colorFilter: effectiveColorFilter,
             fit: fit ?? BoxFit.contain, errorBuilder: (context, e, trace) {
           return SvgPicture.asset(
             imageUrl!,
@@ -59,8 +58,7 @@ class CakeImageWidget extends StatelessWidget {
             allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
             width: width,
             errorBuilder: (_, __, ___) => SizedBox(height: height, width: width),
-            colorFilter:
-                effectiveColorFilter,
+            colorFilter: effectiveColorFilter,
             fit: fit ?? BoxFit.contain,
           );
         });

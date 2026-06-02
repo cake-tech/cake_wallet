@@ -77,11 +77,9 @@ class NewWalletTypePageRobot {
     tester.printToConsole('Wallet type ${type.name} is now visible and tappable');
   }
 
+  // Tapping a wallet type now navigates directly (the page no longer has a
+  // separate "Next" button — selection happens on tap).
   Future<void> selectWalletType(WalletType type) async {
     await commonTestCases.tapItemByKey('new_wallet_type_${type.name}_button_key');
-  }
-
-  Future<void> onNextButtonPressed() async {
-    await commonTestCases.tapItemByKey('new_wallet_type_next_button_key');
   }
 }
