@@ -162,6 +162,8 @@ abstract class ConnectionSyncViewModelBase with Store {
   @action
   void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
 
+  bool get hasRescan => _wallet.hasRescan;
+
   @action
   void setUseEtherscan(bool value) {
     _settingsStore.useEtherscan = value;

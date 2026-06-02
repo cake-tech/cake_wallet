@@ -31,32 +31,34 @@ class NodeListRow extends StatelessWidget {
 
     final hasLabel = node.label != null && node.label!.isNotEmpty;
     final uriText = "${node.uri.host}:${node.uri.port}";
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
-        child: Row(
-          spacing: 12,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            leading,
-           Expanded(
-             child: Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:4,children: [
-               Row(
-                 spacing: 4,
-                 mainAxisAlignment: MainAxisAlignment.start,
-                 children: [
-                   Text(hasLabel ? node.label! : uriText, style: TextStyle(fontSize: 12),),
-                   if(badgePath != null)
-                     CakeImageWidget(imageUrl: badgePath, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),)
-                 ],
-               ),
-               if(hasLabel) Text(uriText, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),),
-             ],),
-           ),
-            trailing,
-          ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+          child: Row(
+            spacing: 12,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              leading,
+             Expanded(
+               child: Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:4,children: [
+                 Row(
+                   spacing: 4,
+                   mainAxisAlignment: MainAxisAlignment.start,
+                   children: [
+                     Text(hasLabel ? node.label! : uriText, style: TextStyle(fontSize: 12),),
+                     if(badgePath != null)
+                       CakeImageWidget(imageUrl: badgePath, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),)
+                   ],
+                 ),
+                 if(hasLabel) Text(uriText, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),),
+               ],),
+             ),
+              trailing,
+            ],
+          ),
         ),
       ),
     );
