@@ -23,6 +23,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:cw_core/wallet_type.dart';
 
 class AccountCustomizerListItem {
   final BalanceCard card;
@@ -241,6 +242,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   }
 
   bool _checkReadyToManage() {
+    if (widget.dashboardViewModel.wallet.type == WalletType.bitcoin) {
+      return true;
+    }
     if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
       showDialog(
           context: context,
