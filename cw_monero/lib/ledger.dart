@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -118,3 +119,10 @@ void _logLedgerCommand(Uint8List command, [bool isResponse = true]) {
         "> ${_ledgerMoneroCommands[command[1]]} ${toHexString(command.sublist(2))}");
   }
 }
+
+class MoneroLedgerService extends HardwareWalletService {
+  final LedgerConnection connection;
+
+  MoneroLedgerService(this.connection);
+}
+

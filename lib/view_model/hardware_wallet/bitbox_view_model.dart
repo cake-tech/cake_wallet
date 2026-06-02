@@ -78,7 +78,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   bool _isConnecting = false;
 
   @override
-  bool get isConnected => false;
+  bool isConnected(WalletType type) => false;
 
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {

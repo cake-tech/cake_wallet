@@ -41,7 +41,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
     final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
     if (sendVM.wallet.isHardwareWallet) {
-      if (!sendVM.hardwareWalletViewModel!.isConnected) {
+      if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: sendVM.walletType,

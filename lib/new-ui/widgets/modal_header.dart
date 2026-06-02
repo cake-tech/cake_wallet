@@ -4,11 +4,12 @@ import 'package:flutter_svg/svg.dart';
 
 class ModalHeader extends StatelessWidget {
   const ModalHeader(
-      {super.key, required this.iconPath, required this.message, required this.title});
+      {super.key, required this.iconPath, required this.message, required this.title, this.bottomWidget});
 
   final String iconPath;
   final String title;
   final String message;
+  final Widget? bottomWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,11 @@ class ModalHeader extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       color: Theme.of(context).colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
-                ))
+                )),
+            if(bottomWidget != null) ...[
+              Padding(padding: EdgeInsets.symmetric(horizontal: 18), child: Container(height:1, color: Theme.of(context).colorScheme.surfaceContainerHigh),),
+              bottomWidget!
+            ]
           ],
         ),
       ),
