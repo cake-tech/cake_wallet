@@ -94,7 +94,7 @@ class NodeListRow extends StatelessWidget {
             await onEditComplete(res);
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.only(right: 8.0, left: 12.0),
             child: CakeImageWidget(
               imageUrl: "assets/new-ui/3dots_vertical.svg",
               colorFilter:
