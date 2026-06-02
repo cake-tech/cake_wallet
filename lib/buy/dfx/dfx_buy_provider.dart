@@ -336,7 +336,7 @@ class DFXBuyProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     if (wallet.isHardwareWallet) {
-      if (!hardwareWalletVM!.isConnected) {
+      if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,

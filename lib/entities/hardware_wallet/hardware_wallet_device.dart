@@ -1,5 +1,6 @@
 import 'package:bitbox_flutter/usb/bitbox_device.dart' as bitbox;
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
+import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
 
 abstract class HardwareWalletDevice {
   String get name;
@@ -41,6 +42,21 @@ class BitboxHardwareWalletDevice extends HardwareWalletDevice {
   HardwareWalletConnectionType get connectionType => HardwareWalletConnectionType.usb;
 }
 
+class TrezorHardwareWalletDevice extends HardwareWalletDevice {
+  final trezor.TrezorDevice device;
+
+  TrezorHardwareWalletDevice(this.device);
+
+  @override
+  String get name => device.name;
+
+  @override
+  HardwareWalletDeviceType get type => device.deviceInfo.toGeneric();
+
+  @override
+  HardwareWalletConnectionType get connectionType => device.connectionType.toGeneric();
+}
+
 enum HardwareWalletDeviceType {
   ledgerBlue,
   ledgerNanoS,
@@ -50,7 +66,12 @@ enum HardwareWalletDeviceType {
   ledgerStax,
   ledgerFlex,
   BitBox02,
-  BitBox02Nova;
+  BitBox02Nova,
+  trezorModelOne,
+  trezorModelT,
+  trezorSafe3,
+  trezorSafe5,
+  trezorSafe7;
 }
 
 enum HardwareWalletConnectionType {
@@ -60,7 +81,7 @@ enum HardwareWalletConnectionType {
   qr;
 }
 
-extension ToGenericHardwareWalletDeviceType on ledger.LedgerDeviceType {
+extension LedgerToGenericHardwareWalletDeviceType on ledger.LedgerDeviceType {
   HardwareWalletDeviceType toGeneric() {
     switch (this) {
       case ledger.LedgerDeviceType.blue:
@@ -81,12 +102,40 @@ extension ToGenericHardwareWalletDeviceType on ledger.LedgerDeviceType {
   }
 }
 
-extension ToGenericHardwareWalletConnectionType on ledger.ConnectionType {
+extension TrezorToGenericHardwareWalletDeviceType on trezor.TrezorDeviceType {
+  HardwareWalletDeviceType toGeneric() {
+    switch (this) {
+      case trezor.TrezorDeviceType.modelOne:
+        return HardwareWalletDeviceType.trezorModelOne;
+      case trezor.TrezorDeviceType.modelT:
+        return HardwareWalletDeviceType.trezorModelT;
+      case trezor.TrezorDeviceType.safe3:
+        return HardwareWalletDeviceType.trezorSafe3;
+      case trezor.TrezorDeviceType.safe5:
+        return HardwareWalletDeviceType.trezorSafe5;
+      case trezor.TrezorDeviceType.safe7:
+        return HardwareWalletDeviceType.trezorSafe7;
+    }
+  }
+}
+
+extension LedgerToGenericHardwareWalletConnectionType on ledger.ConnectionType {
   HardwareWalletConnectionType toGeneric() {
     switch (this) {
       case ledger.ConnectionType.usb:
         return HardwareWalletConnectionType.usb;
       case ledger.ConnectionType.ble:
+        return HardwareWalletConnectionType.ble;
+    }
+  }
+}
+
+extension TrezorToGenericHardwareWalletConnectionType on trezor.ConnectionType {
+  HardwareWalletConnectionType toGeneric() {
+    switch (this) {
+      case trezor.ConnectionType.usb:
+        return HardwareWalletConnectionType.usb;
+      case trezor.ConnectionType.ble:
         return HardwareWalletConnectionType.ble;
     }
   }
