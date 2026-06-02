@@ -88,8 +88,14 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   List<CryptoCurrency> get _visibleItems {
     final query = _searchController.text.trim();
     return widget.args.items
+        .where(_hasSupportedChain)
         .where((c) => currencyMatchesQuery(c, query) && _matchesNetwork(c))
         .toList(growable: false);
+  }
+
+  bool _hasSupportedChain(CryptoCurrency c) {
+    if (c.tag == null) return true;
+    return cryptoCurrencyOrTokenToWalletType(c) != null;
   }
 
   void _selectCurrency(CryptoCurrency currency) {
