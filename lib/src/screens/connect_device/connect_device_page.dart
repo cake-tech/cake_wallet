@@ -7,7 +7,6 @@ import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -250,6 +249,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                               final item = allDevices[index];
                               return GestureDetector(
                                 onTap: () => _connectToDevice(item),
+                                behavior: HitTestBehavior.opaque,
                                 child: SizedBox(
                                   height: 48,
                                   child: Padding(
