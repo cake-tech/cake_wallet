@@ -2,12 +2,12 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
+import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -83,9 +83,17 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                       widget.transactionDetailsViewModel.formattedStatus,
                                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
-                                Text(
-                                  widget.transactionDetailsViewModel.formattedCryptoAmount,
-                                  style: TextStyle(fontSize: 28),
+                                CopyWrapper(
+                                  requireLongPress: true,
+                                  data: ClipboardData(text: widget.transactionDetailsViewModel.formattedCryptoAmount),
+                                  builder: (context, copied)=> AnimatedSwitcher(
+                                    duration: Duration(milliseconds: 300),
+                                    child: Text(
+                                      key: ValueKey(copied),
+                                      copied ? S.of(context).copied : widget.transactionDetailsViewModel.formattedCryptoAmount,
+                                      style: TextStyle(fontSize: 28, color: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface),
+                                    ),
+                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(16.0),
