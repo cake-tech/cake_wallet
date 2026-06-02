@@ -177,13 +177,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       return true;
     } catch (e) {
       await _client?.connection.disconnect();
-      _isConnecting = false;
       _client = null;
       _state = sdk.ThpState();
       // rethrow;
       paringState = TrezorParingState.fail(e.toString());
       printV(e);
       return false;
+    } finally {
+      _isConnecting = false;
     }
   }
 

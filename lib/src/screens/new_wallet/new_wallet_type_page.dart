@@ -125,67 +125,71 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               S.of(context).choose_wallet_currency,
               textAlign: TextAlign.center,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: ListView.separated(
-                  itemCount: filteredTypes.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final item = filteredTypes[index];
-                    final curr = getCryptoCurrencyForWalletListItem(item);
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: ListView.separated(
+                    key: const ValueKey('new_wallet_type_scrollable_key'),
+                    itemCount: filteredTypes.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final item = filteredTypes[index];
+                      final curr = getCryptoCurrencyForWalletListItem(item);
 
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        onTypeSelected(item);
-                      },
-                      child: SizedBox(
-                        height: 48,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  CakeImageWidget(
-                                    height: 24,
-                                    width: 24,
-                                    imageUrl: curr.iconPath,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(curr.fullName ?? curr.name),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    curr.title,
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      return GestureDetector(
+                        key: ValueKey('new_wallet_type_${item.name}_button_key'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          onTypeSelected(item);
+                        },
+                        child: SizedBox(
+                          height: 48,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    CakeImageWidget(
+                                      height: 24,
+                                      width: 24,
+                                      imageUrl: curr.iconPath,
                                     ),
-                                  )
-                                ],
-                              ),
-                              CakeImageWidget(
-                                imageUrl: "assets/new-ui/arrow_forward.svg",
-                                height: 16,
-                                colorFilter: ColorFilter.mode(
-                                  Theme.of(context).colorScheme.onSurfaceVariant,
-                                  BlendMode.srcIn,
+                                    const SizedBox(width: 12),
+                                    Text(curr.fullName ?? curr.name),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      curr.title,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              )
-                            ],
+                                CakeImageWidget(
+                                  imageUrl: "assets/new-ui/arrow_forward.svg",
+                                  height: 16,
+                                  colorFilter: ColorFilter.mode(
+                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                    BlendMode.srcIn,
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (context, index) => Container(
-                    height: 1,
-                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      );
+                    },
+                    separatorBuilder: (context, index) => Container(
+                      height: 1,
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    ),
                   ),
                 ),
               ),

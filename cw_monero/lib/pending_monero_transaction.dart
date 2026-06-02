@@ -66,8 +66,6 @@ class PendingMoneroTransaction with PendingTransaction {
         printV(err);
         throw err;
       }
-
-      return;
     } else {
       try {
         await monero_transaction_history.commitTransactionFromPointerAddress(
