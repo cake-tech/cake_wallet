@@ -426,6 +426,8 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                         symbolResolver: symbolResolver,
                       ),
                       onTap: () => onSelect(item),
+                      chainPillLabel: _chainPillLabelFor(item),
+                      chainBadgePath: _chainBadgePathFor(item),
                     ),
                   if (xstocks.length > _previewCount)
                     _SeeAllRow(
