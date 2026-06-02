@@ -51,14 +51,14 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
       return;
     }
 
-    final needs = await _hasTransparentCenter(url);
+    final needs = await _isMostlyTransparent(url);
     _backdropCache[url] = needs;
     if (mounted) {
       setState(() => _needsBackdrop = needs);
     }
   }
 
-  Future<bool> _hasTransparentCenter(String url) async {
+  Future<bool> _isMostlyTransparent(String url) async {
     if (url.toLowerCase().endsWith('.svg')) return false;
 
     final ImageProvider provider;
@@ -90,12 +90,14 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
       final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
       if (byteData == null) return false;
 
-      final centerX = image.width ~/ 2;
-      final centerY = image.height ~/ 2;
-      final offset = (centerY * image.width + centerX) * 4;
-      final alpha = byteData.getUint8(offset + 3);
+      final totalPixels = image.width * image.height;
+      var transparentPixels = 0;
+      for (var i = 0; i < totalPixels; i++) {
+        final alpha = byteData.getUint8(i * 4 + 3);
+        if (alpha < 128) transparentPixels++;
+      }
 
-      return alpha < 128;
+      return transparentPixels / totalPixels > 0.2;
     } catch (e) {
       printV('TokenImageWidget: failed to analyze $url: $e');
       return false;
@@ -126,7 +128,7 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Colors.white,
       ),
       child: image,
     );
