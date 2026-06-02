@@ -160,7 +160,7 @@ class DEuroSavingsPage extends BasePage {
 
   Future<void> _requireHardwareWallet(BuildContext context) async {
     if (_dEuroViewModel.wallet.isHardwareWallet) {
-      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected) {
+      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected(_dEuroViewModel.wallet.type)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: _dEuroViewModel.wallet.type,

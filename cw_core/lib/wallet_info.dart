@@ -44,7 +44,7 @@ enum HardwareWalletType {
   coldcard,
   seedsigner,
   keystone,
-  trezor,
+  trezor;
 }
 
 enum WalletInfoAddressType {
