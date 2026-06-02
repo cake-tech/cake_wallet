@@ -117,35 +117,47 @@ class _ScanPageState extends State<ScanPage> {
               children: [
                 ModalTopBar(
                   title: "",
-                  trailingWidget: Row(
-                    spacing: 8,
-                    children: [
-                      if ((_numCameras ?? 0) > 1)
-                        ModernButton.svg(
+                  trailingWidget: AnimatedOpacity(
+                    duration: textModeSwitchDuration,
+                    opacity: _textInputMode ? 0 : 1,
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        if ((_numCameras ?? 0) > 1)
+                          ModernButton.svg(
+                            size: 36,
+                            iconSize: 24,
+                            svgPath: "assets/new-ui/camera_flip.svg",
+                            onPressed: () {
+                              controller.switchCamera();
+                              setState(() {
+                                _frontFlashMode = false;
+                              });
+                            },
+                            iconColor: buttonIconColor,
+                            backgroundColor: buttonColor,
+                          ),
+                        ModernButton(
                           size: 36,
                           iconSize: 24,
-                          svgPath: "assets/new-ui/camera_flip.svg",
-                          onPressed: controller.switchCamera,
+                          icon: Icon(
+                              (controller.value.torchState == TorchState.on || _frontFlashMode)
+                                  ? Icons.flash_off_outlined
+                                  : Icons.flash_on),
+                          onPressed: () {
+                            if (controller.value.cameraDirection == CameraFacing.front) {
+                              setState(() {
+                                _frontFlashMode = !_frontFlashMode;
+                              });
+                            } else {
+                              controller.toggleTorch();
+                            }
+                          },
                           iconColor: buttonIconColor,
                           backgroundColor: buttonColor,
                         ),
-                      ModernButton.svg(
-                        size: 36,
-                        iconSize: 20,
-                        svgPath: "assets/new-ui/camera_flash.svg",
-                        onPressed: () {
-                          if (controller.value.cameraDirection == CameraFacing.front) {
-                            setState(() {
-                              _frontFlashMode = !_frontFlashMode;
-                            });
-                          } else {
-                            controller.toggleTorch();
-                          }
-                        },
-                        iconColor: buttonIconColor,
-                        backgroundColor: buttonColor,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   leadingWidget: Row(
                     textBaseline: TextBaseline.ideographic,
@@ -155,7 +167,15 @@ class _ScanPageState extends State<ScanPage> {
                         size: 36,
                         iconSize: 18,
                         icon: Icon(Icons.arrow_back_ios_new),
-                        onPressed: Navigator.of(context).pop,
+                        onPressed: () {
+                          if (_textInputMode) {
+                            setState(() {
+                              _textInputMode = false;
+                            });
+                          } else {
+                            Navigator.of(context).pop();
+                          }
+                        },
                         iconColor: buttonIconColor,
                         backgroundColor: buttonColor,
                       ),
