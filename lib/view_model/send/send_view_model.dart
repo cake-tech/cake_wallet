@@ -619,7 +619,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
       if (wallet.isHardwareWallet) {
-        state = IsAwaitingDeviceResponseState();
         if (walletType == WalletType.monero) {
           _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
             if (monero!.getLastLedgerCommand() == "INS_CLSAG") {
@@ -627,6 +626,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               state = IsDeviceSigningResponseState();
             }
           });
+        } else {
+          state = IsAwaitingDeviceResponseState();
         }
       }
 
@@ -970,8 +971,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
+
     try {
-      state = TransactionCommitting();
+      state = wallet.isHardwareWallet && walletType == WalletType.monero
+          ? IsAwaitingDeviceResponseState()
+          : TransactionCommitting();
 
       if (ocpRequest != null) {
         await _handleOcpRequest();

@@ -231,12 +231,9 @@ class CommonTestFlows {
 
     await _newWalletTypePageRobot.findParticularWalletTypeInScrollableList(type);
 
+    // Tapping the wallet type navigates directly (no separate Next button).
     _tester.printToConsole('Tapping wallet type: ${type.name}');
     await _newWalletTypePageRobot.selectWalletType(type);
-    await _tester.pumpAndSettle(Duration(milliseconds: 500));
-
-    _tester.printToConsole('Pressing next button');
-    await _newWalletTypePageRobot.onNextButtonPressed();
 
     await _tester.pumpAndSettle(Duration(milliseconds: 2000));
 
