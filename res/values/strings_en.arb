@@ -208,6 +208,7 @@
   "close": "Close",
   "coin_control": "Coin Control (optional)",
   "coin_control_desc": "Filter outputs for this transaction. The changes you make here will only reflect on the current transaction.",
+  "coin_control_desc_no_edit": "Freeze outputs if needed. The changes will be persistent across all transactions. You can also filter outputs for one transaction on the Send or Swap screens.",
   "coin_control_load_failed": "Failed to load unspent coins",
   "cold_or_recover_wallet": "Add an air-gapped cold wallet or recover a paper wallet.",
   "collection_address": "Collection Address",

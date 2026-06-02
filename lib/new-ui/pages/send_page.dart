@@ -516,7 +516,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             label: "Coin Control",
                                             onTap: () {
                                               showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,);
+                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,canEdit: true);
                                               });
                                             }
                                           ),
