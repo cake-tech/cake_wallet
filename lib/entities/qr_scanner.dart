@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/pages/scan_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -17,7 +18,7 @@ Future<String?> presentQRScanner(BuildContext context) async {
     final result = await Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (context) {
-          return BarcodeScannerSimple();
+          return ScanPage();
         },
       ),
     );
