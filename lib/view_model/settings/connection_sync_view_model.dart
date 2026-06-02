@@ -162,7 +162,7 @@ abstract class ConnectionSyncViewModelBase with Store {
   @action
   void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
 
-  bool get hasRescan => _wallet.hasRescan && _wallet.type != WalletType.bitcoin;
+  bool get hasRescan => _wallet.hasRescan && _wallet.type != WalletType.bitcoin && _wallet.type != WalletType.litecoin;
 
   @action
   void setUseEtherscan(bool value) {
