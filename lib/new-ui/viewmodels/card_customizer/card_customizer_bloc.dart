@@ -185,8 +185,11 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   void _onAccountHidden(AccountHidden event, Emitter<CardCustomizerState> emit) {
-    BalanceCardStyleSettings.fromCardDesign(_wallet.walletInfo.internalId, state.accountIndex,
-            state.cardOrder, state.selectedDesign,
+    BalanceCardStyleSettings.fromCardDesign(
+            walletInfoId: _wallet.walletInfo.internalId,
+            accountIndex: state.accountIndex,
+            cardOrder: state.cardOrder,
+            design: state.selectedDesign,
             hidden: true)
         .insert()
         .then((value) {
