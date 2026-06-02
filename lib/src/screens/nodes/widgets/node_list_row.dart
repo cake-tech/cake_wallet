@@ -10,7 +10,10 @@ class NodeListRow extends StatelessWidget {
       required this.onTap,
         required this.onEditComplete,
       required this.isSelected,
-      required this.isPow, this.speed});
+      required this.isPow,
+      this.speed,
+      this.vertical = 10.0,
+      this.horizontal = 12.0});
 
   final Node node;
   final bool isPow;
@@ -18,6 +21,8 @@ class NodeListRow extends StatelessWidget {
   final Future<void> Function(Object?) onEditComplete;
   final bool isSelected;
   final NodeSpeed? speed;
+  final double vertical;
+  final double horizontal;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,7 @@ class NodeListRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12),
+        padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
         child: Row(
           spacing: 12,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -71,7 +76,14 @@ class NodeListRow extends StatelessWidget {
   Widget buildTrailing(BuildContext context) {
     return Row(
       children: [
-        if (speed != null) CakeImageWidget(imageUrl: speed!.iconPath, width: 24, height: 24),
+        if (speed != null)
+          CakeImageWidget(
+            imageUrl: Theme.of(context).brightness == Brightness.dark
+                ? speed!.darkIconPath
+                : speed!.iconPath,
+            width: 24,
+            height: 24,
+          ),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () async {

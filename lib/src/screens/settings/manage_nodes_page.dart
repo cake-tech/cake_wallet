@@ -44,14 +44,18 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
         trailingWidget: Row(
           spacing: 8,
           children: [
-            Observer(
-              builder: (_) => ModernButton(
-                  size: 36,
-                  icon: widget.nodeListViewModel.isTestingNodeSpeed
-                      ? CupertinoActivityIndicator()
-                      : Icon(Icons.refresh),
-                  onPressed: () => widget.nodeListViewModel.speedTestNodes()),
-            ),
+            // Observer(
+            //   builder: (_) => ModernButton(
+            //       size: 36,
+            //       icon: widget.nodeListViewModel.isTestingNodeSpeed
+            //           ? CupertinoActivityIndicator()
+            //           : Icon(Icons.refresh),
+            //       onPressed: () => widget.nodeListViewModel.speedTestNodes()),
+            // ),
+            ModernButton(
+                size: 36,
+                icon: Icon(Icons.history),
+                onPressed: () => Navigator.of(context).pushNamed(Routes.rescan)),
             ModernButton(
                 size: 36,
                 icon: Icon(Icons.add),
@@ -71,6 +75,8 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
         title: S.of(context).nodes,
         bottomWidget: Observer(
             builder: (_) => NodeListRow(
+                vertical: 0,
+                horizontal: 0,
                 node: widget.nodeListViewModel.currentNode,
                 speed: widget.nodeListViewModel.nodeSpeedFor(widget.nodeListViewModel.currentNode),
                 onEditComplete: (res)async{

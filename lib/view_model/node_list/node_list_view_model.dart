@@ -19,20 +19,21 @@ part 'node_list_view_model.g.dart';
 
 class NodeSpeed {
   final String iconPath;
+  final String darkIconPath;
 
   // fraction of best node ping needed to be classified as this speed.
   final double treshold;
 
-  const NodeSpeed._(this.iconPath, this.treshold);
+  const NodeSpeed._(this.iconPath,  this.darkIconPath, this.treshold);
 
   static const disconnected = NodeSpeed._(
-      "assets/new-ui/node_speed_badges/disconnected.svg", 0);
+      "assets/new-ui/node_speed_badges/disconnected.svg", "assets/new-ui/node_speed_badges/disconnected-dark.svg", 0);
   static const slow = NodeSpeed._(
-      "assets/new-ui/node_speed_badges/slow.svg", 0);
+      "assets/new-ui/node_speed_badges/slow.svg", "assets/new-ui/node_speed_badges/slow-dark.svg", 0);
   static const medium = NodeSpeed._(
-      "assets/new-ui/node_speed_badges/medium.svg", 0.5);
+      "assets/new-ui/node_speed_badges/medium.svg", "assets/new-ui/node_speed_badges/medium.svg", 0.5);
   static const fast = NodeSpeed._(
-      "assets/new-ui/node_speed_badges/fast.svg", 0.8);
+      "assets/new-ui/node_speed_badges/fast.svg", "assets/new-ui/node_speed_badges/fast.svg", 0.8);
 
   static const all = [fast, medium, slow, disconnected];
 }
