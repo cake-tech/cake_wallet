@@ -6,19 +6,20 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:fast_scanner/fast_scanner.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:ur/ur_decoder.dart';
 
 var isQrScannerShown = false;
 
-Future<String?> presentQRScanner(BuildContext context) async {
+Future<String?> presentQRScanner(BuildContext context, {bool showHelp = false, bool showManualInput = true}) async {
   isQrScannerShown = true;
   try {
     final result = await Navigator.of(context).push<String>(
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (context) {
-          return ScanPage();
+          return ScanPage(showHelp: showHelp,showManualInput: showManualInput,);
         },
       ),
     );

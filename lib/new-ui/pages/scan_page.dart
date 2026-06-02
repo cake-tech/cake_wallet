@@ -1,16 +1,26 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/scan_page/network_list.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:fast_scanner/fast_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:ur/ur_decoder.dart';
 
 class ScanPage extends StatefulWidget {
-  ScanPage({super.key});
+  const ScanPage({super.key, this.showHelp = false, this.showManualInput = true});
+
+  final bool showHelp;
+  final bool showManualInput;
 
   @override
   State<ScanPage> createState() => _ScanPageState();
@@ -23,6 +33,13 @@ class _ScanPageState extends State<ScanPage> {
   bool _textInputMode = false;
   final TextEditingController textController = TextEditingController();
   final FocusNode textFocusNode = FocusNode();
+  List<String> urCodes = [];
+  late var ur = URQRToURQRData(urCodes);
+  final decoder = URDecoder();
+  bool popped = false;
+  Barcode? _barcode;
+
+
 
   @override
   void initState() {
@@ -45,6 +62,7 @@ class _ScanPageState extends State<ScanPage> {
         children: [
           MobileScanner(
             controller: controller,
+            onDetect: _handleBarcode,
           ),
           Positioned.fill(
             child: GestureDetector(
@@ -173,6 +191,15 @@ class _ScanPageState extends State<ScanPage> {
                         enabled: _textInputMode,
                         controller: textController,
                         focusNode: textFocusNode,
+                        onSubmitted: (val) {
+                          if(val.isNotEmpty) {
+                            Navigator.of(context).pop(val);
+                          } else {
+                            setState(() {
+                              _textInputMode = false;
+                            });
+                          }
+                        },
                         decoration: InputDecoration(hintText: S.of(context).enter_code),
                       ),
                     ),
@@ -200,12 +227,27 @@ class _ScanPageState extends State<ScanPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 8,
                   children: [
-                    ScanPageButton(
-                        onTap: () {},
-                        icon: Icons.photo_outlined,
-                        label: S.of(context).gallery,
-                        buttonColor: buttonColor,
-                        buttonIconColor: buttonIconColor),
+                    // "not mvp"
+                    // ScanPageButton(
+                    //     onTap: () async {
+                    //       FilePickerResult? res = await FilePicker.platform.pickFiles(
+                    //         type: FileType.image,
+                    //         allowMultiple: false,
+                    //         withData: false,
+                    //       );
+                    //
+                    //       if (res != null && res.paths.isNotEmpty && res.paths.first != null) {
+                    //         final capture = await controller.analyzeImage(res.paths.first!);
+                    //         if (capture != null) {
+                    //           _handleBarcode(capture);
+                    //         }
+                    //       }
+                    //     },
+                    //     icon: Icons.photo_outlined,
+                    //     label: S.of(context).gallery,
+                    //     buttonColor: buttonColor,
+                    //     buttonIconColor: buttonIconColor),
+                    if(widget.showManualInput)
                     ScanPageButton(
                         onTap: () {
                           setState(() {
@@ -215,11 +257,17 @@ class _ScanPageState extends State<ScanPage> {
                               .then((val) => textFocusNode.requestFocus());
                         },
                         icon: Icons.edit_outlined,
-                        label: S.of(context).input,
+                        label: S.of(context).manual_input,
                         buttonColor: buttonColor,
                         buttonIconColor: buttonIconColor),
+                    if(widget.showHelp)
                     ScanPageButton(
-                        onTap: () {},
+                        onTap: () => showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            useSafeArea: true,
+                            backgroundColor: Theme.of(context).colorScheme.surface,
+                            builder: (context) => ScanPageNetworkList()),
                         icon: Icons.question_mark,
                         buttonColor: buttonColor,
                         buttonIconColor: buttonIconColor)
@@ -229,6 +277,62 @@ class _ScanPageState extends State<ScanPage> {
         ],
       ),
     );
+  }
+
+  void _handleBarcode(BarcodeCapture barcodes) {
+    try {
+      _handleBarcodeInternal(barcodes);
+    } catch (e, st) {
+      showPopUp<void>(
+        context: context,
+        builder: (context) {
+          return AlertWithOneAction(
+            alertTitle: S.of(context).error,
+            alertContent: S.of(context).error_dialog_content,
+            buttonText: 'ok',
+            buttonAction: () {
+              Navigator.of(context).pop();
+            },
+          );
+        },
+      );
+      printV("$e\n$st");
+    }
+  }
+
+  void _handleBarcodeInternal(BarcodeCapture barcodes) {
+    for (final barcode in barcodes.barcodes) {
+      if (barcode.rawValue?.trim().isEmpty ?? false == false) continue;
+      if (barcode.rawValue!.startsWith("ur:")) {
+        if (urCodes.contains(barcode.rawValue)) continue;
+        decoder.receivePart(barcode.rawValue!);
+        setState(() {
+          urCodes.add(barcode.rawValue!);
+          ur = URQRToURQRData(urCodes);
+        });
+        if (decoder.estimatedPercentComplete() == 1) {
+          setState(() {
+            popped = true;
+          });
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pop(ur.inputs.join("\n"));
+          });
+        }
+        ;
+      }
+    }
+    if (urCodes.isNotEmpty) return;
+    if (mounted) {
+      setState(() {
+        _barcode = barcodes.barcodes.firstOrNull;
+      });
+      if (_barcode != null && popped != true) {
+        setState(() {
+          popped = true;
+        });
+        Navigator.of(context).pop(_barcode!.rawValue ?? _barcode!.rawBytes);
+      }
+    }
   }
 }
 

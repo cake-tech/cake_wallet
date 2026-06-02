@@ -167,7 +167,7 @@ class CoinActionRow extends StatelessWidget {
         ),
       );
     } else {
-      final code = await presentQRScanner(context);
+      final code = await presentQRScanner(context, showHelp: true,);
 
       if (code == null || code.isEmpty) return;
 
