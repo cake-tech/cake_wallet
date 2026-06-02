@@ -470,10 +470,15 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
   }
 
   String? _chainPillLabelFor(CryptoCurrency c) {
-    if (c == CryptoCurrency.btcln) return chainNameForCurrency(c);
-    if (_isL2NativeEth(c)) return chainNameForCurrency(c);
+    if (c == CryptoCurrency.btcln) return _shortChainLabel(c);
+    if (_isL2NativeEth(c)) return _shortChainLabel(c);
     if (widget.natives.contains(c)) return null;
     if (cryptoCurrencyOrTokenToWalletType(c) == null) return null;
+    return _shortChainLabel(c);
+  }
+
+  String _shortChainLabel(CryptoCurrency c) {
+    if (cryptoCurrencyOrTokenToWalletType(c) == WalletType.bsc) return 'BSC';
     return chainNameForCurrency(c);
   }
 
