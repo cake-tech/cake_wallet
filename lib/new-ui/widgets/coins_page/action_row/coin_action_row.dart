@@ -167,7 +167,11 @@ class CoinActionRow extends StatelessWidget {
         ),
       );
     } else {
-      final code = await presentQRScanner(context, showHelp: true,);
+      final code = await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+          context: context,
+          builder: (context) => ScanPage(
+                showHelp: true,
+              ));
 
       if (code == null || code.isEmpty) return;
 
