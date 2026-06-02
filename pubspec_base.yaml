@@ -125,7 +125,7 @@ dependencies:
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 60817d4b20144f9da9029f5034790272795b9d38
+      ref: 0ccfbe26298e8974dfd4e891f34719c8348562f9
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
@@ -203,7 +203,7 @@ dependency_overrides:
   ledger_flutter_plus:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: 5237e5b3d5f07696eefd0aaee9c32478ed399d20
+      ref: 7bcb00380783f8611f68f5cd63fec96261fea2c2
   ledger_usb_plus:
     git:
       url: https://github.com/konstantinullrich/ledger-usb-plus
@@ -227,6 +227,10 @@ dependency_overrides:
   decimal: ^2.3.3
   flutter_rust_bridge: 2.11.1
   flutter_secure_storage_windows: 3.1.2
+  universal_ble:
+    git:
+      url: https://github.com/cake-tech/universal_ble.git
+      ref: f7044558ad111a156987614971e08c583c80175c
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -284,7 +288,14 @@ flutter:
     - assets/new-ui/navbar/
     - assets/new-ui/changelog/icons/
     - assets/new-ui/changelog/text/
+    - assets/new-ui/card_icons/
+    - assets/new-ui/card_icons/chain_icons/
+    - assets/new-ui/card_icons/og_icons/
+    - assets/new-ui/card_icons/outline_icons/
+    - assets/new-ui/card_icons/symbol_icons/
     - assets/new-ui/crypto_full_icons/
+    - assets/new-ui/hardware_wallets/
+    - assets/new-ui/node_speed_badges/
 
   fonts:
     - family: Lato

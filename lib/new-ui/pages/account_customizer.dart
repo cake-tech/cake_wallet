@@ -372,10 +372,10 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       final item = visualOrder[i];
 
       await BalanceCardStyleSettings.fromCardDesign(
-              widget.dashboardViewModel.wallet.walletInfo.internalId,
-              item.accountListItem.id,
-              i,
-              item.card.design)
+              walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
+          accountIndex: item.accountListItem.id,
+          cardOrder: i,
+              design: item.card.design)
           .insert();
     }
   }

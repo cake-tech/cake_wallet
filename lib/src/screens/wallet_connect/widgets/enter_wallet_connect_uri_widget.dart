@@ -75,15 +75,15 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
                   fontWeight: FontWeight.w500,
                 ),
             suffixIcon: Container(
-              width: 24,
-              height: 24,
+              width: 36,
+              height: 36,
               padding: EdgeInsets.only(top: 0),
-              child: Semantics(
+              child: Semantics( 
                 label: S.of(context).paste,
                 child: InkWell(
                   onTap: () => _pasteWalletConnectURI(),
                   child: Container(
-                    padding: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(6)),
                     ),

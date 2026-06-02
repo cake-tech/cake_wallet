@@ -1,20 +1,20 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/screens/nodes/node_share_page.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobx/mobx.dart';
 
 class NodeCreateOrEditPage extends StatefulWidget {
@@ -76,6 +76,14 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
       },
     );
 
+
+    reaction((_)=>widget.nodeCreateOrEditViewModel.state, (state) async {
+      if(state is ExecutedSuccessfullyState) {
+        await Future.delayed(Duration(milliseconds: 100));
+        if (mounted) Navigator.of(context).pop(widget.nodeCreateOrEditViewModel.editingNode);
+      }
+
+    });
   }
 
   @override
@@ -90,86 +98,62 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
               title: widget.editingNode != null ? S.current.edit_node : S.current.node_new,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: Navigator.of(context).pop,
-              trailingIcon: CakeImageWidget(imageUrl:
-                "assets/new-ui/scan.svg",width:24,height:24,
-                colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-              ),
-              onTrailingPressed: () => widget.nodeCreateOrEditViewModel.scanQRCodeForNewNode(context),
+              trailingIcon: Icon(Icons.check),
+              onTrailingPressed: () async {
+                if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
+                  return;
+                }
+
+                await widget.nodeCreateOrEditViewModel
+                    .save(saveAsCurrent: widget.isSelected ?? false);
+              },
             ),
             Expanded(
               child: KeyboardHideOverlay(
                 child: Container(
                   padding: const EdgeInsets.only(left: 18, right: 18),
-                  child: ScrollableWithBottomSection(
-                    contentPadding: const EdgeInsets.only(bottom: 24.0, top: 8),
-                    content: NodeForm(
+                  child: Column(
+                    spacing: 18,
+                    children: [NodeForm(
                       key: _nodeFormKey,
                       nodeViewModel: widget.nodeCreateOrEditViewModel,
                     ),
-                    bottomSectionPadding: const EdgeInsets.only(bottom: 24),
-                    bottomSection: Observer(
-                      builder: (_) => Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Flexible(
-                            child: Container(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: LoadingPrimaryButton(
-                                onPressed: () async {
-                                  final confirmed = await showPopUp<bool>(
-                                        context: context,
-                                        builder: (context) => AlertWithTwoActions(
-                                          alertTitle: S.of(context).remove_node,
-                                          alertContent: S.of(context).remove_node_message,
-                                          rightButtonText: S.of(context).remove,
-                                          leftButtonText: S.of(context).cancel,
-                                          actionRightButton: () => Navigator.pop(context, true),
-                                          actionLeftButton: () => Navigator.pop(context, false),
-                                        ),
-                                      ) ??
-                                      false;
+      NewListSections(sections: {"":[
+        if(widget.editingNode != null)
 
-                                  if (confirmed) {
-                                    await widget.nodeCreateOrEditViewModel.delete(editingNode: widget.editingNode!);
-                                    Navigator.of(context).pop();
-                                  }
-                                },
-                                text: S.of(context).delete,
-                                isDisabled: widget.editingNode == null ||
-                                    !widget.nodeCreateOrEditViewModel.isReady ||
-                                    widget.editingNode!.isBuiltin ||
-                                    (widget.isSelected ?? false),
-                                color: Theme.of(context).colorScheme.errorContainer,
-                                textColor: Theme.of(context).colorScheme.onErrorContainer,
-                              ),
-                            ),
-                          ),
-                          Flexible(
-                            child: Container(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: PrimaryButton(
-                                onPressed: () async {
-                                  if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
-                                    return;
-                                  }
+          ListItemRegularRow(keyValue: "share", label: S.of(context).share_this_node, foregroundColor: Theme.of(context).colorScheme.primary, showArrow: false, onTap: (){
 
-                                  await widget.nodeCreateOrEditViewModel.save(
-                                       saveAsCurrent: widget.isSelected ?? false);
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                  }
-                                },
-                                text: S.of(context).save,
-                                color: Theme.of(context).colorScheme.primary,
-                                textColor: Theme.of(context).colorScheme.onPrimary,
-                                isDisabled: (!widget.nodeCreateOrEditViewModel.isReady) ||
-                                    (widget.nodeCreateOrEditViewModel.connectionState is IsExecutingState),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+          Navigator.of(context).push(CupertinoPageRoute(builder: (context)=>NodeSharePage(uri: widget.editingNode!.uri, currency: walletTypeToCryptoCurrency(widget.type!))));
+          
+          
+        }),
+        if(!(widget.editingNode == null ||
+            !widget.nodeCreateOrEditViewModel.isReady ||
+            widget.editingNode!.isBuiltin ||
+            (widget.isSelected ?? false)))
+        ListItemRegularRow(keyValue: "delete", label: S.of(context).delete_this_node, foregroundColor: Theme.of(context).colorScheme.errorContainer, showArrow: false, onTap: ()async{
+          final confirmed = await showPopUp<bool>(
+            context: context,
+            builder: (context) => AlertWithTwoActions(
+              alertTitle: S.of(context).remove_node,
+              alertContent: S.of(context).remove_node_message,
+              rightButtonText: S.of(context).remove,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.pop(context, true),
+              actionLeftButton: () => Navigator.pop(context, false),
+            ),
+          ) ??
+              false;
+
+          if (confirmed) {
+            await widget.nodeCreateOrEditViewModel.delete(editingNode: widget.editingNode!);
+            Navigator.of(context).pop();
+          }
+
+        })
+      ]})
+
+                    ]
                   ),
                 ),
               ),
