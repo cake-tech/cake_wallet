@@ -1107,12 +1107,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             id: pendingTransaction!.evmTxHashFromRawHex!,
             height: 0,
             // FIXME(malik) this is even more critical given all the issues we had with decimal point parsing. with money it'll be easy
-            ethAmount: BigInt.parse(evm!
-                .getPendingTransactionAmount(pendingTransaction!)
-                .replaceAll(".", "")
-                .replaceAll(",", "")),
-            ethFee: evm!.getPendingTransactionFee(pendingTransaction!),
-            tokenSymbol: currency.title,
+            ethAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
+            ethFee: CryptoCurrency.eth.parseAmount(pendingTransaction!.feeFormattedValue),
+            tokenSymbol: selectedCryptoCurrency.title,
             direction: TransactionDirection.outgoing,
             isPending: true,
             date: DateTime.now(),
@@ -1124,6 +1121,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.transactionHistory.addOne(solana!.getTransactionInfo(
             id: pendingTransaction!.id,
             blockTime: DateTime.now(),
+            tokenSymbol: selectedCryptoCurrency.title,
             to: "",
             from: "",
             direction: TransactionDirection.outgoing,
@@ -1136,16 +1134,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.transactionHistory.addOne(tron!.getTransactionInfo(
             id: pendingTransaction!.id,
             blockTime: DateTime.now(),
+            tokenSymbol: selectedCryptoCurrency.title,
             direction: TransactionDirection.outgoing,
-            tronAmount: BigInt.parse(tron!
-                .getPendingTransactionAmount(pendingTransaction!)
-                .replaceAll(".", "")
-                .replaceAll(",", "")),
+            tronAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
             isPending: true,
-            txFee: int.parse(tron!
-                .getPendingTransactionAmount(pendingTransaction!)
-                .replaceAll(".", "")
-                .replaceAll(",", ""))));
+            txFee: CryptoCurrency.trx.parseAmount(outputs.first.estimatedFee).toInt()));
       }
 
       if (pendingTransaction!.id.isNotEmpty) {

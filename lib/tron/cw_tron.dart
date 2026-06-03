@@ -159,6 +159,7 @@ class CWTron extends Tron {
     required String id,
     required BigInt tronAmount,
     int? txFee,
+    String? tokenSymbol,
     required TransactionDirection direction,
     required DateTime blockTime,
     String? to,
@@ -167,6 +168,7 @@ class CWTron extends Tron {
   }) =>
       TronTransactionInfo(id: id,
           tronAmount: tronAmount,
+          tokenSymbol: tokenSymbol ?? "TRX",
           txFee: txFee,
           direction: direction,
           blockTime: blockTime,

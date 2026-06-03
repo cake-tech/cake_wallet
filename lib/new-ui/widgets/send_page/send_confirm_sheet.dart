@@ -203,7 +203,7 @@ class SendTransactionDetails extends StatelessWidget {
             }),
             sendViewModel.selectedCryptoCurrency)
         : sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
-            formatAmount(transaction.amountFormatted), sendViewModel.selectedCryptoCurrency);
+            formatAmount(transaction.amountFormatted), sendViewModel.selectedCryptoCurrency).withMaxDecimals(8);
 
     final fee =
         "${(transaction == null) ? sendViewModel.amountParsingProxy.getDisplayCryptoStringFromBigInt(sumByBigInt(
