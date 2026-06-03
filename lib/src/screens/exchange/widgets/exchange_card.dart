@@ -48,6 +48,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
     this.onPushAddressBookButton,
     this.onDispose,
     this.useSatoshis = false,
+    this.onTapCurrencyPicker,
     required this.cardInstanceName,
   }) : super(key: key);
 
@@ -84,6 +85,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final String cardInstanceName;
   final Color fillColor;
   final bool useSatoshis;
+  final void Function(BuildContext context)? onTapCurrencyPicker;
 
   @override
   ExchangeCardState<T> createState() => ExchangeCardState<T>();
@@ -447,6 +449,10 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
   }
 
   void _presentPicker(BuildContext context) {
+    if (widget.onTapCurrencyPicker != null) {
+      widget.onTapCurrencyPicker!(context);
+      return;
+    }
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
