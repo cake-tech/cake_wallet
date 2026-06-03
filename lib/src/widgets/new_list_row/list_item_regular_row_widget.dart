@@ -26,6 +26,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
     this.copyableText,
     this.leadingIconErrorWidget,
     this.leadingIconSize,
+    this.iconColor
   });
 
   final String keyValue;
@@ -46,6 +47,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final String? copyableText;
   final Widget? leadingIconErrorWidget;
   final double? leadingIconSize;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +87,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                     width: leadingIconSize ?? 24,
                                     height: leadingIconSize ?? 24,
                                     errorWidget: leadingIconErrorWidget,
+                                    colorFilter: iconColor == null
+                                        ? null
+                                        : ColorFilter.mode(iconColor!, BlendMode.srcIn),
                                   )),
                             Flexible(
                               child: Column(

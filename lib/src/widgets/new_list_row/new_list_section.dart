@@ -109,6 +109,7 @@ class NewListSections extends StatelessWidget {
         bottomWidget: item.bottomWidget,
         leadingIconErrorWidget: item.leadingIconErrorWidget,
         leadingIconSize: item.leadingIconSize,
+        iconColor: item.iconColor,
       );
     }
 
