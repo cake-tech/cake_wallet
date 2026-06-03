@@ -1,12 +1,12 @@
 import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';

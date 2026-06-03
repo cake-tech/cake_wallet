@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/core/address_resolver/nostr/nostr_user.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/nostr/nostr_user.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';

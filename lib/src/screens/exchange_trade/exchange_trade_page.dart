@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';

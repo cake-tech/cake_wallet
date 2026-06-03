@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -16,7 +17,6 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -11,7 +12,6 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:flutter/material.dart';

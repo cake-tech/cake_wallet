@@ -1,20 +1,20 @@
+import 'package:cake_wallet/core/address_resolver/bip_353/bip_353_record.dart';
+import 'package:cake_wallet/core/address_resolver/ens/ens_record.dart';
+import 'package:cake_wallet/core/address_resolver/fio/fio_address_provider.dart';
+import 'package:cake_wallet/core/address_resolver/nostr/nostr_api.dart';
+import 'package:cake_wallet/core/address_resolver/openalias/openalias_record.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/core/address_resolver/twitter/twitter_api.dart';
+import 'package:cake_wallet/core/address_resolver/unstoppable/unstoppable_domain_address.dart';
+import 'package:cake_wallet/core/address_resolver/wellknown/wellknown_record.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
+import 'package:cake_wallet/core/address_resolver/zano/zano_alias.dart';
+import 'package:cake_wallet/core/address_resolver/zcash/zcash_names_record.dart';
 import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
-import 'package:cake_wallet/entities/ens_record.dart';
 import 'package:cake_wallet/entities/lnurlpay_record.dart';
-import 'package:cake_wallet/entities/fio_address_provider.dart';
-import 'package:cake_wallet/entities/openalias_record.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
-import 'package:cake_wallet/entities/wellknown_record.dart';
-import 'package:cake_wallet/entities/zano_alias.dart';
-import 'package:cake_wallet/entities/zcash_names_record.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
-import 'package:cake_wallet/mastodon/mastodon_api.dart';
-import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -22,7 +22,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'bip_353_record.dart';
+import 'mastodon/mastodon_api.dart';
 
 class AddressResolver {
   AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})

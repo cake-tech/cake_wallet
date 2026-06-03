@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/entities/yat_record.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_record.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class YatService {

@@ -1,8 +1,8 @@
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';

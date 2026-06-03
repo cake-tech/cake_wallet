@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/twitter/twitter_user.dart';
+import 'package:cake_wallet/core/address_resolver/twitter/twitter_user.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class TwitterApi {

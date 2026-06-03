@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';

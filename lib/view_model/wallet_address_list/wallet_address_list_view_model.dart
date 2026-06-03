@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:developer' as dev;
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -16,7 +17,6 @@ import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/utils/qr_util.dart';

@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:cake_wallet/core/address_resolver/mastodon/mastodon_user.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/mastodon/mastodon_user.dart';
 
 class MastodonAPI {
   static const httpsScheme = 'https';

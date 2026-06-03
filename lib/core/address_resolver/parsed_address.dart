@@ -1,5 +1,5 @@
-import 'package:cake_wallet/entities/openalias_record.dart';
-import 'package:cake_wallet/entities/yat_record.dart';
+import 'package:cake_wallet/core/address_resolver/openalias/openalias_record.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_record.dart';
 
 enum ParseFrom {
   unstoppableDomains,
