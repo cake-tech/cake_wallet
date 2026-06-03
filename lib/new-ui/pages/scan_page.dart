@@ -42,7 +42,7 @@ class _ScanPageState extends State<ScanPage> {
   @override
   void initState() {
     super.initState();
-    controller.addListener(() => setState(() {
+    controller.addListener(() => if (mounted) setState(() {
           _numCameras = controller.value.availableCameras;
         }));
   }
