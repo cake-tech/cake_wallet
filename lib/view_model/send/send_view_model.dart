@@ -373,14 +373,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
-  bool isSendToSilentPayments(Output output) =>
-      wallet.type == WalletType.bitcoin &&
-      (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
-          RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-              .hasMatch(output.extractedAddress) ||
-          (output.parsedAddress.addresses.isNotEmpty &&
-              RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-                  .hasMatch(output.parsedAddress.addresses[0])));
+  bool isSendToSilentPayments(Output output) {
+    if (wallet.type != WalletType.bitcoin) return false;
+
+    final sp = RegExp(AddressValidator.silentPaymentAddressPatternMainnet);
+
+    final address = output.extractedAddress.isNotEmpty
+        ? output.extractedAddress
+        : output.address;
+
+    return sp.hasMatch(address);
+  }
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -574,8 +577,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       clearOutputs();
 
       outputs.first.address = paymentRequest.address;
-      outputs.first.parsedAddress =
-          ParsedAddress(addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
+      outputs.first.parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {currency:paymentRequest.address}, handle: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -1261,13 +1263,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
 
   ContactRecord? newContactAddress() {
+    final contacts = contactListViewModel.contacts;
     final Set<String> contactAddresses =
         Set.from(contactListViewModel.contacts.map((contact) => contact.address))
           ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
 
     for (final output in outputs) {
       final address =
-          output.isParsedAddress ? output.parsedAddress.addresses.first : output.address;
+          output.isParsedAddress ? output.parsedAddress.parsedAddressByCurrencyMap[selectedCryptoCurrency] ?? '' : output.address;
 
       if (address.isNotEmpty &&
           !contactAddresses.contains(address) &&

@@ -12,7 +12,6 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -655,8 +654,8 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    return extractAddressFromParsed(context, parsedAddress);
+    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, wallet:exchangeViewModel.wallet, currency: currency);
+    return parsedAddresses.isNotEmpty ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? '' : '';
   }
 
   void _showFeeAlert(BuildContext context) async {

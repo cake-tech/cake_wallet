@@ -1,6 +1,7 @@
 import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
@@ -12,11 +13,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
@@ -41,7 +43,8 @@ class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
   OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
-      : key = UniqueKey(),
+      : _resolver = getIt<AddressResolverService>(),
+        key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
         cryptoFullBalance = '',
@@ -51,7 +54,7 @@ abstract class OutputBase with Store {
         memo = "",
         extractedAddress = '',
         estimatedFee = '0.0',
-        parsedAddress = ParsedAddress(addresses: []) {
+        parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
     autorun((_) {
       final status = _wallet.syncStatus;
       printV("Sync status changed to $status. Recalculating fees");
@@ -59,6 +62,8 @@ abstract class OutputBase with Store {
       calculateEstimatedFee();
     });
   }
+
+  final AddressResolverService _resolver;
 
   Key key;
 
@@ -101,7 +106,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
+      parsedAddress.addressSource != AddressSource.notParsed && parsedAddress.handle.isNotEmpty;
 
   String roundedCryptoAmount(int digits) => displayCryptoAmount.withMaxDecimals(digits);
 
@@ -328,7 +333,7 @@ abstract class OutputBase with Store {
   void resetParsedAddress() {
     displayName = null;
     extractedAddress = '';
-    parsedAddress = ParsedAddress(addresses: []);
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {});
   }
 
   @action
@@ -387,8 +392,8 @@ abstract class OutputBase with Store {
 
   Map<String, dynamic> get extra {
     final fields = <String, dynamic>{};
-    if (parsedAddress.parseFrom == ParseFrom.bip353) {
-      fields['bip353_name'] = parsedAddress.name;
+    if (parsedAddress.addressSource == AddressSource.bip353) {
+      fields['bip353_name'] = parsedAddress.handle;
       fields['bip353_proof'] = parsedAddress.bip353DnsProof;
     }
     return fields;
@@ -397,20 +402,46 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final currency = cryptoCurrencyHandler();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    if(parsedAddress.name.isNotEmpty) {
-      displayName = parsedAddress.name;
+    final parsedAddresses = await _resolver.resolve(
+      query: domain,
+      wallet: _wallet,
+      currency: currency,);
+    if (parsedAddresses.isNotEmpty) {
+      parsedAddress = parsedAddresses.first;
+      final confirmed = await showParsedAddressConfirmationAlert(context, parsedAddress);
+      extractedAddress = confirmed ? parsedAddress.parsedAddressByCurrencyMap[currency] ?? '' : '';
+      note = confirmed ? parsedAddress.description : '';
     }
-    extractedAddress = await extractAddressFromParsed(context, parsedAddress);
-    note = parsedAddress.description;
   }
 
-  void loadContact(ContactBase contact) {
-    address = contact.name;
-    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
-    extractedAddress = parsedAddress.addresses.first;
-    note = parsedAddress.description;
+  Future<void> loadContact((String, String) selectedContact) async {
+    address = selectedContact.$1;
+    parsedAddress = ParsedAddress(
+        parsedAddressByCurrencyMap: {}, addressSource: AddressSource.contact);
+    extractedAddress = selectedContact.$2;
+    note = parsedAddress.description ?? '';
   }
+}
+
+Future<bool> showParsedAddressConfirmationAlert(
+    BuildContext context, ParsedAddress parsedAddress) async {
+  final confirmed = await showPopUp<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+            alertTitle: S.of(context).address_detected,
+            headerTitleText: parsedAddress.profileName.isEmpty
+                ? null
+                : parsedAddress.profileName,
+            headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
+                ? parsedAddress.addressSource.iconPath
+                : parsedAddress.profileImageUrl,
+            alertContent: S.of(context).extracted_address_content(
+                '${parsedAddress.handle} (${parsedAddress.addressSource.label})'),
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop(true));
+      });
+  return confirmed ?? false;
 }
 
 extension OutputCopyWith on Output {

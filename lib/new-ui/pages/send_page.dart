@@ -387,7 +387,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             output.resetParsedAddress();
                                           },
                                           onSelectedContact: (contact) {
-                                            output.loadContact(contact);
+                                            output.loadContact((contact.address, contact.name));
                                           },
                                           onPushPasteButton: (context) async {
                                             if(_justHandledPasteButton) return;

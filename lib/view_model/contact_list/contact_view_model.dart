@@ -1,7 +1,8 @@
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -16,7 +17,7 @@ part 'contact_view_model.g.dart';
 class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._contacts,  {ContactRecord? contact})
+  ContactViewModelBase(this._contacts, this.appStore,  {ContactRecord? contact})
       : state = InitialExecutionState(),
         currencies = CryptoCurrency.all,
         _contact = contact,
@@ -25,6 +26,8 @@ abstract class ContactViewModelBase with Store {
         displayName = contact?.displayName ?? '',
         currency = contact?.type,
         lastChange = contact?.lastChange;
+
+  final AppStore appStore;
 
 
   @observable
@@ -62,12 +65,13 @@ abstract class ContactViewModelBase with Store {
   }
 
   Future<void> extractParsedAddress(BuildContext context) async{
-    if(currency == null) return;
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, address, currency!);
-    if(parsedAddress.name.isNotEmpty) {
-      displayName = parsedAddress.name;
-    }
-    address = await extractAddressFromParsed(null, parsedAddress);
+    final wallet = appStore.wallet;
+    if (wallet == null) return;
+    if( currency == null) return;
+    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: address, wallet: wallet, currency: currency!);
+    address = parsedAddresses.isNotEmpty
+        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 
   Future<void> save() async {

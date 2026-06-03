@@ -13,7 +13,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -25,9 +24,10 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class BuySellPage extends BasePage {
-  BuySellPage(this.buySellViewModel);
+  BuySellPage(this.buySellViewModel) : _resolver = getIt<AddressResolverService>();
 
   final BuySellViewModel buySellViewModel;
+  final AddressResolverService _resolver;
   final cryptoCurrencyKey = GlobalKey<ExchangeCardState>();
   final fiatCurrencyKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
@@ -293,7 +293,7 @@ class BuySellPage extends BasePage {
     });
 
     reaction((_) => buySellViewModel.cryptoCurrencyAddress, (String address) {
-      if (cryptoAddressController != address) {
+      if (cryptoAddressController.text != address) {
         cryptoCurrencyKey.currentState!.addressController.text = address;
       }
     });
@@ -317,8 +317,10 @@ class BuySellPage extends BasePage {
     _cryptoAddressFocus.addListener(() async {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
-        buySellViewModel.cryptoCurrencyAddress = await fetchParsedAddress(
-            context, domain, buySellViewModel.cryptoCurrency);
+        final parsed = await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+        if (parsed.isNotEmpty) {
+          buySellViewModel.cryptoCurrencyAddress = parsed;
+        }
       }
     });
 
@@ -406,8 +408,23 @@ class BuySellPage extends BasePage {
         currencyButtonColor: Colors.transparent,
         addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderColor: Theme.of(context).colorScheme.outlineVariant,
-        onPushPasteButton: (context) async {},
-        onPushAddressBookButton: (context) async {},
+        onPushPasteButton: (context) async {
+          final domain = cryptoCurrencyKey.currentState!.addressController.text;
+          final parsed =
+          await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+          if (parsed.isNotEmpty) {
+            buySellViewModel.cryptoCurrencyAddress = parsed;
+          }
+        },
+
+        onPushAddressBookButton: (context) async {
+          final domain = cryptoCurrencyKey.currentState!.addressController.text;
+          final parsed =
+          await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+          if (parsed.isNotEmpty) {
+            buySellViewModel.cryptoCurrencyAddress = parsed;
+          }
+        },
         fillColor: buySellViewModel.isBuyAction
             ? Theme.of(context).colorScheme.surfaceContainer
             : Theme.of(context).colorScheme.surfaceContainerLow,
@@ -509,9 +526,10 @@ class BuySellPage extends BasePage {
     String domain,
     CryptoCurrency currency,
   ) async {
-    final parsedAddress =
-        await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
-    return address;
+    final parsedAddresses = await _resolver.resolve(
+        query: domain, wallet: buySellViewModel.wallet, currency: currency);
+    return parsedAddresses.isNotEmpty
+        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 }

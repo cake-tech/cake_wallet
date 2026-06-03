@@ -103,6 +103,10 @@ class PreferencesKey {
   static const lookupsENS = 'looks_up_ens';
   static const lookupsZcashNames = 'looks_up_zcash_names';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const lookupsFio = 'looks_up_fio';
+  static const lookupsNostr = 'looks_up_nostr';
+  static const lookupsThorChain = 'looks_up_thor_chain';
+  static const lookupsBip353 = 'looks_up_bip353';
   static const useBlinkProtection = 'use_blink_protection';
   static const usePayjoin = 'use_payjoin';
   static const showPayjoinCard = 'show_payjoin_card';

@@ -1100,7 +1100,7 @@ Future<void> setup({
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
   getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
-      (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
+      (ContactRecord? contact, _) => ContactViewModel(_contactSource, getIt.get<AppStore>(), contact: contact));
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
       (CryptoCurrency? cur, _) =>
@@ -1590,9 +1590,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolver(
+  getIt.registerFactory(() => AddressResolverService(
       yatService: getIt.get<YatService>(),
-      wallet: getIt.get<AppStore>().wallet!,
       settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(

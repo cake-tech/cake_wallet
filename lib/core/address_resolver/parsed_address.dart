@@ -1,212 +1,22 @@
-import 'package:cake_wallet/core/address_resolver/openalias/openalias_record.dart';
-import 'package:cake_wallet/core/address_resolver/yat/yat_record.dart';
-
-enum ParseFrom {
-  unstoppableDomains,
-  openAlias,
-  yatRecord,
-  fio,
-  notParsed,
-  twitter,
-  ens,
-  contact,
-  mastodon,
-  nostr,
-  thorChain,
-  wellKnown,
-  zanoAlias,
-  zcashAddress,
-  zcashName,
-  bip353,
-  lnurlpay,
-}
+import 'package:cake_wallet/core/address_resolver/address_sources.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 class ParsedAddress {
-  ParsedAddress({
-    required this.addresses,
-    this.name = '',
-    this.description = '',
+  const ParsedAddress({
+    required this.parsedAddressByCurrencyMap,
+    this.addressSource = AddressSource.notParsed,
+    this.handle = '',
     this.profileImageUrl = '',
     this.profileName = '',
-    this.parseFrom = ParseFrom.notParsed,
+    this.description = '',
     this.bip353DnsProof,
   });
 
-  factory ParsedAddress.fetchEmojiAddress({
-    List<YatRecord>? addresses,
-    required String name,
-  }) {
-    if (addresses?.isEmpty ?? true) {
-      return ParsedAddress(addresses: [name], parseFrom: ParseFrom.yatRecord);
-    }
-    return ParsedAddress(
-      addresses: addresses!.map((e) => e.address).toList(),
-      name: name,
-      parseFrom: ParseFrom.yatRecord,
-    );
-  }
-
-  factory ParsedAddress.fetchUnstoppableDomainAddress({
-    String? address,
-    required String name,
-  }) {
-    if (address?.isEmpty ?? true) {
-      return ParsedAddress(addresses: [name]);
-    }
-    return ParsedAddress(
-      addresses: [address!],
-      name: name,
-      parseFrom: ParseFrom.unstoppableDomains,
-    );
-  }
-
-  factory ParsedAddress.fetchBip353AddressAddress ({
-    required String address,
-    required String name,
-    String? dnsProof,
-  }) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.bip353,
-      bip353DnsProof: dnsProof,
-    );
-  }
-
-  factory ParsedAddress.fetchOpenAliasAddress(
-      {required OpenaliasRecord record, required String name}) {
-    if (record.address.isEmpty) {
-      return ParsedAddress(addresses: [name]);
-    }
-    return ParsedAddress(
-      addresses: [record.address],
-      name: record.name,
-      description: record.description,
-      parseFrom: ParseFrom.openAlias,
-    );
-  }
-
-  factory ParsedAddress.fetchFioAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.fio,
-    );
-  }
-
-  factory ParsedAddress.fetchTwitterAddress(
-      {required String address,
-      required String name,
-      required String profileImageUrl,
-      required String profileName,
-      String? description}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      description: description ?? '',
-      profileImageUrl: profileImageUrl,
-      profileName: profileName,
-      parseFrom: ParseFrom.twitter,
-    );
-  }
-
-  factory ParsedAddress.fetchMastodonAddress(
-      {required String address,
-      required String name,
-      required String profileImageUrl,
-      required String profileName}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.mastodon,
-      profileImageUrl: profileImageUrl,
-      profileName: profileName,
-    );
-  }
-
-  factory ParsedAddress.fetchContactAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.contact,
-    );
-  }
-
-  factory ParsedAddress.fetchEnsAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.ens,
-    );
-  }
-
-  factory ParsedAddress.nostrAddress(
-      {required String address,
-      required String name,
-      required String profileImageUrl,
-      required String profileName}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.nostr,
-      profileImageUrl: profileImageUrl,
-      profileName: profileName,
-    );
-  }
-
-  factory ParsedAddress.thorChainAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.thorChain,
-    );
-  }
-
-  factory ParsedAddress.zanoAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.zanoAlias,
-    );
-  }
-
-  factory ParsedAddress.zcashAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.zcashAddress,
-    );
-  }
-
-  factory ParsedAddress.zcashNameAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.zcashName,
-    );
-  }
-
-  factory ParsedAddress.fetchWellKnownAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.wellKnown,
-    );
-  }
-
-  factory ParsedAddress.fetchLNUrlPayAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.lnurlpay,
-    );
-  }
-
-  final List<String> addresses;
-  final String name;
-  final String description;
+  final Map<CryptoCurrency, String> parsedAddressByCurrencyMap;
+  final AddressSource addressSource;
+  final String handle;
   final String profileImageUrl;
   final String profileName;
-  final ParseFrom parseFrom;
+  final String description;
   final String? bip353DnsProof;
 }

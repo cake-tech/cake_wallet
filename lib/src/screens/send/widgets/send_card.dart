@@ -643,7 +643,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     output.resetParsedAddress();
                   },
                   onSelectedContact: (contact) {
-                    output.loadContact(contact);
+                    output.loadContact((contact.address, contact.displayName));
                   },
                   validator: validator,
                   selectedCurrency: sendViewModel.selectedCryptoCurrency,

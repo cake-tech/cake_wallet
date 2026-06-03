@@ -217,9 +217,10 @@ class SendTransactionDetails extends StatelessWidget {
         RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
         RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
         (e.isParsedAddress &&
-            e.parsedAddress.addresses.isNotEmpty &&
+            e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency] != null &&
+            e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!.isNotEmpty &&
             RegExp(AddressValidator.lnurlMatcher)
-                .hasMatch(e.parsedAddress.addresses.first.toLowerCase())));
+                .hasMatch(e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!.toLowerCase())));
 
     final outputs = sendViewModel.outputs;
 

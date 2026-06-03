@@ -22,7 +22,6 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -421,8 +420,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     printV("$domain");
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    return extractAddressFromParsed(context, parsedAddress);
+    final parsedAddress = await getIt.get<AddressResolverService>().resolve(
+        query: domain,
+        wallet: widget.exchangeViewModel.wallet,
+        currency: currency);
+    return parsedAddress.isNotEmpty ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? '' : '';
   }
 
   void _showFeeAlert(BuildContext context) async {

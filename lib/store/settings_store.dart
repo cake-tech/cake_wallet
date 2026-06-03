@@ -133,6 +133,10 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsENS,
       required this.lookupsZcashNames,
       required this.lookupsWellKnown,
+      required this.lookupsFio,
+      required this.lookupsNostr,
+      required this.lookupsThorChain,
+      required this.lookupsBip353,
       required this.usePayjoin,
       required this.showPayjoinCard,
       required this.customBitcoinFeeRate,
@@ -572,6 +576,26 @@ abstract class SettingsStoreBase with Store {
         (bool looksUpWellKnown) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
 
+    reaction(
+            (_) => lookupsFio,
+            (bool lookupsFio) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsFio, lookupsFio));
+
+    reaction(
+            (_) => lookupsNostr,
+            (bool lookupsNostr) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsNostr, lookupsNostr));
+
+    reaction(
+            (_) => lookupsThorChain,
+            (bool lookupsThorChain) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsThorChain, lookupsThorChain));
+
+    reaction(
+            (_) => lookupsBip353,
+            (bool lookupsBip353) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsBip353, lookupsBip353));
+
     reaction((_) => usePayjoin,
         (bool usePayjoin) => _sharedPreferences.setBool(PreferencesKey.usePayjoin, usePayjoin));
 
@@ -966,6 +990,18 @@ abstract class SettingsStoreBase with Store {
   bool lookupsWellKnown;
 
   @observable
+  bool lookupsFio;
+
+  @observable
+  bool lookupsNostr;
+
+  @observable
+  bool lookupsThorChain;
+
+  @observable
+  bool lookupsBip353;
+
+  @observable
   bool usePayjoin;
 
   @observable
@@ -1271,6 +1307,10 @@ abstract class SettingsStoreBase with Store {
     final lookupsZcashNames =
         sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
+    final lookupsFio = sharedPreferences.getBool(PreferencesKey.lookupsFio) ?? true;
+    final lookupsNostr = sharedPreferences.getBool(PreferencesKey.lookupsNostr) ?? true;
+    final lookupsThorChain = sharedPreferences.getBool(PreferencesKey.lookupsThorChain) ?? false;
+    final lookupsBip353 = sharedPreferences.getBool(PreferencesKey.lookupsBip353) ?? true;
     final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
     final showPayjoinCard = sharedPreferences.getBool(PreferencesKey.showPayjoinCard) ?? true;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
@@ -1660,6 +1700,10 @@ abstract class SettingsStoreBase with Store {
       lookupsENS: lookupsENS,
       lookupsZcashNames: lookupsZcashNames,
       lookupsWellKnown: lookupsWellKnown,
+      lookupsFio: lookupsFio,
+      lookupsNostr: lookupsNostr,
+      lookupsThorChain: lookupsThorChain,
+      lookupsBip353: lookupsBip353,
       usePayjoin: usePayjoin,
       showPayjoinCard: showPayjoinCard,
       customBitcoinFeeRate: customBitcoinFeeRate,
