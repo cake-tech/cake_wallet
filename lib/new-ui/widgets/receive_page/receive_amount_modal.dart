@@ -1,16 +1,16 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
 
 class ReceiveAmountModal extends StatefulWidget {
   const ReceiveAmountModal(
@@ -217,35 +217,31 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     );
   }
 
-  void _presentTokenCurrencyPicker(BuildContext context) async {
-    await showPopUp(
-      builder: (_) => CurrencyPicker(
-        selectedAtIndex: widget.walletAddressListViewModel.tokenCurrencyIndex,
-        items: widget.walletAddressListViewModel.tokenCurrencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: widget.walletAddressListViewModel.setTokenCurrency,
-      ),
+  void _presentTokenCurrencyPicker(BuildContext context) {
+    final items = widget.walletAddressListViewModel.tokenCurrencies
+        .whereType<CryptoCurrency>()
+        .toList();
+    CurrencyPickerSheet.show(
       context: context,
+      args: CurrencyPickerArgs(
+        items: items,
+        selected: widget.walletAddressListViewModel.tokenCurrency,
+        onSelected: widget.walletAddressListViewModel.setTokenCurrency,
+        symbolResolver: widget.walletAddressListViewModel.amountParsingProxy.getCryptoSymbol,
+      ),
     );
   }
 
-  void _presentFiatCurrencyPicker(BuildContext context) async {
-    final currs = widget.walletAddressListViewModel.currencies.toList();
-    // the first options should be the crypto and the default fiat currency
-    currs.sort((a, b) {
-      if(a == widget.walletAddressListViewModel.fiatCurrency || a is CryptoCurrency) return -1;
-      if(b == widget.walletAddressListViewModel.fiatCurrency || a is CryptoCurrency) return 1;
-      return 0;
-    });
-
-    await showPopUp(
-      builder: (_) => CurrencyPicker(
-        selectedAtIndex: currs.indexOf(widget.walletAddressListViewModel.selectedCurrency),
-        items: currs,
-        hintText: S.of(context).search_currency,
-        onItemSelected: widget.walletAddressListViewModel.selectCurrency,
-      ),
+  void _presentFiatCurrencyPicker(BuildContext context) {
+    final selected = widget.walletAddressListViewModel.selectedCurrency;
+    final cryptoOption =
+        widget.walletAddressListViewModel.currencies.whereType<CryptoCurrency>().firstOrNull;
+    FiatCurrencyPickerSheet.show(
       context: context,
+      selected: selected,
+      cryptoOption: cryptoOption,
+      onSelected: widget.walletAddressListViewModel.selectCurrency,
+      onCryptoSelected: widget.walletAddressListViewModel.selectCurrency,
     );
   }
 }
