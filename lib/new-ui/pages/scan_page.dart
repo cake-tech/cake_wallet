@@ -39,8 +39,6 @@ class _ScanPageState extends State<ScanPage> {
   bool popped = false;
   Barcode? _barcode;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -56,6 +54,8 @@ class _ScanPageState extends State<ScanPage> {
     const Duration textModeSwitchDuration = Duration(milliseconds: 300);
     final buttonColor = _frontFlashMode ? Colors.black.withAlpha(40) : Colors.white.withAlpha(40);
     final buttonIconColor = _frontFlashMode ? Colors.black : Colors.white;
+    final isScanningURQR = decoder.processedPartsCount() > 0;
+    final double targetRadius = isScanningURQR ? (cutoutSize / 2) : cutoutRadius;
 
     return Material(
       child: Stack(
@@ -81,33 +81,46 @@ class _ScanPageState extends State<ScanPage> {
                           color: _frontFlashMode ? Colors.white : Colors.black.withAlpha(153),
                         ),
                       )
-                    : ClipPath(
-                        key: ValueKey(0),
-                        clipper: HoleClipper(
-                          width: cutoutSize,
-                          height: cutoutSize,
-                          radius: cutoutRadius,
-                        ),
+                    : TweenAnimationBuilder<double>(
+                        key: const ValueKey(0),
+                        tween: Tween<double>(begin: 0.0, end: targetRadius),
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeOutCubic,
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
                           child: Container(
                             color: _frontFlashMode ? Colors.white : Colors.black.withAlpha(153),
                           ),
                         ),
+                        builder: (context, radius, child) {
+                          return ClipPath(
+                            clipper: HoleClipper(
+                              width: cutoutSize,
+                              height: cutoutSize,
+                              radius: radius,
+                            ),
+                            child: child,
+                          );
+                        },
                       ),
               ),
             ),
           ),
           AnimatedOpacity(
-            opacity: _textInputMode ? 0 : 1,
+            opacity: _textInputMode || isScanningURQR ? 0 : 1,
             duration: textModeSwitchDuration,
-            child: Center(
-              child: Container(
-                width: cutoutSize,
-                height: cutoutSize,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 4.0),
-                  borderRadius: BorderRadius.circular(cutoutRadius),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: targetRadius),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic,
+              builder: (context, radius, child) => Center(
+                child: Container(
+                  width: cutoutSize,
+                  height: cutoutSize,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 4.0),
+                    borderRadius: BorderRadius.circular(radius),
+                  ),
                 ),
               ),
             ),
@@ -212,7 +225,7 @@ class _ScanPageState extends State<ScanPage> {
                         controller: textController,
                         focusNode: textFocusNode,
                         onSubmitted: (val) {
-                          if(val.isNotEmpty) {
+                          if (val.isNotEmpty) {
                             Navigator.of(context).pop(val);
                           } else {
                             setState(() {
@@ -224,13 +237,16 @@ class _ScanPageState extends State<ScanPage> {
                       ),
                     ),
                     FloatingIconButton(
-                        iconPath: "assets/new-ui/paste.svg", onPressed: () async {
+                        iconPath: "assets/new-ui/paste.svg",
+                        onPressed: () async {
                           final data = await Clipboard.getData("text/plain");
-                          if(data?.text != null) {
+                          if (data?.text != null) {
                             textController.text = data!.text!;
                           }
-                    }),
-                    SizedBox(width: 2,)
+                        }),
+                    SizedBox(
+                      width: 2,
+                    )
                   ],
                 ),
               ),
@@ -267,33 +283,79 @@ class _ScanPageState extends State<ScanPage> {
                     //     label: S.of(context).gallery,
                     //     buttonColor: buttonColor,
                     //     buttonIconColor: buttonIconColor),
-                    if(widget.showManualInput)
-                    ScanPageButton(
-                        onTap: () {
-                          setState(() {
-                            _textInputMode = true;
-                          });
-                          Future.delayed(textModeSwitchDuration)
-                              .then((val) => textFocusNode.requestFocus());
-                        },
-                        icon: Icons.edit_outlined,
-                        label: S.of(context).manual_input,
-                        buttonColor: buttonColor,
-                        buttonIconColor: buttonIconColor),
-                    if(widget.showHelp)
-                    ScanPageButton(
-                        onTap: () => showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            useSafeArea: true,
-                            backgroundColor: Theme.of(context).colorScheme.surface,
-                            builder: (context) => ScanPageNetworkList()),
-                        icon: Icons.question_mark,
-                        buttonColor: buttonColor,
-                        buttonIconColor: buttonIconColor)
+                    if (widget.showManualInput)
+                      ScanPageButton(
+                          onTap: () {
+                            setState(() {
+                              _textInputMode = true;
+                            });
+                            Future.delayed(textModeSwitchDuration)
+                                .then((val) => textFocusNode.requestFocus());
+                          },
+                          icon: Icons.edit_outlined,
+                          label: S.of(context).manual_input,
+                          buttonColor: buttonColor,
+                          buttonIconColor: buttonIconColor),
+                    if (widget.showHelp)
+                      ScanPageButton(
+                          onTap: () => showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              useSafeArea: true,
+                              backgroundColor: Theme.of(context).colorScheme.surface,
+                              builder: (context) => ScanPageNetworkList()),
+                          icon: Icons.question_mark,
+                          buttonColor: buttonColor,
+                          buttonIconColor: buttonIconColor)
                   ],
                 ),
               )),
+          AnimatedOpacity(
+            duration: Duration(milliseconds: 500),
+            opacity: isScanningURQR ? 1 : 0,
+            child: Center(
+              child: SegmentedCircularProgress(
+                  progress: URQrProgress(
+                    expectedPartCount: decoder.expectedPartCount() ?? 0,
+                    processedPartsCount: decoder.processedPartsCount(),
+                    receivedPartIndexes: decoder.receivedPartIndexes().toList(),
+                    percentage: decoder.estimatedPercentComplete(),
+                  ),
+                  size: cutoutSize + 20,
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  inactiveColor: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+          ),
+          Positioned(
+            bottom: 120,
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              duration: Duration(milliseconds: 500),
+              opacity: isScanningURQR ? 1 : 0,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${decoder.processedPartsCount()}",
+                      style: TextStyle(
+                          fontSize: 45,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    Text(
+                      "/",
+                      style: TextStyle(
+                          fontSize: 45, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                    Text(
+                      "${decoder.expectedPartCount()}",
+                      style: TextStyle(fontSize: 45, color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                  ],
+                ),
+            ),
+          )
         ],
       ),
     );
@@ -430,7 +492,79 @@ class HoleClipper extends CustomClipper<Path> {
   }
 
   @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return false;
+  bool shouldReclip(covariant HoleClipper oldClipper) {
+    return oldClipper.width != width || oldClipper.height != height || oldClipper.radius != radius;
+  }
+}
+
+class SegmentedCircularProgress extends StatelessWidget {
+  final URQrProgress progress;
+  final Color activeColor;
+  final Color inactiveColor;
+  final double size;
+
+  const SegmentedCircularProgress({
+    Key? key,
+    required this.progress,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.size,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _SegmentedCirclePainter(
+        progress: progress,
+        activeColor: activeColor,
+        inactiveColor: inactiveColor,
+      ),
+    );
+  }
+}
+
+class _SegmentedCirclePainter extends CustomPainter {
+  final URQrProgress progress;
+  static const double strokeWidth = 10;
+  static const double gapAngle = 0.08;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  _SegmentedCirclePainter({
+    required this.progress,
+    required this.activeColor,
+    required this.inactiveColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final totalSegments = progress.expectedPartCount;
+
+    final sweepAngle = (2 * pi - (gapAngle * totalSegments)) / totalSegments;
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    double startAngle = -pi / 2 + (gapAngle / 2);
+
+    for (int i = 0; i < totalSegments; i++) {
+      bool isHighlighted = progress.receivedPartIndexes.contains(i);
+
+      paint.color = isHighlighted ? activeColor : inactiveColor;
+
+      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+
+      startAngle += sweepAngle + gapAngle;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SegmentedCirclePainter oldDelegate) {
+    return !oldDelegate.progress.equals(progress) ||
+        oldDelegate.progress.expectedPartCount != progress.expectedPartCount;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
@@ -157,16 +156,6 @@ class CoinActionRow extends StatelessWidget {
   }
 
   Future<void> _onPressedScan(BuildContext context) async {
-    if (false && FeatureFlag.hasNewUiExtraPages) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => FractionallySizedBox(
-          heightFactor: 0.9,
-          child: ScanPage(),
-        ),
-      );
-    } else {
       final code = await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
           context: context,
           builder: (context) => ScanPage(
@@ -231,5 +220,4 @@ class CoinActionRow extends StatelessWidget {
         ),
       );
     }
-  }
 }
