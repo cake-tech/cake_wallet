@@ -9,17 +9,17 @@ class FiatCurrencySearchResults extends StatelessWidget {
     super.key,
     required this.items,
     required this.onSelected,
-    required this.isSelected,
+    required this.selected,
   });
 
   final List<FiatCurrency> items;
   final void Function(FiatCurrency) onSelected;
-  final bool isSelected;
+  final FiatCurrency? selected;
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      Center(
+      return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
@@ -41,7 +41,7 @@ class FiatCurrencySearchResults extends StatelessWidget {
             for (final c in items)
               FiatCurrencyRow(
                 currency: c,
-                isSelected: isSelected,
+                isSelected: c == selected,
                 onTap: () => onSelected(c),
               ),
           ],

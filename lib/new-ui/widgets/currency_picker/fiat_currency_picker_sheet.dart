@@ -124,7 +124,7 @@ class _FiatCurrencyPickerSheetState extends State<FiatCurrencyPickerSheet> {
                   ? FiatCurrencySearchResults(
                       items: filteredAll,
                       onSelected: _selectFiatCurrency,
-                      isSelected: selectedFiat == widget.selected,
+                      selected: selectedFiat,
                     )
                   : FiatCurrencyPickerBody(
                       selected: selected,

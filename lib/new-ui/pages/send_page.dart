@@ -829,6 +829,7 @@ class _NewSendPageState extends State<NewSendPage> {
           fiat: isFiatDisabled
               ? null
               : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrencyTicker}',
+          fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
     };
 

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -14,9 +15,15 @@ final Set<String> _stablecoinSymbols = {
     if (c.groups.contains(CurrencyGroups.stablecoin)) c.title.toUpperCase(),
 };
 
-bool isStablecoin(CryptoCurrency c) =>
-    c.groups.contains(CurrencyGroups.stablecoin) ||
-    _stablecoinSymbols.contains(c.title.toUpperCase());
+bool isTrustedStablecoin(CryptoCurrency c) =>
+   (c.groups.contains(CurrencyGroups.stablecoin) ||
+    _stablecoinSymbols.contains(c.title.toUpperCase())) && !c.isPotentialScam;
+
+const _kEvmDefaultTokenNatives = <CryptoCurrency>[
+  CryptoCurrency.baseEth,
+  CryptoCurrency.arbEth,
+  CryptoCurrency.maticpoly,
+];
 
 void appendEvmDefaultTokens(List<CryptoCurrency> into) {
   if (evm == null) return;
@@ -27,7 +34,9 @@ void appendEvmDefaultTokens(List<CryptoCurrency> into) {
   }
 
   final seen = <String>{for (final c in into) keyFor(c)};
-  for (final chainId in const [8453, 42161, 137]) {
+  for (final native in _kEvmDefaultTokenNatives) {
+    final chainId = getChainIdByCryptoCurrency(native);
+    if (chainId == null) continue;
     for (final t in evm!.getDefaultTokensByChainId(chainId)) {
       if (seen.add(keyFor(t))) into.add(t);
     }
@@ -35,10 +44,12 @@ void appendEvmDefaultTokens(List<CryptoCurrency> into) {
 }
 
 class CurrencyPickerBalance {
-  const CurrencyPickerBalance({required this.amount, this.fiat});
+  const CurrencyPickerBalance(
+      {required this.amount, this.fiat, this.fiatValue});
 
   final String amount;
   final String? fiat;
+  final double? fiatValue;
 }
 
 enum RecentsSource { none, trades, orders }

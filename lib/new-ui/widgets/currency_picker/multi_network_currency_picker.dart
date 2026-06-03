@@ -106,7 +106,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   void _onStablecoinPillTapped(CryptoCurrency tapped) {
     var variants = widget.args.items
         .where((c) =>
-            isStablecoin(c) &&
+            isTrustedStablecoin(c) &&
             c.title.toUpperCase() == tapped.title.toUpperCase() &&
             cryptoCurrencyOrTokenToWalletType(c) != null)
         .toList();
@@ -322,7 +322,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
     final seenStablecoinTitles = <String>{};
     final stablecoins = items
-        .where((c) => isStablecoin(c) && seenStablecoinTitles.add(c.title.toUpperCase()))
+        .where((c) => isTrustedStablecoin(c) && seenStablecoinTitles.add(c.title.toUpperCase()))
         .toList(growable: false);
 
     final cryptocurrencies = items.where(natives.contains).toList(growable: false);
