@@ -109,7 +109,7 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
         return _IconShape.alreadyCircular;
       }
 
-      if (ratio > 0.5) {
+      if (ratio >= 0.30) {
         return _IconShape.hollowNeedsBackdrop;
       }
 
@@ -145,9 +145,9 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
           width: widget.size,
           height: widget.size,
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Colors.white,
           ),
           child: image,
         );
