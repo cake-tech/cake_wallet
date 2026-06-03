@@ -1,13 +1,13 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -71,11 +71,12 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             controller: controller,
                             child: Column(
                               children: [
-                                CakeImageWidget(
-                                    imageUrl: widget.transactionDetailsViewModel.transactionAsset.iconPath ??
-                                        "",
-                                    width: 64,
-                                    height: 64),
+                                TokenImageWidget(
+                                  imageUrl: widget
+                                          .transactionDetailsViewModel.transactionAsset.iconPath ??
+                                      "",
+                                  size: 64,
+                                ),
                                 SizedBox(height: 10),
                                 Text(
                                   widget.transactionDetailsViewModel.formattedTitle +

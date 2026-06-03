@@ -1,8 +1,8 @@
 import 'dart:math' show min;
 
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -83,47 +83,29 @@ class AssetTile extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                          width: 36,
-                          height: 36,
-                          child: Stack(
-                            children: [
-                              if((iconPath).isNotEmpty)
-                              CakeImageWidget(imageUrl: iconPath)
-                              else
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      borderRadius: BorderRadius.circular(99999)),
-                                  child: Center(
-                                      child: Text(
-                                    balance.asset.name.substring(0, min(2, balance.asset.name.length)),
-                                    style: TextStyle(
-                                        fontSize: 20, color: Theme.of(context).colorScheme.onPrimary),
-                                  )),
+                      iconPath.isNotEmpty
+                          ? TokenImageWidget(
+                              imageUrl: iconPath,
+                              size: 36,
+                            )
+                          : Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  balance.asset.name
+                                      .substring(0, min(2, balance.asset.name.length)),
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Theme.of(context).colorScheme.onPrimary,
+                                  ),
                                 ),
-                              // if (chainIconPath.isNotEmpty)
-                              //   Align(
-                              //       alignment: Alignment.bottomRight,
-                              //       child: Container(
-                              //           decoration: ShapeDecoration(
-                              //               shape: RoundedSuperellipseBorder(
-                              //                   borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
-                              //               color: Colors.white),
-                              //           child: Padding(
-                              //             padding: const EdgeInsets.all(2.0),
-                              //             child: CakeImageWidget(
-                              //               imageUrl: chainIconPath,
-                              //               width: 12,
-                              //               height: 12,
-                              //               colorFilter:
-                              //                   ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                              //             ),
-                              //           )))
-                            ],
-                          )),
+                              ),
+                            ),
                       SizedBox(width: 12.0),
                       Expanded(
                         child: Column(
