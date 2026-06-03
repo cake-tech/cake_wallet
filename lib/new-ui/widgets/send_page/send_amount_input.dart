@@ -1,3 +1,4 @@
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +110,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                     spacing: 8,
                                     children: [
                                       if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                        CakeImageWidget(imageUrl: widget.currencyIconPath, width: 24, height: 24),
+                                        TokenImageWidget(imageUrl: widget.currencyIconPath, size: 24),
                                       Text(widget.currency),
                                       if (widget.hasPicker)
                                         CakeImageWidget(imageUrl:

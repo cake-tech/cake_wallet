@@ -71,6 +71,8 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
         title: S.of(context).nodes,
         bottomWidget: Observer(
             builder: (_) => NodeListRow(
+                // vertical: 0,
+                // horizontal: 0,
                 node: widget.nodeListViewModel.currentNode,
                 speed: widget.nodeListViewModel.nodeSpeedFor(widget.nodeListViewModel.currentNode),
                 onEditComplete: (res)async{
@@ -90,63 +92,66 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(18)),
-            child: Observer(
-              builder: (BuildContext context) {
-                int itemsCount = widget.nodeListViewModel.nonCurrentNodes.length;
-                return ListView.separated(
-                  controller: ModalScrollController.of(context),
-                  shrinkWrap: true,
-                  physics: BouncingScrollPhysics(),
-                  itemCount: itemsCount,
-                  separatorBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: Container(
-                      height: 1,
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+              child: Observer(
+                builder: (BuildContext context) {
+                  int itemsCount = widget.nodeListViewModel.nonCurrentNodes.length;
+                  return ListView.separated(
+                    controller: ModalScrollController.of(context),
+                    shrinkWrap: true,
+                    physics: BouncingScrollPhysics(),
+                    itemCount: itemsCount,
+                    separatorBuilder: (context, index) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Container(
+                        height: 1,
+                        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      ),
                     ),
-                  ),
-                  itemBuilder: (_, index) {
-                    return Observer(
-                      builder: (context) {
-                        final node = widget.nodeListViewModel.nonCurrentNodes[index];
-                        final nodeListRow = NodeListRow(
-                          node: node,
-                          isSelected: false,
-                          isPow: widget.isPow,
-                          speed: widget.nodeListViewModel.nodeSpeedFor(node),
-                          onEditComplete: (res) async {
-                            if(res != null && res is Node) {
-                              widget.nodeListViewModel.nodes.removeWhere((item)=>item.id == res.id);
-                              widget.nodeListViewModel.nodes.add(res);
-                            }
+                    itemBuilder: (_, index) {
+                      return Observer(
+                        builder: (context) {
+                          final node = widget.nodeListViewModel.nonCurrentNodes[index];
+                          final nodeListRow = NodeListRow(
+                            node: node,
+                            isSelected: false,
+                            isPow: widget.isPow,
+                            speed: widget.nodeListViewModel.nodeSpeedFor(node),
+                            onEditComplete: (res) async {
+                              if(res != null && res is Node) {
+                                widget.nodeListViewModel.nodes.removeWhere((item)=>item.id == res.id);
+                                widget.nodeListViewModel.nodes.add(res);
+                              }
 
-                          },
-                          onTap: () async {
-                            await showPopUp<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertWithTwoActions(
-                                  alertTitle: S.of(context).change_current_node_title,
-                                  alertContent:
-                                      widget.nodeListViewModel.getAlertContent(node.uriRaw),
-                                  leftButtonText: S.of(context).cancel,
-                                  rightButtonText: S.of(context).change,
-                                  actionLeftButton: () => Navigator.of(context).pop(),
-                                  actionRightButton: () async {
-                                    await widget.nodeListViewModel.setAsCurrent(node);
-                                    Navigator.of(context).pop();
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        );
-                        return nodeListRow;
-                      },
-                    );
-                  },
-                );
-              },
+                            },
+                            onTap: () async {
+                              await showPopUp<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertWithTwoActions(
+                                    alertTitle: S.of(context).change_current_node_title,
+                                    alertContent:
+                                        widget.nodeListViewModel.getAlertContent(node.uriRaw),
+                                    leftButtonText: S.of(context).cancel,
+                                    rightButtonText: S.of(context).change,
+                                    actionLeftButton: () => Navigator.of(context).pop(),
+                                    actionRightButton: () async {
+                                      await widget.nodeListViewModel.setAsCurrent(node);
+                                      Navigator.of(context).pop();
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          );
+                          return nodeListRow;
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],

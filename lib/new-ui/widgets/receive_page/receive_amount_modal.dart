@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -84,14 +85,14 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                     Row(
                                       spacing: 8,
                                       children: [
-                                        Image.asset(
-                                            widget.walletAddressListViewModel.tokenCurrency
-                                                    ?.iconPath ??
-                                                widget.walletAddressListViewModel.currencies.first
-                                                    .iconPath ??
-                                                "",
-                                            width: 32,
-                                            height: 32),
+                                        TokenImageWidget(
+                                          imageUrl: widget.walletAddressListViewModel.tokenCurrency
+                                                  ?.iconPath ??
+                                              widget.walletAddressListViewModel.currencies.first
+                                                  .iconPath ??
+                                              "",
+                                          size: 32,
+                                        ),
                                         Text((widget.walletAddressListViewModel.tokenCurrency ??
                                                 widget.walletAddressListViewModel.currencies.first
                                                     as CryptoCurrency)

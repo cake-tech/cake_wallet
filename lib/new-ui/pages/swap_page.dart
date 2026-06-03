@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -970,8 +971,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CakeImageWidget(imageUrl: _selectedCurrency.iconPath ?? "",
-                                    width: 28, height: 28),
+                                TokenImageWidget(
+                                  imageUrl: _selectedCurrency.iconPath ?? "",
+                                  size: 28,
+                                ),
                                 SizedBox(width: 10),
                                 Text(
                                   currencyToShow,
