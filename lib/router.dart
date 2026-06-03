@@ -371,7 +371,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
-              if (hardwareWalletType == HardwareWalletType.trezor) {
+              if (hardwareWalletType == HardwareWalletType.trezor && type != WalletType.monero) {
                 Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
                     arguments: [type, hardwareWalletType]);
                 return;

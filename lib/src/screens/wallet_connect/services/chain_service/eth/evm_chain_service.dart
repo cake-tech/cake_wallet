@@ -530,6 +530,8 @@ class EvmChainServiceImpl {
     final finalDecoded = decoded.copyWith(rows: mergedRows);
     final feeRows = _buildFeeRows(transaction, nativeCurrency, nativeSymbol);
 
+    final feeRows = _buildFeeExtraModels(transaction, nativeCurrency, nativeSymbol);
+
     if (await MethodsUtils.requestApproval(
       finalDecoded,
       title: title,
@@ -540,11 +542,7 @@ class EvmChainServiceImpl {
       verifyContext: verifyContext,
       extraRows: feeRows,
     )) {
-      return transaction;
     }
-
-    return JsonRpcError(code: 5002, message: S.current.user_rejected_method);
-  }
 
   List<WCDecodedRow> _buildFeeRows(
     Transaction transaction,
@@ -552,11 +550,6 @@ class EvmChainServiceImpl {
     String nativeSymbol,
   ) {
     final gasLimit = transaction.maxGas;
-    if (gasLimit == null || gasLimit <= 0) return const [];
-
-    final gasLimitBig = BigInt.from(gasLimit);
-    final isEip1559 = transaction.isEIP1559;
-    final perGasWei =
         isEip1559 ? transaction.maxFeePerGas?.getInWei : transaction.gasPrice?.getInWei;
     if (perGasWei == null || perGasWei <= BigInt.zero) return const [];
 

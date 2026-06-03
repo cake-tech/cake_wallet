@@ -240,7 +240,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/trezor_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -414,7 +414,7 @@ Future<void> setup({
     switch(type) {
       case HardwareWalletType.bitbox: return getIt<BitboxViewModel>();
       case HardwareWalletType.ledger: return getIt<LedgerViewModel>();
-      case HardwareWalletType.trezor: return getIt<TrezorViewModel>();
+      case HardwareWalletType.trezor: return getIt<TrezorConnectViewModel>();
       case HardwareWalletType.cupcake:
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
@@ -429,7 +429,7 @@ Future<void> setup({
 
   getIt.registerLazySingleton(() => TrezorConnect("cakewallet://trezor_connect",
       appName: "Cake Wallet"));
-  getIt.registerLazySingleton(() => TrezorViewModel(getIt<TrezorConnect>()));
+  getIt.registerLazySingleton(() => TrezorConnectViewModel(getIt<TrezorConnect>()));
 
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
@@ -1118,9 +1118,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
-  getIt.registerLazySingleton(() {
+  getIt.registerFactoryParam<NodeListViewModel, bool, void>((isPow, _) {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(appStore);
+    return NodeListViewModel(appStore, isPow);
   });
 
   getIt.registerFactoryParam<NewAddressesPage, bool, void>(
@@ -1130,11 +1130,6 @@ Future<void> setup({
       dashboardViewModel: getIt<DashboardViewModel>(),
     ),
   );
-
-  getIt.registerLazySingleton(() {
-    final appStore = getIt.get<AppStore>();
-    return PowNodeListViewModel(appStore);
-  });
 
   getIt.registerFactory(() => ConnectionSyncViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
@@ -1178,8 +1173,6 @@ Future<void> setup({
       final Node? editingNode = args['editingNode'] as Node?;
         return NodeCreateOrEditViewModel(
           isPow,
-          getIt.get<NodeListViewModel>(),
-          getIt.get<PowNodeListViewModel>(),
           type,
           getIt.get<SettingsStore>(),
           editingNode: editingNode
@@ -1700,10 +1693,7 @@ Future<void> setup({
   );
 
   getIt.registerFactoryParam<ManageNodesPage, bool, void>((bool isPow, _) {
-    if (isPow) {
-      return ManageNodesPage(isPow, powNodeListViewModel: getIt.get<PowNodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
-    }
-    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
+    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>(param1: isPow), dashboardViewModel: getIt.get<DashboardViewModel>());
   });
 
   getIt.registerFactory(
