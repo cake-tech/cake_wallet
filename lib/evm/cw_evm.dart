@@ -149,8 +149,8 @@ class CWEVM extends EVM {
       {
         required String id,
         required int height,
-        required Money amount,
-        required Money fee,
+        required BigInt ethAmount,
+        required BigInt ethFee,
         required String tokenSymbol,
         int exponent = 18,
         required TransactionDirection direction,
@@ -165,8 +165,8 @@ class CWEVM extends EVM {
       }) =>
       EVMChainTransactionInfo(id: id,
           height: height,
-          amount: amount,
-          fee: fee,
+          ethAmount: ethAmount,
+          ethFee: ethFee,
           tokenSymbol: tokenSymbol,
           direction: direction,
           isPending: isPending,
@@ -464,6 +464,13 @@ class CWEVM extends EVM {
     }
     return null;
   }
+
+
+  @override
+  BigInt getPendingTransactionFee(PendingTransaction tx) => (tx as PendingEVMChainTransaction).fee;
+
+  @override
+  String getPendingTransactionAmount(PendingTransaction tx) => (tx as PendingEVMChainTransaction).amount;
 
   // Registry helper methods
   static final EvmChainRegistry _registry = EvmChainRegistry();

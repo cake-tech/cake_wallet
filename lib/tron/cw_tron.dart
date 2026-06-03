@@ -157,8 +157,8 @@ class CWTron extends Tron {
   @override
   TransactionInfo getTransactionInfo({
     required String id,
-    required Money amount,
-    Money? fee,
+    required BigInt tronAmount,
+    int? txFee,
     required TransactionDirection direction,
     required DateTime blockTime,
     String? to,
@@ -166,11 +166,17 @@ class CWTron extends Tron {
     required bool isPending,
   }) =>
       TronTransactionInfo(id: id,
-          amount: amount,
-          fee: fee,
+          tronAmount: tronAmount,
+          txFee: txFee,
           direction: direction,
           blockTime: blockTime,
           to: to,
           from: from,
           isPending: isPending);
+
+  @override
+  String getPendingTransactionAmount(PendingTransaction tx) => (tx as PendingTronTransaction).amount;
+
+  @override
+  String getPendingTransactionFee(PendingTransaction tx) => (tx as PendingTronTransaction).amount;
 }

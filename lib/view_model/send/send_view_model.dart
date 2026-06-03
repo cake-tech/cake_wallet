@@ -1106,9 +1106,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.transactionHistory.addOne(evm!.getTransactionInfo(
             id: pendingTransaction!.evmTxHashFromRawHex!,
             height: 0,
-            amount: pendingTransaction!.amount,
-            fee: pendingTransaction!.fee,
-            tokenSymbol: pendingTransaction!.amount.currency.symbol,
+            // FIXME(malik) this is even more critical given all the issues we had with decimal point parsing. with money it'll be easy
+            ethAmount: BigInt.parse(evm!
+                .getPendingTransactionAmount(pendingTransaction!)
+                .replaceAll(".", "")
+                .replaceAll(",", "")),
+            ethFee: evm!.getPendingTransactionFee(pendingTransaction!),
+            tokenSymbol: currency.title,
             direction: TransactionDirection.outgoing,
             isPending: true,
             date: DateTime.now(),
@@ -1119,23 +1123,29 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if(walletType == WalletType.solana) {
         wallet.transactionHistory.addOne(solana!.getTransactionInfo(
             id: pendingTransaction!.id,
-            date: DateTime.now(),
+            blockTime: DateTime.now(),
             to: "",
             from: "",
             direction: TransactionDirection.outgoing,
-            amount: pendingTransaction!.amount,
+            solAmount: solana!.getPendingTransactionAmount(pendingTransaction!),
             isPending: true,
-            fee: pendingTransaction!.fee));
+            txFee: solana!.getPendingTransactionFee(pendingTransaction!)));
       }
 
-      if(walletType == WalletType.tron) {
+      if (walletType == WalletType.tron) {
         wallet.transactionHistory.addOne(tron!.getTransactionInfo(
             id: pendingTransaction!.id,
             blockTime: DateTime.now(),
             direction: TransactionDirection.outgoing,
-            amount: pendingTransaction!.amount,
+            tronAmount: BigInt.parse(tron!
+                .getPendingTransactionAmount(pendingTransaction!)
+                .replaceAll(".", "")
+                .replaceAll(",", "")),
             isPending: true,
-            fee: pendingTransaction!.fee));
+            txFee: int.parse(tron!
+                .getPendingTransactionAmount(pendingTransaction!)
+                .replaceAll(".", "")
+                .replaceAll(",", ""))));
       }
 
       if (pendingTransaction!.id.isNotEmpty) {

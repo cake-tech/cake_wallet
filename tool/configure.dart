@@ -1036,17 +1036,20 @@ abstract class Solana {
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
   
   TransactionInfo getTransactionInfo(
-  {
+{
     required String id,
-    required DateTime date,
+    required DateTime blockTime,
     required String to,
     required String from,
     required TransactionDirection direction,
-    required Money amount,
+    required double solAmount,
     required bool isPending,
-    required Money fee,
+    required double txFee,
   }
   );
+  
+  double getPendingTransactionAmount(PendingTransaction tx);
+  double getPendingTransactionFee(PendingTransaction tx);
 }
 
 class JupiterSwapFailedException implements Exception {
@@ -1090,6 +1093,7 @@ Future<void> generateTron(bool hasImplementation) async {
   const tronCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -1099,7 +1103,6 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/tron_token.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/amount/money.dart';
 
 """;
   const tronCWHeaders = """
@@ -1107,6 +1110,7 @@ import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
+import 'package:cw_tron/pending_tron_transaction.dart';
 
 import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_wallet.dart';
@@ -1149,14 +1153,16 @@ abstract class Tron {
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   TransactionInfo getTransactionInfo({
     required String id,
-    required Money amount,
-    Money? fee,
+    required BigInt tronAmount,
+    int? txFee,
     required TransactionDirection direction,
     required DateTime blockTime,
     String? to,
     String? from,
     required bool isPending,
   });
+  String getPendingTransactionFee(PendingTransaction tx);
+  String getPendingTransactionAmount(PendingTransaction tx);
 }
   """;
 
@@ -1387,6 +1393,7 @@ Future<void> generateEVM(bool hasImplementation) async {
 import 'dart:math' as math;
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
@@ -1416,6 +1423,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
@@ -1640,8 +1648,8 @@ abstract class EVM {
   {
     required String id,
     required int height,
-    required Money amount,
-    required Money fee,
+    required BigInt ethAmount,
+    required BigInt ethFee,
     required String tokenSymbol,
     int exponent = 18,
     required TransactionDirection direction,
@@ -1655,6 +1663,8 @@ abstract class EVM {
     required int chainId,
   }
   );
+  BigInt getPendingTransactionFee(PendingTransaction tx);
+  String getPendingTransactionAmount(PendingTransaction tx);
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
