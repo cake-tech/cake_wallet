@@ -75,6 +75,8 @@ class WalletAdminDecoder {
     );
   }
 
+  int? extractChainId(dynamic params) => _hexToInt(_extractChainIdHex(params));
+
   String? _extractChainIdHex(dynamic params) {
     final config = _firstMap(params);
     if (config == null) return null;

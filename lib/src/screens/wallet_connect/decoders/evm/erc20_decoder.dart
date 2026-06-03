@@ -42,6 +42,14 @@ class Erc20Decoder {
     return null;
   }
 
+  Future<bool> _isWrappedNative(String contractAddress, String nativeSymbol) async {
+    final token = await tokenResolver.resolve(contractAddress);
+    if (token == null) return false;
+    final symbol = token.symbol.toUpperCase();
+    final native = nativeSymbol.toUpperCase();
+    return symbol == 'W$native' || symbol == native;
+  }
+
   Future<WCDecodedRequest?> _decodeApprove(
     EvmCalldata calldata,
     String? contractAddress,
@@ -203,10 +211,15 @@ class Erc20Decoder {
     );
   }
 
-  WCDecodedRequest _decodeWethWrap(String? contractAddress, String nativeSymbol) {
+  Future<WCDecodedRequest?> _decodeWethWrap(
+    String? contractAddress,
+    String nativeSymbol,
+  ) async {
+    if (contractAddress == null) return null;
+    if (!await _isWrappedNative(contractAddress, nativeSymbol)) return null;
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_wrap(nativeSymbol),
-      actionSubtitle: contractAddress == null ? null : tokenResolver.shortAddress(contractAddress),
+      actionSubtitle: tokenResolver.shortAddress(contractAddress),
       rows: const [],
       hideTo: false,
       hideZeroValue: false,
@@ -218,6 +231,8 @@ class Erc20Decoder {
     String? contractAddress,
     String nativeSymbol,
   ) async {
+    if (contractAddress == null) return null;
+    if (!await _isWrappedNative(contractAddress, nativeSymbol)) return null;
     final rawAmount = calldata.uintAt(0);
     if (rawAmount == null) return null;
 
@@ -226,7 +241,7 @@ class Erc20Decoder {
 
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_unwrap(nativeSymbol),
-      actionSubtitle: contractAddress == null ? null : tokenResolver.shortAddress(contractAddress),
+      actionSubtitle: tokenResolver.shortAddress(contractAddress),
       rows: [
         WCDecodedRow(
           label: S.current.wc_amount,

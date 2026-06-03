@@ -31,9 +31,9 @@ class EvmSelectors {
   static const uniV3ExactOutput = 'f28c0498';
   static const multicall = 'ac9650d8';
   static const multicallWithDeadline = '5ae401dc';
-  static const multicallSelfPermit = '1f0464d1';
-  static const uniV3UniversalRouterExecute = '3593564c';
-  static const uniV3UniversalRouterExecuteWithDeadline = '24856bc3';
+  static const multicallWithPreviousBlockhash = '1f0464d1';
+  static const uniV3UniversalRouterExecute = '24856bc3';
+  static const uniV3UniversalRouterExecuteWithDeadline = '3593564c';
 
   static const zeroXTransformErc20 = '415565b0';
   static const zeroXFillLimitOrder = 'f6274f66';
@@ -89,7 +89,7 @@ class EvmSelectors {
     erc1155SafeBatchTransferFrom: 'safeBatchTransferFrom',
     multicall: 'multicall',
     multicallWithDeadline: 'multicall',
-    multicallSelfPermit: 'multicall+permit',
+    multicallWithPreviousBlockhash: 'multicall',
     erc2612Permit: 'permit',
     permit2Permit: 'permit2',
     permit2PermitBatch: 'permit2Batch',

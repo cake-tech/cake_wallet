@@ -387,6 +387,10 @@ class EvmChainServiceImpl {
     final pRequest = walletKit.pendingRequests.getAll().last;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
+    final targetChainId = walletAdminDecoder.extractChainId(parameters);
+    final currentChainId = reference.chainId;
+    final canSwitch = targetChainId != null && targetChainId == currentChainId;
+
     final decoded = walletAdminDecoder.decodeSwitchChain(parameters);
 
     final isApproved = await MethodsUtils.requestApproval(
@@ -397,13 +401,20 @@ class EvmChainServiceImpl {
       verifyContext: pRequest.verifyContext,
     );
 
-    if (isApproved) {
-      response = response.copyWith(result: null);
-    } else {
+    if (!isApproved) {
       final error = Errors.getSdkError(Errors.USER_REJECTED);
       response = response.copyWith(
         error: JsonRpcError(code: error.code, message: error.message),
       );
+    } else if (!canSwitch) {
+      response = response.copyWith(
+        error: JsonRpcError(
+          code: 4902,
+          message: S.current.wc_warning_chain_not_supported,
+        ),
+      );
+    } else {
+      response = response.copyWith(result: null);
     }
 
     _handleResponseForTopic(topic, response);
@@ -424,12 +435,17 @@ class EvmChainServiceImpl {
       verifyContext: pRequest.verifyContext,
     );
 
-    if (isApproved) {
-      response = response.copyWith(result: null);
-    } else {
+    if (!isApproved) {
       final error = Errors.getSdkError(Errors.USER_REJECTED);
       response = response.copyWith(
         error: JsonRpcError(code: error.code, message: error.message),
+      );
+    } else {
+      response = response.copyWith(
+        error: JsonRpcError(
+          code: 4902,
+          message: S.current.wc_warning_add_chain_not_supported,
+        ),
       );
     }
 

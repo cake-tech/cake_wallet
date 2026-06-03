@@ -78,6 +78,11 @@ class SolanaRequestDecoder {
         continue;
       }
 
+      final hasUnresolvedAccounts =
+          compiled.accounts.any((idx) => idx >= accounts.length);
+      if (hasUnresolvedAccounts) {
+        warnings.add(S.current.wc_warning_unresolved_accounts);
+      }
       final accountAddresses = compiled.accounts
           .where((idx) => idx < accounts.length)
           .map((idx) => accounts[idx])

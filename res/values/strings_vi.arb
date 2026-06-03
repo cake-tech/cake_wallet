@@ -1421,6 +1421,7 @@
   "wc_warning_unknown_instruction": "Một hoặc nhiều hướng dẫn trong giao dịch này không được công nhận.",
   "wc_warning_unknown_token": "Mã thông báo này không có trong ví của bạn. Biểu tượng và số tiền có thể không chính xác.",
   "wc_warning_unlimited_approval": "Sự chấp thuận này là không giới hạn — người chi tiêu có thể di chuyển bất kỳ số lượng token này.",
+  "wc_warning_unresolved_accounts": "Một số tài khoản trong giao dịch này đến từ bảng tra cứu địa chỉ trên chuỗi và không thể giải quyết tại đây.",
   "wc_would_like_to_connect_to": "${name} muốn kết nối",
   "wc_would_like_to_sign": "${name} muốn ký",
   "website": "Trang web",

@@ -1424,6 +1424,7 @@
   "wc_warning_unknown_instruction": "此交易中的一条或多条指令未被识别。",
   "wc_warning_unknown_token": "该令牌不在您的钱包中。符号和金额可能不准确。",
   "wc_warning_unlimited_approval": "这种批准是无限的——消费者可以移动任意数量的该代币。",
+  "wc_warning_unresolved_accounts": "本次交易中的部分账户来自链上地址查找表，此处无法解析。",
   "wc_would_like_to_connect_to": "${name} 想要连接",
   "wc_would_like_to_sign": "${name} 想要签名",
   "website": "网站",
