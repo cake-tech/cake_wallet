@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_reque
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_message_card.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
@@ -15,14 +14,6 @@ import 'package:reown_walletkit/reown_walletkit.dart';
 class MethodsUtils {
   static final walletKit = getIt.get<WalletKitService>().walletKit;
   static final bottomSheetService = getIt.get<BottomSheetService>();
-  
-  static const _transactionMethods = {
-    'eth_sendTransaction',
-    'eth_signTransaction',
-    'solana_signTransaction',
-    'solana_signAllTransactions',
-    'solana_signAndSendTransaction',
-  };
 
   static const _transactionMethods = {
     'eth_sendTransaction',
@@ -91,12 +82,20 @@ class MethodsUtils {
     String? error,
     bool success = false,
   ]) {
+    printV('handleRedirect topic: $topic, redirect: $redirect, error: $error');
     openApp(
       topic,
       redirect,
       onFail: (e) => goBackModal(
         title: success ? S.current.success : S.current.error,
         message: error,
+        success: success,
+      ),
+    );
+  }
+
+  static void openApp(
+    String topic,
     Redirect? redirect, {
     int delay = 100,
     Function(ReownSignError? error)? onFail,

@@ -466,6 +466,9 @@ abstract class WalletKitServiceBase with Store {
           ) as WCBottomSheetResult?) ??
           WCBottomSheetResult.reject;
       if (result != WCBottomSheetResult.reject) {
+        final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+        final privateKey = '0x${chainKeys.first.privateKey}';
+        final credentials = EthPrivateKey.fromHex(privateKey);
         final messageToSign = formattedMessages.length;
         final count = (result == WCBottomSheetResult.one) ? 1 : messageToSign;
         final List<Cacao> cacaos = [];
