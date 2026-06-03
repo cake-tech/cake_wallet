@@ -157,17 +157,7 @@ class CoinActionRow extends StatelessWidget {
   }
 
   Future<void> _onPressedScan(BuildContext context) async {
-    if (false && FeatureFlag.hasNewUiExtraPages) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => FractionallySizedBox(
-          heightFactor: 0.9,
-          child: ScanPage(),
-        ),
-      );
-    } else {
-      final code = await presentQRScanner(context);
+      final code = await presentQRScanner(context, showHelp: true);
 
       if (code == null || code.isEmpty) return;
 
@@ -227,5 +217,4 @@ class CoinActionRow extends StatelessWidget {
         ),
       );
     }
-  }
 }
