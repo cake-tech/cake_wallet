@@ -1,5 +1,6 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 
 part 'wallet_type.g.dart';
@@ -343,6 +344,7 @@ WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
     return _cryptoCurrencyToWalletType(type);
   }
 } catch (e) {
+  printV(e);
   return null;
 }
 }

@@ -94,7 +94,11 @@ class _IconWithBadge extends StatelessWidget {
       errorWidget: Container(
         width: 32,
         height: 32,
-        child: Center(child: Text(currency.title.substring(0, 2))),
+        child: Center(
+          child: Text(
+            currency.title.length >= 2 ? currency.title.substring(0, 2) : currency.title,
+          ),
+        ),
       ),
     );
     if (badgePath == null) return icon;
