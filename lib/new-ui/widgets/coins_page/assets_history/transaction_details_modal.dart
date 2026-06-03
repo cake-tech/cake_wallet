@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
@@ -83,13 +84,16 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                       widget.transactionDetailsViewModel.formattedStatus,
                                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
-                                GestureDetector(
-                                  onLongPress: () => Clipboard.setData(ClipboardData(
-                                    text: transactionInfoAmount.toString(),
-                                  )),
-                                  child: Text(
-                                    transactionInfoAmount.toStringWithSymbol(),
-                                    style: TextStyle(fontSize: 28),
+                                CopyWrapper(
+                                  requireLongPress: true,
+                                  data: ClipboardData(text: transactionInfoAmount.toString()),
+                                  builder: (context, copied)=> AnimatedSwitcher(
+                                    duration: Duration(milliseconds: 300),
+                                    child: Text(
+                                      key: ValueKey(copied),
+                                      copied ? S.of(context).copied : transactionInfoAmount.toStringWithSymbol(),
+                                      style: TextStyle(fontSize: 28, color: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface),
+                                    ),
                                   ),
                                 ),
                                 Padding(
