@@ -65,7 +65,7 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
   }
 
   Future<_IconShape> _analyzeShape(String url) async {
-    if (url.toLowerCase().endsWith('.svg')) return _IconShape.clipOnly;
+    if (url.toLowerCase().endsWith('.svg')) return _IconShape.alreadyCircular;
 
     final ImageProvider provider;
     if (url.startsWith('assets/')) {
