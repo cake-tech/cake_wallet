@@ -21,6 +21,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_wallet.dart';
 import 'package:cw_zcash/src/zcash_wallet_service.dart';
+import 'package:cw_zcash/src/zkool_compat.dart';
 import 'package:cw_zcash/src/zkooltx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
@@ -291,7 +292,13 @@ class ZcashTaddressRotation {
       accountId: rotationAccount,
       func: (final c) async {
         final tx = await zkool_pay.prepare(
-          recipients: [zkool_paydart.Recipient(address: toAddress, amount: bal)],
+          recipients: [
+            zkool_paydart.Recipient(
+              assetBase: zecBase,
+              address: toAddress,
+              amount: bal,
+            )
+          ],
           options: zkool_pay.PaymentOptions(
             srcPools: 1,
             recipientPaysFee: true,

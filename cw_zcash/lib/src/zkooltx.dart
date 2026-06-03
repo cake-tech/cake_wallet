@@ -122,6 +122,8 @@ class ZkoolTx {
       "height": _tx.height,
       "time": _tx.time,
       "value": value.toInt(),
+      "zsaValue": _tx.zsaValue,
+      "assetDisplay": _tx.assetDisplay,
     },
     "txaccount": {
       "id": _txAccount.id,
@@ -143,6 +145,7 @@ class ZkoolTx {
         "pool": spend.pool,
         "height": spend.height,
         "value": spend.value.toString(),
+        "assetDisplay": spend.assetDisplay,
       }).toList(),
       "outputs": _txAccount.outputs.map((final output) => {
         "id": output.id,
@@ -167,6 +170,8 @@ class ZkoolTx {
       height: json["height"],
       time: json["time"],
       value: json["value"],
+      zsaValue: json["zsaValue"] ?? 0,
+      assetDisplay: json["assetDisplay"] ?? "",
     ),
     zkool_account.TxAccount(
       id: json["txaccount"]["id"],
@@ -183,6 +188,7 @@ class ZkoolTx {
           value: BigInt.parse(a["value"]),
           scope: a["scope"],
           locked: a["locked"],
+          assetDisplay: a["assetDisplay"] ?? "",
         ),
       ).toList(),
       spends: (json["txaccount"]["spends"] as List<Map<String, dynamic>>)
@@ -191,6 +197,7 @@ class ZkoolTx {
           pool: a["pool"],
           height: a["height"],
           value: BigInt.parse(a["value"]),
+          assetDisplay: a["assetDisplay"] ?? "",
         ),
       ).toList(),
       outputs: (json["txaccount"]["outputs"] as List<Map<String, dynamic>>)

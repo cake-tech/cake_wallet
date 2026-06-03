@@ -23,6 +23,7 @@ import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/util/hex.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
+import 'package:cw_zcash/src/zkool_compat.dart';
 import 'package:cw_zcash/src/zkooltx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -59,6 +60,7 @@ abstract class ZcashWalletBase
   }
 
   int accountId;
+
   @override
   @observable
   SyncStatus syncStatus = NotConnectedSyncStatus();
@@ -146,7 +148,15 @@ abstract class ZcashWalletBase
 
   static int dbHeight = 0;
 
-  bool isSyncing = false;
+  bool get isSyncing {
+     return _isSyncing;
+  }
+
+  set isSyncing(final bool value) {
+    _isSyncing = value;
+  }
+
+  bool _isSyncing = false;
 
   static int oneshotSyncCount = 0;
 
@@ -154,6 +164,7 @@ abstract class ZcashWalletBase
   Future<void> _oneshotSync() async {
     try {
       if (isSyncing) return;
+      isSyncing = true;
       c = await c.setAccount(account: accountId);
       final currentHeight = await zkool_network.getCurrentHeight(c: c);
       await zkool_sync.cancelSync();
@@ -172,7 +183,6 @@ abstract class ZcashWalletBase
       );
       c = await c.setAccount(account: accountId);
       final randInt = CRC32.compute("${DateTime.now().microsecondsSinceEpoch}").toRadixString(16);
-      isSyncing = true;
       oneshotSyncCount++;
       await sync
         ..listen(
@@ -190,8 +200,8 @@ abstract class ZcashWalletBase
           },
           onError: (final e) {
             printV("[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] error syncing: $e");
-            syncStatus = FailedSyncStatus(error: e.toString());
-            isSyncing = false;
+            syncStatus = FailedSyncStatus(error: e.toString().replaceAll("AnyhowException(", "").split("\n").firstOrNull ?? "Unknown error");
+            unawaited(Future.delayed(Duration(seconds: 5), () => isSyncing = false));
           },
           onDone: () {
             printV("[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] synchronized");
@@ -199,10 +209,11 @@ abstract class ZcashWalletBase
             unawaited(updateTransactions());
             oneshotSyncCount--;
             syncStatus = SyncedSyncStatus();
-            isSyncing = false;
+            unawaited(Future.delayed(Duration(seconds: 5), () => isSyncing = false));
           },
         );
     } catch (e) {
+      syncStatus = FailedSyncStatus(error: e.toString());
       printV("error syncing: $e");
     }
   }
@@ -235,6 +246,7 @@ abstract class ZcashWalletBase
           output.isParsedAddress ? output.extractedAddress! : output.address;
       recipients.add(
         zkool_paydart.Recipient(
+          assetBase: zecBase,
           address: recipientAddress,
           amount: amount.amount,
           userMemo: output.memo,
@@ -571,46 +583,47 @@ abstract class ZcashWalletBase
   @override
   @action
   Future<void> rescan({required final int height}) async {
-    try {
-      syncStatus = StartingScanSyncStatus(height);
-      printV("rescanning from: $height");
-      await zkool_sync.cancelSync();
-      isSyncing = false;
+    await zkool_sync.rewindSync(height: height, account: accountId, c: c);
+    // try {
+    //   syncStatus = StartingScanSyncStatus(height);
+    //   printV("rescanning from: $height");
+    //   await zkool_sync.cancelSync();
+    //   isSyncing = false;
 
-      await runWithCoinMutex.acquire();
-      try {
-        final oldAddresses = await _getAddressesForAccount(accountId);
+    //   await runWithCoinMutex.acquire();
+    //   try {
+    //     final oldAddresses = await _getAddressesForAccount(accountId);
 
-        c = await c.setAccount(account: accountId);
-        final accountSeed = await zkool_account.getAccountSeed(account: accountId, c: c);
-        if (accountSeed == null) {
-          throw Exception('Cannot rescan: seed not available');
-        }
+    //     c = await c.setAccount(account: accountId);
+    //     final accountSeed = await zkool_account.getAccountSeed(account: accountId, c: c);
+    //     if (accountSeed == null) {
+    //       throw Exception('Cannot rescan: seed not available');
+    //     }
 
-        final newAccountId = await restoreZcashWalletFromSeed(
-          name: name,
-          seed: accountSeed.mnemonic,
-          passphrase: accountSeed.phrase,
-          birthHeight: height,
-        );
+    //     final newAccountId = await restoreZcashWalletFromSeed(
+    //       name: name,
+    //       seed: accountSeed.mnemonic,
+    //       passphrase: accountSeed.phrase,
+    //       birthHeight: height,
+    //     );
 
-        final newAddresses = await _getAddressesForAccount(newAccountId);
-        if (!_addressesMatch(oldAddresses, newAddresses)) {
-          throw Exception('Rescan address verification failed');
-        }
+    //     final newAddresses = await _getAddressesForAccount(newAccountId);
+    //     if (!_addressesMatch(oldAddresses, newAddresses)) {
+    //       throw Exception('Rescan address verification failed');
+    //     }
 
-        await saveAccountId(name, newAccountId);
-        await _switchToAccount(newAccountId, height);
-      } finally {
-        runWithCoinMutex.release();
-      }
+    //     await saveAccountId(name, newAccountId);
+    //     await _switchToAccount(newAccountId, height);
+    //   } finally {
+    //     runWithCoinMutex.release();
+    //   }
 
-      syncStatus = ConnectedSyncStatus();
-    } catch (e) {
-      printV("Rescan error: $e");
-      syncStatus = FailedSyncStatus(error: e.toString());
-      rethrow;
-    }
+    //   syncStatus = ConnectedSyncStatus();
+    // } catch (e) {
+    //   printV("Rescan error: $e");
+    //   syncStatus = FailedSyncStatus(error: e.toString());
+    //   rethrow;
+    // }
   }
 
   bool _isTransactionUpdating = false;
@@ -685,7 +698,8 @@ abstract class ZcashWalletBase
       return;
     }
     try {
-      syncStatus = AttemptingSyncStatus();
+      // syncStatus = AttemptingSyncStatus();
+      unawaited(_runSyncLoop());
     } catch (e) {
       isNodeWorking = false;
       printV("Sync error: $e");
@@ -740,7 +754,11 @@ abstract class ZcashWalletBase
 
     final txPlan = await zkool_pay.prepare(
       recipients: [
-        zkool_paydart.Recipient(address: walletAddresses.orchardAddress!, amount: sweepable),
+        zkool_paydart.Recipient(
+          assetBase: zecBase,
+          address: walletAddresses.orchardAddress!,
+          amount: sweepable,
+        ),
       ],
       options: zkool_pay.PaymentOptions(
         srcPools: 3,
@@ -1061,7 +1079,7 @@ abstract class ZcashWalletBase
         birth: height,
         folder: '',
         useInternal: true,
-        internal: true,
+        internal: false,
         ledger: false,
       ),
       c: c,
