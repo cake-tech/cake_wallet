@@ -5,6 +5,12 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
+enum _IconShape {
+  alreadyCircular,
+  clipOnly,
+  hollowNeedsBackdrop,
+}
+
 class TokenImageWidget extends StatefulWidget {
   const TokenImageWidget({
     super.key,
@@ -22,44 +28,44 @@ class TokenImageWidget extends StatefulWidget {
 }
 
 class _TokenImageWidgetState extends State<TokenImageWidget> {
-  static final Map<String, bool> _backdropCache = {};
+  static final Map<String, _IconShape> _shapeCache = {};
 
-  bool _needsBackdrop = false;
+  _IconShape _shape = _IconShape.clipOnly;
 
   @override
   void initState() {
     super.initState();
-    _resolveBackdrop();
+    _resolveShape();
   }
 
   @override
   void didUpdateWidget(TokenImageWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imageUrl != widget.imageUrl) {
-      _resolveBackdrop();
+      _resolveShape();
     }
   }
 
-  Future<void> _resolveBackdrop() async {
+  Future<void> _resolveShape() async {
     final url = widget.imageUrl;
 
-    final cached = _backdropCache[url];
+    final cached = _shapeCache[url];
     if (cached != null) {
-      if (mounted && _needsBackdrop != cached) {
-        setState(() => _needsBackdrop = cached);
+      if (mounted && _shape != cached) {
+        setState(() => _shape = cached);
       }
       return;
     }
 
-    final needs = await _isMostlyTransparent(url);
-    _backdropCache[url] = needs;
+    final shape = await _analyzeShape(url);
+    _shapeCache[url] = shape;
     if (mounted) {
-      setState(() => _needsBackdrop = needs);
+      setState(() => _shape = shape);
     }
   }
 
-  Future<bool> _isMostlyTransparent(String url) async {
-    if (url.toLowerCase().endsWith('.svg')) return false;
+  Future<_IconShape> _analyzeShape(String url) async {
+    if (url.toLowerCase().endsWith('.svg')) return _IconShape.clipOnly;
 
     final ImageProvider provider;
     if (url.startsWith('assets/')) {
@@ -67,7 +73,7 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
     } else if (url.startsWith('http')) {
       provider = NetworkImage(url);
     } else {
-      return false;
+      return _IconShape.clipOnly;
     }
 
     try {
@@ -88,7 +94,7 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
       stream.removeListener(listener);
 
       final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
-      if (byteData == null) return false;
+      if (byteData == null) return _IconShape.clipOnly;
 
       final totalPixels = image.width * image.height;
       var transparentPixels = 0;
@@ -97,10 +103,20 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
         if (alpha < 128) transparentPixels++;
       }
 
-      return transparentPixels / totalPixels > 0.2;
+      final ratio = transparentPixels / totalPixels;
+
+      if (ratio > 0.15 && ratio < 0.30) {
+        return _IconShape.alreadyCircular;
+      }
+
+      if (ratio > 0.5) {
+        return _IconShape.hollowNeedsBackdrop;
+      }
+
+      return _IconShape.clipOnly;
     } catch (e) {
       printV('TokenImageWidget: failed to analyze $url: $e');
-      return false;
+      return _IconShape.clipOnly;
     }
   }
 
@@ -114,23 +130,27 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
         width: widget.size,
         height: widget.size,
         fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
         errorWidget: widget.errorWidget,
       ),
     );
 
-    if (!_needsBackdrop) {
-      return ClipOval(child: image);
+    switch (_shape) {
+      case _IconShape.alreadyCircular:
+        return image;
+      case _IconShape.clipOnly:
+        return ClipOval(child: image);
+      case _IconShape.hollowNeedsBackdrop:
+        return Container(
+          width: widget.size,
+          height: widget.size,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          child: image,
+        );
     }
-
-    return Container(
-      width: widget.size,
-      height: widget.size,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-      ),
-      child: image,
-    );
   }
 }
