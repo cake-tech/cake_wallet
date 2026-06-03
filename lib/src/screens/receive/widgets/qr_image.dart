@@ -24,41 +24,26 @@ class QrImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imagePath = embeddedImagePath ?? 'assets/images/qr-cake.png';
-    final isSvg = imagePath.endsWith('.svg');
+    final qrSize = size ?? 100.0;
+    final logoSize = qrSize * 0.30;
 
-    if (isSvg) {
-      final qrSize = size ?? 100.0;
-      final logoSize = qrSize * 0.30;
-
-      return Stack(
-        alignment: Alignment.center,
-        children: [
-          qr.QrImageView(
-            data: data,
-            errorCorrectionLevel: errorCorrectionLevel,
-            version: version ?? qr.QrVersions.auto,
-            size: qrSize,
-            foregroundColor: foregroundColor,
-            backgroundColor: backgroundColor,
-            padding: const EdgeInsets.all(12.0),
-          ),
-          TokenImageWidget(
-            imageUrl: imagePath,
-            size: logoSize * 0.8,
-          ),
-        ],
-      );
-    } else {
-      return qr.QrImageView(
-        data: data,
-        errorCorrectionLevel: errorCorrectionLevel,
-        version: version ?? qr.QrVersions.auto,
-        size: size,
-        foregroundColor: foregroundColor,
-        backgroundColor: backgroundColor,
-        padding: const EdgeInsets.all(12.0),
-        embeddedImage: AssetImage(imagePath),
-      );
-    }
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        qr.QrImageView(
+          data: data,
+          errorCorrectionLevel: errorCorrectionLevel,
+          version: version ?? qr.QrVersions.auto,
+          size: qrSize,
+          foregroundColor: foregroundColor,
+          backgroundColor: backgroundColor,
+          padding: const EdgeInsets.all(12.0),
+        ),
+        TokenImageWidget(
+          imageUrl: imagePath,
+          size: logoSize * 0.8,
+        ),
+      ],
+    );
   }
 }
