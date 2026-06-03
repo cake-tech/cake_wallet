@@ -48,6 +48,14 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    textController.dispose();
+    textFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double cutoutSize = MediaQuery.of(context).size.width * 0.8;
     const double cutoutRadius = 24.0;
@@ -69,40 +77,42 @@ class _ScanPageState extends State<ScanPage> {
               onTap: () => setState(() {
                 _textInputMode = false;
               }),
-              child: AnimatedSwitcher(
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInQuad,
-                duration: textModeSwitchDuration,
-                child: _textInputMode
-                    ? BackdropFilter(
-                        key: ValueKey(1),
-                        filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-                        child: Container(
-                          color: _frontFlashMode ? Colors.white : Colors.black.withAlpha(153),
-                        ),
-                      )
-                    : TweenAnimationBuilder<double>(
-                        key: const ValueKey(0),
-                        tween: Tween<double>(begin: 0.0, end: targetRadius),
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeOutCubic,
-                        child: BackdropFilter(
+              child: RepaintBoundary(
+                child: AnimatedSwitcher(
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInQuad,
+                  duration: textModeSwitchDuration,
+                  child: _textInputMode
+                      ? BackdropFilter(
+                          key: ValueKey(1),
                           filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
                           child: Container(
                             color: _frontFlashMode ? Colors.white : Colors.black.withAlpha(153),
                           ),
-                        ),
-                        builder: (context, radius, child) {
-                          return ClipPath(
-                            clipper: HoleClipper(
-                              width: cutoutSize,
-                              height: cutoutSize,
-                              radius: radius,
+                        )
+                      : TweenAnimationBuilder<double>(
+                          key: const ValueKey(0),
+                          tween: Tween<double>(begin: 0.0, end: targetRadius),
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeOutCubic,
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                            child: Container(
+                              color: _frontFlashMode ? Colors.white : Colors.black.withAlpha(153),
                             ),
-                            child: child,
-                          );
-                        },
-                      ),
+                          ),
+                          builder: (context, radius, child) {
+                            return ClipPath(
+                              clipper: HoleClipper(
+                                width: cutoutSize,
+                                height: cutoutSize,
+                                radius: radius,
+                              ),
+                              child: child,
+                            );
+                          },
+                        ),
+                ),
               ),
             ),
           ),
@@ -209,45 +219,47 @@ class _ScanPageState extends State<ScanPage> {
                     MediaQuery.of(context).viewPadding.bottom),
             left: 16,
             right: 16,
-            child: AnimatedOpacity(
-              opacity: _textInputMode ? 1 : 0,
-              duration: textModeSwitchDuration,
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(18)),
-                child: Row(
-                  spacing: 10,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        enabled: _textInputMode,
-                        controller: textController,
-                        focusNode: textFocusNode,
-                        onSubmitted: (val) {
-                          if (val.isNotEmpty) {
-                            Navigator.of(context).pop(val);
-                          } else {
-                            setState(() {
-                              _textInputMode = false;
-                            });
-                          }
-                        },
-                        decoration: InputDecoration(hintText: S.of(context).enter_code),
+            child: RepaintBoundary(
+              child: AnimatedOpacity(
+                opacity: _textInputMode ? 1 : 0,
+                duration: textModeSwitchDuration,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      borderRadius: BorderRadius.circular(18)),
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          enabled: _textInputMode,
+                          controller: textController,
+                          focusNode: textFocusNode,
+                          onSubmitted: (val) {
+                            if (val.isNotEmpty) {
+                              Navigator.of(context).pop(val);
+                            } else {
+                              setState(() {
+                                _textInputMode = false;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(hintText: S.of(context).enter_code),
+                        ),
                       ),
-                    ),
-                    FloatingIconButton(
-                        iconPath: "assets/new-ui/paste.svg",
-                        onPressed: () async {
-                          final data = await Clipboard.getData("text/plain");
-                          if (data?.text != null) {
-                            textController.text = data!.text!;
-                          }
-                        }),
-                    SizedBox(
-                      width: 2,
-                    )
-                  ],
+                      FloatingIconButton(
+                          iconPath: "assets/new-ui/paste.svg",
+                          onPressed: () async {
+                            final data = await Clipboard.getData("text/plain");
+                            if (data?.text != null) {
+                              textController.text = data!.text!;
+                            }
+                          }),
+                      SizedBox(
+                        width: 2,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -256,58 +268,70 @@ class _ScanPageState extends State<ScanPage> {
               bottom: 120,
               left: 0,
               right: 0,
-              child: AnimatedOpacity(
-                duration: textModeSwitchDuration,
-                opacity: _textInputMode ? 0 : 1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 8,
-                  children: [
-                    // "not mvp"
-                    // ScanPageButton(
-                    //     onTap: () async {
-                    //       FilePickerResult? res = await FilePicker.platform.pickFiles(
-                    //         type: FileType.image,
-                    //         allowMultiple: false,
-                    //         withData: false,
-                    //       );
-                    //
-                    //       if (res != null && res.paths.isNotEmpty && res.paths.first != null) {
-                    //         final capture = await controller.analyzeImage(res.paths.first!);
-                    //         if (capture != null) {
-                    //           _handleBarcode(capture);
-                    //         }
-                    //       }
-                    //     },
-                    //     icon: Icons.photo_outlined,
-                    //     label: S.of(context).gallery,
-                    //     buttonColor: buttonColor,
-                    //     buttonIconColor: buttonIconColor),
-                    if (widget.showManualInput)
-                      ScanPageButton(
-                          onTap: () {
-                            setState(() {
-                              _textInputMode = true;
-                            });
-                            Future.delayed(textModeSwitchDuration)
-                                .then((val) => textFocusNode.requestFocus());
-                          },
-                          icon: Icons.edit_outlined,
-                          label: S.of(context).manual_input,
-                          buttonColor: buttonColor,
-                          buttonIconColor: buttonIconColor),
-                    if (widget.showHelp)
-                      ScanPageButton(
-                          onTap: () => showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              useSafeArea: true,
-                              backgroundColor: Theme.of(context).colorScheme.surface,
-                              builder: (context) => ScanPageNetworkList()),
-                          icon: Icons.question_mark,
-                          buttonColor: buttonColor,
-                          buttonIconColor: buttonIconColor)
-                  ],
+              child: RepaintBoundary(
+                child: AnimatedOpacity(
+                  duration: textModeSwitchDuration,
+                  opacity: _textInputMode ? 0 : 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 8,
+                    children: [
+                      // "not mvp"
+                      // ScanPageButton(
+                      //     onTap: () async {
+                      //       FilePickerResult? res = await FilePicker.platform.pickFiles(
+                      //         type: FileType.image,
+                      //         allowMultiple: false,
+                      //         withData: false,
+                      //       );
+                      //
+                      //       if (res != null && res.paths.isNotEmpty && res.paths.first != null) {
+                      //         final capture = await controller.analyzeImage(res.paths.first!);
+                      //         if (capture != null) {
+                      //           _handleBarcode(capture);
+                      //         }
+                      //       }
+                      //     },
+                      //     icon: Icons.photo_outlined,
+                      //     label: S.of(context).gallery,
+                      //     buttonColor: buttonColor,
+                      //     buttonIconColor: buttonIconColor),
+                      if (widget.showManualInput)
+                        ScanPageButton(
+                            onTap: () {
+                              setState(() {
+                                _textInputMode = true;
+                              });
+                              Future.delayed(textModeSwitchDuration)
+                                  .then((val) => textFocusNode.requestFocus());
+                            },
+                            icon: Icons.edit_outlined,
+                            label: S.of(context).manual_input,
+                            buttonColor: buttonColor,
+                            buttonIconColor: buttonIconColor),
+                      if (widget.showHelp)
+                        ScanPageButton(
+                            onTap: () async {
+                              if(_textInputMode) return;
+                              try {
+                                controller.stop();
+                                await showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    useSafeArea: true,
+                                    backgroundColor: Theme.of(context).colorScheme.surface,
+                                    builder: (context) => ScanPageNetworkList());
+
+                              } finally {
+                                controller.start();
+                              }
+
+                            },
+                            icon: Icons.question_mark,
+                            buttonColor: buttonColor,
+                            buttonIconColor: buttonIconColor)
+                    ],
+                  ),
                 ),
               )),
           AnimatedOpacity(

@@ -9,20 +9,31 @@ import 'package:fast_scanner/fast_scanner.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:ur/ur_decoder.dart';
 
 var isQrScannerShown = false;
 
-Future<String?> presentQRScanner(BuildContext context, {bool showHelp = false, bool showManualInput = true}) async {
+Future<String?> presentQRScanner(BuildContext context, {bool showHelp = false, bool showManualInput = true, bool useModal = false}) async {
   isQrScannerShown = true;
   try {
-    final result = await Navigator.of(context).push<String>(
-      CupertinoPageRoute(
-        builder: (context) {
-          return ScanPage(showHelp: showHelp,showManualInput: showManualInput,);
-        },
-      ),
-    );
+    final result = useModal
+        ? await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+            context: context,
+            builder: (context) => ScanPage(
+                  showHelp: showHelp,
+                  showManualInput: showManualInput,
+                ))
+        : await Navigator.of(context).push<String>(
+            CupertinoPageRoute(
+              builder: (context) {
+                return ScanPage(
+                  showHelp: showHelp,
+                  showManualInput: showManualInput,
+                );
+              },
+            ),
+          );
     isQrScannerShown = false;
     return result;
   } catch (e) {
