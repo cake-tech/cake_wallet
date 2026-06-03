@@ -16,6 +16,7 @@ class CakeImageWidget extends StatelessWidget {
     this.borderRadius = 24.0,
     this.alignment,
     this.allowDrawingOutsideViewBox,
+    this.filterQuality,
   });
 
   final String? imageUrl;
@@ -29,6 +30,7 @@ class CakeImageWidget extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final bool? allowDrawingOutsideViewBox;
   final double borderRadius;
+  final FilterQuality? filterQuality;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +71,7 @@ class CakeImageWidget extends StatelessWidget {
           width: width,
           fit: fit,
           color: color,
+          filterQuality: filterQuality ?? FilterQuality.medium,
           errorBuilder: (_, __, ___) => _buildErrorWidget(context),
         );
       }
@@ -93,6 +96,7 @@ class CakeImageWidget extends StatelessWidget {
               width: width,
               fit: fit ?? BoxFit.cover,
               color: color,
+              filterQuality: filterQuality ?? FilterQuality.medium,
               loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
                 if (progress == null) return child;
                 return loadingWidget ?? const Center(child: CircularProgressIndicator());
