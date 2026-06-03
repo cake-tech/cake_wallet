@@ -42,9 +42,13 @@ class _ScanPageState extends State<ScanPage> {
   @override
   void initState() {
     super.initState();
-    controller.addListener(() => if (mounted) setState(() {
+    controller.addListener(() {
+      if (mounted) {
+        setState(() {
           _numCameras = controller.value.availableCameras;
-        }));
+        });
+      }
+    });
   }
 
   @override
@@ -312,7 +316,7 @@ class _ScanPageState extends State<ScanPage> {
                       if (widget.showHelp)
                         ScanPageButton(
                             onTap: () async {
-                              if(_textInputMode) return;
+                              if (_textInputMode) return;
                               try {
                                 controller.stop();
                                 await showModalBottomSheet(
@@ -321,11 +325,9 @@ class _ScanPageState extends State<ScanPage> {
                                     useSafeArea: true,
                                     backgroundColor: Theme.of(context).colorScheme.surface,
                                     builder: (context) => ScanPageNetworkList());
-
                               } finally {
                                 controller.start();
                               }
-
                             },
                             icon: Icons.question_mark,
                             buttonColor: buttonColor,
@@ -358,26 +360,26 @@ class _ScanPageState extends State<ScanPage> {
               duration: Duration(milliseconds: 500),
               opacity: isScanningURQR ? 1 : 0,
               child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "${decoder.processedPartsCount()}",
-                      style: TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.primary),
-                    ),
-                    Text(
-                      "/",
-                      style: TextStyle(
-                          fontSize: 45, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    ),
-                    Text(
-                      "${decoder.expectedPartCount()}",
-                      style: TextStyle(fontSize: 45, color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                  ],
-                ),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "${decoder.processedPartsCount()}",
+                    style: TextStyle(
+                        fontSize: 45,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                  Text(
+                    "/",
+                    style: TextStyle(
+                        fontSize: 45, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  Text(
+                    "${decoder.expectedPartCount()}",
+                    style: TextStyle(fontSize: 45, color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ],
+              ),
             ),
           )
         ],
