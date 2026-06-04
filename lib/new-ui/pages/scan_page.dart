@@ -349,7 +349,7 @@ class _ScanPageState extends State<ScanPage> {
                   ),
                   size: cutoutSize + 20,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  inactiveColor: Theme.of(context).colorScheme.onSurfaceVariant),
+                  inactiveColor: Colors.white.withAlpha(102)),
             ),
           ),
           Positioned(
