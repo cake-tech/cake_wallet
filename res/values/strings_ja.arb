@@ -1110,7 +1110,7 @@
   "swipe_to_send": "スワイプして送信",
   "switch_wallet": "ウォレットを切り替える",
   "switchToETHWallet": "Ethereumウォレットに切り替えて、もう一度お試しください",
-  "switchToEVMCompatibleWallet": "EVM互換ウォレットに切り替えて、もう一度お試しください（Ethereum、Polygon）",
+  "switchToWCCompatibleWallet": "WalletConnect と互換性のあるウォレットに切り替えて、もう一度お試しください (${chains})。",
   "symbol": "シンボル",
   "sync_all_wallets": "すべてのウォレットを同期",
   "sync_attempting": "同期を試みています",

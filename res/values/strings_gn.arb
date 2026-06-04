@@ -895,7 +895,7 @@
   "sweeping_wallet_alert": "Kóva ndoguerahámo’ãi heta aravo. ANI REHEJA KO PANTALLA, térã umi fondo oñemopotĩva ikatu okañy.",
   "swipe_to_send": "Emoinge hag̃ua emondo hag̃ua.",
   "switchToETHWallet": "Ikatúpa emoambue peteĩ billetera Ethereum-pe ha eha’ãjey.",
-  "switchToEVMCompatibleWallet": "Ikatúpa emoambue peteĩ billetera ojoajukuaa hag̃ua EVM ndive ha eha’ãjey (Ethereum, Polygon).",
+  "switchToWCCompatibleWallet": "Embohasa peteĩ billetera WalletConnect ndive ha eñeha’ã jey (${chains}).",
   "symbol": "Ta'ãnga’i",
   "sync_all_wallets": "Embojuehe opaite billetera",
   "sync_attempting": "Oñeha’ãvo ojesincronisa",

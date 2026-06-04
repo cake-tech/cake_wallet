@@ -1110,7 +1110,7 @@
   "swipe_to_send": "밀어서 보내기",
   "switch_wallet": "지갑 전환",
   "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도하세요",
-  "switchToEVMCompatibleWallet": "EVM 호환 지갑(Ethereum, Polygon)으로 전환한 후 다시 시도하세요",
+  "switchToWCCompatibleWallet": "WalletConnect 호환 지갑으로 전환한 후 다시 시도하세요(${chains}).",
   "symbol": "심볼",
   "sync_all_wallets": "모든 지갑 동기화",
   "sync_attempting": "동기화를 시도하는 중",

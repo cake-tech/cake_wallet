@@ -1112,7 +1112,7 @@
   "swipe_to_send": "भेजने के लिए स्वाइप करें",
   "switch_wallet": "वॉलेट बदलें",
   "switchToETHWallet": "कृपया Ethereum वॉलेट पर स्विच करें और फिर से प्रयास करें",
-  "switchToEVMCompatibleWallet": "कृपया EVM-संगत वॉलेट पर स्विच करें और फिर से प्रयास करें (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "कृपया वॉलेटकनेक्ट संगत वॉलेट पर स्विच करें और पुनः प्रयास करें (${chains})।",
   "symbol": "प्रतीक",
   "sync_all_wallets": "सभी वॉलेट सिंक करें",
   "sync_attempting": "सिंक करने का प्रयास किया जा रहा है",

@@ -1109,7 +1109,7 @@
   "swipe_to_send": "ปัดเพื่อส่ง",
   "switch_wallet": "สลับกระเป๋าเงิน",
   "switchToETHWallet": "โปรดสลับไปยังกระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
-  "switchToEVMCompatibleWallet": "โปรดสลับไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ WalletConnect แล้วลองอีกครั้ง (${chains})",
   "symbol": "สัญลักษณ์",
   "sync_all_wallets": "ซิงค์กระเป๋าเงินทั้งหมด",
   "sync_attempting": "กำลังพยายามซิงค์",

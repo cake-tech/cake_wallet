@@ -1112,7 +1112,7 @@
   "swipe_to_send": "Zame don aikawa",
   "switch_wallet": "Canja Wallet",
   "switchToETHWallet": "Da fatan za a koma zuwa walat ɗin Ethereum kuma a sake gwadawa",
-  "switchToEVMCompatibleWallet": "Da fatan za a koma zuwa walat mai jituwa da EVM sannan a sake gwadawa (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Da fatan za a canza zuwa WalletConnect mai dacewa da walat kuma a sake gwadawa (${chains}).",
   "symbol": "Alama",
   "sync_all_wallets": "Daidaita duk walat",
   "sync_attempting": "Ana ƙoƙarin daidaitawa",
