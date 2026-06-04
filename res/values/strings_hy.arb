@@ -1108,7 +1108,7 @@
   "swipe_to_send": "Ուղարկելու համար սահեցրեք",
   "switch_wallet": "Փոխել դրամապանակը",
   "switchToETHWallet": "Խնդրում ենք անցնել Ethereum դրամապանակի և կրկին փորձել",
-  "switchToEVMCompatibleWallet": "Խնդրում ենք անցնել EVM-ի հետ համատեղելի դրամապանակի և փորձել կրկին (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Խնդրում ենք անցնել WalletConnect-ի համատեղելի դրամապանակին և նորից փորձել (${chains}):",
   "symbol": "Սիմվոլ",
   "sync_all_wallets": "Համաժամեցնել բոլոր դրամապանակները",
   "sync_attempting": "Համաժամացման փորձ",

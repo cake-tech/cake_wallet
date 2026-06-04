@@ -1110,7 +1110,7 @@
   "swipe_to_send": "Scorri per inviare",
   "switch_wallet": "Cambia wallet",
   "switchToETHWallet": "Passa a un wallet Ethereum e riprova",
-  "switchToEVMCompatibleWallet": "Passa a un wallet compatibile con EVM e riprova (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Passa a un portafoglio compatibile con WalletConnect e riprova (${chains}).",
   "symbol": "Simbolo",
   "sync_all_wallets": "Sincronizza tutti i wallet",
   "sync_attempting": "Sincronizzazione in corso",

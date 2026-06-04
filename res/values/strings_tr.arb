@@ -1109,7 +1109,7 @@
   "swipe_to_send": "Göndermek için kaydırın",
   "switch_wallet": "Cüzdan Değiştir",
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
-  "switchToEVMCompatibleWallet": "Lütfen EVM uyumlu bir cüzdana geçin ve tekrar deneyin (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Lütfen WalletConnect uyumlu bir cüzdana geçin ve tekrar deneyin (${chains}).",
   "symbol": "Sembol",
   "sync_all_wallets": "Tüm cüzdanları senkronize et",
   "sync_attempting": "Senkronizasyon deneniyor",

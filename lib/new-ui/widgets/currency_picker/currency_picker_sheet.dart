@@ -35,20 +35,23 @@ class CurrencyPickerSheet extends StatelessWidget {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           color: colors.surface,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            ModalTopBar(
-              title: S.of(context).select_asset,
-              leadingIcon: const Icon(Icons.close),
-              onLeadingPressed: () => Navigator.of(context).maybePop(),
-            ),
-            Expanded(
-              child: args.isPreFiltered
-                  ? SingleNetworkCurrencyPicker(args: args)
-                  : MultiNetworkCurrencyPicker(args: args),
-            ),
-          ],
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              ModalTopBar(
+                title: S.of(context).select_asset,
+                leadingIcon: const Icon(Icons.close),
+                onLeadingPressed: () => Navigator.of(context).maybePop(),
+              ),
+              Expanded(
+                child: args.isPreFiltered
+                    ? SingleNetworkCurrencyPicker(args: args)
+                    : MultiNetworkCurrencyPicker(args: args),
+              ),
+            ],
+          ),
         ),
       ),
     );

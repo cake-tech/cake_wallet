@@ -1110,7 +1110,7 @@
   "swipe_to_send": "Плъзнете, за да изпратите",
   "switch_wallet": "Превключване на портфейл",
   "switchToETHWallet": "Моля, превключете към портфейл за Ethereum и опитайте отново",
-  "switchToEVMCompatibleWallet": "Моля, превключете към EVM‑съвместим портфейл и опитайте отново (Ethereum, Polygon).",
+  "switchToWCCompatibleWallet": "Моля, превключете към портфейл, съвместим с WalletConnect, и опитайте отново (${chains}).",
   "symbol": "Символ",
   "sync_all_wallets": "Синхронизиране на всички портфейли",
   "sync_attempting": "Опит за синхронизиране",

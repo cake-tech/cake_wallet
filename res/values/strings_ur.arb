@@ -1111,7 +1111,7 @@
   "swipe_to_send": "بھیجنے کے لیے سوائپ کریں",
   "switch_wallet": "والیٹ تبدیل کریں",
   "switchToETHWallet": "براہِ کرم Ethereum والیٹ پر سوئچ کریں اور دوبارہ کوشش کریں",
-  "switchToEVMCompatibleWallet": "براہ کرم ایک EVM کے ساتھ مطابقت رکھنے والے والیٹ پر سوئچ کریں اور دوبارہ کوشش کریں (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "براہ کرم WalletConnect کے موافق والیٹ پر سوئچ کریں اور دوبارہ کوشش کریں (${chains})۔",
   "symbol": "علامت",
   "sync_all_wallets": "تمام والیٹس کو ہم آہنگ کریں",
   "sync_attempting": "ہم آہنگی کی کوشش کی جا رہی ہے",

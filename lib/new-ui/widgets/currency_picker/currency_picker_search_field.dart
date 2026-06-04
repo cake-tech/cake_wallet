@@ -1,3 +1,4 @@
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +63,10 @@ class CurrencyPickerSearchField extends StatelessWidget {
 bool currencyMatchesQuery(CryptoCurrency c, String query) {
   if (query.isEmpty) return true;
   final q = query.toLowerCase();
-  return c.title.toLowerCase().contains(q) ||
-      c.name.toLowerCase().contains(q) ||
-      (c.fullName?.toLowerCase().contains(q) ?? false);
+  if (c.title.toLowerCase().contains(q)) return true;
+  if (c.name.toLowerCase().contains(q)) return true;
+  if (c.fullName?.toLowerCase().contains(q) ?? false) return true;
+  if (c.tag?.toLowerCase().contains(q) ?? false) return true;
+  if (chainNameForCurrency(c).toLowerCase().contains(q)) return true;
+  return false;
 }
