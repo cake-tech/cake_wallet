@@ -1113,7 +1113,7 @@
   "swipe_to_send": "Geser untuk mengirim",
   "switch_wallet": "Ganti Wallet",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
-  "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan WalletConnect dan coba lagi (${chains}).",
   "symbol": "Simbol",
   "sync_all_wallets": "Sinkronkan semua dompet",
   "sync_attempting": "Mencoba menyinkronkan",

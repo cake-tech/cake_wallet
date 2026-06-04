@@ -174,12 +174,14 @@ class CoinActionRow extends StatelessWidget {
       } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         req = PaymentRequest(code, "", "", "", "");
       } else if (Uri.tryParse(code)?.scheme == "wc") {
-        if (!isEVMCompatibleChain(walletType)) {
+        if (!isWalletConnectCompatibleChain(walletType)) {
           showPopUp<void>(
               context: context,
               builder: (context) => AlertWithOneAction(
                   alertTitle: "WalletConnect",
-                  alertContent: S.of(context).switchToEVMCompatibleWallet,
+                  alertContent: S
+                      .of(context)
+                      .switchToWCCompatibleWallet(walletConnectCompatibleChainsLabel()),
                   buttonText: "OK",
                   buttonAction: Navigator.of(context).pop));
           return;

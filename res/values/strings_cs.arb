@@ -1110,7 +1110,7 @@
   "swipe_to_send": "Přejeďte pro odeslání",
   "switch_wallet": "Přepnout peněženku",
   "switchToETHWallet": "Přepněte na peněženku Ethereum a zkuste to znovu",
-  "switchToEVMCompatibleWallet": "Přepněte prosím na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Přepněte prosím na peněženku kompatibilní s WalletConnect a zkuste to znovu (${chains}).",
   "symbol": "Symbol",
   "sync_all_wallets": "Synchronizovat všechny peněženky",
   "sync_attempting": "Probíhá synchronizace",

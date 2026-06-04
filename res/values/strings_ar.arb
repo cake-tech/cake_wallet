@@ -1110,7 +1110,7 @@
   "swipe_to_send": "اسحب للإرسال",
   "switch_wallet": "تبديل المحفظة",
   "switchToETHWallet": "يرجى التبديل إلى محفظة Ethereum والمحاولة مرة أخرى",
-  "switchToEVMCompatibleWallet": "يرجى التبديل إلى محفظة متوافقة مع EVM ثم المحاولة مرة أخرى (Ethereum، Polygon)",
+  "switchToWCCompatibleWallet": "يرجى التبديل إلى محفظة متوافقة مع WalletConnect والمحاولة مرة أخرى (${chains}).",
   "symbol": "الرمز",
   "sync_all_wallets": "مزامنة جميع المحافظ",
   "sync_attempting": "جارٍ محاولة المزامنة",

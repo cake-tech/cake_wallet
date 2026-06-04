@@ -1109,7 +1109,7 @@
   "swipe_to_send": "I-swipe para magpadala",
   "switch_wallet": "Lumipat ng Wallet",
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
-  "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM-compatible na wallet at subukang muli (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Mangyaring lumipat sa isang WalletConnect na katugmang wallet at subukang muli (${chains}).",
   "symbol": "Simbolo",
   "sync_all_wallets": "I-sync ang lahat ng wallet",
   "sync_attempting": "Sinusubukang i-sync",

@@ -4,8 +4,8 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_detai
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class AssetTile extends StatelessWidget {
@@ -34,7 +34,7 @@ class AssetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconPath = _getIconPath();
+    final iconPath = balance.asset.iconPath ?? "";
 
     return GestureDetector(
       onTap: (){
@@ -161,18 +161,5 @@ class AssetTile extends StatelessWidget {
     );
   }
 
-  String _getChainTitle() {
-    try {
-      return CryptoCurrency.fromString(wallet.currency.tag ??wallet.currency.title).fullName ?? "";
-    } catch(e) {
-      return wallet.currency.fullName ?? "";
-    }
-  }
-
-  String _getIconPath() {
-    if(balance.asset == CryptoCurrency.baseEth)
-      return "assets/new-ui/crypto_full_icons/base.svg";
-
-    return balance.asset.iconPath ?? "";
-  }
+  String _getChainTitle() => walletTypeToDisplayName(wallet.type);
 }

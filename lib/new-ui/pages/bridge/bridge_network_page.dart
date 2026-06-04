@@ -57,7 +57,7 @@ class BridgeNetworkPage extends StatelessWidget {
                               (chain) {
                                 final chainName = chain.name;
                                 return ListItemRegularRow(
-                                  iconPath: 'assets/images/crypto/${chainName.toLowerCase()}.webp',
+                                  iconPath: 'assets/new-ui/crypto_full_icons/${chainName.toLowerCase()}.svg',
                                   keyValue: chain.chainId.toString(),
                                   label: chainName,
                                   onTap: () {

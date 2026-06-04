@@ -149,7 +149,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       final item = filteredTypes[index];
-                      final curr = getCryptoCurrencyForWalletListItem(item);
 
                       return GestureDetector(
                         key: ValueKey('new_wallet_type_${item.name}_button_key'),
@@ -169,7 +168,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                     CakeImageWidget(
                                       height: 24,
                                       width: 24,
-                                      imageUrl: curr.iconPath,
+                                      imageUrl: getCryptoCurrencyIconForWalletListItem(item),
                                     ),
                                     const SizedBox(width: 12),
                                     Text(walletTypeToDisplayName(item)),

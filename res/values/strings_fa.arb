@@ -1109,7 +1109,7 @@
   "swipe_to_send": "برای ارسال، انگشت خود را بکشید",
   "switch_wallet": "تعویض کیف پول",
   "switchToETHWallet": "لطفاً به کیف پول اتریوم تغییر دهید و دوباره تلاش کنید",
-  "switchToEVMCompatibleWallet": "لطفاً به یک کیف پول سازگار با EVM تغییر دهید و دوباره تلاش کنید (Ethereum، Polygon)",
+  "switchToWCCompatibleWallet": "لطفاً به یک کیف پول سازگار با WalletConnect بروید و دوباره امتحان کنید (${chains}).",
   "symbol": "نماد",
   "sync_all_wallets": "همگام‌سازی همه کیف‌پول‌ها",
   "sync_attempting": "در حال تلاش برای همگام‌سازی",

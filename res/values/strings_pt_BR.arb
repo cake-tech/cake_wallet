@@ -1090,7 +1090,7 @@
   "swipe_to_send": "Deslize para enviar",
   "switch_wallet": "Alternar carteira",
   "switchToETHWallet": "Por favor, mude para uma carteira Ethereum e tente novamente",
-  "switchToEVMCompatibleWallet": "Por favor, mude para uma carteira compatível com EVM e tente novamente (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Mude para uma carteira compatível com WalletConnect e tente novamente (${chains}).",
   "symbol": "Símbolo",
   "sync_all_wallets": "Sincronizar todas as carteiras",
   "sync_attempting": "Tentando sincronizar",
