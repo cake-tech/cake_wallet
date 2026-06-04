@@ -174,7 +174,6 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
           controller: _searchController,
           hintText: S.of(context).search,
         ),
-        const SizedBox(height: 24),
       ],
     );
   }
