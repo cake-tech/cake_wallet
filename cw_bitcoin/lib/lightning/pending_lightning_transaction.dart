@@ -13,11 +13,11 @@ class PendingLightningTransaction with PendingTransaction {
   final int amount;
   final int fee;
   final bool isSendAll;
-  Future<void> Function() commitOverride;
+  Future<String> Function() commitOverride;
   final List<void Function()> _listeners =[];
 
   @override
-  final String id;
+  String id;
 
   @override
   String get hex => "";
@@ -36,7 +36,7 @@ class PendingLightningTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    await commitOverride.call();
+    id = await commitOverride.call();
     _listeners.forEach((e) => e.call());
   }
 
