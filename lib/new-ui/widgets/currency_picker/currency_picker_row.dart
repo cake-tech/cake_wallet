@@ -1,3 +1,4 @@
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -86,11 +87,9 @@ class _IconWithBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = CakeImageWidget(
-      imageUrl: currency.iconPath,
-      width: 32,
-      height: 32,
-      fit: BoxFit.cover,
+    final icon = TokenImageWidget(
+      imageUrl: currency.iconPath ?? '',
+      size: 32,
       errorWidget: Container(
         width: 32,
         height: 32,
