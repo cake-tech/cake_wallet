@@ -126,7 +126,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                               padding: const EdgeInsets.symmetric(vertical: 4.0),
                               child: WalletRow(
                                 currencyIconPath:
-                                    walletTypeToCryptoCurrency(item.type).iconPath ?? "",
+                                    getCryptoCurrencyIconForWalletListItem(item.type),
                                 walletName: item.name,
                                 isCurrent: item.name == widget.sendViewModel.wallet.name,
                                 isSelected: _selectedWalletIndex == index && !textEntered,

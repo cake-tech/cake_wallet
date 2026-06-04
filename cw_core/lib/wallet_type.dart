@@ -1,5 +1,6 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 
 part 'wallet_type.g.dart';
@@ -332,13 +333,18 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
 }
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
+  try {
   if(type.tag == CryptoCurrency.bnb.tag) {
     return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
   }
-
+  
   if(type.tag != null && ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
     return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
   } else {
     return _cryptoCurrencyToWalletType(type);
   }
+} catch (e) {
+  printV(e);
+  return null;
+}
 }

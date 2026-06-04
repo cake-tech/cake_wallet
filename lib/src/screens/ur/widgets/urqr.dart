@@ -79,7 +79,7 @@ class _URQRState extends State<URQR> {
               child: QrImage(
                 data: frames[frame % frames.length],
                 version: -1,
-                size: null,
+                size: MediaQuery.of(context).size.width * 0.7,
               ),
             ),
           ),

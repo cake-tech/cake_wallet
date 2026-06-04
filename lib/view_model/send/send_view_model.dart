@@ -8,6 +8,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -59,6 +60,7 @@ import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -487,6 +489,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get shouldDisplayTOTP2FAForSendsToInternalWallet =>
       _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
+
+  @computed
+  TransactionInfo? get transactionInfo {
+    if(isEVMCompatibleChain(walletType)) {
+      return wallet.transactionHistory.transactions[pendingTransaction?.evmTxHashFromRawHex];
+    }
+    if (walletType == WalletType.monero) {
+      // monero tx history keys are in format txhash_amount_accountindex_addressindex
+      return wallet.transactionHistory.transactions[wallet.transactionHistory.transactions.keys
+          .firstWhereOrNull((item) => item.split("_").first == pendingTransaction?.id)];
+    }
+    if (walletType == WalletType.zcash) {
+      // zcash has a txHash getter, but the pendingTransaction id contains quotation marks for whatever reason?
+      final txIdNoQuotes = pendingTransaction?.id.replaceAll("\"", "");
+      return wallet.transactionHistory.transactions.values
+          .firstWhereOrNull((item) => item.txHash == txIdNoQuotes);
+    }
+    return wallet.transactionHistory.transactions[pendingTransaction?.id];
+  }
 
   //* Still open to further optimize these checks
   //* It works but can be made better
@@ -1076,6 +1097,48 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             printV('Failed to update transactions after send: $e');
           }
         });
+      }
+
+      // FIXME(malik) ideally, this should be done wallet-side.
+      // it is required because evm, solana and tron don't actually save the transaction info when you send something.
+      // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
+      if(isEVMWallet) {
+        wallet.transactionHistory.addOne(evm!.getTransactionInfo(
+            id: pendingTransaction!.evmTxHashFromRawHex!,
+            height: 0,
+            // FIXME(malik) this is even more critical given all the issues we had with decimal point parsing. with money it'll be easy
+            ethAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
+            ethFee: CryptoCurrency.eth.parseAmount(pendingTransaction!.feeFormattedValue),
+            tokenSymbol: selectedCryptoCurrency.title,
+            direction: TransactionDirection.outgoing,
+            isPending: true,
+            date: DateTime.now(),
+            confirmations: 0,
+            chainId: wallet.chainId ?? 0));
+      }
+      
+      if(walletType == WalletType.solana) {
+        wallet.transactionHistory.addOne(solana!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            blockTime: DateTime.now(),
+            tokenSymbol: selectedCryptoCurrency.title,
+            to: "",
+            from: "",
+            direction: TransactionDirection.outgoing,
+            solAmount: solana!.getPendingTransactionAmount(pendingTransaction!),
+            isPending: true,
+            txFee: solana!.getPendingTransactionFee(pendingTransaction!)));
+      }
+
+      if (walletType == WalletType.tron) {
+        wallet.transactionHistory.addOne(tron!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            blockTime: DateTime.now(),
+            tokenSymbol: selectedCryptoCurrency.title,
+            direction: TransactionDirection.outgoing,
+            tronAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
+            isPending: true,
+            txFee: CryptoCurrency.trx.parseAmount(outputs.first.estimatedFee).toInt()));
       }
 
       if (pendingTransaction!.id.isNotEmpty) {

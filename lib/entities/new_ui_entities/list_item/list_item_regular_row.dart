@@ -19,6 +19,7 @@ class ListItemRegularRow extends ListItem {
     this.copyableText,
     this.leadingIconErrorWidget,
     this.leadingIconSize,
+    this.iconColor,
   });
 
   final String? subtitle;
@@ -35,4 +36,5 @@ class ListItemRegularRow extends ListItem {
   final double? trailingIconSize;
   final Widget? leadingIconErrorWidget;
   final double? leadingIconSize;
+  final Color? iconColor;
 }

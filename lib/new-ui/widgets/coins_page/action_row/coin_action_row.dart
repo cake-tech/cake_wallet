@@ -157,17 +157,7 @@ class CoinActionRow extends StatelessWidget {
   }
 
   Future<void> _onPressedScan(BuildContext context) async {
-    if (false && FeatureFlag.hasNewUiExtraPages) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => FractionallySizedBox(
-          heightFactor: 0.9,
-          child: ScanPage(),
-        ),
-      );
-    } else {
-      final code = await presentQRScanner(context);
+      final code = await presentQRScanner(context, showHelp: true);
 
       if (code == null || code.isEmpty) return;
 
@@ -184,12 +174,14 @@ class CoinActionRow extends StatelessWidget {
       } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         req = PaymentRequest(code, "", "", "", "");
       } else if (Uri.tryParse(code)?.scheme == "wc") {
-        if (!isEVMCompatibleChain(walletType)) {
+        if (!isWalletConnectCompatibleChain(walletType)) {
           showPopUp<void>(
               context: context,
               builder: (context) => AlertWithOneAction(
                   alertTitle: "WalletConnect",
-                  alertContent: S.of(context).switchToEVMCompatibleWallet,
+                  alertContent: S
+                      .of(context)
+                      .switchToWCCompatibleWallet(walletConnectCompatibleChainsLabel()),
                   buttonText: "OK",
                   buttonAction: Navigator.of(context).pop));
           return;
@@ -227,5 +219,4 @@ class CoinActionRow extends StatelessWidget {
         ),
       );
     }
-  }
 }
