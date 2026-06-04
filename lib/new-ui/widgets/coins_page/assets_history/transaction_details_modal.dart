@@ -16,9 +16,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TransactionDetailsModal extends StatefulWidget {
-  const TransactionDetailsModal({super.key, required this.transactionDetailsViewModel});
+  const TransactionDetailsModal({super.key, required this.transactionDetailsViewModel, this.highlightNoteField = false});
 
   final TransactionDetailsViewModel transactionDetailsViewModel;
+  final bool highlightNoteField;
 
   @override
   State<TransactionDetailsModal> createState() => _TransactionDetailsModalState();
@@ -38,6 +39,10 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
         widget.transactionDetailsViewModel.updateNote(noteController.text);
       }
     });
+
+    if(widget.highlightNoteField) {
+      noteFocusNode.requestFocus();
+    }
   }
 
   @override
