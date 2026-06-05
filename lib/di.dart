@@ -1473,10 +1473,12 @@ Future<void> setup({
       }
   );
 
-  getIt.registerFactoryParam<TransactionDetailsModal, TransactionInfo, void>(
-      (transactionInfo, _) => TransactionDetailsModal(transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
-          param1: [transactionInfo, false]))
-  );
+  getIt.registerFactoryParam<TransactionDetailsModal, TransactionInfo, bool?>(
+      (transactionInfo, highlightNoteField) => TransactionDetailsModal(
+            transactionDetailsViewModel:
+                getIt.get<TransactionDetailsViewModel>(param1: [transactionInfo, false]),
+            highlightNoteField: highlightNoteField ?? false,
+          ));
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
           (TransactionInfo transactionInfo, _) => TransactionDetailsPage(

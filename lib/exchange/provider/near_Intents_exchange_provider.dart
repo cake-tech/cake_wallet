@@ -39,7 +39,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const Map<String, String> kNearDummyAddresses = {
     // UTXO
     'LTC': 'ltc1qhdwz74m3wuuhppv2mckagqk9e2e49z5j4kucnv',
-    'BTC': 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
+    'BTC': 'bc1qzwdt09dgr5nle2fkv7h5s6axgjqpdyp5g5tumz',
     'DOGE': 'D9t7rGQ9mE3hJ2z1w8pGQxkGmKjYwYc8pQ',
     'BCH': 'qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a',
 

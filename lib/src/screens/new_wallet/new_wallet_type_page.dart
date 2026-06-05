@@ -120,14 +120,24 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         child: Column(
           spacing: 24,
           children: [
-            const NewWalletTypePageHeader(),
+            widget.hardwareWalletType != null
+                ? const NewWalletTypePageHeader()
+                : const CakeImageWidget(
+                    imageUrl: "assets/new-ui/wallet.svg",
+                    width: 100,
+                    height: 100,
+                  ),
             Text(
               S.of(context).choose_wallet_currency,
               textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 14,
+              ),
             ),
             Flexible(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.only(left: 18, right: 18, bottom: 12),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainer,
@@ -139,7 +149,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       final item = filteredTypes[index];
-                      final curr = getCryptoCurrencyForWalletListItem(item);
 
                       return GestureDetector(
                         key: ValueKey('new_wallet_type_${item.name}_button_key'),
@@ -159,13 +168,13 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                     CakeImageWidget(
                                       height: 24,
                                       width: 24,
-                                      imageUrl: curr.iconPath,
+                                      imageUrl: getCryptoCurrencyIconForWalletListItem(item),
                                     ),
                                     const SizedBox(width: 12),
-                                    Text(curr.fullName ?? curr.name),
+                                    Text(walletTypeToDisplayName(item)),
                                     const SizedBox(width: 4),
                                     Text(
-                                      curr.title,
+                                      walletTypeToDisplayTicker(item),
                                       style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),

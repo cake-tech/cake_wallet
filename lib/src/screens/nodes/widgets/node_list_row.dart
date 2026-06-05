@@ -10,7 +10,10 @@ class NodeListRow extends StatelessWidget {
       required this.onTap,
         required this.onEditComplete,
       required this.isSelected,
-      required this.isPow, this.speed});
+      required this.isPow,
+      this.speed,
+      this.vertical = 10.0,
+      this.horizontal = 12.0});
 
   final Node node;
   final bool isPow;
@@ -18,6 +21,8 @@ class NodeListRow extends StatelessWidget {
   final Future<void> Function(Object?) onEditComplete;
   final bool isSelected;
   final NodeSpeed? speed;
+  final double vertical;
+  final double horizontal;
 
   @override
   Widget build(BuildContext context) {
@@ -26,32 +31,34 @@ class NodeListRow extends StatelessWidget {
 
     final hasLabel = node.label != null && node.label!.isNotEmpty;
     final uriText = "${node.uri.host}:${node.uri.port}";
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12),
-        child: Row(
-          spacing: 12,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            leading,
-           Expanded(
-             child: Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:4,children: [
-               Row(
-                 spacing: 4,
-                 mainAxisAlignment: MainAxisAlignment.start,
-                 children: [
-                   Text(hasLabel ? node.label! : uriText, style: TextStyle(fontSize: 12),),
-                   if(badgePath != null)
-                     CakeImageWidget(imageUrl: badgePath, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),)
-                 ],
-               ),
-               if(hasLabel) Text(uriText, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),),
-             ],),
-           ),
-            trailing,
-          ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+          child: Row(
+            spacing: 12,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              leading,
+             Expanded(
+               child: Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:4,children: [
+                 Row(
+                   spacing: 4,
+                   mainAxisAlignment: MainAxisAlignment.start,
+                   children: [
+                     Text(hasLabel ? node.label! : uriText, style: TextStyle(fontSize: 12),),
+                     if(badgePath != null)
+                       CakeImageWidget(imageUrl: badgePath, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),)
+                   ],
+                 ),
+                 if(hasLabel) Text(uriText, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),),
+               ],),
+             ),
+              trailing,
+            ],
+          ),
         ),
       ),
     );
@@ -71,7 +78,14 @@ class NodeListRow extends StatelessWidget {
   Widget buildTrailing(BuildContext context) {
     return Row(
       children: [
-        if (speed != null) CakeImageWidget(imageUrl: speed!.iconPath, width: 24, height: 24),
+        if (speed != null)
+          CakeImageWidget(
+            imageUrl: Theme.of(context).brightness == Brightness.dark
+                ? speed!.darkIconPath
+                : speed!.iconPath,
+            width: 24,
+            height: 24,
+          ),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () async {
@@ -80,7 +94,7 @@ class NodeListRow extends StatelessWidget {
             await onEditComplete(res);
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.only(right: 8.0, left: 12.0),
             child: CakeImageWidget(
               imageUrl: "assets/new-ui/3dots_vertical.svg",
               colorFilter:

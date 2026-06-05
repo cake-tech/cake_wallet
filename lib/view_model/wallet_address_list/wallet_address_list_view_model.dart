@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:developer' as dev;
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -166,6 +167,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   // payjoinEndpoint getter is broken, but uri works
   bool get hasPayjoin =>
       wallet.type == WalletType.bitcoin && !isLightning && !isSilentPayments && uri.toString().contains("payjo.in");
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @computed
   FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
@@ -478,7 +481,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 137:
           return [
-            'assets/images/crypto/polygon.webp',
+            'assets/new-ui/crypto_full_icons/polygon.svg',
             'assets/images/eth_pol_icon.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
@@ -492,20 +495,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 42161:
           return [
-            'assets/images/crypto/arbitrum.webp',
+            'assets/new-ui/crypto_full_icons/arbitrum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];
         case 56:
           return [
-            'assets/images/crypto/BNB.webp',
+            'assets/new-ui/crypto_full_icons/bnb.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
             'assets/images/more_tokens.svg',
           ];
         default:
           return [
-            'assets/images/crypto/ethereum.webp',
+            'assets/new-ui/crypto_full_icons/ethereum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
           ];

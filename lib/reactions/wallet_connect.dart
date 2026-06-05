@@ -5,6 +5,22 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/so
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/evm/evm.dart';
 
+const List<WalletType> walletConnectCompatibleChains = [
+  WalletType.ethereum,
+  WalletType.polygon,
+  WalletType.base,
+  WalletType.arbitrum,
+  WalletType.bsc,
+  WalletType.solana,
+];
+
+String walletConnectCompatibleChainsLabel() {
+  final names = walletConnectCompatibleChains.map(walletTypeToDisplayName).toList();
+  if (names.length <= 1) return names.join();
+  final head = names.sublist(0, names.length - 1).join(', ');
+  return '$head, and ${names.last}';
+}
+
 bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
@@ -47,19 +63,8 @@ bool isNFTACtivatedChain(WalletType walletType, {int? chainId}) {
   }
 }
 
-bool isWalletConnectCompatibleChain(WalletType walletType) {
-  switch (walletType) {
-    case WalletType.solana:
-    case WalletType.polygon:
-    case WalletType.ethereum:
-    case WalletType.base:
-    case WalletType.arbitrum:
-    case WalletType.bsc:
-      return true;
-    default:
-      return false;
-  }
-}
+bool isWalletConnectCompatibleChain(WalletType walletType) =>
+    walletConnectCompatibleChains.contains(walletType);
 
 String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (chainId != null) {
