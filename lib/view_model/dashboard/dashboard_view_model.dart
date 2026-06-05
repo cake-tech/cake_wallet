@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/account.dart';
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
@@ -78,6 +79,7 @@ class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 abstract class DashboardViewModelBase with Store {
   DashboardViewModelBase(
       {required this.balanceViewModel,
+      required this.accountListViewModelFactory,
       required this.tradeMonitor,
       required this.appStore,
       required this.tradesStore,
@@ -219,6 +221,7 @@ abstract class DashboardViewModelBase with Store {
     unawaited(isBackgroundSyncEnabled());
     unawaited(isBatteryOptimizationEnabled());
     unawaited(_loadConstraints());
+    accountListViewModel = accountListViewModelFactory();
     final _wallet = wallet;
 
     if (_wallet.type == WalletType.monero) {
@@ -304,6 +307,8 @@ abstract class DashboardViewModelBase with Store {
     _walletChangeDisposer?.reaction.dispose();
     _walletChangeDisposer = reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
+      accountListViewModel = accountListViewModelFactory();
+      resetLightningMode();
       _checkMweb();
       loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
@@ -568,6 +573,12 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   ObservableMap<int, int> cardOrder;
+
+  @observable
+  bool lightningMode = false;
+
+  @observable
+  WalletAccountListViewModel? accountListViewModel;
 
   @computed
   bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;
@@ -1094,6 +1105,8 @@ abstract class DashboardViewModelBase with Store {
     bitcoin!.updatePayjoinState(wallet, true);
   }
 
+  final WalletAccountListViewModel? Function() accountListViewModelFactory;
+
   BalanceViewModel balanceViewModel;
 
   TradeMonitor tradeMonitor;
@@ -1218,6 +1231,12 @@ abstract class DashboardViewModelBase with Store {
       bitcoin!.setScanningActive(wallet, silentPaymentsScanningActive);
     }
   }
+
+  @action
+  void toggleLightningMode() => lightningMode = !lightningMode;
+
+  @action
+  void resetLightningMode() => lightningMode = false;
 
   @action
   void _onWalletChange(

@@ -582,6 +582,13 @@ Future<void> setup({
   getIt.registerFactory(() => DashboardViewModel(
     tradeMonitor: getIt.get<TradeMonitor>(),
     balanceViewModel: getIt.get<BalanceViewModel>(),
+    accountListViewModelFactory: () {
+      final wallet = getIt.get<AppStore>().wallet;
+      if (wallet == null) return null;
+      final hasAccounts = hasAccountsWalletTypes.contains(wallet.type);
+      if (!hasAccounts) return null;
+      return getIt.get<WalletAccountListViewModel>();
+      },
     appStore: getIt.get<AppStore>(),
     tradesStore: getIt.get<TradesStore>(),
     ordersStore: getIt.get<OrdersStore>(),

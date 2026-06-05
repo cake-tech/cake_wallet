@@ -41,6 +41,12 @@ const evmWalletTypes = [
   WalletType.bsc
 ];
 
+const hasAccountsWalletTypes = [
+  WalletType.monero,
+  WalletType.wownero,
+  WalletType.bitcoin
+];
+
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
   @HiveField(0)

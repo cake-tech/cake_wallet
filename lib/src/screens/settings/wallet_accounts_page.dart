@@ -1,10 +1,8 @@
 import 'dart:ui';
 
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
-import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
+import 'package:cake_wallet/new-ui/utils/show_card_customizer.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart';
@@ -19,11 +17,9 @@ import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AccountCustomizerListItem {
   final BalanceCard card;
@@ -294,32 +290,18 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     }
   }
 
-  void _openCardCustomizer() {
+  Future<void> _openCardCustomizer() async {
     if (!_checkReadyToManage()) {
       return;
     }
 
-    final bloc = getIt.get<CardCustomizerBloc>(param1: false);
-
-    Navigator.of(context).push(CupertinoPageRoute(
-      builder: (context) {
-        return BlocProvider(
-          create: (context) => bloc,
-          child: Material(
-            child: CardCustomizer(
-              cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                  widget.dashboardViewModel.wallet.currency.name,
-              cryptoName: widget.dashboardViewModel.wallet.currency.name,
-            ),
-          ),
-        );
-      },
-    )).then((_) async {
-      bloc.add(DesignSaved());
-      await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
-      await widget.dashboardViewModel.loadCardDesigns();
-      loadCards();
-    });
+    await showCardCustomizer(
+      context: context,
+      dashboardViewModel: widget.dashboardViewModel,
+      lightningMode: false,
+      useCupertinoScaffold: false,
+      onSaved: loadCards,
+    );
   }
 
   void reorder(int oldIndex, int newIndex) {
