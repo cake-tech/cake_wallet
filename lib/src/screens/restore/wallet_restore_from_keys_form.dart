@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -232,37 +233,44 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
       bool nanoBased = widget.walletRestoreViewModel.type == WalletType.nano ||
           widget.walletRestoreViewModel.type == WalletType.banano;
-      return Column(
-        children: [
-          AddressTextField(
-            addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
-            controller: privateKeyController,
-            placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
-            options: [AddressTextFieldOption.paste],
-            onPushPasteButton: (_) {
-              _pasteText();
-            },
+      return Column(children: [
+        AddressTextField(
+          addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
+          controller: privateKeyController,
+          placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
+          options: [AddressTextFieldOption.paste],
+          onPushPasteButton: (_) {
+            _pasteText();
+          },
+        ),
+        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+          BlockchainHeightWidget(
+            key: blockchainHeightKey,
+            hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
+            onHeightChange: (_) => null,
+            onHeightOrDateEntered: widget.onHeightOrDateEntered,
+            walletType: widget.walletRestoreViewModel.type,
           ),
-          if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
-            BlockchainHeightWidget(
-              key: blockchainHeightKey,
-              hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
-              onHeightChange: (_) => null,
-              onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              walletType: widget.walletRestoreViewModel.type,
-            ),
-        ]
-      );
+      ]);
     }
 
     return Column(
       children: [
-        BaseTextFormField(
+        AddressTextField(
+          addressKey: ValueKey('wallet_restore_from_key_private_address_key'),
           controller: addressController,
-          keyboardType: TextInputType.multiline,
-          maxLines: null,
-          hintText: S.of(context).restore_address,
+          placeholder: S.of(context).restore_address,
+          options: [AddressTextFieldOption.paste],
+          onPushPasteButton: (_) {
+            _pasteText();
+          },
         ),
+        // BaseTextFormField(
+        //   controller: addressController,
+        //   keyboardType: TextInputType.multiline,
+        //   maxLines: null,
+        //   hintText: S.of(context).restore_address,
+        // ),
         Container(
           padding: EdgeInsets.only(top: 20.0),
           child: BaseTextFormField(
@@ -310,9 +318,33 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
   Future<void> _pasteText() async {
     final value = await Clipboard.getData('text/plain');
+    final text = value?.text?.replaceFirst("_wallet", "wallet");
+    if (text?.isNotEmpty ?? false) {
+      privateKeyController.text = text!;
+    }
 
-    if (value?.text?.isNotEmpty ?? false) {
-      privateKeyController.text = value!.text!;
+    final url = Uri.tryParse(text ?? '');
+    if (url == null) {
+      printV("url is null");
+      return;
+    }
+
+    addressController.text = url.host;
+    if (url.queryParameters["address"] != null) {
+      addressController.text = url.queryParameters["address"]!;
+    }
+
+    if (url.queryParameters["view_key"] != null) {
+      viewKeyController.text = url.queryParameters["view_key"]!;
+    }
+
+    if (url.queryParameters["spend_key"] != null) {
+      spendKeyController.text = url.queryParameters["spend_key"]!;
+    }
+
+    if (url.queryParameters["label"] != null) {
+      nameController.text = url.queryParameters["label"]!;
+      nameTextEditingController.text = url.queryParameters["label"]!;
     }
   }
 }
