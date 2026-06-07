@@ -4,7 +4,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:mobx/mobx.dart';
@@ -19,17 +18,10 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     _setDefaultAccountUntilStorageLoads();
     _loadAccounts();
 
-    if (_wallet is ElectrumWallet) {
-      reaction(
-        (_) => (_wallet as ElectrumWallet)
-            .accountBalances
-            .entries
-            .map((entry) =>
-                '${entry.key}:${entry.value.confirmed}:${entry.value.unconfirmed}:${entry.value.frozen}')
-            .join('|'),
-        (_) => _loadAccounts(),
-      );
-    }
+    reaction(
+      (_) => bitcoin!.accountBalancesKey(_wallet),
+      (_) => _loadAccounts(),
+    );
   }
 
   final SettingsStore settingsStore;
@@ -110,6 +102,6 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
 
   String _balanceForAccount(int accountIndex) {
     final balance = bitcoin!.balanceForAccount(_wallet, accountIndex);
-    return balance.confirmed.toString();
+    return balance.fullAvailableBalance.toString();
   }
 }

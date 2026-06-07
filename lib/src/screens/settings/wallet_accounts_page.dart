@@ -1,9 +1,8 @@
-import 'dart:ui';
-
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/utils/show_card_customizer.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -51,6 +50,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   final List<AccountCustomizerListItem> _items = [];
 
+  WalletAccountListViewModel get accountListViewModel =>
+      widget.dashboardViewModel.accountListViewModel ?? widget.accountListViewModel;
+
   @override
   void initState() {
     super.initState();
@@ -59,7 +61,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       if (!mounted) return;
       loadCards();
 
-      final activeId = widget.accountListViewModel.selectedAccount?.id;
+      final activeId = accountListViewModel.selectedAccount?.id;
 
       for (int i = 0; i < _items.length - 1; i++) {
         if (activeId != null && _items[i].accountListItem.id == activeId) {
@@ -79,7 +81,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   @override
   void dispose() {
-    widget.accountListViewModel.reload();
+    accountListViewModel.reload();
     saveCardOrder().then((value) => widget.dashboardViewModel.loadCardDesigns());
     super.dispose();
   }
@@ -87,7 +89,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   void loadCards() {
     _items.clear();
 
-    final accounts = widget.accountListViewModel.accounts;
+    final accounts = accountListViewModel.accounts;
     for (int i = 0; i < accounts.length; i++) {
       final index = widget.dashboardViewModel.cardOrder[i];
 
@@ -104,7 +106,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             balance: accounts[index].balance ?? "0.00",
             accountBalance: accounts[index].balance ?? "0.00",
             designSwitchDuration: Duration.zero,
-            assetName: widget.accountListViewModel.currency.title,
+            assetName: accountListViewModel.currency.title,
             onCustomizeTapped: null,
             selected: i == accounts.length - 1,
             width: cardWidth,
@@ -118,7 +120,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_items.isEmpty) return SizedBox.shrink();
+    if (accountListViewModel.accounts.isEmpty) return SizedBox.shrink();
 
     return Container(
       decoration: BoxDecoration(
@@ -143,51 +145,19 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
           Expanded(
             child: Stack(
               children: [
-                ReorderableListView.builder(
+                SingleChildScrollView(
+                  controller: ModalScrollController.of(context),
                   padding: EdgeInsets.only(bottom: 196),
-                  scrollController: ModalScrollController.of(context),
-                  onReorder: reorder,
-                  proxyDecorator: (child, index, animation) {
-                    return AnimatedBuilder(
-                      animation: animation,
-                      builder: (context, _) {
-                        final animValue = Curves.easeOutCubic.transform(animation.value);
-                        final scale = lerpDouble(1, 1.05, animValue)!;
-
-                        return Opacity(
-                          opacity: 1 - animValue.clamp(0.0, 0.1),
-                          child: Center(
-                            child: SizedBox(
-                              width: cardWidth,
-                              child: Transform.scale(
-                                scale: scale,
-                                child: child,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      child: _items[index].card,
-                    );
-                  },
-                  itemCount: _items.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final card = _items[index].card;
-
-                    return Container(
-                      key: ValueKey(index),
-                      child: GestureDetector(
-                        onTap: () {
-                          reorder(index, _items.length);
-                        },
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          heightFactor: _kStackVisibleFactor,
-                          child: card,
-                        ),
-                      ),
-                    );
-                  },
+                  child: CardsView(
+                    key: ValueKey(
+                        '${widget.dashboardViewModel.wallet.name}_${widget.dashboardViewModel.lightningMode}_${accountListViewModel.accounts.length}_${widget.dashboardViewModel.cardDesigns.length}'),
+                    dashboardViewModel: widget.dashboardViewModel,
+                    lightningMode: widget.dashboardViewModel.lightningMode,
+                    maxVisibleCards: null,
+                    allowCompactMode: false,
+                    onCustomizeTapped: _openCardCustomizer,
+                    onCompactModeBackgroundCardsTapped: _openCardCustomizer,
+                  ),
                 ),
                 SafeArea(
                     child: Padding(
@@ -280,13 +250,12 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         });
 
     if (res != null && res is bool && res == true) {
-      widget.accountListViewModel.reload();
+      accountListViewModel.reload();
       await Future<void>.delayed(Duration.zero);
 
       await widget.dashboardViewModel.loadCardDesigns();
       loadCards();
-      await saveCardOrder();
-      await widget.dashboardViewModel.loadCardDesigns();
+      if (mounted) setState(() {});
     }
   }
 
@@ -298,7 +267,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     await showCardCustomizer(
       context: context,
       dashboardViewModel: widget.dashboardViewModel,
-      lightningMode: false,
+      lightningMode: widget.dashboardViewModel.lightningMode,
       useCupertinoScaffold: false,
       onSaved: loadCards,
     );
@@ -333,7 +302,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     }
 
     if (newIndex == _items.length - 1 || oldIndex == _items.length - 1) {
-      widget.accountListViewModel.select(_items[_items.length - 1].accountListItem);
+      accountListViewModel.select(_items[_items.length - 1].accountListItem);
     }
   }
 
@@ -373,15 +342,15 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   Future<void> reset() async {
     _items.clear();
 
-    final accounts = widget.accountListViewModel.accounts;
-    for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
+    final accounts = accountListViewModel.accounts;
+    for (int i = 0; i < accountListViewModel.accounts.length; i++) {
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[i].label,
             accountIndex: accounts[i].id,
             balance: accounts[i].balance ?? "0.00",
             accountBalance: accounts[i].balance ?? "0.00",
-            assetName: widget.accountListViewModel.currency.title,
+            assetName: accountListViewModel.currency.title,
             selected: true,
             designSwitchDuration: Duration(milliseconds: 200),
             width: cardWidth,

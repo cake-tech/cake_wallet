@@ -934,6 +934,15 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  String accountBalancesKey(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.accountBalances.entries
+        .map((entry) =>
+    '${entry.key}:${entry.value.confirmed}:${entry.value.unconfirmed}:${entry.value.frozen}')
+        .join('|');
+  }
+
+  @override
   Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.setCurrentAccount(accountIndex);
