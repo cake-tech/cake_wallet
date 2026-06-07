@@ -354,13 +354,14 @@ abstract class ElectrumWalletBase
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) {
-    return accountBalances[accountIndex] ??
-        ElectrumBalance(
-          confirmed: 0,
-          unconfirmed: 0,
-          frozen: 0,
-        );
+    return accountBalances[accountIndex] ?? _zeroBalance();
   }
+
+  ElectrumBalance _zeroBalance() => ElectrumBalance(
+        confirmed: 0,
+        unconfirmed: 0,
+        frozen: 0,
+      );
 
   void _updateAccountBalancesFromUnspents() {
     final newBalances = <int, ElectrumBalance>{};
@@ -386,15 +387,19 @@ abstract class ElectrumWalletBase
       newBalances[accountIndex] = current;
     }
 
+    for (final accountIndex in walletAddresses.accountIndexes) {
+      newBalances.putIfAbsent(accountIndex, _zeroBalance);
+    }
+
     accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
   }
 
-  void _updateCurrentAccountBalance() {
+  void _updateCurrentAccountBalance({int? accountIndex}) {
     if (type != WalletType.bitcoin) {
       return;
     }
 
-    balance[currency] = balanceForAccount(currentAccountIndex);
+    balance[currency] = balanceForAccount(accountIndex ?? currentAccountIndex);
   }
 
   Set<String> get addressesSet => walletAddresses.allAddresses
@@ -402,7 +407,8 @@ abstract class ElectrumWalletBase
       .map((addr) => addr.address)
       .toSet();
 
-  List<String> get scriptHashes => walletAddresses.addressesByReceiveType
+  List<String> get scriptHashes => walletAddresses.allAddresses
+      .where((addr) => addr.type != SegwitAddresType.mweb)
       .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
       .map((addr) => (addr as BitcoinAddressRecord).getScriptHash(network))
       .toList();
@@ -427,6 +433,10 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
+    walletInfo.selectedAccount = accountIndex;
+    accountBalances[accountIndex] ??= _zeroBalance();
+    _updateCurrentAccountBalance(accountIndex: accountIndex);
+
     await walletInfo.setSelectedAccount(accountIndex);
 
     _prepareHdForAccount(accountIndex, currency);
@@ -441,12 +451,22 @@ abstract class ElectrumWalletBase
 
     if (isNewAccount) {
       await walletAddresses.prepareAccountAddresses(accountIndex);
-    } else {
+    }
       walletAddresses.updateAddressesByMatch();
       walletAddresses.updateReceiveAddresses();
       walletAddresses.updateChangeAddresses();
-    }
-    _updateCurrentAccountBalance();
+
+    accountBalances[accountIndex] ??= _zeroBalance();
+    _updateCurrentAccountBalance(accountIndex: accountIndex);
+
+    unawaited(() async {
+      try {
+        await updateAllUnspents();
+        await updateBalance();
+      } catch (e) {
+        printV('setCurrentAccount balance update failed: $e');
+      }
+    }());
   }
 
   bool get shouldUseBatchFetching => useBatchForHistory && _isBatchSupported == true;

@@ -52,10 +52,11 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
   @override
   @action
   void select(AccountListItem account) {
-    selectedAccount = account;
-
     unawaited(() async {
       await bitcoin!.setCurrentAccount(_wallet, account.id);
+      runInAction(() {
+        selectedAccount = account;
+      });
       reload();
     }());
   }

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
@@ -45,14 +46,14 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
     return ret.isNotEmpty ? ret : CardDesign.allGradients;
   }
 
-  Future<void> _saveRandomCardDesign() async {
+  Future<void> _saveRandomCardDesign(int accountIndex) async {
     final gradients = await _getUsableCardGradients();
     final accounts = await _wallet.walletInfo.getAccounts();
 
     await BalanceCardStyleSettings.fromCardDesign(
         walletInfoId: _wallet.walletInfo.internalId,
-        accountIndex : accounts.length,
-        cardOrder : accounts.length,
+        accountIndex : accountIndex,
+        cardOrder : accounts.length - 1,
         design : CardDesign.specialDesignsForCurrencies[_wallet.currency]!
             .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
@@ -62,12 +63,11 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
     try {
       state = IsExecutingState();
 
-      if (!isEdit) await _saveRandomCardDesign();
-
       if (_accountListItem != null) {
         await _renameAccount(_accountListItem.id, label);
       } else {
-        await _createAccount(label);
+        final accountIndex = await _createAccount(label);
+        await _saveRandomCardDesign(accountIndex);
       }
 
       await _wallet.save();
@@ -77,7 +77,7 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
     }
   }
 
-  Future<void> _createAccount(String label) async {
+  Future<int> _createAccount(String label) async {
     final accounts = await _wallet.walletInfo.getAccounts();
 
     final nextIndex = accounts.isEmpty
@@ -89,7 +89,9 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
       label: label.isEmpty ? 'Account $nextIndex' : label,
     );
 
-    await _wallet.walletInfo.setSelectedAccount(nextIndex);
+    await bitcoin!.setCurrentAccount(_wallet, nextIndex);
+
+    return nextIndex;
   }
 
   Future<void> _renameAccount(int accountIndex, String label) async {
