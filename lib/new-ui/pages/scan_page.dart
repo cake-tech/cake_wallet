@@ -352,11 +352,12 @@ class _ScanPageState extends State<ScanPage> {
                   inactiveColor: Colors.white.withAlpha(102)),
             ),
           ),
-          IgnorePointer(
-            child: Positioned(
-              bottom: 120,
-              left: 0,
-              right: 0,
+          Positioned(
+bottom: 120, left:0,right:0,
+            child: IgnorePointer(
+           
+             
+             
               child: AnimatedOpacity(
                 duration: Duration(milliseconds: 500),
                 opacity: isScanningURQR ? 1 : 0,
