@@ -2,13 +2,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/erc20_token_resolver.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_calldata.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_selectors.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/universal_router_decoder.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart';
 
 class DexRouterDecoder {
-  DexRouterDecoder(this.tokenResolver);
+  DexRouterDecoder(this.tokenResolver) : _universalRouter = UniversalRouterDecoder(tokenResolver);
 
   final Erc20TokenResolver tokenResolver;
+  final UniversalRouterDecoder _universalRouter;
 
   Future<WCDecodedRequest?> decode({
     required EvmCalldata calldata,
@@ -38,10 +40,16 @@ class DexRouterDecoder {
         return _decodeUniV3Single(calldata, nativeSymbol, routerName, isExactIn: true);
       case EvmSelectors.uniV3ExactOutputSingle:
         return _decodeUniV3Single(calldata, nativeSymbol, routerName, isExactIn: false);
-      case EvmSelectors.uniV3ExactInput:
-      case EvmSelectors.uniV3ExactOutput:
       case EvmSelectors.uniV3UniversalRouterExecute:
       case EvmSelectors.uniV3UniversalRouterExecuteWithDeadline:
+        final decoded = await _universalRouter.decode(
+          calldata: calldata,
+          nativeSymbol: nativeSymbol,
+          routerName: routerName,
+        );
+        return decoded ?? _decodeOpaqueSwap(routerName, routerAddress);
+      case EvmSelectors.uniV3ExactInput:
+      case EvmSelectors.uniV3ExactOutput:
       case EvmSelectors.zeroXTransformErc20:
       case EvmSelectors.zeroXFillLimitOrder:
       case EvmSelectors.oneInchSwap:
@@ -253,7 +261,9 @@ class DexRouterDecoder {
       ],
       warnings: [S.current.wc_warning_swap_amounts_estimated],
       hideTo: true,
-      hideZeroValue: false,
+      // A token→token / token→ETH swap carries no native value; suppress the
+      // misleading "Value: 0 ETH" row that the tx merge would otherwise add.
+      hideZeroValue: true,
     );
   }
 

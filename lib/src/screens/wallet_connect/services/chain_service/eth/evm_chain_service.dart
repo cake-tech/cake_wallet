@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/erc20_token_resolver.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_request_decoder.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/typed_data_decoder.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/decoders/evm/wallet_admin_decoder.dart';
@@ -45,7 +46,7 @@ class EvmChainServiceImpl {
     Web3Client? web3Client,
   })  : ethClient = web3Client ?? _createWeb3Client(reference, appStore),
         decoder = EvmRequestDecoder(appStore),
-        typedDataDecoder = TypedDataDecoder(),
+        typedDataDecoder = TypedDataDecoder(Erc20TokenResolver(appStore)),
         walletAdminDecoder = WalletAdminDecoder() {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
@@ -205,7 +206,7 @@ class EvmChainServiceImpl {
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
-    final decoded = typedDataDecoder.decode(data);
+    final decoded = await typedDataDecoder.decode(data);
 
     final isApproved = await MethodsUtils.requestApproval(
       decoded,
@@ -250,7 +251,7 @@ class EvmChainServiceImpl {
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
-    final decoded = typedDataDecoder.decode(parameters);
+    final decoded = await typedDataDecoder.decode(parameters);
 
     final isApproved = await MethodsUtils.requestApproval(
       decoded,

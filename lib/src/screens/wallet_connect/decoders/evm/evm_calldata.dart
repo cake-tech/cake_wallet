@@ -14,6 +14,15 @@ class EvmCalldata {
     return EvmCalldata._(selector, body);
   }
 
+  /// Wraps an already-stripped ABI args region (no 4-byte selector) so the
+  /// word/offset helpers can be reused on it — e.g. a single element of a
+  /// Universal Router `bytes[] inputs` array, which is itself `abi.encode(...)`.
+  factory EvmCalldata.fromBody(String hexBody) {
+    final clean =
+        hexBody.toLowerCase().startsWith('0x') ? hexBody.substring(2) : hexBody.toLowerCase();
+    return EvmCalldata._('', clean);
+  }
+
   int get wordCount => body.length ~/ 64;
 
   String? wordAt(int index) {
@@ -86,6 +95,40 @@ class EvmCalldata {
       if (prefix.replaceAll('0', '').isNotEmpty) return null;
       out.add('0x${word.substring(24, 64)}');
       cursor += 64;
+    }
+    return out;
+  }
+
+  /// Decodes a `bytes[]` located behind the offset at [wordIndex], returning
+  /// each element's payload as a hex string (the length prefix stripped). Used
+  /// for the Universal Router `inputs` array, where every element is itself an
+  /// ABI-encoded argument tuple to be re-parsed with [EvmCalldata.fromBody].
+  List<String>? bytesArrayAt(int wordIndex) {
+    final arrOffset = uintAt(wordIndex)?.toInt();
+    if (arrOffset == null) return null;
+    final arrStart = arrOffset * 2;
+    if (body.length < arrStart + 64) return null;
+    final count = BigInt.tryParse(body.substring(arrStart, arrStart + 64), radix: 16)?.toInt();
+    if (count == null || count < 0) return null;
+
+    // Element offsets are relative to the start of the area after the count word.
+    final headStart = arrStart + 64;
+    final out = <String>[];
+    for (var i = 0; i < count; i++) {
+      final offWordStart = headStart + i * 64;
+      if (body.length < offWordStart + 64) return null;
+      final elemOff =
+          BigInt.tryParse(body.substring(offWordStart, offWordStart + 64), radix: 16)?.toInt();
+      if (elemOff == null) return null;
+      final elemStart = headStart + elemOff * 2;
+      if (body.length < elemStart + 64) return null;
+      final elemLen =
+          BigInt.tryParse(body.substring(elemStart, elemStart + 64), radix: 16)?.toInt();
+      if (elemLen == null) return null;
+      final dataStart = elemStart + 64;
+      final dataEnd = dataStart + elemLen * 2;
+      if (body.length < dataEnd) return null;
+      out.add(body.substring(dataStart, dataEnd));
     }
     return out;
   }
