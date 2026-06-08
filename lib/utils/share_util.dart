@@ -30,22 +30,21 @@ class ShareUtil {
 
   static Rect _sharePosition(BuildContext context) {
     if (!context.mounted) {
-      return Rect.zero;
+      return const Rect.fromLTWH(0, 0, 1, 1);
     }
 
+    final screen = Offset.zero & MediaQuery.of(context).size;
+    final fallback = Rect.fromCenter(center: screen.center, width: 1, height: 1);
+
     final renderObject = context.findRenderObject();
-    if (renderObject is! RenderBox) {
-      return Rect.zero;
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      return fallback;
     }
 
     final rect = renderObject.localToGlobal(Offset.zero) & renderObject.size;
-    // iOS requires sharePositionOrigin to lie fully within the source view's
-    // bounds; clip to the screen so an offset/oversized page rect doesn't spill
-    // past the edge and trigger a PlatformException on iPad.
-    final screen = Offset.zero & MediaQuery.of(context).size;
     final clipped = rect.intersect(screen);
     if (clipped.isEmpty) {
-      return Rect.zero;
+      return fallback;
     }
     return clipped;
   }
