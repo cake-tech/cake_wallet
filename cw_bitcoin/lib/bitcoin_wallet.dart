@@ -552,7 +552,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return tx;
   }
 
-  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys() => unspentCoins
+  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys() => unspentCoinsForCurrentAccount
       .where((e) => (e.isSending && !e.isFrozen))
       .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
       .toList();

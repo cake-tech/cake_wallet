@@ -263,7 +263,10 @@ class CWBitcoin extends Bitcoin {
   List<BitcoinUnspent> getUnspents(Object wallet,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins.where((element) {
+
+    final coins = bitcoinWallet.unspentCoinsForCurrentAccount;
+
+    return coins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;

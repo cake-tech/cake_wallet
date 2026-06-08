@@ -775,6 +775,15 @@ abstract class ElectrumWalletBase
   DateTime? _lastSilentPaymentsScan;
   static const Duration _silentPaymentsScanDelay = Duration(minutes: 1);
 
+  Iterable<BitcoinUnspent> get unspentCoinsForCurrentAccount {
+    if (type != WalletType.bitcoin) {
+      return unspentCoins;
+    }
+
+    return unspentCoins.where((coin) =>
+    coin.bitcoinAddressRecord.accountIndex == currentAccountIndex);
+  }
+
   @action
   @override
   Future<void> startSync() async {
@@ -995,7 +1004,7 @@ abstract class ElectrumWalletBase
     bool spendsUnconfirmedTX = false;
 
     int leftAmount = credentialsAmount;
-    var availableInputs = unspentCoins.where((utx) {
+    var availableInputs = unspentCoinsForCurrentAccount.where((utx) {
       if (!utx.isSending || utx.isFrozen) {
         return false;
       }
@@ -1800,7 +1809,7 @@ abstract class ElectrumWalletBase
     if (amount != null) {
       int totalValue = 0;
 
-      for (final input in unspentCoins) {
+      for (final input in unspentCoinsForCurrentAccount) {
         if (totalValue >= amount) {
           break;
         }
@@ -1813,7 +1822,7 @@ abstract class ElectrumWalletBase
 
       if (totalValue < amount) return 0;
     } else {
-      for (final input in unspentCoins) {
+      for (final input in unspentCoinsForCurrentAccount) {
         if (input.isSending) {
           inputsCount += 1;
         }
@@ -2204,7 +2213,7 @@ abstract class ElectrumWalletBase
       throw Exception("Receiver output not found.");
     }
 
-    final availableInputs = unspentCoins.where((utxo) => utxo.isSending && !utxo.isFrozen).toList();
+    final availableInputs = unspentCoinsForCurrentAccount.where((utxo) => utxo.isSending && !utxo.isFrozen).toList();
     int totalBalance = availableInputs.fold<int>(
         0, (previousValue, element) => previousValue + element.value.toInt());
 
@@ -2329,7 +2338,7 @@ abstract class ElectrumWalletBase
 
       // If still not enough, add UTXOs until the fee is covered
       if (remainingFee > 0) {
-        final unusedUtxos = unspentCoins
+        final unusedUtxos = unspentCoinsForCurrentAccount
             .where((utxo) => utxo.isSending && !utxo.isFrozen && utxo.confirmations! > 0)
             .toList();
 
