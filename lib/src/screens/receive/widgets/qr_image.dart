@@ -1,7 +1,6 @@
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
 class QrImage extends StatelessWidget {
@@ -13,6 +12,7 @@ class QrImage extends StatelessWidget {
     this.version,
     this.errorCorrectionLevel = qr.QrErrorCorrectLevel.H,
     this.embeddedImagePath,
+    this.badgeImageOnEmbeddedImagePath,
   });
 
   final double? size;
@@ -22,46 +22,55 @@ class QrImage extends StatelessWidget {
   final int? version;
   final int errorCorrectionLevel;
   final String? embeddedImagePath;
+  final String? badgeImageOnEmbeddedImagePath;
 
   @override
   Widget build(BuildContext context) {
     final imagePath = embeddedImagePath ?? 'assets/images/qr-cake.png';
-    final isSvg = imagePath.endsWith('.svg');
+    final qrSize = size ?? 100.0;
+    final logoSize = qrSize * 0.30;
 
-    if (isSvg) {
-      final qrSize = size ?? 100.0;
-      final logoSize = qrSize * 0.30;
+    final centerImage = TokenImageWidget(
+      imageUrl: imagePath,
+      size: logoSize * 0.8,
+    );
 
-      return Stack(
-        alignment: Alignment.center,
+    Widget centerImageToUse;
+    if (badgeImageOnEmbeddedImagePath != null) {
+      centerImageToUse = Stack(
         children: [
-          qr.QrImageView(
-            data: data,
-            errorCorrectionLevel: errorCorrectionLevel,
-            version: version ?? qr.QrVersions.auto,
-            size: qrSize,
-            foregroundColor: foregroundColor,
-            backgroundColor: backgroundColor,
-            padding: const EdgeInsets.all(12.0),
-          ),
-          CakeImageWidget(imageUrl:
-            imagePath,
-            width: logoSize * 0.8,
-            height: logoSize * 0.8,
+          centerImage,
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: CakeImageWidget(
+                imageUrl: badgeImageOnEmbeddedImagePath!,
+                width: 24,
+                height: 24,
+              ),
+            ),
           ),
         ],
       );
     } else {
-      return qr.QrImageView(
-        data: data,
-        errorCorrectionLevel: errorCorrectionLevel,
-        version: version ?? qr.QrVersions.auto,
-        size: size,
-        foregroundColor: foregroundColor,
-        backgroundColor: backgroundColor,
-        padding: const EdgeInsets.all(12.0),
-        embeddedImage: AssetImage(imagePath),
-      );
+      centerImageToUse = centerImage;
     }
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        qr.QrImageView(
+          data: data,
+          errorCorrectionLevel: errorCorrectionLevel,
+          version: version ?? qr.QrVersions.auto,
+          size: qrSize,
+          foregroundColor: foregroundColor,
+          backgroundColor: backgroundColor,
+          padding: const EdgeInsets.all(12.0),
+        ),
+        centerImageToUse,
+      ],
+    );
   }
 }

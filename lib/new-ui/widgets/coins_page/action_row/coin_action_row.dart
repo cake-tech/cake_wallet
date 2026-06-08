@@ -157,39 +157,32 @@ class CoinActionRow extends StatelessWidget {
   }
 
   Future<void> _onPressedScan(BuildContext context) async {
-    if (false && FeatureFlag.hasNewUiExtraPages) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => FractionallySizedBox(
-          heightFactor: 0.9,
-          child: ScanPage(),
-        ),
-      );
-    } else {
-      final code = await presentQRScanner(context);
+      final code = await presentQRScanner(context, showHelp: true);
 
       if (code == null || code.isEmpty) return;
 
       late final PaymentRequest req;
       var unspentCoinType = UnspentCoinType.any;
-      if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
-        unspentCoinType = UnspentCoinType.lightning;
-        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(code) ?? 0));
-        req = PaymentRequest(code, amount, "", "", "");
-      } else if (SendViewModelBase.isLnurlInvoice(code)) {
-        unspentCoinType = UnspentCoinType.lightning;
-        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(await LNURL.getPayRequestAmount(code) ?? 0));
-        req = PaymentRequest(code, amount, "", "", "");
-      } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
-        req = PaymentRequest(code, "", "", "", "");
-      } else if (Uri.tryParse(code)?.scheme == "wc") {
-        if (!isEVMCompatibleChain(walletType)) {
+      // if (false && SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
+      //   unspentCoinType = UnspentCoinType.lightning;
+      //   final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(code) ?? 0));
+      //   req = PaymentRequest(code, amount, "", "", "");
+      // } else if (false && SendViewModelBase.isLnurlInvoice(code)) {
+      //   unspentCoinType = UnspentCoinType.lightning;
+      //   final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(await LNURL.getPayRequestAmount(code) ?? 0));
+      //   req = PaymentRequest(code, amount, "", "", "");
+      // } else if (false &&OpenCryptoPayService.isOpenCryptoPayQR(code)) {
+      //   req = PaymentRequest(code, "", "", "", "");
+      // } else
+      if (Uri.tryParse(code)?.scheme == "wc") {
+        if (!isWalletConnectCompatibleChain(walletType)) {
           showPopUp<void>(
               context: context,
               builder: (context) => AlertWithOneAction(
                   alertTitle: "WalletConnect",
-                  alertContent: S.of(context).switchToEVMCompatibleWallet,
+                  alertContent: S
+                      .of(context)
+                      .switchToWCCompatibleWallet(walletConnectCompatibleChainsLabel()),
                   buttonText: "OK",
                   buttonAction: Navigator.of(context).pop));
           return;
@@ -227,5 +220,4 @@ class CoinActionRow extends StatelessWidget {
         ),
       );
     }
-  }
 }

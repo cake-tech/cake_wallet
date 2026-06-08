@@ -63,7 +63,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                             child: CakeImageWidget(
                               borderRadius: 8,
                               imageUrl: chainName.isNotEmpty
-                                  ? 'assets/images/crypto/${chainName.toLowerCase()}.webp'
+                                  ? 'assets/new-ui/crypto_full_icons/${chainName.toLowerCase()}.svg'
                                   : null,
                               width: 72,
                               height: 72,

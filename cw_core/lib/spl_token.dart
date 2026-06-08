@@ -47,6 +47,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     this.tag = 'SOL',
     bool enabled = true,
     this.isPotentialScam = false,
+    Set<String> groups = const {},
   })  : _enabled = enabled,
         super(
           name: mint.toLowerCase(),
@@ -56,6 +57,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
           iconPath: iconPath,
           decimals: decimal,
           isPotentialScam: isPotentialScam,
+          groups: groups,
         );
 
   factory SPLToken.fromMetadata({
@@ -101,6 +103,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
           tag: other.tag,
           iconPath: icon,
           isPotentialScam: other.isPotentialScam,
+          groups: other.groups,
         );
 
   static const typeId = SPL_TOKEN_TYPE_ID;
