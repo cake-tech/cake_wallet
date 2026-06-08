@@ -96,6 +96,7 @@ class NewListSections extends StatelessWidget {
         subtitle: item.subtitle,
         trailingText: item.trailingText,
         iconPath: item.iconPath,
+        badgeIconPath: item.badgeIconPath,
         trailingIconPath: item.trailingIconPath,
         onTap: tapHandlers[item.keyValue] ?? item.onTap,
         isFirstInSection: isFirst,
@@ -109,6 +110,7 @@ class NewListSections extends StatelessWidget {
         bottomWidget: item.bottomWidget,
         leadingIconErrorWidget: item.leadingIconErrorWidget,
         leadingIconSize: item.leadingIconSize,
+        badgeIconSize: item.badgeIconSize,
         iconColor: item.iconColor,
       );
     }
