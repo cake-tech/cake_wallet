@@ -950,4 +950,25 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.setCurrentAccount(accountIndex);
   }
+
+  @override
+  bool isTransactionForCurrentAccount(Object wallet, Object transaction) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final tx = transaction as ElectrumTransactionInfo;
+
+    if (bitcoinWallet.type != WalletType.bitcoin) {
+      return true;
+    }
+
+    final accountAddresses = bitcoinWallet.walletAddresses.allAddresses
+        .where((address) => address.accountIndex == bitcoinWallet.currentAccountIndex)
+        .map((address) => address.address)
+        .toSet();
+
+    final inputAddresses = tx.inputAddresses ?? <String>[];
+    final outputAddresses = tx.outputAddresses ?? <String>[];
+
+    return inputAddresses.any(accountAddresses.contains) ||
+        outputAddresses.any(accountAddresses.contains);
+  }
 }

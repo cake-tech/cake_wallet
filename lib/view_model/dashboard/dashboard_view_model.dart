@@ -368,8 +368,16 @@ abstract class DashboardViewModelBase with Store {
 
     transactions.clear();
 
+    final allTransactions = wallet.transactionHistory.transactions.values;
+    final filteredTransactions = allTransactions.where((tx) {
+      if (wallet.type == WalletType.bitcoin) {
+        return bitcoin!.isTransactionForCurrentAccount(wallet, tx);
+      }
+      return true;
+    }).toList();
+
     transactions.addAll(
-      wallet.transactionHistory.transactions.values.map(
+      filteredTransactions.map(
         (transaction) => TransactionListItem(
           transaction: transaction,
           balanceViewModel: balanceViewModel,
@@ -482,10 +490,13 @@ abstract class DashboardViewModelBase with Store {
 
       for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
         bool isRelevant = true;
+
         if (wallet.type == WalletType.monero) {
           isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
         } else if (wallet.type == WalletType.wownero) {
           isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
+        } else if (wallet.type == WalletType.bitcoin) {
+          isRelevant = bitcoin!.isTransactionForCurrentAccount(wallet, tx);
         }
 
         if (isRelevant) {
