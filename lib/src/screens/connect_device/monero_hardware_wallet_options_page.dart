@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
+import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_passphrase_input.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -129,12 +130,19 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
         ),
         bottomSectionPadding: EdgeInsets.all(24),
         bottomSection: Observer(
-          builder: (context) => LoadingPrimaryButton(
-            onPressed: _confirmForm,
-            text: S.of(context).seed_language_next,
-            color: Theme.of(context).colorScheme.primary,
-            textColor: Theme.of(context).colorScheme.onPrimary,
-            isDisabled: _walletHardwareRestoreVM.name.isEmpty,
+          builder: (context) => Column(
+            children: [
+              TextButton(onPressed: () {
+                showModalBottomSheet(context: context,isScrollControlled: true, backgroundColor: Colors.transparent, builder: (context)=>MoneroHardwareWalletPassphraseInputModal());
+              }, child: Text(S.of(context).add_a_passphrase)),
+              LoadingPrimaryButton(
+                onPressed: _confirmForm,
+                text: S.of(context).seed_language_next,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                isDisabled: _walletHardwareRestoreVM.name.isEmpty,
+              ),
+            ],
           ),
         ),
       ),
