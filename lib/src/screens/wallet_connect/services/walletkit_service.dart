@@ -132,7 +132,10 @@ abstract class WalletKitServiceBase with Store {
     debugPrint('Intializing walletKit');
     if (!isInitialized) {
       try {
-        await _walletKit.init();
+        await _walletKit.init().timeout(
+          const Duration(seconds: 8),
+          onTimeout: () => throw TimeoutException('walletKit init timed out'),
+        );
         debugPrint('Initialized');
         isInitialized = true;
       } catch (e) {
@@ -206,7 +209,7 @@ abstract class WalletKitServiceBase with Store {
                   name: 'accountsChanged',
                   data: [chain.publicKey],
                 ),
-              );
+              ).timeout(const Duration(seconds: 3));
             }
           } on ReownSignError catch (e) {
             if (e.code == 6) {
