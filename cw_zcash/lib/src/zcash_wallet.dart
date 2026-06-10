@@ -108,6 +108,7 @@ abstract class ZcashWalletBase
 
   @override
   Future<void> close({final bool shouldCleanup = false}) async {
+    _syncLoopRunning = false;
     walletsByAccountId.remove(accountId);
   }
 
@@ -127,7 +128,7 @@ abstract class ZcashWalletBase
       printV("Setting LWD URL to: $lwdUrl");
       c = c.setLwd(url: lwdUrl, serverType: 0);
       syncStatus = ConnectedSyncStatus();
-      unawaited(_runSyncLoop());
+      _ensureSyncLoopRunning();
     } catch (e) {
       printV("Connection error: $e");
       syncStatus = FailedSyncStatus(error: e.toString());
@@ -135,8 +136,18 @@ abstract class ZcashWalletBase
     }
   }
 
+  bool _syncLoopRunning = false;
+
+  void _ensureSyncLoopRunning() {
+    if (_syncLoopRunning) {
+      return;
+    }
+    _syncLoopRunning = true;
+    unawaited(_runSyncLoop());
+  }
+
   Future<void> _runSyncLoop() async {
-    while (true) {
+    while (_syncLoopRunning) {
       await Future.delayed(Duration(seconds: 1));
       try {
         await _oneshotSync();
@@ -161,6 +172,16 @@ abstract class ZcashWalletBase
   static int oneshotSyncCount = 0;
 
   @action
+  void _applySyncProgress(final int currentHeight, final int walletHeight) {
+    final blocksLeft = (currentHeight - walletHeight).clamp(0, currentHeight);
+    final ptc = currentHeight > 0
+        ? (walletHeight / currentHeight).clamp(0.0, 1.0)
+        : 0.0;
+    syncStatus = SyncingSyncStatus(blocksLeft, ptc);
+    dbHeight = walletHeight;
+  }
+
+  @action
   Future<void> _oneshotSync() async {
     try {
       if (isSyncing) return;
@@ -172,6 +193,8 @@ abstract class ZcashWalletBase
       final accountList = accounts.map((final a) => a.id).toList()
         ..removeWhere((final a) => a == c.account);
       c = await c.setAccount(account: accountId);
+      final dbHeightResult = await zkool_sync.getDbHeight(c: c);
+      _applySyncProgress(currentHeight, dbHeightResult.height);
       final sync = zkool_sync.synchronize(
         accounts: [c.account, ...accountList, c.account],
         currentHeight: currentHeight,
@@ -184,36 +207,53 @@ abstract class ZcashWalletBase
       c = await c.setAccount(account: accountId);
       final randInt = CRC32.compute("${DateTime.now().microsecondsSinceEpoch}").toRadixString(16);
       oneshotSyncCount++;
-      await sync
-        ..listen(
-          (final syncProgress) {
-            unawaited(updateBalance());
-            unawaited(updateTransactions());
-            printV(
-              "[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] sync: ${syncProgress.height}",
+      final completer = Completer<void>();
+      late final StreamSubscription<zkool_sync.SyncProgress> subscription;
+      subscription = sync.listen(
+        (final syncProgress) {
+          runInAction(() => _applySyncProgress(currentHeight, syncProgress.height));
+          unawaited(updateBalance());
+          unawaited(updateTransactions());
+          printV(
+            "[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] sync: ${syncProgress.height}",
+          );
+        },
+        onError: (final e) {
+          printV("[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] error syncing: $e");
+          runInAction(() {
+            syncStatus = FailedSyncStatus(
+              error: e
+                      .toString()
+                      .replaceAll("AnyhowException(", "")
+                      .split("\n")
+                      .firstOrNull ??
+                  "Unknown error",
             );
-            syncStatus = SyncingSyncStatus(
-              currentHeight - syncProgress.height,
-              (currentHeight - syncProgress.height) / currentHeight,
-            );
-            dbHeight = syncProgress.height;
-          },
-          onError: (final e) {
-            printV("[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] error syncing: $e");
-            syncStatus = FailedSyncStatus(error: e.toString().replaceAll("AnyhowException(", "").split("\n").firstOrNull ?? "Unknown error");
-            unawaited(Future.delayed(Duration(seconds: 5), () => isSyncing = false));
-          },
-          onDone: () {
-            printV("[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] synchronized");
-            unawaited(updateBalance());
-            unawaited(updateTransactions());
-            oneshotSyncCount--;
+          });
+          isSyncing = false;
+          if (!completer.isCompleted) {
+            completer.complete();
+          }
+        },
+        onDone: () {
+          printV("[${c.account} ($accountList)] [$oneshotSyncCount/$randInt] synchronized");
+          unawaited(updateBalance());
+          unawaited(updateTransactions());
+          oneshotSyncCount--;
+          runInAction(() {
             syncStatus = SyncedSyncStatus();
-            unawaited(Future.delayed(Duration(seconds: 5), () => isSyncing = false));
-          },
-        );
+          });
+          isSyncing = false;
+          if (!completer.isCompleted) {
+            completer.complete();
+          }
+        },
+      );
+      await completer.future;
+      await subscription.cancel();
     } catch (e) {
       syncStatus = FailedSyncStatus(error: e.toString());
+      isSyncing = false;
       printV("error syncing: $e");
     }
   }
@@ -698,8 +738,7 @@ abstract class ZcashWalletBase
       return;
     }
     try {
-      // syncStatus = AttemptingSyncStatus();
-      unawaited(_runSyncLoop());
+      _ensureSyncLoopRunning();
     } catch (e) {
       isNodeWorking = false;
       printV("Sync error: $e");
