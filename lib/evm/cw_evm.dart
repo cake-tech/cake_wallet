@@ -750,6 +750,10 @@ class CWEVM extends EVM {
 
       final List<Future<void>> tokenChecks = [];
 
+      final whitelistedContracts = wallet.getDefaultTokenContractAddresses
+          .map((a) => a.toLowerCase())
+          .toSet();
+
       for (final item in result.newTokens) {
         tokenChecks.add((() async {
           final token = item.token;
@@ -760,7 +764,15 @@ class CWEVM extends EVM {
             token,
             item.balanceWei,
           );
-          final isSpam = isPropertiesSuspicious || !fiatResult.hasValidFiatPrice;
+
+          final isLikelyImpersonator = fiatResult.hasValidFiatPrice &&
+              !item.verifiedContract &&
+              !whitelistedContracts.contains(token.contractAddress.toLowerCase());
+
+          final isSpam = isPropertiesSuspicious ||
+              !fiatResult.hasValidFiatPrice ||
+              token.isPotentialScam ||
+              isLikelyImpersonator;
 
           token.isPotentialScam = isSpam;
 

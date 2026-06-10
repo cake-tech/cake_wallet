@@ -11,6 +11,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -134,6 +135,8 @@ abstract class SolanaWalletBase
 
     splTokensBox = await CakeHive.openBox<SPLToken>(boxName);
 
+    await _checkForExistingScamTokens();
+
     // Create the privatekey using either the mnemonic or the privateKey
     _solanaPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
@@ -150,6 +153,17 @@ abstract class SolanaWalletBase
     await transactionHistory.init();
 
     await save();
+  }
+
+  Future<void> _checkForExistingScamTokens() async {
+    if (!splTokensBox.isOpen) return;
+
+    for (final token in splTokensBox.values) {
+      if (isTokenPropertiesSuspicious(token) && !token.isPotentialScam) {
+        token.isPotentialScam = true;
+        await token.save();
+      }
+    }
   }
 
   Future<SolanaPrivateKey> getPrivateKey({
@@ -690,7 +704,90 @@ abstract class SolanaWalletBase
     }
   }
 
+  bool isTokenPropertiesSuspicious(SPLToken token) {
+    final defaultMints =
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final isTokenWhitelisted = defaultMints.contains(token.mintAddress);
+
+    final defaultTokenSymbols = DefaultSPLTokens()
+        .initialSPLTokens
+        .map((t) => t.symbol.toUpperCase())
+        .toSet();
+
+    final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
+    final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
+    final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
+
+    const suspiciousStrings = [
+      't.me',
+      '.me',
+      'telegram',
+      'http',
+      'https',
+      '.com',
+      '.org',
+      '.top',
+      '.live',
+      'airdrop',
+      'reward',
+      'distribution',
+      'www',
+      '.xyz',
+      '🎁',
+      'bot',
+      'claim',
+      'reward',
+    ];
+
+    final hasSuspiciousData = suspiciousStrings.any(
+      (element) =>
+          normalizedName.toLowerCase().contains(element) ||
+          normalizedSymbol.toLowerCase().contains(element) ||
+          normalizedTitle.toLowerCase().contains(element),
+    );
+
+    const nativeSymbol = 'SOL';
+    final hasSuspiciousNativeSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
+
+    final hasSuspiciousDefaultTokenSymbol =
+        defaultTokenSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    const knownNonSolanaNativeSymbols = {
+      'BTC',
+      'ETH',
+      'BNB',
+      'AVAX',
+      'MATIC',
+      'POL',
+      'ICP',
+      'TRX',
+      'ATOM',
+      'DOT',
+      'ADA',
+      'XRP',
+      'XLM',
+      'XMR',
+      'ALGO',
+      'NEAR',
+      'TON',
+      'HBAR',
+      'APT',
+      'SUI',
+      'KAS',
+    };
+    final hasSuspiciousNonSolanaNativeSymbol =
+        knownNonSolanaNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    return hasSuspiciousData ||
+        hasSuspiciousNativeSymbol ||
+        hasSuspiciousDefaultTokenSymbol ||
+        hasSuspiciousNonSolanaNativeSymbol;
+  }
+
   Future<void> addSPLToken(SPLToken token) async {
+    final isSuspicious = isTokenPropertiesSuspicious(token);
+    token.isPotentialScam = token.isPotentialScam || isSuspicious;
+
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {

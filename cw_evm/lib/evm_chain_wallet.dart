@@ -582,7 +582,31 @@ abstract class EVMChainWalletBase
     final hasSuspiciousDefaultTokenSymbol =
         defaultTokenSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
 
-    return hasSuspiciousData || hasSuspiciousNativeSymbol || hasSuspiciousDefaultTokenSymbol;
+    const knownNonEvmNativeSymbols = {
+      'ICP',
+      'SOL',
+      'TRX',
+      'ATOM',
+      'DOT',
+      'ADA',
+      'XRP',
+      'XLM',
+      'XMR',
+      'ALGO',
+      'NEAR',
+      'TON',
+      'HBAR',
+      'APT',
+      'SUI',
+      'KAS',
+    };
+    final hasSuspiciousNonEvmNativeSymbol =
+        knownNonEvmNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    return hasSuspiciousData ||
+        hasSuspiciousNativeSymbol ||
+        hasSuspiciousDefaultTokenSymbol ||
+        hasSuspiciousNonEvmNativeSymbol;
   }
 
   Future<void> _checkForExistingScamTokens() async {
@@ -664,6 +688,7 @@ abstract class EVMChainWalletBase
           DiscoveredToken(
             token: newToken,
             balanceWei: token.balanceWei,
+            verifiedContract: token.verifiedContract,
           ),
         );
       }
@@ -1777,10 +1802,12 @@ class GasParamsHandler {
 class DiscoveredToken {
   final Erc20Token token;
   final BigInt balanceWei;
+  final bool verifiedContract;
 
   const DiscoveredToken({
     required this.token,
     required this.balanceWei,
+    required this.verifiedContract,
   });
 }
 
