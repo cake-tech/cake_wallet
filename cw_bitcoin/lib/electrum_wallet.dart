@@ -2650,6 +2650,7 @@ abstract class ElectrumWalletBase
             },
             type: type,
             isLegacyDerivation: addressRecord.isLegacyDerivation,
+            accountIndex: addressRecord.accountIndex,
           );
 
           final newLength = walletAddresses.allAddresses.length;
@@ -2737,43 +2738,34 @@ abstract class ElectrumWalletBase
       BitcoinAddressType type) async {
     final addressesByType =
         walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
-    final receiveAddresses = addressesByType.where((addr) => !addr.isHidden).toList();
-    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden).toList();
 
+    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden).toList();
     walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
-    await fetchTransactionsForAddressesBranchBatch(
-      historiesWithDetails,
-      type,
-      receiveAddresses,
-      isHidden: false,
-      isLegacyDerivation: false,
-    );
+    final accountIndexes = addressesByType.map((addr) => addr.accountIndex).toSet();
 
-    await fetchTransactionsForAddressesBranchBatch(
-      historiesWithDetails,
-      type,
-      hiddenAddresses,
-      isHidden: true,
-      isLegacyDerivation: false,
-    );
+    for (final accountIndex in accountIndexes) {
+      for (final isHidden in [false, true]) {
+        for (final isLegacyDerivation in [false, true]) {
+          final branchAddresses = addressesByType
+              .where((addr) =>
+                  addr.accountIndex == accountIndex &&
+                  addr.isHidden == isHidden &&
+                  addr.isLegacyDerivation == isLegacyDerivation)
+              .toList();
 
-    await fetchTransactionsForAddressesBranchBatch(
-      historiesWithDetails,
-      type,
-      receiveAddresses,
-      isHidden: false,
-      isLegacyDerivation: true,
-    );
-
-    await fetchTransactionsForAddressesBranchBatch(
-      historiesWithDetails,
-      type,
-      hiddenAddresses,
-      isHidden: true,
-      isLegacyDerivation: true,
-    );
+          await fetchTransactionsForAddressesBranchBatch(
+            historiesWithDetails,
+            type,
+            branchAddresses,
+            isHidden: isHidden,
+            isLegacyDerivation: isLegacyDerivation,
+            accountIndex: accountIndex,
+          );
+        }
+      }
+    }
   }
 
 
@@ -2783,6 +2775,7 @@ abstract class ElectrumWalletBase
       List<BitcoinAddressRecord> branchAddresses, {
         required bool isHidden,
         required bool isLegacyDerivation,
+        required int accountIndex,
       }) async {
     if (branchAddresses.isEmpty) return;
 
@@ -2836,6 +2829,7 @@ abstract class ElectrumWalletBase
       },
       type: type,
       isLegacyDerivation: isLegacyDerivation,
+      accountIndex: accountIndex,
     );
 
     if (newAddresses.isNotEmpty) {
