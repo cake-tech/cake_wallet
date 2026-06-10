@@ -90,24 +90,14 @@ abstract class ElectrumWalletBase
         _scripthashesUpdateSubject = {},
         this.alwaysScan = alwaysScan,
         silentPaymentsScanningActive = alwaysScan ?? false,
-        balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
-            ? {
-                currency: initialBalance ??
-                    ElectrumBalance(
-                      confirmed: 0,
-                      unconfirmed: 0,
-                      frozen: 0,
-                    )
-              }
-            : {}),
+        balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(
+            currency != null ? {currency: initialBalance ?? _zeroBalance()} : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.isTestnet = !network.isMainnet,
         this._mnemonic = mnemonic,
+        this.electrumClient = electrumClient ?? electrum.ElectrumClient(),
         _useLightning = useLightning,
         super(walletInfo, derivationInfo) {
-    this.electrumClient = electrumClient ?? electrum.ElectrumClient();
-    this.walletInfo = walletInfo;
-    this.derivationInfo = derivationInfo;
     transactionHistory = ElectrumTransactionHistory(
       walletInfo: walletInfo,
       password: password,
@@ -116,7 +106,7 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
-    _prepareHdForAccount(currentAccountIndex, currency);
+    _prepareHdForAccount(currentAccountIndex, currency); // Probably not needed as init will be called right after creating the wallet.
   }
 
   int _purposeForType(BitcoinAddressType type) {
@@ -269,6 +259,12 @@ abstract class ElectrumWalletBase
 
   static const bool useBatchForHistory = true;
 
+  static ElectrumBalance _zeroBalance() => ElectrumBalance(
+    confirmed: 0,
+    unconfirmed: 0,
+    frozen: 0,
+  );
+
   @observable
   bool? alwaysScan;
 
@@ -276,7 +272,7 @@ abstract class ElectrumWalletBase
   bool get useLightning => _useLightning && LightningWallet.isAvailable;
 
   set useLightning(bool val) => _useLightning = val && LightningWallet.isAvailable;
-  
+
   @observable
   bool _useLightning;
 
@@ -317,10 +313,8 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
-  Future<List<int>> getAccountIndexes() async {
-    if (type != WalletType.bitcoin) {
-      return [0];
-    }
+  Future<List<int>> loadAccountIndexes() async {
+    if (type != WalletType.bitcoin) return [0];
 
     final accounts = await walletInfo.getAccounts();
     return accounts.map((account) => account.accountIndex).toList();
@@ -357,24 +351,13 @@ abstract class ElectrumWalletBase
     return accountBalances[accountIndex] ?? _zeroBalance();
   }
 
-  ElectrumBalance _zeroBalance() => ElectrumBalance(
-        confirmed: 0,
-        unconfirmed: 0,
-        frozen: 0,
-      );
-
   void _updateAccountBalancesFromUnspents() {
     final newBalances = <int, ElectrumBalance>{};
 
     for (final coin in unspentCoins) {
       final accountIndex = coin.bitcoinAddressRecord.accountIndex;
 
-      final current = newBalances[accountIndex] ??
-          ElectrumBalance(
-            confirmed: 0,
-            unconfirmed: 0,
-            frozen: 0,
-          );
+      final current = newBalances[accountIndex] ?? _zeroBalance();
 
       final value = coin.value;
 
@@ -410,7 +393,7 @@ abstract class ElectrumWalletBase
   List<String> get scriptHashes => walletAddresses.allAddresses
       .where((addr) => addr.type != SegwitAddresType.mweb)
       .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
-      .map((addr) => (addr as BitcoinAddressRecord).getScriptHash(network))
+      .map((addr) => addr.getScriptHash(network))
       .toList();
 
   List<String> get publicScriptHashes => walletAddresses.allAddresses
@@ -421,15 +404,7 @@ abstract class ElectrumWalletBase
 
   String get xpub => accountHD.publicKey.toExtended;
 
-  int get currentAccountIndex {
-    final selectedAccount = walletInfo.selectedAccount;
-
-    if (selectedAccount != null) {
-      return selectedAccount;
-    }
-
-    return _parseAccountIndex(derivationInfo.derivationPath);
-  }
+  int get currentAccountIndex => walletInfo.selectedAccount ?? 0;
 
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
@@ -442,7 +417,6 @@ abstract class ElectrumWalletBase
     _prepareHdForAccount(accountIndex, currency);
 
     final isNewAccount = !walletAddresses.accountIndexes.contains(accountIndex);
-
     if (isNewAccount) {
       walletAddresses.accountIndexes.add(accountIndex);
     }
@@ -452,9 +426,10 @@ abstract class ElectrumWalletBase
     if (isNewAccount) {
       await walletAddresses.prepareAccountAddresses(accountIndex);
     }
-      walletAddresses.updateAddressesByMatch();
-      walletAddresses.updateReceiveAddresses();
-      walletAddresses.updateChangeAddresses();
+
+    walletAddresses.updateAddressesByMatch();
+    walletAddresses.updateReceiveAddresses();
+    walletAddresses.updateChangeAddresses();
 
     accountBalances[accountIndex] ??= _zeroBalance();
     _updateCurrentAccountBalance(accountIndex: accountIndex);
@@ -462,7 +437,6 @@ abstract class ElectrumWalletBase
     unawaited(() async {
       try {
         await updateAllUnspents();
-        await updateBalance();
       } catch (e) {
         printV('setCurrentAccount balance update failed: $e');
       }
@@ -560,7 +534,7 @@ abstract class ElectrumWalletBase
     String? privateKey;
     String? publicKey;
 
-    // `keys` is wallet-level metadata and is also used as a simple
+    // `keys` is wallet-level metadata
     final hd = mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? accountHD.childKey(Bip32KeyIndex(0));
 
     try {
@@ -600,13 +574,13 @@ abstract class ElectrumWalletBase
   static const int _autoSaveInterval = 1;
 
   Future<void> init() async {
-    final accountIndexes = await getAccountIndexes();
+    final accountIndexes = await loadAccountIndexes();
 
     for (final accountIndex in accountIndexes) {
       _prepareHdForAccount(accountIndex, currency);
     }
-    walletAddresses.accountIndexes = accountIndexes;
-    await walletAddresses.init();
+
+    await walletAddresses.init(accountIndexes: accountIndexes);
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
     await save();

@@ -356,7 +356,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       });
 
     @override
-    Future<void> init() async {
+    Future<void> init({List<int> accountIndexes = const []}) async {
+      final effectiveAccountIndexes = accountIndexes.isNotEmpty
+          ? accountIndexes
+          : this.accountIndexes;
+
+      if (accountIndexes.isNotEmpty) this.accountIndexes = accountIndexes;
+
       if (walletInfo.type == WalletType.bitcoinCash) {
         await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
       } else if (walletInfo.type == WalletType.litecoin) {
@@ -367,22 +373,21 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       } else if (walletInfo.type == WalletType.dogecoin) {
         await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
       } else if (walletInfo.type == WalletType.bitcoin) {
-        for (final accountIndex in accountIndexes) {
-          await _generateInitialAddresses(
-              accountIndex: accountIndex, isLegacyDerivation: true);
+
+        for (final accountIndex in effectiveAccountIndexes) {
+          await _generateInitialAddresses(accountIndex: accountIndex, isLegacyDerivation: true);
           await _generateInitialAddresses(accountIndex: accountIndex);
+
           if (!isHardwareWallet) {
             await _generateInitialAddresses(accountIndex: accountIndex,
                 type: P2pkhAddressType.p2pkh,
                 isLegacyDerivation: true);
-            await _generateInitialAddresses(
-                accountIndex: accountIndex, type: P2pkhAddressType.p2pkh);
+            await _generateInitialAddresses(accountIndex: accountIndex, type: P2pkhAddressType.p2pkh);
 
             await _generateInitialAddresses(accountIndex: accountIndex,
                 type: P2shAddressType.p2wpkhInP2sh,
                 isLegacyDerivation: true);
-            await _generateInitialAddresses(
-                accountIndex: accountIndex, type: P2shAddressType.p2wpkhInP2sh);
+            await _generateInitialAddresses(accountIndex: accountIndex, type: P2shAddressType.p2wpkhInP2sh);
 
             await _generateInitialAddresses(accountIndex: accountIndex,
                 type: SegwitAddresType.p2tr,
