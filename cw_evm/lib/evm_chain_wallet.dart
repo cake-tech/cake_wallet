@@ -689,6 +689,8 @@ abstract class EVMChainWalletBase
             token: newToken,
             balanceWei: token.balanceWei,
             verifiedContract: token.verifiedContract,
+            moralisUsdPrice: token.usdPrice,
+            moralisUsdValue: token.usdValue,
           ),
         );
       }
@@ -1803,11 +1805,15 @@ class DiscoveredToken {
   final Erc20Token token;
   final BigInt balanceWei;
   final bool verifiedContract;
+  final double? moralisUsdPrice;
+  final double? moralisUsdValue;
 
   const DiscoveredToken({
     required this.token,
     required this.balanceWei,
     required this.verifiedContract,
+    this.moralisUsdPrice,
+    this.moralisUsdValue,
   });
 }
 

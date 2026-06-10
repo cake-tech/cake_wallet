@@ -624,74 +624,117 @@ class EVMChainClient {
         return [];
       }
 
-      final uri = Uri.https(
-        'deep-index.moralis.io',
-        '/api/v2.2/$address/erc20',
-        {
-          "chain": chainName,
-        },
-      );
-
-      final response = await client.get(
-        uri,
-        headers: {
-          "Accept": "application/json",
-          "X-API-Key": secrets.moralisApiKey,
-        },
-      );
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        printV('Moralis API returned invalid status code: ${response.statusCode}');
-        return [];
-      }
-
-      final decodedResponse = jsonDecode(response.body) as List;
-
+      const maxPages = 3;
+      String? cursor;
+      int pageCount = 0;
       final List<MoralisWalletTokenBalance> tokens = [];
 
-      for (final item in decodedResponse) {
-        final tokenData = item as Map<String, dynamic>;
+      do {
+        final params = <String, String>{
+          "chain": chainName,
+          if (cursor != null && cursor.isNotEmpty) "cursor": cursor,
+        };
 
-        final balanceStr = tokenData['balance'] as String? ?? '0';
-        final balanceWei = BigInt.tryParse(balanceStr) ?? BigInt.zero;
-        if (balanceWei == BigInt.zero) continue;
-
-        final contractAddress = (tokenData['token_address'] as String? ?? '').toLowerCase();
-        final name = (tokenData['name'] as String? ?? '').toString();
-        final symbol = (tokenData['symbol'] as String? ?? '').toString();
-        final symbolFiltered = symbol.replaceFirst(RegExp('^\\\$'), '');
-
-        final decimalsRaw = tokenData['decimals'];
-        final decimals =
-            decimalsRaw is int ? decimalsRaw : int.tryParse(decimalsRaw.toString()) ?? 18;
-
-        final logo = tokenData['logo'] as String?;
-        final thumbnail = tokenData['thumbnail'] as String?;
-        final iconUrl = logo ?? thumbnail;
-
-        final possibleSpamRaw = tokenData['possible_spam'];
-        final possibleSpam = possibleSpamRaw is bool
-            ? possibleSpamRaw
-            : (possibleSpamRaw.toString().toLowerCase() == 'true');
-
-        final verifiedContractRaw = tokenData['verified_contract'];
-        final verifiedContract = verifiedContractRaw is bool
-            ? verifiedContractRaw
-            : (verifiedContractRaw.toString().toLowerCase() == 'true');
-
-        tokens.add(
-          MoralisWalletTokenBalance(
-            contractAddress: contractAddress,
-            name: name,
-            symbol: symbolFiltered,
-            decimals: decimals,
-            iconUrl: iconUrl,
-            balanceWei: balanceWei,
-            possibleSpam: possibleSpam,
-            verifiedContract: verifiedContract,
-          ),
+        final uri = Uri.https(
+          'deep-index.moralis.io',
+          '/api/v2.2/wallets/$address/tokens',
+          params,
         );
-      }
+
+        final response = await client.get(
+          uri,
+          headers: {
+            "Accept": "application/json",
+            "X-API-Key": secrets.moralisApiKey,
+          },
+        );
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          printV('Moralis API returned invalid status code: ${response.statusCode}');
+          return tokens;
+        }
+
+        final decoded = jsonDecode(response.body);
+        if (decoded is! Map<String, dynamic>) return tokens;
+
+        final result = decoded['result'];
+        if (result is! List) return tokens;
+
+        for (final item in result) {
+          if (item is! Map<String, dynamic>) continue;
+          final tokenData = item;
+
+          final nativeRaw = tokenData['native_token'];
+          final nativeToken = nativeRaw is bool
+              ? nativeRaw
+              : (nativeRaw?.toString().toLowerCase() == 'true');
+          if (nativeToken) continue;
+
+          final balanceStr = tokenData['balance'] as String? ?? '0';
+          final balanceWei = BigInt.tryParse(balanceStr) ?? BigInt.zero;
+          if (balanceWei == BigInt.zero) continue;
+
+          final contractAddress = (tokenData['token_address'] as String? ?? '').toLowerCase();
+          final name = (tokenData['name'] as String? ?? '').toString();
+          final symbol = (tokenData['symbol'] as String? ?? '').toString();
+          final symbolFiltered = symbol.replaceFirst(RegExp('^\\\$'), '');
+
+          final decimalsRaw = tokenData['decimals'];
+          final decimals =
+              decimalsRaw is int ? decimalsRaw : int.tryParse(decimalsRaw.toString()) ?? 18;
+
+          final logo = tokenData['logo'] as String?;
+          final thumbnail = tokenData['thumbnail'] as String?;
+          final iconUrl = logo ?? thumbnail;
+
+          final possibleSpamRaw = tokenData['possible_spam'];
+          final possibleSpam = possibleSpamRaw is bool
+              ? possibleSpamRaw
+              : (possibleSpamRaw?.toString().toLowerCase() == 'true');
+
+          final verifiedContractRaw = tokenData['verified_contract'];
+          final verifiedContract = verifiedContractRaw is bool
+              ? verifiedContractRaw
+              : (verifiedContractRaw?.toString().toLowerCase() == 'true');
+
+          final usdPriceRaw = tokenData['usd_price'];
+          final double? usdPrice = usdPriceRaw is num
+              ? usdPriceRaw.toDouble()
+              : (usdPriceRaw is String ? double.tryParse(usdPriceRaw) : null);
+
+          final usdValueRaw = tokenData['usd_value'];
+          final double? usdValue = usdValueRaw is num
+              ? usdValueRaw.toDouble()
+              : (usdValueRaw is String ? double.tryParse(usdValueRaw) : null);
+
+          final securityRaw = tokenData['security_score'];
+          final int? securityScore = securityRaw is int
+              ? securityRaw
+              : (securityRaw is num
+                  ? securityRaw.toInt()
+                  : (securityRaw is String ? int.tryParse(securityRaw) : null));
+
+          tokens.add(
+            MoralisWalletTokenBalance(
+              contractAddress: contractAddress,
+              name: name,
+              symbol: symbolFiltered,
+              decimals: decimals,
+              iconUrl: iconUrl,
+              balanceWei: balanceWei,
+              possibleSpam: possibleSpam,
+              verifiedContract: verifiedContract,
+              usdPrice: usdPrice,
+              usdValue: usdValue,
+              securityScore: securityScore,
+            ),
+          );
+        }
+
+        final nextCursor = decoded['cursor'];
+        cursor = nextCursor is String && nextCursor.isNotEmpty ? nextCursor : null;
+        pageCount++;
+      } while (cursor != null && pageCount < maxPages);
 
       return tokens;
     } catch (e, stackTrace) {
@@ -743,6 +786,9 @@ class MoralisWalletTokenBalance {
   final BigInt balanceWei;
   final bool possibleSpam;
   final bool verifiedContract;
+  final double? usdPrice;
+  final double? usdValue;
+  final int? securityScore;
 
   MoralisWalletTokenBalance({
     required this.contractAddress,
@@ -753,5 +799,8 @@ class MoralisWalletTokenBalance {
     required this.balanceWei,
     required this.possibleSpam,
     required this.verifiedContract,
+    this.usdPrice,
+    this.usdValue,
+    this.securityScore,
   });
 }

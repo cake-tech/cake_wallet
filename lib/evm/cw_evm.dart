@@ -144,26 +144,25 @@ class CWEVM extends EVM {
   }
 
   @override
-  TransactionInfo getTransactionInfo(
-
-      {
-        required String id,
-        required int height,
-        required BigInt ethAmount,
-        required BigInt ethFee,
-        required String tokenSymbol,
-        int exponent = 18,
-        required TransactionDirection direction,
-        required bool isPending,
-        required DateTime date,
-        required int confirmations,
-        String? to,
-        String? from,
-        String? evmSignatureName,
-        String? contractAddress,
-        required int chainId,
-      }) =>
-      EVMChainTransactionInfo(id: id,
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required int height,
+    required BigInt ethAmount,
+    required BigInt ethFee,
+    required String tokenSymbol,
+    int exponent = 18,
+    required TransactionDirection direction,
+    required bool isPending,
+    required DateTime date,
+    required int confirmations,
+    String? to,
+    String? from,
+    String? evmSignatureName,
+    String? contractAddress,
+    required int chainId,
+  }) =>
+      EVMChainTransactionInfo(
+          id: id,
           height: height,
           ethAmount: ethAmount,
           ethFee: ethFee,
@@ -465,12 +464,12 @@ class CWEVM extends EVM {
     return null;
   }
 
-
   @override
   BigInt getPendingTransactionFee(PendingTransaction tx) => (tx as PendingEVMChainTransaction).fee;
 
   @override
-  String getPendingTransactionAmount(PendingTransaction tx) => (tx as PendingEVMChainTransaction).amount;
+  String getPendingTransactionAmount(PendingTransaction tx) =>
+      (tx as PendingEVMChainTransaction).amount;
 
   // Registry helper methods
   static final EvmChainRegistry _registry = EvmChainRegistry();
@@ -712,29 +711,18 @@ class CWEVM extends EVM {
     );
   }
 
-  Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
-    Erc20Token token,
-    BigInt balanceWei,
-  ) async {
+  Future<double> _fetchFiatApiPriceForToken(Erc20Token token) async {
     try {
       final settingsStore = getIt.get<SettingsStore>();
       final torOnly = settingsStore.fiatApiMode == FiatApiMode.torOnly;
 
-      final price = await FiatConversionService.fetchPrice(
+      return await FiatConversionService.fetchPrice(
         crypto: token,
         fiat: FiatCurrency.usd,
         torOnly: torOnly,
       );
-
-      final hasValidFiatPrice = price > 0;
-
-      final decimals = token.decimal;
-      final balance = balanceWei.toDouble() / math.pow(10, decimals);
-      final usdValue = balance * price;
-
-      return (usdValue: usdValue, hasValidFiatPrice: hasValidFiatPrice);
-    } catch (e) {
-      return (usdValue: 0.0, hasValidFiatPrice: false);
+    } catch (_) {
+      return 0.0;
     }
   }
 
@@ -750,33 +738,34 @@ class CWEVM extends EVM {
 
       final List<Future<void>> tokenChecks = [];
 
-      final whitelistedContracts = wallet.getDefaultTokenContractAddresses
-          .map((a) => a.toLowerCase())
-          .toSet();
+      final whitelistedContracts =
+          wallet.getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
 
       for (final item in result.newTokens) {
         tokenChecks.add((() async {
           final token = item.token;
 
           final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
+          final isWhitelisted = whitelistedContracts.contains(token.contractAddress.toLowerCase());
 
-          final fiatResult = await _getTokenUsdValueAndFiatCheck(
-            token,
-            item.balanceWei,
-          );
+          final moralisPrice = item.moralisUsdPrice;
+          final moralisValue = item.moralisUsdValue ?? 0.0;
+          final hasMoralisPrice = moralisPrice != null && moralisPrice > 0;
 
-          final isLikelyImpersonator = fiatResult.hasValidFiatPrice &&
-              !item.verifiedContract &&
-              !whitelistedContracts.contains(token.contractAddress.toLowerCase());
+          final fiatApiPrice = await _fetchFiatApiPriceForToken(token);
+          final hasFiatApiPrice = fiatApiPrice > 0;
+
+          final isImpersonator =
+              hasFiatApiPrice && !hasMoralisPrice && !isWhitelisted && !item.verifiedContract;
 
           final isSpam = isPropertiesSuspicious ||
-              !fiatResult.hasValidFiatPrice ||
               token.isPotentialScam ||
-              isLikelyImpersonator;
+              isImpersonator ||
+              (!hasMoralisPrice && !hasFiatApiPrice);
 
           token.isPotentialScam = isSpam;
-
-          token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
+          token.enabled =
+              hasMoralisPrice && hasFiatApiPrice && (moralisValue >= _minTokenUsdValue) && !isSpam;
 
           await wallet.addErc20Token(token);
         })());
