@@ -259,6 +259,8 @@ class ZcashTaddressRotation {
         rotationAddressesUsable[cId]?.removeWhere((final a) => a == out.address);
       }
     }
+    await serializeToFile();
+    await _refreshWalletAddresses(cId);
 
     BigInt bal = BigInt.from(0);
 
@@ -365,7 +367,20 @@ class ZcashTaddressRotation {
       }
     }
     await serializeToFile();
+    await _refreshWalletAddresses(mainAccountId);
     return;
+  }
+
+  static Future<void> _refreshWalletAddresses(final int mainAccountId) async {
+    final wallet = ZcashWalletBase.walletsByAccountId[mainAccountId];
+    if (wallet == null) {
+      return;
+    }
+    try {
+      await wallet.walletAddresses.init();
+    } catch (e) {
+      printV("rotation address refresh: $e");
+    }
   }
 
   static List<ZkoolTx> rotationTxsForMainAccount(final int mainAccountId) {

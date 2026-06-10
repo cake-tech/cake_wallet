@@ -42,7 +42,30 @@ class ZkoolTx {
   String? get to => _txAccount.outputs.firstOrNull?.address;
   Iterable<String> get outputAddresses =>
       _txAccount.outputs.map((final o) => o.address).whereType<String>();
+  Iterable<int> get spendPools => _txAccount.spends.map((final s) => s.pool);
+  Iterable<int> get notePools => _txAccount.notes.map((final n) => n.pool);
   String? get memo => _txAccount.memos.firstOrNull?.memo;
+
+  BigInt get transparentOrSaplingSpent {
+    if (_txAccount.spends.isEmpty) {
+      return BigInt.zero;
+    }
+    return _txAccount.spends
+        .where((final s) => s.pool == NotePool.transparent.index || s.pool == NotePool.sapling.index)
+        .fold(BigInt.zero, (final a, final s) => a + s.value);
+  }
+
+  BigInt get orchardReceived {
+    final fromNotes = _txAccount.notes
+        .where((final n) => n.pool == NotePool.orchard.index)
+        .fold(BigInt.zero, (final a, final n) => a + n.value);
+    if (fromNotes > BigInt.zero) {
+      return fromNotes;
+    }
+    return _txAccount.outputs
+        .where((final o) => o.pool == NotePool.orchard.index)
+        .fold(BigInt.zero, (final a, final o) => a + o.value);
+  }
 
   String get txHash {
     final reversed = Uint8List.fromList(_txAccount.txid.reversed.toList());

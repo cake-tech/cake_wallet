@@ -190,6 +190,9 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       await walletInfo.setHiddenAddresses(hiddenAddresses.toList());
       await walletInfo.setManualAddresses(manualAddresses.toList());
       await _initAddresses();
+      hiddenAddresses.addAll(
+        (await ZcashTaddressRotation.allUsedAddressesForAccount(accountId))?.toSet() ?? {},
+      );
     } catch (e) {
       printV("Error saving addresses: $e");
     }
@@ -209,6 +212,20 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   List<WalletInfoAddressInfo> getAddressInfos() {
     if (addressPageType != ZcashAddressType.transparentRotated) {
       return [];
+    }
+    final rotationAddresses = ZcashTaddressRotation.rotationAddresses[accountId];
+    if (rotationAddresses != null && rotationAddresses.isNotEmpty) {
+      final addresses = rotationAddresses.toList();
+      return [
+        for (int i = 0; i < addresses.length; i++)
+          WalletInfoAddressInfo(
+            walletInfoId: walletInfo.internalId,
+            mapKey: i + 1,
+            accountIndex: 0,
+            address: addresses[i],
+            label: "",
+          ),
+      ];
     }
     final List<WalletInfoAddressInfo> allInfos = [];
     for (final entry in addressInfos.entries) {

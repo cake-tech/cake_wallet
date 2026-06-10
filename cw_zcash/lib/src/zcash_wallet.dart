@@ -72,6 +72,23 @@ abstract class ZcashWalletBase
 
   static const int _autoShieldMinSweep = 30000;
 
+  Money _feeFromTxPlan(
+    final zkool_pay.PcztPackage txPlan,
+    final TransactionPriority priority,
+    final int tryReduceFeeAmount,
+  ) {
+    try {
+      return Money(zkool_pay.toPlan(package: txPlan, c: c).fee, currency);
+    } catch (_) {
+      return Money.fromInt(
+        tryReduceFeeAmount != 0
+            ? tryReduceFeeAmount
+            : internalCalculateEstimatedFee(priority, null),
+        currency,
+      );
+    }
+  }
+
   static int internalCalculateEstimatedFee(final TransactionPriority priority, final int? amount) {
     const baseFee = 10000;
     switch (priority) {
@@ -129,6 +146,8 @@ abstract class ZcashWalletBase
       c = c.setLwd(url: lwdUrl, serverType: 0);
       syncStatus = ConnectedSyncStatus();
       _ensureSyncLoopRunning();
+      unawaited(_refreshSyncStatus());
+      unawaited(_oneshotSync());
     } catch (e) {
       printV("Connection error: $e");
       syncStatus = FailedSyncStatus(error: e.toString());
@@ -146,13 +165,19 @@ abstract class ZcashWalletBase
     unawaited(_runSyncLoop());
   }
 
+  static const _syncedPollInterval = Duration(seconds: 5);
+  static const _activePollInterval = Duration(seconds: 1);
+
   Future<void> _runSyncLoop() async {
+    var pollInterval = _activePollInterval;
     while (_syncLoopRunning) {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(pollInterval);
       try {
-        await _oneshotSync();
+        final alreadySynced = await _oneshotSync();
+        pollInterval = alreadySynced ? _syncedPollInterval : _activePollInterval;
       } catch (e) {
         printV("zcash sync failed: $e");
+        pollInterval = _activePollInterval;
       }
     }
   }
@@ -174,26 +199,54 @@ abstract class ZcashWalletBase
   @action
   void _applySyncProgress(final int currentHeight, final int walletHeight) {
     final blocksLeft = (currentHeight - walletHeight).clamp(0, currentHeight);
+    dbHeight = walletHeight;
+    if (blocksLeft <= 0) {
+      syncStatus = SyncedSyncStatus();
+      return;
+    }
     final ptc = currentHeight > 0
         ? (walletHeight / currentHeight).clamp(0.0, 1.0)
         : 0.0;
     syncStatus = SyncingSyncStatus(blocksLeft, ptc);
-    dbHeight = walletHeight;
   }
 
   @action
-  Future<void> _oneshotSync() async {
+  Future<void> _refreshSyncStatus() async {
     try {
-      if (isSyncing) return;
+      c = await c.setAccount(account: accountId);
+      final currentHeight = await zkool_network.getCurrentHeight(c: c);
+      final dbHeightResult = await zkool_sync.getDbHeight(c: c);
+      _applySyncProgress(currentHeight, dbHeightResult.height);
+    } catch (e) {
+      printV("refresh sync status: $e");
+    }
+  }
+
+  @action
+  Future<bool> _oneshotSync() async {
+    try {
+      if (isSyncing) {
+        await _refreshSyncStatus();
+        return syncStatus is SyncedSyncStatus;
+      }
       isSyncing = true;
       c = await c.setAccount(account: accountId);
       final currentHeight = await zkool_network.getCurrentHeight(c: c);
+      final dbHeightResult = await zkool_sync.getDbHeight(c: c);
+      final blocksLeft = currentHeight - dbHeightResult.height;
+      if (blocksLeft <= 0) {
+        dbHeight = dbHeightResult.height;
+        if (syncStatus is! SyncedSyncStatus) {
+          syncStatus = SyncedSyncStatus();
+        }
+        isSyncing = false;
+        return true;
+      }
       await zkool_sync.cancelSync();
       final accounts = await zkool_account.listAccounts(c: c);
       final accountList = accounts.map((final a) => a.id).toList()
         ..removeWhere((final a) => a == c.account);
       c = await c.setAccount(account: accountId);
-      final dbHeightResult = await zkool_sync.getDbHeight(c: c);
       _applySyncProgress(currentHeight, dbHeightResult.height);
       final sync = zkool_sync.synchronize(
         accounts: [c.account, ...accountList, c.account],
@@ -251,10 +304,12 @@ abstract class ZcashWalletBase
       );
       await completer.future;
       await subscription.cancel();
+      return syncStatus is SyncedSyncStatus;
     } catch (e) {
       syncStatus = FailedSyncStatus(error: e.toString());
       isSyncing = false;
       printV("error syncing: $e");
+      return false;
     }
   }
 
@@ -315,16 +370,12 @@ abstract class ZcashWalletBase
         ),
         c: c,
       );
+      final txFee = _feeFromTxPlan(txPlan, creds.priority, tryReduceFeeAmount);
       return PendingZcashTransaction(
         zcashWallet: this as ZcashWallet,
         credentials: creds,
         txPlan: txPlan,
-        fee: Money.fromInt(
-          tryReduceFeeAmount != 0
-              ? tryReduceFeeAmount
-              : internalCalculateEstimatedFee(creds.priority, null),
-          currency,
-        ),
+        fee: txFee,
         availableBalance: availableBalance,
       );
     } catch (e) {
@@ -353,15 +404,17 @@ abstract class ZcashWalletBase
     final String? extraMemo,
     final bool isRotationReceive = false,
     final bool isShieldAction = false,
+    final TransactionDirection? directionOverride,
+    final BigInt? amountOverride,
   }) {
     final confirmations =
         tx.height > 0 && currentHeight > 0 ? currentHeight - tx.height + 1 : 0;
     final memo = extraMemo != null ? "${tx.memo ?? ''}\n$extraMemo".trim() : tx.memo;
     return ZcashTransactionInfo(
       id: tx.txHash,
-      amount: Money(tx.value, currency),
+      amount: Money(amountOverride ?? tx.value, currency),
       fee: Money.zero(currency),
-      direction: tx.direction,
+      direction: directionOverride ?? tx.direction,
       isPending: tx.height == 0,
       date: tx.time,
       height: tx.height,
@@ -384,7 +437,7 @@ abstract class ZcashWalletBase
     if (rotationSweepHashes.contains(tx.txHash)) {
       return true;
     }
-    if (_isPayToSelfShield(tx)) {
+    if (_isPayToSelfAutoshield(tx)) {
       return true;
     }
     if (tx.direction == TransactionDirection.outgoing &&
@@ -394,7 +447,36 @@ abstract class ZcashWalletBase
     return false;
   }
 
-  static String _txResultKey(final String txHash) => 'tx_$txHash';
+  bool _isPayToSelfAutoshield(final ZkoolTx tx) {
+    if (tx.type != TxType.shield && tx.type != TxType.transparentSelfTransfer) {
+      return false;
+    }
+    if (tx.transparentOrSaplingSpent <= BigInt.zero) {
+      return false;
+    }
+    if (tx.orchardReceived <= BigInt.zero) {
+      return false;
+    }
+    for (final dest in tx.outputAddresses) {
+      if (_addressBelongsToWallet(dest)) {
+        return true;
+      }
+    }
+    return tx.orchardReceived > BigInt.zero;
+  }
+
+  bool _shouldSplitAutoshieldTx(final ZkoolTx tx, {required final bool isShield}) {
+    if (!isShield) {
+      return false;
+    }
+    if (ZcashWalletService.isAutoshieldTx(tx.txHash) || _isPayToSelfAutoshield(tx)) {
+      return tx.transparentOrSaplingSpent > BigInt.zero && tx.orchardReceived > BigInt.zero;
+    }
+    return false;
+  }
+
+  static String _txResultKey(final String txHash, {final String suffix = ''}) =>
+      'tx_$txHash$suffix';
 
   static int _txDisplayPriority(final ZcashTransactionInfo info) {
     if (info.additionalInfo['isAutoShield'] == true) {
@@ -447,28 +529,9 @@ abstract class ZcashWalletBase
     return false;
   }
 
-  bool _isPayToSelfShield(final ZkoolTx tx) {
-    if (tx.direction != TransactionDirection.outgoing) {
-      return false;
-    }
-    if (tx.type != TxType.shield && tx.type != TxType.transparentSelfTransfer) {
-      return false;
-    }
-    for (final dest in tx.outputAddresses) {
-      if (_addressBelongsToWallet(dest)) {
-        return true;
-      }
-    }
-    final dest = tx.to?.trim();
-    if (dest != null && dest.isNotEmpty && _addressBelongsToWallet(dest)) {
-      return true;
-    }
-    return false;
-  }
-
   @override
   Future<Map<String, ZcashTransactionInfo>> fetchTransactions() async {
-    // await ZcashWalletService.loadShieldTxs();
+    await ZcashWalletService.loadShieldTxs();
     // await ZcashWalletService.runInDbMutex(() => refreshAccountCache(coin, accountId));
     // await ZcashWalletService.runInDbMutex(() => refreshTxsCache(coin, accountId));
     c = await c.setAccount(account: accountId);
@@ -523,8 +586,26 @@ abstract class ZcashWalletBase
       );
     }
 
+    final Map<String, ZcashTransactionInfo> splitEntries = {};
     for (final tx in txs) {
       final isShield = _isShieldActionTx(tx, rotationSweepHashes: rotationSweepHashes);
+      if (_shouldSplitAutoshieldTx(tx, isShield: isShield)) {
+        byHash.remove(tx.txHash);
+        splitEntries[_txResultKey(tx.txHash, suffix: '_shield')] = _zcashInfoFromZkoolTx(
+          tx,
+          currentHeight,
+          isShieldAction: true,
+          directionOverride: TransactionDirection.outgoing,
+          amountOverride: tx.transparentOrSaplingSpent,
+        );
+        splitEntries[_txResultKey(tx.txHash, suffix: '_recv')] = _zcashInfoFromZkoolTx(
+          tx,
+          currentHeight,
+          directionOverride: TransactionDirection.incoming,
+          amountOverride: tx.orchardReceived,
+        );
+        continue;
+      }
       _offerTx(
         byHash,
         _zcashInfoFromZkoolTx(tx, currentHeight, isShieldAction: isShield),
@@ -533,6 +614,7 @@ abstract class ZcashWalletBase
 
     return {
       for (final entry in byHash.entries) _txResultKey(entry.key): entry.value,
+      ...splitEntries,
     };
   }
 
@@ -701,13 +783,14 @@ abstract class ZcashWalletBase
 
   Future<void> init() async {
     try {
+      await ZcashTaddressRotation.init();
       await walletAddresses.init();
 
       await updateBalance();
       await updateTransactions();
-      await ZcashTaddressRotation.init();
       unawaited(
         ZcashTaddressRotation.updateCache(mainAccountId: accountId).then((_) async {
+          await walletAddresses.init();
           await updateTransactions();
         }).catchError((final e) => printV("rotation cache refresh: $e")),
       );
@@ -733,12 +816,12 @@ abstract class ZcashWalletBase
   Future<void> startSync() async {
     if (syncStatus is AttemptingSyncStatus ||
         syncStatus is SyncronizingSyncStatus ||
-        syncStatus is SyncingSyncStatus ||
-        syncStatus is SyncedSyncStatus) {
+        syncStatus is SyncingSyncStatus) {
       return;
     }
     try {
       _ensureSyncLoopRunning();
+      unawaited(_oneshotSync());
     } catch (e) {
       isNodeWorking = false;
       printV("Sync error: $e");
@@ -979,7 +1062,6 @@ abstract class ZcashWalletBase
       await walletInfo.getDerivationInfo(),
       accountId: accountId,
     );
-    await wallet.walletAddresses.init();
     await wallet._initKeys();
     return wallet;
   }
