@@ -364,7 +364,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   arguments: [availableWalletTypes.first, hardwareWalletType]),
               isReconnect: false,
             ),
-            getIt.get<LedgerViewModel>(),
+            getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType),
           ),
         );
       }
