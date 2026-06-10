@@ -27,6 +27,7 @@ class SecretKey {
     SecretKey('ioniaClientId', () => ''),
     SecretKey('trocadorApiKey', () => ''),
     SecretKey('trocadorMoneroApiKey', () => ''),
+    SecretKey('ghostswapApiKey', () => ''),
     SecretKey('trocadorExchangeMarkup', () => ''),
     SecretKey('twitterBearerToken', () => ''),
     SecretKey('anonPayReferralCode', () => ''),
