@@ -264,6 +264,10 @@ class BuySellPage extends BasePage {
     final cryptoAmountController = cryptoCurrencyKey.currentState!.amountController;
     final cryptoAddressController = cryptoCurrencyKey.currentState!.addressController;
 
+    cryptoAddressController.addListener(() {
+      buySellViewModel.changeCryptoCurrencyAddress(cryptoAddressController.text);
+    });
+
     _onCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
     _onCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
 
@@ -311,10 +315,6 @@ class BuySellPage extends BasePage {
       if (cryptoAmountController.text != buySellViewModel.cryptoAmount) {
         buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);
       }
-    });
-
-    cryptoAddressController.addListener(() {
-      buySellViewModel.changeCryptoCurrencyAddress(cryptoAddressController.text);
     });
 
     _cryptoAddressFocus.addListener(() async {
