@@ -34,6 +34,8 @@ import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -201,6 +203,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           address: wallet.walletAddresses.address,
           amount: _amount,
           contractAddress: (tokenCurrency as Erc20Token).contractAddress);
+    }
+    if (tokenCurrency is TronToken && wallet.type == WalletType.tron) {
+      return TronURI(
+        amount: _amount,
+        address: wallet.walletAddresses.address,
+        contractAddress: (tokenCurrency as TronToken).contractAddress,
+      );
+    }
+    if (tokenCurrency is SPLToken && wallet.type == WalletType.solana) {
+      return SolanaURI(
+        amount: _amount,
+        address: wallet.walletAddresses.address,
+        contractAddress: (tokenCurrency as SPLToken).mintAddress,
+      );
     }
     if (isLightning && _lnPaymentRequest != null) return _lnPaymentRequest!;
     return wallet.walletAddresses.getPaymentUri(_amount);
