@@ -299,7 +299,9 @@ abstract class Bitcoin {
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
   ElectrumBalance balanceForAccount(Object wallet, int accountIndex);
+  String accountBalancesKey(Object wallet);
   Future<void> setCurrentAccount(Object wallet, int accountIndex);
+  bool isTransactionForCurrentAccount(Object wallet, Object transaction);
 }
   """;
 
