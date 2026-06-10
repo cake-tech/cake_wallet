@@ -66,7 +66,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ?? List.filled(32, 0);
 
   @override
-  Future<void> init() async {
+  Future<void> init({List<int> accountIndexes = const []}) async {
     if (!isHardwareWallet) await initMwebAddresses();
     await super.init();
   }

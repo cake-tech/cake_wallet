@@ -375,31 +375,20 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       } else if (walletInfo.type == WalletType.bitcoin) {
 
         for (final accountIndex in effectiveAccountIndexes) {
-          await _generateInitialAddresses(accountIndex: accountIndex, isLegacyDerivation: true);
-          await _generateInitialAddresses(accountIndex: accountIndex);
 
-          if (!isHardwareWallet) {
-            await _generateInitialAddresses(accountIndex: accountIndex,
-                type: P2pkhAddressType.p2pkh,
-                isLegacyDerivation: true);
-            await _generateInitialAddresses(accountIndex: accountIndex, type: P2pkhAddressType.p2pkh);
+          for (final type in BITCOIN_ADDRESS_TYPES) {
+            final shouldSkipHardwareWalletType = isHardwareWallet && type != SegwitAddresType.p2wpkh;
 
-            await _generateInitialAddresses(accountIndex: accountIndex,
-                type: P2shAddressType.p2wpkhInP2sh,
-                isLegacyDerivation: true);
-            await _generateInitialAddresses(accountIndex: accountIndex, type: P2shAddressType.p2wpkhInP2sh);
+            if (shouldSkipHardwareWalletType) continue;
+            await _generateInitialAddresses(accountIndex: accountIndex, type: type);
 
-            await _generateInitialAddresses(accountIndex: accountIndex,
-                type: SegwitAddresType.p2tr,
-                isLegacyDerivation: true);
-            await _generateInitialAddresses(
-                accountIndex: accountIndex, type: SegwitAddresType.p2tr);
-
-            await _generateInitialAddresses(accountIndex: accountIndex,
-                type: SegwitAddresType.p2wsh,
-                isLegacyDerivation: true);
-            await _generateInitialAddresses(
-                accountIndex: accountIndex, type: SegwitAddresType.p2wsh);
+            // Non need to generate legacy addresses for other accounts than the first one, since accounts were added later.
+            if (accountIndex == 0) {
+              await _generateInitialAddresses(accountIndex: accountIndex,
+                type: type,
+                isLegacyDerivation: true,
+              );
+            }
           }
         }
       }
@@ -478,13 +467,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<void> prepareAccountAddresses(int accountIndex) async {
-    await _generateInitialAddresses(accountIndex: accountIndex);
+    for (final type in BITCOIN_ADDRESS_TYPES) {
+      final shouldSkipHardwareWalletType =
+          isHardwareWallet && type != SegwitAddresType.p2wpkh;
 
-    if (walletInfo.type == WalletType.bitcoin && !isHardwareWallet) {
-      await _generateInitialAddresses(accountIndex: accountIndex, type: P2pkhAddressType.p2pkh);
-      await _generateInitialAddresses(accountIndex: accountIndex, type: P2shAddressType.p2wpkhInP2sh);
-      await _generateInitialAddresses(accountIndex: accountIndex, type: SegwitAddresType.p2tr);
-      await _generateInitialAddresses(accountIndex: accountIndex, type: SegwitAddresType.p2wsh);
+      if (shouldSkipHardwareWalletType) continue;
+
+      await _generateInitialAddresses(accountIndex: accountIndex, type: type);
     }
 
     updateAddressesByMatch();
@@ -531,7 +520,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
                 ? acc + 1
                 : acc);
 
-    final hd = _hdFor(
+    final hd = _hdForAddressGeneration(
       isHidden: false,
       type: addressPageType,
       isLegacyDerivation: false,
@@ -853,48 +842,42 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     if (isLegacyDerivation && accountIndex != 0) return;
 
-      // Legacy derivation produces the same addresses as standard for these types.
-      // Don't generate a legacy set to avoid duplicates.
-      if (isLegacyDerivation && (type == SegwitAddresType.p2wpkh || type == SegwitAddresType.p2wsh)) {
-        return;
-      }
+    var countOfReceiveAddresses = 0;
+    var countOfHiddenAddresses = 0;
 
-      var countOfReceiveAddresses = 0;
-      var countOfHiddenAddresses = 0;
-
-      _addresses.forEach((addr) {
-        if (addr.accountIndex == accountIndex && addr.type == type && addr.isLegacyDerivation == isLegacyDerivation) {
-          if (addr.isHidden) {
-            countOfHiddenAddresses += 1;
-          } else {
-            countOfReceiveAddresses += 1;
-          }
+    _addresses.forEach((addr) {
+      if (addr.accountIndex == accountIndex && addr.type == type && addr.isLegacyDerivation == isLegacyDerivation) {
+        if (addr.isHidden) {
+          countOfHiddenAddresses += 1;
+        } else {
+          countOfReceiveAddresses += 1;
         }
-      });
-
-      if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
-        final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
-        final newAddresses = await _createNewAddresses(addressesCount,
-            startIndex: countOfReceiveAddresses,
-            isHidden: false,
-            type: type,
-            isLegacyDerivation: isLegacyDerivation,
-            accountIndex: accountIndex);
-
-        addAddresses(newAddresses);
       }
+    });
 
-      if (countOfHiddenAddresses < defaultChangeAddressesCount) {
-        final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
-        final newAddresses = await _createNewAddresses(addressesCount,
-            startIndex: countOfHiddenAddresses,
-            isHidden: true,
-            type: type,
-            isLegacyDerivation: isLegacyDerivation,
-            accountIndex: accountIndex);
+    if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
+      final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfReceiveAddresses,
+          isHidden: false,
+          type: type,
+          isLegacyDerivation: isLegacyDerivation,
+          accountIndex: accountIndex);
 
-        addAddresses(newAddresses);
-      }
+      addAddresses(newAddresses);
+    }
+
+    if (countOfHiddenAddresses < defaultChangeAddressesCount) {
+      final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfHiddenAddresses,
+          isHidden: true,
+          type: type,
+          isLegacyDerivation: isLegacyDerivation,
+          accountIndex: accountIndex);
+
+      addAddresses(newAddresses);
+    }
   }
 
     Future<List<BitcoinAddressRecord>> _createNewAddresses(int count,
@@ -909,7 +892,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
         final addrType = type ?? addressPageType;
 
-        final hd = _hdFor(
+        final hd = _hdForAddressGeneration(
           isHidden: isHidden,
           type: addrType,
           isLegacyDerivation: isLegacyDerivation,
@@ -967,8 +950,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         return;
       }
 
-      final mainHd = _hdFor(isHidden: false, type: element.type, isLegacyDerivation: element.isLegacyDerivation,accountIndex: element.accountIndex);
-      final sideHd = _hdFor(isHidden: true,  type: element.type, isLegacyDerivation: element.isLegacyDerivation, accountIndex: element.accountIndex);
+      final mainHd = _hdForAddressGeneration(isHidden: false, type: element.type, isLegacyDerivation: element.isLegacyDerivation,accountIndex: element.accountIndex);
+      final sideHd = _hdForAddressGeneration(isHidden: true,  type: element.type, isLegacyDerivation: element.isLegacyDerivation, accountIndex: element.accountIndex);
       if (!element.isHidden &&
           element.address !=
               await getAddressAsync(index: element.index, hd: mainHd, addressType: element.type)) {
@@ -1017,7 +1000,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       updateAddressesByMatch();
     }
 
-  Bip32Slip10Secp256k1 _hdFor({
+  Bip32Slip10Secp256k1 _hdForAddressGeneration({
     required bool isHidden,
     required BitcoinAddressType type,
     required bool isLegacyDerivation,

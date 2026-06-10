@@ -1015,7 +1015,7 @@ abstract class ElectrumWalletBase
       final address = RegexUtils.addressTypeFromStr(utx.address, network);
       ECPrivate? privkey;
       bool? isSilentPayment = false;
-      final hd = _hdFor(record: utx.bitcoinAddressRecord);
+      final hd = _hdForAddressRecord(record: utx.bitcoinAddressRecord);
 
       if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
         final unspentAddress = utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
@@ -2232,7 +2232,7 @@ abstract class ElectrumWalletBase
             walletAddresses.allAddresses.firstWhere((element) => element.address == address);
         final btcAddress = RegexUtils.addressTypeFromStr(addressRecord.address, network);
 
-        final hd = _hdFor(record: addressRecord);
+        final hd = _hdForAddressRecord(record: addressRecord);
 
         final privkey = generateECPrivate(
             hd: hd,
@@ -2319,7 +2319,7 @@ abstract class ElectrumWalletBase
         for (final utxo in unusedUtxos) {
           final address = RegexUtils.addressTypeFromStr(utxo.address, network);
 
-          final hd = _hdFor(record: utxo.bitcoinAddressRecord);
+          final hd = _hdForAddressRecord(record: utxo.bitcoinAddressRecord);
 
           final privkey = generateECPrivate(
             hd: hd,
@@ -3633,7 +3633,7 @@ abstract class ElectrumWalletBase
     }
 
     final hd = addressRecord != null
-        ? _hdFor(record: addressRecord).childKey(Bip32KeyIndex(addressRecord.index))
+        ? _hdForAddressRecord(record: addressRecord).childKey(Bip32KeyIndex(addressRecord.index))
         : mainHd;
 
     final priv = ECPrivate.fromHex(hd.privateKey.privKey.toHex());
@@ -4059,18 +4059,16 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Bip32Slip10Secp256k1 _hdFor({required BaseBitcoinAddressRecord record}) {
+  Bip32Slip10Secp256k1 _hdForAddressRecord({required BaseBitcoinAddressRecord record}) {
     final addrType = record.type;
 
     if (record.isLegacyDerivation) {
-      if (record.isHidden) {
-        return walletAddresses.legacySideHd;
-      } else {
-        return walletAddresses.legacyMainHd;
-      }
+      return record.isHidden
+          ? walletAddresses.legacySideHd
+          : walletAddresses.legacyMainHd;
     }
 
-    final accountIndex = currentAccountIndex;
+    final accountIndex = record.accountIndex;
 
     if (record.isHidden) {
       return sideHdByTypeAndAccount[accountIndex]?[addrType] ?? sideHd;
