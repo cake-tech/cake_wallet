@@ -145,6 +145,7 @@ class ZkoolTx {
       "height": _tx.height,
       "time": _tx.time,
       "value": value.toInt(),
+      "tpe": _tx.tpe,
       "zsaValue": _tx.zsaValue,
       "assetDisplay": _tx.assetDisplay,
     },
@@ -186,60 +187,100 @@ class ZkoolTx {
     },
   };
 
-  static ZkoolTx fromJson(final Map<String, dynamic> json) => ZkoolTx(
-    zkool_account.Tx(
-      id: json["id"],
-      txid: json["txid"],
-      height: json["height"],
-      time: json["time"],
-      value: json["value"],
-      zsaValue: json["zsaValue"] ?? 0,
-      assetDisplay: json["assetDisplay"] ?? "",
-    ),
-    zkool_account.TxAccount(
-      id: json["txaccount"]["id"],
-      account: json["txaccount"]["account"],
-      txid: json["txaccount"]["txid"],
-      height: json["txaccount"]["height"],
-      time: json["txaccount"]["time"],
-      notes: (json["txaccount"]["notes"] as List<Map<String, dynamic>>)
-        .map((final a) => zkool_account.TxNote(
-          id: a["id"],
-          pool: a["pool"],
-          height: a["height"],
-          tx: a["tx"],
-          value: BigInt.parse(a["value"]),
-          scope: a["scope"],
-          locked: a["locked"],
-          assetDisplay: a["assetDisplay"] ?? "",
-        ),
-      ).toList(),
-      spends: (json["txaccount"]["spends"] as List<Map<String, dynamic>>)
-        .map((final a) => zkool_account.TxSpend(
-          id: a["id"],
-          pool: a["pool"],
-          height: a["height"],
-          value: BigInt.parse(a["value"]),
-          assetDisplay: a["assetDisplay"] ?? "",
-        ),
-      ).toList(),
-      outputs: (json["txaccount"]["outputs"] as List<Map<String, dynamic>>)
-        .map((final a) => zkool_account.TxOutput(
-          id: a["id"],
-          pool: a["pool"],
-          height: a["height"],
-          value: BigInt.parse(a["value"]),
-          address: a["address"],
-        ),
-      ).toList(),
-      memos: (json["txaccount"]["memos"] as List<Map<String, dynamic>>)
-        .map((final a) => zkool_account.TxMemo(
-          note: a["note"],
-          pool: a["pool"],
-          output: a["output"],
-          memo: a["memo"],
-        ),
-      ).toList(),
-    ),
-  );
+  static int _asInt(final dynamic value, {final int fallback = 0}) {
+    if (value == null) {
+      return fallback;
+    }
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    return int.parse(value.toString());
+  }
+
+  static Uint8List _txidFromJson(final dynamic raw) {
+    if (raw is Uint8List) {
+      return raw;
+    }
+    if (raw is List) {
+      return Uint8List.fromList(List<int>.from(raw));
+    }
+    if (raw is String) {
+      return base64.decode(raw);
+    }
+    throw FormatException("Invalid txid in ZkoolTx json: $raw");
+  }
+
+  static List<T> _listFromJson<T>(
+    final dynamic raw,
+    final T Function(Map<String, dynamic>) parse,
+  ) {
+    if (raw is! List) {
+      return const [];
+    }
+    return raw
+        .map((final entry) => parse(Map<String, dynamic>.from(entry as Map)))
+        .toList();
+  }
+
+  static ZkoolTx fromJson(final Map<String, dynamic> json) {
+    final txJson = Map<String, dynamic>.from(
+      (json["tx"] as Map?)?.cast<String, dynamic>() ?? json,
+    );
+    final txAccountJson = Map<String, dynamic>.from(
+      (json["txaccount"] as Map?)?.cast<String, dynamic>() ?? json,
+    );
+
+    return ZkoolTx(
+      zkool_account.Tx(
+        id: _asInt(txJson["id"]),
+        txid: _txidFromJson(txJson["txid"]),
+        height: _asInt(txJson["height"]),
+        time: _asInt(txJson["time"]),
+        value: _asInt(txJson["value"]),
+        tpe: txJson["tpe"] == null ? null : _asInt(txJson["tpe"]),
+        zsaValue: _asInt(txJson["zsaValue"]),
+        assetDisplay: txJson["assetDisplay"] as String? ?? "",
+      ),
+      zkool_account.TxAccount(
+        id: _asInt(txAccountJson["id"]),
+        account: _asInt(txAccountJson["account"]),
+        txid: _txidFromJson(txAccountJson["txid"]),
+        height: _asInt(txAccountJson["height"]),
+        time: _asInt(txAccountJson["time"]),
+        notes: _listFromJson(txAccountJson["notes"], (final a) => zkool_account.TxNote(
+          id: _asInt(a["id"]),
+          pool: _asInt(a["pool"]),
+          height: _asInt(a["height"]),
+          tx: _asInt(a["tx"]),
+          value: BigInt.parse(a["value"].toString()),
+          scope: _asInt(a["scope"]),
+          locked: a["locked"] as bool? ?? false,
+          assetDisplay: a["assetDisplay"] as String? ?? "",
+        )),
+        spends: _listFromJson(txAccountJson["spends"], (final a) => zkool_account.TxSpend(
+          id: _asInt(a["id"]),
+          pool: _asInt(a["pool"]),
+          height: _asInt(a["height"]),
+          value: BigInt.parse(a["value"].toString()),
+          assetDisplay: a["assetDisplay"] as String? ?? "",
+        )),
+        outputs: _listFromJson(txAccountJson["outputs"], (final a) => zkool_account.TxOutput(
+          id: _asInt(a["id"]),
+          pool: _asInt(a["pool"]),
+          height: _asInt(a["height"]),
+          value: BigInt.parse(a["value"].toString()),
+          address: a["address"] as String? ?? "",
+        )),
+        memos: _listFromJson(txAccountJson["memos"], (final a) => zkool_account.TxMemo(
+          note: a["note"] == null ? null : _asInt(a["note"]),
+          pool: _asInt(a["pool"]),
+          output: a["output"] == null ? null : _asInt(a["output"]),
+          memo: a["memo"] as String?,
+        )),
+      ),
+    );
+  }
 }

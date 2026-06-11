@@ -116,6 +116,13 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     address = latestAddress;
   }
 
+  void _syncRotationHiddenAddresses() {
+    final rotationAddrs = ZcashTaddressRotation.rotationAddresses[accountId] ?? {};
+    final usableAddrs = ZcashTaddressRotation.rotationAddressesUsable[accountId] ?? {};
+    hiddenAddresses.removeWhere((final a) => rotationAddrs.contains(a) && usableAddrs.contains(a));
+    hiddenAddresses.addAll(rotationAddrs.difference(usableAddrs));
+  }
+
   @override
   Future<void> init() async {
     try {
@@ -128,10 +135,25 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
+  static bool isPlaceholderAddress(final String? address) =>
+      address == null || address.isEmpty || address.startsWith('unknown ');
+
+  String _resolvedWalletInfoAddress() {
+    for (final candidate in [unifiedAddress, orchardAddress, saplingAddress, transparentAddress]) {
+      if (!isPlaceholderAddress(candidate)) {
+        return candidate!;
+      }
+    }
+    return latestAddress;
+  }
+
   Future<void> _init() async {
     await _initAddresses();
 
-    final addr = await zkool_account.getAddresses(c: ZcashWalletBase.c, uaPools: 7);
+    final addr = await ZcashWalletBase.runWithCoin(
+      accountId: accountId,
+      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7),
+    );
 
     transparentAddress = addr.taddr ?? 'unknown addr.taddr';
     saplingAddress = addr.saddr ?? 'unknown addr.saddr';
@@ -152,9 +174,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
           }).toList() ??
           [],
     };
-    hiddenAddresses.addAll(
-      (await ZcashTaddressRotation.allUsedAddressesForAccount(accountId))?.toSet() ?? {},
-    );
+    _syncRotationHiddenAddresses();
 
     // addressInfos[0]?.removeWhere((final test) => hiddenAddresses.contains(test.address));
     if (_addressPageType == ZcashAddressType.transparentRotated) {
@@ -164,7 +184,16 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       }
     } else {
       address = latestAddress;
+      final resolved = _resolvedWalletInfoAddress();
+      if (!isPlaceholderAddress(resolved)) {
+        address = resolved;
+        if (isPlaceholderAddress(walletInfo.address)) {
+          walletInfo.address = resolved;
+          await walletInfo.save();
+        }
+      }
     }
+
     await saveAddressesInBox();
   }
 
@@ -184,15 +213,17 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> saveAddressesInBox() async {
     try {
+      if (!isPlaceholderAddress(address)) {
+        walletInfo.address = address;
+      }
       await walletInfo.setAddresses(addressesMap);
       await walletInfo.setAddressInfos(addressInfos);
       await walletInfo.setUsedAddresses(usedAddresses.toList());
       await walletInfo.setHiddenAddresses(hiddenAddresses.toList());
       await walletInfo.setManualAddresses(manualAddresses.toList());
+      await walletInfo.save();
       await _initAddresses();
-      hiddenAddresses.addAll(
-        (await ZcashTaddressRotation.allUsedAddressesForAccount(accountId))?.toSet() ?? {},
-      );
+      _syncRotationHiddenAddresses();
     } catch (e) {
       printV("Error saving addresses: $e");
     }
