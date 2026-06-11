@@ -7,6 +7,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:mobx/mobx.dart';
@@ -31,12 +32,14 @@ abstract class NFTViewModelBase with Store {
         if (wallet != null) return wallet.chainId;
 
         return null;
-      }, (_) => getNFTAssetByWallet());
+      }, (_) => _fetchDebounce.run(() => getNFTAssetByWallet()));
     }
   }
 
   final AppStore appStore;
+  bool _nftErrorPopupShown = false;
   final BottomSheetService bottomSheetService;
+  final Debounce _fetchDebounce = Debounce(const Duration(milliseconds: 500));
 
   @observable
   bool isLoading;
@@ -100,6 +103,8 @@ abstract class NFTViewModelBase with Store {
 
       final decodedResponse = jsonDecode(response.body);
 
+      _nftErrorPopupShown = false;
+
       if (wallet.type == WalletType.solana) {
         final results = await Future.wait(
           (decodedResponse as List<dynamic>).map(
@@ -115,7 +120,8 @@ abstract class NFTViewModelBase with Store {
 
         solanaNftAssetModels.addAll(results);
       } else {
-        final result = WalletNFTsResponseModel.fromJson(decodedResponse as Map<String, dynamic>).result ?? [];
+        final result =
+            WalletNFTsResponseModel.fromJson(decodedResponse as Map<String, dynamic>).result ?? [];
 
         nftAssetByWalletModels.clear();
 
@@ -123,12 +129,15 @@ abstract class NFTViewModelBase with Store {
       }
     } catch (e) {
       log(e.toString());
-      bottomSheetService.queueBottomSheet(
-        isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(
-          message: S.current.moralis_nft_error,
-        ),
-      );
+      if (!_nftErrorPopupShown) {
+        _nftErrorPopupShown = true;
+        bottomSheetService.queueBottomSheet(
+          isModalDismissible: true,
+          widget: BottomSheetMessageDisplayWidget(
+            message: S.current.moralis_nft_error,
+          ),
+        );
+      }
     } finally {
       isLoading = false;
     }

@@ -176,14 +176,23 @@ class PolygonURI extends PaymentURI {
 }
 
 class SolanaURI extends PaymentURI {
-  SolanaURI({required super.amount, required super.address});
+  SolanaURI({required super.amount, required super.address, this.contractAddress});
+
+  final String? contractAddress;
 
   @override
   String toString() {
     var base = 'solana:$address';
+    final params = <String>[];
 
     if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
+      params.add('amount=${amount.replaceAll(',', '.')}');
+    }
+    if (contractAddress != null && contractAddress!.isNotEmpty) {
+      params.add('spl-token=$contractAddress');
+    }
+    if (params.isNotEmpty) {
+      base += '?${params.join('&')}';
     }
 
     return base;
@@ -191,14 +200,23 @@ class SolanaURI extends PaymentURI {
 }
 
 class TronURI extends PaymentURI {
-  TronURI({required super.amount, required super.address});
+  TronURI({required super.amount, required super.address, this.contractAddress});
+
+  final String? contractAddress;
 
   @override
   String toString() {
     var base = 'tron:$address';
+    final params = <String>[];
 
     if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
+      params.add('amount=${amount.replaceAll(',', '.')}');
+    }
+    if (contractAddress != null && contractAddress!.isNotEmpty) {
+      params.add('token=$contractAddress');
+    }
+    if (params.isNotEmpty) {
+      base += '?${params.join('&')}';
     }
 
     return base;
