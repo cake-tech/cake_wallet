@@ -284,20 +284,12 @@ abstract class DashboardViewModelBase with Store {
         ),
       );
     } else {
-      final sortedTransactions = [...wallet.transactionHistory.transactions.values];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
-
-      transactions = ObservableList.of(
-        sortedTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('${_wallet.type.name}_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
+      subname = '';
+      _reloadTransactions();
     }
+
+
+    _setupBitcoinAccountChangeReaction(_wallet);
 
     // TODO: nano sub-account generation is disabled:
     // if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
@@ -306,8 +298,8 @@ abstract class DashboardViewModelBase with Store {
 
     _walletChangeDisposer?.reaction.dispose();
     _walletChangeDisposer = reaction((_) => appStore.wallet, (wallet) {
-      _onWalletChange(wallet);
       accountListViewModel = accountListViewModelFactory();
+      _onWalletChange(wallet);
       resetLightningMode();
       _checkMweb();
       loadCardDesigns();
@@ -374,7 +366,8 @@ abstract class DashboardViewModelBase with Store {
         return bitcoin!.isTransactionForCurrentAccount(wallet, tx);
       }
       return true;
-    }).toList();
+    }).toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
 
     transactions.addAll(
       filteredTransactions.map(
@@ -1173,6 +1166,8 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
+  ReactionDisposer? _onBitcoinAccountChangeReaction;
+
   ReactionDisposer? _transactionDisposer;
 
   ReactionDisposer? _walletChangeDisposer;
@@ -1259,6 +1254,8 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    _onBitcoinAccountChangeReaction?.reaction.dispose();
+    _onBitcoinAccountChangeReaction = null;
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
@@ -1294,7 +1291,7 @@ abstract class DashboardViewModelBase with Store {
       // FIX-ME: Check for side effects
       // subname = null;
       subname = '';
-
+      _setupBitcoinAccountChangeReaction(wallet);
       _reloadTransactions();
     }
 
@@ -1334,6 +1331,21 @@ abstract class DashboardViewModelBase with Store {
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);
+  }
+
+  void _setupBitcoinAccountChangeReaction(WalletBase wallet) {
+    if (wallet.type != WalletType.bitcoin) {
+      return;
+    }
+
+    _onBitcoinAccountChangeReaction?.reaction.dispose();
+    _onBitcoinAccountChangeReaction = reaction(
+      (_) => accountListViewModel?.selectedAccount?.id,
+      (_) {
+        _reloadTransactions();
+      },
+      fireImmediately: true,
+    );
   }
 
   @action
@@ -1555,3 +1567,4 @@ abstract class DashboardViewModelBase with Store {
     reconnect();
   }
 }
+
