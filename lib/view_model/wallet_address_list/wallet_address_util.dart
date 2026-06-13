@@ -29,7 +29,6 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
         .getSubaddressList(wallet)
         .subaddresses;
     if(subaddressList.isEmpty) {
-      print("subaddress list empty!");
       // this shouldn't happen, we just added an addr.
       // somehow, it happened once in prod regardless.
       // we just return instead of crashing, user can press the button again ig
