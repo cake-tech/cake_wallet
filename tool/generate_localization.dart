@@ -51,7 +51,7 @@ Future<void> main(List<String> args) async {
 
     final localePath = <String, dynamic>{};
     await dir.list(recursive: false).forEach((element) {
-      // Parse the locale from the file name (e.g. strings_zh_tw.arb -> zh_TW),
+      // Parse the locale from the file name (e.g. strings_pt_br.arb -> pt_BR),
       // normalizing the case so keys match LanguageService.supportedLocales.
       final fileName = element.uri.pathSegments.last;
       if (!fileName.startsWith('strings_') || !fileName.endsWith('.arb')) {
