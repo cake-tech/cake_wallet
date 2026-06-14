@@ -105,7 +105,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             !widget.exchangeViewModel.isSendFromExternal;
                       }
 
-                      final String currencyIconPath = walletTypeToCryptoCurrency(item.type).iconPath ?? "";
+                      final String currencyIconPath = getCryptoCurrencyIconForWalletListItem(item.type);
 
                             final bool hasAccounts =
                                 item.type == WalletType.monero && widget.isSelectingReceiver;

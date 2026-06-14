@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 
 class CoinActionButton extends StatelessWidget {
   const CoinActionButton({
@@ -59,7 +58,7 @@ class CoinActionButton extends StatelessWidget {
           padding: const EdgeInsets.only(top: 8.0),
           child: Text(
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
             label,
           ),

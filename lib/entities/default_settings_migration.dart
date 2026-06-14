@@ -599,6 +599,14 @@ Future<void> defaultSettingsMigration(
               type: WalletType.arbitrum,
               currentNodePreferenceKey: PreferencesKey.currentArbitrumNodeIdKey,
               oldUri: ["arbitrum.nownodes.io"]);
+          break;
+        case 67:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "LetsExchange",
+            enabled: true,
+          );
+          break;
         default:
           break;
       }

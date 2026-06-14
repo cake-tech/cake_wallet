@@ -1110,7 +1110,7 @@
   "swipe_to_send": "Ra lati fi ránṣẹ́",
   "switch_wallet": "Yí apamọwọ padà",
   "switchToETHWallet": "Jọwọ yipada sí apamọwọ Ethereum kí o sì tún gbìyànjú lẹ́ẹ̀kansi",
-  "switchToEVMCompatibleWallet": "Jọwọ yipada sí apamọwọ tí ó bá EVM mu, kí o sì tún gbìyànjú lẹ́ẹ̀kansi (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu WalletConnect ki o tun gbiyanju lẹẹkansi (${chains}).",
   "symbol": "Àmì",
   "sync_all_wallets": "Muṣiṣẹpọ gbogbo awọn woleti",
   "sync_attempting": "Ń gbìyànjú láti ṣe amuṣiṣẹpọ",

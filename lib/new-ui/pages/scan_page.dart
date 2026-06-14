@@ -349,36 +349,39 @@ class _ScanPageState extends State<ScanPage> {
                   ),
                   size: cutoutSize + 20,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  inactiveColor: Theme.of(context).colorScheme.onSurfaceVariant),
+                  inactiveColor: Colors.white.withAlpha(102)),
             ),
           ),
           Positioned(
-            bottom: 120,
-            left: 0,
-            right: 0,
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 500),
-              opacity: isScanningURQR ? 1 : 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "${decoder.processedPartsCount()}",
-                    style: TextStyle(
-                        fontSize: 45,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.primary),
-                  ),
-                  Text(
-                    "/",
-                    style: TextStyle(
-                        fontSize: 45, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                  Text(
-                    "${decoder.expectedPartCount()}",
-                    style: TextStyle(fontSize: 45, color: Theme.of(context).colorScheme.onSurface),
-                  ),
-                ],
+bottom: 120, left:0,right:0,
+            child: IgnorePointer(
+           
+             
+             
+              child: AnimatedOpacity(
+                duration: Duration(milliseconds: 500),
+                opacity: isScanningURQR ? 1 : 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${decoder.processedPartsCount()}",
+                      style: TextStyle(
+                          fontSize: 45,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    Text(
+                      "/",
+                      style: TextStyle(
+                          fontSize: 45, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                    Text(
+                      "${decoder.expectedPartCount()}",
+                      style: TextStyle(fontSize: 45, color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                  ],
+                ),
               ),
             ),
           )
@@ -463,6 +466,7 @@ class ScanPageButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: onTap,
+        behavior: HitTestBehavior.opaque,
         child: Container(
           decoration: BoxDecoration(color: buttonColor, borderRadius: BorderRadius.circular(99999)),
           child: Padding(

@@ -1110,7 +1110,7 @@
   "swipe_to_send": "Проведите, чтобы отправить",
   "switch_wallet": "Переключить кошелёк",
   "switchToETHWallet": "Пожалуйста, переключитесь на кошелёк Ethereum и повторите попытку",
-  "switchToEVMCompatibleWallet": "Пожалуйста, переключитесь на кошелек, совместимый с EVM, и повторите попытку (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Пожалуйста, переключитесь на кошелек, совместимый с WalletConnect, и повторите попытку (${chains}).",
   "symbol": "Символ",
   "sync_all_wallets": "Синхронизировать все кошельки",
   "sync_attempting": "Выполняется синхронизация",

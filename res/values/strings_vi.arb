@@ -1106,7 +1106,7 @@
   "swipe_to_send": "Vuốt để gửi",
   "switch_wallet": "Chuyển đổi ví",
   "switchToETHWallet": "Vui lòng chuyển sang ví Ethereum và thử lại",
-  "switchToEVMCompatibleWallet": "Vui lòng chuyển sang ví tương thích với EVM và thử lại (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Vui lòng chuyển sang ví tương thích với WalletConnect và thử lại (${chains}).",
   "symbol": "Ký hiệu",
   "sync_all_wallets": "Đồng bộ tất cả ví",
   "sync_attempting": "Đang thử đồng bộ",

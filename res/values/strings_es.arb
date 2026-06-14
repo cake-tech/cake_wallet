@@ -1111,7 +1111,7 @@
   "swipe_to_send": "Desliza para enviar",
   "switch_wallet": "Cambiar cartera",
   "switchToETHWallet": "Por favor, cambia a una billetera de Ethereum y vuelve a intentarlo.",
-  "switchToEVMCompatibleWallet": "Cambia a una billetera compatible con EVM e inténtalo de nuevo (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Cambie a una billetera compatible con WalletConnect e inténtelo nuevamente (${chains}).",
   "symbol": "Símbolo",
   "sync_all_wallets": "Sincronizar todas las billeteras",
   "sync_attempting": "Intentando sincronizar",

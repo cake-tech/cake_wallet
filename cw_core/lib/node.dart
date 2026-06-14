@@ -268,6 +268,15 @@ class Node {
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
 
   Uri get uri {
+    try {
+      return _uri;
+    } catch (e) {
+      printV(e);
+      return Uri();
+    }
+  }
+
+  Uri get _uri {
     switch (type) {
       case WalletType.monero:
       case WalletType.zcash:

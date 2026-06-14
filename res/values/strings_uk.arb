@@ -1110,7 +1110,7 @@
   "swipe_to_send": "Проведіть, щоб надіслати",
   "switch_wallet": "Перемкнути гаманець",
   "switchToETHWallet": "Будь ласка, перемкніться на гаманець Ethereum і спробуйте ще раз",
-  "switchToEVMCompatibleWallet": "Будь ласка, перемкніться на гаманець, сумісний з EVM, і спробуйте ще раз (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Перейдіть на гаманець, сумісний з WalletConnect, і повторіть спробу (${chains}).",
   "symbol": "Символ",
   "sync_all_wallets": "Синхронізувати всі гаманці",
   "sync_attempting": "Спроба синхронізації",

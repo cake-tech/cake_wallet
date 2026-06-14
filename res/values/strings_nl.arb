@@ -1106,7 +1106,7 @@
   "swipe_to_send": "Swipe om te verzenden",
   "switch_wallet": "Wissel van wallet",
   "switchToETHWallet": "Schakel over naar een Ethereum-wallet en probeer het opnieuw",
-  "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele wallet en probeer het opnieuw (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Schakel over naar een WalletConnect-compatibele portemonnee en probeer het opnieuw (${chains}).",
   "symbol": "Symbool",
   "sync_all_wallets": "Alle wallets synchroniseren",
   "sync_attempting": "Bezig met synchroniseren",

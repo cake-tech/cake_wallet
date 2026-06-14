@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/chain_chip_strip.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_recents_loader.dart';
@@ -8,7 +9,6 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_searc
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/pill_grid.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/select_network_page.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -174,7 +174,6 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
           controller: _searchController,
           hintText: S.of(context).search,
         ),
-        const SizedBox(height: 24),
       ],
     );
   }
@@ -652,11 +651,9 @@ class _RecentPill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CakeImageWidget(
-              imageUrl: currency.iconPath,
-              width: 24,
-              height: 24,
-              fit: BoxFit.cover,
+            TokenImageWidget(
+              imageUrl: currency.iconPath ?? '',
+              size: 24,
             ),
             const SizedBox(width: 8),
             Text(

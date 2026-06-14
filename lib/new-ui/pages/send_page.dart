@@ -228,6 +228,14 @@ class _NewSendPageState extends State<NewSendPage> {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
       _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      final contractAddress = widget.initialPaymentRequest!.contractAddress;
+      if (contractAddress != null && contractAddress.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
+          }
+        });
+      }
     }
 
     /// if the current wallet doesn't match the one in the qr code
@@ -1315,7 +1323,7 @@ class _NewSendPageState extends State<NewSendPage> {
                 // height: MediaQuery.of(context).size.height*0.4,
                 child: ModalNavigator(
                     parentContext: modalContext,
-                    heightMode: ModalHeightModes.autoLock,
+                    heightMode: ModalHeightModes.natural,
                     rootPage: Material(
                       child: NewPicker(
                           title: S.of(context).set_fees,

@@ -1110,7 +1110,7 @@
   "swipe_to_send": "Prijeđite prstom za slanje",
   "switch_wallet": "Prebaci novčanik",
   "switchToETHWallet": "Molimo prebacite se na Ethereum novčanik i pokušajte ponovno",
-  "switchToEVMCompatibleWallet": "Molimo prebacite se na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)",
+  "switchToWCCompatibleWallet": "Prebacite se na novčanik kompatibilan s WalletConnectom i pokušajte ponovno (${chains}).",
   "symbol": "Simbol",
   "sync_all_wallets": "Sinkroniziraj sve novčanike",
   "sync_attempting": "Pokušaj sinkronizacije",

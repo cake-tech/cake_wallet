@@ -120,7 +120,6 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
           controller: _searchController,
           hintText: S.of(context).search,
         ),
-        const SizedBox(height: 24),
       ],
     );
   }

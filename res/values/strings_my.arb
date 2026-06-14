@@ -1109,7 +1109,7 @@
   "swipe_to_send": "ပို့ရန် ပွတ်ဆွဲပါ",
   "switch_wallet": "ပိုက်ဆံအိတ် ပြောင်းရန်",
   "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်မံကြိုးစားကြည့်ပါ။",
-  "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM နှင့် တွဲဖက်အသုံးပြုနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်မံကြိုးစားကြည့်ပါ (Ethereum၊ Polygon)",
+  "switchToWCCompatibleWallet": "ကျေးဇူးပြု၍ WalletConnect တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (${chains})။",
   "symbol": "သင်္ကေတ",
   "sync_all_wallets": "ပိုက်ဆံအိတ်အားလုံးကို စင့်ခ်လုပ်ရန်",
   "sync_attempting": "ထပ်တူပြုလုပ်ရန် ကြိုးစားနေသည်",

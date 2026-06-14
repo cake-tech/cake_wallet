@@ -14,7 +14,10 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currencies_with_memo.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -160,6 +163,7 @@ class SwapTransactionDetails extends StatelessWidget {
                           keyValue: "send value",
                           label: exchangeViewModel.depositCurrency.fullName ?? "",
                           iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
+                          badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
                           trailingText: exchangeTradeViewModel.trade.amountFormatted() +
                               " " +
                               (exchangeViewModel.depositCurrency.title)),
@@ -184,6 +188,7 @@ class SwapTransactionDetails extends StatelessWidget {
                           keyValue: "receive value",
                           label: exchangeViewModel.receiveCurrency.fullName ?? "",
                           iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
+                          badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),
                           trailingText:
                               (receiveAmount) + " " + (exchangeViewModel.receiveCurrency.title)),
                       ListItemRegularRow(
@@ -271,4 +276,22 @@ class SwapTransactionDetails extends StatelessWidget {
           });
     }
   }
+}
+
+String? _resolveChainBadgePath(CryptoCurrency currency) {
+  try {
+    if (currency.chainIconPath != null) return currency.chainIconPath;
+
+    final tag = currency.tag;
+    if (tag != null && tag.isNotEmpty) {
+      final byTag = CryptoCurrency.fromString(tag);
+      if (byTag.chainIconPath != null) return byTag.chainIconPath;
+    }
+
+    final walletType = cryptoCurrencyOrTokenToWalletType(currency);
+    if (walletType != null) {
+      return walletTypeToCryptoCurrency(walletType).chainIconPath;
+    }
+  } catch (_) {}
+  return null;
 }

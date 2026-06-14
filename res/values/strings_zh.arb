@@ -1109,7 +1109,7 @@
   "swipe_to_send": "滑动以发送",
   "switch_wallet": "切换钱包",
   "switchToETHWallet": "请切换到以太坊钱包后重试",
-  "switchToEVMCompatibleWallet": "请切换到 EVM 兼容的钱包并重试（以太坊、Polygon）",
+  "switchToWCCompatibleWallet": "請切換到 WalletConnect 相容錢包並重試 (${chains})。",
   "symbol": "代号",
   "sync_all_wallets": "同步所有钱包",
   "sync_attempting": "正在尝试同步",
