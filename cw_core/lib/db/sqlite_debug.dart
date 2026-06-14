@@ -34,7 +34,7 @@ class SqliteErrorHandlerApp extends StatelessWidget {
   Widget build(final BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Cupcake Crash',
+      title: 'Cake Wallet Crash',
       themeMode: ThemeMode.light,
       home: SqliteErrorHandler(
         error: error,
