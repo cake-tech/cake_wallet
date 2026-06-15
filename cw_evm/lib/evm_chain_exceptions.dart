@@ -16,7 +16,10 @@ class EVMChainTransactionCreationException implements Exception {
 class EVMChainTransactionFeesException implements Exception {
   final String exceptionMessage;
 
-  EVMChainTransactionFeesException(String currency)
+  EVMChainTransactionFeesException(String message)
+      : exceptionMessage = message;
+
+  EVMChainTransactionFeesException.fromCurrency(String currency)
       : exceptionMessage = 'Transaction failed due to insufficient $currency balance to cover the fees.';
 
   @override

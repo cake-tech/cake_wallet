@@ -15,9 +15,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class StealthExExchangeProvider extends ExchangeProvider {
-  StealthExExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [];
+  StealthExExchangeProvider();
 
   static final apiKey = secrets.stealthExBearerToken;
   static final _additionalFeePercent = double.tryParse(secrets.stealthExAdditionalFeePercent);
@@ -346,15 +344,13 @@ class StealthExExchangeProvider extends ExchangeProvider {
     // Parsing 'from' currency with network tag
     final fromCurrency = deposit['symbol'] as String;
     final fromNetwork = deposit['network'] as String?;
-    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
-    final fromTag = _normalizedFromNetwork == 'mainnet' ? null : fromNetwork;
+    final fromTag = fromNetwork == 'mainnet' ? null : fromNetwork;
     final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
 
     // Parsing 'to' currency with network tag
     final toCurrency = withdrawal['symbol'] as String;
     final toNetwork = withdrawal['network'] as String?;
-    final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
-    final toTag = _normalizedToNetwork == 'mainnet' ? null : toNetwork;
+    final toTag = toNetwork == 'mainnet' ? null : toNetwork;
     final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
 
     final payoutAddress = withdrawal['address'] as String;
@@ -381,7 +377,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       createdAt: createdAt,
       isRefund: status == 'refunded',
       extraId: extraId,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
+      userCurrencyFromRaw:
+          '${fromCurrency.toUpperCase()}' + '_' + '${fromTag?.toUpperCase() ?? ''}',
       userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${toTag?.toUpperCase() ?? ''}',
     );
   }
@@ -436,21 +433,13 @@ class StealthExExchangeProvider extends ExchangeProvider {
     return null;
   }
 
-
   String _getName(CryptoCurrency currency) {
     if (currency == CryptoCurrency.usdcEPoly) return 'usdce';
     return currency.title.toLowerCase();
   }
 
-  String _normalizeNetworkType(String network) {
-    return switch (network.toUpperCase()) {
-      'ARBITRUM' => 'mainnet',
-      _ => network,
-    };
-  }
-
   String _getNetwork(CryptoCurrency currency) {
-    if (currency == CryptoCurrency.arb) return 'arbitrum';
+    if (currency == CryptoCurrency.arb || currency.tag == 'ARB') return 'arbitrum';
     if (currency.tag == null) return 'mainnet';
 
     if (currency == CryptoCurrency.maticpoly) return 'mainnet';

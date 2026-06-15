@@ -1,0 +1,12 @@
+- uri: zec.rocks:443
+  is_default: false
+  useSSL: true
+  isEnabledForAutoSwitching: true
+- uri: zec-node.cakewallet.com:443
+  is_default: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+- uri: 2c4whzg26j6hgjh22rxynj3oig4gm22ga7x74weclujywxye23v3u5id.onion:9067
+  useSSL: false
+- uri: bvp2l442g5ogma7rywzahm7eqyhpp3g26n3gvvxeioqn5csio2ir6myd.onion:9067
+  useSSL: false

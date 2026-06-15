@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -16,7 +17,9 @@ abstract class ReceiveOptionViewModelBase with Store {
                 ? bitcoin!.getSelectedAddressType(_wallet)
                     : (_wallet.type == WalletType.decred && _wallet.isTestnet)
                     ? ReceivePageOption.testnet
-                    : ReceivePageOption.mainnet),
+                    : _wallet.type == WalletType.zcash
+                        ? zcash!.getSelectedAddressType(_wallet)
+                        : ReceivePageOption.mainnet),
         _options = [] {
     final walletType = _wallet.type;
     switch (walletType) {
@@ -45,6 +48,12 @@ abstract class ReceiveOptionViewModelBase with Store {
         } else {
           _options = ReceivePageOptions;
         }
+        break;
+      case WalletType.zcash:
+        _options = [
+          ...zcash!.getZcashReceivePageOptions(_wallet),
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ];
         break;
       default:
         _options = ReceivePageOptions;

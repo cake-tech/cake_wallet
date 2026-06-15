@@ -12,17 +12,19 @@ class SeedPhraseGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    int minTiles = 1;
+    int maxTiles = 4;
     double desiredTileWidth = 120;
     double spacing = 4;
     double padding = 4;
     double screenWidth = MediaQuery.of(context).size.width;
 
     int crossAxisCount =
-    ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing))
-        .floor();
+        ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing)).floor();
 
-    if (crossAxisCount < 1) crossAxisCount = 1;
+
+    if (crossAxisCount > maxTiles) crossAxisCount = maxTiles;
+    if (crossAxisCount < minTiles) crossAxisCount = minTiles;
 
     return GridView.builder(
       itemCount: list.length,

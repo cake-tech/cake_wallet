@@ -194,7 +194,7 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     String? paymentMethod;
 
-    if (paymentType == PaymentType.all && recommendedPaymentType != null) paymentMethod = recommendedPaymentType!;
+    if (paymentType == PaymentType.all ) paymentMethod = null;
     else if (paymentType == PaymentType.unknown) paymentMethod = customPaymentMethodType;
     else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
 

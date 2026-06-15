@@ -283,6 +283,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // set the default if not present:
     derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
+    if (derivationInfo.derivationType == DerivationType.unknown) {
+      if (snp?.derivationPath == electrum_path || snp?.derivationType == DerivationType.electrum) {
+        derivationInfo.derivationPath = electrum_path;
+        derivationInfo.derivationType = DerivationType.electrum;
+      } else {
+        derivationInfo.derivationPath = segwit_path;
+        derivationInfo.derivationType = DerivationType.bip39;
+      }
+    }
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
@@ -1205,21 +1214,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         } else {
           // check if any of the inputs of this transaction are hog-ex:
           // this list is only non-mweb inputs:
-          bool isHogEx = true;
-
           final coin = unspentCoins
               .firstWhere((coin) => coin.hash == utxo.utxo.txHash && coin.vout == utxo.utxo.vout);
-
-          // TODO: detect actual hog-ex inputs
-
-          if (!isHogEx) {
-            continue;
-          }
+          if (coin.isPegOut != true) continue;
 
           int confirmations = coin.confirmations ?? 0;
           if (confirmations < 6) {
             throw Exception(
-                "A transaction input has less than 6 confirmations, please try again later.");
+                "A transaction input is an MWEB peg-out and has less than 6 confirmations, please try again later.");
           }
         }
       }

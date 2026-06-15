@@ -115,3 +115,4 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
 };
 
 String electrum_path = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
+String segwit_path = "m/84'/0'/0'";

@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/info_chip.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
@@ -62,7 +64,7 @@ class DEuroSavingsPage extends BasePage {
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
                       onAddSavingsPressed: () => _onSavingsAdd(context),
                       onRemoveSavingsPressed: () => _onSavingsRemove(context),
-                      onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
+                      onApproveSavingsPressed: () => _onApproval(context),
                       onTooltipPressed: () => _onSavingsTooltipPressed(context),
                       isEnabled: _dEuroViewModel.isEnabled,
                       isLoading: _dEuroViewModel.isLoading,
@@ -74,8 +76,8 @@ class DEuroSavingsPage extends BasePage {
                       fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterestFormated,
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
                       accruedInterest: _dEuroViewModel.accruedInterestFormated,
-                      onCollectInterest: _onCollectInterest,
-                      onReinvestInterest: _onReinvestInterest,
+                      onCollectInterest: () => _onCollectInterest(context),
+                      onReinvestInterest: () => _onReinvestInterest(context),
                       onTooltipPressed: () => _onInterestTooltipPressed(context),
                       isEnabled: _dEuroViewModel.isSavingsActionsEnabled,
                     ),
@@ -117,7 +119,10 @@ class DEuroSavingsPage extends BasePage {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: true);
-    if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, true);
+    if (amount != null) {
+      await _requireHardwareWallet(context);
+      _dEuroViewModel.prepareSavingsEdit(amount, true);
+    }
     _editSheetIsOpen = false;
   }
 
@@ -125,22 +130,50 @@ class DEuroSavingsPage extends BasePage {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: false);
-    if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, false);
-    _editSheetIsOpen = false;
+    if (amount != null) {
+      await _requireHardwareWallet(context);
+      _dEuroViewModel.prepareSavingsEdit(amount, false);
+    }
+      _editSheetIsOpen = false;
   }
 
-  Future<void> _onReinvestInterest() async {
+  Future<void> _onReinvestInterest(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
+    await _requireHardwareWallet(context);
     await _dEuroViewModel.prepareReinvestInterest();
     _editSheetIsOpen = false;
   }
 
-  Future<void> _onCollectInterest() async {
+  Future<void> _onCollectInterest(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
+    await _requireHardwareWallet(context);
     await _dEuroViewModel.prepareCollectInterest();
     _editSheetIsOpen = false;
+  }
+
+  Future<void> _onApproval(BuildContext context) async {
+    await _requireHardwareWallet(context);
+    _dEuroViewModel.prepareApproval();
+  }
+
+  Future<void> _requireHardwareWallet(BuildContext context) async {
+    if (_dEuroViewModel.wallet.isHardwareWallet) {
+      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+              walletType: _dEuroViewModel.wallet.type,
+              hardwareWalletType: _dEuroViewModel.wallet.walletInfo.hardwareWalletType!,
+              onConnectDevice: (context, _) {
+                _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
+                Navigator.of(context).pop();
+              },
+            ));
+      } else {
+        _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
+      }
+    }
   }
 
   bool _isReactionsSet = false;

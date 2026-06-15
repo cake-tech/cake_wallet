@@ -6,11 +6,9 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 abstract class ExchangeProvider {
-  ExchangeProvider({required this.pairList});
+  ExchangeProvider();
 
   String get title;
-
-  List<ExchangePair> pairList;
 
   ExchangeProviderDescription get description;
 
