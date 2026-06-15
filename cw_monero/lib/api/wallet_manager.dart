@@ -146,6 +146,11 @@ void restoreWalletFromSeedSync(
   _lastOpenedWallet = path;
 }
 
+void storePassphrase({required String path, required String passphrase}) {
+  currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase);
+  currentWallet!.store(path: path);
+}
+
 void restoreWalletFromKeys(
     {required String path,
     required String password,

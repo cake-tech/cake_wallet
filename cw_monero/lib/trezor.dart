@@ -21,6 +21,15 @@ class Trezor {
 
   Trezor(this.service);
 
+  String? _sessionPassphrase;
+  Future<void> newPassphraseSession(String? passphrase) async {
+    if (passphrase == null) return;
+
+    if (_sessionPassphrase == passphrase) return;
+    _sessionPassphrase = passphrase;
+    return service.client.createChannel(passphrase: _sessionPassphrase);
+  }
+
   Future<MoneroTrezorWatchCredentials> getWatchCredentials() async {
     final credentials = await TrezorMonero(service.client).getWatchCredentials();
 
@@ -34,13 +43,13 @@ class Trezor {
     final txIds = <MoneroKeyImageTxData>[];
     for (final tdi in tdisList) {
       txIds.add(MoneroKeyImageTxData(
-        outKey: tdi["out_key"],
-        txPubKey: tdi["tx_pub_key"],
-        internalOutputIndex: tdi["internal_output_index"],
-        subAddrMajor: tdi["sub_addr_major"],
-        subAddrMinor: tdi["sub_addr_minor"],
-        additionalTxPubKeys: (tdi["additional_tx_pub_keys"] as List?)?.map((e) => e as String).toList() ?? []
-      ));
+          outKey: tdi["out_key"],
+          txPubKey: tdi["tx_pub_key"],
+          internalOutputIndex: tdi["internal_output_index"],
+          subAddrMajor: tdi["sub_addr_major"],
+          subAddrMinor: tdi["sub_addr_minor"],
+          additionalTxPubKeys:
+              (tdi["additional_tx_pub_keys"] as List?)?.map((e) => e as String).toList() ?? []));
     }
     final keyImages = await TrezorMonero(service.client).syncKeyImages(txIds);
 

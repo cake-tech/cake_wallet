@@ -8,6 +8,7 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
@@ -16,50 +17,48 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
-import 'package:cake_wallet/new-ui/widgets/picker.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
-import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/lnurl.dart';
-import 'package:cw_core/wallet_info.dart';
-import "package:cw_core/wallet_type.dart";
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
+import 'package:cake_wallet/new-ui/widgets/picker.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/recipient_dot_row.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart' show Routes;
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-
-import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart';
-import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
+import "package:cw_core/wallet_type.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -291,8 +290,8 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.sendViewModel.outputs.length > 1)
                             ModernButton(
                                 size: 36,
-                                icon: CakeImageWidget(imageUrl:
-                                  "assets/new-ui/remove_recipient.svg",
+                                icon: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/remove_recipient.svg",
                                   colorFilter: ColorFilter.mode(
                                     Theme.of(context).colorScheme.primary,
                                     BlendMode.srcIn,
@@ -322,8 +321,8 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.mode.helpContent != null)
                             ModernButton(
                                 size: 36,
-                                icon: CakeImageWidget(imageUrl:
-                                  "assets/new-ui/help.svg",
+                                icon: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/help.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                                 ),
@@ -390,7 +389,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             output.loadContact(contact);
                                           },
                                           onPushPasteButton: (context) async {
-                                            if(_justHandledPasteButton) return;
+                                            if (_justHandledPasteButton) return;
                                             _justHandledPasteButton = true;
                                             try {
                                               output.resetParsedAddress();
@@ -449,7 +448,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                         fiatInputMode: _fiatInputMode,
                                         onSwitchButtonPressed: () {
                                           setState(() {
-                                            if(!_fiatInputMode) {
+                                            if (!_fiatInputMode) {
                                               widget.sendViewModel.outputs[_selectedOutput]
                                                       .cryptoAmount =
                                                   _amountControllers[_selectedOutput].text;
@@ -475,7 +474,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                       ),
                                     ],
                                   ),
-                                  if (widget.sendViewModel.isMwebAvailable && widget.mode == SendPageModes.normal)
+                                  if (widget.sendViewModel.isMwebAvailable &&
+                                      widget.mode == SendPageModes.normal)
                                     StandardCheckbox(
                                       caption: S.of(context).litecoin_mweb_allow_coins,
                                       captionColor: Theme.of(context).colorScheme.onSurface,
@@ -486,7 +486,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       onChanged: (value) =>
                                           widget.sendViewModel.setAllowMwebCoins(value),
                                     ),
-                                  if(widget.sendViewModel.hasMemos)
+                                  if (widget.sendViewModel.hasMemos)
                                     Observer(
                                         builder: (_) => NewSendMemoInput(
                                               memoController: _memoControllers[_selectedOutput],
@@ -512,14 +512,22 @@ class _NewSendPageState extends State<NewSendPage> {
                                           ),
                                         if (widget.sendViewModel.hasCoinControl)
                                           ListItemRegularRowWidget(
-                                            keyValue: "",
-                                            label: "Coin Control",
-                                            onTap: () {
-                                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,);
-                                              });
-                                            }
-                                          ),
+                                              keyValue: "",
+                                              label: "Coin Control",
+                                              onTap: () {
+                                                showCupertinoModalBottomSheet(
+                                                    enableDrag: false,
+                                                    useRootNavigator: true,
+                                                    isDismissible: false,
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return NewCoinControlPage(
+                                                        unspentCoinsListViewModel: widget
+                                                            .sendViewModel
+                                                            .unspentCoinsListViewModel,
+                                                      );
+                                                    });
+                                              }),
                                       ]),
                                     )
                                 ],
@@ -688,7 +696,6 @@ class _NewSendPageState extends State<NewSendPage> {
       if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLength) {
         output.memo = memo;
       }
-
     });
   }
 
@@ -755,9 +762,26 @@ class _NewSendPageState extends State<NewSendPage> {
           await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
               arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet));
         }
-        await Future.delayed(Duration(seconds: 1)); // wait for monero to refresh the state
+
+        Future<void> waitUntil(
+          bool Function() condition, {
+          Duration interval = const Duration(milliseconds: 100),
+        }) async {
+          while (!condition()) {
+            await Future.delayed(interval);
+          }
+        }
+
+        await waitUntil(() => !monero!.needExportOutputs(widget.sendViewModel.wallet, amount))
+            .timeout(Duration(seconds: 10));
+        print("got all missing Keyimages?");
+
+
+
+        // await Future.delayed(Duration(seconds: 1)); // wait for monero to refresh the state
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
+        print("still missing Keyimages");
         return;
       }
     }
@@ -826,9 +850,7 @@ class _NewSendPageState extends State<NewSendPage> {
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
           amount: '${r.availableBalance} ${r.asset.title}',
-          fiat: isFiatDisabled
-              ? null
-              : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrencyTicker}',
+          fiat: isFiatDisabled ? null : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrencyTicker}',
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
     };
@@ -1205,13 +1227,11 @@ class _NewSendPageState extends State<NewSendPage> {
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
-      try{
+      try {
         _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(
-            paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
-      } catch(e) {
-
-      }
+                paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
+      } catch (e) {}
     }
     _memoControllers[_selectedOutput].text = paymentRequest.note;
   }
@@ -1380,7 +1400,7 @@ class SendHelpPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CakeImageWidget(imageUrl:content.imagePath),
+                CakeImageWidget(imageUrl: content.imagePath),
                 Text(
                   content.description,
                   textAlign: TextAlign.center,

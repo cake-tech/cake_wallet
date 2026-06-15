@@ -466,7 +466,7 @@ abstract class Monero {
     HardwareWalletType? hardwareWalletType,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
-  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required HardwareWalletService hardwareWalletService});
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required HardwareWalletService hardwareWalletService, required String? passphrase});
 WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);

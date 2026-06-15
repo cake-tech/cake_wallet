@@ -1,8 +1,7 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_passphrase_input.dart';
-import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_passphrase_input.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
@@ -11,6 +10,7 @@ import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -32,7 +32,7 @@ class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
   const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM);
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
-  
+
   @override
   _MoneroHardwareWalletOptionsFormState createState() =>
       _MoneroHardwareWalletOptionsFormState(_walletHardwareRestoreVM);
@@ -43,13 +43,15 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
       : _formKey = GlobalKey<FormState>(),
         _blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
         _blockHeightFocusNode = FocusNode(),
-        _controller = TextEditingController();
+        _walletNameController = TextEditingController(),
+        _passphraseController = TextEditingController();
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<BlockchainHeightState> _blockchainHeightKey;
   final FocusNode _blockHeightFocusNode;
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
-  final TextEditingController _controller;
+  final TextEditingController _walletNameController;
+  final TextEditingController _passphraseController;
 
   @override
   void initState() {
@@ -79,7 +81,7 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
                       children: [
                         BaseTextFormField(
                           onChanged: (value) => _walletHardwareRestoreVM.name = value,
-                          controller: _controller,
+                          controller: _walletNameController,
                           textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w600,
@@ -132,9 +134,19 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
         bottomSection: Observer(
           builder: (context) => Column(
             children: [
-              TextButton(onPressed: () {
-                showModalBottomSheet(context: context,isScrollControlled: true, backgroundColor: Colors.transparent, builder: (context)=>MoneroHardwareWalletPassphraseInputModal());
-              }, child: Text(S.of(context).add_a_passphrase)),
+              TextButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => MoneroHardwareWalletPassphraseInputModal(
+                      controller: _passphraseController,
+                    ),
+                  );
+                },
+                child: Text(S.of(context).add_a_passphrase),
+              ),
               LoadingPrimaryButton(
                 onPressed: _confirmForm,
                 text: S.of(context).seed_language_next,
@@ -154,10 +166,10 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
     FocusManager.instance.primaryFocus?.unfocus();
 
     setState(() {
-      _controller.text = rName;
+      _walletNameController.text = rName;
       _walletHardwareRestoreVM.name = rName;
-      _controller.selection =
-          TextSelection.fromPosition(TextPosition(offset: _controller.text.length));
+      _walletNameController.selection =
+          TextSelection.fromPosition(TextPosition(offset: _walletNameController.text.length));
     });
   }
 
@@ -173,7 +185,11 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
       ),
     );
 
-    final options = {'height': _blockchainHeightKey.currentState?.height ?? -1};
+    final options = <String, dynamic>{'height': _blockchainHeightKey.currentState?.height ?? -1};
+
+    if (_walletHardwareRestoreVM.passphraseAvailable && _passphraseController.text.isNotEmpty) {
+      options['passphrase'] = _passphraseController.text;
+    }
     await _walletHardwareRestoreVM.create(options: options);
   }
 

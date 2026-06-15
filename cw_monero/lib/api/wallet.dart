@@ -252,6 +252,9 @@ void setRecoveringFromSeed({required bool isRecovery}) {
 
 final storeMutex = Mutex();
 
+void refresh() {
+  currentWallet!.refresh();
+}
 
 int lastStorePointer = 0;
 int lastStoreHeight = 0;
