@@ -127,6 +127,7 @@ class TxDetailRowDefinition {
                       .firstOrNull ??
                   "";
             case WalletType.tron:
+              if(vm.transactionInfo.to != null)
               ret = tron!.getTronBase58Address(vm.transactionInfo.to!, vm.wallet);
             default:
               break;
@@ -315,6 +316,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
+
     if (isEVMCompatibleChain(wallet.type)) {
       return evm!.assetOfTransaction(wallet, transactionInfo);
     }

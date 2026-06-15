@@ -33,8 +33,9 @@ class ReceiveTokenDisplay extends StatelessWidget {
               child: Row(
                 spacing:4,
                 children: [
-                  CakeImageWidget(imageUrl:
-                    "assets/new-ui/chain_badges/${walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
+                  CakeImageWidget(
+                    imageUrl:
+                        "assets/new-ui/chain_badges/${addressListViewModel.wallet.type == WalletType.bsc ? 'bnb' : walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
                     width: 16,
                     height: 16,
                     colorFilter: ColorFilter.mode(

@@ -31,38 +31,12 @@ class NodeSharePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 40,
                 children: [
-                  Stack(alignment: Alignment.center, children: [
-                    SizedBox(
-                      width: qrSize,
-                      height: qrSize,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: QrImage(
-                              size: qrSize - padding * 2,
-                              embeddedImagePath: "",
-                              data: uri.toString())),
-                    ),
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: Stack(
-                        children: [
-                          CakeImageWidget(
-                            imageUrl: "assets/new-ui/settings_row_icons/nodes.svg",
-                            width: 54,
-                            height: 54,
-                          ),
-                          Align(
-                              alignment: Alignment.bottomRight,
-                              child: CakeImageWidget(
-                                imageUrl: currency.iconPath,
-                                width: 24,
-                                height: 24,
-                              ))
-                        ],
-                      ),
-                    ),
-                  ]),
+                  QrImage(
+                    size: qrSize - padding * 2,
+                    embeddedImagePath: "assets/new-ui/node-qr-icon.svg",
+                    badgeImageOnEmbeddedImagePath: currency.iconPath,
+                    data: uri.toString(),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 36.0),
                     child: Text(S.of(context).node_share_desc,

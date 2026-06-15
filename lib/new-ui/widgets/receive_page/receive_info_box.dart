@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -177,10 +178,9 @@ class InfoboxCurrencyRow extends StatelessWidget {
                                   color: Theme.of(context).colorScheme.surfaceContainer,
                                   width: iconBorder),
                               borderRadius: BorderRadius.circular(9999999)),
-                          child: CakeImageWidget(
-                            imageUrl: entry.value.iconPath,
-                            width: 24,
-                            height: 24,
+                          child: TokenImageWidget(
+                            imageUrl: entry.value.iconPath ?? '',
+                            size: 24,
                           ),
                         ),
                       ))

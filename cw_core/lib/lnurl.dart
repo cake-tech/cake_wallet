@@ -7,12 +7,17 @@ const _BOLT_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
 const _LUD17_PREFIXES = ['lnurlw', 'lnurlc', 'lnurlp', 'keyauth'];
 
 bool isBolt11ZeroInvoice(String invoice) {
-  final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+  try {
+    final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
-  final prefix = _BOLT_PREFIXES
-      .firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");
 
-  return request.hrp.length == prefix.length;
+    final prefix = _BOLT_PREFIXES
+        .firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");
+
+    return request.hrp.length == prefix.length;
+  } catch(e) {
+    return false;
+  }
 }
 
 /// Get the amount of a Bolt 11 Invoice in

@@ -34,7 +34,7 @@ class LinkViewModel {
   String? getRouteToGo() {
     if (isWalletConnectLink) {
       if (!isWalletConnectCompatibleChain(appStore.wallet!.type)) {
-        _errorToast(S.current.switchToEVMCompatibleWallet);
+        _errorToast(S.current.switchToWCCompatibleWallet(walletConnectCompatibleChainsLabel()));
         return null;
       }
       return Routes.walletConnectConnectionsListing;

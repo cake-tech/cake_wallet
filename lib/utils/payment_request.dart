@@ -61,6 +61,16 @@ class PaymentRequest {
         address = paymentUri.address;
         amount = paymentUri.amount;
         contractAddress = paymentUri.contractAddress;
+      } else if (scheme == "tron") {
+        final token = uri.queryParameters['token'];
+        if (token != null && token.isNotEmpty) {
+          contractAddress = token;
+        }
+      } else if (scheme == "solana") {
+        final splToken = uri.queryParameters['spl-token'];
+        if (splToken != null && splToken.isNotEmpty) {
+          contractAddress = splToken;
+        }
       }
     }
 

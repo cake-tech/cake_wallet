@@ -435,9 +435,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       throw MoneroTransactionCreationException('The wallet is not synced.');
     }
 
-    if (unspentCoins.isEmpty) {
-      await updateUnspent();
-    }
+    await updateUnspent();
 
     for (final utx in unspentCoins) {
       if (utx.isSending) {

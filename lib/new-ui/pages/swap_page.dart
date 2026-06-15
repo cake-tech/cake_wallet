@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -19,8 +20,9 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -969,8 +971,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CakeImageWidget(imageUrl: _selectedCurrency.iconPath ?? "",
-                                    width: 28, height: 28),
+                                TokenImageWidget(
+                                  imageUrl: _selectedCurrency.iconPath ?? "",
+                                  size: 28,
+                                ),
                                 SizedBox(width: 10),
                                 Text(
                                   currencyToShow,
@@ -1210,9 +1214,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   }
 
   void _presentCurrencyPicker() {
-    final currencies = widget.isReceiverCard
+    final rawCurrencies = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
+    final currencies = rawCurrencies.whereType<CryptoCurrency>().toList();
+    appendEvmDefaultTokens(currencies);
     if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
       currencies.sort((a, b) {
         if (a == CryptoCurrency.btcln) return -1;
@@ -1221,20 +1227,18 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       });
     }
 
-    showPopUp<void>(
+    final selected = widget.isReceiverCard
+        ? widget.exchangeViewModel.receiveCurrency
+        : widget.exchangeViewModel.depositCurrency;
+
+    CurrencyPickerSheet.show(
       context: context,
-      builder: (_) => CurrencyPicker(
-        key: ValueKey('send_page_currency_picker_dialog_button_key'),
-        selectedAtIndex: currencies.indexOf(widget.isReceiverCard
-            ? widget.exchangeViewModel.receiveCurrency
-            : widget.exchangeViewModel.depositCurrency),
+      args: CurrencyPickerArgs(
         items: currencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) async {
-          if (cur is CryptoCurrency) {
-            widget.onCurrencySelected(cur);
-          }
-        },
+        selected: selected,
+        recentsSource: RecentsSource.trades,
+        onSelected: widget.onCurrencySelected,
+        symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
       ),
     );
   }
