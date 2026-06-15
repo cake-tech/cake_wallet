@@ -1011,22 +1011,16 @@ abstract class Solana {
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
   
-  TransactionInfo getTransactionInfo(
-{
+  TransactionInfo getTransactionInfo({
     required String id,
     required DateTime blockTime,
     required String to,
     required String from,
-    String? tokenSymbol,
     required TransactionDirection direction,
-    required double solAmount,
+    required Money amount,
     required bool isPending,
-    required double txFee,
-  }
-  );
-  
-  double getPendingTransactionAmount(PendingTransaction tx);
-  double getPendingTransactionFee(PendingTransaction tx);
+    required Money fee,
+  });
 }
 
 class JupiterSwapFailedException implements Exception {
@@ -1069,6 +1063,7 @@ Future<void> generateTron(bool hasImplementation) async {
   final outputFile = File(tronOutputPath);
   const tronCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/output_info.dart';
@@ -1129,17 +1124,14 @@ abstract class Tron {
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
   TransactionInfo getTransactionInfo({
     required String id,
-    required BigInt tronAmount,
-    int? txFee,
-    String? tokenSymbol,
+    required Money amount,
+    Money? fee,
     required TransactionDirection direction,
     required DateTime blockTime,
     String? to,
     String? from,
     required bool isPending,
   });
-  String getPendingTransactionFee(PendingTransaction tx);
-  String getPendingTransactionAmount(PendingTransaction tx);
 }
   """;
 
@@ -1612,12 +1604,11 @@ abstract class EVM {
     TransactionPriority priority,
   );
   
-  TransactionInfo getTransactionInfo(
-  {
+  TransactionInfo getTransactionInfo({
     required String id,
     required int height,
-    required BigInt ethAmount,
-    required BigInt ethFee,
+    required Money amount,
+    required Money fee,
     required String tokenSymbol,
     int exponent = 18,
     required TransactionDirection direction,
@@ -1629,10 +1620,7 @@ abstract class EVM {
     String? evmSignatureName,
     String? contractAddress,
     required int chainId,
-  }
-  );
-  BigInt getPendingTransactionFee(PendingTransaction tx);
-  String getPendingTransactionAmount(PendingTransaction tx);
+  });
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }

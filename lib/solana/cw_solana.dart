@@ -412,24 +412,18 @@ class CWSolana extends Solana {
     required String from,
     String? tokenSymbol,
     required TransactionDirection direction,
-    required double solAmount,
+    required Money amount,
     required bool isPending,
-    required double txFee,
+    required Money fee,
   }) =>
       SolanaTransactionInfo(
-          id: id,
-          blockTime: blockTime,
-          to: to,
-          from: from,
-          tokenSymbol: tokenSymbol ?? "SOL",
-          direction: direction,
-          solAmount: solAmount,
-          isPending: isPending,
-          txFee: txFee);
-
-  @override
-  double getPendingTransactionAmount(PendingTransaction tx) => (tx as PendingSolanaTransaction).amount;
-
-  @override
-  double getPendingTransactionFee(PendingTransaction tx) => (tx as PendingSolanaTransaction).fee;
+        id: id,
+        date: blockTime,
+        to: to,
+        from: from,
+        direction: direction,
+        amount: amount,
+        isPending: isPending,
+        fee: fee,
+      );
 }

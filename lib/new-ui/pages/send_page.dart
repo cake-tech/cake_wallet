@@ -833,7 +833,7 @@ class _NewSendPageState extends State<NewSendPage> {
           amount: '${r.availableBalance} ${r.asset.title}',
           fiat: isFiatDisabled
               ? null
-              : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrencyTicker}',
+              : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}',
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
     };

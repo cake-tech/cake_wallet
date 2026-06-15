@@ -1106,41 +1106,41 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
       if(isEVMWallet) {
         wallet.transactionHistory.addOne(evm!.getTransactionInfo(
-            id: pendingTransaction!.evmTxHashFromRawHex!,
-            height: 0,
-            // FIXME(malik) this is even more critical given all the issues we had with decimal point parsing. with money it'll be easy
-            ethAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
-            ethFee: CryptoCurrency.eth.parseAmount(pendingTransaction!.feeFormattedValue),
-            tokenSymbol: selectedCryptoCurrency.title,
-            direction: TransactionDirection.outgoing,
-            isPending: true,
-            date: DateTime.now(),
-            confirmations: 0,
-            chainId: wallet.chainId ?? 0));
+          id: pendingTransaction!.evmTxHashFromRawHex!,
+          height: 0,
+          amount: outputs.first.cryptoAmountMoney,
+          fee: pendingTransaction!.fee,
+          tokenSymbol: selectedCryptoCurrency.title,
+          direction: TransactionDirection.outgoing,
+          isPending: true,
+          date: DateTime.now(),
+          confirmations: 0,
+          chainId: wallet.chainId ?? 0,
+        ));
       }
       
       if(walletType == WalletType.solana) {
         wallet.transactionHistory.addOne(solana!.getTransactionInfo(
-            id: pendingTransaction!.id,
-            blockTime: DateTime.now(),
-            tokenSymbol: selectedCryptoCurrency.title,
-            to: "",
-            from: "",
-            direction: TransactionDirection.outgoing,
-            solAmount: solana!.getPendingTransactionAmount(pendingTransaction!),
-            isPending: true,
-            txFee: solana!.getPendingTransactionFee(pendingTransaction!)));
+          id: pendingTransaction!.id,
+          blockTime: DateTime.now(),
+          to: "",
+          from: "",
+          direction: TransactionDirection.outgoing,
+          amount: pendingTransaction!.amount,
+          isPending: true,
+          fee: pendingTransaction!.fee,
+        ));
       }
 
       if (walletType == WalletType.tron) {
         wallet.transactionHistory.addOne(tron!.getTransactionInfo(
-            id: pendingTransaction!.id,
-            blockTime: DateTime.now(),
-            tokenSymbol: selectedCryptoCurrency.title,
-            direction: TransactionDirection.outgoing,
-            tronAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
-            isPending: true,
-            txFee: CryptoCurrency.trx.parseAmount(outputs.first.estimatedFee).toInt()));
+          id: pendingTransaction!.id,
+          blockTime: DateTime.now(),
+          direction: TransactionDirection.outgoing,
+          amount: outputs.first.cryptoAmountMoney,
+          isPending: true,
+          fee: CryptoCurrency.trx.parseAmount(outputs.first.estimatedFee),
+        ));
       }
 
       if (pendingTransaction!.id.isNotEmpty) {

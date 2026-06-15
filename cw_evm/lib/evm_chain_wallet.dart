@@ -1091,18 +1091,19 @@ abstract class EVMChainWalletBase
       gas = GasParamsHandler.zero();
     }
 
-    // Validate NATIVE Balance (for Gas + Value)
     final nativeBal = balance[nativeCurrency]?.available ?? Money.zero(nativeCurrency);
-    final requiredNative = valueWei + Money.fromInt(gas.estimatedGasFee, nativeCurrency);
+    var requiredNative = Money.fromInt(gas.estimatedGasFee, nativeCurrency);
+
+    if (valueWei.currency == nativeCurrency) {
+      requiredNative += valueWei;
+    }
 
     if (requiredNative > nativeBal) {
       throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
     }
 
-    // Validate ERC20 Balance (Only if source is NOT native)
     final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
 
-    // Check for both 0xeeee... AND 0x0000... (Zero Address)
     final isNativeSource = sourceTokenAddress == null ||
         cleanAddress == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
         cleanAddress == '0x0000000000000000000000000000000000000000';

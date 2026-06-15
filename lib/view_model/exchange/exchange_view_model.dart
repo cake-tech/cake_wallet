@@ -42,10 +42,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/currency.dart';
 import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -1045,13 +1043,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
-    final depositAmountValue =
-        double.tryParse(_depositAmount.replaceAll(',', '.')) ?? 0.0;
+    final depositAmountValue = _depositAmount ?? Money.zero(depositCurrency);
+    final receiveAmountValue = _receiveAmount ?? Money.zero(receiveCurrency);
 
-    final receiveAmountValue =
-        double.tryParse(_receiveAmount.replaceAll(',', '.')) ?? 0.0;
-
-    if (depositAmountValue <= 0 || receiveAmountValue <= 0) {
+    if (depositAmountValue.isZero ||
+        depositAmountValue.isNegative ||
+        receiveAmountValue.isZero ||
+        receiveAmountValue.isNegative) {
       ExchangeProviderLogger.logError(
         provider: forcedProvider?.description ?? bestRateProvider?.description,
         function: 'createTrade',
@@ -1067,13 +1065,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         },
       );
 
-      final invalidAmountError = depositAmountValue <= 0
+      final invalidAmountError = depositAmountValue.isZero || depositAmountValue.isNegative
           ? '$depositAmountValue is not a valid amount for depositAmount'
           : '$receiveAmountValue is not a valid amount for receiveAmount';
 
       tradeState = TradeIsCreatedFailure(
         title: S.current.trade_not_created,
-        error: invalidAmountError,
+        error: invalidAmountError
       );
       return;
     }
@@ -1085,7 +1083,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (limits.min != null && amount != null && amount < limits.min!) {
         tradeState = TradeIsCreatedFailure(
             title: S.current.trade_not_created,
-            error: S.current.amount_is_below_minimum_limit(limits.min!.toString()));
+            error: S.current.amount_is_below_minimum_limit(limits.min!.toString()),
+        );
         return;
       }
     }
@@ -1110,8 +1109,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (forcedProvider != null && _excludeProviderForReceiveExtraId(forcedProvider!)) {
       tradeState = TradeIsCreatedFailure(
-          title: S.current.trade_not_created,
-          error: S.current.none_of_selected_providers_can_exchange);
+        title: S.current.trade_not_created,
+        error: S.current.none_of_selected_providers_can_exchange,
+      );
       return;
     }
 
