@@ -782,7 +782,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.receiveAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
         },
-        useSatoshis: exchangeViewModel.useSatoshisReceive,
+        useSatoshis: exchangeViewModel.useSatoshiReceive,
       ),
     );
 

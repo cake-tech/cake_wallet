@@ -451,9 +451,13 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 "",
                                         hasPicker: (_fiatInputMode ||
                                             widget.sendViewModel.hasMultipleTokens),
-                                        onPickerClicked: () {
-                                          _presentCurrencyPicker(context);
-                                        },
+                                        onPickerClicked: () => _presentCurrencyPicker(context),
+                                        maxDecimals: widget.sendViewModel.useBaseUnits
+                                            ? 0
+                                            : _fiatInputMode
+                                                ? widget.sendViewModel.fiatCurrency.decimals
+                                                : widget
+                                                    .sendViewModel.selectedCryptoCurrency.decimals,
                                       ),
                                       FiatAmountBar(
                                         fiatInputMode: _fiatInputMode,
@@ -470,9 +474,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                         cryptoAmount:
                                             _wrapAmount(output.roundedCryptoAmount(6), 20),
                                         allAmount: widget.sendViewModel.balance,
-                                        cryptoCurrency:
+                                        cryptoCurrencySymbol:
                                             widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                        fiatCurrency: widget.sendViewModel.fiatCurrency.title,
+                                        fiatCurrencySymbol:
+                                            widget.sendViewModel.fiatCurrency.symbol,
                                         onAllButtonPressed: () async {
                                           output.setSendAll(
                                               await widget.sendViewModel.sendingBalance);

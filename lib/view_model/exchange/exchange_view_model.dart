@@ -361,7 +361,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get depositAmount =>
-      _depositAmount == null ? "..." : amountParsingProxy.asDisplayString(_depositAmount!);
+      _depositAmount == null ? "" : amountParsingProxy.asDisplayString(_depositAmount!);
 
   @computed
   String get depositAmountCanonical => _depositAmount == null ? "0.0" : _depositAmount.toString();
@@ -371,11 +371,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get receiveAmount =>
-      _receiveAmount == null ? "..." : amountParsingProxy.asDisplayString(_receiveAmount!);
+      _receiveAmount == null ? "" : amountParsingProxy.asDisplayString(_receiveAmount!);
 
   @action
   // only set canonical formated amounts here;
-  void setCanonicalReceiveAmount(String value) => _receiveAmount = Money.parse(value, receiveCurrency);
+  void setCanonicalReceiveAmount(String value) =>
+      _receiveAmount = Money.parse(value, receiveCurrency);
 
   @observable
   String depositAddress;
@@ -579,7 +580,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool get useSatoshiDeposit => _appStore.amountParsingProxy.useSatoshi(depositCurrency);
 
   @computed
-  bool get useSatoshisReceive => _appStore.amountParsingProxy.useSatoshi(receiveCurrency);
+  bool get useSatoshiReceive => _appStore.amountParsingProxy.useSatoshi(receiveCurrency);
 
   @computed
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;

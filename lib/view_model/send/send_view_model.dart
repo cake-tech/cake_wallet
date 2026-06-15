@@ -421,6 +421,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String get selectedCryptoCurrencySymbol =>
       amountParsingProxy.getCryptoSymbol(selectedCryptoCurrency);
 
+  @computed
+  bool get useBaseUnits => amountParsingProxy.useSatoshi(selectedCryptoCurrency);
+
   List<CryptoCurrency> currencies;
 
   WalletType get walletType => wallet.type;

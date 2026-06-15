@@ -1,6 +1,8 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -9,15 +11,18 @@ class NewSendAmountInput extends StatefulWidget {
   const NewSendAmountInput(
       {super.key,
       required this.currency,
+      required this.maxDecimals,
       required this.hasPicker,
       required this.onPickerClicked,
       required this.currencyIconPath,
       required this.amountController,
-      this.validator});
+      this.validator,
+      });
 
   final String currency;
   final String currencyIconPath;
   final bool hasPicker;
+  final int maxDecimals;
   final VoidCallback onPickerClicked;
   final TextEditingController amountController;
   final FormFieldValidator<String>? validator;
@@ -63,14 +68,34 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                         children: [
                           Expanded(
                             child: TextField(
-                              keyboardType:
-                                  TextInputType.numberWithOptions(signed: false, decimal: true),
+                              keyboardType: TextInputType.numberWithOptions(
+                                signed: false,
+                                decimal: widget.maxDecimals > 0,
+                              ),
                               inputFormatters: <TextInputFormatter>[
                                 FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d*$'))
                               ],
-                              onChanged: state.didChange,
                               controller: widget.amountController,
                               decoration: InputDecoration(hintText: "0", errorMaxLines: 3),
+                              onChanged: (value) {
+                                var sanitized = value
+                                    .sanitized()
+                                    .withMaxDecimals(widget.maxDecimals);
+
+                                if (widget.maxDecimals == 0) {
+                                  sanitized = sanitized.replaceAll('.', '');
+                                }
+
+                                if (sanitized != widget.amountController.text) {
+                                  // Update text while preserving a sane cursor position to avoid auto-selection
+                                  widget.amountController.value =
+                                      widget.amountController.value.copyWith(
+                                    text: sanitized,
+                                    selection: TextSelection.collapsed(offset: sanitized.length),
+                                    composing: TextRange.empty,
+                                  );
+                                }
+                              },
                             ),
                           ),
                           FloatingIconButton(
@@ -81,7 +106,6 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                   widget.amountController.text = data.text!;
                                 }
                               }),
-                          SizedBox.shrink()
                         ],
                       ),
                     ),
