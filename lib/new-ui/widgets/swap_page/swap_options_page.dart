@@ -102,7 +102,7 @@ class SwapOptionsPage extends StatelessWidget {
                             label: "Coin Control",
                             onTap: () {
                               showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                return NewCoinControlPage(unspentCoinsListViewModel: exchangeViewModel.unspentCoinsListViewModel,);
+                                return NewCoinControlPage(unspentCoinsListViewModel: exchangeViewModel.unspentCoinsListViewModel,canEdit: true,);
                               });
                             }),
                         ListItemSelector(
