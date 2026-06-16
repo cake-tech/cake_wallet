@@ -632,7 +632,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider, Trade? trade}) async {
-    print("HERE!!!!!!!!!!!!!!");
     _currentTrade = trade;
     _currentProvider = provider;
     pendingTransaction = null;
