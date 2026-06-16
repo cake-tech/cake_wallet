@@ -452,10 +452,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                         hasPicker: (_fiatInputMode ||
                                             widget.sendViewModel.hasMultipleTokens),
                                         onPickerClicked: () => _presentCurrencyPicker(context),
-                                        maxDecimals: widget.sendViewModel.useBaseUnits
-                                            ? 0
-                                            : _fiatInputMode
-                                                ? widget.sendViewModel.fiatCurrency.decimals
+                                        maxDecimals: _fiatInputMode
+                                            ? widget.sendViewModel.fiatCurrency.decimals
+                                            : widget.sendViewModel.useBaseUnits
+                                                ? 0
                                                 : widget
                                                     .sendViewModel.selectedCryptoCurrency.decimals,
                                       ),

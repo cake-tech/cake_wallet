@@ -1,8 +1,7 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/amount/amount_sanitizer.dart';
-import 'package:cw_core/crypto_amount_format.dart';
+import 'package:cake_wallet/utils/decimal_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -73,29 +72,14 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 decimal: widget.maxDecimals > 0,
                               ),
                               inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d*$'))
+                                DecimalInputFormatter(maxDecimals: widget.maxDecimals),
                               ],
                               controller: widget.amountController,
-                              decoration: InputDecoration(hintText: "0", errorMaxLines: 3),
-                              onChanged: (value) {
-                                var sanitized = value
-                                    .sanitized()
-                                    .withMaxDecimals(widget.maxDecimals);
-
-                                if (widget.maxDecimals == 0) {
-                                  sanitized = sanitized.replaceAll('.', '');
-                                }
-
-                                if (sanitized != widget.amountController.text) {
-                                  // Update text while preserving a sane cursor position to avoid auto-selection
-                                  widget.amountController.value =
-                                      widget.amountController.value.copyWith(
-                                    text: sanitized,
-                                    selection: TextSelection.collapsed(offset: sanitized.length),
-                                    composing: TextRange.empty,
-                                  );
-                                }
-                              },
+                              decoration: InputDecoration(
+                                hintText: widget.maxDecimals > 0 ? "0" : "0.00",
+                                errorMaxLines: 3,
+                              ),
+                              onChanged: state.didChange,
                             ),
                           ),
                           FloatingIconButton(

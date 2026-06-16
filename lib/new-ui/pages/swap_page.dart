@@ -29,10 +29,9 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/utils/decimal_input_formatter.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
-import 'package:cw_core/amount/amount_sanitizer.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -168,6 +167,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
       });
 
       reaction((_) => widget.exchangeViewModel.depositAmount, (String amount) {
+        if (depositKey.currentState!.amountFocusNode.hasFocus) return;
+
         if (widget.exchangeViewModel.isSendAllEnabled) {
           depositAmountController.text = S.of(context).all;
         } else if (depositAmountController.text != amount && amount != S.of(context).all) {
@@ -941,34 +942,18 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.zero,
                                     isDense: true,
-                                    hintText: "0",
+                                    hintText: widget.useBaseUnit ? "0" : "0.000",
                                     fillColor: Colors.transparent,
                                     hoverColor: Colors.transparent,
                                     focusedBorder: InputBorder.none,
                                     enabledBorder: InputBorder.none,
                                   ),
-                                  onChanged: (value) {
-                                    var sanitized = value
-                                        .sanitized()
-                                        .withMaxDecimals(widget.currency.decimals);
-
-                                    if (widget.useBaseUnit) {
-                                      sanitized = sanitized.replaceAll('.', '');
-                                    }
-
-                                    if (sanitized != amountController.text) {
-                                      final controller =
-                                          _fiatInputMode ? fiatAmountController : amountController;
-                                      // Update text while preserving a sane cursor position to avoid auto-selection
-                                      controller.value = amountController.value.copyWith(
-                                        text: sanitized,
-                                        selection: TextSelection.collapsed(
-                                          offset: sanitized.length,
-                                        ),
-                                        composing: TextRange.empty,
-                                      );
-                                    }
-                                  },
+                                  inputFormatters: <TextInputFormatter>[
+                                    DecimalInputFormatter(
+                                      maxDecimals:
+                                          widget.useBaseUnit ? 0 : widget.currency.decimals,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
