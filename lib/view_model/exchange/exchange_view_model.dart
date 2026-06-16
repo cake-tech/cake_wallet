@@ -577,10 +577,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   double bestRate = 0.0;
 
   @computed
-  bool get useSatoshiDeposit => _appStore.amountParsingProxy.useSatoshi(depositCurrency);
+  bool get useDepositBaseUnit => _appStore.amountParsingProxy.useSatoshi(depositCurrency);
 
   @computed
-  bool get useSatoshiReceive => _appStore.amountParsingProxy.useSatoshi(receiveCurrency);
+  bool get useReceiveBaseUnit => _appStore.amountParsingProxy.useSatoshi(receiveCurrency);
 
   @computed
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;

@@ -507,7 +507,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       key: depositKey,
                                       title: S.of(context).send,
                                       currency: widget.exchangeViewModel.depositCurrency,
-                                      useBaseUnit: widget.exchangeViewModel.useSatoshiDeposit,
+                                      useBaseUnit: widget.exchangeViewModel.useDepositBaseUnit,
                                       hasRefundAddress: true,
                                       currencies: widget.exchangeViewModel.depositCurrencies,
                                       onCurrencySelected: (currency) {
@@ -582,7 +582,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       title: S.of(context).receive,
                                       currencies: widget.exchangeViewModel.receiveCurrencies,
                                       currency: widget.exchangeViewModel.receiveCurrency,
-                                      useBaseUnit: widget.exchangeViewModel.useSatoshiDeposit,
+                                      useBaseUnit: widget.exchangeViewModel.useReceiveBaseUnit,
                                       onCurrencySelected: (currency) {
                                         if (currency is CryptoCurrency) {
                                           widget.exchangeViewModel
