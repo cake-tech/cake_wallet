@@ -48,6 +48,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.doge;
     case WalletType.zcash:
       return CryptoCurrency.zec;
+    case WalletType.nerva:
+      return CryptoCurrency.xnv;
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

@@ -179,6 +179,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.zcash:
       case WalletType.haven:
       case WalletType.wownero:
+      case WalletType.nerva:
         return Uri.http(uriRaw, '');
       case WalletType.bitcoin:
       case WalletType.litecoin:

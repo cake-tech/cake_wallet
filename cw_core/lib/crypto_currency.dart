@@ -119,6 +119,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.usdcTrc20,
     CryptoCurrency.tbtc,
     CryptoCurrency.wow,
+    CryptoCurrency.xnv,
     CryptoCurrency.zano,
     CryptoCurrency.ton,
     CryptoCurrency.flip,
@@ -251,6 +252,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const tbtc = CryptoCurrency(title: 'tBTC', fullName: 'Testnet Bitcoin', raw: 93, name: 'tbtc', iconPath: 'assets/images/tbtc.png', decimals: 8);
   static const wow = CryptoCurrency(title: 'WOW', fullName: 'Wownero', raw: 94, name: 'wow', iconPath: 'assets/images/crypto/wownero.svg', decimals: 11);
   static const ton = CryptoCurrency(title: 'TON', fullName: 'Toncoin', raw: 95, name: 'ton', iconPath: 'assets/new-ui/crypto_full_icons/ton.svg', decimals: 8);
+  static const xnv = CryptoCurrency(title: 'XNV', fullName: 'Nerva', raw: 113, name: 'xnv', iconPath: 'assets/images/crypto/nerva.svg', decimals: 12);
   static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 96, name: 'zano', iconPath: 'assets/new-ui/crypto_full_icons/zano.svg', decimals: 12, flatIconPath: "assets/new-ui/balance_card_icons/zano.svg", chainIconPath: "assets/new-ui/chain_badges/zano.svg");
   static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 97, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
   static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png',decimals: 18, groups: const {CurrencyGroups.stablecoin});

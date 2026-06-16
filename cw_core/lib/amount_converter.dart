@@ -23,6 +23,7 @@ class AmountConverter {
   static String amountIntToString(CryptoCurrency cryptoCurrency, int amount) {
     switch (cryptoCurrency) {
       case CryptoCurrency.xmr:
+      case CryptoCurrency.xnv:
         return _moneroAmountToString(amount);
       case CryptoCurrency.wow:
         return _wowneroAmountToString(amount);

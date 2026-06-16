@@ -250,3 +250,7 @@ int getWowneroHeightByDate({required DateTime date}) {
 
   return wowDates[closestKey] ?? 0;
 }
+
+// TODO(nerva): no date->height table yet, so restore-by-date returns 0 (full scan
+// from genesis). Add a real `nervaDates` map (like `wowDates`) once calibrated.
+int getNervaHeightByDate({required DateTime date}) => 0;
