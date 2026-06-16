@@ -139,6 +139,7 @@ lib/polygon/polygon.dart
 lib/solana/solana.dart
 lib/tron/tron.dart
 lib/wownero/wownero.dart
+lib/nerva/nerva.dart
 lib/zano/zano.dart
 lib/decred/decred.dart
 lib/dogecoin/dogecoin.dart
