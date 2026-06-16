@@ -1569,10 +1569,10 @@ Future<void> setup({
           unspentCoinsListViewModel:
               getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom)));
 
-  getIt.registerFactoryParam<NewCoinControlPage, UnspentCoinType?, void>(
-          (coinTypeToSpendFrom, _) => NewCoinControlPage(
+  getIt.registerFactoryParam<NewCoinControlPage, UnspentCoinType?, bool?>(
+          (coinTypeToSpendFrom, canEdit) => NewCoinControlPage(
           unspentCoinsListViewModel:
-          getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom))
+          getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom), canEdit: canEdit ?? true,)
 
   );
 
