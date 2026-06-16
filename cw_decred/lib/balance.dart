@@ -12,5 +12,5 @@ class DecredBalance extends Balance {
       frozen: Money.zero(CryptoCurrency.dcr));
 
   @override
-  Money get available => (available + unavailable) - (frozen ?? Money.zero(CryptoCurrency.dcr));
+  Money get available => super.available - (frozen ?? Money.zero(CryptoCurrency.dcr));
 }
