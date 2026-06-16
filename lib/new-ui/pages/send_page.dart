@@ -227,6 +227,14 @@ class _NewSendPageState extends State<NewSendPage> {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
       _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      final contractAddress = widget.initialPaymentRequest!.contractAddress;
+      if (contractAddress != null && contractAddress.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
+          }
+        });
+      }
     }
 
     /// if the current wallet doesn't match the one in the qr code
@@ -512,22 +520,14 @@ class _NewSendPageState extends State<NewSendPage> {
                                           ),
                                         if (widget.sendViewModel.hasCoinControl)
                                           ListItemRegularRowWidget(
-                                              keyValue: "",
-                                              label: "Coin Control",
-                                              onTap: () {
-                                                showCupertinoModalBottomSheet(
-                                                    enableDrag: false,
-                                                    useRootNavigator: true,
-                                                    isDismissible: false,
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return NewCoinControlPage(
-                                                        unspentCoinsListViewModel: widget
-                                                            .sendViewModel
-                                                            .unspentCoinsListViewModel,
-                                                      );
-                                                    });
-                                              }),
+                                            keyValue: "",
+                                            label: "Coin Control",
+                                            onTap: () {
+                                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
+                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,canEdit: true);
+                                              });
+                                            }
+                                          ),
                                       ]),
                                     )
                                 ],
