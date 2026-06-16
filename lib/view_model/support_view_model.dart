@@ -56,11 +56,11 @@ abstract class SupportViewModelBase with Store {
               icon: 'assets/images/change_now.png',
               linkTitle: 'support@changenow.io',
               link: 'mailto:support@changenow.io'),
-          LinkListItem(
-              title: 'SideShift',
-              icon: 'assets/images/sideshift.png',
-              linkTitle: 'help.sideshift.ai',
-              link: 'https://help.sideshift.ai/en/'),
+          // LinkListItem(
+          //     title: 'SideShift',
+          //     icon: 'assets/images/sideshift.png',
+          //     linkTitle: 'help.sideshift.ai',
+          //     link: 'https://help.sideshift.ai/en/'),
           LinkListItem(
               title: 'SimpleSwap',
               icon: 'assets/images/simpleSwap.png',

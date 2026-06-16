@@ -18,8 +18,10 @@ class Money implements Comparable<Money> {
   ///
   /// Throws a [FormatException] if the [source] is not a valid decimal or
   /// not in canonical representation or if it is a decimal when [isBaseUnit]
-  factory Money.parse(String source, Currency currency, {bool isBaseUnit = false}) {
-    final amount = isBaseUnit ? BigInt.parse(source) : parseFixed(source, currency.decimals);
+  factory Money.parse(source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit
+        ? BigInt.parse(source.toString())
+        : parseFixed(source.toString(), currency.decimals);
 
     return Money(amount, currency);
   }
@@ -28,8 +30,10 @@ class Money implements Comparable<Money> {
   ///
   /// As [parse] except that this method returns `null` if the input is not
   /// valid or if it is a decimal when [isBaseUnit]
-  static Money? tryParse(String source, Currency currency, {bool isBaseUnit = false}) {
-    final amount = isBaseUnit ? BigInt.tryParse(source) : tryParseFixed(source, currency.decimals);
+  static Money? tryParse(source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit
+        ? BigInt.tryParse(source.toString())
+        : tryParseFixed(source.toString(), currency.decimals);
 
     return amount != null ? Money(amount, currency) : null;
   }

@@ -376,7 +376,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   // only set canonical formated amounts here;
   void setCanonicalReceiveAmount(String value) =>
-      _receiveAmount = Money.parse(value, receiveCurrency);
+      _receiveAmount = Money.tryParse(value, receiveCurrency);
 
   @observable
   String depositAddress;

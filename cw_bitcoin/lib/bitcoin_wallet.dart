@@ -505,7 +505,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
       return lightningWallet!.createTransaction(
           lnAddr,
-          amount > Money.zero(CryptoCurrency.btcln) ? amount.amount : null,
+          amount.amount > BigInt.zero ? amount.amount : null,
           credentials.priority,
           credentials.outputs.first.sendAll,);
     }

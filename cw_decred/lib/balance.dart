@@ -10,4 +10,7 @@ class DecredBalance extends Balance {
       confirmed: Money.zero(CryptoCurrency.dcr),
       unconfirmed: Money.zero(CryptoCurrency.dcr),
       frozen: Money.zero(CryptoCurrency.dcr));
+
+  @override
+  Money get available => (available + unavailable) - (frozen ?? Money.zero(CryptoCurrency.dcr));
 }
