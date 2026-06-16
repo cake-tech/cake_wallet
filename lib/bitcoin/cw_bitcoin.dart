@@ -190,7 +190,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority,
+  Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     try {
       final sk = ECPrivate.random();
@@ -203,7 +203,7 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
         );
 
-        return estimatedTx.amount.amount.toInt();
+        return estimatedTx.amount;
       }
 
 
@@ -215,7 +215,7 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinTransactionPriority),
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
-        return estimatedTx.amount.amount.toInt();
+        return estimatedTx.amount;
       }
 
       final p2shAddr = sk.getPublic().toP2pkhAddress();
@@ -230,9 +230,9 @@ class CWBitcoin extends Bitcoin {
         coinTypeToSpendFrom: coinTypeToSpendFrom,
       );
 
-      return estimatedTx.amount.amount.toInt();
+      return estimatedTx.amount;
     } catch (_) {
-      return 0;
+      return Money.zero(wallet.currency);
     }
   }
 

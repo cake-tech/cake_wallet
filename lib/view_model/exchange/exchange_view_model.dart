@@ -1361,8 +1361,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       final amount = depositCurrency == CryptoCurrency.btcln
           // FIXME amount estimation is broken/impossible for ln, konsti suggested this
-          ? (amountParsingProxy
-          .parseCryptoString(depositAvailableAmount, depositCurrency).amount.toInt() - 10)
+          ? (amountParsingProxy.parseCryptoString(depositAvailableAmount, depositCurrency) -
+              Money.fromInt(10, depositCurrency))
           : await bitcoin!.estimateFakeSendAllTxAmount(
               wallet,
               priority,
@@ -1373,7 +1373,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                       : UnspentCoinType.any,
             );
 
-      changeDepositAmount(amount: wallet.currency.formatAmount(BigInt.from(amount)), isCanonical: true);
+      changeDepositAmount(amount: amount.toString(), isCanonical: true);
     } else if (wallet.type == WalletType.monero) {
       final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
 
