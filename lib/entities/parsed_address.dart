@@ -16,6 +16,7 @@ enum ParseFrom {
   wellKnown,
   zanoAlias,
   zcashAddress,
+  zcashName,
   bip353,
   lnurlpay,
 }
@@ -174,6 +175,14 @@ class ParsedAddress {
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.zcashAddress,
+    );
+  }
+
+  factory ParsedAddress.zcashNameAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.zcashName,
     );
   }
 

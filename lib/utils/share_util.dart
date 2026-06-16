@@ -30,11 +30,22 @@ class ShareUtil {
 
   static Rect _sharePosition(BuildContext context) {
     if (!context.mounted) {
-      return Rect.zero;
+      return const Rect.fromLTWH(0, 0, 1, 1);
     }
 
-    final box = context.findRenderObject() as RenderBox?;
+    final screen = Offset.zero & MediaQuery.of(context).size;
+    final fallback = Rect.fromCenter(center: screen.center, width: 1, height: 1);
 
-    return box!.localToGlobal(Offset.zero) & box.size;
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      return fallback;
+    }
+
+    final rect = renderObject.localToGlobal(Offset.zero) & renderObject.size;
+    final clipped = rect.intersect(screen);
+    if (clipped.isEmpty) {
+      return fallback;
+    }
+    return clipped;
   }
 }

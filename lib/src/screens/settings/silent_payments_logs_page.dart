@@ -106,12 +106,17 @@ class SilentPaymentsLogPage extends BasePage {
 
   Future<void> _saveFile() async {
     String? outputFile = await FilePicker.platform
-        .saveFile(dialogTitle: 'Save Your File to desired location', fileName: "debug.log");
+        .saveFile(
+            dialogTitle: 'Save Your File to desired location',
+            fileName: "debug.log",
+            lockParentWindow: true);
+
+    if (outputFile == null) return;
 
     try {
       final filePath = (await getApplicationSupportDirectory()).path + "/debug.log";
       File debugLogFile = File(filePath);
-      await debugLogFile.copy(outputFile!);
+      await debugLogFile.copy(outputFile);
     } catch (exception, stackTrace) {
       ExceptionHandler.onError(FlutterErrorDetails(
         exception: exception,

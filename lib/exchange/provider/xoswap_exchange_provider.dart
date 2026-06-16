@@ -321,6 +321,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         'fromAddress': request.refundAddress,
         'toAmount': request.toAmount,
         'toAddress': request.toAddress,
+        if (request.toAddressExtraId.isNotEmpty) 'toAddressTag': request.toAddressExtraId,
         'pairId': pairId,
       };
 
@@ -423,9 +424,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
         isSendAll: isSendAll,
+        toAddressExtraId: request.toAddressExtraId,
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
@@ -529,14 +529,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final createdAt = DateTime.parse(createdAtString).toLocal();
       final extraId = responseJSON['payInAddressTag'] as String?;
 
-      final userCurrencyFromRaw = fromCurrency != null
-          ? '${fromCurrency.title}' + '_' + '${fromCurrency.tag ?? ''}'
-          : '${fromAssetBase}' + '_' + '${fromAssetTag ?? ''}';
-
-      final userCurrencyToRaw = toCurrency != null
-          ? '${toCurrency.title}' + '_' + '${toCurrency.tag ?? ''}'
-          : '${toAssetBase}' + '_' + '${toAssetTag ?? ''}';
-
       return Trade(
         id: orderId,
         from: fromCurrency,
@@ -550,8 +542,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
-        userCurrencyFromRaw: userCurrencyFromRaw,
-        userCurrencyToRaw: userCurrencyToRaw,
       );
     } catch (e) {
       printV(e.toString());

@@ -8,18 +8,21 @@ import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -37,6 +40,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -837,12 +841,43 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final amountController = TextEditingController();
   final fiatAmountController = TextEditingController();
   final amountFocusNode = FocusNode();
+  final memoController = TextEditingController();
+  ReactionDisposer? _memoReactionDisposer;
+  VoidCallback? _memoListener;
 
   @override
   void initState() {
     _selectedCurrency = widget.initialCurrency;
 
     super.initState();
+
+    if (widget.isReceiverCard) {
+      memoController.text = widget.exchangeViewModel.receiveAddressExtraId;
+
+      _memoListener = () {
+        if (widget.exchangeViewModel.receiveAddressExtraId != memoController.text) {
+          widget.exchangeViewModel.receiveAddressExtraId = memoController.text;
+        }
+      };
+      memoController.addListener(_memoListener!);
+
+      _memoReactionDisposer =
+          reaction((_) => widget.exchangeViewModel.receiveAddressExtraId, (String value) {
+        if (memoController.text != value) {
+          memoController.text = value;
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_memoListener != null) {
+      memoController.removeListener(_memoListener!);
+    }
+    _memoReactionDisposer?.call();
+    memoController.dispose();
+    super.dispose();
   }
 
   late Currency _selectedCurrency;
@@ -936,8 +971,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset(_selectedCurrency.iconPath ?? "",
-                                    width: 28, height: 28),
+                                TokenImageWidget(
+                                  imageUrl: _selectedCurrency.iconPath ?? "",
+                                  size: 28,
+                                ),
                                 SizedBox(width: 10),
                                 Text(
                                   currencyToShow,
@@ -1128,7 +1165,29 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                       ],
                     );
                   },
-                )
+                ),
+                if (widget.isReceiverCard)
+                  Observer(builder: (_) {
+                    final selected = widget.exchangeViewModel.receiveCurrency;
+                    final labelType = memoLabelTypeFor(selected);
+                    if (labelType == null) return const SizedBox.shrink();
+                    
+                    final isDestinationTag = labelType == MemoLabelType.destinationTag;
+                    final hint = isDestinationTag
+                        ? S.of(context).destination_tag_optional
+                        : S.of(context).memo_optional;
+                    final disclaimer = isDestinationTag
+                        ? S.of(context).destination_tag_swap_disclaimer
+                        : S.of(context).memo_swap_disclaimer;
+                          
+                    return NewSendMemoInput(
+                      memoController: memoController,
+                      maxMemoLength: isDestinationTag ? 20 : 256,
+                      memoLength: memoController.text.length,
+                      hintText: hint,
+                      disclaimerText: disclaimer,
+                    );
+                  }),
               ],
             ),
           ),
@@ -1155,9 +1214,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   }
 
   void _presentCurrencyPicker() {
-    final currencies = widget.isReceiverCard
+    final rawCurrencies = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
+    final currencies = rawCurrencies.whereType<CryptoCurrency>().toList();
+    appendEvmDefaultTokens(currencies);
     if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
       currencies.sort((a, b) {
         if (a == CryptoCurrency.btcln) return -1;
@@ -1166,20 +1227,18 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       });
     }
 
-    showPopUp<void>(
+    final selected = widget.isReceiverCard
+        ? widget.exchangeViewModel.receiveCurrency
+        : widget.exchangeViewModel.depositCurrency;
+
+    CurrencyPickerSheet.show(
       context: context,
-      builder: (_) => CurrencyPicker(
-        key: ValueKey('send_page_currency_picker_dialog_button_key'),
-        selectedAtIndex: currencies.indexOf(widget.isReceiverCard
-            ? widget.exchangeViewModel.receiveCurrency
-            : widget.exchangeViewModel.depositCurrency),
+      args: CurrencyPickerArgs(
         items: currencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) async {
-          if (cur is CryptoCurrency) {
-            widget.onCurrencySelected(cur);
-          }
-        },
+        selected: selected,
+        recentsSource: RecentsSource.trades,
+        onSelected: widget.onCurrencySelected,
+        symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
       ),
     );
   }

@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -91,6 +93,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   var bleDevices = <HardwareWalletDevice>[];
   var usbDevices = <HardwareWalletDevice>[];
 
+  List<HardwareWalletDevice> get allDevices => [...bleDevices, ...usbDevices];
+
   late Timer? _usbRefreshTimer = null;
   late Timer? _bleRefreshTimer = null;
   late Timer? _bleStateTimer = null;
@@ -158,24 +162,38 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   Future<void> _connectToDevice(HardwareWalletDevice device) async {
     final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
-    if (isConnected) widget.onConnectDevice(context, widget.hardwareWalletVM);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isConnected) widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
+    });
   }
 
   String _getDeviceTileLeading(HardwareWalletDeviceType deviceType) {
     switch (deviceType) {
       case HardwareWalletDeviceType.ledgerNanoX:
-        return 'assets/images/hardware_wallet/ledger_nano_x.png';
+        return 'assets/new-ui/hardware_wallets/ledger_nano_x.svg';
       case HardwareWalletDeviceType.ledgerNanoGen5:
-        return 'assets/images/hardware_wallet/device_ledger_nano_gen_5.svg';
+        return 'assets/new-ui/hardware_wallets/device_ledger_nano_gen_5.svg';
       case HardwareWalletDeviceType.ledgerStax:
-        return 'assets/images/hardware_wallet/ledger_stax.png';
+        return 'assets/new-ui/hardware_wallets/ledger_stax.svg';
       case HardwareWalletDeviceType.ledgerFlex:
-        return 'assets/images/hardware_wallet/ledger_flex.png';
+        return 'assets/new-ui/hardware_wallets/ledger_flex.svg';
       case HardwareWalletDeviceType.BitBox02:
-        return 'assets/images/hardware_wallet/device_bitbox.svg';
+      case HardwareWalletDeviceType.BitBox02Nova:
+        return 'assets/new-ui/hardware_wallets/device_bitbox.svg';
+      case HardwareWalletDeviceType.trezorModelOne:
+        return 'assets/new-ui/hardware_wallets/device_trezor_model_one.svg';
+      case HardwareWalletDeviceType.trezorModelT:
+        return 'assets/new-ui/hardware_wallets/device_trezor_model_t.svg';
+      case HardwareWalletDeviceType.trezorSafe3:
+        return 'assets/new-ui/hardware_wallets/device_trezor_safe_3.svg';
+      case HardwareWalletDeviceType.trezorSafe5:
+        return 'assets/new-ui/hardware_wallets/device_trezor_safe_5.svg';
+      case HardwareWalletDeviceType.trezorSafe7:
+        return 'assets/new-ui/hardware_wallets/device_trezor_safe_7.svg';
 
       default:
-        return 'assets/images/hardware_wallet/ledger_nano_x.png';
+        return 'assets/new-ui/hardware_wallets/ledger_nano_x.svg';
     }
   }
 
@@ -197,25 +215,15 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
+                    spacing: 24,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                        child: Text(
-                          description,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          textAlign: TextAlign.center,
-                        ),
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/hardware_wallet.svg",
                       ),
-                      Offstage(
-                        offstage: !longWait,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                          child: Text(
-                            S.of(context).if_you_dont_see_your_device,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+                      Text(
+                        description,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        textAlign: TextAlign.center,
                       ),
                       Observer(
                         builder: (_) => Offstage(
@@ -231,56 +239,70 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                           ),
                         ),
                       ),
-                      if (bleDevices.length > 0) ...[
-                        Padding(
-                          padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                          child: Container(
-                            width: double.infinity,
-                            child: Text(
-                              S.of(context).bluetooth,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
-                        ),
-                        ...bleDevices
-                            .map(
-                              (device) => Padding(
-                                padding: EdgeInsets.only(bottom: 20),
-                                child: DeviceTile(
-                                  onPressed: () => _connectToDevice(device),
-                                  title: device.name,
-                                  leading: _getDeviceTileLeading(device.type),
-                                  connectionType: device.connectionType,
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(18)),
+                        child: ListView.separated(
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              final item = allDevices[index];
+                              return GestureDetector(
+                                onTap: () => _connectToDevice(item),
+                                behavior: HitTestBehavior.opaque,
+                                child: SizedBox(
+                                  height: 48,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          spacing: 12,
+                                          children: [
+                                            CakeImageWidget(
+                                              imageUrl: _getDeviceTileLeading(item.type),
+                                              width: 24,
+                                              height: 24,
+                                              colorFilter: ColorFilter.mode(
+                                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  BlendMode.srcIn),
+                                            ),
+                                            Text(item.name)
+                                          ],
+                                        ),
+                                        Row(
+                                          spacing: 12,
+                                          children: [
+                                            if (item.connectionType ==
+                                                HardwareWalletConnectionType.ble)
+                                              CakeImageWidget(
+                                                imageUrl: "assets/new-ui/bluetooth.svg",
+                                                width: 24,
+                                                height: 24,
+                                                colorFilter: ColorFilter.mode(
+                                                    Theme.of(context).colorScheme.primary,
+                                                    BlendMode.srcIn),
+                                              ),
+                                            CakeImageWidget(
+                                                imageUrl: "assets/new-ui/arrow_forward.svg",
+                                                height: 16,
+                                                colorFilter: ColorFilter.mode(
+                                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                                    BlendMode.srcIn))
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            )
-                            .toList()
-                      ],
-                      if (usbDevices.length > 0) ...[
-                        Padding(
-                          padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                          child: Container(
-                            width: double.infinity,
-                            child: Text(
-                              S.of(context).usb,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
-                        ),
-                        ...usbDevices
-                            .map(
-                              (device) => Padding(
-                                padding: EdgeInsets.only(bottom: 20),
-                                child: DeviceTile(
-                                  onPressed: () => _connectToDevice(device),
-                                  title: device.name,
-                                  leading: _getDeviceTileLeading(device.type),
-                                  connectionType: device.connectionType,
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ],
+                              );
+                            },
+                            separatorBuilder: (context, index) => Container(
+                                height: 1,
+                                color: Theme.of(context).colorScheme.surfaceContainerHigh),
+                            itemCount: allDevices.length),
+                      ),
                       if (widget.allowChangeWallet) ...[
                         PrimaryButton(
                           text: S.of(context).wallets,
@@ -293,10 +315,10 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   ),
                 ),
               ),
-              PrimaryButton(
+              NewPrimaryButton(
                 text: S.of(context).how_to_connect,
                 color: Theme.of(context).colorScheme.surfaceContainer,
-                textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                textColor: Theme.of(context).colorScheme.primary,
                 onPressed: () => _onHowToConnect(context),
               )
             ],

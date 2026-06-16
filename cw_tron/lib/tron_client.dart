@@ -341,6 +341,7 @@ class TronClient {
       amount: totalAmount,
       fee: TronHelper.fromSun(rawTransaction.feeLimit ?? BigInt.zero),
       sendTransaction: sendTx,
+      id: rawTransaction.txID
     );
   }
 

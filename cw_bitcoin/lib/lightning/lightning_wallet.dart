@@ -33,8 +33,10 @@ class LightningWallet {
     required this.apiKey,
     required this.lnurlDomain,
     this.network = Network.mainnet,
-    this.cachedAddress
+    this.cachedAddress,
   });
+
+  static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
@@ -196,6 +198,7 @@ class LightningWallet {
               final res = await sdk.sendPayment(
                   request: SendPaymentRequest(prepareResponse: prepareResponse));
               printV(res.payment.status.name);
+              return res.payment.id;
             } on SdkError_SparkError catch (e) {
               if (e.field0.contains("AlreadyExists")) {
                 throw Exception("Invoice already paid");
@@ -211,14 +214,14 @@ class LightningWallet {
       PrepareLnurlPayRequest request;
       if (inputType is InputType_LightningAddress) {
         request = PrepareLnurlPayRequest(
-          amountSats: amountSats!,
+          amount: amountSats!,
           payRequest: inputType.field0.payRequest,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
           feePolicy: feePolicy,
         );
       } else {
         request = PrepareLnurlPayRequest(
-          amountSats: amountSats!,
+          amount: amountSats!,
           payRequest: (inputType as InputType_LnurlPay).field0,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
           feePolicy: feePolicy,
@@ -237,6 +240,7 @@ class LightningWallet {
           final res =
               await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
           printV(res.payment.status.name);
+          return res.payment.id;
         },
       );
     } else if (inputType is InputType_BitcoinAddress) {
@@ -276,8 +280,9 @@ class LightningWallet {
           commitOverride: () async {
             final options =
                 SendPaymentOptions.bitcoinAddress(confirmationSpeed: onchainConfirmationSpeed);
-            await sdk.sendPayment(
+            final res = await sdk.sendPayment(
                 request: SendPaymentRequest(prepareResponse: prepareResponse, options: options));
+            return res.payment.id;
           },
         );
       }

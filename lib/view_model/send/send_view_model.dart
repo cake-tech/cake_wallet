@@ -8,6 +8,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -22,6 +23,7 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
@@ -58,6 +60,7 @@ import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -487,6 +490,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get shouldDisplayTOTP2FAForSendsToInternalWallet =>
       _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets;
 
+  @computed
+  TransactionInfo? get transactionInfo {
+    if(isEVMCompatibleChain(walletType)) {
+      return wallet.transactionHistory.transactions[pendingTransaction?.evmTxHashFromRawHex];
+    }
+    if (walletType == WalletType.monero) {
+      // monero tx history keys are in format txhash_amount_accountindex_addressindex
+      return wallet.transactionHistory.transactions[wallet.transactionHistory.transactions.keys
+          .firstWhereOrNull((item) => item.split("_").first == pendingTransaction?.id)];
+    }
+    if (walletType == WalletType.zcash) {
+      // zcash has a txHash getter, but the pendingTransaction id contains quotation marks for whatever reason?
+      final txIdNoQuotes = pendingTransaction?.id.replaceAll("\"", "");
+      return wallet.transactionHistory.transactions.values
+          .firstWhereOrNull((item) => item.txHash == txIdNoQuotes);
+    }
+    return wallet.transactionHistory.transactions[pendingTransaction?.id];
+  }
+
   //* Still open to further optimize these checks
   //* It works but can be made better
   @action
@@ -618,7 +640,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
       if (wallet.isHardwareWallet) {
-        state = IsAwaitingDeviceResponseState();
         if (walletType == WalletType.monero) {
           _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
             if (monero!.getLastLedgerCommand() == "INS_CLSAG") {
@@ -626,6 +647,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               state = IsDeviceSigningResponseState();
             }
           });
+        } else {
+          state = IsAwaitingDeviceResponseState();
         }
       }
 
@@ -969,8 +992,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
+
     try {
-      state = TransactionCommitting();
+      state = wallet.isHardwareWallet && walletType == WalletType.monero
+          ? IsAwaitingDeviceResponseState()
+          : TransactionCommitting();
 
       if (ocpRequest != null) {
         await _handleOcpRequest();
@@ -981,6 +1007,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       state = TransactionCommitted();
+
+      if (_currentTrade != null) {
+        final provider = _currentTrade!.provider;
+        if (provider == ExchangeProviderDescription.swapsXyz) {
+          registerSwapsXyzTransaction(_currentTrade!);
+        }
+      }
 
       await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
 
@@ -1066,6 +1099,48 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         });
       }
 
+      // FIXME(malik) ideally, this should be done wallet-side.
+      // it is required because evm, solana and tron don't actually save the transaction info when you send something.
+      // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
+      if(isEVMWallet) {
+        wallet.transactionHistory.addOne(evm!.getTransactionInfo(
+            id: pendingTransaction!.evmTxHashFromRawHex!,
+            height: 0,
+            // FIXME(malik) this is even more critical given all the issues we had with decimal point parsing. with money it'll be easy
+            ethAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
+            ethFee: CryptoCurrency.eth.parseAmount(pendingTransaction!.feeFormattedValue),
+            tokenSymbol: selectedCryptoCurrency.title,
+            direction: TransactionDirection.outgoing,
+            isPending: true,
+            date: DateTime.now(),
+            confirmations: 0,
+            chainId: wallet.chainId ?? 0));
+      }
+      
+      if(walletType == WalletType.solana) {
+        wallet.transactionHistory.addOne(solana!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            blockTime: DateTime.now(),
+            tokenSymbol: selectedCryptoCurrency.title,
+            to: "",
+            from: "",
+            direction: TransactionDirection.outgoing,
+            solAmount: solana!.getPendingTransactionAmount(pendingTransaction!),
+            isPending: true,
+            txFee: solana!.getPendingTransactionFee(pendingTransaction!)));
+      }
+
+      if (walletType == WalletType.tron) {
+        wallet.transactionHistory.addOne(tron!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            blockTime: DateTime.now(),
+            tokenSymbol: selectedCryptoCurrency.title,
+            direction: TransactionDirection.outgoing,
+            tronAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
+            isPending: true,
+            txFee: CryptoCurrency.trx.parseAmount(outputs.first.estimatedFee).toInt()));
+      }
+
       if (pendingTransaction!.id.isNotEmpty) {
         _addTransactionDescription();
       }
@@ -1091,19 +1166,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     _currentTrade!.stateRaw = isSuccess ? TradeState.completed.raw : TradeState.failed.raw;
 
-    if (_currentTrade!.isInBox) {
-      await _currentTrade!.save();
-    }
+    await _currentTrade!.save();
   }
 
   @action
   Future<void> updateWalletBalance() async => await wallet.updateBalance();
 
   Future<void> _addTransactionDescription() async {
-    String address = outputs.fold('', (acc, value) {
-      return value.isParsedAddress
-          ? '$acc${value.address}\n${value.extractedAddress}\n\n'
-          : '$acc${value.address}\n\n';
+       String address = outputs.fold('', (acc, value) {
+      final canonical = value.extractedAddress.trim().isNotEmpty
+          ? value.extractedAddress.trim()
+          : value.address.trim();
+      if (canonical.isEmpty) {
+        return acc;
+      }
+      return '$acc$canonical\n\n';
     });
 
     address = address.trim();
@@ -1559,6 +1636,54 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return false;
+  }
+
+  Future<void> registerSwapsXyzTransaction(Trade trade) async {
+    try {
+
+      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
+      final needToRegister = trade.needToRegisterInSwapXyz ?? false;
+      if (!needToRegister) return;
+
+      final vmId = (trade.providerId ?? '').toLowerCase();
+      if (vmId.isEmpty) {
+        printV('SwapsXyz: transaction register: skipped (vmId empty)');
+        return;
+      }
+
+      final txHash = pendingTransaction?.evmTxHashFromRawHex
+          ?? pendingTransaction?.id
+          ?? '';
+
+      if (txHash.isEmpty) {
+        printV('SwapsXyz: transaction register: skipped (txHash empty)');
+        return;
+      }
+
+      final chainId = int.tryParse(trade.router ?? '') ?? 0;
+      if (chainId <= 0) {
+        printV('SwapsXyz: transaction register: skipped (invalid chainId)');
+        return;
+      }
+
+      printV(
+          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
+
+      final registered = await SwapsXyzExchangeProvider.registerAltVmTx(
+        txId: trade.id,
+        txHash: txHash,
+        chainId: chainId,
+        vmId: vmId,
+      );
+
+      if (!registered) {
+        printV('SwapsXyz: transaction register: failed');
+      } else {
+        printV('SwapsXyz: transaction register: success');
+      }
+    } catch (e) {
+      printV('registerSwapsXyzTransaction error: $e');
+    }
   }
 
   @computed

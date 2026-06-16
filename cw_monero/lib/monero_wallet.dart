@@ -37,6 +37,7 @@ import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
+import 'package:cw_monero/trezor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
@@ -385,8 +386,42 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
               currentWallet!.hasUnknownKeyImages();
   }
 
+  MoneroTrezorService? trezorService;
+  Future<void> syncTrezor() async {
+    if (trezorService == null) throw Exception("Trezor not connected");
+
+    final ptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
+    final tdis = monero.Wallet_exportTrezorTdis(ptr);
+
+    final response = await Trezor(trezorService!).keyImageSync(tdis);
+
+    final success = monero.Wallet_importTrezorEncryptedKeyImagesJson(ptr, response);
+
+    if (!success) throw Exception(monero.Wallet_errorString(ptr));
+  }
+
+  Future<String> signTrezorTransaction(String json) async {
+    if (trezorService == null) throw Exception("Trezor not connected");
+    return Trezor(trezorService!).signTransaction(json);
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    if (hardwareWalletType == HardwareWalletType.trezor) {
+      for (int i = 0; i < 2; i++) {
+        try {
+          return await _createTransaction(credentials);
+        } catch (e) {
+          printV(e);
+        }
+        await save();
+        await Future.delayed(Duration(seconds: i));
+      }
+    }
+    return await _createTransaction(credentials);
+  }
+  
+  Future<PendingTransaction> _createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
     final inputs = <String>[];
     final outputs = _credentials.outputs;
@@ -400,9 +435,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       throw MoneroTransactionCreationException('The wallet is not synced.');
     }
 
-    if (unspentCoins.isEmpty) {
-      await updateUnspent();
-    }
+    await updateUnspent();
 
     for (final utx in unspentCoins) {
       if (utx.isSending) {

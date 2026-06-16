@@ -9,7 +9,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -40,7 +39,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const Map<String, String> kNearDummyAddresses = {
     // UTXO
     'LTC': 'ltc1qhdwz74m3wuuhppv2mckagqk9e2e49z5j4kucnv',
-    'BTC': 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
+    'BTC': 'bc1qzwdt09dgr5nle2fkv7h5s6axgjqpdyp5g5tumz',
     'DOGE': 'D9t7rGQ9mE3hJ2z1w8pGQxkGmKjYwYc8pQ',
     'BCH': 'qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a',
 
@@ -88,6 +87,9 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   @override
   bool get supportsFixedRate => true;
+
+  @override
+  bool get supportsMemoOrDestinationTag => false;
 
   @override
   ExchangeProviderDescription get description =>
@@ -249,6 +251,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final quoteObj = quote['quote'] as Map<String, dynamic>;
       final depositAddress = quoteObj['depositAddress'] as String;
       final depositMemo = quoteObj['depositMemo'] as String?;
+      final depositAmount = quoteObj['amountInFormatted'] as String?;
+
+      if (depositAmount == null) {
+        throw Exception('Deposit amount is null in quote response');
+      }
 
       final quoteRequest = quote['quoteRequest'] as Map<String, dynamic>;
       final fromAssetId = quoteRequest['originAsset'] as String;
@@ -282,14 +289,10 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         inputAddress: depositAddress,
         payoutAddress: request.toAddress,
         refundAddress: request.refundAddress,
-        amount: request.fromAmount,
+        amount: depositAmount,
         receiveAmount: quoteObj['amountOutFormatted']?.toString(),
         memo: depositMemo,
         isSendAll: isSendAll,
-        userCurrencyFromRaw:
-            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw:
-            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
 
       ExchangeProviderLogger.logSuccess(
@@ -415,8 +418,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       txId: originTxHash,
       extraId: depositMemo,
       isRefund: statusRaw == 'REFUNDED',
-      userCurrencyFromRaw: '${from?.$1.toUpperCase()}' + '_' + '${from?.$2?.toUpperCase() ?? ''}',
-      userCurrencyToRaw: '${to?.$1.toUpperCase()}' + '_' + '${to?.$2?.toUpperCase() ?? ''}',
     );
   }
 

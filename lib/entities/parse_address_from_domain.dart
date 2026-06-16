@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/entities/zano_alias.dart';
+import 'package:cake_wallet/entities/zcash_names_record.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
@@ -215,6 +216,14 @@ class AddressResolver {
     return emailRegex.hasMatch(address);
   }
 
+  String _stripHtmlTags(String value) {
+    return value
+        .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'</p\s*>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .trim();
+  }
+
   Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
     final ticker = currency.title;
     try {
@@ -347,7 +356,8 @@ class AddressResolver {
               await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
           if (mastodonUser != null) {
-            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency, requireSurroundingWhitespaces: true);
+            final mastodonNote = _stripHtmlTags(mastodonUser.note);
+            String? addressFromBio = extractAddressByType(raw: mastodonNote, type: currency, requireSurroundingWhitespaces: true);
 
             if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
@@ -360,7 +370,7 @@ class AddressResolver {
                   await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
 
               if (pinnedPosts.isNotEmpty) {
-                final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
+                final userPinnedPostsText = pinnedPosts.map((item) => _stripHtmlTags(item.content)).join('\n');
                 String? addressFromPinnedPost =
                     extractAddressByType(raw: userPinnedPostsText, type: currency,
                         requireSurroundingWhitespaces: true);
@@ -454,6 +464,16 @@ class AddressResolver {
           } catch (e) {
             printV('Bip353Record.fetchBip353AddressAddress error: $e');
             return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+          }
+        }
+      }
+
+      final lowerText = text.toLowerCase();
+      if (lowerText.endsWith(".zec") || lowerText.endsWith(".zcash")) {
+        if (settingsStore.lookupsZcashNames) {
+          final address = await ZcashNamesRecord.fetchZcashNamesAddress(text);
+          if (address != null && address.isNotEmpty) {
+            return ParsedAddress.zcashNameAddress(address: address, name: text);
           }
         }
       }

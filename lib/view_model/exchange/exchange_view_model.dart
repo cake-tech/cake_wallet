@@ -38,11 +38,9 @@ import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/currency.dart';
 import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -57,6 +55,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/sync_status.dart';
@@ -67,7 +66,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -95,7 +93,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   ExchangeViewModelBase(
     this._appStore,
-    this.trades,
     this._exchangeTemplateStore,
     this.tradesStore,
     this.sharedPreferences,
@@ -126,12 +123,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt];
-    const excludeReceiveCurrencies = [
-      CryptoCurrency.xlm,
-      CryptoCurrency.xrp,
-      CryptoCurrency.bnb,
-      CryptoCurrency.btt
-    ];
+    const excludeReceiveCurrencies = [CryptoCurrency.btt];
     _initialPairBasedOnWallet();
 
     unspentCoinsListViewModel.initialSetup().then((_) {
@@ -276,17 +268,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   void showFiatCurrencyPicker(BuildContext context) {
-    showPopUp<void>(
+    FiatCurrencyPickerSheet.show(
       context: context,
-      builder: (_) => CurrencyPicker(
-        key: ValueKey('send_page_currency_picker_dialog_button_key'),
-        selectedAtIndex: FiatCurrency.all.indexOf(fiat),
-        items: FiatCurrency.all,
-        hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) async {
-          _settingsStore.fiatCurrency = (cur as FiatCurrency);
-        },
-      ),
+      selected: fiat,
+      onSelected: (cur) => _settingsStore.fiatCurrency = cur,
     );
   }
 
@@ -307,7 +292,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       [WalletType.monero, WalletType.wownero, WalletType.zcash].contains(wallet.type);
 
   bool _useTorOnly;
-  final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
@@ -315,7 +299,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   List<ExchangeProvider> get _allProviders => [
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         // SideShiftExchangeProvider(),
-        ChainflipExchangeProvider(tradesStore: trades),
+        ChainflipExchangeProvider(),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
         LetsExchangeExchangeProvider(),
@@ -395,6 +379,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String receiveAddress;
 
   @observable
+  String receiveAddressExtraId = '';
+
+  @observable
   String? receiveAddressDisplayName;
 
   @observable
@@ -439,13 +426,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   Future<List<WalletInfo>> get receiveWallets async {
-    WalletType? type;
-    type = cryptoCurrencyOrTokenToWalletType(receiveCurrency);
-    if (type == null) {
-      type = cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(receiveCurrency.tag ?? ""));
-    }
+    try {
+      WalletType? type;
+      type = cryptoCurrencyOrTokenToWalletType(receiveCurrency);
+      if (type == null) {
+        type =
+            cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(receiveCurrency.tag ?? ""));
+      }
 
-    return await WalletInfo.selectList("type = ?", [type!.index]);
+      return await WalletInfo.selectList("type = ?", [type!.index]);
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
@@ -764,6 +756,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         currency == receiveCurrency)) {
       receiveAddress = "";
     }
+    if (currency != receiveCurrency) {
+      receiveAddressExtraId = "";
+    }
 
     receiveCurrency = currency;
     isFixedRateMode = false;
@@ -887,6 +882,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       (provider.description == ExchangeProviderDescription.swapsXyz ||
           provider.description == ExchangeProviderDescription.nearIntents);
 
+  bool _excludeProviderForReceiveExtraId(ExchangeProvider provider) =>
+      memoLabelTypeFor(receiveCurrency) != null && !provider.supportsMemoOrDestinationTag;
+
   Future<void> calculateBestRate() async {
     if (depositCurrency == receiveCurrency) {
       bestRate = 0.0;
@@ -898,6 +896,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       if (_excludeProviderForSwapAll(provider)) return false;
+      if (_excludeProviderForReceiveExtraId(provider)) return false;
 
       final limits = _providerLimits[provider];
 
@@ -975,6 +974,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     try {
       final futures = selectedProviders
           .where((provider) => providerList.contains(provider))
+          .where((provider) => !_excludeProviderForReceiveExtraId(provider))
           .map((provider) async {
         final limits = await provider
             .fetchLimits(
@@ -1025,6 +1025,39 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+    final depositAmountValue =
+        double.tryParse(_depositAmount.replaceAll(',', '.')) ?? 0.0;
+
+    final receiveAmountValue =
+        double.tryParse(_receiveAmount.replaceAll(',', '.')) ?? 0.0;
+
+    if (depositAmountValue <= 0 || receiveAmountValue <= 0) {
+      ExchangeProviderLogger.logError(
+        provider: forcedProvider?.description ?? bestRateProvider?.description,
+        function: 'createTrade',
+        error: 'Invalid swap amount: deposit=$_depositAmount receive=$_receiveAmount',
+        requestData: {
+          'from': depositCurrency.title,
+          'to': receiveCurrency.title,
+          'fromAmount': _depositAmount,
+          'toAmount': _receiveAmount,
+          'isFixedRateMode': isFixedRateMode,
+          'forcedProvider': forcedProvider?.title,
+          'bestRateProvider': bestRateProvider?.title,
+        },
+      );
+
+      final invalidAmountError = depositAmountValue <= 0
+          ? '$depositAmountValue is not a valid amount for depositAmount'
+          : '$receiveAmountValue is not a valid amount for receiveAmount';
+
+      tradeState = TradeIsCreatedFailure(
+        title: S.current.trade_not_created,
+        error: invalidAmountError,
+      );
+      return;
+    }
+
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
       final amount = double.tryParse(_depositAmount);
@@ -1038,6 +1071,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     if (depositCurrency == CryptoCurrency.btcln &&
+        wallet.type == WalletType.bitcoin &&
         depositAddress == wallet.walletAddresses.addressForExchange) {
       final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
       if (invoice != null) {
@@ -1046,11 +1080,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     if (receiveCurrency == CryptoCurrency.btcln &&
+        wallet.type == WalletType.bitcoin &&
         receiveAddress == wallet.walletAddresses.addressForExchange) {
       final invoice = await bitcoin!.getLightningInvoice(wallet, BigInt.zero);
       if (invoice != null) {
         receiveAddress = invoice;
       }
+    }
+
+    if (forcedProvider != null && _excludeProviderForReceiveExtraId(forcedProvider!)) {
+      tradeState = TradeIsCreatedFailure(
+          title: S.current.trade_not_created,
+          error: S.current.none_of_selected_providers_can_exchange);
+      return;
     }
 
     Map<double, ExchangeProvider> providers;
@@ -1141,6 +1183,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (isFixedRateMode && provider.supportsFixedRate == false) {
           continue;
         }
+        
+        if (_excludeProviderForReceiveExtraId(provider)) {
+          continue;
+        }
 
         // Skip Swaps.xyz when sending from external
         if (isSendFromExternal &&
@@ -1163,6 +1209,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           toAmount: _receiveAmount.replaceAll(',', '.'),
           refundAddress: depositAddress,
           toAddress: receiveAddress,
+          toAddressExtraId: receiveAddressExtraId.trim(),
           isFixedRate: isFixedRateMode,
         );
 
@@ -1213,7 +1260,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               }
 
               tradesStore.setTrade(trade);
-              if (trade.provider != ExchangeProviderDescription.thorChain) await trades.add(trade);
+              if (trade.provider != ExchangeProviderDescription.thorChain) await trade.save();         
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
 
               /// return after the first successful trade
@@ -1263,6 +1310,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     receiveAddress =
         receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    receiveAddressExtraId = '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();
@@ -1626,7 +1674,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (trade.provider == ExchangeProviderDescription.swapsXyz) {
 
-      final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+      final tradeFrom = trade.from;
 
       if (tradeFrom == null) {
         return CreateTradeResult(

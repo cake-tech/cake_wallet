@@ -165,8 +165,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
     final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
-        onDismissed: () {
-          widget.addressListViewModel.dismissInfobox();
+        supportedCurrencies: widget.addressListViewModel.tokenCurrencies
+            .whereType<CryptoCurrency>()
+            .toList(), onDismissed: () {
+      widget.addressListViewModel.dismissInfobox();
           setState(() {});
         }, autoGenerateSubaddressStatus: widget.lightningMode ? AutoGenerateSubaddressStatus.disabled : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus);
 
@@ -340,7 +342,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
     setState(() {
       _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
               (item) => (item is WalletAddressListItem && item.address == newAddress.address))
-          as WalletAddressListItem;
+          as WalletAddressListItem?;
     });
   }
 }

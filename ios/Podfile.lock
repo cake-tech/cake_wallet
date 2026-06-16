@@ -1,7 +1,7 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - Flutter
-  - breez_sdk_spark_flutter (0.11.0):
+  - breez_sdk_spark_flutter (0.14.0):
     - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
@@ -86,7 +86,7 @@ PODS:
   - package_info_plus (0.4.5):
     - Flutter
   - payjoin_flutter (0.23.0)
-  - permission_handler_apple (9.3.0):
+  - permission_handler_apple (9.4.8):
     - Flutter
   - quick_actions_ios (0.0.1):
     - Flutter
@@ -296,9 +296,9 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/warp_api/ios"
 
 SPEC CHECKSUMS:
-  bitbox_flutter: 506f80b961ddf646b0d80cef9f6eadaab96d91b0
-  breez_sdk_spark_flutter: e7d0201b7001ff16f85a7c4820592db5728d4c27
-  connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
+  bitbox_flutter: 9505732798041c413152669751beeaecc5fe400f
+  breez_sdk_spark_flutter: ed3b6709b8ce9b40309d8728640eade5b19e8a0d
+  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   cw_decred: 9c0e1df74745b51a1289ec5e91fb9e24b68fa14a
   cw_mweb: 22cd01dfb8ad2d39b15332006f22046aaa8352a3
@@ -325,11 +325,11 @@ SPEC CHECKSUMS:
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   payjoin_flutter: d9d4c8aa16bd5dfedb9b21d0edc8199e0187d96e
-  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
-  quick_actions_ios: b49ed09d6362da1bf520dacc204661978a8fc5c2
-  reown_yttrium: c0e87e5965fa60a3559564cc35cffbba22976089
-  rive_common: 4743dbfd2911c99066547a3c6454681e0fa907df
-  rlz: d9288e8760ae2d7494b56d63cda672cfb21b8d61
+  permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
+  quick_actions_ios: 4b07fb49d8d8f3518d7565fbb7a91014067a7d82
+  reown_yttrium: cee334ade64725b1d83f7b34c706a6aae2696d58
+  rive_common: dd421daaf9ae69f0125aa761dd96abd278399952
+  rlz: 3f4022361f540a5c26d9d2474fea1d2455b69d8d
   SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
@@ -339,12 +339,12 @@ SPEC CHECKSUMS:
   sqlite3: 73513155ec6979715d3904ef53a8d68892d4032b
   sqlite3_flutter_libs: 86f82662868ee26ff3451f73cac9c5fc2a1f57fa
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  torch_dart: d2cf778332cc6e6a3b362dcf45e4dde52bc34e35
-  uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
-  universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
-  url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
-  wakelock_plus: 76957ab028e12bfa4e66813c99e46637f367fc7e
-  warp_api: 4a60cc00440d5eb56ae4dbf75f89a34ed90ddf1b
+  torch_dart: f4620705d10f05492fab047f2fa1c3a600e7d17d
+  uni_links: ed8c961e47ed9ce42b6d91e1de8049e38a4b3152
+  universal_ble: 45519b2aeafe62761e2c6309f8927edb5288b914
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
+  wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
+  warp_api: 997d8fb3e777669bc6260d0c12e56cd40b9db1d1
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
 PODFILE CHECKSUM: 5296465b1c6d14d506230356756826012f65d97a
