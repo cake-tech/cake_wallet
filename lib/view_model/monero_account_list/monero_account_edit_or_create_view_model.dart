@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -18,6 +19,7 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._wowneroAccountList,
+      this._nervaAccountList,
       {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
@@ -35,6 +37,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
   final MoneroAccountList _moneroAccountList;
   final WowneroAccountList? _wowneroAccountList;
+  final NervaAccountList? _nervaAccountList;
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
@@ -55,7 +58,8 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
             walletInfoId: _wallet.walletInfo.internalId,
             accountIndex: _moneroAccountList.accounts.length,
             cardOrder: _moneroAccountList.accounts.length,
-            design: CardDesign.specialDesignsForCurrencies[_wallet.currency]!
+            design: (CardDesign.specialDesignsForCurrencies[_wallet.currency] ??
+                    CardDesign.genericDefault)
                 .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
   }
@@ -68,6 +72,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
     if (_wallet.type == WalletType.wownero) {
       await saveWownero();
+    }
+
+    if (_wallet.type == WalletType.nerva) {
+      await saveNerva();
     }
   }
 
@@ -104,6 +112,28 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
             label: label);
       } else {
         await _wowneroAccountList?.addAccount(
+          _wallet,
+          label: label);
+      }
+
+      await _wallet.save();
+      state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
+  Future<void> saveNerva() async {
+    try {
+      state = IsExecutingState();
+
+      if (_accountListItem != null) {
+        await _nervaAccountList?.setLabelAccount(
+            _wallet,
+            accountIndex: _accountListItem.id,
+            label: label);
+      } else {
+        await _nervaAccountList?.addAccount(
           _wallet,
           label: label);
       }
