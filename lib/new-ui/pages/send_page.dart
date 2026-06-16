@@ -522,11 +522,17 @@ class _NewSendPageState extends State<NewSendPage> {
                                           ListItemRegularRowWidget(
                                             keyValue: "",
                                             label: "Coin Control",
-                                            onTap: () {
-                                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,canEdit: true);
-                                              });
-                                            }
+                                            onTap: () => showCupertinoModalBottomSheet(
+                                              enableDrag: false,
+                                              useRootNavigator: true,
+                                              isDismissible: false,
+                                              context: context,
+                                              builder: (_) => NewCoinControlPage(
+                                                unspentCoinsListViewModel:
+                                                    widget.sendViewModel.unspentCoinsListViewModel,
+                                                canEdit: true,
+                                              ),
+                                            ),
                                           ),
                                       ]),
                                     )
