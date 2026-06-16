@@ -125,7 +125,7 @@ class SendPageModes {
       helpContent: SendPageHelpContent(
           title: S.current.about_litecoin_privacy,
           imagePath: "assets/new-ui/mweb_help.svg",
-          description: S.current.mweb_help_desc_1 + "\n\n" + S.current.mweb_help_desc_2,
+          description: "${S.current.mweb_help_desc_1}\n\n${S.current.mweb_help_desc_2}",
           disclaimer: S.current.mweb_help_disclaimer),
       popOnConfirmation: false);
 
@@ -136,7 +136,7 @@ class SendPageModes {
       helpContent: SendPageHelpContent(
           title: S.current.about_litecoin_privacy,
           imagePath: "assets/new-ui/mweb_help.svg",
-          description: S.current.mweb_help_desc_1 + "\n\n" + S.current.mweb_help_desc_2,
+          description: "${S.current.mweb_help_desc_1}\n\n${S.current.mweb_help_desc_2}",
           disclaimer: S.current.mweb_help_disclaimer),
       popOnConfirmation: false);
 
@@ -186,12 +186,12 @@ class NewSendPage extends StatefulWidget {
 }
 
 class _NewSendPageState extends State<NewSendPage> {
-  bool _fiatInputMode = false;
+
   int _selectedOutput = 0;
 
-  List<TextEditingController> _amountControllers = [];
-  List<TextEditingController> _addressControllers = [];
-  List<TextEditingController> _memoControllers = [];
+  final _amountControllers = <TextEditingController>[];
+  final _addressControllers = <TextEditingController>[];
+  final _memoControllers = <TextEditingController>[];
   final _formKey = GlobalKey<FormState>();
   final _addressFocusNode = FocusNode();
   BuildContext? loadingBottomSheetContext;
@@ -207,7 +207,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
     reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, ((bool all) {
       if (all) {
-        _fiatInputMode = false;
+        widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = false;
         _amountControllers[_selectedOutput].text = S.current.all;
       }
     }));
@@ -441,18 +441,18 @@ class _NewSendPageState extends State<NewSendPage> {
                                             ? widget.sendViewModel.allAmountValidator
                                             : widget.sendViewModel.amountValidator(output),
                                         amountController: _amountControllers[_selectedOutput],
-                                        currency: _fiatInputMode
+                                        currency: output.isFiatEntry
                                             ? widget.sendViewModel.fiatCurrency.title
                                             : widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                        currencyIconPath: _fiatInputMode
+                                        currencyIconPath: output.isFiatEntry
                                             ? ""
                                             : widget.sendViewModel.selectedCryptoCurrency
                                                     .iconPath ??
                                                 "",
-                                        hasPicker: (_fiatInputMode ||
+                                        hasPicker: (output.isFiatEntry ||
                                             widget.sendViewModel.hasMultipleTokens),
                                         onPickerClicked: () => _presentCurrencyPicker(context),
-                                        maxDecimals: _fiatInputMode
+                                        maxDecimals: output.isFiatEntry
                                             ? widget.sendViewModel.fiatCurrency.decimals
                                             : widget.sendViewModel.useBaseUnits
                                                 ? 0
@@ -460,15 +460,14 @@ class _NewSendPageState extends State<NewSendPage> {
                                                     .sendViewModel.selectedCryptoCurrency.decimals,
                                       ),
                                       FiatAmountBar(
-                                        fiatInputMode: _fiatInputMode,
+                                        fiatInputMode: output.isFiatEntry,
                                         onSwitchButtonPressed: () {
-                                          setState(() {
-                                            _fiatInputMode = !_fiatInputMode;
-                                            _amountControllers[_selectedOutput].text =
-                                                _fiatInputMode
-                                                    ? output.fiatAmount
-                                                    : output.displayCryptoAmount;
-                                          });
+                                          widget.sendViewModel.outputs[_selectedOutput]
+                                              .isFiatEntry = !output.isFiatEntry;
+                                          _amountControllers[_selectedOutput].text =
+                                              output.isFiatEntry
+                                                  ? output.fiatAmount
+                                                  : output.displayCryptoAmount;
                                         },
                                         fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
                                         cryptoAmount:
@@ -647,7 +646,7 @@ class _NewSendPageState extends State<NewSendPage> {
       final amount = _amountControllers[_selectedOutput].text.sanitized();
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
-      if (_fiatInputMode) {
+      if (output.isFiatEntry) {
         if (amount != output.fiatAmount) {
           output.sendAll = false;
           output.setFiatAmount(amount);
@@ -707,7 +706,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
     for (var i = 0; i < widget.sendViewModel.outputs.length; i++) {
       if (i < _amountControllers.length && !widget.sendViewModel.outputs[i].sendAll) {
-        if (_fiatInputMode) {
+        if (widget.sendViewModel.outputs[i].isFiatEntry) {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
@@ -813,13 +812,11 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   void _presentCurrencyPicker(BuildContext context) {
-    if (!_fiatInputMode && !widget.sendViewModel.hasMultipleTokens) {
-      return;
-    }
-
     final output = widget.sendViewModel.outputs[_selectedOutput];
 
-    if (_fiatInputMode) {
+    if (!output.isFiatEntry && !widget.sendViewModel.hasMultipleTokens) return;
+
+    if (output.isFiatEntry) {
       FiatCurrencyPickerSheet.show(
         context: context,
         selected: widget.sendViewModel.fiatCurrency,

@@ -64,6 +64,9 @@ abstract class OutputBase with Store {
   bool get useSatoshi => _appStore.amountParsingProxy.useSatoshi(cryptoCurrencyHandler());
 
   @observable
+  bool isFiatEntry = false;
+
+  @observable
   String fiatAmount;
 
   @observable
@@ -104,9 +107,8 @@ abstract class OutputBase with Store {
   String roundedCryptoAmount(int digits) => displayCryptoAmount.withMaxDecimals(digits);
 
   String roundedFiatAmount(int digits) {
-    if (fiatAmount.split(".").last.length <= digits) {
-      return fiatAmount;
-    }
+    if (fiatAmount.split(".").last.length <= digits) return fiatAmount;
+
     return double.tryParse(fiatAmount.replaceAll(",", ""))?.toStringAsPrecision(digits) ?? '0.0';
   }
 
