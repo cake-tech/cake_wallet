@@ -79,14 +79,14 @@ class TxDetailRowDefinition {
         title: S.current.transaction_details_date,
         valueGetter: (vm) => DateFormatter.withCurrentLocal().format(vm.transactionInfo.date)),
 
-
     TxDetailRowDefinition(
-        keyString: "standard_list_item_transaction_details_height_key",
-        title: S.current.transaction_details_height,
-        valueGetter: (vm) => vm.transactionInfo.height?.toString() ?? "",
-        applicable: (vm) => !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) &&
-            isLightning(vm.transactionInfo))),
-
+      keyString: "standard_list_item_transaction_details_height_key",
+      title: S.current.transaction_details_height,
+      valueGetter: (vm) => vm.transactionInfo.height?.toString() ?? "",
+      applicable: (vm) =>
+          ![WalletType.solana, WalletType.tron].contains(vm.wallet.type) ||
+          !isLightning(vm.transactionInfo),
+    ),
 
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_fee_key",
