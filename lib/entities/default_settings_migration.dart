@@ -49,6 +49,7 @@ const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
+const nervaDefaultNodeUri = 'node.nerva.one:17566';
 const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
@@ -605,6 +606,14 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "LetsExchange",
             enabled: true,
+          );
+          break;
+        case 68:
+          await addWalletNodeList(type: WalletType.nerva);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.nerva,
+            currentNodePreferenceKey: PreferencesKey.currentNervaNodeIdKey,
           );
           break;
         default:

@@ -303,6 +303,7 @@ abstract class SettingsStoreBase with Store {
       switch (change.key) {
         case WalletType.monero:
         case WalletType.wownero:
+        case WalletType.nerva:
           key = PreferencesKey.moneroTransactionPriority;
           break;
         case WalletType.bitcoin:
@@ -1312,6 +1313,7 @@ abstract class SettingsStoreBase with Store {
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
+    final nervaNodeId = sharedPreferences.getInt(PreferencesKey.currentNervaNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
@@ -1365,6 +1367,9 @@ abstract class SettingsStoreBase with Store {
     final wowneroNode =
         nodeSource.firstWhereOrNull((e) => e.id == wowneroNodeId) ??
             nodeSource.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
+    final nervaNode =
+        nodeSource.firstWhereOrNull((e) => e.id == nervaNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == nervaDefaultNodeUri);
     final zanoNode =
         nodeSource.firstWhereOrNull((e) => e.id == zanoNodeId) ??
             nodeSource.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
@@ -1467,6 +1472,10 @@ abstract class SettingsStoreBase with Store {
 
     if (wowneroNode != null) {
       nodes[WalletType.wownero] = wowneroNode;
+    }
+
+    if (nervaNode != null) {
+      nodes[WalletType.nerva] = nervaNode;
     }
 
     if (zanoNode != null) {
@@ -1913,6 +1922,7 @@ abstract class SettingsStoreBase with Store {
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
+    final nervaNodeId = sharedPreferences.getInt(PreferencesKey.currentNervaNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
@@ -1991,6 +2001,10 @@ abstract class SettingsStoreBase with Store {
 
     if (wowneroNode != null) {
       nodes[WalletType.wownero] = wowneroNode;
+    }
+
+    if (nervaNode != null) {
+      nodes[WalletType.nerva] = nervaNode;
     }
 
     if (zanoNode != null) {
@@ -2149,6 +2163,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.wownero:
         await _sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.id);
+        break;
+      case WalletType.nerva:
+        await _sharedPreferences.setInt(PreferencesKey.currentNervaNodeIdKey, node.id);
         break;
       case WalletType.decred:
         await _sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.id);
