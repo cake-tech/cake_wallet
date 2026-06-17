@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cw_core/card_design.dart';
@@ -91,6 +92,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       account = monero!.getCurrentAccount(_wallet);
     } else if (_wallet.type == WalletType.wownero) {
       account = wownero!.getCurrentAccount(_wallet);
+    } else if (_wallet.type == WalletType.nerva) {
+      account = nerva!.getCurrentAccount(_wallet);
     } else {
       account = null;
     }
@@ -191,6 +194,10 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     if (_wallet.type == WalletType.wownero) {
       await saveWowneroAccountName();
     }
+
+    if (_wallet.type == WalletType.nerva) {
+      await saveNervaAccountName();
+    }
   }
 
   Future<void> saveMoneroAccountName() async {
@@ -204,6 +211,14 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   Future<void> saveWowneroAccountName() async {
     final WowneroAccountList wowneroAccountList = wownero!.getAccountList(_wallet);
     await wowneroAccountList.setLabelAccount(_wallet,
+        accountIndex: state.accountIndex, label: state.accountName);
+
+    await _wallet.save();
+  }
+
+  Future<void> saveNervaAccountName() async {
+    final NervaAccountList nervaAccountList = nerva!.getAccountList(_wallet);
+    await nervaAccountList.setLabelAccount(_wallet,
         accountIndex: state.accountIndex, label: state.accountName);
 
     await _wallet.save();

@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -149,6 +150,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if (wallet.type == WalletType.wownero) {
       await wownero!.updateUnspents(wallet);
     }
+    if (wallet.type == WalletType.nerva) {
+      await nerva!.updateUnspents(wallet);
+    }
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
@@ -164,6 +168,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
         return monero!.getUnspents(wallet);
       case WalletType.wownero:
         return wownero!.getUnspents(wallet);
+      case WalletType.nerva:
+        return nerva!.getUnspents(wallet);
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -182,6 +188,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
         return monero!.getUnspents(wallet);
       case WalletType.wownero:
         return wownero!.getUnspents(wallet);
+      case WalletType.nerva:
+        return nerva!.getUnspents(wallet);
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:

@@ -345,6 +345,11 @@ abstract class TransactionDetailsViewModelBase with Store {
           return ' (${transactionInfo.confirmations}/3)';
         }
         break;
+      case WalletType.nerva:
+        if (transactionInfo.confirmations >= 0 && transactionInfo.confirmations < 3) {
+          return ' (${transactionInfo.confirmations}/3)';
+        }
+        break;
       case WalletType.litecoin:
         bool isPegIn = (transactionInfo.additionalInfo["isPegIn"] as bool?) ?? false;
         bool isPegOut = (transactionInfo.additionalInfo["isPegOut"] as bool?) ?? false;
@@ -377,6 +382,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       WalletType.monero,
       WalletType.haven,
       WalletType.wownero,
+      WalletType.nerva,
       WalletType.litecoin,
       WalletType.zano,
     ].contains(wallet.type)) {
@@ -393,6 +399,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zano:
         return 10;
       case WalletType.wownero:
+        return 3;
+      case WalletType.nerva:
         return 3;
       case WalletType.litecoin:
         bool isPegOut = (transactionInfo.additionalInfo["isPegOut"] as bool?) ?? false;
@@ -462,6 +470,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://tronscan.org/#/transaction/${txId}';
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
+      case WalletType.nerva:
+        return 'https://explorer.nerva.one/detail/${txId}';
       case WalletType.zano:
         return 'https://explorer.zano.org/transaction/${txId}';
       case WalletType.decred:
