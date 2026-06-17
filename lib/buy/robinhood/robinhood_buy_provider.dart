@@ -122,6 +122,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.zano:
       case WalletType.zcash:
       case WalletType.decred:

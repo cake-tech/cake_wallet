@@ -289,7 +289,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       ].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
-      [WalletType.monero, WalletType.wownero, WalletType.zcash].contains(wallet.type);
+      [WalletType.monero, WalletType.wownero, WalletType.nerva, WalletType.zcash].contains(wallet.type);
 
   bool _useTorOnly;
   final ExchangeTemplateStore _exchangeTemplateStore;
@@ -1540,6 +1540,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.wownero:
         depositCurrency = CryptoCurrency.wow;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.nerva:
+        depositCurrency = CryptoCurrency.xnv;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.zano:
