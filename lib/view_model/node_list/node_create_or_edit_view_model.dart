@@ -122,6 +122,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get hasAuthCredentials =>
       walletType == WalletType.monero ||
       walletType == WalletType.wownero ||
+      walletType == WalletType.nerva ||
       walletType == WalletType.haven;
 
   bool get hasPathSupport {
@@ -139,6 +140,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.none:
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.haven:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:

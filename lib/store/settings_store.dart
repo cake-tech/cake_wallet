@@ -1941,6 +1941,7 @@ abstract class SettingsStoreBase with Store {
     final solanaNode = await Node.get(solanaNodeId ?? -1);
     final tronNode = await Node.get(tronNodeId ?? -1);
     final wowneroNode = await Node.get(wowneroNodeId ?? -1);
+    final nervaNode = await Node.get(nervaNodeId ?? -1);
     final zanoNode = await Node.get(zanoNodeId ?? -1);
     final zcashNode = await Node.get(zcashNodeId ?? -1);
     final decredNode = await Node.get(decredNodeId ?? -1);

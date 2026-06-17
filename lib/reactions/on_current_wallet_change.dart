@@ -79,6 +79,7 @@ void startCurrentWalletChangeReaction(
 
       if (wallet.type == WalletType.monero ||
           wallet.type == WalletType.wownero ||
+          wallet.type == WalletType.nerva ||
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash ||

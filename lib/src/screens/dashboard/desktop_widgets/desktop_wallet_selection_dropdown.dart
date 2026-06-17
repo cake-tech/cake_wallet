@@ -47,6 +47,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final solanaIcon = Image.asset('assets/new-ui/crypto_full_icons/solana.svg', height: 24, width: 24);
   final tronIcon = Image.asset('assets/new-ui/crypto_full_icons/tron.svg', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/new-ui/crypto_full_icons/wownero.svg', height: 24, width: 24);
+  final nervaIcon = Image.asset('assets/new-ui/crypto_full_icons/nerva.svg', height: 24, width: 24);
   final zanoIcon = Image.asset('assets/new-ui/crypto_full_icons/zano.svg', height: 24, width: 24);
   final decredIcon = Image.asset('assets/new-ui/crypto_full_icons/decred.svg', height: 24, width: 24);
   final dogeIcon = Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg', height: 24, width: 24);
@@ -165,6 +166,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return moneroIcon;
       case WalletType.wownero:
         return wowneroIcon;
+      case WalletType.nerva:
+        return nervaIcon;
       case WalletType.litecoin:
         return litecoinIcon;
       case WalletType.haven:

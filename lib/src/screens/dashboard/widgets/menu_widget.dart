@@ -39,6 +39,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.solanaIcon = Image.asset('assets/new-ui/crypto_full_icons/solana.svg'),
         this.tronIcon = Image.asset('assets/new-ui/crypto_full_icons/tron.svg'),
         this.wowneroIcon = Image.asset('assets/new-ui/crypto_full_icons/wownero.svg'),
+        this.nervaIcon = Image.asset('assets/new-ui/crypto_full_icons/nerva.svg'),
         this.zanoIcon = Image.asset('assets/new-ui/crypto_full_icons/zano.svg'),
         this.decredIcon = Image.asset('assets/new-ui/crypto_full_icons/decred.svg'),
         this.dogecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg'),
@@ -70,6 +71,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
+  Image nervaIcon;
   Image zanoIcon;
   Image decredIcon;
   Image dogecoinIcon;
@@ -265,6 +267,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return tronIcon;
       case WalletType.wownero:
         return wowneroIcon;
+      case WalletType.nerva:
+        return nervaIcon;
       case WalletType.zano:
         return zanoIcon;
       case WalletType.decred:

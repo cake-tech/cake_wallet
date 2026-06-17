@@ -3,6 +3,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -16,6 +17,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return monero!.getTransactionPriorities();
     case WalletType.wownero:
       return wownero!.getTransactionPriorities();
+    case WalletType.nerva:
+      return nerva!.getTransactionPriorities();
     case WalletType.bitcoin:
       return bitcoin!.getTransactionPriorities();
     case WalletType.litecoin:
