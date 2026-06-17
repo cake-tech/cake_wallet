@@ -1747,7 +1747,16 @@ abstract class ElectrumWalletBase
     }
 
     // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
+    final dir = Directory(currentDirPath);
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        await dir.delete(recursive: true);
+        break;
+      } on FileSystemException {
+        if (attempt == 2) rethrow;
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      }
+    }
   }
 
   @override
