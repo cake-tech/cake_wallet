@@ -885,11 +885,9 @@ class _NewSendPageState extends State<NewSendPage> {
         await widget.sendViewModel.fetchTokenForContractAddress(paymentRequest.contractAddress!);
       }
 
-      if (result.addressDetectionResult?.detectedCurrency != null &&
-          result.addressDetectionResult!.detectedCurrency! !=
-              widget.sendViewModel.selectedCryptoCurrency) {
-        widget.sendViewModel.selectedCryptoCurrency =
-            result.addressDetectionResult!.detectedCurrency!;
+      // This automatically switches to lightning mode if you are in a bitcoin wallet
+      if (result.addressDetectionResult?.detectedCurrency == CryptoCurrency.btcln) {
+        widget.sendViewModel.selectedCryptoCurrency = CryptoCurrency.btcln;
       }
 
       switch (result.type) {
