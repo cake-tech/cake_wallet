@@ -44,16 +44,18 @@ class AmountParsingProxy {
   ///
   /// if [displayMode] is [BitcoinAmountDisplayMode.satoshi] it returns 1 BTC as 100000000
   /// if [displayMode] is [BitcoinAmountDisplayMode.bitcoin] it returns 1 BTC as 1
+  /// hardcoding fractionalDigits to 8 as it's a display string, so no need to show more than that
   String asDisplayString(Money amount) =>
-      amount.toStringWithPrecision(useBaseUnit: useSatoshi(amount.currency));
+      amount.toStringWithPrecision(useBaseUnit: useSatoshi(amount.currency), fractionalDigits: 8);
 
   /// [asDisplayStringWithSymbol] turns the input [amount] into the preferred representation of
   /// [cryptoCurrency] following the symbol of the unit
   ///
   /// if [displayMode] is [BitcoinAmountDisplayMode.satoshi] it returns 1 BTC as 100000000 sats
   /// if [displayMode] is [BitcoinAmountDisplayMode.bitcoin] it returns 1 BTC as 1 BTC
+  /// hardcoding fractionalDigits to 8 as it's a display string, so no need to show more than that
   String asDisplayStringWithSymbol(Money amount) =>
-      amount.toStringWithSymbol(useBaseUnit: useSatoshi(amount.currency));
+      amount.toStringWithSymbol(useBaseUnit: useSatoshi(amount.currency), fractionalDigits: 8);
 
   /// [parseCryptoString] turns the the display representation [string] into `Money` with [cryptoCurrency]
   Money parseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>

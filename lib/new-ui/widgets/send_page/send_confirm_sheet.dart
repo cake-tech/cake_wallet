@@ -200,7 +200,7 @@ class SendTransactionDetails extends StatelessWidget {
 
             return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ?? zero;
           }, sendViewModel.selectedCryptoCurrency))
-        : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount).withMaxDecimals(8);
+        : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount);
 
     final fee = (transaction == null)
         ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(
@@ -260,12 +260,14 @@ class SendTransactionDetails extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 4,
                   children: [
-                    Text(
-                      amount,
-                      style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurface),
+                    Flexible(
+                      child: Text(
+                        amount,
+                        style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
                     ),
                     Text(currencySymbol,
                         style: TextStyle(

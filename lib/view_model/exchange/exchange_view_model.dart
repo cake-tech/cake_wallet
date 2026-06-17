@@ -255,13 +255,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final balanceForCurrency =
           balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
       if (depositCurrency == currency && balanceForCurrency != null) {
-        depositAvailableAmount = balanceForCurrency.available.toStringWithSymbol();
+        depositAvailableAmount =
+            _appStore.amountParsingProxy.asDisplayStringWithSymbol(balanceForCurrency.available);
       }
     } else {
       final currency = depositCurrency;
       final sendingBalance = Money.fromInt(
           await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any), currency);
-      final amount = _appStore.amountParsingProxy.asDisplayString(sendingBalance);
+      final amount = _appStore.amountParsingProxy.asDisplayStringWithSymbol(sendingBalance);
       if (depositCurrency == currency) {
         depositAvailableAmount = amount;
       }
@@ -1204,7 +1205,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (isFixedRateMode && provider.supportsFixedRate == false) {
           continue;
         }
-        
+
         if (_excludeProviderForReceiveExtraId(provider)) {
           continue;
         }

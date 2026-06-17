@@ -382,7 +382,6 @@ abstract class BalanceViewModelBase with Store {
 
     return appStore.amountParsingProxy
         .asDisplayString(amount)
-        .withMaxDecimals(8)
         .withLocalSeperator(settingsStore.languageCode);
   }
 
