@@ -84,6 +84,7 @@ class _AddressListState extends State<AddressList> {
             trailingButtonTap: () async {
               if (widget.addressListViewModel.type == WalletType.monero ||
                   widget.addressListViewModel.type == WalletType.wownero ||
+                  widget.addressListViewModel.type == WalletType.nerva ||
                   widget.addressListViewModel.type == WalletType.haven) {
                 await showPopUp<void>(
                   context: context,

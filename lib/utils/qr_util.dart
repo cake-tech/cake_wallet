@@ -22,6 +22,8 @@ String getQrImage(WalletType type) {
       return 'assets/images/xmr_chain_qr.svg';
     case WalletType.wownero:
       return 'assets/images/wow_chain_qr.svg';
+    case WalletType.nerva:
+      return 'assets/images/xmr_chain_qr.svg';
     case WalletType.bitcoin:
       return 'assets/images/btc_chain_qr.svg';
     case WalletType.litecoin:
