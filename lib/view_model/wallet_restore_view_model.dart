@@ -7,6 +7,7 @@ import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -48,6 +49,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -81,10 +83,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   late List<WalletRestoreMode> availableModes;
   late final bool hasSeedLanguageSelector =
-      [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.nerva].contains(type);
 
   late final bool hasBlockchainHeightSelector =
-      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.zcash].contains(type);
+      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.nerva, WalletType.zcash]
+          .contains(type);
 
   late final bool hasRestoreFromPrivateKey = [
     WalletType.ethereum,
@@ -199,6 +202,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             passphrase: passphrase ?? '',
             height: height,
           );
+        case WalletType.nerva:
+          return nerva!.createNervaRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase ?? '',
+            height: height,
+          );
         case WalletType.zano:
           return zano!.createZanoRestoreWalletFromSeedCredentials(
             name: name,
@@ -296,6 +307,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.wownero:
           return wownero!.createWowneroRestoreWalletFromKeysCredentials(
+            name: name,
+            height: height,
+            spendKey: spendKey!,
+            viewKey: viewKey!,
+            address: address!,
+            password: password,
+            language: 'English',
+          );
+        case WalletType.nerva:
+          return nerva!.createNervaRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey!,

@@ -274,7 +274,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               builder: (_) => Picker(
                                 items: MoneroSeedType.all
                                     .where((e) => // exclude bip39 in case of Wownero
-                                        widget._walletNewVM.type != WalletType.wownero ||
+                                        (widget._walletNewVM.type != WalletType.wownero &&
+                                                widget._walletNewVM.type != WalletType.nerva) ||
                                         e.raw != MoneroSeedType.bip39.raw)
                                     .toList(),
                                 selectedAtIndex: isPolyseed ? 1 : 0,

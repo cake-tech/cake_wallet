@@ -46,6 +46,9 @@ class WalletRestoreFromQRCode {
     'wownero': WalletType.wownero,
     'wownero-wallet': WalletType.wownero,
     'wownero_wallet': WalletType.wownero,
+    'nerva': WalletType.nerva,
+    'nerva-wallet': WalletType.nerva,
+    'nerva_wallet': WalletType.nerva,
     'zano': WalletType.zano,
     'zano-wallet': WalletType.zano,
     'zano_wallet': WalletType.zano,
@@ -195,7 +198,9 @@ class WalletRestoreFromQRCode {
         return WalletRestoreMode.seed;
       }
 
-      if ((type == WalletType.monero || type == WalletType.wownero)) {
+      if ((type == WalletType.monero ||
+          type == WalletType.wownero ||
+          type == WalletType.nerva)) {
         return WalletRestoreMode.seed;
       }
 

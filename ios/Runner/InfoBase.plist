@@ -246,6 +246,26 @@
             <key>CFBundleTypeRole</key>
             <string>Viewer</string>
             <key>CFBundleURLName</key>
+            <string>nerva</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nerva</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>nerva-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nerva-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
             <string>zano</string>
             <key>CFBundleURLSchemes</key>
             <array>
