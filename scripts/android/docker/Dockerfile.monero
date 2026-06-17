@@ -9,6 +9,7 @@ RUN /w/scripts/android/build_monero_all.sh \
     /w/scripts/monero_c/.git \
     /w/scripts/monero_c/monero_libwallet2_api_c/build \
     /w/scripts/monero_c/wownero_libwallet2_api_c/build \
+    /w/scripts/monero_c/nerva_libwallet2_api_c/build \
     /w/scripts/monero_c/zano_libwallet2_api_c/build
 
 FROM --platform=linux/amd64 alpine
