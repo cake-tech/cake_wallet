@@ -93,7 +93,7 @@ abstract class PaymentViewModelBase with Store {
       if (currentWallet != null &&
           currentWallet.type == detectedWalletType &&
           !isEVMCompatibleChain(detectedWalletType!)) {
-        return PaymentFlowResult.currentWalletCompatible();
+        return PaymentFlowResult.currentWalletCompatible(detectionResult);
       }
 
       if (detectedWalletType == WalletType.solana) {
@@ -229,8 +229,12 @@ class PaymentFlowResult {
       );
 
   /// Current wallet is compatible
-  factory PaymentFlowResult.currentWalletCompatible() =>
-      PaymentFlowResult._(type: PaymentFlowType.currentWalletCompatible);
+  factory PaymentFlowResult.currentWalletCompatible(
+          AddressDetectionResult addressDetectionResult) =>
+      PaymentFlowResult._(
+        type: PaymentFlowType.currentWalletCompatible,
+        addressDetectionResult: addressDetectionResult,
+      );
 
   /// Single compatible wallet available
   factory PaymentFlowResult.singleWallet(

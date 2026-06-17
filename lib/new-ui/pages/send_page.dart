@@ -858,10 +858,11 @@ class _NewSendPageState extends State<NewSendPage> {
 
   void _handleLightningInvoicePaste() {
     try {
-      final lnAmount = CryptoCurrency.btcln.formatAmount(
-          BigInt.from(getBolt11Amount(_addressControllers[_selectedOutput].text) ?? 0));
-      if (lnAmount != 0) {
-        _amountControllers[_selectedOutput].text = lnAmount;
+      final lnAmount = getBolt11Amount(_addressControllers[_selectedOutput].text) ??
+          Money.zero(CryptoCurrency.btcln);
+      if (!lnAmount.isZero) {
+        _amountControllers[_selectedOutput].text =
+            widget.sendViewModel.amountParsingProxy.asDisplayString(lnAmount);
       }
     } catch (_) {}
   }
@@ -882,6 +883,13 @@ class _NewSendPageState extends State<NewSendPage> {
 
       if (paymentRequest.contractAddress != null) {
         await widget.sendViewModel.fetchTokenForContractAddress(paymentRequest.contractAddress!);
+      }
+
+      if (result.addressDetectionResult?.detectedCurrency != null &&
+          result.addressDetectionResult!.detectedCurrency! !=
+              widget.sendViewModel.selectedCryptoCurrency) {
+        widget.sendViewModel.selectedCryptoCurrency =
+            result.addressDetectionResult!.detectedCurrency!;
       }
 
       switch (result.type) {

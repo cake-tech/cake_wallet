@@ -247,7 +247,7 @@ abstract class OutputBase with Store {
 
   WalletType get walletType => _wallet.type;
 
-  final CryptoCurrency Function() cryptoCurrencyHandler;
+  final CryptoCurrency Function([CryptoCurrency?]) cryptoCurrencyHandler;
   final FiatConversionStore _fiatConversationStore;
   final AppStore _appStore;
 
@@ -353,6 +353,10 @@ abstract class OutputBase with Store {
     parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     if(parsedAddress.name.isNotEmpty) {
       displayName = parsedAddress.name;
+    }
+
+    if (parsedAddress.parseFrom == ParseFrom.lnurlpay) {
+      cryptoCurrencyHandler(CryptoCurrency.btcln);
     }
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;

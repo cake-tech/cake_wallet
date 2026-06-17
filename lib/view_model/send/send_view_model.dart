@@ -122,7 +122,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         fiatFromSettings = _appStore.settingsStore.fiatCurrency,
         fiatCurrencies = FiatCurrency.all,
         super(appStore: _appStore) {
-    outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
     unspentCoinsListViewModel
         .initialSetup()
@@ -164,11 +164,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
 
   @action
+  CryptoCurrency _outputCryptoCurrencyHandler([CryptoCurrency? override]) {
+    if (override != null && override != selectedCryptoCurrency) selectedCryptoCurrency = override;
+
+    return selectedCryptoCurrency;
+  }
+
+  @action
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
 
   @action
   void addOutput() =>
-      outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
+      outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
   @action
   void removeOutput(Output output) {

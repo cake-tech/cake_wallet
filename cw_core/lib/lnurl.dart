@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:bech32/bech32.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
 const _BOLT_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
@@ -61,14 +63,14 @@ int? _getAmountBolt11Msat(String invoice) {
   }
 }
 
-int? getBolt11Amount(String invoice) {
+Money? getBolt11Amount(String invoice) {
   final msat = _getAmountBolt11Msat(invoice);
   if (msat == null || msat % 1000 != 0) return null;
-  return msat ~/ 1000;
+  return Money.fromInt(msat ~/ 1000, CryptoCurrency.btcln);
 }
 
 class LNURL {
-  static Future<int?> getPayRequestAmount(String lnurl) async {
+  static Future<Money?> getPayRequestAmount(String lnurl) async {
     final url = decode(lnurl);
     final response = await ProxyWrapper().get(clearnetUri: url);
 
@@ -88,7 +90,7 @@ class LNURL {
         return null;
 
       if (msat == null || msat % 1000 != 0) return null;
-      return msat ~/ 1000;
+      return Money.fromInt(msat ~/ 1000, CryptoCurrency.btcln);
     } catch (_) {
       return null;
     }
