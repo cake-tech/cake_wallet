@@ -244,7 +244,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           return false;
         }
         return true;
-      });
+      }).timeout(Duration(seconds: 20));
     } else if (isEVMCompatibleChain(wallet.type)) {
       final currency = depositCurrency;
       final balanceCurrency = wallet.balance.keys.firstWhereOrNull(
