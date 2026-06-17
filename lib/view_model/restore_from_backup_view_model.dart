@@ -45,6 +45,12 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       try {
         await backupService.importBackupFile(file, password);
+      } on IncompatibleBackupAppException catch (e) {
+        state = FailureState(
+          'This backup was created in ${e.sourceAppName}. '
+              'Please restore it in ${e.sourceAppName}, or select a backup created by ${e.currentAppName}.',
+        );
+        return;
       } catch (e, s) {
         if (e.toString().contains("unknown_backup_version")) {
           state = FailureState('This is not a valid backup file, please make sure you have selected the correct one');

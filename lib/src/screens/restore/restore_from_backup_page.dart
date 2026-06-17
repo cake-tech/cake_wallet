@@ -18,6 +18,7 @@ class RestoreFromBackupPage extends BasePage {
 
   final RestoreFromBackupViewModel restoreFromBackupViewModel;
   final TextEditingController textEditingController;
+  bool _isStateReactionSet = false;
 
   @override
   String get title => S.current.restore_title_from_backup;
@@ -32,22 +33,26 @@ class RestoreFromBackupPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => restoreFromBackupViewModel.state, (ExecutionState state) {
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                  alertTitle: S.of(context).error,
-                  alertContent: state.error,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop(),
-                );
-              });
-        });
-      }
-    });
+    if (!_isStateReactionSet) {
+      _isStateReactionSet = true;
+
+      reaction((_) => restoreFromBackupViewModel.state, (ExecutionState state) {
+        if (state is FailureState) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop(),
+                  );
+                });
+          });
+        }
+      });
+    }
 
     return Center(
       child: ConstrainedBox(
