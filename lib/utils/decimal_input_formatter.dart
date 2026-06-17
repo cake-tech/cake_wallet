@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/services.dart';
 
 class DecimalInputFormatter extends TextInputFormatter {
@@ -9,6 +10,8 @@ class DecimalInputFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     final text = newValue.text;
     if (text.isEmpty) return newValue;
+
+    if (S.current.all.startsWith(text)) return newValue.copyWith(text: "");
 
     final regex = maxDecimals == 0
         ? RegExp(r'^\d*$')
