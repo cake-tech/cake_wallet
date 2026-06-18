@@ -82,8 +82,8 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
         amount: psbt.getOutputAmount(i),
         address: script.toAddress(),
         scriptType: "PAYTOADDRESS",
-        // ToDo: when change-output detection lands, set addressPath +
-        // _getScriptType(...) for own-change outputs.
+        // ToDo: when change-output detection lands, set addressPath + _getScriptType(...) for own-change outputs.
+        // ToDo: addressPath: psbt.getOutputBip32Derivation(i, pubkey).$2, // To highlight change outputs
       ));
     }
 
