@@ -1,6 +1,8 @@
+import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -180,6 +182,29 @@ class RestoreFromBackupPage extends BasePage {
     }
     try {
       await restoreFromBackupViewModel.import(textEditingController.text);
+    } on IncompatibleBackupAppException catch (e) {
+      final isConfirmed = await showPopUp<bool>(
+        context: context,
+        builder: (_) {
+          return AlertWithTwoActions(
+            alertTitle: S.current.warning,
+            alertContent:
+                'This backup was created in ${e.sourceAppName}, but you are restoring it in ${e.currentAppName}. '
+                'Please make sure this is the correct backup file before continuing.',
+            leftButtonText: S.of(context).cancel,
+            rightButtonText: S.of(context).ok,
+            actionLeftButton: () => Navigator.of(context).pop(false),
+            actionRightButton: () => Navigator.of(context).pop(true),
+          );
+        },
+      );
+
+      if (isConfirmed ?? false) {
+        await restoreFromBackupViewModel.import(
+          textEditingController.text,
+          checkBackupApp: false,
+        );
+      }
     } catch (e) {
       await showPopUp<void>(
         context: context,

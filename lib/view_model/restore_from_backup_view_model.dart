@@ -32,7 +32,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
   void reset() => filePath = '';
 
   @action
-  Future<void> import(String password) async {
+  Future<void> import(String password,{bool checkBackupApp = true}) async {
     try {
       state = IsExecutingState();
 
@@ -44,13 +44,9 @@ abstract class RestoreFromBackupViewModelBase with Store {
       final file = File(filePath);
 
       try {
-        await backupService.importBackupFile(file, password);
-      } on IncompatibleBackupAppException catch (e) {
-        state = FailureState(
-          'This backup was created in ${e.sourceAppName}. '
-              'Please restore it in ${e.sourceAppName}, or select a backup created by ${e.currentAppName}.',
-        );
-        return;
+        await backupService.importBackupFile(file, password, checkBackupApp: checkBackupApp);
+      } on IncompatibleBackupAppException {
+        rethrow;
       } catch (e, s) {
         if (e.toString().contains("unknown_backup_version")) {
           state = FailureState('This is not a valid backup file, please make sure you have selected the correct one');
@@ -80,6 +76,9 @@ abstract class RestoreFromBackupViewModelBase with Store {
       });
 
       state = ExecutedSuccessfullyState();
+    } on IncompatibleBackupAppException {
+      state = InitialExecutionState();
+      rethrow;
     } catch (e, s) {
       var msg = e.toString().toLowerCase();
 

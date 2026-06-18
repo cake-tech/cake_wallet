@@ -212,7 +212,8 @@ class BackupServiceV3 extends $BackupService {
     }
   }
 
-  Future<void> importBackupFile(File file, String password, {String nonce = secrets.backupSalt}) {
+  Future<void> importBackupFile(File file, String password,
+      {String nonce = secrets.backupSalt, bool checkBackupApp = true}) {
     final version = getVersionFile(file);
     switch (version) {
       case BackupVersion.unknown:
@@ -225,11 +226,12 @@ class BackupServiceV3 extends $BackupService {
       case BackupVersion.v2:
         return super.importBackupV2(file.readAsBytesSync(), password);
       case BackupVersion.v3:
-        return importBackupFileV3(file, password, nonce: nonce);
+        return importBackupFileV3(file, password, nonce: nonce, checkBackupApp: checkBackupApp);
     }
   }
 
-  Future<void> importBackupFileV3(File file, String password, {String nonce = secrets.backupSalt}) async{
+  Future<void> importBackupFileV3(File file, String password,
+      {String nonce = secrets.backupSalt,bool checkBackupApp = true}) async{
     // Overall design of v3 backup is the following:
     // 1. backup.zip - plaintext zip file that user can open with any archive manager
     // 2. backup.zip/README.txt - text file to let user know what is inside of this file
@@ -239,7 +241,10 @@ class BackupServiceV3 extends $BackupService {
     final inputStream = InputFileStream(file.path);
     final archive = ZipDecoder().decodeStream(inputStream);
 
-    await _throwIfBackupWasCreatedInAnotherApp(archive);
+    if (checkBackupApp) {
+      await _throwIfBackupWasCreatedInAnotherApp(archive);
+    }
+
     final metadataFile = archive.findFile('metadata.json');
     if (metadataFile == null) {
       throw Exception('Invalid v3 backup: missing metadata.json');
