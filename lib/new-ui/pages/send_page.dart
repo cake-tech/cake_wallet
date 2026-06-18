@@ -1221,7 +1221,7 @@ class _NewSendPageState extends State<NewSendPage> {
       try{
         _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(
-            paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
+                paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
       } catch(e) {
 
       }

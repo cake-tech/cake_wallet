@@ -136,12 +136,14 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                               textAlignVertical: TextAlignVertical.center,
                               controller: _amountController,
                               keyboardType: TextInputType.numberWithOptions(
-                                  signed: false,
-                                  decimal: !widget.walletAddressListViewModel.useSatoshi),
+                                signed: false,
+                                decimal: widget.walletAddressListViewModel.selectedCurrencyDecimals > 0,
+                              ),
                               inputFormatters: [
                                 DecimalInputFormatter(
-                                    maxDecimals:
-                                        widget.walletAddressListViewModel.selectedCurrencyDecimals),
+                                  maxDecimals:
+                                      widget.walletAddressListViewModel.selectedCurrencyDecimals,
+                                ),
                               ],
                               decoration: InputDecoration(
                                 hint: Text(

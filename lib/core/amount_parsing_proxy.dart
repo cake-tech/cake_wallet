@@ -26,7 +26,7 @@ class AmountParsingProxy {
       if (useSatoshi(cryptoCurrency) && amount.isNotEmpty) {
         return cryptoCurrency
             .parseAmount(amount.withMaxDecimals(cryptoCurrency.decimals))
-            .toString();
+            .toStringWithPrecision(useBaseUnit: true);
       }
 
       return amount.withMaxDecimals(cryptoCurrency.decimals);
