@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -95,7 +96,7 @@ class PrivacyPage extends BasePage {
                           keyValue: "coin_control",
                           label: "Coin Control",
                           onTap: () =>
-                              Navigator.of(context).pushNamed(Routes.unspentCoinsList)),
+                              Navigator.of(context).pushNamed(Routes.unspentCoinsList, arguments: CoinControlPageArgs(canEdit: false, coinTypeToSpendFrom: null))),
                   ],
                 }
                 ),
