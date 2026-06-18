@@ -144,7 +144,7 @@ class TokenUtilities {
     return result;
   }
 
-  /// Finds a token by address across wallets depending on [walletType]
+  /// Finds a token by address for the given [walletType].
   /// - EVM chains: match by contractAddress
   /// - Solana: match by mintAddress
   /// - Tron: match by contractAddress
@@ -152,34 +152,15 @@ class TokenUtilities {
     required WalletType walletType,
     required String address,
   }) async {
-    if(address.isEmpty) return null;
+    if (address.isEmpty) return null;
     final lower = address.toLowerCase();
-    switch (walletType) {
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.base:
-      case WalletType.arbitrum:
-      case WalletType.bsc:
-        final tokens = await loadAllUniqueEvmTokens();
-        for (final t in tokens) {
-          if (t.contractAddress.toLowerCase() == lower) return t;
-        }
-        return null;
-      case WalletType.solana:
-        final solTokens = await loadAllUniqueSolTokens();
-        for (final t in solTokens) {
-          if (t.mintAddress.toLowerCase() == lower) return t;
-        }
-        return null;
-      case WalletType.tron:
-        final tronTokens = await loadAllUniqueTronTokens();
-        for (final t in tronTokens) {
-          if (t.contractAddress.toLowerCase() == lower) return t;
-        }
-        return null;
-      default:
-        return null;
+    final tokens = await getAvailableTokensForNetwork(walletType);
+    for (final t in tokens) {
+      if (t is Erc20Token && t.contractAddress.toLowerCase() == lower) return t;
+      if (t is SPLToken && t.mintAddress.toLowerCase() == lower) return t;
+      if (t is TronToken && t.contractAddress.toLowerCase() == lower) return t;
     }
+    return null;
   }
 
   static Future<Box<Erc20Token>> _openEvmTokensBoxFor(WalletInfo walletInfo) async {

@@ -363,7 +363,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   arguments: [availableWalletTypes.first, hardwareWalletType]),
               isReconnect: false,
             ),
-            getIt.get<LedgerViewModel>(),
+            getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType),
           ),
         );
       }
@@ -759,12 +759,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.unspentCoinsList:
-      final coinTypeToSpendFrom = settings.arguments as UnspentCoinType?;
-      return handleRouteWithPlatformAwareness(
-        (context) => FeatureFlag.hasNewUi
-            ? getIt.get<NewCoinControlPage>(param1: coinTypeToSpendFrom)
-            : getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom),
-      );
+      final args = settings.arguments as CoinControlPageArgs?;
+      return handleRouteWithPlatformAwareness((context) =>
+          getIt.get<NewCoinControlPage>(param1: args?.coinTypeToSpendFrom, param2: args?.canEdit));
 
     case Routes.unspentCoinsDetails:
       final args = settings.arguments as List;
