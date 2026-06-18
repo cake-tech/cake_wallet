@@ -149,6 +149,7 @@ abstract class OutputBase with Store {
         case WalletType.bitcoinCash:
         case WalletType.dogecoin:
         case WalletType.decred:
+        case WalletType.zano:
           estimatedFee = Money.fromInt(fee, walletTypeToCryptoCurrency(_wallet.type));
           break;
         case WalletType.bitcoin:
@@ -166,9 +167,6 @@ abstract class OutputBase with Store {
           break;
         case WalletType.solana:
           estimatedFee = solana!.getEstimateFees(_wallet) ?? Money.zero(CryptoCurrency.sol);
-          break;
-        case WalletType.zano:
-          estimatedFee = Money.fromInt(fee, walletTypeToCryptoCurrency(_wallet.type));
           break;
         case WalletType.tron:
           if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
