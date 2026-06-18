@@ -348,7 +348,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
-        if (coinTypeToSpendFrom == UnspentCoinType.lightning) return balance;
+        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
         return _appStore.amountParsingProxy.getDisplayCryptoString(
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
             walletTypeToCryptoCurrency(walletType));
@@ -1149,7 +1149,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           direction: TransactionDirection.outgoing,
           amount: outputs.first.cryptoAmountMoney,
           isPending: true,
-          fee: CryptoCurrency.trx.parseAmount(outputs.first.estimatedFee),
+          fee: outputs.first.estimatedFee,
         ));
       }
 

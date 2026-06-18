@@ -975,7 +975,7 @@ abstract class Solana {
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
-  double? getEstimateFees(WalletBase wallet);
+  Money? getEstimateFees(WalletBase wallet);
   List<SPLToken> getDefaultSPLTokens();
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
@@ -1074,7 +1074,6 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/tron_token.dart';
-import 'package:hive/hive.dart';
 import 'package:cw_core/transaction_direction.dart';
 
 """;
@@ -1083,7 +1082,6 @@ import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
-import 'package:cw_tron/pending_tron_transaction.dart';
 
 import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_wallet.dart';
@@ -1115,8 +1113,8 @@ abstract class Tron {
   String getTokenAddress(CryptoCurrency asset);
   String getTronBase58Address(String hexAddress, WalletBase wallet);
 
-  String? getTronNativeEstimatedFee(WalletBase wallet);
-  String? getTronTRC20EstimatedFee(WalletBase wallet);
+  Money? getTronNativeEstimatedFee(WalletBase wallet);
+  Money? getTronTRC20EstimatedFee(WalletBase wallet);
 
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
   List<TronToken> getDefaultTronTokens();

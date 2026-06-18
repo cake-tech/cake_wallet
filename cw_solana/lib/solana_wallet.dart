@@ -84,7 +84,7 @@ abstract class SolanaWalletBase
   SolanaWalletClient get client => _client;
 
   @observable
-  double? estimatedFee;
+  Money? estimatedFee;
 
   Timer? _transactionsUpdateTimer;
 
@@ -214,11 +214,9 @@ abstract class SolanaWalletBase
 
   Future<void> _getEstimatedFees() async {
     try {
-      estimatedFee = double.parse(
-          (await _client.getEstimatedFee(_solanaPublicKey, Commitment.confirmed)).toString());
-      printV(estimatedFee.toString());
+      estimatedFee = await _client.getEstimatedFee(_solanaPublicKey, Commitment.confirmed);
     } catch (e) {
-      estimatedFee = 0.0;
+      estimatedFee = Money.zero(currency);
     }
   }
 

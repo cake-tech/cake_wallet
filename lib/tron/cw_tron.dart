@@ -116,11 +116,11 @@ class CWTron extends Tron {
       (wallet as TronWallet).getTronBase58AddressFromHex(hexAddress);
 
   @override
-  String? getTronNativeEstimatedFee(WalletBase wallet) =>
+  Money? getTronNativeEstimatedFee(WalletBase wallet) =>
       (wallet as TronWallet).nativeTxEstimatedFee;
 
   @override
-  String? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
+  Money? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
 
   @override
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled) {

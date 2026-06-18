@@ -94,10 +94,10 @@ abstract class TronWalletBase
   WalletAddresses walletAddresses;
 
   @observable
-  String? nativeTxEstimatedFee;
+  Money? nativeTxEstimatedFee;
 
   @observable
-  String? trc20EstimatedFee;
+  Money? trc20EstimatedFee;
 
   @override
   @observable
@@ -255,10 +255,10 @@ abstract class TronWalletBase
 
   Future<void> _getEstimatedFees() async {
     final nativeFee = await _getNativeTxFee();
-    nativeTxEstimatedFee = TronHelper.fromSun(BigInt.from(nativeFee));
+    nativeTxEstimatedFee = Money.fromInt(nativeFee, currency);
 
     final trc20Fee = await _getTrc20TxFee();
-    trc20EstimatedFee = TronHelper.fromSun(BigInt.from(trc20Fee));
+    trc20EstimatedFee =  Money.fromInt(trc20Fee, currency);
 
     log('Native Estimated Fee: $nativeTxEstimatedFee');
     log('TRC20 Estimated Fee: $trc20EstimatedFee');

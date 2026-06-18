@@ -480,6 +480,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                         onAllButtonPressed: () async {
                                           output.setSendAll(
                                               await widget.sendViewModel.sendingBalance);
+                                          await output.calculateEstimatedFee();
                                         },
                                       ),
                                     ],
@@ -888,6 +889,7 @@ class _NewSendPageState extends State<NewSendPage> {
       // This automatically switches to lightning mode if you are in a bitcoin wallet
       if (result.addressDetectionResult?.detectedCurrency == CryptoCurrency.btcln) {
         widget.sendViewModel.selectedCryptoCurrency = CryptoCurrency.btcln;
+        widget.sendViewModel.coinTypeToSpendFrom = UnspentCoinType.lightning;
       }
 
       switch (result.type) {

@@ -162,9 +162,7 @@ class CWSolana extends Solana {
   }
 
   @override
-  double? getEstimateFees(WalletBase wallet) {
-    return (wallet as SolanaWallet).estimatedFee;
-  }
+  Money? getEstimateFees(WalletBase wallet) => (wallet as SolanaWallet).estimatedFee;
 
   @override
   List<SPLToken> getDefaultSPLTokens() => DefaultSPLTokens().initialSPLTokens;
