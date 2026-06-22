@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cw_core/db/sqlite_debug.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart' as p;
 
@@ -31,6 +32,10 @@ Future<File> sqliteDebugMarkerFile() async {
 }
 
 Future<void> initDb({String? pathOverride}) async {
+  if (!kDebugMode && !kProfileMode) {
+    await _initDb(pathOverride: pathOverride);
+    return;
+  }
   final dbDebugMarker = await sqliteDebugMarkerFile();
   try {
     if (dbDebugMarker.existsSync()) {
