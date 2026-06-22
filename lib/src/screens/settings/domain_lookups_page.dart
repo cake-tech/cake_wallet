@@ -24,23 +24,28 @@ class DomainLookupsPage extends BasePage {
               SettingsSwitcherCell(
                   title: 'Twitter',
                   value: _connectionsSyncViewModel.lookupTwitter,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsTwitter(value)),
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsTwitter(value)),
               SettingsSwitcherCell(
                   title: 'Mastodon',
                   value: _connectionsSyncViewModel.looksUpMastodon,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsMastodon(value)),
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsMastodon(value)),
               SettingsSwitcherCell(
                   title: 'Yat service',
                   value: _connectionsSyncViewModel.looksUpYatService,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsYatService(value)),
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsYatService(value)),
               SettingsSwitcherCell(
                   title: 'Unstoppable Domains',
                   value: _connectionsSyncViewModel.looksUpUnstoppableDomains,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsUnstoppableDomains(value)),
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsUnstoppableDomains(value)),
               SettingsSwitcherCell(
                   title: 'OpenAlias',
                   value: _connectionsSyncViewModel.looksUpOpenAlias,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsOpenAlias(value)),
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsOpenAlias(value)),
               SettingsSwitcherCell(
                   title: 'Ethereum Name Service',
                   value: _connectionsSyncViewModel.looksUpENS,
@@ -51,15 +56,44 @@ class DomainLookupsPage extends BasePage {
                   onValueChange: (_, bool value) =>
                       _connectionsSyncViewModel.setLookupsZcashNames(value)),
               SettingsSwitcherCell(
+                  title: 'Zcash Addresses',
+                  value: _connectionsSyncViewModel.lookupsZcashAddress,
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsZcashAddress(value)),
+              SettingsSwitcherCell(
                   title: '.well-known',
                   value: _connectionsSyncViewModel.looksUpWellKnown,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsWellKnown(value)),
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsWellKnown(value)),
               SettingsSwitcherCell(
                   title: 'Zano Aliases',
                   value: _connectionsSyncViewModel.lookupsZanoAlias,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsZanoAlias(value)),
-
-              //if (!isHaven) it does not work correctly
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsZanoAlias(value)),
+              SettingsSwitcherCell(
+                  title: 'BIP353',
+                  value: _connectionsSyncViewModel.lookupsBip353,
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsBip353(value)),
+              SettingsSwitcherCell(
+                  title: 'FIO',
+                  value: _connectionsSyncViewModel.lookupsFio,
+                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsFio(value)),
+              SettingsSwitcherCell(
+                  title: 'LNURL Pay',
+                  value: _connectionsSyncViewModel.lookupsLNUrlPay,
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsLNUrlPay(value)),
+              SettingsSwitcherCell(
+                  title: 'ThorChain',
+                  value: _connectionsSyncViewModel.lookupsThorChain,
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsThorChain(value)),
+              SettingsSwitcherCell(
+                  title: 'Nostr',
+                  value: _connectionsSyncViewModel.lookupsNostr,
+                  onValueChange: (_, bool value) =>
+                      _connectionsSyncViewModel.setLookupsNostr(value)),
             ],
           ),
         );

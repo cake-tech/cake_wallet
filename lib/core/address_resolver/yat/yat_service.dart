@@ -22,7 +22,7 @@ class YatService {
     'LTC': '0x1019'
   };
 
-  Future<List<YatRecord>> fetchYatAddress(
+  static Future<List<YatRecord>> fetchYatAddress(
       String emojiId,
       String ticker,
       ) async {

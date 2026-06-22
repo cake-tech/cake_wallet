@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/address_resolver/address_resolver_utils.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -87,7 +87,7 @@ class WalletRestoreFromQRCode {
 
   static String? _extractAddressFromUrl(String rawString, WalletType type) {
     try {
-      return AddressResolverService.extractAddressByType(
+      return AddressResolverUtils.extractAddressByType(
         raw: rawString,
         type: walletTypeToCryptoCurrency(
           type,

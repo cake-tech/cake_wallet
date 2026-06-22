@@ -56,6 +56,24 @@ abstract class ConnectionSyncViewModelBase with Store {
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
   @computed
+  bool get lookupsNostr => _settingsStore.lookupsNostr;
+
+  @computed
+  bool get lookupsFio => _settingsStore.lookupsFio;
+
+  @computed
+  bool get lookupsBip353 => _settingsStore.lookupsBip353;
+
+  @computed
+  bool get lookupsThorChain => _settingsStore.lookupsThorChain;
+
+  @computed
+  bool get lookupsZcashAddress => _settingsStore.lookupsZcashAddress;
+
+  @computed
+  bool get lookupsLNUrlPay => _settingsStore.lookupsLNUrl;
+
+  @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
 
   @computed
@@ -145,6 +163,24 @@ abstract class ConnectionSyncViewModelBase with Store {
 
   @action
   void setLookupsOpenAlias(bool value) => _settingsStore.lookupsOpenAlias = value;
+
+  @action
+  void setLookupsThorChain(bool value) => _settingsStore.lookupsThorChain = value;
+
+  @action
+  void setLookupsBip353(bool value) => _settingsStore.lookupsBip353 = value;
+
+  @action
+  void setLookupsNostr(bool value) => _settingsStore.lookupsNostr = value;
+
+  @action
+  void setLookupsFio(bool value) => _settingsStore.lookupsFio = value;
+
+  @action
+  void setLookupsLNUrlPay(bool value) => _settingsStore.lookupsLNUrl = value;
+
+  @action
+  void setLookupsZcashAddress(bool value) => _settingsStore.lookupsZcashAddress = value;
 
   @action
   void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;

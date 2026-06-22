@@ -2,107 +2,63 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 const supportedSources = [
-  AddressSource.twitter,
-  AddressSource.unstoppableDomains,
-  AddressSource.mastodon,
-  AddressSource.bip353,
-  AddressSource.fio,
-  AddressSource.zanoAlias,
   AddressSource.thorChain,
-  AddressSource.ens,
   AddressSource.yatRecord,
-  AddressSource.openAlias,
-  AddressSource.wellKnown,
-  AddressSource.nostr,
-  AddressSource.zcashAddress,
-  AddressSource.zcashMe,
   AddressSource.lnurlPay,
 ];
 
-///Do not use '-' in the label, it is used to separate the label from the alias.
 enum AddressSource {
-  twitter(
-      label: 'X',
-      iconPath: 'assets/images/address_providers/x.svg',
-      alias: '@username',
-      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
+  twitter(label: 'X', iconPath: 'assets/images/address_providers/x.svg', alias: '@username'),
   unstoppableDomains(
       label: 'Unstoppable Domains',
       iconPath: 'assets/images/address_providers/unstoppable.svg',
-      alias: 'domain.tld',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      alias: 'domain.tld'),
   openAlias(
       label: 'OpenAlias',
       iconPath: 'assets/images/address_providers/openalias.svg',
-      alias: 'name.domain.tld',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
-  yatRecord(
-      label: 'Yat',
-      iconPath: 'assets/images/address_providers/yat.svg',
-      alias: '🎂🎂🎂',
-      supportedCurrencies: [
-        CryptoCurrency.xmr,
-        CryptoCurrency.btc,
-        CryptoCurrency.eth,
-        CryptoCurrency.ltc
-      ]),
-  fio(
-      label: 'FIO',
-      iconPath: 'assets/images/address_providers/fio.svg',
-      alias: 'user@domain',
-      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
+      alias: 'name.domain.tld'),
+  yatRecord(label: 'Yat', iconPath: 'assets/images/address_providers/yat.svg', alias: '🎂🎂🎂'),
+  fio(label: 'FIO', iconPath: 'assets/images/address_providers/fio.svg', alias: 'user@domain'),
   ens(
       label: 'Ethereum Name Service',
       iconPath: 'assets/images/address_providers/ens.svg',
-      alias: 'domain.eth',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.eth]),
+      alias: 'domain.eth'),
   mastodon(
       label: 'Mastodon',
       iconPath: 'assets/images/address_providers/mastodon.svg',
-      alias: 'user@domain.tld',
-      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
+      alias: 'user@domain.tld'),
   nostr(
       label: 'Nostr',
       iconPath: 'assets/images/address_providers/nostr.svg',
-      alias: 'user@domain.tld',
-      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
+      alias: 'user@domain.tld'),
   thorChain(
-      label: 'ThorChain',
-      iconPath: 'assets/images/address_providers/thorchain.svg',
-      alias: 'name',
-      supportedCurrencies: CryptoCurrency.all),
+      label: 'ThorChain', iconPath: 'assets/images/address_providers/thorchain.svg', alias: 'name'),
   wellKnown(
       label: '.wellknown',
       iconPath: 'assets/images/address_providers/wellknown.svg',
-      alias: 'domain.tld',
-      supportedCurrencies: [CryptoCurrency.nano]),
+      alias: 'domain.tld'),
   zanoAlias(
-      label: 'Zano Alias',
-      iconPath: 'assets/images/address_providers/zano.svg',
-      alias: '@alias',
-      supportedCurrencies: [CryptoCurrency.zano]),
+      label: 'Zano Alias', iconPath: 'assets/images/address_providers/zano.svg', alias: '@alias'),
   bip353(
       label: 'BIP353',
       iconPath: 'assets/images/address_providers/bip353.svg',
-      alias: 'user@domain.com',
-      supportedCurrencies: [CryptoCurrency.btc]),
-  contact(label: 'Contact', iconPath: '', supportedCurrencies: []),
-  notParsed(label: 'Unknown', iconPath: '', supportedCurrencies: []),
-  zcashAddress(label: 'Unknown', iconPath: '', supportedCurrencies: []),
-  zcashMe(label: 'Unknown', iconPath: '', supportedCurrencies: []),
-  lnurlPay(label: 'Unknown', iconPath: '', supportedCurrencies: []);
+      alias: 'user@domain.com'),
+  zcashAddress(label: 'Zcash.me', iconPath: ''),
+  zcashName(label: 'Unknown', iconPath: ''),
+  lnurlPay(label: 'Unknown', iconPath: ''),
+  contact(label: 'Contact', iconPath: ''),
+  notParsed(label: 'Unknown', iconPath: ''),
+  ;
 
   const AddressSource({
     required this.label,
     required this.iconPath,
     this.alias = '',
-    this.supportedCurrencies = const <CryptoCurrency>[],
   });
 
   final String label;
   final String iconPath;
   final String alias;
-  final List<CryptoCurrency> supportedCurrencies;
 }
 
 extension AddressSourceIndex on AddressSource {

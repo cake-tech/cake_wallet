@@ -1592,9 +1592,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolverService(
-      yatService: getIt.get<YatService>(),
-      settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerLazySingleton<AddressResolverService>(
+        () => AddressResolverService(settingsStore: getIt.get<SettingsStore>()),
+  );
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));

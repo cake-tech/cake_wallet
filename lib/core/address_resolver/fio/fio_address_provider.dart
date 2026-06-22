@@ -1,9 +1,57 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/core/address_resolver/address_lookup_provider.dart';
+import 'package:cake_wallet/core/address_resolver/address_sources.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_base.dart';
 
-class FioAddressProvider {
+class FioAddressProvider extends AddressLookupProvider {
+  @override
+  AddressSource get source => AddressSource.fio;
+
+  @override
+  List<CryptoCurrency> get supportedCurrencies => AddressValidator.reliableValidateCurrencies;
+
+  @override
+  bool canHandle(String q) =>
+      !q.startsWith('@') &&
+      q.contains('@') &&
+      !q.contains('.'); // FIO handle example: username@domain
+
+  @override
+  bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsFio;
+
+  @override
+  Future<List<ParsedAddress>> resolve({
+    required String query,
+    required List<CryptoCurrency> currencies,
+    required WalletBase wallet,
+  }) async {
+    final Map<CryptoCurrency, String> result = {};
+    final bool isFioRegistered = await FioAddressProvider.checkAvail(query);
+    if (!isFioRegistered) return [];
+
+    for (final cur in currencies) {
+      final address = await FioAddressProvider.getPubAddress(query, cur.title);
+      if (address != null && address.isNotEmpty) {
+        result[cur] = address;
+      }
+    }
+
+    if (result.isNotEmpty) {
+      return [
+        ParsedAddress(
+            parsedAddressByCurrencyMap: result, addressSource: AddressSource.fio, handle: query)
+      ];
+    }
+    return [];
+  }
+
   static const apiAuthority = 'fio.blockpane.com';
   static const availCheck = '/v1/chain/avail_check';
   static const getAddress = '/v1/chain/get_pub_address';
