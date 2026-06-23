@@ -180,6 +180,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final query = output.address.trim();
     if (query.isEmpty) return null;
 
+    final isValidAddress = AddressValidator(type: selectedCryptoCurrency).isValid(query);
+
+    if (isValidAddress) return null;
+
     final results = await getIt<AddressResolverService>().resolve(
       query: query,
       wallet: wallet,
