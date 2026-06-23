@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
@@ -115,8 +116,8 @@ class HistorySection extends StatelessWidget {
                             provider: trade.provider,
                             date:
                                 DateFormat('HH:mm').format(item.trade.createdAt ?? DateTime.now()),
-                            amount: trade.amountFormatted(),
-                            receiveAmount: trade.receiveAmountFormatted(),
+                            amount: dashboardViewModel.balanceDisplayMode == BalanceDisplayMode.hiddenBalance ? "---" : trade.amountFormatted(),
+                            receiveAmount: dashboardViewModel.balanceDisplayMode == BalanceDisplayMode.hiddenBalance ? "---" : trade.receiveAmountFormatted(),
                             roundedBottom: roundedBottom,
                             roundedTop: roundedTop,
                             bottomSeparator: !roundedBottom,
@@ -136,7 +137,7 @@ class HistorySection extends StatelessWidget {
                           child: HistoryOrderTile(
                             date: DateFormat('HH:mm').format(item.order.createdAt),
                             amount: item.orderFormattedAmount,
-                            amountFiat: "USD 0.00",
+                            amountFiat: "",
                             roundedBottom: roundedBottom,
                             roundedTop: roundedTop,
                             bottomSeparator: !roundedBottom,
