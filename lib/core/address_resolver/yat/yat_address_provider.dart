@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 
 class YatAddressProvider extends AddressLookupProvider {
@@ -51,7 +52,7 @@ class YatAddressProvider extends AddressLookupProvider {
         )
       ];
     } catch (e) {
-      print('[address resolver] Error resolving Yat address: $e');
+      printV('[address resolver] Error resolving Yat address: $e');
       return [];
     }
   }

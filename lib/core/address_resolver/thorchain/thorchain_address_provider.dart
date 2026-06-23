@@ -6,6 +6,7 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 
 class ThorchainAddressProvider extends AddressLookupProvider {
@@ -57,7 +58,7 @@ class ThorchainAddressProvider extends AddressLookupProvider {
         )
       ];
     } catch (e) {
-      print('[address resolver] Error resolving address: $e');
+      printV('[address resolver] Error resolving address: $e');
       return [];
     }
   }

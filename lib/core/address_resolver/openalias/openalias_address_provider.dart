@@ -56,7 +56,7 @@ class OpenaliasAddressProvider extends AddressLookupProvider {
         )
       ];
     } catch (e) {
-      print('[address resolver] Error resolving OpenAlias address: $e');
+      printV('[address resolver] Error resolving OpenAlias address: $e');
       return [];
     }
   }
