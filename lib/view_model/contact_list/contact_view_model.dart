@@ -64,14 +64,27 @@ abstract class ContactViewModelBase with Store {
     currency = null;
   }
 
-  Future<void> extractParsedAddress(BuildContext context) async{
+  Future<void> extractParsedAddress(BuildContext context) async {
     final wallet = appStore.wallet;
+    final currentCurrency = currency;
+    final query = address.trim();
+
     if (wallet == null) return;
-    if( currency == null) return;
-    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: address, wallet: wallet, currency: currency!);
-    address = parsedAddresses.isNotEmpty
-        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
-        : '';
+    if (currentCurrency == null) return;
+    if (query.isEmpty) return;
+
+    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(
+      query: query,
+      wallet: wallet,
+      currency: currentCurrency,
+    );
+
+    if (parsedAddresses.isEmpty) return;
+
+    final resolvedAddress = parsedAddresses.first.parsedAddressByCurrencyMap[currentCurrency];
+    if (resolvedAddress == null || resolvedAddress.isEmpty) return;
+
+    address = resolvedAddress;
   }
 
   Future<void> save() async {
