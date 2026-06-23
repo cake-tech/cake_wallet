@@ -942,7 +942,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.zero,
                                     isDense: true,
-                                    hintText: widget.useBaseUnit ? "0" : "0.000",
+                                    hintText: "0",
                                     fillColor: Colors.transparent,
                                     hoverColor: Colors.transparent,
                                     focusedBorder: InputBorder.none,
