@@ -101,9 +101,6 @@ class HistorySection extends StatelessWidget {
                         final trade = item.trade;
                         final tradeFrom = trade.from;
                         final tradeTo = trade.to;
-                        if (tradeFrom == null || tradeTo == null) {
-                          return const SizedBox.shrink();
-                        }
 
                         return GestureDetector(
                           onTap: () => Navigator.of(context)
