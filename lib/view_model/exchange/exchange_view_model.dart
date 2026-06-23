@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math' show min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -863,7 +864,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     final amount_ = _enteredAmount * (forcedProvider == null ? bestRate : forcedProviderRate);
     _receiveAmount =
-        Money.tryParse(amount_.toStringAsFixed(receiveCurrency.decimals), receiveCurrency);
+        Money.tryParse(amount_.toStringAsFixed(min(20, receiveCurrency.decimals)), receiveCurrency);
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
