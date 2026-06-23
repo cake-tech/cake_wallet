@@ -493,7 +493,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @computed
   String? get balanceDisplay {
     CryptoCurrency? balanceCurrency;
-    if (isEVMCompatibleChain(wallet.type)) {
+    if (isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana || wallet.type == WalletType.tron) {
       balanceCurrency = wallet.balance.keys.firstWhereOrNull(
         (c) =>
             c.title == depositCurrency.title &&
