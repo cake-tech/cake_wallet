@@ -27,33 +27,38 @@ class ThorchainAddressProvider extends AddressLookupProvider {
     required List<CryptoCurrency> currencies,
     required WalletBase wallet,
   }) async {
-    final isNormalAddress = currencies.any((cur) =>
-        AddressResolverUtils.extractAddressByType(raw: query, type: cur)?.isNotEmpty ?? false);
-    if (query.length > 30 || isNormalAddress) return [];
+    try {
+      final isNormalAddress = currencies.any((cur) =>
+          AddressResolverUtils.extractAddressByType(raw: query, type: cur)?.isNotEmpty ?? false);
+      if (query.length > 30 || isNormalAddress) return [];
 
-    final map = await ThorChainExchangeProvider.lookupAddressByName(query);
-    if (map == null || map.isEmpty) return [];
+      final map = await ThorChainExchangeProvider.lookupAddressByName(query);
+      if (map == null || map.isEmpty) return [];
 
-    final result = <CryptoCurrency, String>{};
+      final result = <CryptoCurrency, String>{};
 
-    for (final cur in currencies) {
-      final key = cur.title.toUpperCase();
-      final addr = map[key];
-      final runeAddr = cur.title.toUpperCase() == 'RUNE' ? map['THOR'] : null;
-      final resolvedAddress = addr ?? runeAddr;
-      if (resolvedAddress != null && resolvedAddress.isNotEmpty) {
-        if (!result.containsValue(resolvedAddress)) result[cur] = resolvedAddress;
+      for (final cur in currencies) {
+        final key = cur.title.toUpperCase();
+        final addr = map[key];
+        final runeAddr = cur.title.toUpperCase() == 'RUNE' ? map['THOR'] : null;
+        final resolvedAddress = addr ?? runeAddr;
+        if (resolvedAddress != null && resolvedAddress.isNotEmpty) {
+          if (!result.containsValue(resolvedAddress)) result[cur] = resolvedAddress;
+        }
       }
-    }
 
-    return result.isEmpty
-        ? []
-        : [
-            ParsedAddress(
-              parsedAddressByCurrencyMap: result,
-              addressSource: AddressSource.thorChain,
-              handle: query,
-            )
-          ];
+      if (result.isEmpty) return [];
+
+      return [
+        ParsedAddress(
+          parsedAddressByCurrencyMap: result,
+          addressSource: AddressSource.thorChain,
+          handle: query,
+        )
+      ];
+    } catch (e) {
+      print('[address resolver] Error resolving address: $e');
+      return [];
+    }
   }
 }

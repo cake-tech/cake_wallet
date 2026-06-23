@@ -207,6 +207,7 @@ class UnstoppableAddressProvider extends AddressLookupProvider {
       return [];
     }
   }
+
   static Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
     var address = '';
 

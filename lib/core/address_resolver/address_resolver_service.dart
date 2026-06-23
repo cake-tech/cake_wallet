@@ -31,6 +31,7 @@ class AddressResolverService {
 
 // Sources available for address resolution and lookup settings.
   static const supportedSources = [
+    AddressSource.lnurlPay,
     AddressSource.twitter,
     AddressSource.mastodon,
     AddressSource.yatRecord,
@@ -43,13 +44,13 @@ class AddressResolverService {
     AddressSource.zanoAlias,
     AddressSource.bip353,
     AddressSource.fio,
-    AddressSource.lnurlPay,
     AddressSource.thorChain,
     AddressSource.nostr,
   ];
 
   static List<AddressLookupProvider> _buildProviders() {
     final allProviders = <AddressLookupProvider>[
+      LNUrlPayAddressProvider(),
       TwitterAddressProvider(),
       MastodonAddressProvider(),
       YatAddressProvider(),
@@ -62,7 +63,6 @@ class AddressResolverService {
       ZanoAliasAddressProvider(),
       Bip353AddressProvider(),
       FioAddressProvider(),
-      LNUrlPayAddressProvider(),
       ThorchainAddressProvider(),
       NostrAddressProvider(),
     ];
@@ -73,27 +73,59 @@ class AddressResolverService {
   Future<List<ParsedAddress>> resolve({
     required String query,
     required WalletBase wallet,
-    CryptoCurrency? currency,
+    required CryptoCurrency currency,
   }) async {
     try {
+      // return first entry if currency is specified and provider supports it
+      if (currency != null) {
+        for (final provider in providers) {
+          final cur = currency.title;
+          final src = provider.source.label;
+
+          printV('[address resolver service] checking $src - $cur - $query');
+          if (!provider.isEnabled(settingsStore)) {
+            printV('[address resolver service] ...skipping $src (disabled)');
+            continue;
+          }
+          if (!provider.canHandle(query)) {
+            printV('[address resolver service] ...skipping $src (cannot handle)');
+            continue;
+          }
+          if (!provider.supportedCurrencies.contains(currency)) {
+            printV('[address resolver service] ...skipping $src (unsupported currency)');
+            continue;
+          }
+
+          printV('[address resolver service] ...resolving $src - $cur - $query');
+          final results = await provider.resolve(
+            query: query,
+            currencies: [currency],
+            wallet: wallet,
+          );
+
+          if (results.isNotEmpty) {
+            final parsedAddress = results.first.parsedAddressByCurrencyMap[currency];
+            final parsedAddressStr = parsedAddress == null || parsedAddress.isEmpty ? 'N/A' : parsedAddress;
+            printV('[address resolver service] resolved $src - $cur - $parsedAddressStr');
+            return [results.first];
+          }
+        }
+
+        return [];
+      }
+
+      return []; // TODO: Implement multi-currency resolution if no specific currency is provided.
+
       final tasks = <Future<List<ParsedAddress>>>[];
 
       for (final provider in providers) {
         if (!provider.isEnabled(settingsStore)) continue;
         if (!provider.canHandle(query)) continue;
 
-        final coins = currency == null
-            ? provider.supportedCurrencies.toList()
-            : provider.supportedCurrencies.contains(currency)
-                ? [currency]
-                : const <CryptoCurrency>[];
-
-        if (coins.isEmpty) continue;
-
         tasks.add(
           provider.resolve(
             query: query,
-            currencies: coins,
+            currencies: provider.supportedCurrencies,
             wallet: wallet,
           ),
         );

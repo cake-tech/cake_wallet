@@ -36,7 +36,6 @@ class TwitterAddressProvider extends AddressLookupProvider {
     required WalletBase wallet,
   }) async {
     final formattedName = query.substring(1); // Remove '@' from the beginning of the handle
-
     try {
       final result = <CryptoCurrency, String>{};
 
@@ -77,7 +76,7 @@ class TwitterAddressProvider extends AddressLookupProvider {
 
       return [_buildTwitterParsedAddress(query, twitterUser, result)];
     } catch (e) {
-      printV('[address resolver] Error resolving Twitter address: $e');
+      printV('[address resolver service] Twitter error: $e');
       return [];
     }
   }

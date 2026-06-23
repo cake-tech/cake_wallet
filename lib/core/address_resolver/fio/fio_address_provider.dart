@@ -33,6 +33,7 @@ class FioAddressProvider extends AddressLookupProvider {
     required WalletBase wallet,
   }) async {
     final Map<CryptoCurrency, String> result = {};
+    try {
     final bool isFioRegistered = await FioAddressProvider.checkAvail(query);
     if (!isFioRegistered) return [];
 
@@ -50,6 +51,10 @@ class FioAddressProvider extends AddressLookupProvider {
       ];
     }
     return [];
+    } catch (e) {
+      printV('FioAddressProvider.resolve error: $e');
+      return [];
+    }
   }
 
   static const apiAuthority = 'fio.blockpane.com';

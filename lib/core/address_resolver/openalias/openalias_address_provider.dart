@@ -28,31 +28,36 @@ class OpenaliasAddressProvider extends AddressLookupProvider {
     required List<CryptoCurrency> currencies,
     required WalletBase wallet,
   }) async {
-    final formatted = OpenaliasRecord.formatDomainName(query);
+    try {
+      final formatted = OpenaliasRecord.formatDomainName(query);
 
-    final txtRecords = await OpenaliasRecord.lookupOpenAliasRecord(formatted);
-    if (txtRecords == null) return [];
+      final txtRecords = await OpenaliasRecord.lookupOpenAliasRecord(formatted);
+      if (txtRecords == null) return [];
 
-    final result = <CryptoCurrency, String>{};
+      final result = <CryptoCurrency, String>{};
 
-    for (final cur in currencies) {
-      final rec = OpenaliasRecord.fetchAddressAndName(
-        formattedName: formatted,
-        ticker: cur.title.toLowerCase(),
-        txtRecord: txtRecords,
-      );
+      for (final cur in currencies) {
+        final rec = OpenaliasRecord.fetchAddressAndName(
+          formattedName: formatted,
+          ticker: cur.title.toLowerCase(),
+          txtRecord: txtRecords,
+        );
 
-      if (rec.address.isNotEmpty) result[cur] = rec.address;
+        if (rec.address.isNotEmpty) result[cur] = rec.address;
+      }
+
+      if (result.isEmpty) return [];
+
+      return [
+        ParsedAddress(
+          parsedAddressByCurrencyMap: result,
+          addressSource: AddressSource.openAlias,
+          handle: query,
+        )
+      ];
+    } catch (e) {
+      print('[address resolver] Error resolving OpenAlias address: $e');
+      return [];
     }
-
-    return result.isEmpty
-        ? []
-        : [
-            ParsedAddress(
-              parsedAddressByCurrencyMap: result,
-              addressSource: AddressSource.openAlias,
-              handle: query,
-            )
-          ];
   }
 }
