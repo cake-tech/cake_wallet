@@ -1,6 +1,8 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/settings/connection_sync_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -24,6 +26,11 @@ class DomainLookupsPage extends BasePage {
                 .map(
                   (source) => SettingsSwitcherCell(
                     title: source.label,
+                    leading: source.iconPath.isNotEmpty ? CakeImageWidget(
+                      imageUrl: source.iconPath,
+                      width: 24,
+                      height: 24,
+                    ) : SizedBox(width: 24, height: 24),
                     value: _connectionsSyncViewModel.lookupValue(source),
                     onValueChange: (_, bool value) =>
                         _connectionsSyncViewModel.setLookupValue(source, value),

@@ -2,40 +2,40 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 enum AddressSource {
-  twitter(label: 'X', iconPath: 'assets/images/address_providers/x.svg', alias: '@username'),
+  twitter(label: 'X', iconPath: 'assets/new-ui/address_sources/x.svg', alias: '@username'),
   unstoppableDomains(
       label: 'Unstoppable Domains',
-      iconPath: 'assets/images/address_providers/unstoppable.svg',
+      iconPath: 'assets/new-ui/address_sources/unstoppable.svg',
       alias: 'domain.tld'),
   openAlias(
       label: 'OpenAlias',
-      iconPath: 'assets/images/address_providers/openalias.svg',
+      iconPath: 'assets/new-ui/address_sources/openalias.svg',
       alias: 'name.domain.tld'),
-  yatRecord(label: 'Yat', iconPath: 'assets/images/address_providers/yat.svg', alias: '🎂🎂🎂'),
-  fio(label: 'FIO', iconPath: 'assets/images/address_providers/fio.svg', alias: 'user@domain'),
+  yatRecord(label: 'Yat', iconPath: 'assets/new-ui/address_sources/yat.svg', alias: '🎂🎂🎂'),
+  fio(label: 'FIO', iconPath: 'assets/new-ui/address_sources/fio.svg', alias: 'user@domain'),
   ens(
       label: 'Ethereum Name Service',
-      iconPath: 'assets/images/address_providers/ens.svg',
+      iconPath: 'assets/new-ui/address_sources/ens.svg',
       alias: 'domain.eth'),
   mastodon(
       label: 'Mastodon',
-      iconPath: 'assets/images/address_providers/mastodon.svg',
+      iconPath: 'assets/new-ui/address_sources/mastodon.svg',
       alias: '@username@domain.tld'),
   nostr(
       label: 'Nostr',
-      iconPath: 'assets/images/address_providers/nostr.svg',
+      iconPath: 'assets/new-ui/address_sources/nostr.svg',
       alias: 'user@domain.tld'),
   thorChain(
-      label: 'ThorChain', iconPath: 'assets/images/address_providers/thorchain.svg', alias: 'name'),
+      label: 'ThorChain', iconPath: 'assets/new-ui/address_sources/thorchain.svg', alias: 'name'),
   wellKnown(
       label: '.wellknown',
-      iconPath: 'assets/images/address_providers/wellknown.svg',
+      iconPath: 'assets/new-ui/address_sources/wellknown.svg',
       alias: 'domain.tld'),
   zanoAlias(
-      label: 'Zano Alias', iconPath: 'assets/images/address_providers/zano.svg', alias: '@alias'),
+      label: 'Zano Alias', iconPath: 'assets/new-ui/address_sources/zano.svg', alias: '@alias'),
   bip353(
       label: 'BIP353',
-      iconPath: 'assets/images/address_providers/bip353.svg',
+      iconPath: 'assets/new-ui/address_sources/bip353.svg',
       alias: 'user@domain.com'),
   zcashAddress(label: 'Zcash.me', iconPath: '', alias: 'zcash.me/username'),
   zcashName(label: 'Zcash Names', iconPath: '', alias: 'name.zec'),
