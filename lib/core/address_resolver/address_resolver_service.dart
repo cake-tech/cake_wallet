@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/address_resolver/address_lookup_provider.dart';
+import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/bip_353/bip_353_address_provider.dart';
 import 'package:cake_wallet/core/address_resolver/ens/ens_address_provider.dart';
 import 'package:cake_wallet/core/address_resolver/fio/fio_address_provider.dart';
@@ -23,26 +24,51 @@ import 'package:cw_core/wallet_base.dart';
 class AddressResolverService {
   AddressResolverService({
     required this.settingsStore,
-  }) : providers = [
-          TwitterAddressProvider(),
-          MastodonAddressProvider(),
-          UnstoppableAddressProvider(),
-          ZcashMeAddressProvider(),
-          ZcashNameAddressProvider(),
-          ZanoAliasAddressProvider(),
-          Bip353AddressProvider(),
-          EnsAddressProvider(),
-          FioAddressProvider(),
-          NostrAddressProvider(),
-          OpenaliasAddressProvider(),
-          WellKnownAddressProvider(),
-          YatAddressProvider(),
-          ThorchainAddressProvider(),
-          LNUrlPayAddressProvider(),
-        ];
+  }) : providers = _buildProviders();
 
   final SettingsStore settingsStore;
   final List<AddressLookupProvider> providers;
+
+// Sources available for address resolution and lookup settings.
+  static const supportedSources = [
+    AddressSource.twitter,
+    AddressSource.mastodon,
+    AddressSource.yatRecord,
+    AddressSource.unstoppableDomains,
+    AddressSource.openAlias,
+    AddressSource.ens,
+    AddressSource.zcashName,
+    AddressSource.zcashAddress,
+    AddressSource.wellKnown,
+    AddressSource.zanoAlias,
+    AddressSource.bip353,
+    AddressSource.fio,
+    AddressSource.lnurlPay,
+    AddressSource.thorChain,
+    AddressSource.nostr,
+  ];
+
+  static List<AddressLookupProvider> _buildProviders() {
+    final allProviders = <AddressLookupProvider>[
+      TwitterAddressProvider(),
+      MastodonAddressProvider(),
+      YatAddressProvider(),
+      UnstoppableAddressProvider(),
+      OpenaliasAddressProvider(),
+      EnsAddressProvider(),
+      ZcashNameAddressProvider(),
+      ZcashMeAddressProvider(),
+      WellKnownAddressProvider(),
+      ZanoAliasAddressProvider(),
+      Bip353AddressProvider(),
+      FioAddressProvider(),
+      LNUrlPayAddressProvider(),
+      ThorchainAddressProvider(),
+      NostrAddressProvider(),
+    ];
+
+    return allProviders.where((provider) => supportedSources.contains(provider.source)).toList();
+  }
 
   Future<List<ParsedAddress>> resolve({
     required String query,

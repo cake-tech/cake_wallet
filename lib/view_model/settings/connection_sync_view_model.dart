@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
@@ -86,6 +88,99 @@ abstract class ConnectionSyncViewModelBase with Store {
   @computed
   bool get builtinTor => _settingsStore.currentBuiltinTor;
 
+  List<AddressSource> get domainLookupSources => AddressResolverService.supportedSources;
+
+  bool lookupValue(AddressSource source) {
+    switch (source) {
+      case AddressSource.twitter:
+        return lookupTwitter;
+      case AddressSource.mastodon:
+        return looksUpMastodon;
+      case AddressSource.yatRecord:
+        return looksUpYatService;
+      case AddressSource.unstoppableDomains:
+        return looksUpUnstoppableDomains;
+      case AddressSource.openAlias:
+        return looksUpOpenAlias;
+      case AddressSource.ens:
+        return looksUpENS;
+      case AddressSource.zcashName:
+        return lookupsZcashNames;
+      case AddressSource.zcashAddress:
+        return lookupsZcashAddress;
+      case AddressSource.wellKnown:
+        return looksUpWellKnown;
+      case AddressSource.zanoAlias:
+        return lookupsZanoAlias;
+      case AddressSource.bip353:
+        return lookupsBip353;
+      case AddressSource.fio:
+        return lookupsFio;
+      case AddressSource.lnurlPay:
+        return lookupsLNUrlPay;
+      case AddressSource.thorChain:
+        return lookupsThorChain;
+      case AddressSource.nostr:
+        return lookupsNostr;
+      case AddressSource.contact:
+      case AddressSource.notParsed:
+        return false;
+    }
+  }
+
+  @action
+  void setLookupValue(AddressSource source, bool value) {
+    switch (source) {
+      case AddressSource.twitter:
+        _settingsStore.lookupsTwitter = value;
+        break;
+      case AddressSource.mastodon:
+        _settingsStore.lookupsMastodon = value;
+        break;
+      case AddressSource.yatRecord:
+        _settingsStore.lookupsYatService = value;
+        break;
+      case AddressSource.unstoppableDomains:
+        _settingsStore.lookupsUnstoppableDomains = value;
+        break;
+      case AddressSource.openAlias:
+        _settingsStore.lookupsOpenAlias = value;
+        break;
+      case AddressSource.ens:
+        _settingsStore.lookupsENS = value;
+        break;
+      case AddressSource.zcashName:
+        _settingsStore.lookupsZcashNames = value;
+        break;
+      case AddressSource.zcashAddress:
+        _settingsStore.lookupsZcashAddress = value;
+        break;
+      case AddressSource.wellKnown:
+        _settingsStore.lookupsWellKnown = value;
+        break;
+      case AddressSource.zanoAlias:
+        _settingsStore.lookupsZanoAlias = value;
+        break;
+      case AddressSource.bip353:
+        _settingsStore.lookupsBip353 = value;
+        break;
+      case AddressSource.fio:
+        _settingsStore.lookupsFio = value;
+        break;
+      case AddressSource.lnurlPay:
+        _settingsStore.lookupsLNUrl = value;
+        break;
+      case AddressSource.thorChain:
+        _settingsStore.lookupsThorChain = value;
+        break;
+      case AddressSource.nostr:
+        _settingsStore.lookupsNostr = value;
+        break;
+      case AddressSource.contact:
+      case AddressSource.notParsed:
+        break;
+    }
+  }
 
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(_wallet.type);
@@ -137,50 +232,6 @@ abstract class ConnectionSyncViewModelBase with Store {
   @computed
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
-  @action
-  void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
-
-  @action
-  void setLookupsZanoAlias(bool value) => _settingsStore.lookupsZanoAlias = value;
-
-  @action
-  void setLookupsMastodon(bool value) => _settingsStore.lookupsMastodon = value;
-
-  @action
-  void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
-
-  @action
-  void setLookupsZcashNames(bool value) => _settingsStore.lookupsZcashNames = value;
-
-  @action
-  void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
-
-  @action
-  void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
-
-  @action
-  void setLookupsUnstoppableDomains(bool value) => _settingsStore.lookupsUnstoppableDomains = value;
-
-  @action
-  void setLookupsOpenAlias(bool value) => _settingsStore.lookupsOpenAlias = value;
-
-  @action
-  void setLookupsThorChain(bool value) => _settingsStore.lookupsThorChain = value;
-
-  @action
-  void setLookupsBip353(bool value) => _settingsStore.lookupsBip353 = value;
-
-  @action
-  void setLookupsNostr(bool value) => _settingsStore.lookupsNostr = value;
-
-  @action
-  void setLookupsFio(bool value) => _settingsStore.lookupsFio = value;
-
-  @action
-  void setLookupsLNUrlPay(bool value) => _settingsStore.lookupsLNUrl = value;
-
-  @action
-  void setLookupsZcashAddress(bool value) => _settingsStore.lookupsZcashAddress = value;
 
   @action
   void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;

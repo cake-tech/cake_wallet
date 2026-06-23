@@ -1,12 +1,6 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 
-const supportedSources = [
-  AddressSource.thorChain,
-  AddressSource.yatRecord,
-  AddressSource.lnurlPay,
-];
-
 enum AddressSource {
   twitter(label: 'X', iconPath: 'assets/images/address_providers/x.svg', alias: '@username'),
   unstoppableDomains(
@@ -26,7 +20,7 @@ enum AddressSource {
   mastodon(
       label: 'Mastodon',
       iconPath: 'assets/images/address_providers/mastodon.svg',
-      alias: 'user@domain.tld'),
+      alias: '@username@domain.tld'),
   nostr(
       label: 'Nostr',
       iconPath: 'assets/images/address_providers/nostr.svg',
@@ -43,9 +37,9 @@ enum AddressSource {
       label: 'BIP353',
       iconPath: 'assets/images/address_providers/bip353.svg',
       alias: 'user@domain.com'),
-  zcashAddress(label: 'Zcash.me', iconPath: ''),
-  zcashName(label: 'Unknown', iconPath: ''),
-  lnurlPay(label: 'Unknown', iconPath: ''),
+  zcashAddress(label: 'Zcash.me', iconPath: '', alias: 'zcash.me/username'),
+  zcashName(label: 'Zcash Names', iconPath: '', alias: 'name.zec'),
+  lnurlPay(label: 'LNURL Pay', iconPath: '', alias: 'user@domain.com'),
   contact(label: 'Contact', iconPath: ''),
   notParsed(label: 'Unknown', iconPath: ''),
   ;
