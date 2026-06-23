@@ -77,8 +77,7 @@ class BalanceRecord {
       ? "$fiatCurrency " +
           _withLocalSeperator(((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
                   (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
-              .toString()
-              .withMaxDecimals(2))
+              .toStringAsFixed(2))
       : "";
 
   String get fiatAvailableBalance =>
