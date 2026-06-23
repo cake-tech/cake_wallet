@@ -415,6 +415,7 @@
   "forgot_password": "Mot de passe oublié",
   "freeze": "Geler",
   "frequently_asked_questions": "Foire aux questions",
+  "frigate_electrum_server_warning": "Ce serveur Frigate Electrum partage vos clés de paiement silencieux avec le serveur et peut dégrader votre confidentialité. Continuez uniquement si vous faites confiance à ce serveur.",
   "from": "Depuis",
   "frozen": "Gelées",
   "frozen_balance": "Solde gelé",

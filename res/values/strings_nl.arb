@@ -415,6 +415,7 @@
   "forgot_password": "Wachtwoord vergeten",
   "freeze": "Bevriezen",
   "frequently_asked_questions": "Veelgestelde vragen",
+  "frigate_electrum_server_warning": "Deze Frigate Electrum-server deelt uw Silent Payments-sleutels met de server en kan uw privacy aantasten. Ga alleen verder als u deze server vertrouwt.",
   "from": "Van",
   "frozen": "Bevroren",
   "frozen_balance": "Bevroren balans",

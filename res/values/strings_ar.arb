@@ -415,6 +415,7 @@
   "forgot_password": "هل نسيت كلمة السر",
   "freeze": "تجميد",
   "frequently_asked_questions": "الأسئلة الشائعة",
+  "frigate_electrum_server_warning": "يشارك خادم Frigate Electrum هذا مفاتيح المدفوعات الصامتة الخاصة بك مع الخادم وقد يؤدي إلى تدهور خصوصيتك. تابع فقط إذا كنت تثق بهذا الخادم.",
   "from": "من",
   "frozen": "مجمدة",
   "frozen_balance": "التوازن المجمد",

@@ -17,7 +17,7 @@ class ProxyAddress {
 
 abstract class ProxySocket {
   static Future<ProxySocket> connect(bool sslEnabled, ProxyAddress address, {Duration? connectionTimeout}) async {
-    if (CakeTor.instance!.started) {
+    if (CakeTor.instance?.started == true) {
       var socksSocket = await SOCKSSocket.create(
           proxyHost: InternetAddress.loopbackIPv4.address,
           proxyPort: CakeTor.instance!.port,

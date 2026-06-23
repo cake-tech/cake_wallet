@@ -414,6 +414,7 @@
   "forgot_password": "Quên mật khẩu",
   "freeze": "Đóng băng",
   "frequently_asked_questions": "Các câu hỏi thường gặp",
+  "frigate_electrum_server_warning": "Máy chủ Frigate Electrum này chia sẻ khóa Thanh toán Im lặng của bạn với máy chủ và có thể làm giảm quyền riêng tư của bạn. Chỉ tiếp tục nếu bạn tin cậy máy chủ này.",
   "from": "Từ",
   "frozen": "Đã đóng băng",
   "frozen_balance": "Cân bằng đông lạnh",

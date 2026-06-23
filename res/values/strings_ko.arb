@@ -415,6 +415,7 @@
   "forgot_password": "비밀번호 찾기",
   "freeze": "동결",
   "frequently_asked_questions": "자주 묻는 질문",
+  "frigate_electrum_server_warning": "이 Frigate Electrum 서버는 귀하의 Silent Payments 키를 서버와 공유하므로 귀하의 개인 정보가 저하될 수 있습니다. 이 서버를 신뢰하는 경우에만 진행하세요.",
   "from": "보내는 통화",
   "frozen": "동결됨",
   "frozen_balance": "동결 잔액",

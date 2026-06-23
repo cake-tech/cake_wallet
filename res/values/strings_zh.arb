@@ -415,6 +415,7 @@
   "forgot_password": "忘记密码",
   "freeze": "冻结",
   "frequently_asked_questions": "常见问题",
+  "frigate_electrum_server_warning": "此 Frigate Electrum 服务器与服务器共享您的静默付款密钥，可能会降低您的隐私。仅当您信任此服务器时才继续。",
   "from": "从",
   "frozen": "冻结的",
   "frozen_balance": "冻结余额",
