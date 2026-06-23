@@ -1898,6 +1898,7 @@ abstract class ElectrumWalletBase
         final tx = await fetchTransactionInfo(hash: coin.hash);
         coin.isChange = address.isHidden;
         coin.confirmations = tx?.confirmations;
+        coin.isPegOut = tx?.isHogEx;
 
         updatedUnspentCoins.add(coin);
       } catch (_) {}

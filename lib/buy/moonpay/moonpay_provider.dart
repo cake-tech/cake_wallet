@@ -82,7 +82,7 @@ class MoonPayProvider extends BuyProvider {
 
   static String get _apiKey => secrets.moonPayApiKey;
 
-  String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
+  String get currencyCode => walletTypeToCryptoCurrency(wallet.type, chainId: wallet.chainId).title.toLowerCase();
 
   String get trackUrl => baseBuyUrl + '/transaction_receipt?transactionId=';
 
@@ -383,6 +383,8 @@ class MoonPayProvider extends BuyProvider {
         return 'yellow_card_bank_transfer';
       case PaymentType.fiatBalance:
         return 'fiat_balance';
+      case PaymentType.revolutPay:
+        return 'revolut_pay';
       default:
         return null;
     }
@@ -416,6 +418,8 @@ class MoonPayProvider extends BuyProvider {
         return PaymentType.sepaOpenBankingPayment;
       case 'yellow_card_bank_transfer':
         return PaymentType.yellowCardBankTransfer;
+      case 'revolut_pay':
+        return PaymentType.revolutPay;
       default:
         return PaymentType.unknown;
     }
