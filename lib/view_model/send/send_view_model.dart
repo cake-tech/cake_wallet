@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -172,6 +174,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   void removeOutput(Output output) {
     if (isBatchSending) outputs.remove(output);
+  }
+
+  Future<ParsedAddress?> resolveAddressForOutput(Output output) async {
+    final query = output.address.trim();
+    if (query.isEmpty) return null;
+
+    final results = await getIt<AddressResolverService>().resolve(
+      query: query,
+      wallet: wallet,
+      currency: selectedCryptoCurrency,
+    );
+
+    return results.isEmpty ? null : results.first;
   }
 
   @action
@@ -1326,7 +1341,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
 
   ContactRecord? newContactAddress() {
-    final contacts = contactListViewModel.contacts;
     final Set<String> contactAddresses =
         Set.from(contactListViewModel.contacts.map((contact) => contact.address))
           ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));

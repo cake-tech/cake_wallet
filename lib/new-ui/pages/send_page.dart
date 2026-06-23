@@ -48,6 +48,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
@@ -261,14 +262,33 @@ class _NewSendPageState extends State<NewSendPage> {
     _addressFocusNode.addListener(() async {
       if (!_addressFocusNode.hasFocus && _addressControllers[_selectedOutput].text.isNotEmpty) {
         final output = widget.sendViewModel.outputs[_selectedOutput];
-        output.fetchParsedAddress(context).then((val) {
-          if (_addressControllers[_selectedOutput].text != output.extractedAddress) {
-            _addressControllers[_selectedOutput].text = output.extractedAddress;
-          }
-        });
+        await _resolveAddressForOutput(output);
       }
     });
   }
+
+  Future<void> _resolveAddressForOutput(Output output) async {
+    final result = await widget.sendViewModel.resolveAddressForOutput(output);
+    if (result == null) return;
+
+    final confirmed = await showParsedAddressConfirmationAlert(context, result);
+
+    if (confirmed) {
+      output.applyAddressLookupResult(result);
+    } else {
+      output.resetParsedAddress();
+      return;
+    }
+
+    final outputIndex = widget.sendViewModel.outputs.indexOf(output);
+    if (outputIndex >= 0 &&
+        outputIndex < _addressControllers.length &&
+        output.extractedAddress.isNotEmpty &&
+        _addressControllers[outputIndex].text != output.extractedAddress) {
+      _addressControllers[outputIndex].text = output.extractedAddress;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -375,7 +395,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                           focusNode: _addressFocusNode,
                                           onURIScanned: (uri) async {
                                             output.resetParsedAddress();
-                                            await output.fetchParsedAddress(context);
+                                            await _resolveAddressForOutput(output);
 
                                             // Process the payment through the new flow
                                             await _handlePaymentFlow(
@@ -395,14 +415,14 @@ class _NewSendPageState extends State<NewSendPage> {
                                             output.resetParsedAddress();
                                           },
                                           onSelectedContact: (contact) {
-                                            output.loadContact((contact.address, contact.name));
+                                            output.loadContact(contact);
                                           },
                                           onPushPasteButton: (context) async {
                                             if(_justHandledPasteButton) return;
                                             _justHandledPasteButton = true;
                                             try {
                                               output.resetParsedAddress();
-                                              await output.fetchParsedAddress(context);
+                                              await _resolveAddressForOutput(output);
 
                                               final address = output.isParsedAddress
                                                   ? output.extractedAddress
@@ -1421,4 +1441,29 @@ class SendHelpPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<bool> showParsedAddressConfirmationAlert(
+  BuildContext context,
+  ParsedAddress parsedAddress,
+) async {
+  final confirmed = await showPopUp<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertWithOneAction(
+        alertTitle: S.of(context).address_detected,
+        headerTitleText: parsedAddress.profileName.isEmpty ? null : parsedAddress.profileName,
+        headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
+            ? parsedAddress.addressSource.iconPath
+            : parsedAddress.profileImageUrl,
+        alertContent: S.of(context).extracted_address_content(
+          '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
+        ),
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(context).pop(true),
+      );
+    },
+  );
+
+  return confirmed ?? false;
 }

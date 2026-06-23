@@ -779,7 +779,6 @@ class SendPage extends BasePage {
     }
 
     output.resetParsedAddress();
-    await output.fetchParsedAddress(context);
   }
 
   Output _defineCurrentOutput() {

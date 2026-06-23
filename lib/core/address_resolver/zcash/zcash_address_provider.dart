@@ -36,7 +36,6 @@ class ZcashNameAddressProvider extends AddressLookupProvider {
       return [
         ParsedAddress(
           parsedAddressByCurrencyMap: {CryptoCurrency.zec: address},
-          profileImageUrl: 'assets/images/profile.png',
           profileName: query,
           addressSource: AddressSource.zcashName,
           handle: query,

@@ -196,7 +196,6 @@ class UnstoppableAddressProvider extends AddressLookupProvider {
       return [
         ParsedAddress(
           parsedAddressByCurrencyMap: result,
-          profileImageUrl: 'assets/images/profile.png',
           profileName: formattedName,
           addressSource: AddressSource.unstoppableDomains,
           handle: formattedName,

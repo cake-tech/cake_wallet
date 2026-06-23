@@ -1,10 +1,8 @@
 import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
@@ -13,12 +11,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
@@ -43,7 +39,7 @@ class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
   OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
-      : _resolver = getIt<AddressResolverService>(),
+      :
         key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
@@ -63,7 +59,6 @@ abstract class OutputBase with Store {
     });
   }
 
-  final AddressResolverService _resolver;
 
   Key key;
 
@@ -90,7 +85,7 @@ abstract class OutputBase with Store {
 
   @observable
   String note;
-  
+
   @observable
   String memo;
 
@@ -330,10 +325,22 @@ abstract class OutputBase with Store {
     resetParsedAddress();
   }
 
+  @action
   void resetParsedAddress() {
     displayName = null;
     extractedAddress = '';
+    note = '';
     parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {});
+  }
+
+  @action
+  void applyAddressLookupResult(ParsedAddress result) {
+    final currency = cryptoCurrencyHandler();
+
+    parsedAddress = result;
+    extractedAddress = result.parsedAddressByCurrencyMap[currency] ?? '';
+    note = result.description;
+    displayName = result.profileName.isNotEmpty ? result.profileName : result.handle;
   }
 
   @action
@@ -399,49 +406,20 @@ abstract class OutputBase with Store {
     return fields;
   }
 
-  Future<void> fetchParsedAddress(BuildContext context) async {
-    final domain = address;
+  @action
+  void loadContact(ContactBase contact) {
     final currency = cryptoCurrencyHandler();
-    final parsedAddresses = await _resolver.resolve(
-      query: domain,
-      wallet: _wallet,
-      currency: currency,);
-    if (parsedAddresses.isNotEmpty) {
-      parsedAddress = parsedAddresses.first;
-      final confirmed = await showParsedAddressConfirmationAlert(context, parsedAddress);
-      extractedAddress = confirmed ? parsedAddress.parsedAddressByCurrencyMap[currency] ?? '' : '';
-      note = confirmed ? parsedAddress.description : '';
-    }
-  }
 
-  Future<void> loadContact((String, String) selectedContact) async {
-    address = selectedContact.$1;
-    parsedAddress = ParsedAddress(
-        parsedAddressByCurrencyMap: {}, addressSource: AddressSource.contact);
-    extractedAddress = selectedContact.$2;
-    note = parsedAddress.description ?? '';
+    address = contact.address;
+    applyAddressLookupResult(
+      ParsedAddress(
+        parsedAddressByCurrencyMap: {currency: contact.address},
+        addressSource: AddressSource.contact,
+        handle: contact.name,
+        profileName: contact.name,
+      ),
+    );
   }
-}
-
-Future<bool> showParsedAddressConfirmationAlert(
-    BuildContext context, ParsedAddress parsedAddress) async {
-  final confirmed = await showPopUp<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-            alertTitle: S.of(context).address_detected,
-            headerTitleText: parsedAddress.profileName.isEmpty
-                ? null
-                : parsedAddress.profileName,
-            headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
-                ? parsedAddress.addressSource.iconPath
-                : parsedAddress.profileImageUrl,
-            alertContent: S.of(context).extracted_address_content(
-                '${parsedAddress.handle} (${parsedAddress.addressSource.label})'),
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop(true));
-      });
-  return confirmed ?? false;
 }
 
 extension OutputCopyWith on Output {
