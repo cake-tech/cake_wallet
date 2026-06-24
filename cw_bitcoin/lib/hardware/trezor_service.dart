@@ -69,12 +69,22 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
     final outputCount = psbt.getGlobalOutputCount();
     for (var i = 0; i < outputCount; i++) {
       final script = Script.fromRaw(byteData: psbt.getOutputScript(i));
+      // Trezor's protocol expects script_type: PAYTOADDRESS whenever the
+      // output is identified by `address` (vs. own-change `addressPath`).
+      // Suite parses the address string itself to determine the actual
+      // on-chain script type (P2WPKH, P2TR, P2SH, etc.); script_type is
+      // only semantically meaningful when addressPath is set. Passing
+      // PAYTOWITNESS / PAYTOP2SHWITNESS / PAYTOTAPROOT here together with
+      // `address` causes Suite to reject the deeplink as "Invalid
+      // parameters from calling app" because those values specifically
+      // mean "own change paid to that wallet type."
       outputs.add(TrezorTxOutput(
-          amount: psbt.getOutputAmount(i),
-          address: script.toAddress(),
-          scriptType: _getScriptType(script.getAddressType()!)
-          // ToDo: addressPath: psbt.getOutputBip32Derivation(i, pubkey).$2, // To highlight change outputs
-          ));
+        amount: psbt.getOutputAmount(i),
+        address: script.toAddress(),
+        scriptType: "PAYTOADDRESS",
+        // ToDo: when change-output detection lands, set addressPath + _getScriptType(...) for own-change outputs.
+        // ToDo: addressPath: psbt.getOutputBip32Derivation(i, pubkey).$2, // To highlight change outputs
+      ));
     }
 
     final signedTx = await connect.signTransaction(coin: 'btc', inputs: inputs, outputs: outputs);
@@ -90,7 +100,8 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
   }
 }
 
-class LitecoinTrezorService extends HardwareWalletService with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
+class LitecoinTrezorService extends HardwareWalletService
+    with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
   LitecoinTrezorService(this.connect);
 
   final TrezorConnect connect;

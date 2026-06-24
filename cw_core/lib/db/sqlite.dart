@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:cw_core/db/sqlite_debug.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:path/path.dart' as p;
 
 Database? db;
 
@@ -22,7 +25,29 @@ Future<void> _addColumnIfNotExists(
   }
 }
 
+Future<File> sqliteDebugMarkerFile() async {
+  final appDir = await getAppDir();
+  final dbDebugMarker = p.join(appDir.path, ".sqlite_db_debug");
+  return File(dbDebugMarker);
+}
+
 Future<void> initDb({String? pathOverride}) async {
+  if (!kDebugMode && !kProfileMode) {
+    await _initDb(pathOverride: pathOverride);
+    return;
+  }
+  final dbDebugMarker = await sqliteDebugMarkerFile();
+  try {
+    if (dbDebugMarker.existsSync()) {
+      throw Exception("Debug marker is present");
+    }
+    await _initDb(pathOverride: pathOverride);
+  } catch (e, s) {
+    await handleSqliteError(e, s);
+  }
+}
+
+Future<void> _initDb({String? pathOverride}) async {
   if (Platform.isLinux || Platform.isWindows) {
     databaseFactory = databaseFactoryFfi;
   }
