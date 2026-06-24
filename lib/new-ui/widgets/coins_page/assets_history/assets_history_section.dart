@@ -43,6 +43,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
           S.current.history,
           HistorySection(
             dashboardViewModel: widget.dashboardViewModel,
+            short: true,
           )),
       if (isNFTACtivatedChain(widget.dashboardViewModel.wallet.type,
           chainId: widget.dashboardViewModel.wallet.chainId))

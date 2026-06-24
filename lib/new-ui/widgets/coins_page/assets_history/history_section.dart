@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
@@ -22,16 +24,19 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 
 class HistorySection extends StatelessWidget {
-  const HistorySection({super.key, required this.dashboardViewModel});
+  const HistorySection({super.key, required this.dashboardViewModel, required this.short});
 
   final DashboardViewModel dashboardViewModel;
+  final bool short;
 
   @override
   Widget build(BuildContext context) {
+    final items = short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
+
     return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         sliver: Observer(
-          builder: (_) => (dashboardViewModel.items.isEmpty)
+          builder: (_) => (items.isEmpty)
               ? SliverPadding(
                   padding: EdgeInsets.only(top: 24),
                   sliver: SliverToBoxAdapter(
@@ -48,14 +53,14 @@ class HistorySection extends StatelessWidget {
                 )
               : SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    childCount: dashboardViewModel.items.length,
+                    childCount: items.length,
                     (context, index) => Observer(builder: (_) {
-                      final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
+                      final prevItem = index == 0 ? null : items[index - 1];
                       final topPadding = index == 0 ? 0.0 : 18.0;
-                      final item = dashboardViewModel.items[index];
-                      final nextItem = index == dashboardViewModel.items.length - 1
+                      final item = items[index];
+                      final nextItem = index == items.length - 1
                           ? null
-                          : dashboardViewModel.items[index + 1];
+                          : items[index + 1];
 
                       final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
                       final roundedTop = (prevItem == null || prevItem is DateSectionItem);
