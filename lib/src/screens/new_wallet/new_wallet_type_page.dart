@@ -135,69 +135,73 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 fontSize: 14,
               ),
             ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18, right: 18, bottom: 12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: ListView.separated(
-                    key: const ValueKey('new_wallet_type_scrollable_key'),
-                    itemCount: filteredTypes.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      final item = filteredTypes[index];
-
-                      return GestureDetector(
-                        key: ValueKey('new_wallet_type_${item.name}_button_key'),
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          onTypeSelected(item);
-                        },
-                        child: SizedBox(
-                          height: 48,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    CakeImageWidget(
-                                      height: 24,
-                                      width: 24,
-                                      imageUrl: getCryptoCurrencyIconForWalletListItem(item),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(walletTypeToDisplayName(item)),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      walletTypeToDisplayTicker(item),
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 18, right: 18, bottom: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: ListView.separated(
+                      key: const ValueKey('new_wallet_type_scrollable_key'),
+                      itemCount: filteredTypes.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      itemBuilder: (context, index) {
+                        final item = filteredTypes[index];
+              
+                        return GestureDetector(
+                          key: ValueKey('new_wallet_type_${item.name}_button_key'),
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            onTypeSelected(item);
+                          },
+                          child: SizedBox(
+                            height: 48,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CakeImageWidget(
+                                        height: 24,
+                                        width: 24,
+                                        imageUrl: getCryptoCurrencyIconForWalletListItem(item),
                                       ),
-                                    )
-                                  ],
-                                ),
-                                CakeImageWidget(
-                                  imageUrl: "assets/new-ui/arrow_forward.svg",
-                                  height: 16,
-                                  colorFilter: ColorFilter.mode(
-                                    Theme.of(context).colorScheme.onSurfaceVariant,
-                                    BlendMode.srcIn,
+                                      const SizedBox(width: 12),
+                                      Text(walletTypeToDisplayName(item)),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        walletTypeToDisplayTicker(item),
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                )
-                              ],
+                                  CakeImageWidget(
+                                    imageUrl: "assets/new-ui/arrow_forward.svg",
+                                    height: 16,
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.onSurfaceVariant,
+                                      BlendMode.srcIn,
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) => Container(
-                      height: 1,
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                        );
+                      },
+                      separatorBuilder: (context, index) => Container(
+                        height: 1,
+                        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      ),
                     ),
                   ),
                 ),

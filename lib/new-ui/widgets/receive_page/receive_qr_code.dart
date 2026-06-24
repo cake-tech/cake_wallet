@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -29,7 +31,7 @@ class ReceiveQrCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double targetY = largeQrMode ? largeQrModeBottomPadding+50 : 0;
-    final double resolvedSize = MediaQuery.of(context).size.width * 0.5;
+    final double resolvedSize = min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) * 0.5;
     final double resolvedScale = largeQrMode ? 1.7 : 1;
 
     return Stack(
