@@ -605,12 +605,21 @@ class WalletInfo {
     final accounts = await WalletInfoAccount.selectList(internalId);
 
     if (accounts.isEmpty) {
-      await WalletInfoAccount.insertOrUpdate(
-        walletInfoId: internalId,
-        accountIndex: 0,
-        label: 'Account 0',
-        isSelected: true,
-      );
+      final derivationInfo = await getDerivationInfo();
+      final supportsAccounts = type == WalletType.bitcoin &&
+          derivationInfo.derivationType != DerivationType.electrum;
+      final initialAccountsCount = supportsAccounts && isRecovery
+          ? 3
+          : 1; // 3 is default number of accounts to restore for non-Electrum BTC wallets
+
+      for (var accountIndex = 0; accountIndex < initialAccountsCount; accountIndex++) {
+        await WalletInfoAccount.insertOrUpdate(
+          walletInfoId: internalId,
+          accountIndex: accountIndex,
+          label: 'Account $accountIndex',
+          isSelected: accountIndex == 0,
+        );
+      }
 
       final defaultAccounts = await WalletInfoAccount.selectList(internalId);
       selectedAccount = defaultAccounts.firstWhere((account) => account.isSelected).accountIndex;

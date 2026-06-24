@@ -445,6 +445,11 @@ abstract class ElectrumWalletBase
 
   bool get shouldUseBatchFetching => useBatchForHistory && _isBatchSupported == true;
 
+  bool get isInitialRestoreSync =>
+      type == WalletType.bitcoin &&
+          walletInfo.isRecovery &&
+          transactionHistory.transactions.isEmpty;
+
 
   @override
   String? get seed => _mnemonic;
@@ -2577,9 +2582,13 @@ abstract class ElectrumWalletBase
       printV('[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchFetching');
 
       if (type == WalletType.bitcoin) {
-        await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
-            ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
-            : fetchTransactionsForAddressType(historiesWithDetails, type)));
+        // if (isInitialRestoreSync) {
+        //   await fetchBitcoinTransactionsForInitialRestore(historiesWithDetails);
+        // } else {
+          await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
+              ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
+              : fetchTransactionsForAddressType(historiesWithDetails, type)));
+        //}
       } else if (type == WalletType.bitcoinCash) {
         await Future.wait(BITCOIN_CASH_ADDRESS_TYPES
             .map((type) => shouldUseBatchFetching
@@ -2742,11 +2751,48 @@ abstract class ElectrumWalletBase
     }
   }
 
+  Future<void> fetchBitcoinTransactionsForInitialRestore(
+      Map<String, ElectrumTransactionInfo> historiesWithDetails,
+      ) async {
+    final accountIndexes = walletAddresses.accountIndexes.toList()..sort();
+
+    for (final accountIndex in accountIndexes) {
+      final historyCountBeforeAccount = historiesWithDetails.length;
+
+      for (final addressType in BITCOIN_ADDRESS_TYPES) {
+        if (shouldUseBatchFetching) {
+          await fetchTransactionsForAddressTypeBatch(
+            historiesWithDetails,
+            addressType,
+            accountIndex: accountIndex,
+          );
+        } else {
+          await fetchTransactionsForAddressType(
+            historiesWithDetails,
+            addressType,
+           // accountIndex: accountIndex,
+          );
+        }
+      }
+
+      final accountHasHistory = historiesWithDetails.length > historyCountBeforeAccount;
+
+      if (!accountHasHistory) {
+        break;
+      }
+    }
+  }
+
   Future<void> fetchTransactionsForAddressTypeBatch(
       Map<String, ElectrumTransactionInfo> historiesWithDetails,
-      BitcoinAddressType type) async {
-    final addressesByType =
-        walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
+      BitcoinAddressType type, {
+        int? accountIndex,
+      }) async {
+
+    final addressesByType = walletAddresses.allAddresses
+        .where((addr) => addr.type == type)
+        .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
+        .toList();
 
     final hiddenAddresses = addressesByType.where((addr) => addr.isHidden).toList();
     walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
