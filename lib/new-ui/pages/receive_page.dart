@@ -202,7 +202,12 @@ class _NewReceivePageState extends State<NewReceivePage> {
               trailingWidget: Observer(
                 builder: (_) => AnimatedSwitcher(
                   duration: Duration(milliseconds: 300),
-                  child: ModernButton(
+                  child: _largeQrMode || widget.addressListViewModel.hasAddressRotation
+                      /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
+                      &&
+                      !(widget.receiveOptionViewModel.selectedReceiveOption.description ?? "")
+                          .toLowerCase()
+                          .contains("mweb") ? ModernButton(
                     key: ValueKey(_largeQrMode),
                       size: 36,
                       icon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.isRotatingAddress
@@ -215,9 +220,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
                                 context: context,
                               );
                         } else {
-                          widget.addressListViewModel.rotateAddress();
+                          if(widget.addressListViewModel.hasAddressRotation) {
+                            widget.addressListViewModel.rotateAddress();
+                          }
                         }
-                      }),
+                      }):SizedBox.shrink(),
                 ),
               ),
             ),
