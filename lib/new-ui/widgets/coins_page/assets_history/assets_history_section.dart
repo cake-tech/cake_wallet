@@ -1,11 +1,15 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_modal.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_top_bar.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'assets_section.dart';
 import 'history_section.dart';
 
@@ -42,6 +46,8 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(
+            detailsAsPage: false,
+            roundedTopSection: tabs.length > 1,
             dashboardViewModel: widget.dashboardViewModel,
             short: true,
           )),
@@ -71,8 +77,9 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
   Widget build(BuildContext context) {
     return SliverMainAxisGroup(
       slivers: [
-        // if(tabs.length>1)
+        if(tabs.length>1)
         AssetsTopBar(
+            onTransactionHistoryOpened: () => openHistoryModal(context),
           dashboardViewModel: widget.dashboardViewModel,
           tabs: tabs.map((item) => item.title).toList(),
           onTabChange: (index) {
@@ -82,8 +89,23 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             },
             selectedTab: _selectedTab,
           ),
+        if (tabs.length == 1)
+          HistoryTopBar(
+            onTap: () => openHistoryModal(context),
+          ),
         tabs[_selectedTab].content
       ],
     );
+  }
+
+  void openHistoryModal(BuildContext context) {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+        context: context,
+        builder: (context) => ModalNavigator(
+              rootPage: Material(
+                  color: Colors.transparent,
+                  child: HistoryModal(dashboardViewModel: widget.dashboardViewModel)),
+              parentContext: context,
+            ));
   }
 }

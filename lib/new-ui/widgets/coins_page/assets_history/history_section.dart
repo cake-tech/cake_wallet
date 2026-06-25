@@ -19,22 +19,25 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 
 class HistorySection extends StatelessWidget {
-  const HistorySection({super.key, required this.dashboardViewModel, required this.short});
+  const HistorySection({super.key, required this.dashboardViewModel, required this.short, required this.roundedTopSection, required this.detailsAsPage});
 
   final DashboardViewModel dashboardViewModel;
   final bool short;
+  final bool roundedTopSection;
+  final bool detailsAsPage;
 
   @override
   Widget build(BuildContext context) {
     final items = short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
 
     return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: EdgeInsets.only(left: 16.0, right: 16, top: short && roundedTopSection ? 18 : 0),
         sliver: Observer(
           builder: (_) => (items.isEmpty)
               ? SliverPadding(
@@ -63,7 +66,7 @@ class HistorySection extends StatelessWidget {
                           : items[index + 1];
 
                       final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
-                      final roundedTop = (prevItem == null || prevItem is DateSectionItem);
+                      final roundedTop = roundedTopSection && (prevItem == null || prevItem is DateSectionItem);
 
                       if (item is TransactionListItem) {
                         final transaction = item.transaction;
@@ -82,14 +85,20 @@ class HistorySection extends StatelessWidget {
                         return GestureDetector(
                           onTap: () {
                             final page = getIt.get<TransactionDetailsModal>(param1: transaction);
-                            showModalBottomSheet(
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (context) => page);
+                            if (detailsAsPage) {
+                              Navigator.of(context).push(
+                                  CupertinoPageRoute(builder: (context) => Material(child: page)));
+                            } else {
+                              showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) =>
+                                      FractionallySizedBox(heightFactor: 0.9, child: page));
+                            }
                           },
                           child: HistoryTile(
                             title: item.formattedTitle + transactionType,
-                            date: DateFormat('HH:mm').format(transaction.date),
+                            date: _formatTransactionDate(item.date),
                             amount: item.formattedCryptoAmount,
                             amountFiat: item.formattedFiatAmount,
                             hasTokens: item.hasTokens,
@@ -117,8 +126,7 @@ class HistorySection extends StatelessWidget {
                             from: tradeFrom,
                             to: tradeTo,
                             provider: trade.provider,
-                            date:
-                                DateFormat('HH:mm').format(item.trade.createdAt ?? DateTime.now()),
+                            date: _formatTransactionDate(item.trade.createdAt ?? DateTime.now()),
                             amount: trade.amountFormatted(),
                             receiveAmount: trade.receiveAmountFormatted(),
                             roundedBottom: roundedBottom,
@@ -127,10 +135,16 @@ class HistorySection extends StatelessWidget {
                             swapState: trade.state,
                           ),
                         );
+                      } else if (item is SpecificDateSectionItem) {
+                        return Padding(
+                            padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
+                            child: Text(item.text,
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant)));
                       } else if (item is DateSectionItem) {
                         return Padding(
                             padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
-                            child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
+                            child: Text(DateFormat("MMMM yyyy").format(item.date),
                                 style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)));
                       } else if (item is OrderListItem) {
@@ -138,7 +152,7 @@ class HistorySection extends StatelessWidget {
                           onTap: () => Navigator.of(context)
                               .pushNamed(Routes.orderDetails, arguments: item.order),
                           child: HistoryOrderTile(
-                            date: DateFormat('HH:mm').format(item.order.createdAt),
+                            date: _formatTransactionDate(item.order.createdAt),
                             amount: item.orderFormattedAmount,
                             amountFiat: "USD 0.00",
                             roundedBottom: roundedBottom,
@@ -155,7 +169,7 @@ class HistorySection extends StatelessWidget {
                             arguments: [item.sessionId, item.transaction],
                           ),
                           child: PayjoinHistoryTile(
-                              createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
+                              createdAt: _formatTransactionDate(session.inProgressSince!),
                               amount: dashboardViewModel.appStore.amountParsingProxy
                                   .getDisplayCryptoString(
                                       session.amount.toInt(), CryptoCurrency.btc),
@@ -174,7 +188,7 @@ class HistorySection extends StatelessWidget {
                                 .pushNamed(Routes.anonPayDetailsPage, arguments: transactionInfo),
                             child: AnonpayHistoryTile(
                                 provider: transactionInfo.provider,
-                                createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                                createdAt: _formatTransactionDate(transactionInfo.createdAt),
                                 amount: transactionInfo.fiatAmount?.toString() ??
                                     (transactionInfo.amountTo?.toString() ?? ''),
                                 currency: transactionInfo.fiatAmount != null
@@ -201,5 +215,37 @@ class HistorySection extends StatelessWidget {
     } catch (e) {
       return dashboardViewModel.wallet.currency.chainIconPath ?? "";
     }
+  }
+
+  String _formatTransactionDate(DateTime date) {
+    final time =  DateFormat.Hm();
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final thatDay = DateTime(date.year, date.month, date.day);
+    final daysAgo = today.difference(thatDay).inDays;
+
+    final timeStr = time.format(date);
+
+    if (daysAgo == 0) {
+      return timeStr;
+    }
+
+    if (daysAgo == 1) {
+      return "${S.current.yesterday}, $timeStr";
+    }
+
+    if (daysAgo < 7) {
+      final weekday = DateFormat.EEEE().format(date);
+      return '$weekday, $timeStr';
+    }
+
+    if (date.year == now.year) {
+      final dayMonth = DateFormat("d MMMM").format(date);
+      return '$dayMonth, $timeStr';
+    }
+
+    final full = DateFormat("d MMMM yyyy").format(date);
+    return '$full, $timeStr';
   }
 }

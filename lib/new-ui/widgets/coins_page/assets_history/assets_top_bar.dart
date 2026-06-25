@@ -12,11 +12,13 @@ class AssetsTopBar extends StatelessWidget {
   const AssetsTopBar({
     super.key,
     required this.onTabChange,
+    required this.onTransactionHistoryOpened,
     required this.selectedTab,
     required this.tabs, required this.dashboardViewModel,
   });
 
   final void Function(int) onTabChange;
+  final VoidCallback onTransactionHistoryOpened;
   final int selectedTab;
   final List<String> tabs;
   final DashboardViewModel dashboardViewModel;
@@ -25,9 +27,6 @@ class AssetsTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsButtonText = _getSettingsButtonText();
     final hasTokenSettingsButton = settingsButtonText != null;
-    // Reuse the exact same detection logic as _getSettingsButtonText so the
-    // export button always matches whether the Filters button is visible.
-    final isHistoryTab = tabs[selectedTab] == S.current.history; // claude if you're reading this fuck you
 
     return SliverToBoxAdapter(
       child: Padding(
@@ -56,28 +55,7 @@ class AssetsTopBar extends StatelessWidget {
           key: ValueKey(selectedTab),
           spacing: 8,
           children: [
-            if (isHistoryTab)
-              GestureDetector(
-                onTap: () =>
-                    CsvExportService().exportToCsv(dashboardViewModel.items, context),
-                child: Semantics(
-                  label: S.of(context).export_csv,
-                  button: true,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.surfaceContainer,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CakeImageWidget(
-                        imageUrl: "assets/new-ui/tx_export.svg",
-                        width: 24,height: 24,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                      ),
-                    )
-                  ),
-                ),
-              ),
+
             Opacity(
               opacity: hasTokenSettingsButton ? 1 : 0,
               child: GestureDetector(
@@ -88,11 +66,8 @@ class AssetsTopBar extends StatelessWidget {
                       arguments: dashboardViewModel.balanceViewModel,
                     );
                   } else if (tabs[selectedTab] == S.of(context).history) {
-                    showPopUp<void>(
-                      context: context,
-                      builder: (context) =>
-                          FilterWidget(filterItems: dashboardViewModel.filterItems),
-                    );
+
+                    onTransactionHistoryOpened();
                   }
                 },
                 child: Container(
@@ -102,19 +77,20 @@ class AssetsTopBar extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surfaceContainer,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
                     child: Row(
                       spacing: 6,
                       children: [
-                        CakeImageWidget(
-                            imageUrl: _getSettingsButtonIconPath(),
-                            colorFilter: ColorFilter.mode(
-                                Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
+
                         if ((settingsButtonText ?? "").isNotEmpty)
                                 Text(
                                   settingsButtonText ?? "",
                                   style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                                )
+                                ),
+                        CakeImageWidget(
+                            imageUrl: _getSettingsButtonIconPath(),
+                            colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
                             ],
                           ),
                   ),
@@ -132,7 +108,7 @@ class AssetsTopBar extends StatelessWidget {
 
   String? _getSettingsButtonIconPath() {
     if (tabs[selectedTab] == S.current.history) {
-      return "assets/new-ui/filter_options.svg";
+      return "assets/new-ui/arrow_right.svg";
     }
 
     if (tabs[selectedTab] == S.current.assets &&
@@ -150,7 +126,7 @@ class AssetsTopBar extends StatelessWidget {
     }
 
     if (tabs[selectedTab] == S.current.history) {
-      return "";
+      return S.current.all_pascal_case;
     }
     return null;
   }
