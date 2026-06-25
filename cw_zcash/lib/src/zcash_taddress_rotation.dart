@@ -71,6 +71,14 @@ class ZcashTaddressRotation {
   static Map<int, List<ZkoolTx>> shieldedAccountsTx = {};
   static bool _sweepJobRunning = false;
   static DateTime? _lastSweepBroadcastAt;
+  static final Set<int> _backfilledRotationAccounts = {};
+
+  static Future<void> _resyncRotationAccount(final int rotationAccount) async {
+    await ZcashWalletBase.runWithCoin(
+      accountId: rotationAccount,
+      func: (final c) => zkool_account.resetSync(id: rotationAccount, c: c),
+    );
+  }
 
   static Future<void> init() async {
     printV("Deserializing previous state");
@@ -327,6 +335,9 @@ class ZcashTaddressRotation {
       },
     );
     printV("transparent scanner added $newAdded address(es)");
+    if (newAdded > 0) {
+      await _resyncRotationAccount(rotationAccount);
+    }
   }
 
   static bool _isWalletSynced(final int mainAccountId) {
@@ -430,6 +441,10 @@ class ZcashTaddressRotation {
     if (rotationAccount == null) {
       printV("rotation account is null, bailing out");
       return;
+    }
+
+    if (_backfilledRotationAccounts.add(rotationAccount)) {
+      await _resyncRotationAccount(rotationAccount);
     }
 
     await _markUsedRotationAddresses(cId, rotationAccount);
