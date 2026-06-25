@@ -1242,6 +1242,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               trade.walletId = wallet.id;
               trade.chainId = wallet.chainId;
               trade.fromWalletAddress = wallet.walletAddresses.address;
+              if(trade.from == null) {
+                trade.from = depositCurrency;
+              }
+              if(trade.to == null) {
+                trade.to = receiveCurrency;
+              }
 
               final canCreateTrade = await isCanCreateTrade(trade);
               if (!canCreateTrade.result) {

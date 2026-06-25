@@ -9,6 +9,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path/path.dart' as path;
 
 class DevMoneroWalletCacheDebugPage extends StatelessWidget {
@@ -263,6 +264,7 @@ class _JsonExplorerState extends State<JsonExplorer> {
                   ),
                 )
               : ListView.builder(
+                  controller: ModalScrollController.of(context),
                   itemCount: _filteredItems.length,
                   itemBuilder: (context, index) {
                     final item = _filteredItems[index];
