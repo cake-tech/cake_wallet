@@ -161,7 +161,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
             allowChangeWallet: true,
             isReconnect: true,
             onConnectDevice: (context, ledgerVM) async {
-              if (context.mounted) {
+              if (context.mounted && Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               }
             },
