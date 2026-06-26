@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -8,6 +9,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
@@ -15,6 +17,8 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -280,9 +284,11 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   }
 
   Widget _buildCurrencyIcon(ContactBase contact) {
-    final image = contact.type.iconPath;
-    return image != null
-        ? Image.asset(image, height: 24, width: 24)
+    final image = (contact is WalletContact && contact.walletType != null)
+        ? getCryptoCurrencyIconForWalletListItem(contact.walletType!)
+        : contact.type.iconPath;
+    return (image != null && image.isNotEmpty)
+        ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);
   }
 }
@@ -372,9 +378,11 @@ class _ContactListBodyState extends State<ContactListBody> {
   }
 
   Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
+    final image = contact.type == CryptoCurrency.baseEth
+        ? 'assets/new-ui/crypto_full_icons/base.svg'
+        : contact.type.iconPath;
+    final currencyIcon = (image != null && image.isNotEmpty)
+        ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);
     return Column(
       children: [

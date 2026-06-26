@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cake_wallet/core/universal_address_detector.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -41,7 +43,7 @@ abstract class PaymentViewModelBase with Store {
       return getChainIdByCryptoCurrency(_lastDetectionResult!.detectedCurrency!);
     }
 
-    return evm!.getChainIdByWalletType(detectedWalletType!);
+    return evm?.getChainIdByWalletType(detectedWalletType!);
   }
 
   @observable
@@ -52,7 +54,7 @@ abstract class PaymentViewModelBase with Store {
 
   @computed
   int? get currentChainId {
-    if (!isEVMCompatibleChain(currentWalletType)) return null;
+    if (!isEVMCompatibleChain(currentWalletType) || evm == null) return null;
 
     return evm!.getSelectedChainId(appStore.wallet!);
   }
@@ -72,6 +74,18 @@ abstract class PaymentViewModelBase with Store {
 
       if (!detectionResult.isValid || detectedWalletType == null) {
         return PaymentFlowResult.incompatible('Unable to detect address type');
+      }
+
+      if (detectedWalletType == WalletType.solana && solana == null) {
+        return PaymentFlowResult.incompatible('Solana is not available in this app build.');
+      }
+      if (detectedWalletType == WalletType.tron && tron == null) {
+        return PaymentFlowResult.incompatible('Tron is not available in this app build.');
+      }
+      if (isEVMCompatibleChain(detectedWalletType!) && evm == null) {
+        return PaymentFlowResult.incompatible(
+          'Ethereum-compatible addresses are not supported in this app build.',
+        );
       }
 
       final currentWallet = appStore.wallet;
@@ -124,7 +138,7 @@ abstract class PaymentViewModelBase with Store {
 
   @action
   Future<void> selectChain() async {
-    if (detectedWalletType == null) return;
+    if (detectedWalletType == null || evm == null || detectedChainId == null) return;
 
     final node =
         appStore.settingsStore.getCurrentNode(detectedWalletType!, chainId: detectedChainId);
@@ -173,7 +187,7 @@ class PaymentFlowResult {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
     if (chainId == null && addressDetectionResult.detectedWalletType != null) {
-      chainId = evm!.getChainIdByWalletType(addressDetectionResult.detectedWalletType!);
+      chainId = evm?.getChainIdByWalletType(addressDetectionResult.detectedWalletType!);
     }
 
     return PaymentFlowResult._(
@@ -228,7 +242,7 @@ class PaymentFlowResult {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
     if (chainId == null) {
-      chainId = evm!.getChainIdByWalletType(wallet.type);
+      chainId = evm?.getChainIdByWalletType(wallet.type);
     }
 
     return PaymentFlowResult._(
@@ -250,7 +264,7 @@ class PaymentFlowResult {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
     if (chainId == null) {
-      chainId = evm!.getChainIdByWalletType(wallets.first.type);
+      chainId = evm?.getChainIdByWalletType(wallets.first.type);
     }
 
     return PaymentFlowResult._(
@@ -272,7 +286,7 @@ class PaymentFlowResult {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
     if (chainId == null) {
-      chainId = evm!.getChainIdByWalletType(walletType);
+      chainId = evm?.getChainIdByWalletType(walletType);
     }
 
     return PaymentFlowResult._(

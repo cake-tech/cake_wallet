@@ -29,6 +29,9 @@ class SolanaTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
 
   @override
+  String get txHash => id.replaceFirst(RegExp(r'_(outgoing|incoming)$'), '');
+
+  @override
   DateTime get date => blockTime;
 
   @override

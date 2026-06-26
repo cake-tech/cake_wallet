@@ -35,13 +35,15 @@ class HistorySection extends StatelessWidget {
               ? SliverPadding(
                   padding: EdgeInsets.only(top: 24),
                   sliver: SliverToBoxAdapter(
-                    child: (dashboardViewModel.status is SyncingSyncStatus) ? SizedBox.shrink() : Center(
-                      child: Text(S.of(context).transactions_will_appear_here,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                    ),
+                    child: (dashboardViewModel.status is SyncingSyncStatus)
+                        ? SizedBox.shrink()
+                        : Center(
+                            child: Text(S.of(context).transactions_will_appear_here,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          ),
                   ),
                 )
               : SliverList(
@@ -51,136 +53,144 @@ class HistorySection extends StatelessWidget {
                       final prevItem = index == 0 ? null : dashboardViewModel.items[index - 1];
                       final topPadding = index == 0 ? 0.0 : 18.0;
                       final item = dashboardViewModel.items[index];
-            final nextItem = index == dashboardViewModel.items.length - 1
-                ? null
-                : dashboardViewModel.items[index + 1];
+                      final nextItem = index == dashboardViewModel.items.length - 1
+                          ? null
+                          : dashboardViewModel.items[index + 1];
 
-            final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
-            final roundedTop = (prevItem == null || prevItem is DateSectionItem);
+                      final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
+                      final roundedTop = (prevItem == null || prevItem is DateSectionItem);
 
-            if (item is TransactionListItem) {
-              final transaction = item.transaction;
-              final transactionType = dashboardViewModel.getTransactionType(transaction);
+                      if (item is TransactionListItem) {
+                        final transaction = item.transaction;
+                        final transactionType = dashboardViewModel.getTransactionType(transaction);
 
-              if (item.hasTokens && item.assetOfTransaction == null) {
-                return Container();
-              }
+                        if (item.hasTokens && item.assetOfTransaction == null) {
+                          return Container();
+                        }
 
-                    CryptoCurrency? asset;
-                    if (transaction.additionalInfo["isLightning"] == true)
-                      asset = CryptoCurrency.btcln;
-                    else
-                      asset = item.assetOfTransaction;
+                        CryptoCurrency? asset;
+                        if (transaction.additionalInfo["isLightning"] == true)
+                          asset = CryptoCurrency.btcln;
+                        else
+                          asset = item.assetOfTransaction;
 
-                    return GestureDetector(
-                      onTap: () {
-                        final page = getIt.get<TransactionDetailsModal>(param1: transaction);
-                        showModalBottomSheet(isScrollControlled:true,context: context, builder: (context) => page);
-                      },
-                      child: HistoryTile(
-                        title: item.formattedTitle + transactionType,
-                        date: DateFormat('HH:mm').format(transaction.date),
-                        amount: item.formattedCryptoAmount,
-                        amountFiat: item.formattedFiatAmount,
-                        hasTokens: item.hasTokens,
-                        chainIconPath: _getChainIconPath(),
-                        roundedBottom: roundedBottom,
-                        roundedTop: roundedTop,
-                        bottomSeparator: !roundedBottom,
-                        direction: item.transaction.direction,
-                        pending: item.transaction.isPending,
-                        asset: asset,
-                      ),
-                    );
-                  } else if (item is TradeListItem) {
-                    final trade = item.trade;
+                        return GestureDetector(
+                          onTap: () {
+                            final page = getIt.get<TransactionDetailsModal>(param1: transaction);
+                            showModalBottomSheet(
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (context) => page);
+                          },
+                          child: HistoryTile(
+                            title: item.formattedTitle + transactionType,
+                            date: DateFormat('HH:mm').format(transaction.date),
+                            amount: item.formattedCryptoAmount,
+                            amountFiat: item.formattedFiatAmount,
+                            hasTokens: item.hasTokens,
+                            chainIconPath: _getChainIconPath(),
+                            roundedBottom: roundedBottom,
+                            roundedTop: roundedTop,
+                            bottomSeparator: !roundedBottom,
+                            direction: item.transaction.direction,
+                            pending: item.transaction.isPending,
+                            asset: asset,
+                          ),
+                        );
+                      } else if (item is TradeListItem) {
+                        final trade = item.trade;
+                        final tradeFrom = trade.from;
+                        final tradeTo = trade.to;
 
-              final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+                        return GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(Routes.tradeDetails, arguments: trade),
+                          child: HistoryTradeTile(
+                            from: tradeFrom,
+                            to: tradeTo,
+                            provider: trade.provider,
+                            date:
+                                DateFormat('HH:mm').format(item.trade.createdAt ?? DateTime.now()),
+                            amount: trade.amountFormatted(),
+                            receiveAmount: trade.receiveAmountFormatted(),
+                            roundedBottom: roundedBottom,
+                            roundedTop: roundedTop,
+                            bottomSeparator: !roundedBottom,
+                            swapState: trade.state,
+                          ),
+                        );
+                      } else if (item is DateSectionItem) {
+                        return Padding(
+                            padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
+                            child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant)));
+                      } else if (item is OrderListItem) {
+                        return GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(Routes.orderDetails, arguments: item.order),
+                          child: HistoryOrderTile(
+                            date: DateFormat('HH:mm').format(item.order.createdAt),
+                            amount: item.orderFormattedAmount,
+                            amountFiat: "USD 0.00",
+                            roundedBottom: roundedBottom,
+                            roundedTop: roundedTop,
+                            bottomSeparator: !roundedBottom,
+                          ),
+                        );
+                      } else if (item is PayjoinTransactionListItem) {
+                        final session = item.session;
 
-              final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
+                        return GestureDetector(
+                          onTap: () => Navigator.of(context).pushNamed(
+                            Routes.payjoinDetails,
+                            arguments: [item.sessionId, item.transaction],
+                          ),
+                          child: PayjoinHistoryTile(
+                              createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
+                              amount: dashboardViewModel.appStore.amountParsingProxy
+                                  .getDisplayCryptoString(
+                                      session.amount.toInt(), CryptoCurrency.btc),
+                              currency: item.transaction?.from ?? "BTC",
+                              state: item.status,
+                              isSending: session.isSenderSession,
+                              roundedTop: roundedTop,
+                              roundedBottom: roundedBottom,
+                              bottomSeparator: !roundedBottom),
+                        );
+                      } else if (item is AnonpayTransactionListItem) {
+                        final transactionInfo = item.transaction;
 
-              return GestureDetector(
-                onTap: () => Navigator.of(context)
-                    .pushNamed(Routes.tradeDetails, arguments: trade),
-                child: HistoryTradeTile(
-                  from: tradeFrom!,
-                  to: tradeTo!,
-                  provider: trade.provider,
-                  date: DateFormat('HH:mm').format(item.trade.createdAt!),
-                  amount: trade.amountFormatted(),
-                  receiveAmount: trade.receiveAmountFormatted(),
-                  roundedBottom: roundedBottom,
-                  roundedTop: roundedTop,
-                  bottomSeparator: !roundedBottom,
-                  swapState: trade.state,
+                        return GestureDetector(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed(Routes.anonPayDetailsPage, arguments: transactionInfo),
+                            child: AnonpayHistoryTile(
+                                provider: transactionInfo.provider,
+                                createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                                amount: transactionInfo.fiatAmount?.toString() ??
+                                    (transactionInfo.amountTo?.toString() ?? ''),
+                                currency: transactionInfo.fiatAmount != null
+                                    ? transactionInfo.fiatEquiv ?? ''
+                                    : CryptoCurrency.fromFullName(transactionInfo.coinTo)
+                                        .name
+                                        .toUpperCase(),
+                                roundedTop: roundedTop,
+                                roundedBottom: roundedBottom,
+                                bottomSeparator: !roundedBottom));
+                      } else
+                        return Text(item.runtimeType.toString());
+                    }),
+                  ),
                 ),
-              );
-            } else if (item is DateSectionItem) {
-              return Padding(
-                  padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
-                  child: Text(DateFormatter.convertDateTimeToReadableString(item.date),
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
-            }else if(item is OrderListItem){
-              return GestureDetector(
-                onTap: () => Navigator.of(context)
-                    .pushNamed(Routes.orderDetails, arguments: item.order),
-                child: HistoryOrderTile(
-                  date: DateFormat('HH:mm').format(item.order.createdAt),
-                  amount: item.orderFormattedAmount,
-                  amountFiat: "USD 0.00",
-                  roundedBottom: roundedBottom,
-                  roundedTop: roundedTop,
-                  bottomSeparator: !roundedBottom,
-                ),
-              );
-            } else if (item is PayjoinTransactionListItem) {
-              final session = item.session;
-
-              return GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed(
-                  Routes.payjoinDetails,
-                  arguments: [item.sessionId, item.transaction],
-                ),
-                child: PayjoinHistoryTile(
-                    createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
-                    amount: dashboardViewModel.appStore.amountParsingProxy
-                        .getDisplayCryptoString(session.amount.toInt(), CryptoCurrency.btc),
-                    currency: item.transaction?.from ?? "BTC",
-                    state: item.status,
-                    isSending: session.isSenderSession,
-                    roundedTop: roundedTop,
-                    roundedBottom: roundedBottom,
-                    bottomSeparator: !roundedBottom),
-              );
-            } else if (item is AnonpayTransactionListItem) {
-              final transactionInfo = item.transaction;
-
-              return GestureDetector(
-                  onTap: () => Navigator.of(context)
-                      .pushNamed(Routes.anonPayDetailsPage, arguments: transactionInfo),
-                  child: AnonpayHistoryTile(
-                      provider: transactionInfo.provider,
-                      createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
-                      amount: transactionInfo.fiatAmount?.toString() ??
-                          (transactionInfo.amountTo?.toString() ?? ''),
-                      currency: transactionInfo.fiatAmount != null
-                          ? transactionInfo.fiatEquiv ?? ''
-                          : CryptoCurrency.fromFullName(transactionInfo.coinTo).name.toUpperCase(),
-                      roundedTop: roundedTop,
-                      roundedBottom: roundedBottom,
-                      bottomSeparator: !roundedBottom));
-            } else
-              return Text(item.runtimeType.toString());
-          }),
-        ),
-      ),
-    ));
+        ));
   }
 
   String _getChainIconPath() {
     try {
-      return CryptoCurrency.fromString(dashboardViewModel.wallet.currency.tag ??dashboardViewModel.wallet.currency.title).chainIconPath!;
-    } catch(e) {
+      return CryptoCurrency.fromString(
+              dashboardViewModel.wallet.currency.tag ?? dashboardViewModel.wallet.currency.title)
+          .chainIconPath!;
+    } catch (e) {
       return dashboardViewModel.wallet.currency.chainIconPath ?? "";
     }
   }

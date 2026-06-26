@@ -6,6 +6,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -35,6 +36,19 @@ import 'package:url_launcher/url_launcher.dart';
 part 'transaction_details_view_model.g.dart';
 
 bool _trueFunc(_) => true;
+
+/// We're adding a regex here so we can remove any already saved address that has the account in it.
+/// In the refactor, we will make another separate variable for accounts and the UI would handle it as needed.
+String _moneroRecipientAddressForDisplay(String raw, WalletType walletType) {
+  if (walletType != WalletType.monero || raw.isEmpty) return raw;
+
+  final compact = raw.replaceAll(RegExp(r'\s'), '');
+  final match = RegExp(
+    r'4[0-9a-zA-Z]{94}|8[0-9a-zA-Z]{94}|[0-9a-zA-Z]{106}',
+    caseSensitive: false,
+  ).firstMatch(compact);
+  return match?.group(0) ?? raw.trim();
+}
 
 bool isLightning(TransactionInfo tx) {
   printV(tx.additionalInfo);
@@ -69,7 +83,7 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_height_key",
         title: S.current.transaction_details_height,
-        valueGetter: (vm) => vm.transactionInfo.height.toString(),
+        valueGetter: (vm) => vm.transactionInfo.height?.toString() ?? "",
         applicable: (vm) => !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) &&
             !isLightning(vm.transactionInfo))),
 
@@ -113,6 +127,7 @@ class TxDetailRowDefinition {
                       .firstOrNull ??
                   "";
             case WalletType.tron:
+              if(vm.transactionInfo.to != null)
               ret = tron!.getTronBase58Address(vm.transactionInfo.to!, vm.wallet);
             default:
               break;
@@ -120,8 +135,9 @@ class TxDetailRowDefinition {
           if(ret == null) {
             ret = vm.transactionInfo.to ?? "";
           }
-          vm.isRecipientAddressShown = ret.isNotEmpty;
-          return ret;
+          final resolvedAddress = _moneroRecipientAddressForDisplay(ret, vm.wallet.type);
+          vm.isRecipientAddressShown = resolvedAddress.isNotEmpty;
+          return resolvedAddress;
         },
         applicable: (vm) =>
             vm.showRecipientAddress &&
@@ -251,11 +267,12 @@ abstract class TransactionDetailsViewModelBase with Store {
       final recipientAddress = description.recipientAddress;
 
       if (recipientAddress?.isNotEmpty ?? false) {
+        final recipientAddressForDisplay = _moneroRecipientAddressForDisplay(recipientAddress!, wallet.type);
         items.add(
           AddressListItem(
             title: S.current.transaction_details_recipient_address,
-            value: recipientAddress!,
-            key: ValueKey('standard_list_item_${recipientAddress}_key'),
+            value: recipientAddressForDisplay,
+            key: ValueKey('standard_list_item_${recipientAddressForDisplay}_key'),
           ),
         );
       }
@@ -299,6 +316,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
+
     if (isEVMCompatibleChain(wallet.type)) {
       return evm!.assetOfTransaction(wallet, transactionInfo);
     }
@@ -585,6 +603,20 @@ abstract class TransactionDetailsViewModelBase with Store {
             transactionInfo.outputAddresses?.length ?? 1);
 
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
+  }
+
+  String get formattedCryptoAmount {
+    if (wallet.type == WalletType.bitcoin) {
+      final crypto = isLightning(transactionInfo) ? CryptoCurrency.btcln : CryptoCurrency.btc;
+      final amount = _appStore.amountParsingProxy
+          .getDisplayCryptoString(transactionInfo.amount, crypto)
+          .withMaxDecimals(8)
+          .withLocalSeperator(_appStore.settingsStore.languageCode);
+
+      return '$amount ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
+    }
+
+    return transactionInfo.amountFormatted();
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee);

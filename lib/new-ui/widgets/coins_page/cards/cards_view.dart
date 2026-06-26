@@ -10,6 +10,7 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
@@ -72,8 +73,6 @@ class _CardsViewState extends State<CardsView> {
 
     final top = baseTop - (howFarBehind * overlapAmount);
 
-    final double cardWidth = MediaQuery.of(context).size.width * 0.878;
-    final double effectiveCardWidth = min(cardWidth, 768);
 
     final left = (parentWidth - effectiveCardWidth) / 2.0;
 
@@ -228,9 +227,9 @@ class _CardsViewState extends State<CardsView> {
     }
   }
 
+  double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878, responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);
+
   double _getBoxHeight(int numCards, double overlapAmount) {
-    final double cardWidth = MediaQuery.of(context).size.width * 0.878;
-    final double effectiveCardWidth = min(cardWidth, 768);
     return
         /* height of initial card */
         (2 / 3.2) * (effectiveCardWidth) +

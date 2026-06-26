@@ -14,8 +14,8 @@ dependencies:
     sdk: flutter
   path_provider: ^2.0.11
   http: ^1.1.0
-  mobx: ^2.0.7+4
-  flutter_mobx: ^2.0.6+1
+  mobx: ^2.6.0
+  flutter_mobx: ^2.3.0
   intl: any
   shared_preferences: ^2.0.15
   cw_core:
@@ -72,15 +72,15 @@ dependencies:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: v0.11.0
+      ref: v0.14.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.4.15
-  build_resolvers: ^2.4.4
-  mobx_codegen: ^2.0.7
-  hive_generator: ^2.0.1
+  build_runner: ^2.15.0
+  mobx_codegen: ^2.7.6
+#  hive_generator: ^2.0.1
+  hive: 2.0.1
 
 dependency_overrides:
   watcher: ^1.1.0

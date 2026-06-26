@@ -354,4 +354,88 @@ class CWSolana extends Solana {
     final solanaWallet = wallet as SolanaWallet;
     await solanaWallet.updateTokenBalance(tokenMints: tokenMints);
   }
+
+  static const _minTokenUsdValue = 0.1;
+
+  Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
+    SPLToken token,
+    double balance,
+  ) async {
+    try {
+      final settingsStore = getIt.get<SettingsStore>();
+      final torOnly = settingsStore.fiatApiMode == FiatApiMode.torOnly;
+
+      final price = await FiatConversionService.fetchPrice(
+        crypto: token,
+        fiat: FiatCurrency.usd,
+        torOnly: torOnly,
+      );
+
+      final hasValidFiatPrice = price > 0;
+      final usdValue = balance * price;
+
+      return (usdValue: usdValue, hasValidFiatPrice: hasValidFiatPrice);
+    } catch (e) {
+      return (usdValue: 0.0, hasValidFiatPrice: false);
+    }
+  }
+
+  @override
+  Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
+    if (wallet is! SolanaWallet) return;
+
+    try {
+      final result = await wallet.discoverTokensFromMoralis();
+
+      if (result.newTokens.isEmpty) return;
+
+      final List<Future<void>> tokenChecks = [];
+
+      for (final item in result.newTokens) {
+        tokenChecks.add((() async {
+          final token = item.token;
+
+          final fiatResult = await _getTokenUsdValueAndFiatCheck(token, item.balance);
+
+          final isSpam = !fiatResult.hasValidFiatPrice;
+
+          token.isPotentialScam = isSpam;
+          token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
+
+          await wallet.addSPLToken(token);
+        })());
+      }
+
+      await Future.wait(tokenChecks);
+    } catch (_) {}
+  }
+
+  @override
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required DateTime blockTime,
+    required String to,
+    required String from,
+    String? tokenSymbol,
+    required TransactionDirection direction,
+    required double solAmount,
+    required bool isPending,
+    required double txFee,
+  }) =>
+      SolanaTransactionInfo(
+          id: id,
+          blockTime: blockTime,
+          to: to,
+          from: from,
+          tokenSymbol: tokenSymbol ?? "SOL",
+          direction: direction,
+          solAmount: solAmount,
+          isPending: isPending,
+          txFee: txFee);
+
+  @override
+  double getPendingTransactionAmount(PendingTransaction tx) => (tx as PendingSolanaTransaction).amount;
+
+  @override
+  double getPendingTransactionFee(PendingTransaction tx) => (tx as PendingSolanaTransaction).fee;
 }

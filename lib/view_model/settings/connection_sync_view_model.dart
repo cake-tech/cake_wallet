@@ -6,7 +6,6 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -49,6 +48,9 @@ abstract class ConnectionSyncViewModelBase with Store {
 
   @computed
   bool get looksUpENS => _settingsStore.lookupsENS;
+
+  @computed
+  bool get lookupsZcashNames => _settingsStore.lookupsZcashNames;
 
   @computed
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
@@ -130,6 +132,9 @@ abstract class ConnectionSyncViewModelBase with Store {
   void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
 
   @action
+  void setLookupsZcashNames(bool value) => _settingsStore.lookupsZcashNames = value;
+
+  @action
   void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
 
   @action
@@ -156,6 +161,8 @@ abstract class ConnectionSyncViewModelBase with Store {
 
   @action
   void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
+
+  bool get hasRescan => _wallet.hasRescan && _wallet.type != WalletType.bitcoin && _wallet.type != WalletType.litecoin;
 
   @action
   void setUseEtherscan(bool value) {

@@ -209,8 +209,8 @@ import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
-import 'package:cake_wallet/view_model/bridge_details_view_model.dart';
-import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_details_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
@@ -240,7 +240,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/trezor_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -326,10 +326,9 @@ import 'src/screens/buy/buy_sell_page.dart';
 final getIt = GetIt.instance;
 
 var _isSetupFinished = false;
-late Box<Node> _nodeSource;
-late Box<Node> _powNodeSource;
+// late Box<Node> _nodeSource;
+// late Box<Node> _powNodeSource;
 late Box<Contact> _contactSource;
-late Box<Trade> _tradesSource;
 late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
@@ -338,10 +337,7 @@ late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future<void> setup({
-  required Box<Node> nodeSource,
-  required Box<Node> powNodeSource,
   required Box<Contact> contactSource,
-  required Box<Trade> tradesSource,
   required Box<Template> templates,
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
@@ -352,10 +348,7 @@ Future<void> setup({
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
 }) async {
-  _nodeSource = nodeSource;
-  _powNodeSource = powNodeSource;
   _contactSource = contactSource;
-  _tradesSource = tradesSource;
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
@@ -379,8 +372,6 @@ Future<void> setup({
       (secrets.wyreAccountId.isNotEmpty);
 
   final settingsStore = await SettingsStoreBase.load(
-    nodeSource: _nodeSource,
-    powNodeSource: _powNodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
   );
 
@@ -388,21 +379,19 @@ Future<void> setup({
     return;
   }
 
-  getIt.registerFactory<Box<Node>>(() => _nodeSource);
-  getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
-  getIt.registerSingleton(NodeListStoreBase.instance);
+  // getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
   getIt.registerSingleton<AppStore>(AppStore(
       authenticationStore: getIt.get<AuthenticationStore>(),
       walletList: getIt.get<WalletListStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      nodeListStore: getIt.get<NodeListStore>(),
+      // nodeListStore: getIt.get<NodeListStore>(),
       themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
-      TradesStore(tradesSource: _tradesSource, appStore: getIt.get<AppStore>()));
+      TradesStore(appStore: getIt.get<AppStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
@@ -425,7 +414,7 @@ Future<void> setup({
     switch(type) {
       case HardwareWalletType.bitbox: return getIt<BitboxViewModel>();
       case HardwareWalletType.ledger: return getIt<LedgerViewModel>();
-      case HardwareWalletType.trezor: return getIt<TrezorViewModel>();
+      case HardwareWalletType.trezor: return getIt<TrezorConnectViewModel>();
       case HardwareWalletType.cupcake:
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
@@ -440,7 +429,7 @@ Future<void> setup({
 
   getIt.registerLazySingleton(() => TrezorConnect("cakewallet://trezor_connect",
       appName: "Cake Wallet"));
-  getIt.registerLazySingleton(() => TrezorViewModel(getIt<TrezorConnect>()));
+  getIt.registerLazySingleton(() => TrezorConnectViewModel(getIt<TrezorConnect>()));
 
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
@@ -569,7 +558,6 @@ Future<void> setup({
   getIt.registerFactory(
     () => ExchangeViewModel(
       getIt.get<AppStore>(),
-      _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
       getIt.get<SharedPreferences>(),
@@ -583,7 +571,6 @@ Future<void> setup({
   getIt.registerSingleton(
     TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
-      trades: _tradesSource,
       appStore: getIt.get<AppStore>(),
       preferences: getIt.get<SharedPreferences>(),
     ),
@@ -1131,23 +1118,18 @@ Future<void> setup({
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
+  getIt.registerFactoryParam<NodeListViewModel, bool, void>((isPow, _) {
+    final appStore = getIt.get<AppStore>();
+    return NodeListViewModel(appStore, isPow);
+  });
+
   getIt.registerFactoryParam<NewAddressesPage, bool, void>(
-    (showHidden, _) => NewAddressesPage(
+        (showHidden, _) => NewAddressesPage(
       showHidden: showHidden,
       addressListViewModel: getIt<WalletAddressListViewModel>(),
       dashboardViewModel: getIt<DashboardViewModel>(),
     ),
   );
-
-  getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(_nodeSource, appStore);
-  });
-
-  getIt.registerFactory(() {
-    final appStore = getIt.get<AppStore>();
-    return PowNodeListViewModel(_powNodeSource, appStore);
-  });
 
   getIt.registerFactory(() => ConnectionSyncViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
@@ -1189,12 +1171,12 @@ Future<void> setup({
       final WalletType type = args['type'] as WalletType? ?? getIt.get<AppStore>().wallet!.type;
       final bool isPow = args['isPow'] as bool? ?? false;
       final Node? editingNode = args['editingNode'] as Node?;
-      final nodeSourceArgs = isPow ? _powNodeSource : _nodeSource;
         return NodeCreateOrEditViewModel(
-            nodeSourceArgs,
-            type,
-            editingNode,
-            getIt.get<SettingsStore>());
+          isPow,
+          type,
+          getIt.get<SettingsStore>(),
+          editingNode: editingNode
+        );
       }
   );
 
@@ -1258,7 +1240,6 @@ Future<void> setup({
   getIt.registerFactory(
     () => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet!,
-      trades: _tradesSource,
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>(),
       feesViewModel: getIt.get<FeesViewModel>(),
@@ -1436,10 +1417,12 @@ Future<void> setup({
       }
   );
 
-  getIt.registerFactoryParam<TransactionDetailsModal, TransactionInfo, void>(
-      (transactionInfo, _) => TransactionDetailsModal(transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
-          param1: [transactionInfo, false]))
-  );
+  getIt.registerFactoryParam<TransactionDetailsModal, TransactionInfo, bool?>(
+      (transactionInfo, highlightNoteField) => TransactionDetailsModal(
+            transactionDetailsViewModel:
+                getIt.get<TransactionDetailsViewModel>(param1: [transactionInfo, false]),
+            highlightNoteField: highlightNoteField ?? false,
+          ));
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
           (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
@@ -1471,11 +1454,8 @@ Future<void> setup({
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
           (content, _) => TransactionSuccessPage(content: content));
 
-  getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
-      TradeDetailsViewModel(
-          tradeForDetails: trade,
-          trades: _tradesSource,
-          appStore: getIt.get<AppStore>()));
+  getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>(
+      (trade, _) => TradeDetailsViewModel(tradeForDetails: trade, appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
@@ -1589,10 +1569,10 @@ Future<void> setup({
           unspentCoinsListViewModel:
               getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom)));
 
-  getIt.registerFactoryParam<NewCoinControlPage, UnspentCoinType?, void>(
-          (coinTypeToSpendFrom, _) => NewCoinControlPage(
+  getIt.registerFactoryParam<NewCoinControlPage, UnspentCoinType?, bool?>(
+          (coinTypeToSpendFrom, canEdit) => NewCoinControlPage(
           unspentCoinsListViewModel:
-          getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom))
+          getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom), canEdit: canEdit ?? true,)
 
   );
 
@@ -1715,10 +1695,7 @@ Future<void> setup({
   );
 
   getIt.registerFactoryParam<ManageNodesPage, bool, void>((bool isPow, _) {
-    if (isPow) {
-      return ManageNodesPage(isPow, powNodeListViewModel: getIt.get<PowNodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
-    }
-    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>(), dashboardViewModel: getIt.get<DashboardViewModel>());
+    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>(param1: isPow), dashboardViewModel: getIt.get<DashboardViewModel>());
   });
 
   getIt.registerFactory(
@@ -1800,7 +1777,6 @@ Future<void> setup({
   getIt.registerLazySingleton(() => NodeSwitchingService(
     appStore: getIt.get<AppStore>(),
     settingsStore: getIt.get<SettingsStore>(),
-    nodeSource: _nodeSource,
   ));
 
   getIt.registerFactoryParam<BridgeAmountPage, CryptoCurrency, void>(

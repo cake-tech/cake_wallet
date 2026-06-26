@@ -26,3 +26,9 @@ class AccountNameChanged extends CardCustomizerEvent {
 
 
 class DesignSaved extends CardCustomizerEvent {}
+
+class IconStyleSelected extends CardCustomizerEvent {
+  final int iconIndex;
+
+  IconStyleSelected(this.iconIndex);
+}

@@ -8,15 +8,13 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ChainflipExchangeProvider extends ExchangeProvider {
-  ChainflipExchangeProvider({required this.tradesStore});
+  ChainflipExchangeProvider();
 
   static final List<CryptoCurrency> _supported = [
     CryptoCurrency.btc,
@@ -41,8 +39,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   static const _affiliateBps = secrets.chainflipAffiliateFee;
   static const _affiliateKey = secrets.chainflipApiKey;
 
-  final Box<Trade> tradesStore;
-
   @override
   String get title => 'Chainflip';
 
@@ -54,6 +50,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
   @override
   bool get supportsFixedRate => false;
+
+  @override
+  bool get supportsMemoOrDestinationTag => false;
 
   @override
   ExchangeProviderDescription get description =>
@@ -229,19 +228,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       );
 
       return Trade(
-          id: id,
-          from: request.fromCurrency,
-          to: request.toCurrency,
-          provider: description,
-          inputAddress: swapResponse['address'].toString(),
-          createdAt: DateTime.now(),
-          amount: request.fromAmount,
-          receiveAmount: request.toAmount,
-          state: TradeState.waiting,
-          payoutAddress: request.toAddress,
-          userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-          userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
-          isSendAll: isSendAll);
+        id: id,
+        from: request.fromCurrency,
+        to: request.toCurrency,
+        provider: description,
+        inputAddress: swapResponse['address'].toString(),
+        createdAt: DateTime.now(),
+        amount: request.fromAmount,
+        receiveAmount: request.toAmount,
+        state: TradeState.waiting,
+        payoutAddress: request.toAddress,
+        isSendAll: isSendAll,
+      );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
         provider: description,
@@ -296,28 +294,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final to = status['destinationAsset'].toString();
       
       final newTrade = Trade(
-          id: id,
-          from: _toCurrency(status['sourceAsset'].toString()),
-          to: _toCurrency(status['destinationAsset'].toString()),
-          provider: description,
-          amount: depositAmount,
-          receiveAmount: amount,
-          state: currentState,
-          payoutAddress: status['destinationAddress'].toString(),
-          outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
-          isRefund: isRefund,
-        userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
-        userCurrencyToRaw: '${to.toUpperCase()}' + '_',
+        id: id,
+        from: _toCurrency(from),
+        to: _toCurrency(to),
+        provider: description,
+        amount: depositAmount,
+        receiveAmount: amount,
+        state: currentState,
+        payoutAddress: status['destinationAddress'].toString(),
+        outputTransaction:
+            status['swapEgress']?['transactionReference']?.toString(),
+        isRefund: isRefund,
       );
-
-      // Find trade and update receiveAmount with the real value received
-      final storedTrade = _getStoredTrade(id);
-      
-      if (storedTrade != null) {
-        storedTrade.$2.receiveAmount = newTrade.receiveAmount;
-        storedTrade.$2.outputTransaction = newTrade.outputTransaction;
-        tradesStore.put(storedTrade.$1, storedTrade.$2);
-      }
 
       return newTrade;
     } catch (e) {
@@ -366,17 +354,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     };
 
     return currency;
-  }
-
-  (dynamic, Trade)? _getStoredTrade(String id) {
-    for (var i = tradesStore.length -1; i >= 0; i--) {
-      Trade? t = tradesStore.getAt(i);
-      
-      if (t != null && t.id == id)
-        return (i, t);
-    }
-    
-    return null;
   }
 
   String _amountToNative(double amount, CryptoCurrency currency) =>
