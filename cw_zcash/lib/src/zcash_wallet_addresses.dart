@@ -116,11 +116,11 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     address = latestAddress;
   }
 
-  void _syncRotationHiddenAddresses() {
-    final rotationAddrs = ZcashTaddressRotation.rotationAddresses[accountId] ?? {};
-    final usableAddrs = ZcashTaddressRotation.rotationAddressesUsable[accountId] ?? {};
-    hiddenAddresses.removeWhere((final a) => rotationAddrs.contains(a) && usableAddrs.contains(a));
-    hiddenAddresses.addAll(rotationAddrs.difference(usableAddrs));
+  Future<void> _syncRotationHiddenAddresses() async {
+    final all = (await ZcashTaddressRotation.allAddressesForAccount(accountId)).toSet();
+    final used = (await ZcashTaddressRotation.usedAddressesForAccount(accountId)).toSet();
+    hiddenAddresses.removeWhere(all.contains);
+    hiddenAddresses.addAll(used);
   }
 
   @override
@@ -159,22 +159,21 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     saplingAddress = addr.saddr ?? 'unknown addr.saddr';
     orchardAddress = addr.oaddr ?? 'unknown addr.oaddr';
     unifiedAddress = addr.ua ?? 'unknown addr.ua';
-    _transparentObservableAddress = (await ZcashTaddressRotation.addressForAccount(accountId));
-    int accountIndex = 0;
+    _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
+    final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
     addressInfos = {
-      0:
-          (await ZcashTaddressRotation.allAddressesForAccount(accountId))?.map((final v) {
-            return WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: ++accountIndex,
-              accountIndex: 0,
-              address: v,
-              label: "",
-            );
-          }).toList() ??
-          [],
+      0: [
+        for (int i = 0; i < rotationAddrs.length; i++)
+          WalletInfoAddressInfo(
+            walletInfoId: walletInfo.internalId,
+            mapKey: i + 1,
+            accountIndex: 0,
+            address: rotationAddrs[i],
+            label: "",
+          ),
+      ],
     };
-    _syncRotationHiddenAddresses();
+    await _syncRotationHiddenAddresses();
 
     // addressInfos[0]?.removeWhere((final test) => hiddenAddresses.contains(test.address));
     if (_addressPageType == ZcashAddressType.transparentRotated) {
@@ -223,7 +222,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       await walletInfo.setManualAddresses(manualAddresses.toList());
       await walletInfo.save();
       await _initAddresses();
-      _syncRotationHiddenAddresses();
+      await _syncRotationHiddenAddresses();
     } catch (e) {
       printV("Error saving addresses: $e");
     }
@@ -244,25 +243,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     if (addressPageType != ZcashAddressType.transparentRotated) {
       return [];
     }
-    final rotationAddresses = ZcashTaddressRotation.rotationAddresses[accountId];
-    if (rotationAddresses != null && rotationAddresses.isNotEmpty) {
-      final addresses = rotationAddresses.toList();
-      return [
-        for (int i = 0; i < addresses.length; i++)
-          WalletInfoAddressInfo(
-            walletInfoId: walletInfo.internalId,
-            mapKey: i + 1,
-            accountIndex: 0,
-            address: addresses[i],
-            label: "",
-          ),
-      ];
-    }
-    final List<WalletInfoAddressInfo> allInfos = [];
-    for (final entry in addressInfos.entries) {
-      allInfos.addAll(entry.value);
-    }
-    return allInfos;
+    return addressInfos[0] ?? [];
   }
 
   @override

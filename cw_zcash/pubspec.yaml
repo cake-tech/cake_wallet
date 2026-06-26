@@ -21,7 +21,7 @@ dependencies:
     # path: ../../zkool2
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 0841eae5257f06b6d1242cca1a4a9e448d29111f
+      ref: dbd3dde8d8485428326a58e55660b7404666dd7c
 
   path_provider: any
 dependency_overrides:
