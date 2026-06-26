@@ -11,7 +11,9 @@ import Flutter
           UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
         }
 
-        makeSecure()
+        DispatchQueue.main.async { [weak self] in
+            self?.makeSecure()
+        }
 
                 
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -104,8 +106,15 @@ import Flutter
     
     private var textField = UITextField()
     
+private func keyWindow() -> UIWindow? {
+    UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .flatMap { $0.windows }
+        .first { $0.isKeyWindow }
+}
+
 private func makeSecure() {
-    guard let window = self.window else { return }
+    guard let window = self.window ?? keyWindow() else { return }
 
     if (!window.subviews.contains(textField)) {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: textField.frame.self.width, height: textField.frame.self.height))
