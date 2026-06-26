@@ -3,37 +3,37 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:hive/hive.dart';
 
-part 'anonpay_invoice_info.g.dart';
+part 'anonpay_invoice_info.part.dart';
 
-@HiveType(typeId: AnonpayInvoiceInfo.typeId)
+// @HiveType(typeId: AnonpayInvoiceInfo.typeId)
 class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoBase {
-  @HiveField(0)
+  // @HiveField(0)
   final String invoiceId;
-  @HiveField(1)
+  // @HiveField(1)
   String status;
-  @HiveField(2)
+  // @HiveField(2)
   final double? fiatAmount;
-  @HiveField(3)
+  // @HiveField(3)
   final String? fiatEquiv;
-  @HiveField(4)
+  // @HiveField(4)
   final double? amountTo;
-  @HiveField(5)
+  // @HiveField(5)
   final String coinTo;
-  @HiveField(6)
+  // @HiveField(6)
   final String address;
-  @HiveField(7)
+  // @HiveField(7)
   final String clearnetUrl;
-  @HiveField(8)
+  // @HiveField(8)
   final String onionUrl;
-  @HiveField(9)
+  // @HiveField(9)
   final String clearnetStatusUrl;
-  @HiveField(10)
+  // @HiveField(10)
   final String onionStatusUrl;
-  @HiveField(11)
+  // @HiveField(11)
   final DateTime createdAt;
-  @HiveField(12)
+  // @HiveField(12)
   final String walletId;
-  @HiveField(13)
+  // @HiveField(13)
   final String provider;
 
   static const typeId = ANONPAY_INVOICE_INFO_TYPE_ID;
