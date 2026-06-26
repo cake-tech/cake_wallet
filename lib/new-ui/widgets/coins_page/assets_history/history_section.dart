@@ -34,12 +34,14 @@ class HistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
 
     return SliverPadding(
         padding: EdgeInsets.only(left: 16.0, right: 16, top: short && roundedTopSection ? 18 : 0),
         sliver: Observer(
-          builder: (_) => (items.isEmpty)
+          builder: (_) {
+            final items = short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
+
+            return (items.isEmpty)
               ? SliverPadding(
                   padding: EdgeInsets.only(top: 24),
                   sliver: SliverToBoxAdapter(
@@ -203,7 +205,8 @@ class HistorySection extends StatelessWidget {
                         return Text(item.runtimeType.toString());
                     }),
                   ),
-                ),
+                );
+          },
         ));
   }
 
@@ -237,15 +240,15 @@ class HistorySection extends StatelessWidget {
 
     if (daysAgo < 7) {
       final weekday = DateFormat.EEEE().format(date);
-      return '$weekday, $timeStr';
+      return "$weekday, $timeStr";
     }
 
     if (date.year == now.year) {
       final dayMonth = DateFormat("d MMMM").format(date);
-      return '$dayMonth, $timeStr';
+      return "$dayMonth, $timeStr";
     }
 
-    final full = DateFormat("d MMMM yyyy").format(date);
-    return '$full, $timeStr';
+    final full = DateFormat("d MMM yyyy").format(date);
+    return "$full, $timeStr";
   }
 }
