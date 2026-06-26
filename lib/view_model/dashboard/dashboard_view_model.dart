@@ -102,13 +102,13 @@ abstract class DashboardViewModelBase with Store {
           //     caption: S.current.all_transactions,
           //     onChanged: transactionFilterStore.toggleAll),
           FilterItem(
-              value: () => transactionFilterStore.displayIncoming,
-              caption: S.current.send,
-              onChanged: transactionFilterStore.toggleIncoming),
-          FilterItem(
               value: () => transactionFilterStore.displayOutgoing,
-              caption: S.current.receive,
+              caption: S.current.send,
               onChanged: transactionFilterStore.toggleOutgoing),
+          FilterItem(
+              value: () => transactionFilterStore.displayIncoming,
+              caption: S.current.receive,
+              onChanged: transactionFilterStore.toggleIncoming),
           if (appStore.wallet!.type == WalletType.bitcoin)
             FilterItem(
               value: () => transactionFilterStore.displaySilentPayments,
@@ -118,7 +118,7 @@ abstract class DashboardViewModelBase with Store {
           SwapFilterItem(
               enabledProviders: () => tradeFilterStore.enabledProviders,
               allEnabled: () => tradeFilterStore.displayAllTrades,
-              value: () => tradeFilterStore.displayAllTrades,
+              value: () => tradeFilterStore.enabledProviders>0,
               onChanged: () =>
                   tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
           FilterItem(
@@ -402,6 +402,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void changeAllFilterItems(bool value) {
     for (final item in filterItems) {
+      if (item.value() != value) {
+        item.onChanged();
+      }
+    }
+    for (final item in exchangeFilterItems) {
       if (item.value() != value) {
         item.onChanged();
       }
