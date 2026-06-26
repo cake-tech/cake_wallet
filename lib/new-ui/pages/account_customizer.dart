@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -105,9 +106,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       }
 
       final account = accounts.firstWhere((item)=>item.id==index);
-      final setting = styleSettings.firstWhere((item)=>item.accountIndex == index);
+      final setting = styleSettings.firstWhereOrNull((item)=>item.accountIndex == index);
 
-      if(setting.hidden) {
+      if(setting?.hidden ?? false) {
         continue;
       }
 
