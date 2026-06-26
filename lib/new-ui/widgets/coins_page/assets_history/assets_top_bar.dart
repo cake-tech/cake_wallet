@@ -1,9 +1,5 @@
-import 'package:cake_wallet/core/csv_export_service.dart';
-import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/line_tab_switcher.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +16,11 @@ class AssetsTopBar extends StatelessWidget {
   final void Function(int) onTabChange;
   final VoidCallback onTransactionHistoryOpened;
   final int selectedTab;
-  final List<String> tabs;
+  final List<AssetsHistorySectionTab> tabs;
   final DashboardViewModel dashboardViewModel;
 
   @override
   Widget build(BuildContext context) {
-    final settingsButtonText = _getSettingsButtonText();
-    final hasTokenSettingsButton = settingsButtonText != null;
 
     return SliverToBoxAdapter(
       child: Padding(
@@ -36,7 +30,7 @@ class AssetsTopBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           LineTabSwitcher(
-            tabs: tabs,
+            tabs: tabs.map((item)=>item.title).toList(),
             onTabChange: onTabChange,
             selectedTab: selectedTab,
           ),
@@ -57,19 +51,13 @@ class AssetsTopBar extends StatelessWidget {
           children: [
 
             Opacity(
-              opacity: hasTokenSettingsButton ? 1 : 0,
+              opacity: tabs[selectedTab].actionButton != null ? 1 : 0,
               child: GestureDetector(
                 onTap: () {
-                  if (tabs[selectedTab] == S.of(context).assets) {
-                    Navigator.of(context).pushNamed(
-                      Routes.homeSettings,
-                      arguments: dashboardViewModel.balanceViewModel,
-                    );
-                  } else if (tabs[selectedTab] == S.of(context).history) {
-
-                    onTransactionHistoryOpened();
-                  }
-                },
+                    if(tabs[selectedTab].actionButton != null) {
+                      tabs[selectedTab].actionButton?.onPressed();
+                    }
+                  },
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
@@ -82,13 +70,13 @@ class AssetsTopBar extends StatelessWidget {
                       spacing: 6,
                       children: [
 
-                        if ((settingsButtonText ?? "").isNotEmpty)
+                        if ((tabs[selectedTab].actionButton?.title ?? "").isNotEmpty)
                                 Text(
-                                  settingsButtonText ?? "",
+                                  tabs[selectedTab].actionButton?.title ?? "",
                                   style: TextStyle(color: Theme.of(context).colorScheme.primary),
                                 ),
                         CakeImageWidget(
-                            imageUrl: _getSettingsButtonIconPath(),
+                            imageUrl: tabs[selectedTab].actionButton?.iconPath,
                             colorFilter: ColorFilter.mode(
                                 Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
                             ],
@@ -106,28 +94,4 @@ class AssetsTopBar extends StatelessWidget {
     );
   }
 
-  String? _getSettingsButtonIconPath() {
-    if (tabs[selectedTab] == S.current.history) {
-      return "assets/new-ui/arrow_right.svg";
-    }
-
-    if (tabs[selectedTab] == S.current.assets &&
-        dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled) {
-      return "assets/new-ui/options_slider.svg";
-    }
-
-    return null;
-  }
-
-  String? _getSettingsButtonText() {
-    if (tabs[selectedTab] == S.current.assets &&
-        dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled) {
-      return S.current.tokens;
-    }
-
-    if (tabs[selectedTab] == S.current.history) {
-      return S.current.all_pascal_case;
-    }
-    return null;
-  }
 }

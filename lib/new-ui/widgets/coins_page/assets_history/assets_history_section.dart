@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_top_
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_top_bar.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
@@ -13,11 +14,20 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'assets_section.dart';
 import 'history_section.dart';
 
+class AssetsHistorySectionActionButton {
+  final String title;
+  final String iconPath;
+  final VoidCallback onPressed;
+
+  const AssetsHistorySectionActionButton(this.title, this.iconPath, this.onPressed);
+}
+
 class AssetsHistorySectionTab {
   final String title;
   final Widget content;
+  final AssetsHistorySectionActionButton? actionButton;
 
-  AssetsHistorySectionTab(this.title, this.content);
+  const AssetsHistorySectionTab(this.title, this.content, this.actionButton);
 }
 
 class AssetsHistorySection extends StatefulWidget {
@@ -36,24 +46,31 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
 
   void reloadTabs() {
     final oldTabLength = tabs.length;
+    final hasAssetsTab = widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled || (widget.dashboardViewModel.hasMweb && widget.dashboardViewModel.mwebEnabled);
+    final hasNftTab = isNFTACtivatedChain(widget.dashboardViewModel.wallet.type,
+        chainId: widget.dashboardViewModel.wallet.chainId);
     tabs = [
-      if (widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled || (widget.dashboardViewModel.hasMweb && widget.dashboardViewModel.mwebEnabled))
+      if (hasAssetsTab)
         AssetsHistorySectionTab(
             S.current.assets,
             AssetsSection(
               dashboardViewModel: widget.dashboardViewModel,
-            )),
+            ), AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg", (){
+          Navigator.of(context).pushNamed(
+            Routes.homeSettings,
+            arguments: widget.dashboardViewModel.balanceViewModel,
+          );
+        })),
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(
             detailsAsPage: false,
-            roundedTopSection: tabs.length > 1,
+            roundedTopSection: hasAssetsTab || hasNftTab,
             dashboardViewModel: widget.dashboardViewModel,
             short: true,
-          )),
-      if (isNFTACtivatedChain(widget.dashboardViewModel.wallet.type,
-          chainId: widget.dashboardViewModel.wallet.chainId))
-        AssetsHistorySectionTab(S.current.nfts, NFTListingPage(nftViewModel: widget.nftViewModel))
+          ), AssetsHistorySectionActionButton(S.current.all_pascal_case, "assets/new-ui/arrow_right.svg", (){openHistoryModal(context);})),
+      if (hasNftTab)
+        AssetsHistorySectionTab(S.current.nfts, NFTListingPage(nftViewModel: widget.nftViewModel), null)
     ];
     if (oldTabLength != tabs.length) {
       setState(() {
@@ -81,7 +98,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
         AssetsTopBar(
             onTransactionHistoryOpened: () => openHistoryModal(context),
           dashboardViewModel: widget.dashboardViewModel,
-          tabs: tabs.map((item) => item.title).toList(),
+          tabs: tabs,
           onTabChange: (index) {
             setState(() {
                 _selectedTab = index;
