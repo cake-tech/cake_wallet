@@ -271,17 +271,15 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         throw Exception('Failed to parse to currency from assetId: $toAssetId');
       }
 
-      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency.$1,
-          tag: fromCurrency.$2);
-      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency.$1,
-          tag: toCurrency.$2);
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency.$1, tag: fromCurrency.$2);
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency.$1, tag: toCurrency.$2);
 
 
       final trade = Trade(
         id: depositAddress,
         // Using deposit address as trade ID
-        from: request.fromCurrency,
-        to: request.toCurrency,
+        from: from,
+        to: to,
         provider: description,
         providerName: title,
         state: TradeState.created,
@@ -575,10 +573,17 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final token = supported.firstWhereOrNull((t) => t.assetId == assetId);
 
     if (token == null) return null;
-    final title = token.symbol;
+
+    final title = token.symbol.toUpperCase()
+        .replaceAll(RegExp(r'\s*\([^)]*\)'), '');
+
     final normalizedNetwork = _normalizeNearBlockchainToTag(token.blockchain);
-    final tag =
-        normalizedNetwork == title.toUpperCase() ? null : normalizedNetwork;
+
+    final isNativeAsset = assetId.contains(':native:coin');
+
+    final tag = isNativeAsset || normalizedNetwork == title
+        ? null
+        : normalizedNetwork;
 
     return (title, tag);
   }
