@@ -17,12 +17,9 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
-import 'package:collection/collection.dart';
 import 'package:convert/convert.dart' as convert;
-import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -35,25 +32,18 @@ import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/mweb_utxo.dart';
-import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_mweb/cw_mweb.dart';
-import 'package:cw_mweb/mwebd.pbgrpc.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hive/hive.dart';
@@ -506,22 +496,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    // rename the hive box:
-    final oldBoxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-    final newBoxName = "${newWalletName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+  static Future<void> renameMwebBox({
+    required String fromName,
+    required String toName,
+  }) async {
+    final oldBoxName = "${fromName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final newBoxName = "${toName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    if (oldBoxName == newBoxName) return;
 
     final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
-    mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
+    final newBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
-      final value = oldBox.get(key);
-      await oldBox.delete(key);
-      await mwebUtxosBox.put(key, value!);
+      await newBox.put(key, oldBox.get(key)!);
     }
-    oldBox.deleteFromDisk();
-
-    await super.renameWalletFiles(newWalletName);
+    await oldBox.deleteFromDisk();
   }
 
   @action

@@ -12,8 +12,6 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:collection/collection.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:path_provider/path_provider.dart';
 
@@ -139,26 +137,8 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet = await LitecoinWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
+    await LitecoinWalletBase.renameMwebBox(fromName: currentName, toName: newName);
+    await super.rename(currentName, password, newName);
   }
 
   @override

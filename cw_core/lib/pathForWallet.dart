@@ -36,3 +36,41 @@ Future<String> outdatedAndroidPathForWalletDir({required String name}) async {
 
   return pathDir;
 }
+
+Future<void> copyWalletFilesTo({
+  required String fromName,
+  required String toName,
+  required WalletType type,
+}) async {
+  if (fromName == toName) return;
+
+  final typeRoot = await pathForWalletTypeDir(type: type);
+  final sourceDir = Directory('$typeRoot/$fromName');
+  if (!sourceDir.existsSync()) return;
+
+  if (File('$typeRoot/$toName/$toName').existsSync()) {
+    throw Exception('Cannot rename wallet: "$toName" already exists');
+  }
+
+  final destinationDir = Directory('$typeRoot/$toName');
+  await _copyDirectory(sourceDir, destinationDir);
+
+  for (final suffix in const ['', '.keys', '.keys.backup']) {
+    final file = File('${destinationDir.path}/$fromName$suffix');
+    if (file.existsSync()) {
+      await file.rename('${destinationDir.path}/$toName$suffix');
+    }
+  }
+}
+
+Future<void> _copyDirectory(Directory source, Directory destination) async {
+  await destination.create(recursive: true);
+  await for (final entity in source.list(followLinks: false)) {
+    final name = entity.path.substring(source.path.length + 1);
+    if (entity is File) {
+      await entity.copy('${destination.path}/$name');
+    } else if (entity is Directory) {
+      await _copyDirectory(entity, Directory('${destination.path}/$name'));
+    }
+  }
+}
