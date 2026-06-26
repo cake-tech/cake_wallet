@@ -9,7 +9,7 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
   items.sort((a, b) => b.date.compareTo(a.date));
 
   final now = DateTime.now();
-  final last24hThreshold = now.subtract(const Duration(hours: 24));
+  final todayTreshold = DateTime(now.year, now.month, now.day);
   final last7daysThreshold = now.subtract(const Duration(days: 7));
   final last30daysThreshold = now.subtract(const Duration(days: 30));
 
@@ -19,7 +19,7 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
   for (final transaction in items) {
     final date = transaction.date;
 
-    final bucket = date.isAfter(last24hThreshold)
+    final bucket = date.isAfter(todayTreshold)
         ? _DateBucket.recent
         : date.isAfter(last7daysThreshold)
             ? _DateBucket.last7Days
@@ -33,7 +33,7 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
           formattedList.add(
             TodayTransactionItem(
               date,
-              key: const ValueKey("last_7_days_section_item_key"),
+              key: const ValueKey("today_section_item_key"),
             ),
           );
         }
