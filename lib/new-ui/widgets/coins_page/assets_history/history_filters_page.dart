@@ -52,7 +52,7 @@ class HistoryFiltersPage extends StatelessWidget {
                           if (item is SwapFilterItem) {
                             final String subtitle;
                             final Color subtitleColor;
-                            if (item.value()) {
+                            if (dashboardViewModel.tradeFilterStore.displayAllTrades) {
                               subtitle = S.of(context).manage_providers;
                               subtitleColor = Theme.of(context).colorScheme.onSurfaceVariant;
                             } else if (dashboardViewModel.tradeFilterStore.enabledProviders == 0) {
