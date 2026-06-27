@@ -137,8 +137,11 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    await LitecoinWalletBase.renameMwebBox(fromName: currentName, toName: newName);
+    if (currentName == newName) return;
+
+    await LitecoinWalletBase.copyMwebBox(fromName: currentName, toName: newName);
     await super.rename(currentName, password, newName);
+    await LitecoinWalletBase.deleteMwebBox(currentName);
   }
 
   @override

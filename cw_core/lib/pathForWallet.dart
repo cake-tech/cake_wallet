@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:path/path.dart' as p;
 
 Future<String> pathForWalletTypeDir({required WalletType type}) async {
   final root = await getAppDir();
@@ -45,20 +46,22 @@ Future<void> copyWalletFilesTo({
   if (fromName == toName) return;
 
   final typeRoot = await pathForWalletTypeDir(type: type);
-  final sourceDir = Directory('$typeRoot/$fromName');
-  if (!sourceDir.existsSync()) return;
+  final sourceDir = Directory(p.join(typeRoot, fromName));
+  if (!sourceDir.existsSync()) {
+    throw "Source wallet not found: $fromName $type";
+  }
 
-  if (File('$typeRoot/$toName/$toName').existsSync()) {
+  if (Directory(p.join(typeRoot, toName)).existsSync()) {
     throw Exception('Cannot rename wallet: "$toName" already exists');
   }
 
-  final destinationDir = Directory('$typeRoot/$toName');
+  final destinationDir = Directory(p.join(typeRoot, toName));
   await _copyDirectory(sourceDir, destinationDir);
 
   for (final suffix in const ['', '.keys', '.keys.backup']) {
-    final file = File('${destinationDir.path}/$fromName$suffix');
+    final file = File(p.join(destinationDir.path, '$fromName$suffix'));
     if (file.existsSync()) {
-      await file.rename('${destinationDir.path}/$toName$suffix');
+      await file.rename(p.join(destinationDir.path, '$toName$suffix'));
     }
   }
 }
@@ -66,11 +69,11 @@ Future<void> copyWalletFilesTo({
 Future<void> _copyDirectory(Directory source, Directory destination) async {
   await destination.create(recursive: true);
   await for (final entity in source.list(followLinks: false)) {
-    final name = entity.path.substring(source.path.length + 1);
+    final name = p.basename(entity.path);
     if (entity is File) {
-      await entity.copy('${destination.path}/$name');
+      await entity.copy(p.join(destination.path, name));
     } else if (entity is Directory) {
-      await _copyDirectory(entity, Directory('${destination.path}/$name'));
+      await _copyDirectory(entity, Directory(p.join(destination.path, name)));
     }
   }
 }

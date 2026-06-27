@@ -496,7 +496,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
-  static Future<void> renameMwebBox({
+  static Future<void> copyMwebBox({
     required String fromName,
     required String toName,
   }) async {
@@ -509,7 +509,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     for (final key in oldBox.keys) {
       await newBox.put(key, oldBox.get(key)!);
     }
-    await oldBox.deleteFromDisk();
+  }
+
+  static Future<void> deleteMwebBox(String name) async {
+    final boxName = "${name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final box = await CakeHive.openBox<MwebUtxo>(boxName);
+    await box.deleteFromDisk();
   }
 
   @action

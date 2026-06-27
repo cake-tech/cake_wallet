@@ -8,6 +8,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:path/path.dart' as p;
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
     RFK extends WalletCredentials, RFH extends WalletCredentials> {
@@ -28,6 +29,8 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
   Future<void> remove(String wallet);
 
   Future<void> rename(String currentName, String password, String newName) async {
+    if (currentName == newName) return;
+
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
       throw Exception('Wallet not found');
@@ -40,7 +43,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     currentWalletInfo.name = newName;
     await currentWalletInfo.save();
 
-    final oldDir = Directory('${await pathForWalletTypeDir(type: getType())}/$currentName');
+    final oldDir = Directory(p.join(await pathForWalletTypeDir(type: getType()), currentName));
     if (oldDir.existsSync()) {
       try {
         await oldDir.delete(recursive: true);
