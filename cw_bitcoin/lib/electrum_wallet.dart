@@ -2005,6 +2005,7 @@ abstract class ElectrumWalletBase
           unspentCoinsInfo.values.where((record) => record.walletId == id);
 
       for (final element in currentWalletUnspentCoins) {
+        if (element.isFrozen) continue;
         if (RegexUtils.addressTypeFromStr(element.address, network) is MwebAddress) continue;
 
         final existUnspentCoins = unspentCoins.where((coin) => element == coin);
