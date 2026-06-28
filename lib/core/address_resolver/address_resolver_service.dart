@@ -22,12 +22,9 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 
 class AddressResolverService {
-  AddressResolverService({
-    required this.settingsStore,
-  }) : providers = _buildProviders();
+  AddressResolverService({required this.settingsStore});
 
   final SettingsStore settingsStore;
-  final List<AddressLookupProvider> providers;
 
 // Sources available for address resolution and lookup settings.
   static const supportedSources = [
@@ -48,7 +45,7 @@ class AddressResolverService {
     AddressSource.nostr,
   ];
 
-  static List<AddressLookupProvider> _buildProviders() {
+  List<AddressLookupProvider> _buildProviders() {
     final allProviders = <AddressLookupProvider>[
       LNUrlPayAddressProvider(),
       TwitterAddressProvider(),
@@ -76,6 +73,7 @@ class AddressResolverService {
     required CryptoCurrency currency,
   }) async {
     try {
+      final providers = _buildProviders();
       // return first entry if currency is specified and provider supports it
       if (currency != null) {
         for (final provider in providers) {
@@ -96,18 +94,22 @@ class AddressResolverService {
             continue;
           }
 
-          printV('[address resolver service] ...resolving $src - $cur - $query');
-          final results = await provider.resolve(
-            query: query,
-            currencies: [currency],
-            wallet: wallet,
-          );
+          try {
+            printV('[address resolver service] ...resolving $src - $cur - $query');
+            final results = await provider.resolve(
+              query: query,
+              currencies: [currency],
+              wallet: wallet,
+            );
 
-          if (results.isNotEmpty) {
-            final parsedAddress = results.first.parsedAddressByCurrencyMap[currency];
-            final parsedAddressStr = parsedAddress == null || parsedAddress.isEmpty ? 'N/A' : parsedAddress;
-            printV('[address resolver service] resolved $src - $cur - $parsedAddressStr');
-            return [results.first];
+            if (results.isNotEmpty) {
+              final parsedAddress = results.first.parsedAddressByCurrencyMap[currency];
+              final parsedAddressStr = parsedAddress == null || parsedAddress.isEmpty ? 'N/A' : parsedAddress;
+              printV('[address resolver service] resolved $src - $cur - $parsedAddressStr');
+              return [results.first];
+            }
+          } catch (e) {
+            printV('[address resolver service] Error resolving $src: $e');
           }
         }
 

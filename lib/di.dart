@@ -1494,7 +1494,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuySellViewModel(getIt.get<AppStore>()));
 
-  getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
+  getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>(), getIt.get<AddressResolverService>()));
 
   getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final items = args.first as List<SelectableItem>;
@@ -1592,7 +1592,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerLazySingleton<AddressResolverService>(
+  getIt.registerFactory<AddressResolverService>(
         () => AddressResolverService(settingsStore: getIt.get<SettingsStore>()),
   );
 

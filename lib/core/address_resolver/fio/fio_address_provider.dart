@@ -57,16 +57,16 @@ class FioAddressProvider extends AddressLookupProvider {
     }
   }
 
-  static const apiAuthority = 'fio.blockpane.com';
-  static const availCheck = '/v1/chain/avail_check';
-  static const getAddress = '/v1/chain/get_pub_address';
+  static const _apiAuthority = 'fio.blockpane.com';
+  static const _availCheck = '/v1/chain/avail_check';
+  static const _getAddress = '/v1/chain/get_pub_address';
 
   static Future<bool> checkAvail(String fioAddress) async {
     bool isFioRegistered = false;
     final headers = {'Content-Type': 'application/json'};
     final body = <String, String>{"fio_name": fioAddress};
 
-    final uri = Uri.https(apiAuthority, availCheck);
+    final uri = Uri.https(_apiAuthority, _availCheck);
     final response = await ProxyWrapper().post(
       clearnetUri: uri,
       headers: headers,
@@ -91,7 +91,7 @@ class FioAddressProvider extends AddressLookupProvider {
       "token_code": token.toUpperCase(),
     };
 
-    final uri = Uri.https(apiAuthority, getAddress);
+    final uri = Uri.https(_apiAuthority, _getAddress);
     final response = await ProxyWrapper().post(
       clearnetUri: uri,
       headers: headers,

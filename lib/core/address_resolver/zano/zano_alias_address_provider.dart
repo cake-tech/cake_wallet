@@ -23,6 +23,7 @@ class ZanoAliasAddressProvider extends AddressLookupProvider {
   @override
   bool canHandle(String query) => query.startsWith('@'); // zano handle example: @username
 
+  static const _zanoUrl = 'http://37.27.100.59:10500/json_rpc';
   @override
   Future<List<ParsedAddress>> resolve({
     required String query,
@@ -53,7 +54,7 @@ class ZanoAliasAddressProvider extends AddressLookupProvider {
 
   static Future<String?> fetchZanoAliasAddress(String alias) async {
     try {
-      final uri = Uri.parse('http://37.27.100.59:10500/json_rpc');
+      final uri = Uri.parse(_zanoUrl);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         body: json.encode({
