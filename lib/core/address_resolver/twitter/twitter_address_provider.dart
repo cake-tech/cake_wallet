@@ -35,7 +35,7 @@ class TwitterAddressProvider extends AddressLookupProvider {
     required List<CryptoCurrency> currencies,
     required WalletBase wallet,
   }) async {
-    final formattedName = query.substring(1); // Remove '@' from the beginning of the handle
+    final formattedName = query.replaceFirst("@", "");
     try {
       final result = <CryptoCurrency, String>{};
 
