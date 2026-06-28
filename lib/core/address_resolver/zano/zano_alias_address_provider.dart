@@ -32,7 +32,7 @@ class ZanoAliasAddressProvider extends AddressLookupProvider {
     try {
       if (!currencies.contains(CryptoCurrency.zano)) return [];
 
-      final formattedName = query.substring(1); // Remove '@' from the beginning of the alias
+      final formattedName = query.replaceFirst("@", "");
       if (formattedName.isEmpty) return [];
 
       final zanoAddress = await fetchZanoAliasAddress(formattedName);
