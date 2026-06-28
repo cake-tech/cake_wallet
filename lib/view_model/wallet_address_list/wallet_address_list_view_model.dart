@@ -614,11 +614,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void setAddress(WalletAddressListItem address) =>
       wallet.walletAddresses.address = address.address;
 
+  @observable
+  bool isRotatingAddress = false;
+
   @action
   Future<void> rotateAddress() async {
-    await createNewAddress(wallet, "");
-    if (isElectrumWallet) {
+    if(isRotatingAddress) {
+      return;
+    }
+    try {
+      isRotatingAddress = true;
+      await createNewAddress(wallet, "");
       wallet.walletAddresses.address = addressList.whereType<WalletAddressListItem>().last.address;
+    } finally {
+      isRotatingAddress = false;
     }
   }
 

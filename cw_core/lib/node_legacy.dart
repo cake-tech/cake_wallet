@@ -16,7 +16,7 @@ import 'package:crypto/crypto.dart';
 import 'cake_hive.dart';
 import 'node.dart' as node_new;
 
-part "node_legacy.g.dart";
+part 'node_legacy.part.dart';
 
 Future<void> performNodeHiveMigration() async {
   if(!CakeHive.isAdapterRegistered(Node.typeId)) {
