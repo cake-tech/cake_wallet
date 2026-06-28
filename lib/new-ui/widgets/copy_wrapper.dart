@@ -11,12 +11,14 @@ class CopyWrapper extends StatefulWidget {
       this.data,
         this.requireLongPress = false,
       this.isSensitive = false,
+      this.onTap,
       required this.builder,
       this.duration = const Duration(milliseconds: 1200)});
 
   final ClipboardData? data;
   final bool isSensitive;
   final bool requireLongPress;
+  final VoidCallback? onTap;
   final Widget Function(BuildContext, bool) builder;
   final Duration duration;
 
@@ -28,6 +30,7 @@ class _CopyWrapperState extends State<CopyWrapper> {
   bool copied = false;
 
   void handleCopy() async {
+    widget.onTap?.call();
     if (widget.data == null) return;
     ClipboardUtil.setSensitiveDataToClipboard(widget.data!, isSensitive: widget.isSensitive);
     HapticFeedback.mediumImpact();

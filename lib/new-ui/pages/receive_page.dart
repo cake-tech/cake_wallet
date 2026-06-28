@@ -271,6 +271,12 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       largeQrMode: _largeQrMode,
                       showAccountsButton: widget.addressListViewModel.hasAddressList,
                       showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
+                      copyData: widget.addressListViewModel.hasPayjoin
+                          ? null
+                          : ClipboardData(
+                              text: widget.addressListViewModel.displayAmount.isEmpty
+                                  ? widget.addressListViewModel.uri.address
+                                  : widget.addressListViewModel.uri.toString()),
                       onCopyButtonPressed: () {
                         if (widget.addressListViewModel.hasPayjoin) {
                           showModalBottomSheet(
@@ -278,13 +284,6 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               context: context,
                               builder: (context) =>
                                   PayjoinCopyModal(uri: widget.addressListViewModel.uri));
-                        } else {
-                          Clipboard.setData(
-                            ClipboardData(
-                                text: widget.addressListViewModel.displayAmount.isEmpty
-                                    ? widget.addressListViewModel.uri.address
-                                    : widget.addressListViewModel.uri.toString()),
-                          );
                         }
                       },
                       onAmountButtonPressed: () {
