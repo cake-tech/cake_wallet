@@ -2110,6 +2110,9 @@ abstract class ElectrumWalletBase
     for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
+      if (inputTransaction == null) {
+        throw Exception("Missing input transaction for fee calculation");
+      }
       final vout = input.txIndex;
       final outTransaction = inputTransaction.outputs[vout];
       allInputsAmount += outTransaction.amount.toInt();
@@ -2138,6 +2141,9 @@ abstract class ElectrumWalletBase
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
+        if (inputTransaction == null) {
+          throw Exception("Missing input transaction for replace-by-fee");
+        }
         final vout = input.txIndex;
         final outTransaction = inputTransaction.outputs[vout];
         final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
@@ -2427,20 +2433,24 @@ abstract class ElectrumWalletBase
     }
 
     final original = BtcTransaction.fromRaw(transactionHex);
-    final ins = <BtcTransaction>[];
+    final ins = <BtcTransaction?>[];
 
     for (final vin in original.inputs) {
-      final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
+      try {
+        final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
 
-      final String inputTransactionHex;
+        final String inputTransactionHex;
 
-      if (verboseTransaction.isEmpty) {
-        inputTransactionHex = await electrumClient.getTransactionHex(hash: hash);
-      } else {
-        inputTransactionHex = verboseTransaction['hex'] as String;
+        if (verboseTransaction.isEmpty) {
+          inputTransactionHex = await electrumClient.getTransactionHex(hash: vin.txId);
+        } else {
+          inputTransactionHex = verboseTransaction['hex'] as String;
+        }
+
+        ins.add(inputTransactionHex.isEmpty ? null : BtcTransaction.fromRaw(inputTransactionHex));
+      } catch (_) {
+        ins.add(null);
       }
-
-      ins.add(BtcTransaction.fromRaw(inputTransactionHex));
     }
 
     return ElectrumTransactionBundle(
@@ -3198,22 +3208,11 @@ abstract class ElectrumWalletBase
         }
       }
 
-      final ins = <BtcTransaction>[];
       final inputTxids = inputTxidsByHash[txid] ?? const <String>[];
 
-      bool allInputsPresent = true;
-      for (final inputTxid in inputTxids) {
-        final inTx = parsedInputTxById[inputTxid];
-        if (inTx == null) {
-          allInputsPresent = false;
-          break;
-        }
-        ins.add(inTx);
-      }
-
-      if (!allInputsPresent || ins.length != original.inputs.length) {
-        continue;
-      }
+      final ins = <BtcTransaction?>[
+        for (final inputTxid in inputTxids) parsedInputTxById[inputTxid],
+      ];
 
       bundles[txid] = ElectrumTransactionBundle(
         original,
@@ -3785,6 +3784,7 @@ abstract class ElectrumWalletBase
       for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
+        if (inputTransaction == null) continue;
         final vout = input.txIndex;
         final outTransaction = inputTransaction.outputs[vout];
         final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
