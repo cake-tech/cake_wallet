@@ -52,25 +52,40 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 16,
               children: [
-                CopyWrapper(
-                  data: widget.copyData,
-                  onTap: widget.onCopyButtonPressed,
-                  builder: (context, copied) => AnimatedSwitcher(
-                    duration: Duration(milliseconds: 200),
-                    child: IgnorePointer(
-                      child: ModernButton.svg(
-                        key: ValueKey(copied),
-                        size: 60,
-                        iconSize: 32,
-                        svgPath: "assets/new-ui/copy.svg",
-                        onPressed: () {},
-                        label: copied ? S.of(context).copied : S.of(context).copy,
-                        iconColor: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer,
-                        backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.primary,
+                () {
+                  final copyWrapper = CopyWrapper(
+                    data: widget.copyData,
+                    builder: (context, copied) => AnimatedSwitcher(
+                      duration: Duration(milliseconds: 200),
+                      child: IgnorePointer(
+                        child: ModernButton.svg(
+                          key: ValueKey(copied),
+                          size: 60,
+                          iconSize: 32,
+                          svgPath: "assets/new-ui/copy.svg",
+                          onPressed: () {},
+                          label: copied ? S.of(context).copied : S.of(context).copy,
+                          iconColor: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer,
+                          backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+
+                  // When there is no copy data (payjoin case), CopyWrapper's
+                  // internal GestureDetector still claims the gesture arena even
+                  // though handleCopy() no-ops on null data. Neutralize it with
+                  // an IgnorePointer so the outer GestureDetector receives the tap
+                  // and opens the payjoin modal instead.
+                  if (widget.copyData == null) {
+                    return GestureDetector(
+                      onTap: widget.onCopyButtonPressed,
+                      child: IgnorePointer(child: copyWrapper),
+                    );
+                  }
+
+                  return copyWrapper;
+                }(),
                 ModernButton.svg(
                     size: 60,
                     iconSize: 32,
