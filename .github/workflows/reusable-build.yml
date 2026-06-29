@@ -146,7 +146,7 @@ jobs:
 
       - name: Lint
         run: |
-          scripts/lint.sh
+          ABORT_ON_CHANGE=yeah scripts/lint.sh
 
       - name: Rename app
         run: |
