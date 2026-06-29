@@ -40,6 +40,9 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.wownero:
       path = 'assets/wownero_node_list.yml';
       break;
+    case WalletType.nerva:
+      path = 'assets/nerva_node_list.yml';
+      break;
     case WalletType.zano:
       path = 'assets/zano_node_list.yml';
       break;
@@ -121,6 +124,7 @@ Future<List<Node>> loadAllDefaultNodes() async {
   final tronNodes = await loadDefaultNodes(WalletType.tron);
   final decredNodes = await loadDefaultNodes(WalletType.decred);
   final zanoNodes = await loadDefaultNodes(WalletType.zano);
+  final nervaNodes = await loadDefaultNodes(WalletType.nerva);
   final dogecoinElectrumServerList = await loadDefaultNodes(WalletType.dogecoin);
   final baseNodes = await loadDefaultNodes(WalletType.base);
   final arbitrumNodes = await loadDefaultNodes(WalletType.arbitrum);
@@ -138,6 +142,7 @@ Future<List<Node>> loadAllDefaultNodes() async {
       solanaNodes +
       tronNodes +
       zanoNodes +
+      nervaNodes +
       decredNodes +
       dogecoinElectrumServerList +
       baseNodes +

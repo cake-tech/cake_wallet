@@ -41,6 +41,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get isAutoGenerateSubaddressesVisible => [
         WalletType.monero,
         WalletType.wownero,
+        WalletType.nerva,
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
@@ -55,6 +56,7 @@ abstract class PrivacySettingsViewModelBase with Store {
         WalletType.litecoin,
         WalletType.monero,
         WalletType.wownero,
+        WalletType.nerva,
         WalletType.decred,
         WalletType.bitcoinCash,
         WalletType.dogecoin

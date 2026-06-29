@@ -17,6 +17,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/nerva/nerva.dart' as nrv;
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
@@ -279,6 +280,36 @@ abstract class DashboardViewModelBase with Store {
           ),
         ),
       );
+    } else if (_wallet.type == WalletType.nerva) {
+      subname = nrv.nerva!.getCurrentAccount(_wallet).label;
+
+      _onMoneroAccountChangeReaction = reaction(
+          (_) => nrv.nerva!.getNervaWalletDetails(wallet).account,
+          (nrv.Account account) => _onMoneroAccountChange(_wallet));
+
+      _onMoneroBalanceChangeReaction = reaction(
+          (_) => nrv.nerva!.getNervaWalletDetails(wallet).balance,
+          (nrv.NervaBalance balance) => _onMoneroTransactionsUpdate(_wallet));
+
+      final _accountTransactions = _wallet.transactionHistory.transactions.values
+          .where((tx) =>
+              nrv.nerva!.getTransactionInfoAccountId(tx) ==
+              nrv.nerva!.getCurrentAccount(wallet).id)
+          .toList();
+
+      final sortedTransactions = [..._accountTransactions];
+      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            appStore: appStore,
+            key: ValueKey('nerva_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
@@ -356,7 +387,9 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _reloadTransactions() {
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero) {
+    if (wallet.type == WalletType.monero ||
+        wallet.type == WalletType.wownero ||
+        wallet.type == WalletType.nerva) {
       return; // Monero/Wownero transactions are handled separately
     }
 
@@ -379,6 +412,7 @@ abstract class DashboardViewModelBase with Store {
     if ([
       WalletType.monero,
       WalletType.wownero,
+      WalletType.nerva,
       WalletType.decred,
       WalletType.zcash,
       WalletType.zano
@@ -415,6 +449,8 @@ abstract class DashboardViewModelBase with Store {
       numAccounts = monero!.getAccountList(wallet).accounts.length;
     } else if (wallet.type == WalletType.wownero) {
       numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.nerva) {
+      numAccounts = nrv.nerva!.getAccountList(wallet).accounts.length;
     } else if (wallet.type == WalletType.bitcoin) {
       // bitcoin and lightning
       numAccounts = 2;
@@ -477,7 +513,9 @@ abstract class DashboardViewModelBase with Store {
           ? monero!.getCurrentAccount(wallet).id
           : wallet.type == WalletType.wownero
               ? wow.wownero!.getCurrentAccount(wallet).id
-              : null;
+              : wallet.type == WalletType.nerva
+                  ? nrv.nerva!.getCurrentAccount(wallet).id
+                  : null;
       final List<TransactionInfo> relevantTxs = [];
 
       for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
@@ -486,6 +524,8 @@ abstract class DashboardViewModelBase with Store {
           isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
         } else if (wallet.type == WalletType.wownero) {
           isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
+        } else if (wallet.type == WalletType.nerva) {
+          isRelevant = nrv.nerva!.getTransactionInfoAccountId(tx) == currentAccountId;
         }
 
         if (isRelevant) {
@@ -759,6 +799,17 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type != WalletType.wownero) return null;
     try {
       wow.wownero!.wownerocCheck();
+    } catch (e) {
+      return e.toString();
+    }
+    return null;
+  }
+
+  @computed
+  String? get getNervaError {
+    if (wallet.type != WalletType.nerva) return null;
+    try {
+      nrv.nerva!.nervacCheck();
     } catch (e) {
       return e.toString();
     }
@@ -1183,6 +1234,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.banano:
       case WalletType.tron:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.decred:
       case WalletType.dogecoin:
         return true;
@@ -1265,6 +1317,21 @@ abstract class DashboardViewModelBase with Store {
           (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
+    } else if (wallet.type == WalletType.nerva) {
+      subname = nrv.nerva!.getCurrentAccount(wallet).label;
+
+      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onMoneroBalanceChangeReaction?.reaction.dispose();
+
+      _onMoneroAccountChangeReaction = reaction(
+          (_) => nrv.nerva!.getNervaWalletDetails(wallet).account,
+          (nrv.Account account) => _onMoneroAccountChange(wallet));
+
+      _onMoneroBalanceChangeReaction = reaction(
+          (_) => nrv.nerva!.getNervaWalletDetails(wallet).balance,
+          (nrv.NervaBalance balance) => _onMoneroTransactionsUpdate(wallet));
+
+      _onMoneroTransactionsUpdate(wallet);
     } else {
       // FIX-ME: Check for side effects
       // subname = null;
@@ -1317,6 +1384,8 @@ abstract class DashboardViewModelBase with Store {
       subname = monero!.getCurrentAccount(wallet).label;
     } else if (wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(wallet).label;
+    } else if (wallet.type == WalletType.nerva) {
+      subname = nrv.nerva!.getCurrentAccount(wallet).label;
     }
     _onMoneroTransactionsUpdate(wallet);
   }
@@ -1360,6 +1429,26 @@ abstract class DashboardViewModelBase with Store {
             balanceViewModel: balanceViewModel,
             appStore: appStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
+    } else if (wallet.type == WalletType.nerva) {
+      final _accountTransactions = nrv.nerva!
+          .getTransactionHistory(wallet)
+          .transactions
+          .values
+          .where((tx) =>
+              nrv.nerva!.getTransactionInfoAccountId(tx) ==
+              nrv.nerva!.getCurrentAccount(wallet).id)
+          .toList();
+
+      transactions.addAll(
+        _accountTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            appStore: appStore,
+            key: ValueKey('nerva_transaction_history_item_${transaction.id}_key'),
           ),
         ),
       );

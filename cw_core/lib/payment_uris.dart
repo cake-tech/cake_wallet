@@ -238,6 +238,21 @@ class WowneroURI extends PaymentURI {
   }
 }
 
+class NervaURI extends PaymentURI {
+  NervaURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'nerva:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class ZanoURI extends PaymentURI {
   ZanoURI({required String amount, required String address})
       : super(amount: amount, address: address);

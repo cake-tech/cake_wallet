@@ -71,6 +71,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.none:
       case WalletType.haven:
       case WalletType.zano:
@@ -82,6 +83,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get isMoneroSeedTypeOptionsEnabled => [
         WalletType.monero,
         WalletType.wownero,
+        WalletType.nerva,
       ].contains(type);
 
   bool get isBitcoinSeedTypeOptionsEnabled => [
@@ -104,6 +106,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.solana,
         WalletType.monero,
         WalletType.wownero,
+        WalletType.nerva,
         WalletType.zano,
         WalletType.dogecoin,
         WalletType.zcash,

@@ -10,6 +10,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
@@ -146,6 +147,9 @@ abstract class OutputBase with Store {
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
+          case WalletType.nerva:
+            _amount = nerva!.formatterNervaParseAmount(amount: _cryptoAmount);
+            break;
           case WalletType.zano:
             _amount = zano!
                 .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
@@ -195,6 +199,7 @@ abstract class OutputBase with Store {
       switch (_wallet.type) {
         case WalletType.monero:
         case WalletType.wownero:
+        case WalletType.nerva:
         case WalletType.litecoin:
         case WalletType.bitcoinCash:
         case WalletType.dogecoin:

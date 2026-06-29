@@ -262,6 +262,7 @@ flutter:
     - assets/solana_node_list.yml
     - assets/tron_node_list.yml
     - assets/wownero_node_list.yml
+    - assets/nerva_node_list.yml
     - assets/zano_node_list.yml
     - assets/decred_node_list.yml
     - assets/dogecoin_electrum_server_list.yml

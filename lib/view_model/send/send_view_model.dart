@@ -35,6 +35,7 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -349,6 +350,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.decred:
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
@@ -396,6 +398,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.litecoin,
         WalletType.monero,
         WalletType.wownero,
+        WalletType.nerva,
         WalletType.decred,
         WalletType.bitcoinCash,
         WalletType.dogecoin
@@ -1253,6 +1256,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.wownero:
         return wownero!
             .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+
+      case WalletType.nerva:
+        return nerva!
+            .createNervaTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.ethereum:
       case WalletType.polygon:

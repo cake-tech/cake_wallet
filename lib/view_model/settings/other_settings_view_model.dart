@@ -72,6 +72,7 @@ abstract class OtherSettingsViewModelBase with Store {
   bool get isAutoGenerateSubaddressesVisible => [
     WalletType.monero,
     WalletType.wownero,
+    WalletType.nerva,
     WalletType.bitcoin,
     WalletType.litecoin,
     WalletType.bitcoinCash,

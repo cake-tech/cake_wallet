@@ -1,0 +1,61 @@
+import 'package:cw_nerva/api/structs/pending_transaction.dart';
+import 'package:cw_nerva/api/transaction_history.dart'
+    as nerva_transaction_history;
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/amount_converter.dart';
+
+import 'package:cw_core/pending_transaction.dart';
+
+class DoubleSpendException implements Exception {
+  DoubleSpendException();
+
+  @override
+  String toString() =>
+      'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough XNV in your available balance, or previous transactions are not yet fully processed.';
+}
+
+class PendingNervaTransaction with PendingTransaction {
+  PendingNervaTransaction(this.pendingTransactionDescription);
+
+  final PendingTransactionDescription pendingTransactionDescription;
+
+  @override
+  String get id => pendingTransactionDescription.hash;
+
+  @override
+  String get hex => pendingTransactionDescription.hex;
+
+  String get txKey => pendingTransactionDescription.txKey;
+
+  @override
+  String get amountFormatted =>
+      AmountConverter.amountIntToString(CryptoCurrency.xnv, pendingTransactionDescription.amount);
+
+  @override
+  String get feeFormatted => "$feeFormattedValue XNV";
+
+  @override
+  String get feeFormattedValue =>
+      AmountConverter.amountIntToString(CryptoCurrency.xnv, pendingTransactionDescription.fee);
+
+  @override
+  Future<void> commit() async {
+    try {
+      nerva_transaction_history.commitTransactionFromPointerAddress(
+          address: pendingTransactionDescription.pointerAddress);
+    } catch (e) {
+      final message = e.toString();
+
+      if (message.contains('Reason: double spend')) {
+        throw DoubleSpendException();
+      }
+
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<Map<String, String>> commitUR() {
+    throw UnimplementedError();
+  }
+}

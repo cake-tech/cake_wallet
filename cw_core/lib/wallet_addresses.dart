@@ -24,7 +24,7 @@ abstract class WalletAddresses {
   String get address;
 
   String get latestAddress {
-    if ([WalletType.monero, WalletType.wownero].contains(walletInfo.type)) {
+    if ([WalletType.monero, WalletType.wownero, WalletType.nerva].contains(walletInfo.type)) {
       if (addressesMap.keys.isEmpty) return address;
       return addressesMap[addressesMap.keys.last] ?? address;
     }

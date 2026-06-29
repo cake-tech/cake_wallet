@@ -282,6 +282,7 @@ class Node {
       case WalletType.zcash:
       case WalletType.haven:
       case WalletType.wownero:
+      case WalletType.nerva:
         return Uri.http(uriRaw, '');
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -344,6 +345,7 @@ class Node {
         case WalletType.monero:
         case WalletType.haven:
         case WalletType.wownero:
+        case WalletType.nerva:
           return requestMoneroNode();
         case WalletType.nano:
         case WalletType.banano:

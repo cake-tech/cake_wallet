@@ -1,0 +1,5 @@
+-
+  uri: node.nerva.one:17566
+  isDefault: true
+  useSSL: false
+  isEnabledForAutoSwitching: true

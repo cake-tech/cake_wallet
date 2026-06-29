@@ -12,6 +12,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -44,13 +45,13 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector =>
-      [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.nerva].contains(type);
 
   bool get showLanguageSelector => newWalletArguments?.mnemonic == null && hasLanguageSelector;
 
   bool get hasSeedType =>
       newWalletArguments?.mnemonic == null &&
-      [WalletType.monero, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.wownero, WalletType.nerva].contains(type);
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
@@ -131,6 +132,13 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           language: options!.first as String,
           isPolyseed: (options.last as MoneroSeedType).raw == 1,
+          password: walletPassword,
+          passphrase: passphrase,
+        );
+      case WalletType.nerva:
+        return nerva!.createNervaNewWalletCredentials(
+          name: name,
+          language: options!.first as String,
           password: walletPassword,
           passphrase: passphrase,
         );

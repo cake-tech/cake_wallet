@@ -20,7 +20,7 @@ git checkout 5952bef2ec01b0b7e57c11613cbdc081dcd727c5
 git reset --hard
 git submodule update --init --force --recursive
 
-for coin in monero wownero zano;
+for coin in monero wownero zano nerva;
 do
     if [[ ! -f "$coin/.patch-applied" ]];
     then

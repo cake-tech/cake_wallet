@@ -25,6 +25,7 @@ jobs:
             "cw_solana"
             "cw_tron"
             "cw_wownero"
+            "cw_nerva"
             "cw_zano"
           )
           

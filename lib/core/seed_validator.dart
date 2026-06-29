@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -50,6 +51,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return tron!.getTronWordList(language);
       case WalletType.wownero:
           return wownero!.getWowneroWordList(language);
+      case WalletType.nerva:
+          return nerva!.getNervaWordList(language);
       case WalletType.zano:
         return zano!.getWordList(language);
       case WalletType.decred:

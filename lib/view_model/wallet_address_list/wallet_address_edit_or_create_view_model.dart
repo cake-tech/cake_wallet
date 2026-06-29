@@ -1,5 +1,6 @@
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -108,6 +109,19 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       wallet.walletAddresses.manualAddresses.add(addr);
       await wallet.save();
     }
+
+    if (wallet.type == WalletType.nerva) {
+      await nerva!
+          .getSubaddressList(wallet)
+          .addSubaddress(wallet, accountIndex: nerva!.getCurrentAccount(wallet).id, label: label);
+      final addr = await nerva!
+          .getSubaddressList(wallet)
+          .subaddresses
+          .first
+          .address; // first because the order is reversed
+      wallet.walletAddresses.manualAddresses.add(addr);
+      await wallet.save();
+    }
   }
 
   Future<void> _update() async {
@@ -131,6 +145,11 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       if (wallet.type == WalletType.wownero) {
         await wownero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
             accountIndex: wownero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
+        await wallet.save();
+      }
+      if (wallet.type == WalletType.nerva) {
+        await nerva!.getSubaddressList(wallet).setLabelSubaddress(wallet,
+            accountIndex: nerva!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
         await wallet.save();
       }
     }

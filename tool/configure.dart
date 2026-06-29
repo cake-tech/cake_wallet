@@ -7,6 +7,7 @@ const nanoOutputPath = 'lib/nano/nano.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
 const tronOutputPath = 'lib/tron/tron.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
+const nervaOutputPath = 'lib/nerva/nerva.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
@@ -29,6 +30,7 @@ Future<void> main(List<String> args) async {
   final hasSolana = args.contains('${prefix}solana');
   final hasTron = args.contains('${prefix}tron');
   final hasWownero = args.contains('${prefix}wownero');
+  final hasNerva = args.contains('${prefix}nerva');
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
@@ -46,6 +48,7 @@ Future<void> main(List<String> args) async {
   await generateSolana(hasSolana);
   await generateTron(hasTron);
   await generateWownero(hasWownero);
+  await generateNerva(hasNerva);
   await generateZano(hasZano);
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
@@ -65,6 +68,7 @@ Future<void> main(List<String> args) async {
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
+    hasNerva: hasNerva,
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
@@ -84,6 +88,7 @@ Future<void> main(List<String> args) async {
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
+    hasNerva: hasNerva,
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
@@ -718,6 +723,199 @@ abstract class WowneroAccountList {
       (hasImplementation ? wowneroCWDefinition : wowneroEmptyDefinition) +
       '\n' +
       wowneroContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generateNerva(bool hasImplementation) async {
+  final outputFile = File(nervaOutputPath);
+  const nervaCommonHeaders = """
+import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';""";
+  const nervaCWHeaders = """
+import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/nerva_amount_format.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_nerva/nerva_unspent.dart';
+import 'package:cw_nerva/nerva_wallet_service.dart';
+import 'package:cw_nerva/nerva_wallet.dart';
+import 'package:cw_nerva/nerva_transaction_info.dart';
+import 'package:cw_nerva/nerva_transaction_creation_credentials.dart';
+import 'package:cw_core/account.dart' as nerva_account;
+import 'package:cw_nerva/api/wallet.dart' as nerva_wallet_api;
+import 'package:cw_nerva/api/wallet_manager.dart';
+import 'package:cw_nerva/mnemonics/english.dart';
+import 'package:cw_nerva/mnemonics/chinese_simplified.dart';
+import 'package:cw_nerva/mnemonics/dutch.dart';
+import 'package:cw_nerva/mnemonics/german.dart';
+import 'package:cw_nerva/mnemonics/japanese.dart';
+import 'package:cw_nerva/mnemonics/russian.dart';
+import 'package:cw_nerva/mnemonics/spanish.dart';
+import 'package:cw_nerva/mnemonics/portuguese.dart';
+import 'package:cw_nerva/mnemonics/french.dart';
+import 'package:cw_nerva/mnemonics/italian.dart';
+import 'package:cw_nerva/pending_nerva_transaction.dart';
+""";
+  const nervaCwPart = "part 'cw_nerva.dart';";
+  const nervaContent = """
+class Account {
+  Account({required this.id, required this.label, this.balance});
+  final int id;
+  final String label;
+  final String? balance;
+}
+
+class Subaddress {
+  Subaddress({
+    required this.id,
+    required this.label,
+    required this.address});
+  final int id;
+  final String label;
+  final String address;
+}
+
+class NervaBalance extends Balance {
+  NervaBalance({required this.fullBalance, required this.unlockedBalance})
+      : formattedFullBalance = nerva!.formatterNervaAmountToString(amount: fullBalance),
+        formattedUnlockedBalance =
+            nerva!.formatterNervaAmountToString(amount: unlockedBalance),
+        super.fromInt(unlockedBalance, fullBalance);
+
+  NervaBalance.fromString(
+      {required this.formattedFullBalance,
+      required this.formattedUnlockedBalance})
+      : fullBalance = nerva!.formatterNervaParseAmount(amount: formattedFullBalance),
+        unlockedBalance = nerva!.formatterNervaParseAmount(amount: formattedUnlockedBalance),
+        super.fromInt(nerva!.formatterNervaParseAmount(amount: formattedUnlockedBalance),
+            nerva!.formatterNervaParseAmount(amount: formattedFullBalance));
+
+  final int fullBalance;
+  final int unlockedBalance;
+  final String formattedFullBalance;
+  final String formattedUnlockedBalance;
+
+  @override
+  String get formattedAvailableBalance => formattedUnlockedBalance;
+
+  @override
+  String get formattedAdditionalBalance => formattedFullBalance;
+}
+
+abstract class NervaWalletDetails {
+  @observable
+  late Account account;
+
+  @observable
+  late NervaBalance balance;
+}
+
+abstract class Nerva {
+  NervaAccountList getAccountList(Object wallet);
+
+  NervaSubaddressList getSubaddressList(Object wallet);
+
+  TransactionHistoryBase getTransactionHistory(Object wallet);
+
+  NervaWalletDetails getNervaWalletDetails(Object wallet);
+
+  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
+
+  String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
+
+  int getHeightByDate({required DateTime date});
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getNervaTransactionPrioritySlow();
+  TransactionPriority getNervaTransactionPriorityAutomatic();
+  TransactionPriority deserializeNervaTransactionPriority({required int raw});
+  List<TransactionPriority> getTransactionPriorities();
+  List<String> getNervaWordList(String language);
+
+  List<Unspent> getUnspents(Object wallet);
+  Future<void> updateUnspents(Object wallet);
+
+  Future<int> getCurrentHeight();
+  void nervacCheck();
+
+  WalletCredentials createNervaRestoreWalletFromKeysCredentials({
+    required String name,
+    required String spendKey,
+    required String viewKey,
+    required String address,
+    required String password,
+    required String language,
+    required int height});
+  WalletCredentials createNervaRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
+  WalletCredentials createNervaNewWalletCredentials({required String name, required String language, String? password, String? passphrase});
+  int? getRestoreHeight(Object wallet);
+  Map<String, String> getKeys(Object wallet);
+  Object createNervaTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
+  Object createNervaTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
+  String formatterNervaAmountToString({required int amount});
+  double formatterNervaAmountToDouble({required int amount});
+  int formatterNervaParseAmount({required String amount});
+  Account getCurrentAccount(Object wallet);
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+  void onStartup();
+  int getTransactionInfoAccountId(TransactionInfo tx);
+  WalletService createNervaWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
+  Map<String, String> pendingTransactionInfo(Object transaction);
+  String getLegacySeed(Object wallet, String langName);
+  Map<String, List<int>> debugCallLength();
+  Future<void> backupSeeds(Box<HavenSeedStore> havenSeedStore);
+}
+
+abstract class NervaSubaddressList {
+  ObservableList<Subaddress> get subaddresses;
+  void update(Object wallet, {required int accountIndex});
+  void refresh(Object wallet, {required int accountIndex});
+  List<Subaddress> getAll(Object wallet);
+  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
+  Future<void> setLabelSubaddress(Object wallet,
+      {required int accountIndex, required int addressIndex, required String label});
+}
+
+abstract class NervaAccountList {
+  ObservableList<Account> get accounts;
+  void update(Object wallet);
+  void refresh(Object wallet);
+  List<Account> getAll(Object wallet);
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+}
+  """;
+
+  const nervaEmptyDefinition = 'Nerva? nerva;\n';
+  const nervaCWDefinition = 'Nerva? nerva = CWNerva();\n';
+
+  final output = '$nervaCommonHeaders\n' +
+      (hasImplementation ? '$nervaCWHeaders\n' : '\n') +
+      (hasImplementation ? '$nervaCwPart\n\n' : '\n') +
+      (hasImplementation ? nervaCWDefinition : nervaEmptyDefinition) +
+      '\n' +
+      nervaContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -1844,6 +2042,7 @@ Future<void> generatePubspec({
   required bool hasSolana,
   required bool hasTron,
   required bool hasWownero,
+  required bool hasNerva,
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
@@ -1898,6 +2097,10 @@ Future<void> generatePubspec({
   const cwWownero = """
   cw_wownero:
     path: ./cw_wownero
+    """;
+  const cwNerva = """
+  cw_nerva:
+    path: ./cw_nerva
     """;
   const cwZano = """
   cw_zano:
@@ -1969,6 +2172,10 @@ Future<void> generatePubspec({
     output += '\n$cwWownero';
   }
 
+  if (hasNerva) {
+    output += '\n$cwNerva';
+  }
+
   if (hasZano) {
     output += '\n$cwZano';
   }
@@ -2004,6 +2211,7 @@ Future<void> generateWalletTypes({
   required bool hasSolana,
   required bool hasTron,
   required bool hasWownero,
+  required bool hasNerva,
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
@@ -2093,6 +2301,10 @@ Future<void> generateWalletTypes({
   // if (hasWownero) {
   //   outputContent += '\tWalletType.wownero,\n';
   // }
+
+  if (hasNerva) {
+    outputContent += '\tWalletType.nerva,\n';
+  }
 
   outputContent += '];\n';
   await walletTypesFile.writeAsString(outputContent);

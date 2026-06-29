@@ -165,7 +165,7 @@ class OtherSettingsPage extends BasePage {
                 keyValue: "[dev] monero background sync",
                 label: "[dev] monero background sync",
                 onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync)),
-          if ([WalletType.monero, WalletType.wownero, WalletType.zano]
+          if ([WalletType.monero, WalletType.wownero, WalletType.nerva, WalletType.zano]
                   .contains(_otherSettingsViewModel.walletType))
             ListItemRegularRow(
                 keyValue: "[dev] xmr call profiler",

@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -92,6 +93,8 @@ class TransactionListItem extends ActionListItem with Keyable {
         return 10;
       case WalletType.wownero:
         return 3;
+      case WalletType.nerva:
+        return 3;
       case WalletType.litecoin:
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
         bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
@@ -113,6 +116,11 @@ class TransactionListItem extends ActionListItem with Keyable {
         }
         break;
       case WalletType.wownero:
+        if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
+          return ' (${transaction.confirmations}/3)';
+        }
+        break;
+      case WalletType.nerva:
         if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
           return ' (${transaction.confirmations}/3)';
         }
@@ -149,6 +157,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.monero,
       WalletType.haven,
       WalletType.wownero,
+      WalletType.nerva,
       WalletType.litecoin,
       WalletType.zano,
     ].contains(balanceViewModel.wallet.type)) {
@@ -201,6 +210,12 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.wownero:
         amount = calculateFiatAmountRaw(
           cryptoAmount: wownero!.formatterWowneroAmountToDouble(amount: transaction.amount),
+          price: price,
+        ).withLocalSeperator(_appStore.settingsStore.languageCode);
+        break;
+      case WalletType.nerva:
+        amount = calculateFiatAmountRaw(
+          cryptoAmount: nerva!.formatterNervaAmountToDouble(amount: transaction.amount),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;

@@ -19,6 +19,7 @@ bool isBIP39Wallet(WalletType walletType) {
     case WalletType.zcash:
       return true;
     case WalletType.wownero:
+    case WalletType.nerva:
     case WalletType.haven:
     case WalletType.zano:
     case WalletType.decred:

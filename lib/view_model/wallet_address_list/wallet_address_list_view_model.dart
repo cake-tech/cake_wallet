@@ -12,6 +12,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nerva/nerva.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -50,7 +51,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
         selectedCurrency = appStore.wallet!.currency,
-        hasAccounts = [WalletType.monero, WalletType.wownero].contains(appStore.wallet!.type),
+        hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.nerva].contains(appStore.wallet!.type),
         _appStore = appStore,
         receivePageOption = appStore.wallet!.walletAddresses.walletInfo.addressPageType ?? '',
         super(appStore: appStore) {
@@ -65,7 +66,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = wallet.currency;
-    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven].contains(wallet.type);
+    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.nerva, WalletType.haven].contains(wallet.type);
   }
 
   final FiatConversionStore fiatConversionStore;
@@ -263,6 +264,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.addAll(addressItems);
     }
 
+    if (wallet.type == WalletType.nerva) {
+      final primaryAddress = nerva!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = nerva!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.label,
+            address: subaddress.address);
+      });
+      addressList.addAll(addressItems);
+    }
+
     if (isElectrumWallet) {
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
@@ -435,6 +450,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wownero!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
+    } else if (wallet.type == WalletType.nerva) {
+      nerva!
+          .getSubaddressList(wallet)
+          .update(wallet, accountIndex: nerva!.getCurrentAccount(wallet).id);
     }
   }
 
@@ -448,6 +467,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return monero!.getCurrentAccount(wallet).label;
       case WalletType.wownero:
         wownero!.getCurrentAccount(wallet).label;
+      case WalletType.nerva:
+        nerva!.getCurrentAccount(wallet).label;
       default:
         return '';
     }
@@ -464,6 +485,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get hasAddressList => [
         WalletType.monero,
         WalletType.wownero,
+        WalletType.nerva,
         WalletType.haven,
         WalletType.bitcoinCash,
         WalletType.bitcoin,
@@ -569,7 +591,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get isBalanceAvailable => isElectrumWallet;
 
   @computed
-  bool get isReceivedAvailable => [WalletType.monero, WalletType.wownero].contains(wallet.type);
+  bool get isReceivedAvailable => [WalletType.monero, WalletType.wownero, WalletType.nerva].contains(wallet.type);
 
   @computed
   bool get isSilentPayments =>
@@ -604,7 +626,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get showAddManualAddresses =>
       !isAutoGenerateSubaddressEnabled ||
-      [WalletType.monero, WalletType.wownero].contains(wallet.type);
+      [WalletType.monero, WalletType.wownero, WalletType.nerva].contains(wallet.type);
 
   List<ListItem> _baseItems;
 
@@ -652,6 +674,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if ([
       WalletType.monero,
       WalletType.wownero,
+      WalletType.nerva,
       WalletType.haven,
     ].contains(wallet.type)) {
       _baseItems.add(WalletAccountListHeader());

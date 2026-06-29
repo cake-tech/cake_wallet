@@ -449,6 +449,10 @@ abstract class ExchangeTradeViewModelBase with Store {
         return MoneroURI(
             address: inputAddress,
             amount: amount);
+      case WalletType.nerva:
+        return MoneroURI(
+            address: inputAddress,
+            amount: amount);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: inputAddress);
       case WalletType.nano:

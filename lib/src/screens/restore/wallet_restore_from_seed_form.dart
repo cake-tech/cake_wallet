@@ -121,7 +121,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   void onSeedChange(String seed) {
-    if ([WalletType.monero, WalletType.wownero].contains(widget.type) &&
+    if ([WalletType.monero, WalletType.wownero, WalletType.nerva].contains(widget.type) &&
         (seed.split(" ").length == 12 || Polyseed.isValidSeed(seed))) {
       try {
         final lang = PolyseedLang.getByPhrase(seed);
@@ -194,7 +194,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             seedTextFieldKey: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
             pasteButtonKey: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
           ),
-          if ([WalletType.monero, WalletType.wownero].contains(widget.type))
+          if ([WalletType.monero, WalletType.wownero, WalletType.nerva].contains(widget.type))
             GestureDetector(
               key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
@@ -286,7 +286,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 'wallet_restore_from_seed_blockheight_textfield_key',
               ),
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              hasDatePicker: [WalletType.monero, WalletType.wownero, WalletType.zcash].contains(
+              hasDatePicker:
+                  [WalletType.monero, WalletType.wownero, WalletType.nerva, WalletType.zcash]
+                      .contains(
                 widget.type,
               ),
               walletType: widget.type,
@@ -298,7 +300,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   bool get isPolyseed =>
       widget.seedSettingsViewModel.moneroSeedType == MoneroSeedType.polyseed &&
-      [WalletType.monero, WalletType.wownero].contains(widget.type);
+      [WalletType.monero, WalletType.wownero, WalletType.nerva].contains(widget.type);
 
   bool get isBip39 =>
       widget.seedSettingsViewModel.moneroSeedType == MoneroSeedType.bip39 &&
@@ -348,6 +350,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         return [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.bip39];
       case WalletType.wownero:
         return [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.wowneroSeed];
+      case WalletType.nerva:
+        return [MoneroSeedType.legacy];
       default:
         return [MoneroSeedType.legacy];
     }

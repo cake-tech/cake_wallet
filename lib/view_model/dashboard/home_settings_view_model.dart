@@ -238,6 +238,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.bitcoinCash:
       case WalletType.decred:
       case WalletType.dogecoin:
@@ -279,6 +280,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.bitcoinCash:
       case WalletType.decred:
       case WalletType.dogecoin:

@@ -15,7 +15,7 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero zano;
+for COIN in monero wownero zano nerva;
 do
     pushd ../monero_c
         ./build_single.sh ${COIN} aarch64-apple-ios -j$MAKE_JOB_COUNT

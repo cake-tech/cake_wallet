@@ -85,6 +85,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.haven:
       case WalletType.zano:
         return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
@@ -188,6 +189,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.wownero:
+      case WalletType.nerva:
       case WalletType.zano:
         _settingsStore.setPriority(wallet.type, monero!.getMoneroTransactionPriorityAutomatic());
         break;

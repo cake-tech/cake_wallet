@@ -23,6 +23,7 @@ const Map<WalletType, String> nodePreferenceKeys = {
   WalletType.solana: PreferencesKey.currentSolanaNodeIdKey,
   WalletType.tron: PreferencesKey.currentTronNodeIdKey,
   WalletType.wownero: PreferencesKey.currentWowneroNodeIdKey,
+  WalletType.nerva: PreferencesKey.currentNervaNodeIdKey,
   WalletType.zano: PreferencesKey.currentZanoNodeIdKey,
   WalletType.zcash: PreferencesKey.currentZcashNodeIdKey,
 };

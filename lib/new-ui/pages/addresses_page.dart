@@ -119,7 +119,8 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                           spacing: 16,
                           children: [
                             if (widget.dashboardViewModel.type == WalletType.monero ||
-                                widget.dashboardViewModel.type == WalletType.wownero)
+                                widget.dashboardViewModel.type == WalletType.wownero ||
+                                widget.dashboardViewModel.type == WalletType.nerva)
                               Observer(
                                   builder: (_) => AccountPreviewHeader(
                                         dashboardViewModel: widget.dashboardViewModel,
