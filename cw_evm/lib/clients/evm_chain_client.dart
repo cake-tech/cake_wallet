@@ -144,7 +144,8 @@ class EVMChainClient {
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
+      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0 &&
+          jsonResponse['result'] is List) {
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
         return (jsonResponse['result'] as List)
