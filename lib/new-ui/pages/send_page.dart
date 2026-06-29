@@ -458,9 +458,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                         onSwitchButtonPressed: () {
                                           setState(() {
                                             if(!_fiatInputMode) {
+                                              final canonicalAmount = widget.sendViewModel.amountParsingProxy
+                                                  .getCanonicalCryptoAmount(
+                                                      _amountControllers[_selectedOutput].text.replaceAll(",", "."),
+                                                      widget.sendViewModel.selectedCryptoCurrency);
                                               widget.sendViewModel.outputs[_selectedOutput]
-                                                      .cryptoAmount =
-                                                  _amountControllers[_selectedOutput].text;
+                                                      .setCryptoAmount(canonicalAmount);
                                             }
                                             _fiatInputMode = !_fiatInputMode;
                                             _amountControllers[_selectedOutput].text =

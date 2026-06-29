@@ -278,6 +278,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Validator<String> amountValidator(Output output) => AmountValidator(
         currency: wallet.currency,
         amountParsingProxy: _appStore.amountParsingProxy,
+        useSatoshi: output.useSatoshi,
         minValue: isSendToSilentPayments(output)
             ?
             //  TODO: get from server

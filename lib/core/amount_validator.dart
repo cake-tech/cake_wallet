@@ -11,10 +11,14 @@ class AmountValidator extends TextValidator {
     bool isAutovalidate = false,
     String? minValue,
     String? maxValue,
+    this.useSatoshi = false,
   }) {
     symbolsAmountValidator =
         SymbolsAmountValidator(isAutovalidate: isAutovalidate);
-    decimalAmountValidator = DecimalAmountValidator(currency: currency,isAutovalidate: isAutovalidate);
+    decimalAmountValidator = DecimalAmountValidator(
+        currency: currency,
+        isAutovalidate: isAutovalidate,
+        useSatoshi: useSatoshi);
 
     amountMinValidator = AmountMinValidator(
       minValue: minValue,
@@ -38,6 +42,8 @@ class AmountValidator extends TextValidator {
   late final SymbolsAmountValidator symbolsAmountValidator;
 
   late final DecimalAmountValidator decimalAmountValidator;
+
+  final bool useSatoshi;
 
   String? call(String? value) {
     if (value == null || value.isEmpty) {
@@ -69,17 +75,27 @@ class SymbolsAmountValidator extends TextValidator {
 }
 
 class DecimalAmountValidator extends TextValidator {
-  DecimalAmountValidator({required Currency currency, required bool isAutovalidate})
+  DecimalAmountValidator(
+      {required Currency currency,
+      required bool isAutovalidate,
+      this.useSatoshi = false})
       : super(
           errorMessage: S.current.decimal_places_error,
-          pattern: _pattern(currency),
+          pattern: _pattern(currency, useSatoshi),
           isAutovalidate: isAutovalidate,
           minLength: 0,
           maxLength: 0,
         );
 
-  static String _pattern(Currency currency) =>
-      '^([0-9]+([.\,][0-9]{1,${currency.decimals}})?|[.\,][0-9]{1,${currency.decimals}})\$';
+  final bool useSatoshi;
+
+  static String _pattern(Currency currency, bool useSatoshi) {
+    if (useSatoshi) {
+      return r'^\d+$';
+    }
+    final decimals = currency.decimals;
+    return '^([0-9]+([.\,][0-9]{1,$decimals})?|[.\,][0-9]{1,$decimals})\$';
+  }
 }
 
 class AllAmountValidator extends TextValidator {
