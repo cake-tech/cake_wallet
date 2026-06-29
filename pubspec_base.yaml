@@ -186,7 +186,6 @@ dev_dependencies:
   msix: ^3.16.9
 
 dependency_overrides:
-  rxdart: 0.28.0
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
