@@ -144,6 +144,10 @@ jobs:
         run: |
           ./compile_graphics.sh
 
+      - name: Lint
+        run: |
+          scripts/lint.sh
+
       - name: Rename app
         run: |
           sanitized_branch_name=${BRANCH_NAME#origin/}  # Remove 'origin/' prefix if it exists
