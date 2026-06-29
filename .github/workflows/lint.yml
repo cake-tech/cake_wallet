@@ -73,12 +73,6 @@ jobs:
           pushd scripts
             ./build_bitbox_flutter.sh
           popd
-      - name: Build Zcash Lib
-        run: |
-          set -x -e
-          pushd scripts/android
-            ./build_zcash.sh
-          popd
 
       - name: Execute Build and Setup Commands
         run: |
