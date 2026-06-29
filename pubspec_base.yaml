@@ -25,8 +25,8 @@ dependencies:
       url: https://github.com/cake-tech/modal_bottom_sheet
       ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
       path: modal_bottom_sheet
-  mobx: ^2.1.4
-  flutter_mobx: 2.0.6+5
+  mobx: ^2.6.0
+  flutter_mobx: 2.3.0
   flutter_slidable: ^3.0.1
   share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
@@ -82,7 +82,7 @@ dependencies:
   device_info_plus: ^9.1.0
   base32: 2.1.3
   in_app_review: ^2.0.6
-  image_picker: ^1.1.2
+  image_picker: ^1.2.2
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
@@ -171,11 +171,10 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.4
-  build_runner: ^2.4.15
+  build_runner: ^2.15.0
   logging: ^1.2.0
-  mobx_codegen: ^2.1.1
-  build_resolvers: ^2.4.4
-  hive_generator: ^2.0.1
+  mobx_codegen: ^2.7.7
+#  hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0

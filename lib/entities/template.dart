@@ -1,9 +1,9 @@
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'template.g.dart';
+part 'template.part.dart';
 
-@HiveType(typeId: Template.typeId)
+// @HiveType(typeId: Template.typeId)
 class Template extends HiveObject {
   Template(
       {required this.nameRaw,
@@ -18,28 +18,28 @@ class Template extends HiveObject {
   static const typeId = TEMPLATE_TYPE_ID;
   static const boxName = 'Template';
 
-  @HiveField(0)
+  // @HiveField(0)
   String? nameRaw;
 
-  @HiveField(1)
+  // @HiveField(1)
   String? addressRaw;
 
-  @HiveField(2)
+  // @HiveField(2)
   String? cryptoCurrencyRaw;
 
-  @HiveField(3)
+  // @HiveField(3)
   String? amountRaw;
 
-  @HiveField(4)
+  // @HiveField(4)
   String? fiatCurrencyRaw;
 
-  @HiveField(5)
+  // @HiveField(5)
   bool? isCurrencySelectedRaw;
 
-  @HiveField(6)
+  // @HiveField(6)
   String? amountFiatRaw;
 
-  @HiveField(7)
+  // @HiveField(7)
   List<Template>? additionalRecipientsRaw;
 
   bool get isCurrencySelected => isCurrencySelectedRaw ?? false;
