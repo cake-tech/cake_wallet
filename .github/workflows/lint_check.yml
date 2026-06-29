@@ -18,6 +18,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Incremental Format and Lint
+      - name: Lint
         run: |
           scripts/lint.sh
