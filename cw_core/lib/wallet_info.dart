@@ -44,7 +44,8 @@ enum HardwareWalletType {
   coldcard,
   seedsigner,
   keystone,
-  trezor;
+  trezor,
+  coldcardUsb;
 }
 
 enum WalletInfoAddressType {
@@ -557,7 +558,8 @@ class WalletInfo {
   bool get isHardwareWallet => [
         HardwareWalletType.bitbox,
         HardwareWalletType.ledger,
-        HardwareWalletType.trezor
+        HardwareWalletType.trezor,
+        HardwareWalletType.coldcardUsb,
       ].contains(hardwareWalletType);
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
