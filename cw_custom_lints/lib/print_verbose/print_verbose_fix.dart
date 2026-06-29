@@ -1,41 +1,50 @@
+import "package:analysis_server_plugin/edit/dart/correction_producer.dart";
+import "package:analysis_server_plugin/edit/dart/dart_fix_kind_priority.dart";
 import "package:analyzer/dart/ast/ast.dart";
-import "package:analyzer/error/error.dart" hide LintCode;
-import "package:custom_lint_builder/custom_lint_builder.dart";
+import "package:analyzer_plugin/utilities/change_builder/change_builder_core.dart";
+import "package:analyzer_plugin/utilities/fixes/fixes.dart";
+import "package:analyzer_plugin/utilities/range_factory.dart";
 
-class ReplaceWithPrintV extends DartFix {
+class ReplaceWithPrintV extends ResolvedCorrectionProducer {
+  ReplaceWithPrintV({required super.context});
+
+  static const _importString = "package:cw_core/utils/print_verbose.dart";
+
+  static const _fixKind = FixKind(
+    "dart.fix.replaceWithPrintV",
+    DartFixKindPriority.standard,
+    "Replace with printV()",
+  );
+
   @override
-  void run(
-    CustomLintResolver resolver,
-    ChangeReporter reporter,
-    CustomLintContext context,
-    AnalysisError error,
-    List<AnalysisError> others,
-  ) {
-    context.registry.addMethodInvocation((node) {
-      const importString = "package:cw_core/utils/print_verbose.dart";
+  CorrectionApplicability get applicability =>
+      CorrectionApplicability.singleLocation;
 
-      if (!error.sourceRange.intersects(node.sourceRange)) {
-        return;
-      }
+  @override
+  FixKind get fixKind => _fixKind;
 
-      final root = node.root;
-      final hasImport = root is CompilationUnit &&
-          root.directives.whereType<ImportDirective>().any(
-                (directive) => directive.uri.stringValue == importString,
-              );
+  @override
+  Future<void> compute(ChangeBuilder builder) async {
+    final invocation = node.thisOrAncestorOfType<MethodInvocation>();
+    if (invocation == null) {
+      return;
+    }
 
-      final changeBuilder = reporter.createChangeBuilder(
-        message: "Replace with printV()",
-        priority: 999999,
+    final root = invocation.root;
+    final hasImport = root is CompilationUnit &&
+        root.directives.whereType<ImportDirective>().any(
+              (directive) => directive.uri.stringValue == _importString,
+            );
+
+    await builder.addDartFileEdit(file, (builder) {
+      builder.addSimpleReplacement(
+        range.node(invocation.methodName),
+        "printV",
       );
 
-      changeBuilder.addDartFileEdit((builder) {
-        builder.addSimpleReplacement(node.methodName.sourceRange, "printV");
-
-        if (!hasImport) {
-          builder.importLibrary(Uri.parse(importString));
-        }
-      });
+      if (!hasImport) {
+        builder.importLibrary(Uri.parse(_importString));
+      }
     });
   }
 }

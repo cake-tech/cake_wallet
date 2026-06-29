@@ -1,46 +1,52 @@
-import "package:analyzer/error/error.dart" hide LintCode;
-import "package:analyzer/error/listener.dart";
-import "package:custom_lint_builder/custom_lint_builder.dart";
-import "package:cw_custom_lints/print_verbose/print_verbose_fix.dart";
+import "package:analyzer/analysis_rule/analysis_rule.dart";
+import "package:analyzer/analysis_rule/rule_context.dart";
+import "package:analyzer/analysis_rule/rule_visitor_registry.dart";
+import "package:analyzer/dart/ast/ast.dart";
+import "package:analyzer/dart/ast/visitor.dart";
+import "package:analyzer/error/error.dart";
 
-class PrintVerboseRule extends DartLintRule {
-  const PrintVerboseRule() : super(code: _code);
+class PrintVerboseRule extends AnalysisRule {
+  PrintVerboseRule()
+      : super(
+          name: "use_print_v",
+          description: "Use printV() from cw_core instead of print().",
+        );
 
-  static const _code = LintCode(
-    name: "use_print_v",
-    problemMessage: "Use printV() from cw_core instead",
+  static const LintCode code = LintCode(
+    "use_print_v",
+    "Use printV() from cw_core instead",
     correctionMessage: "Replace print with printV",
-    errorSeverity: ErrorSeverity.WARNING,
+    severity: DiagnosticSeverity.WARNING,
   );
 
   @override
-  void run(
-      CustomLintResolver resolver,
-      ErrorReporter reporter,
-      CustomLintContext context,
-      ) {
-    final filePath = resolver.source.fullName;
+  LintCode get diagnosticCode => code;
+
+  @override
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
+  ) {
+    final filePath = context.definingUnit.file.path;
 
     if (filePath.contains("/tool/")) {
       // tool/ is allowed to use print as it never makes its way into the app
       return;
     }
 
-    context.registry.addMethodInvocation((node) {
-      if (node.methodName.name == "print" && node.target == null) {
-        reporter.reportError(
-          AnalysisError.forValues(
-            source: resolver.source,
-            offset: node.offset,
-            length: node.length,
-            errorCode: _code,
-            message: _code.problemMessage,
-          ),
-        );
-      }
-    });
+    registry.addMethodInvocation(this, _Visitor(this));
   }
+}
+
+class _Visitor extends SimpleAstVisitor<void> {
+  _Visitor(this.rule);
+
+  final AnalysisRule rule;
 
   @override
-  List<Fix> getFixes() => [ReplaceWithPrintV()];
+  void visitMethodInvocation(MethodInvocation node) {
+    if (node.methodName.name == "print" && node.target == null) {
+      rule.reportAtNode(node);
+    }
+  }
 }

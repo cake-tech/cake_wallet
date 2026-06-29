@@ -1,15 +1,22 @@
-import "package:analyzer/error/error.dart" hide LintCode;
-import "package:analyzer/error/listener.dart";
-import "package:custom_lint_builder/custom_lint_builder.dart";
+import "package:analyzer/analysis_rule/analysis_rule.dart";
+import "package:analyzer/analysis_rule/rule_context.dart";
+import "package:analyzer/analysis_rule/rule_visitor_registry.dart";
+import "package:analyzer/dart/ast/ast.dart";
+import "package:analyzer/dart/ast/visitor.dart";
+import "package:analyzer/error/error.dart";
 
-class RestrictedImportsRule extends DartLintRule {
-  const RestrictedImportsRule() : super(code: _code);
+class RestrictedImportsRule extends AnalysisRule {
+  RestrictedImportsRule()
+      : super(
+          name: "no_restricted_imports_in_lib",
+          description:
+              "Do not import from coin-specific packages. If necessary, wire your logic through configure.dart",
+        );
 
-  static const _code = LintCode(
-    name: "no_restricted_imports_in_lib",
-    problemMessage:
-        "Do not import from coin-specific packages. If necessary, wire your logic through configure.dart",
-    errorSeverity: ErrorSeverity.ERROR,
+  static const LintCode code = LintCode(
+    "no_restricted_imports_in_lib",
+    "Do not import from coin-specific packages. If necessary, wire your logic through configure.dart",
+    severity: DiagnosticSeverity.ERROR,
   );
 
   static const _restrictedPackages = {
@@ -26,12 +33,14 @@ class RestrictedImportsRule extends DartLintRule {
   };
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    ErrorReporter reporter,
-    CustomLintContext context,
+  LintCode get diagnosticCode => code;
+
+  @override
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    final filePath = resolver.source.fullName;
+    final filePath = context.definingUnit.file.path;
     final fileName = filePath.split("/").last;
 
     // ignore cw_something folders
@@ -40,30 +49,31 @@ class RestrictedImportsRule extends DartLintRule {
     }
 
     // allow ex. cw_bitcoin in bitcoin.dart
-    if(_restrictedPackages.contains("cw_"+fileName.replaceAll(".dart", ""))) {
+    if (_restrictedPackages.contains("cw_" + fileName.replaceAll(".dart", ""))) {
       return;
     }
 
-    context.registry.addImportDirective((node) {
-      final uriString = node.uri.stringValue;
-      if (uriString == null || !uriString.startsWith("package:")) {
-        return;
-      }
+    registry.addImportDirective(this, _Visitor(this));
+  }
+}
 
-      final pathWithoutScheme = uriString.replaceFirst("package:", "");
-      final packageName = pathWithoutScheme.split("/").first;
+class _Visitor extends SimpleAstVisitor<void> {
+  _Visitor(this.rule);
 
-      if (_restrictedPackages.contains(packageName)) {
-        reporter.reportError(
-          AnalysisError.forValues(
-            source: resolver.source,
-            offset: node.offset,
-            length: node.length,
-            errorCode: _code,
-            message: _code.problemMessage,
-          ),
-        );
-      }
-    });
+  final AnalysisRule rule;
+
+  @override
+  void visitImportDirective(ImportDirective node) {
+    final uriString = node.uri.stringValue;
+    if (uriString == null || !uriString.startsWith("package:")) {
+      return;
+    }
+
+    final pathWithoutScheme = uriString.replaceFirst("package:", "");
+    final packageName = pathWithoutScheme.split("/").first;
+
+    if (RestrictedImportsRule._restrictedPackages.contains(packageName)) {
+      rule.reportAtNode(node);
+    }
   }
 }
