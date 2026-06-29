@@ -15,6 +15,15 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/android
+            source ./app_env.sh cakewallet
+            export GITHUB_HUH=yeah
+            ./app_config.sh
+          popd
+
+
       - name: Install dependencies
         run: flutter pub get
 
