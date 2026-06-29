@@ -32,19 +32,39 @@ jobs:
         api-level: [ 29 ]
 
     steps:
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build dependencies utilizing ghcr cache
+      - name: configure git
         run: |
-          env \
-            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
-            CW_DOCKER_USE_CLOUD=true \
-            ./scripts/android/docker/build.sh
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
+
+      - name: Fetch prebuilt Torch
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz -O torch_dart.tar.gz
+            mkdir torch_dart
+            pushd torch_dart
+              tar -xzf ../torch_dart.tar.gz
+            popd
+            rm ./torch_dart.tar.gz
+          popd
+
+      - name: Fetch prebuilt Reown
+        run: |
+          set -x -e
+          pushd scripts
+            # cleaning
+            rm -rf reown_flutter
+            rm -f reown_flutter.tar.gz
+
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
+          popd
 
       - name: Execute Build and Setup Commands
         run: |
