@@ -18,8 +18,10 @@ do
     done
 
     if [[ -n "$ABORT_ON_CHANGE" ]]; then
-        if [[ -n "$(git status --porcelain -- "$i")" ]]; then
-            echo "Please run scripts/lint.sh ($i has changes)"
+        if [[ -n "$(git status --porcelain -- $(find $i))" ]]; then
+            echo "Please run scripts/lint.sh"
+            echo "changes in $i:"
+            git status --porcelain -- "$i"
             exit 1
         fi
     fi
