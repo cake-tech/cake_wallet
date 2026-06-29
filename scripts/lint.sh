@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x -e
+set -e
 cd "$(dirname "$0")"
 cd ..
 
@@ -11,6 +11,7 @@ do
         # uncommitted files (assumed to have been modified after the 29th)
         git diff --name-only --diff-filter=d HEAD -- "$i"
     } | grep '\.dart$' | sort -u | while IFS= read -r file; do
+        echo $file
         if [[ -f "$file" ]]; then
             dart fix --apply "$file" && dart format --line-length=100 "$file"
         fi
