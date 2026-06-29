@@ -132,7 +132,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           if (double.tryParse(depositFiatAmountController.text) != null) {
             widget.exchangeViewModel
                 .setDepositAmountFromFiat(fiatAmount: depositFiatAmountController.text);
-            receiveKey.currentState!.updateFiatAmount();
+            receiveKey.currentState?.updateFiatAmount();
           }
         });
       });
@@ -302,7 +302,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
             }
             widget.exchangeViewModel.isReceiveAmountEntered = false;
             widget.exchangeViewModel.isFixedRateMode = false;
-            if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
+            if (receiveKey.currentState != null &&
+                !receiveKey.currentState!.amountFocusNode.hasFocus) {
               receiveKey.currentState!.updateFiatAmount();
             }
           });
