@@ -2,6 +2,9 @@ name: Lint
 
 on: [pull_request]
 
+defaults:
+  run:
+    shell: bash
 jobs:
   lint:
     runs-on: [Linux, amd64, android]
