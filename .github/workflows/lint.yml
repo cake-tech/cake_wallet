@@ -5,6 +5,29 @@ on: [pull_request]
 jobs:
   lint:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      env:
+        STORE_PASS: test@cake_wallet
+        KEY_PASS: test@cake_wallet
+        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        ANDROID_AVD_HOME: /root/.android/avd
+      volumes:
+        - /opt/cw_cache_android/root/.cache:/root/.cache
+        - /opt/cw_cache_android/root/.android/avd/:/root/.android/avd
+        - /opt/cw_cache_android/root/.ccache:/root/.ccache
+        - /opt/cw_cache_android/root/.pub-cache/:/root/.pub-cache
+        - /opt/cw_cache_android/root/.gradle/:/root/.gradle
+        - /opt/cw_cache_android/root/.android/:/root/.android
+        - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
+        - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
+        - /dev/kvm:/dev/kvm
+        - /var/run/docker.sock:/var/run/docker.sock
+    strategy:
+      matrix:
+        api-level: [ 29 ]
+
     steps:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
