@@ -9,6 +9,8 @@ enum DeviceConnectionType {
       WalletType walletType, HardwareWalletType hardwareType,
       [bool isIOS = false]) {
     bool isSupported = false;
+    bool bleSupport = true;
+
     switch (hardwareType) {
       case HardwareWalletType.bitbox:
         isSupported = [
@@ -36,6 +38,10 @@ enum DeviceConnectionType {
           WalletType.polygon,
         ].contains(walletType);
         break;
+      case HardwareWalletType.coldcardUsb:
+        isSupported = walletType == WalletType.bitcoin;
+        bleSupport = false;
+        break;
       case HardwareWalletType.cupcake:
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
@@ -44,11 +50,12 @@ enum DeviceConnectionType {
         throw UnimplementedError();
     }
 
-    return isSupported
-        ? (isIOS
-            ? [DeviceConnectionType.ble]
-            : [DeviceConnectionType.ble, DeviceConnectionType.usb])
-        : [];
+    if (!isSupported) return [];
+
+    return [
+      if (bleSupport) DeviceConnectionType.ble,
+      if (!isIOS) DeviceConnectionType.usb,
+    ];
   }
 
   String get iconString {
