@@ -29,8 +29,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AnonPayInvoicePage extends BasePage {
   AnonPayInvoicePage(
     this.anonInvoicePageViewModel,
-    this.receiveOptionViewModel, {super.key}
-  ) : _amountFocusNode = FocusNode();
+    this.receiveOptionViewModel,
+  ) : _amountFocusNode = FocusNode() {}
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
