@@ -1,0 +1,54 @@
+name: Lint
+
+on: [pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build dependencies utilizing ghcr cache
+        run: |
+          env \
+            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
+            CW_DOCKER_USE_CLOUD=true \
+            ./scripts/android/docker/build.sh
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/android
+            source ./app_env.sh cakewallet
+            export GITHUB_HUH=yeah
+            ./app_config.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
+
+      - name: Build generated code
+        run: |
+          flutter --version
+          flutter clean
+          rm -rf .dart_tool
+          rm pubspec.lock
+          flutter pub get
+          ./model_generator.sh async
+
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
+
+      - name: Compile graphics
+        run: |
+          ./compile_graphics.sh
+
+      - name: Lint
+        run: |
+          ABORT_ON_CHANGE=yeah scripts/lint.sh
