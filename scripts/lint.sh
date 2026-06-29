@@ -18,10 +18,12 @@ do
     done
 
     if [[ -n "$ABORT_ON_CHANGE" ]]; then
-        if [[ -n "$(git status --porcelain -- $(find $i))" ]]; then
+        DART_CHANGES=$(git status --porcelain -- "$i" | grep '\.dart$' || true)
+
+        if [[ -n "$DART_CHANGES" ]]; then
             echo "Please run scripts/lint.sh"
             echo "changes in $i:"
-            git status --porcelain -- "$i"
+            echo "$DART_CHANGES"
             exit 1
         fi
     fi
