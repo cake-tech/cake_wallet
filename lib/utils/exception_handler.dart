@@ -306,6 +306,7 @@ class ExceptionHandler {
     "the timeout of the request was reached",
 
     "support for coin removed, your seedphrase:"
+    "Exception: Invalid image data"
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

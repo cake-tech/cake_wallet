@@ -7,6 +7,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/utils/decimal_input_formatter.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -134,8 +135,16 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                               textAlign: TextAlign.left,
                               textAlignVertical: TextAlignVertical.center,
                               controller: _amountController,
-                              keyboardType:
-                                  TextInputType.numberWithOptions(signed: false, decimal: !widget.walletAddressListViewModel.useSatoshi),
+                              keyboardType: TextInputType.numberWithOptions(
+                                signed: false,
+                                decimal: widget.walletAddressListViewModel.selectedCurrencyDecimals > 0,
+                              ),
+                              inputFormatters: [
+                                DecimalInputFormatter(
+                                  maxDecimals:
+                                      widget.walletAddressListViewModel.selectedCurrencyDecimals,
+                                ),
+                              ],
                               decoration: InputDecoration(
                                 hint: Text(
                                   widget.walletAddressListViewModel.useSatoshi ? "0" : "0.00000000",
@@ -150,6 +159,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 border: InputBorder.none,
                                 filled: true,
                                 fillColor: Colors.transparent,
+
                               ),
                               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                             ),

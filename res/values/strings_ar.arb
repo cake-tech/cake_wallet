@@ -40,6 +40,8 @@
   "address_from_yat": "هذا العنوان من ${emoji} على Yat",
   "address_label": "تسمية العنوان",
   "address_label_explainer": "يمكنك الوصول إلى جميع عناوينك المستخدمة سابقًا وإدارتها بالضغط على «العناوين»",
+  "address_not_allowed_as_receive": "العنوان غير مسموح به كعنوان استلام",
+  "address_not_allowed_as_refund": "العنوان غير مسموح به كعنوان استرداد",
   "address_or_alias": "العنوان أو الاسم المستعار",
   "address_remove_contact": "إزالة جهة الاتصال",
   "address_remove_content": "هل أنت متأكد أنك تريد إزالة جهة الاتصال المحددة؟",

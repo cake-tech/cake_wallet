@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -14,8 +14,8 @@ import 'package:path/path.dart' as p;
 class ZcashTransactionInfo extends TransactionInfo {
   ZcashTransactionInfo({
     required final String id,
-    required final int amount,
-    required final int fee,
+    required final Money amount,
+    required final Money fee,
     required final TransactionDirection direction,
     required final bool isPending,
     required final DateTime date,
@@ -53,16 +53,6 @@ class ZcashTransactionInfo extends TransactionInfo {
   }
 
   String? _fiatAmount;
-
-  @override
-  String amountFormatted() =>
-      '${walletTypeToCryptoCurrency(WalletType.zcash).formatAmount(BigInt.from(amount))} ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
-
-  @override
-  String? feeFormatted() {
-    if (fee == null || fee == 0) return null;
-    return '${walletTypeToCryptoCurrency(WalletType.zcash).formatAmount(BigInt.from(fee!))} ${walletTypeToCryptoCurrency(WalletType.zcash).title}';
-  }
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
