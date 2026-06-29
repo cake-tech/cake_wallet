@@ -63,7 +63,6 @@ linter:
     - implicit_reopen
     - library_private_types_in_public_api
     - non_constant_identifier_names
-    - omit_obvious_local_variable_types
     - only_throw_errors
     - package_names
     - prefer_asserts_with_message
