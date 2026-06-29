@@ -15,7 +15,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 enum AppBarStyle { regular, withShadow, transparent, completelyTransparent }
 
 abstract class BasePage extends StatelessWidget {
-  BasePage() : _scaffoldKey = GlobalKey<ScaffoldState>();
+  BasePage({super.key}) : _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldKey;
 
   final Image closeButtonImage = Image.asset('assets/images/close_button.png');
