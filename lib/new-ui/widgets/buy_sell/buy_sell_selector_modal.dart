@@ -1,6 +1,7 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class BuySellSelectorModal extends StatelessWidget {
 
   void openBuySellPage(BuildContext context, BuySellPageMode mode) {
     Navigator.of(context).pop();
-    // showModalBottomSheet(context: context, builder: ModalNavigator(rootPage: ,))
+    showModalBottomSheet(isScrollControlled: true, context: context, builder: (modalContext)=>ModalNavigator(rootPage: getIt.get<NewBuySellAmountPage>(param1: mode), parentContext: context,));
   }
 }
 

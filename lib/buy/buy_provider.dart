@@ -43,8 +43,7 @@ abstract class BuyProvider {
           required double amount,
           required bool isBuyAction,
           required String cryptoCurrencyAddress,
-          String? countryCode}) =>
-      null;
+          String? countryCode});
 
   Future<String> requestUrl(String amount, String sourceCurrency) => throw UnimplementedError();
 
