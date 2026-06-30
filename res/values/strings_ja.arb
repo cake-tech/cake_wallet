@@ -40,6 +40,8 @@
   "address_from_yat": "このアドレスはYatの${emoji}からのものです",
   "address_label": "アドレスラベル",
   "address_label_explainer": "「アドレス」を押すと、これまでに使用したすべてのアドレスにアクセスして管理できます。",
+  "address_not_allowed_as_receive": "アドレスは受信アドレスとして許可されません",
+  "address_not_allowed_as_refund": "住所は払い戻し住所として使用できません",
   "address_or_alias": "アドレスまたはエイリアス",
   "address_remove_contact": "連絡先を削除",
   "address_remove_content": "選択した連絡先を削除してもよろしいですか？",

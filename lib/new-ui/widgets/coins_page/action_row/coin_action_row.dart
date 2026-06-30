@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../pages/receive_page.dart';
-import '../../../pages/scan_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
@@ -165,11 +164,11 @@ class CoinActionRow extends StatelessWidget {
       var unspentCoinType = UnspentCoinType.any;
       if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
         unspentCoinType = UnspentCoinType.lightning;
-        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(code) ?? 0));
+        final amount = getBolt11Amount(code)?.toString() ?? "0";
         req = PaymentRequest(code, amount, "", "", "");
       } else if (SendViewModelBase.isLnurlInvoice(code)) {
         unspentCoinType = UnspentCoinType.lightning;
-        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(await LNURL.getPayRequestAmount(code) ?? 0));
+        final amount = (await LNURL.getPayRequestAmount(code))?.toString() ?? "0";
         req = PaymentRequest(code, amount, "", "", "");
       } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         req = PaymentRequest(code, "", "", "", "");

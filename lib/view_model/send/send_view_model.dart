@@ -55,6 +55,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -124,7 +125,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         fiatFromSettings = _appStore.settingsStore.fiatCurrency,
         fiatCurrencies = FiatCurrency.all,
         super(appStore: _appStore) {
-    outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
     unspentCoinsListViewModel
         .initialSetup()
@@ -166,11 +167,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
 
   @action
+  CryptoCurrency _outputCryptoCurrencyHandler([CryptoCurrency? override]) {
+    if (override != null && override != selectedCryptoCurrency) selectedCryptoCurrency = override;
+
+    return selectedCryptoCurrency;
+  }
+
+  @action
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
 
   @action
   void addOutput() =>
-      outputs.add(Output(wallet, _appStore, _fiatConversationStore, () => selectedCryptoCurrency));
+      outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
   @action
   void removeOutput(Output output) {
@@ -330,10 +338,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // Handle case where balance might not be available yet (e.g., during chain switch)
     final balanceForCurrency = wallet.balance[selectedCryptoCurrency];
     if (balanceForCurrency == null) {
-      return _appStore.amountParsingProxy.getDisplayCryptoString(0, selectedCryptoCurrency);
+      return _appStore.amountParsingProxy.asDisplayString(Money.zero(selectedCryptoCurrency));
     }
-    return _appStore.amountParsingProxy.getDisplayCryptoStringFromBigInt(
-        wallet.balance[selectedCryptoCurrency]!.fullAvailableBalance, selectedCryptoCurrency);
+    return _appStore.amountParsingProxy
+        .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
   }
 
   @action
@@ -360,7 +368,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
-        if (coinTypeToSpendFrom == UnspentCoinType.lightning) return balance;
+        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
         return _appStore.amountParsingProxy.getDisplayCryptoString(
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
             walletTypeToCryptoCurrency(walletType));
@@ -442,6 +450,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   String get selectedCryptoCurrencySymbol =>
       amountParsingProxy.getCryptoSymbol(selectedCryptoCurrency);
+
+  @computed
+  bool get useBaseUnits => amountParsingProxy.useSatoshi(selectedCryptoCurrency);
 
   List<CryptoCurrency> currencies;
 
@@ -704,7 +715,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 wallet,
                 routerTo,
                 routerData,
-                BigInt.zero,
+                Money.zero(wallet.currency),
                 priority,
                 useBlinkProtection: canSupportBlinkProtection(selectedChainId)
                     ? _settingsStore.useBlinkProtection
@@ -827,7 +838,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 wallet,
                 routerTo,
                 routerData,
-                routerValueWei,
+                Money(routerValueWei, wallet.currency),
                 priority,
                 sourceTokenAddress: tokenContract,
                 sourceTokenAmount: requiredAmount,
@@ -865,7 +876,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             // Fallback to estimate if not available
             final fee = actualFee > 0 ? actualFee : 0.0005;
 
-            final amount = double.tryParse(trade.amount) ?? 0.0;
+            final fromCurrency = trade.from ?? CryptoCurrency.sol;
+            final amount = Money.tryParse(trade.amount, fromCurrency) ?? Money.zero(fromCurrency);
 
             pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
@@ -873,7 +885,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               requestId!,
               trade.payoutAddress ?? '',
               amount,
-              fee,
+              Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
             );
 
             state = ExecutedSuccessfullyState();
@@ -1127,41 +1139,41 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
       if(isEVMWallet) {
         wallet.transactionHistory.addOne(evm!.getTransactionInfo(
-            id: pendingTransaction!.evmTxHashFromRawHex!,
-            height: 0,
-            // FIXME(malik) this is even more critical given all the issues we had with decimal point parsing. with money it'll be easy
-            ethAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
-            ethFee: CryptoCurrency.eth.parseAmount(pendingTransaction!.feeFormattedValue),
-            tokenSymbol: selectedCryptoCurrency.title,
-            direction: TransactionDirection.outgoing,
-            isPending: true,
-            date: DateTime.now(),
-            confirmations: 0,
-            chainId: wallet.chainId ?? 0));
+          id: pendingTransaction!.evmTxHashFromRawHex!,
+          height: 0,
+          amount: outputs.first.cryptoAmountMoney,
+          fee: pendingTransaction!.fee,
+          tokenSymbol: selectedCryptoCurrency.title,
+          direction: TransactionDirection.outgoing,
+          isPending: true,
+          date: DateTime.now(),
+          confirmations: 0,
+          chainId: wallet.chainId ?? 0,
+        ));
       }
       
       if(walletType == WalletType.solana) {
         wallet.transactionHistory.addOne(solana!.getTransactionInfo(
-            id: pendingTransaction!.id,
-            blockTime: DateTime.now(),
-            tokenSymbol: selectedCryptoCurrency.title,
-            to: "",
-            from: "",
-            direction: TransactionDirection.outgoing,
-            solAmount: solana!.getPendingTransactionAmount(pendingTransaction!),
-            isPending: true,
-            txFee: solana!.getPendingTransactionFee(pendingTransaction!)));
+          id: pendingTransaction!.id,
+          blockTime: DateTime.now(),
+          to: "",
+          from: "",
+          direction: TransactionDirection.outgoing,
+          amount: pendingTransaction!.amount,
+          isPending: true,
+          fee: pendingTransaction!.fee,
+        ));
       }
 
       if (walletType == WalletType.tron) {
         wallet.transactionHistory.addOne(tron!.getTransactionInfo(
-            id: pendingTransaction!.id,
-            blockTime: DateTime.now(),
-            tokenSymbol: selectedCryptoCurrency.title,
-            direction: TransactionDirection.outgoing,
-            tronAmount: selectedCryptoCurrency.parseAmount(outputs.first.cryptoAmount),
-            isPending: true,
-            txFee: CryptoCurrency.trx.parseAmount(outputs.first.estimatedFee).toInt()));
+          id: pendingTransaction!.id,
+          blockTime: DateTime.now(),
+          direction: TransactionDirection.outgoing,
+          amount: outputs.first.cryptoAmountMoney,
+          isPending: true,
+          fee: outputs.first.estimatedFee,
+        ));
       }
 
       if (pendingTransaction!.id.isNotEmpty) {
@@ -1442,9 +1454,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return await evm!.createTokenApproval(
       wallet,
-      requiredAmount,
+      Money(requiredAmount, erc20Token),
       spender,
-      erc20Token,
       priority,
       useBlinkProtection:
       canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,

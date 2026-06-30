@@ -14,6 +14,8 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -159,14 +161,16 @@ class SwapTransactionDetails extends StatelessWidget {
                   builder: (_) => NewListSections(showHeader: true, sections: {
                     S.of(context).send: [
                       ListItemRegularRow(
-                          showArrow: false,
-                          keyValue: "send value",
-                          label: exchangeViewModel.depositCurrency.fullName ?? "",
-                          iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
-                          badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
-                          trailingText: exchangeTradeViewModel.trade.amountFormatted() +
-                              " " +
-                              (exchangeViewModel.depositCurrency.title)),
+                        showArrow: false,
+                        keyValue: "send value",
+                        label: exchangeViewModel.depositCurrency.fullName ?? "",
+                        iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
+                        trailingText: exchangeViewModel.amountParsingProxy
+                            .asDisplayStringWithSymbol(exchangeViewModel.depositCurrency
+                                    .tryParseAmount(exchangeTradeViewModel.trade.amount) ??
+                                Money.zero(exchangeViewModel.depositCurrency)),
+                      ),
                       if (exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                         ListItemRegularRow(
                             showArrow: false,
@@ -184,13 +188,15 @@ class SwapTransactionDetails extends StatelessWidget {
                     ],
                     S.of(context).receive: [
                       ListItemRegularRow(
-                          showArrow: false,
-                          keyValue: "receive value",
-                          label: exchangeViewModel.receiveCurrency.fullName ?? "",
-                          iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
-                          badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),
-                          trailingText:
-                              (receiveAmount) + " " + (exchangeViewModel.receiveCurrency.title)),
+                        showArrow: false,
+                        keyValue: "receive value",
+                        label: exchangeViewModel.receiveCurrency.fullName ?? "",
+                        iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),
+                        trailingText: (receiveAmount.withMaxDecimals(8)) +
+                            " " +
+                            (exchangeViewModel.receiveCurrency.title),
+                      ),
                       ListItemRegularRow(
                           keyValue: "receiver",
                           label: S.of(context).to,

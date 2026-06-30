@@ -23,8 +23,8 @@ abstract class TemplateViewModelBase with Store {
         _appStore = appStore,
         _fiatConversationStore = fiatConversationStore,
         _currency = wallet.currency,
-        output = Output(wallet, appStore, fiatConversationStore, () => wallet.currency) {
-    output = Output(_wallet, _appStore, _fiatConversationStore, () => _currency);
+        output = Output(wallet, appStore, fiatConversationStore, ([_]) => wallet.currency) {
+    output = Output(_wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler);
   }
 
   @observable
@@ -53,15 +53,20 @@ abstract class TemplateViewModelBase with Store {
     output.reset();
   }
 
-  Template toTemplate({required String cryptoCurrency, required String fiatCurrency}) {
-    return Template(
+  Template toTemplate({required String cryptoCurrency, required String fiatCurrency}) => Template(
         isCurrencySelectedRaw: isCryptoSelected,
         nameRaw: name,
         addressRaw: address,
         cryptoCurrencyRaw: cryptoCurrency,
         fiatCurrencyRaw: fiatCurrency,
         amountRaw: output.cryptoAmount,
-        amountFiatRaw: output.fiatAmount);
+        amountFiatRaw: output.fiatAmount,
+      );
+
+  CryptoCurrency _outputCryptoCurrencyHandler([CryptoCurrency? override]) {
+    if (override != null && _currency != override) changeSelectedCurrency(override);
+
+    return _currency;
   }
 
   @action

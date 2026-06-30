@@ -22,7 +22,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_transaction_sent_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/typography.dart';
@@ -36,7 +35,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class CakePayBuyCardPage extends BasePage {
@@ -615,16 +613,13 @@ class CakePayBuyCardPage extends BasePage {
                   titleIconPath: _sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: _sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: _sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
-                      _sendViewModel.pendingTransaction!.amountFormatted,
-                      _sendViewModel.selectedCryptoCurrency),
+                  amountValue: _sendViewModel.amountParsingProxy.asDisplayStringWithSymbol(
+                      _sendViewModel.pendingTransaction!.amount),
                   quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
                   fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: "${_sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
-                      _sendViewModel.pendingTransaction!.feeFormattedValue,
-                      _sendViewModel.selectedCryptoCurrency)} ${_sendViewModel.amountParsingProxy
-                      .getCryptoSymbol(_sendViewModel.wallet.currency)}",
+                  feeValue: _sendViewModel.amountParsingProxy.asDisplayStringWithSymbol(
+                      _sendViewModel.pendingTransaction!.fee),
                   feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
@@ -705,13 +700,12 @@ class CakePayBuyCardPage extends BasePage {
                   child: Icon(Icons.check, size: 16, color: Colors.white),
                 ),
                 output: displayingOutputs.first,
-                currency: _sendViewModel.selectedCryptoCurrency,
                 amount: S.of(sheetCtx).send_amount,
-                amountValue: _sendViewModel.pendingTransaction!.amountFormatted,
+                amountValue: _sendViewModel.pendingTransaction!.amount.toStringWithSymbol(),
                 quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
                 fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                 fee: S.of(sheetCtx).send_fee,
-                feeValue: _sendViewModel.pendingTransaction!.feeFormatted,
+                feeValue: _sendViewModel.pendingTransaction!.fee.toStringWithSymbol(),
                 feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                 paymentId: 'Order ID',
                 paymentIdValue: order?.orderId ?? '',
