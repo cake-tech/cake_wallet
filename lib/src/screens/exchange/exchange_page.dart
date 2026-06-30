@@ -40,7 +40,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class ExchangePage extends BasePage {
-  ExchangePage(this.exchangeViewModel, this.authService, this.initialPaymentRequest) {
+  ExchangePage(this.exchangeViewModel, this.authService, this.adrResService, this.initialPaymentRequest) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
@@ -51,6 +51,7 @@ class ExchangePage extends BasePage {
 
   final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
+  final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
@@ -654,7 +655,7 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, wallet:exchangeViewModel.wallet, currency: currency);
+    final parsedAddresses = await adrResService.resolve(query: domain, wallet:exchangeViewModel.wallet, currency: currency);
     return parsedAddresses.isNotEmpty ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? '' : '';
   }
 

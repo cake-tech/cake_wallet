@@ -51,7 +51,7 @@ import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewSwapPage extends StatefulWidget {
-  NewSwapPage(this.exchangeViewModel, this.authService, this.initialPaymentRequest,
+  NewSwapPage(this.exchangeViewModel, this.authService,this.adrResService, this.initialPaymentRequest,
       {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
@@ -67,6 +67,7 @@ class NewSwapPage extends StatefulWidget {
   final ExchangeViewModel exchangeViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
+  final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   late final String? depositWalletName;
   late final String? receiveWalletName;
@@ -422,7 +423,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     printV("$domain");
-    final parsedAddress = await getIt.get<AddressResolverService>().resolve(
+    final parsedAddress = await widget.adrResService.resolve(
         query: domain,
         wallet: widget.exchangeViewModel.wallet,
         currency: currency);

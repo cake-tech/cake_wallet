@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/main.dart';
@@ -17,7 +19,8 @@ part 'contact_view_model.g.dart';
 class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._contacts, this.appStore,  {ContactRecord? contact})
+  ContactViewModelBase(this._contacts, this.appStore,this.adrResService,
+      {ContactRecord? contact})
       : state = InitialExecutionState(),
         currencies = CryptoCurrency.all,
         _contact = contact,
@@ -28,6 +31,7 @@ abstract class ContactViewModelBase with Store {
         lastChange = contact?.lastChange;
 
   final AppStore appStore;
+  final AddressResolverService adrResService;
 
 
   @observable
@@ -64,27 +68,44 @@ abstract class ContactViewModelBase with Store {
     currency = null;
   }
 
-  Future<void> extractParsedAddress(BuildContext context) async {
+  Future<ParsedAddress?> extractParsedAddress(BuildContext context) async {
     final wallet = appStore.wallet;
     final currentCurrency = currency;
     final query = address.trim();
 
-    if (wallet == null) return;
-    if (currentCurrency == null) return;
-    if (query.isEmpty) return;
+    if (wallet == null) return null;
+    if (currentCurrency == null) return null;
+    if (query.isEmpty) return null;
 
-    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(
+    final isValidAddress = AddressValidator(type: currentCurrency).isValid(query);
+    if (isValidAddress) return null;
+
+    final parsedAddresses = await adrResService.resolve(
       query: query,
       wallet: wallet,
       currency: currentCurrency,
     );
 
-    if (parsedAddresses.isEmpty) return;
+    if (parsedAddresses.isEmpty) return null;
 
     final resolvedAddress = parsedAddresses.first.parsedAddressByCurrencyMap[currentCurrency];
+    if (resolvedAddress == null || resolvedAddress.isEmpty) return null;
+
+    return parsedAddresses.first;
+  }
+
+  @action
+  void applyParsedAddress(ParsedAddress parsedAddress) {
+    final currentCurrency = currency;
+    if (currentCurrency == null) return;
+
+    final resolvedAddress = parsedAddress.parsedAddressByCurrencyMap[currentCurrency];
     if (resolvedAddress == null || resolvedAddress.isEmpty) return;
 
     address = resolvedAddress;
+    displayName = parsedAddress.profileName.isNotEmpty
+        ? parsedAddress.profileName
+        : parsedAddress.handle;
   }
 
   Future<void> save() async {

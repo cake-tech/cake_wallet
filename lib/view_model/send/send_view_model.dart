@@ -104,6 +104,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this._appStore,
     this.sendTemplateViewModel,
     this._fiatConversationStore,
+    this._adrResService,
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
@@ -184,7 +185,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (isValidAddress) return null;
 
-    final results = await getIt<AddressResolverService>().resolve(
+    final results = await _adrResService.resolve(
       query: query,
       wallet: wallet,
       currency: selectedCryptoCurrency,
@@ -465,6 +466,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final HardwareWalletViewModel? hardwareWalletViewModel;
   final FeesViewModel feesViewModel;
   final FiatConversionStore _fiatConversationStore;
+  final AddressResolverService _adrResService;
   final Box<TransactionDescription> transactionDescriptionBox;
 
   @computed

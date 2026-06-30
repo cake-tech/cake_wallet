@@ -26,7 +26,9 @@ enum AddressSource {
       iconPath: 'assets/new-ui/address_sources/nostr.svg',
       alias: 'user@domain.tld'),
   thorChain(
-      label: 'ThorChain', iconPath: 'assets/new-ui/address_sources/icon-thorchain.svg', alias: 'name'),
+      label: 'ThorChain',
+      iconPath: 'assets/new-ui/address_sources/icon-thorchain.svg',
+      alias: 'name'),
   wellKnown(
       label: '.wellknown',
       iconPath: 'assets/new-ui/address_sources/wellknown.svg',
@@ -37,9 +39,18 @@ enum AddressSource {
       label: 'BIP353',
       iconPath: 'assets/new-ui/address_sources/bip353.svg',
       alias: 'user@domain.com'),
-  zcashAddress(label: 'Zcash.me', iconPath: 'assets/new-ui/address_sources/icon-zcash-me.svg', alias: 'zcash.me/username'),
-  zcashName(label: 'Zcash Names', iconPath: 'assets/new-ui/address_sources/icon-zcashnames.svg', alias: 'name.zec'),
-  lnurlPay(label: 'LNURL Pay', iconPath: 'assets/new-ui/address_sources/icon-lnurl-pay.svg', alias: 'user@domain.com'),
+  zcashAddress(
+      label: 'Zcash.me',
+      iconPath: 'assets/new-ui/address_sources/icon-zcash-me.svg',
+      alias: 'zcash.me/username'),
+  zcashName(
+      label: 'Zcash Names',
+      iconPath: 'assets/new-ui/address_sources/icon-zcashnames.svg',
+      alias: 'name.zec'),
+  lnurlPay(
+      label: 'LNURL Pay',
+      iconPath: 'assets/new-ui/address_sources/icon-lnurl-pay.svg',
+      alias: 'user@domain.com'),
   contact(label: 'Contact', iconPath: ''),
   notParsed(label: 'Unknown', iconPath: ''),
   ;

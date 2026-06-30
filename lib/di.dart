@@ -899,6 +899,7 @@ Future<void> setup({
       getIt.get<AppStore>(),
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
+      getIt.get<AddressResolverService>(),
       getIt.get<BalanceViewModel>(),
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
@@ -1100,7 +1101,10 @@ Future<void> setup({
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
   getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
-      (ContactRecord? contact, _) => ContactViewModel(_contactSource, getIt.get<AppStore>(), contact: contact));
+      (ContactRecord? contact, _) => ContactViewModel(_contactSource,
+          getIt.get<AppStore>(),
+          getIt.get<AddressResolverService>(),
+          contact: contact));
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
       (CryptoCurrency? cur, _) =>
@@ -1249,7 +1253,10 @@ Future<void> setup({
 
   getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
       (PaymentRequest? paymentRequest, __) {
-    return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
+    return ExchangePage(getIt.get<ExchangeViewModel>(),
+        getIt.get<AuthService>(),
+        getIt.get<AddressResolverService>(),
+        paymentRequest);
   });
 
   getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, CryptoCurrency?>(
@@ -1257,6 +1264,7 @@ Future<void> setup({
     return NewSwapPage(
       getIt.get<ExchangeViewModel>(),
       getIt.get<AuthService>(),
+      getIt.get<AddressResolverService>(),
       paymentRequest,
       walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
       initialCurrency: initialCurrency,
