@@ -1062,7 +1062,12 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           updateFiatAmount();
                         }
                       },
-                      onAllButtonPressed: widget.allAmount,
+                      onAllButtonPressed: (){
+                        setState(() {
+                          _fiatInputMode = false;
+                        });
+                        widget.allAmount?.call();
+                      },
                       cryptoAmount: widget.isReceiverCard
                           ? widget.exchangeViewModel.roundedReceiveAmount(6)
                           : widget.exchangeViewModel.roundedDepositAmount(6),
