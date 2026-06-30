@@ -1060,6 +1060,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         setState(() => _fiatInputMode = !_fiatInputMode);
                         if (_fiatInputMode) {
                           updateFiatAmount();
+                        } else {
+                          amountController.text = widget.exchangeViewModel.depositAmount;
                         }
                       },
                       onAllButtonPressed: (){
