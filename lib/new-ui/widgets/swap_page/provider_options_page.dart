@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProviderOptionsPage extends StatelessWidget {
   const ProviderOptionsPage({super.key, required this.exchangeViewModel});
@@ -39,6 +40,7 @@ class ProviderOptionsPage extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
+                controller: ModalScrollController.of(context),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
