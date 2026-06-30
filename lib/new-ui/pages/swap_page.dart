@@ -271,7 +271,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
         } else {
           printV("bestrate");
-          if (depositAmountController.text == S.current.all)
+          if (depositAmountController.text.isEmpty || depositAmountController.text == S.current.all)
             widget.exchangeViewModel
                 .changeDepositAmount(amount: widget.exchangeViewModel.depositAmount);
           else
