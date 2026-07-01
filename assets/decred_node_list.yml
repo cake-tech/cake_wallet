@@ -1,0 +1,10 @@
+-
+  uri: default-spv-nodes
+  isDefault: true
+  isEnabledForAutoSwitching: true
+  label: "Decred"
+-
+  uri: dcrd.sethforprivacy.com:9108
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Seth For Privacy"

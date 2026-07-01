@@ -1,0 +1,15 @@
+-
+  uri: api.trongrid.io
+  isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "TronGrid"
+-
+  uri: tron-rpc.publicnode.com:443
+  useSSL: true
+  label: "PublicNode"
+- 
+  uri: trx.nownodes.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "NOWNodes"

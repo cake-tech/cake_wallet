@@ -1,0 +1,262 @@
+name: Cake Wallet Linux
+
+on: [pull_request]
+
+defaults:
+  run:
+    shell: bash
+jobs:
+  PR_test_build:
+    runs-on: [Linux, amd64, forlinux]
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      env:
+        STORE_PASS: test@cake_wallet
+        KEY_PASS: test@cake_wallet
+        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        DESKTOP_FORCE_MOBILE: Y
+      volumes:
+        - /opt/cw_cache_linux/root/.cache:/root/.cache
+        - /opt/cw_cache_linux/root/.ccache:/root/.ccache
+        - /opt/cw_cache_linux/root/.pub-cache/:/root/.pub-cache
+        - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
+        - /opt/cw_cache_linux/opt/generic_cache:/opt/generic_cache
+
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: configure git
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
+      - name: Get the full commit message
+        run: |
+          FULL_MESSAGE="$(git log -1 --pretty=%B)"
+          echo "message<<EOF" >> $GITHUB_ENV
+          echo "$FULL_MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Add secrets
+        run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
+
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const blinkApiKey = '${{ secrets.BLINK_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
+
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
+
+      - name: Fetch prebuilt Torch
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz -O torch_dart.tar.gz
+            mkdir torch_dart
+            pushd torch_dart
+              tar -xzf ../torch_dart.tar.gz
+            popd
+            rm ./torch_dart.tar.gz
+          popd
+
+      - name: Fetch prebuilt Reown
+        run: |
+          set -x -e
+          pushd scripts
+            # cleaning
+            rm -rf reown_flutter
+            rm -f reown_flutter.tar.gz
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
+          popd
+
+      - name: Build Zcash Lib
+        run: |
+          set -x -e
+          pushd scripts/linux
+            ./build_zcash.sh
+          popd
+
+      - name: Build Bitbox Flutter
+        run: |
+          set -x -e
+          pushd scripts
+            ./build_bitbox_flutter.sh
+          popd
+
+      - name: Build monero_c
+        run: |
+          ./scripts/prepare_moneroc.sh
+          mkdir -p scripts/monero_c/release
+          pushd scripts/monero_c/release
+            TAG=$(git describe --tags)
+            mkdir -p "$TAG"
+            pushd "$TAG"
+              wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC2/release-bundle.zip
+              unzip release-bundle.zip
+              # RC2's bundle puts everything under an inner v0.18.4.6-*/ dir, strip it
+              shopt -s nullglob
+              for inner in v0.18.4.6-*/; do
+                mv "$inner"* .
+                rmdir "$inner"
+              done
+              shopt -u nullglob
+              rm release-bundle.zip
+            popd
+          popd
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
+
+      - name: Build mwebd
+        run: |
+          set -x -e
+          export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
+          echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
+          pushd scripts/android
+            ./build_mwebd.sh
+          popd
+
+      - name: Build generated code
+        run: |
+          ./model_generator.sh async
+
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
+      - name: Workaround zcash
+        run: |
+          mkdir -p scripts/zcash_lib/assets/
+          touch scripts/zcash_lib/assets/sapling-spend.params
+          touch scripts/zcash_lib/assets/sapling-output.params
+      - name: Build linux
+        run: |
+          flutter build linux --dart-define=hasDevOptions=true --release
+
+      - name: Compress release
+        run: |
+          pushd build/linux/x64/release
+          zip -r cakewallet_linux.zip bundle
+          popd
+
+      - name: Upload Artifact to github
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
+          name: cakewallet_linux
+      - name: Verify lint
+        run: |
+          exec env ABORT_ON_CHANGE=true ./scripts/lint.sh
+
+      - name: Prepare virtual desktop
+        if: ${{ contains(env.message, 'run tests') }}
+        run: |
+          nohup Xvfb :99 -screen 0 720x1280x16 &
+          echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
+          dbus-daemon --system --fork
+          nohup NetworkManager &
+          nohup ffmpeg -framerate 60 -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac /opt/screen_grab.mkv &
+
+      # Note for people adding tests:
+      # - Tests are ran on Linux, with some things being mocked out.
+      # - Screen recording is being provided for the entire length of the test, you can download it in github articats.
+      # - Screen recordeding is encrypted, look at step "Stop screen recording, encrypt and upload", and add your key if you want
+      #   Reason for encryption is the fact that we restore the wallet from seed, and we don't want to leak that, while there
+      #   isn't much in those wallets anyway, we still wouldn't like to leak it to anyone who is able to access github.
+
+      - name: Test [confirm_seeds_flow_test]
+        if: ${{ contains(env.message, 'run tests') }}
+        timeout-minutes: 20
+        run: |
+          xmessage -timeout 30 "confirm_seeds_flow_test" &
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart
+      - name: Test [create_wallet_flow_test]
+        if: ${{ contains(env.message, 'run tests') }}
+        timeout-minutes: 20
+        run: |
+          xmessage -timeout 30 "create_wallet_flow_test" &
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
+      # - name: Test [exchange_flow_test]
+      #   if: ${{ contains(env.message, 'run tests') }}
+      #   timeout-minutes: 20
+      #   run: |
+      #     xmessage -timeout 30 "exchange_flow_test" &
+      #     rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+      #     exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
+      - name: Test [restore_wallet_through_seeds_flow_test]
+        if: ${{ contains(env.message, 'run tests') }}
+        timeout-minutes: 20
+        run: |
+          xmessage -timeout 30 "restore_wallet_through_seeds_flow_test" &
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
+      - name: Test [cw_core]
+        timeout-minutes: 15
+        run: cd cw_core && flutter test
+      - name: Test [cw_monero]
+        timeout-minutes: 15
+        run: cd cw_monero && flutter test
+      - name: Stop screen recording, encrypt and upload
+        if: always()
+        run: |
+          if [[ ! -f "/opt/screen_grab.mkv" ]];
+          then
+            exit 0;
+          fi
+          killall ffmpeg
+          sleep 5
+          killall -9 ffmpeg || true
+          sleep 5
+          # Feel free to add your own public key if you wish
+          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 # konstantin@cakewallet.com
+          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
+          gpg --trust-model always --encrypt --output /opt/screen_grab.mkv.gpg \
+            --recipient 6B3199AD9B3D23B8 \
+            --recipient 35C8DBAFB8D9ACAC \
+            /opt/screen_grab.mkv
+          rm /opt/screen_grab.mkv
+          mv /opt/screen_grab.mkv.gpg ./screen_grab.mkv.gpg
+      - name: Upload Artifact to github
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.workspace }}/screen_grab.mkv.gpg
+          name: tests_screen_grab

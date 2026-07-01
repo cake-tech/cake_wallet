@@ -1,0 +1,2 @@
+Add support for Bitcoin Lightning
+New Design

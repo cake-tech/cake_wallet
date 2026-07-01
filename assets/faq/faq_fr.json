@@ -1,0 +1,59 @@
+[
+  {
+    "question" : "Quelle est la différence entre le solde disponible et le solde total ?",
+    "answer" : "Lorsque vous faites une transaction ou recevez des Monero, la transaction doit être confirmée. Au bout d'environ 20 minutes votre solde disponible devrait se mettre à jour !\nParfois, lorsque vous envoyez des Monero, votre solde disponible peut diminuer d'un montant supérieur à celui que vous avez envoyé. C'est normal, c'est une mesure destinée à augmenter votre intimité. Votre solde total devrait redevenir normal après environ 20 minutes.\n"
+  },
+  {
+    "question" : "Comment envoyer des Monero vers une plateforme d'échange qui nécessite un ID de paiement ?",
+    "answer" : "Appuyez sur le bouton envoyer de l'écran du Portefeuille (Wallet). Ensuite, copiez l'adresse de dépôt de la plateforme d'échange et collez là dans le champ adresse. Puis, copiez l'ID de paiement fourni par la plateforme d'échange et copiez le dans le champ ID de paiement. Enfin, entrez le montant que vous souhaitez envoyer et vous êtes fin prêt !\n"
+  },
+  {
+    "question" : "Que faire si j'oublie d'entrer l'ID de paiement quand j'envoie des Monero vers une plateforme d'échange ?",
+    "answer" : "Bien que notre service de support ne puisse pas vous aider directement pour ce type de souci, c'est un problème très courant que la plupart des plateformes d'échange ont l'habitude de gérer. Contactez simplement le support de la plateforme d'échange, expliquez que vous avez oublié d'inclure l'ID de paiement et envoyez leur l'ID de transaction comme preuve. Vous pouvez visualiser l'ID de transaction en tapant sur transaction sur l'écran de votre portefeuille (wallet).\n"
+  },
+  {
+    "question" : "Que signifient \"phrase secrète (seed)\" et \"clefs\" ?",
+    "answer" : "Vos clefs encodent l'information privée de votre portefeuille (wallet), ce sont elles qui permettent de dépenser vos fonds et de visualiser les transactions entrantes.\nVotre phrase secrète (seed) est simplement une version de votre clef privée sous une forme plus simple à recopier. Votre phrase secrète et vos clefs sont la même chose, juste sous des formes différentes !\nNE DONNEZ JAMAIS votre phrase secrète ou vos clefs à quiconque. Vos fonds seront dérobés si vous donnez votre phrase secrète ou vos clefs. Merci d'écrire cependant votre phrase secrète et de la stocker en lieu sûr (afin de vous permettre de restaurer votre portefeuille si vous perdez votre téléphone.)\n"
+  },
+  {
+    "question" : "Combien de portefeuilles (wallets) puis-je créer ?",
+    "answer" : "Il n'y a pas de limite ! Vous pouvez créer autant de portefeuilles (wallets) que vous le souhaitez.\n"
+  },
+  {
+    "question" : "Commen puis-je restarurer mon portefeuille (wallet) ?",
+    "answer" : "Appuyez sur le menu •••, sélectionnez Portefeuilles (Wallets), puis choisissez Restaurer un Portefeuille. Entrez alors votre phrase secrète (seed) (ou vos clefs), et de façon optionnelle une date antérieure à la première transaction de votre portefeuille (cela permettra d'accélérer le processus de synchronisation). Vous pourrez avoir besoin de maintenir l'application ouverte pendant 15 à 30 minutes afin de restaurer complètement votre portefeuille.\n"
+  },
+  {
+    "question" : "Que puis-je faire si je perds ma phrase secrète (seed) ?",
+    "answer" : "Si vous oubliez votre phrase secrète (seed), il y a des chances que vous l'ayez inscrite quelque part. Vérifiez vos notes et regardez sur votre ordinateur. Si vous ne parvenez pas à la retrouver, il est possible que vous ayez effectué une sauvegarde de Cake Wallet (dans ce cas vous pourrez restaurer d'après cette sauvegarde). Si aucune des ces options ne convient, malheureusement il n'y a plus rien à faire, vos fonds sont définitivement perdus.\n"
+  },
+  {
+    "question" : "Collectez vous des informations à propos de mon portefeuille (wallet) ?",
+    "answer" : "Cake Wallet NE COLLECTE PAS d'informations à propos de votre portefeuille (wallet). Nous sommes respectueux de votre intimité.\n"
+  },
+  {
+    "question" : "Est il possible d'annuler une transaction ?",
+    "answer" : "Malheureusement, dès qu'une transaction a été envoyée vers la blockchain, elle devient irréversible. Vous pouvez cependant annuler la transaction avant de l'envoyer, donc vérifiez toujours l'adresse avant d'envoyer une transaction.\n"
+  },
+  {
+    "question" : "Que sont les sous-adresses, et comment s'en servir ?",
+    "answer" : "Une sous-adresse est une adresse unique que vous pouvez générer à tout moment. Les montants envoyés vers cette adresse arrivent toujours dans votre portefeuille (wallet) principal, mais la personne qui vous envoie les fonds ne peut pas déterminer votre adresse principale. Les sous-adresses commencent par un 8.\nVous pouvez créer une nouvelle sous-adresse dans l'écran Réception en appuyant sur le + à côté du bouton Sous-Adresses. Entrez un nom pour la sous-adresse et appuyez sur Ajouter. Ensuite appuyez sur le nom de la sous-adresse quand vous souhaitez l'utiliser !\nSi vous êtres paranoïaque, vous devriez créer une nouvelle sous-adresse à chaque fois que vous voulez recevoir des Monero.\n"
+  },
+  {
+    "question" : "Qu'est-ce que l'ID de transaction ?",
+    "answer" : "Une empreinte (hash) de transaction, ou ID de transaction, est un moyen unique d'identifier une transaction. Chaque transaction a sa propre empreinte. Si vous deve fournir une empreinte de transaction à quelque'un, allez simplement sur l'écran principal du Portefeuille (Wallet), appuyez sur la transaction puis appuyez longuement sur la section du haut et sélectionnez Copier.\n"
+  },
+  {
+    "question" : "Je n'ai pas reçu mes XMR ! Que puis-je faire ?",
+    "answer" : "Si vous n'avez pas reçu vos Monero, appuyez sur le menu ••• et choisissez Reconnecter. Si cela ne règle pas le problème, allez dans le menu de réglage, appuyez sur le champ 'Nœud Courant' et sélectionnez un nœud avec un point vert.\n"
+
+  },
+  {
+    "question" : "Je n'ai pas reçu mes fonds en provenance de la plateforme d'échange dans l'application. Que puis-je faire ?",
+    "answer" : "Si vous rencontrez des problèmes avec un échange, la meilleure option est de contacter l'échange lui-même. Nous sommes en partenariat avec Changenow, Simpleswap, Sideshift et le Trocador. Donc, votre meilleur pari est d'aller sur https://changenow.io, https://simpleswap.io/, https://sideshift.ai/, https://trocador.app/ et contactez leur support.\n"
+  },
+  {
+    "question" : "Comment puis-je contacter le support de Cake Wallet ?",
+    "answer" : "Envoyez un email à support@cakewallet.com, rejoignez le groupe Telegram @cakewallet_bot, ou @CakeWalletXMR sur Twitter!\n"
+  }
+]

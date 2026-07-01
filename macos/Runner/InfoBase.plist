@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleDisplayName</key>
+	<string>Cake Wallet</string>
+	<key>CFBundleName</key>
+	<string>Cake Wallet</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>$(PRODUCT_COPYRIGHT)</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.finance</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Used for scanning QR code and can be used to capture images for identification purposes by third-party providers.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>We need access to documents folder for getting access to open/save backup file</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Enable Face ID for fast and secure access to wallets and private keys</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to documents folder for getting access to open/save backup file</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We need access to Bluetooth in order to connect to your hardware wallet when needed</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We need access to Bluetooth in order to connect to your hardware wallet when needed</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,274 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
+
+class DesktopWalletSelectionDropDown extends StatefulWidget {
+  final WalletListViewModel walletListViewModel;
+  final AuthService _authService;
+
+  DesktopWalletSelectionDropDown(this.walletListViewModel, this._authService, {Key? key})
+      : super(key: key);
+
+  @override
+  State<DesktopWalletSelectionDropDown> createState() => _DesktopWalletSelectionDropDownState();
+}
+
+class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
+  final moneroIcon = Image.asset('assets/new-ui/crypto_full_icons/monero.svg', height: 24, width: 24);
+  final bitcoinIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin.svg', height: 24, width: 24);
+  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
+  final litecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/litecoin.svg', height: 24, width: 24);
+  final havenIcon = Image.asset('assets/images/haven_logo.webp', height: 24, width: 24);
+  final ethereumIcon = Image.asset('assets/new-ui/crypto_full_icons/ethereum.svg', height: 24, width: 24);
+  final polygonIcon = Image.asset('assets/new-ui/crypto_full_icons/polygon.svg', height: 24, width: 24);
+  final bitcoinCashIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin-cash.svg', height: 24, width: 24);
+  final baseIcon = Image.asset('assets/new-ui/crypto_full_icons/base.svg', height: 24, width: 24);
+  final arbitrumIcon = Image.asset('assets/new-ui/crypto_full_icons/arbitrum.svg', height: 24, width: 24);
+  final bscIcon = Image.asset('assets/new-ui/crypto_full_icons/bnb.svg', height: 24, width: 24);
+  final nanoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg', height: 24, width: 24);
+  final bananoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg', height: 24, width: 24);
+  final solanaIcon = Image.asset('assets/new-ui/crypto_full_icons/solana.svg', height: 24, width: 24);
+  final tronIcon = Image.asset('assets/new-ui/crypto_full_icons/tron.svg', height: 24, width: 24);
+  final wowneroIcon = Image.asset('assets/new-ui/crypto_full_icons/wownero.svg', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/new-ui/crypto_full_icons/zano.svg', height: 24, width: 24);
+  final decredIcon = Image.asset('assets/new-ui/crypto_full_icons/decred.svg', height: 24, width: 24);
+  final dogeIcon = Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg', height: 24, width: 24);
+  final zcashIcon = Image.asset('assets/new-ui/crypto_full_icons/zcash.svg', height: 24, width: 24);
+  final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
+
+  Image _newWalletImage(BuildContext context) => Image.asset(
+        'assets/images/new_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).colorScheme.onSurface,
+      );
+
+  Image _restoreWalletImage(BuildContext context) => Image.asset(
+        'assets/images/restore_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).colorScheme.onSurface,
+      );
+
+  Flushbar<void>? _progressBar;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    return Observer(builder: (context) {
+      final dropDownItems = [
+        ...widget.walletListViewModel.wallets
+            .map((wallet) => DesktopDropdownItem(
+                  isSelected: wallet.isCurrent,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 500),
+                    child: DropDownItemWidget(
+                      title: wallet.name,
+                      image: wallet.isEnabled
+                          ? _imageFor(type: wallet.type, isTestnet: wallet.isTestnet)
+                          : nonWalletTypeIcon,
+                    ),
+                  ),
+                  onSelected: () => _onSelectedWallet(wallet),
+                ))
+            .toList(),
+        DesktopDropdownItem(
+          onSelected: () => _navigateToCreateWallet(),
+          child: DropDownItemWidget(
+            title: S.of(context).create_new,
+            image: _newWalletImage(context),
+          ),
+        ),
+        DesktopDropdownItem(
+          onSelected: () => _navigateToRestoreWallet(),
+          child: DropDownItemWidget(
+            title: S.of(context).restore_wallet,
+            image: _restoreWalletImage(context),
+          ),
+        ),
+      ];
+
+      final selectedItem = dropDownItems.firstWhere(
+        (element) => element.isSelected,
+        orElse: () => dropDownItems.first,
+      );
+
+      return DropdownButton<DesktopDropdownItem>(
+        items: dropDownItems
+            .map(
+              (wallet) => DropdownMenuItem<DesktopDropdownItem>(
+                child: wallet.child,
+                value: wallet,
+              ),
+            )
+            .toList(),
+        onChanged: (item) {
+          item?.onSelected();
+        },
+        dropdownColor: themeData.colorScheme.surface,
+        style: themeData.textTheme.bodyMedium,
+        selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
+        value: selectedItem,
+        underline: const SizedBox(),
+        focusColor: Colors.transparent,
+        borderRadius: BorderRadius.circular(15.0),
+      );
+    });
+  }
+
+  void _onSelectedWallet(WalletListItem selectedWallet) async {
+    if (selectedWallet.isCurrent || !selectedWallet.isEnabled) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final confirmed = await showPopUp<bool>(
+              context: context,
+              builder: (dialogContext) {
+                return AlertWithTwoActions(
+                    alertTitle: S.of(context).change_wallet_alert_title,
+                    alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
+                    leftButtonText: S.of(context).cancel,
+                    rightButtonText: S.of(context).change,
+                    actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                    actionRightButton: () => Navigator.of(dialogContext).pop(true));
+              }) ??
+          false;
+
+      if (confirmed) {
+        await _loadWallet(selectedWallet);
+      }
+    });
+  }
+
+  Widget _imageFor({required WalletType type, bool? isTestnet}) {
+    switch (type) {
+      case WalletType.bitcoin:
+        if (isTestnet == true) return tBitcoinIcon;
+        return bitcoinIcon;
+      case WalletType.monero:
+        return moneroIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
+      case WalletType.litecoin:
+        return litecoinIcon;
+      case WalletType.haven:
+        return havenIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
+      case WalletType.bitcoinCash:
+        return bitcoinCashIcon;
+      case WalletType.nano:
+        return nanoIcon;
+      case WalletType.banano:
+        return bananoIcon;
+      case WalletType.polygon:
+        return polygonIcon;
+      case WalletType.solana:
+        return solanaIcon;
+      case WalletType.tron:
+        return tronIcon;
+      case WalletType.zano:
+        return zanoIcon;
+      case WalletType.decred:
+        return decredIcon;
+      case WalletType.dogecoin:
+        return dogeIcon;
+      case WalletType.base:
+        return baseIcon;
+      case WalletType.arbitrum:
+        return arbitrumIcon;
+      case WalletType.bsc:
+        return bscIcon;
+      case WalletType.zcash:
+        return zcashIcon;
+      case WalletType.none:
+        return nonWalletTypeIcon;
+    }
+  }
+
+  Future<void> _loadWallet(WalletListItem wallet) async {
+    if (SettingsStoreBase.walletPasswordDirectInput) {
+      Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
+          arguments: WalletUnlockArguments(
+              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+                if (isAuthenticatedSuccessfully) {
+                  auth.close();
+                  setState(() {});
+                }
+              },
+              walletName: wallet.name,
+              walletType: wallet.type));
+      return;
+    }
+
+    widget._authService.authenticateAction(
+      context,
+      onAuthSuccess: (isAuthenticatedSuccessfully) async {
+        if (!isAuthenticatedSuccessfully) return;
+
+        try {
+          if (mounted) {
+            changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+          }
+          await widget.walletListViewModel.loadWallet(wallet);
+          hideProgressText();
+          setState(() {});
+        } catch (e) {
+          if (mounted) {
+            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+          }
+        }
+      },
+      conditionToDetermineIfToUse2FA:
+          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
+    );
+  }
+
+  void _navigateToCreateWallet() {
+    if (isSingleCoin) {
+      widget._authService.authenticateAction(
+        context,
+        route: Routes.newWallet,
+        arguments: NewWalletArguments(type: widget.walletListViewModel.currentWalletType),
+        conditionToDetermineIfToUse2FA:
+            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+      );
+    } else {
+      widget._authService.authenticateAction(
+        context,
+        route: Routes.newWalletType,
+        conditionToDetermineIfToUse2FA:
+            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+      );
+    }
+  }
+
+  void _navigateToRestoreWallet() {
+    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+  }
+
+  void changeProcessText(String text) {
+    _progressBar = createBar<void>(text,context, duration: null)..show(context);
+  }
+
+  void hideProgressText() {
+    _progressBar?.dismiss();
+    _progressBar = null;
+  }
+}

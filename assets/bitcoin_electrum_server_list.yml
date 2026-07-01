@@ -1,0 +1,22 @@
+-
+  uri: btc-electrum.cakewallet.com:50002
+  useSSL: true
+  isDefault: true
+  isOfficial: true
+  isEnabledForAutoSwitching: true
+  label: "Cake Wallet Electrum"
+-
+  uri: electrs.cakewallet.com:50001
+  isOfficial: true
+  label: "Cake Wallet Electrs"
+-
+  uri: fulcrum.sethforprivacy.com:50002
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Seth For Privacy"
+-
+  uri: electrum.cakewallet.com:50002
+  isOfficial: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Cake Wallet (Legacy)"

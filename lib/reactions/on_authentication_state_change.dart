@@ -1,0 +1,143 @@
+import 'dart:async';
+
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
+import 'package:cake_wallet/entities/load_current_wallet.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/widgets.dart';
+import 'package:mobx/mobx.dart';
+import 'package:rxdart/subjects.dart';
+
+ReactionDisposer? _onAuthenticationStateChange;
+
+dynamic loginError;
+StreamController<dynamic> authenticatedErrorStreamController =
+    BehaviorSubject<dynamic>();
+
+void startAuthenticationStateChange(
+  AuthenticationStore authenticationStore,
+  GlobalKey<NavigatorState> navigatorKey,
+) {
+  authenticatedErrorStreamController.stream.listen((event) {
+    if (authenticationStore.state == AuthenticationState.allowed) {
+      ExceptionHandler.showError(event.toString(), delayInSeconds: 3);
+    }
+  });
+
+  _onAuthenticationStateChange ??= autorun((_) async {
+    final state = authenticationStore.state;
+
+    if (state == AuthenticationState.installed && !SettingsStoreBase.walletPasswordDirectInput) {
+      try {
+        if (!(await requireHardwareWalletConnection())) await loadCurrentWallet();
+      } catch (error, stack) {
+        loginError = error;
+        await ExceptionHandler.resetLastPopupDate();
+        await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      }
+      return;
+    }
+
+    if ([AuthenticationState.allowed, AuthenticationState.allowedCreate].contains(state)) {
+      if (state == AuthenticationState.allowed && (await requireHardwareWalletConnection())) {
+        await navigatorKey.currentState!.pushNamedAndRemoveUntil(
+          Routes.connectDevices,
+          (route) => false,
+          arguments: ConnectDevicePageParams(
+            walletType: WalletType.monero,
+            hardwareWalletType: HardwareWalletType.ledger,
+            onConnectDevice: (context, ledgerVM) async {
+              if (ledgerVM is LedgerViewModel) {
+                monero!.setGlobalLedgerConnection(ledgerVM.connection);
+              } else {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (context) => AlertWithOneAction(
+                    alertTitle: "Unexpected Error",
+                    alertContent:
+                        "Unexpected Error while trying to connect to the device (UnexpectedViewModel: ${ledgerVM.toString()})",
+                    buttonText: S.of(context).try_again,
+                    buttonAction: Navigator.of(context).pop,
+                  ),
+                );
+                return;
+              }
+              showPopUp<void>(
+                context: context,
+                builder: (context) => AlertWithOneAction(
+                  alertTitle: S.of(context).proceed_on_device,
+                  alertContent: S.of(context).proceed_on_device_description,
+                  buttonText: S.of(context).cancel,
+                  alertBarrierDismissible: false,
+                  buttonAction: () => Navigator.of(context).pop(),
+                ),
+              );
+              bool tryOpening = true;
+              while (tryOpening) {
+                try {
+                  await loadCurrentWallet();
+                  tryOpening = false;
+                } on Exception catch (e) {
+                  final ledgerErrorMessage = ledgerVM.interpretErrorCode(e.toString());
+                  if (ledgerErrorMessage != null) {
+                    await showPopUp<void>(
+                      context: context,
+                      builder: (context) => AlertWithTwoActions(
+                        alertTitle: "Ledger Error",
+                        alertContent: ledgerErrorMessage,
+                        leftButtonText: S.of(context).try_again,
+                        alertBarrierDismissible: false,
+                        actionLeftButton: () => Navigator.of(context).pop(),
+                        rightButtonText: S.of(context).cancel,
+                        actionRightButton: () {
+                          tryOpening = false;
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    );
+                  } else {
+                    tryOpening = false;
+                    rethrow;
+                  }
+                }
+              }
+
+              getIt.get<BottomSheetService>().showNext();
+              await navigatorKey.currentState!
+                  .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+            },
+            allowChangeWallet: true,
+          ),
+        );
+
+        // await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.connectDevices, (route) => false, arguments: ConnectDevicePageParams(walletType: walletType, onConnectDevice: onConnectDevice));
+      } else {
+        navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final linkViewModel = getIt.get<LinkViewModel>();
+        linkViewModel.markReadyToOpenPage();
+      });
+
+      if (!(await authenticatedErrorStreamController.stream.isEmpty)) {
+        await ExceptionHandler.showError(
+            (await authenticatedErrorStreamController.stream.first).toString());
+        authenticatedErrorStreamController.stream.drain();
+      }
+    }
+  });
+}

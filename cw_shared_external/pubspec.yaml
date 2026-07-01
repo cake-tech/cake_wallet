@@ -1,0 +1,26 @@
+name: cw_shared_external
+description: Shared external libraries for monero and haven
+version: 0.0.1
+author: Cake Walelt
+homepage: https://cakewallet.com
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=1.20.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.cakewallet.cw_shared_external
+        pluginClass: CwSharedExternalPlugin
+      ios:
+        pluginClass: CwSharedExternalPlugin

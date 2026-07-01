@@ -1,0 +1,405 @@
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
+
+class TokenUtilities {
+  static Future<List<Erc20Token>> loadAllUniqueEvmTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final evmWallets = allWi.where(
+      (w) => isEVMCompatibleChain(w.type),
+    );
+
+    final seen = <String>{};
+    final unique = <Erc20Token>[];
+
+    for (final wallet in evmWallets) {
+      final chain = getTokenNameBasedOnWalletType(wallet.type);
+      final box = await _openEvmTokensBoxFor(wallet);
+
+      for (final t in box.values.where((t) => t.enabled)) {
+        final key = '$chain|${t.contractAddress.toLowerCase()}';
+        if (seen.add(key)) {
+          unique.add(t);
+        }
+      }
+    }
+
+    return unique;
+  }
+
+  static Future<List<SPLToken>> loadAllUniqueSolTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final solWallets = allWi.where(
+      (w) => w.type == WalletType.solana,
+    );
+
+    final tokens = <SPLToken>[];
+    for (final wallet in solWallets) {
+      final box = await _openSolTokensBoxFor(wallet);
+      tokens.addAll(box.values.where((t) => t.enabled));
+    }
+
+    final seen = <String>{};
+    final unique = <SPLToken>[];
+    for (final token in tokens) {
+      final key = token.mintAddress.toLowerCase();
+      if (seen.add(key)) unique.add(token);
+    }
+    return unique;
+  }
+
+  static Future<List<TronToken>> loadAllUniqueTronTokens() async {
+    final allWi = await WalletInfo.getAll();
+    final tronWallets = allWi.where(
+      (w) => w.type == WalletType.tron,
+    );
+
+    final seen = <String>{};
+    final unique = <TronToken>[];
+    for (final wallet in tronWallets) {
+      final box = await _openTronTokensBoxFor(wallet);
+      for (final t in box.values.where((t) => t.enabled)) {
+        final key = t.contractAddress.toLowerCase();
+        if (seen.add(key)) unique.add(t);
+      }
+    }
+    return unique;
+  }
+
+  static List<Erc20Token> loadDefaultEvmTokensForSwap() {
+    if (evm == null) return [];
+
+    final tokens = <Erc20Token>[];
+    final seen = <String>{};
+
+    for (final chain in evm!.getAllChains()) {
+      for (final token in evm!.getDefaultTokensByChainId(chain.chainId)) {
+        final key = '${chain.chainId}|${token.contractAddress.toLowerCase()}';
+        if (seen.add(key)) tokens.add(token);
+      }
+    }
+
+    return tokens;
+  }
+
+  static List<SPLToken> loadDefaultSolTokensForSwap() =>
+      solana != null ? solana!.getDefaultSPLTokens() : [];
+
+  static List<TronToken> loadDefaultTronTokensForSwap() =>
+      tron != null ? tron!.getDefaultTronTokens() : [];
+
+  static Future<List<Erc20Token>> loadEvmTokensForSwap() async {
+    final defaultTokens = loadDefaultEvmTokensForSwap();
+    final userTokens = await loadAllUniqueEvmTokens();
+
+    final seen = <String>{};
+    final result = <Erc20Token>[];
+
+    for (final t in [...defaultTokens, ...userTokens]) {
+      final key = '${t.tag ?? 'ETH'}|${t.contractAddress.toLowerCase()}';
+      if (seen.add(key)) result.add(t);
+    }
+
+    return result;
+  }
+
+  static Future<List<SPLToken>> loadSolTokensForSwap() async {
+    final defaultTokens = loadDefaultSolTokensForSwap();
+    final userTokens = await loadAllUniqueSolTokens();
+
+    final seen = <String>{};
+    final result = <SPLToken>[];
+
+    for (final t in [...defaultTokens, ...userTokens]) {
+      final key = t.mintAddress.toLowerCase();
+      if (seen.add(key)) result.add(t);
+    }
+
+    return result;
+  }
+
+  static Future<List<TronToken>> loadTronTokensForSwap() async {
+    final defaultTokens = loadDefaultTronTokensForSwap();
+    final userTokens = await loadAllUniqueTronTokens();
+
+    final seen = <String>{};
+    final result = <TronToken>[];
+
+    for (final t in [...defaultTokens, ...userTokens]) {
+      final key = t.contractAddress.toLowerCase();
+      if (seen.add(key)) result.add(t);
+    }
+
+    return result;
+  }
+
+  /// Finds a token by address for the given [walletType].
+  /// - EVM chains: match by contractAddress
+  /// - Solana: match by mintAddress
+  /// - Tron: match by contractAddress
+  static Future<CryptoCurrency?> findTokenByAddress({
+    required WalletType walletType,
+    required String address,
+  }) async {
+    if (address.isEmpty) return null;
+    final lower = address.toLowerCase();
+    final tokens = await getAvailableTokensForNetwork(walletType);
+    for (final t in tokens) {
+      if (t is Erc20Token && t.contractAddress.toLowerCase() == lower) return t;
+      if (t is SPLToken && t.mintAddress.toLowerCase() == lower) return t;
+      if (t is TronToken && t.contractAddress.toLowerCase() == lower) return t;
+    }
+    return null;
+  }
+
+  static Future<Box<Erc20Token>> _openEvmTokensBoxFor(WalletInfo walletInfo) async {
+    final walletKey = walletInfo.name.replaceAll(' ', '_');
+    final boxName = _getErc20TokensBoxName(walletKey, walletInfo.type);
+
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<Erc20Token>(boxName);
+    }
+    return CakeHive.openBox<Erc20Token>(boxName);
+  }
+
+  static String _getErc20TokensBoxName(String walletKey, WalletType walletType) {
+    return switch (walletType) {
+      WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
+      WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
+      WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
+      WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
+      WalletType.bsc => '${walletKey}_${Erc20Token.bscBoxName}',
+      _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
+    };
+  }
+
+  static Future<Box<SPLToken>> _openSolTokensBoxFor(WalletInfo wallet) async {
+    final boxName = '${wallet.name.replaceAll(' ', '_')}_${SPLToken.boxName}';
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<SPLToken>(boxName);
+    }
+    return CakeHive.openBox<SPLToken>(boxName);
+  }
+
+  static Future<Box<TronToken>> _openTronTokensBoxFor(WalletInfo walletInfo) async {
+    final boxName = '${walletInfo.name.replaceAll(' ', '_')}_${TronToken.boxName}';
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<TronToken>(boxName);
+    }
+    return CakeHive.openBox<TronToken>(boxName);
+  }
+
+  static Erc20Token? findErc20Token(CryptoCurrency currency, WalletBase wallet) {
+    if (currency is Erc20Token) return currency;
+
+    // More of a fallback for us
+    for (final balanceCurrency in wallet.balance.keys) {
+      if (balanceCurrency is Erc20Token && _matchesCurrency(balanceCurrency, currency)) {
+        return balanceCurrency;
+      }
+    }
+
+    return null;
+  }
+
+  static Erc20Token? findErc20TokenForSwap(CryptoCurrency currency) {
+    if (currency is Erc20Token) return currency;
+
+    for (final token in loadDefaultEvmTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token;
+    }
+    return null;
+  }
+
+  static bool isNativeToken(CryptoCurrency currency) {
+    final title = currency.title.toLowerCase();
+    final tag = currency.tag?.toLowerCase();
+
+    return title == 'eth' ||
+        title == 'ethereum' ||
+        title == 'matic' ||
+        title == 'polygon' ||
+        title == 'base' ||
+        title == 'arbitrum' ||
+        title == 'bnb' ||
+        title == 'bsc' ||
+        title == 'avax' ||
+        title == 'avalanche' ||
+        tag == 'polygon' ||
+        tag == 'bsc' ||
+        tag == 'avalanche';
+  }
+
+  static int getChainId(CryptoCurrency currency) {
+    final tag = currency.tag?.toUpperCase();
+    final title = currency.title.toLowerCase();
+
+    // Only check EVM registry for currencies that might be EVM-related
+    final isPotentialEVM = isNativeToken(currency) ||
+        (tag != null &&
+            (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB' || tag == 'BSC'));
+
+    if (isPotentialEVM) {
+      // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
+      if (tag != null) {
+        final chainId = evm?.getChainIdByTag(tag);
+        if (chainId != null) return chainId;
+      }
+
+      // Try by title (case-insensitive)
+      final titleChainId = evm?.getChainIdByTitle(title);
+      if (titleChainId != null) return titleChainId;
+    }
+
+    // Fallback to hardcoded values for chains not in registry yet
+    // Avalanche C-Chain
+    if (title == 'avalanche' || title == 'avax' || tag == 'AVALANCHE') {
+      return 43114;
+    }
+
+    // Optimism
+    if (title == 'optimism' || title == 'op' || tag == 'OPTIMISM') {
+      return 10;
+    }
+
+    // Fantom Opera
+    if (title == 'fantom' || title == 'ftm' || tag == 'FANTOM') {
+      return 250;
+    }
+
+    // Default to Ethereum mainnet
+    return 1;
+  }
+
+  static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(
+    WalletType network,
+  ) async {
+    final baseCurrency = walletTypeToCryptoCurrency(network);
+    final allTokens = <CryptoCurrency>[baseCurrency];
+    final addedAddresses = <String>{};
+
+    // Handle EVM networks
+    if (isEVMCompatibleChain(network)) {
+      // First, collect all user tokens
+      final userTokens = await _getUserTokensForNetwork(baseCurrency);
+      for (final token in userTokens) {
+        if (token is Erc20Token) {
+          final address = token.contractAddress.toLowerCase();
+          if (addedAddresses.add(address)) {
+            allTokens.add(token);
+          }
+        }
+      }
+
+      // Then add tokens from CryptoCurrency.all that don't duplicate user tokens
+      for (final currency in CryptoCurrency.all) {
+        // Match by tag for POL/BASE, match by title==tag for ETH
+        final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
+            (baseCurrency.tag != null &&
+                currency.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase());
+
+        if (matches) {
+          if (currency is Erc20Token) {
+            final address = currency.contractAddress.toLowerCase();
+            if (addedAddresses.add(address)) {
+              allTokens.add(currency);
+            }
+          } else if (!allTokens.any((t) => _matchesCurrency(t, currency))) {
+            allTokens.add(currency);
+          }
+        }
+      }
+    }
+
+    // Handle Solana network
+    else if (network == WalletType.solana) {
+      final userSolTokens = await loadAllUniqueSolTokens();
+      for (final token in userSolTokens) {
+        final mintAddress = token.mintAddress.toLowerCase();
+        if (addedAddresses.add(mintAddress)) {
+          allTokens.add(token);
+        }
+      }
+
+      for (final currency in CryptoCurrency.all) {
+        if (currency.tag?.toLowerCase() == 'sol') {
+          if (currency is SPLToken) {
+            final mintAddress = currency.mintAddress.toLowerCase();
+            if (addedAddresses.add(mintAddress)) {
+              allTokens.add(currency);
+            }
+          } else if (!allTokens.any((t) => _matchesCurrency(t, currency))) {
+            allTokens.add(currency);
+          }
+        }
+      }
+    }
+
+    // Handle Tron network
+    else if (network == WalletType.tron) {
+      final userTronTokens = await loadAllUniqueTronTokens();
+      for (final token in userTronTokens) {
+        final contractAddress = token.contractAddress.toLowerCase();
+        if (addedAddresses.add(contractAddress)) {
+          allTokens.add(token);
+        }
+      }
+
+      for (final currency in CryptoCurrency.all) {
+        if (currency.tag?.toLowerCase() == 'trx') {
+          if (currency is TronToken) {
+            final contractAddress = currency.contractAddress.toLowerCase();
+            if (addedAddresses.add(contractAddress)) {
+              allTokens.add(currency);
+            }
+          } else if (!allTokens.any((t) => _matchesCurrency(t, currency))) {
+            allTokens.add(currency);
+          }
+        }
+      }
+    }
+
+    return allTokens;
+  }
+
+  static bool _matchesCurrency(CryptoCurrency a, CryptoCurrency b) {
+    return a.title.toUpperCase() == b.title.toUpperCase() &&
+        (a.tag?.toUpperCase() == b.tag?.toUpperCase());
+  }
+
+  static Future<List<CryptoCurrency>> _getUserTokensForNetwork(CryptoCurrency baseCurrency) async {
+    final walletType = cryptoCurrencyOrTokenToWalletType(baseCurrency);
+    if (walletType == null) return [];
+
+    if (isEVMCompatibleChain(walletType)) {
+      final tokens = await TokenUtilities.loadAllUniqueEvmTokens();
+
+      return tokens.where((token) {
+        if (baseCurrency.tag == null) return token.tag == baseCurrency.title;
+
+        return token.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase();
+      }).toList();
+    }
+
+    if (walletType == WalletType.solana) {
+      return await loadAllUniqueSolTokens();
+    }
+
+    if (walletType == WalletType.tron) {
+      return await loadAllUniqueTronTokens();
+    }
+
+    return [];
+  }
+}

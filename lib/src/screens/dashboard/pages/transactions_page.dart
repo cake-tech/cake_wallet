@@ -1,0 +1,249 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/csv_export_service.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/payjoin_transaction_row.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/trade_row.dart';
+import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/header_row.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/date_section_raw.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transaction_raw.dart';
+import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import 'package:intl/intl.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class TransactionsPage extends StatelessWidget {
+  TransactionsPage({required this.dashboardViewModel});
+
+  final DashboardViewModel dashboardViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onLongPress: () => dashboardViewModel.balanceViewModel.isReversing =
+          !dashboardViewModel.balanceViewModel.isReversing,
+      onLongPressUp: () => dashboardViewModel.balanceViewModel.isReversing =
+          !dashboardViewModel.balanceViewModel.isReversing,
+      child: Container(
+        color: responsiveLayoutUtil.shouldRenderMobileUI
+            ? null
+            : Theme.of(context).colorScheme.surface,
+        child: Column(
+          children: <Widget>[
+            Observer(builder: (_) {
+              final status = dashboardViewModel.status;
+              if (status is SyncingSyncStatus) {
+                return DashBoardRoundedCardWidget(
+                  key: ValueKey('transactions_page_syncing_alert_card_key'),
+                  onTap: () {
+                    try {
+                      final uri = Uri.parse("https://docs.cakewallet.com/faq/funds-not-appearing");
+                      launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } catch (_) {}
+                  },
+                  title: S.of(context).syncing_wallet_alert_title,
+                  subTitle: S.of(context).syncing_wallet_alert_content,
+                );
+              } else {
+                return Container();
+              }
+            }),
+            HeaderRow(
+              dashboardViewModel: dashboardViewModel,
+              onExportCsv: () =>
+                  CsvExportService().exportToCsv(dashboardViewModel.items, context),
+              key: ValueKey('transactions_page_header_row_key'),
+            ),
+            Expanded(
+              child: Observer(
+                builder: (_) {
+                  final items = dashboardViewModel.items;
+                  return items.isNotEmpty
+                      ? ListView.builder(
+                          key: ValueKey('transactions_page_list_view_builder_key'),
+                          itemCount: items.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == items.length) return SizedBox(height: 150);
+
+                            final item = items[index];
+
+                            if (item is DateSectionItem) {
+                              return DateSectionRaw(date: item.date, key: item.key);
+                            }
+
+                            if (item is TransactionListItem) {
+                              if (item.hasTokens && item.assetOfTransaction == null) {
+                                return Container();
+                              }
+
+                              final transaction = item.transaction;
+                              final transactionType =
+                                  dashboardViewModel.getTransactionType(transaction);
+
+                              List<String> tags = [];
+                              if (dashboardViewModel.type == WalletType.bitcoin) {
+                                if (bitcoin!.txIsReceivedSilentPayment(transaction)) {
+                                  tags.add(S.of(context).silent_payment);
+                                }
+                              }
+                              if (dashboardViewModel.type == WalletType.litecoin) {
+                                if (bitcoin!.txIsMweb(transaction)) {
+                                  tags.add("MWEB");
+                                }
+                              }
+                              return Observer(
+                                builder: (_) => TransactionRow(
+                                  key: item.key,
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                  isShield: transaction.additionalInfo['autoShield'] == true,
+                                  direction: transaction.direction,
+                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
+                                  formattedAmount: item.formattedCryptoAmount,
+                                  formattedFiatAmount:
+                                      dashboardViewModel.balanceViewModel.isFiatDisabled
+                                          ? ''
+                                          : item.formattedFiatAmount,
+                                  title:
+                                      item.formattedTitle + item.formattedStatus + transactionType,
+                                  tags: tags,
+                                ),
+                              );
+                            }
+
+                            if (item is AnonpayTransactionListItem) {
+                              final transactionInfo = item.transaction;
+
+                              return AnonpayTransactionRow(
+                                key: item.key,
+                                onTap: () => Navigator.of(context).pushNamed(
+                                    Routes.anonPayDetailsPage,
+                                    arguments: transactionInfo),
+                                currency: transactionInfo.fiatAmount != null
+                                    ? transactionInfo.fiatEquiv ?? ''
+                                    : CryptoCurrency.fromFullName(transactionInfo.coinTo)
+                                        .name
+                                        .toUpperCase(),
+                                provider: transactionInfo.provider,
+                                amount: transactionInfo.fiatAmount?.toString() ??
+                                    (transactionInfo.amountTo?.toString() ?? ''),
+                                createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                              );
+                            }
+
+                            if (item is PayjoinTransactionListItem) {
+                              final session = item.session;
+
+                              return PayjoinTransactionRow(
+                                key: item.key,
+                                onTap: () => Navigator.of(context).pushNamed(
+                                  Routes.payjoinDetails,
+                                  arguments: [item.sessionId, item.transaction],
+                                ),
+                                currency: "BTC",
+                                state: item.status,
+                                amount: dashboardViewModel.appStore.amountParsingProxy
+                                    .getDisplayCryptoString(session.amount.toInt(), CryptoCurrency.btc),
+                                createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
+                                isSending: session.isSenderSession,
+                              );
+                            }
+
+                            if (item is TradeListItem) {
+                              final trade = item.trade;
+
+                              final tradeFrom =
+                                  trade.from;
+
+                              final tradeTo = trade.to;
+
+                              return tradeFrom != null && tradeTo != null
+                                  ? Observer(
+                                      builder: (_) => TradeRow(
+                                        key: item.key,
+                                        onTap: () => Navigator.of(context)
+                                            .pushNamed(Routes.tradeDetails, arguments: trade),
+                                        swapState: trade.state,
+                                        provider: trade.provider,
+                                        title: "$tradeFrom → $tradeTo",
+                                        fromSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeFrom),
+                                        toSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeTo),
+                                        createdAtFormattedDate: trade.createdAt != null
+                                            ? DateFormat("HH:mm").format(trade.createdAt!)
+                                            : null,
+                                        formattedAmount: item.tradeFormattedAmount,
+                                        formattedReceiveAmount: item.tradeFormattedReceiveAmount,
+                                      ),
+                                    )
+                                  : Container();
+                            }
+                            if (item is OrderListItem) {
+                              final order = item.order;
+                              return Observer(
+                                builder: (_) {
+                                  // TODO: Refactor Amount Hiding Logic it is not working properly for Orders and Trades
+                                  final hide = dashboardViewModel.balanceViewModel.displayMode ==
+                                      BalanceDisplayMode.hiddenBalance;
+
+                                  final formattedAmount = hide ? '---' : order.amountFormatted();
+                                  final formattedReceiveAmount = hide ? '---' : order.receiveAmount;
+
+                                  return OrderRow(
+                                    key: item.key,
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.orderDetails, arguments: order),
+                                    providerTitle: order.providerTitle,
+                                    providerIconPath: order.providerIcon,
+                                    from: order.from ?? '',
+                                    to: order.to ?? '',
+                                    createdAtFormattedDate:
+                                        DateFormat('HH:mm').format(order.createdAt),
+                                    formattedAmount: formattedAmount,
+                                    formattedReceiveAmount:
+                                        dashboardViewModel.balanceViewModel.isFiatDisabled &&
+                                                order.source == OrderSourceDescription.order
+                                            ? ''
+                                            : formattedReceiveAmount,
+                                  );
+                                },
+                              );
+                            }
+                            return Container(color: Colors.transparent, height: 1);
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            key: ValueKey('transactions_page_placeholder_transactions_text_key'),
+                            S.of(context).placeholder_transactions,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

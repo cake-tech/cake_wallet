@@ -1,0 +1,265 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+import 'dart:typed_data';
+
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_mweb/cw_mweb.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mobx/mobx.dart';
+
+part 'litecoin_wallet_addresses.g.dart';
+
+class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
+
+abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
+  LitecoinWalletAddressesBase(
+    WalletInfo walletInfo, {
+    required super.mainHdByType,
+    required super.sideHdByType,
+    required super.legacyMainHd,
+    required super.legacySideHd,
+    required super.network,
+    required super.isHardwareWallet,
+    required this.mwebHd,
+    required this.mwebEnabled,
+    required this.scanSecretOverride,
+    required this.spendPubkeyOverride,
+    super.initialAddresses,
+    super.initialMwebAddresses,
+    super.initialRegularAddressIndex,
+    super.initialChangeAddressIndex,
+  }) : super(walletInfo) {
+    for (int i = 0; i < mwebAddresses.length; i++) {
+      mwebAddrs.add(mwebAddresses[i].address);
+    }
+    printV("initialized with ${mwebAddrs.length} mweb addresses");
+  }
+
+  final Bip32Slip10Secp256k1? mwebHd;
+  bool mwebEnabled;
+  int mwebTopUpIndex = 1000;
+  List<String> mwebAddrs = [];
+  bool generating = false;
+
+  final String? scanSecretOverride;
+  final String? spendPubkeyOverride;
+
+  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
+      ? hex.decode(scanSecretOverride!)
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+
+  List<int> get spendPubkey => (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
+      ? hex.decode(spendPubkeyOverride!)
+      : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ?? List.filled(32, 0);
+
+  @override
+  Future<void> init() async {
+    if (!isHardwareWallet) await initMwebAddresses();
+    await super.init();
+  }
+
+  @computed
+  @override
+  List<BitcoinAddressRecord> get allAddresses {
+    return List.from(super.allAddresses)..addAll(mwebAddresses);
+  }
+
+  Future<void> ensureMwebAddressUpToIndexExists(int _index) async {
+    final index = _index + 1;
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return null;
+    }
+    if ((scanSecret.length < 1 || scanSecret.reduce((a, b) => a + b) == 0) &&
+       (spendPubkey.length < 1 || spendPubkey.reduce((a, b) => a + b) == 0)) {
+      return null;
+    }
+
+    Uint8List scan = Uint8List.fromList(scanSecret);
+    Uint8List spend = Uint8List.fromList(spendPubkey);
+
+    if (index < mwebAddresses.length && index < mwebAddrs.length) {
+      return;
+    }
+
+    while (generating) {
+      printV("generating.....");
+      // this function was called multiple times in multiple places:
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    printV("Generating MWEB addresses up to index $index");
+    generating = true;
+    try {
+      while (mwebAddrs.length <= (index + 1)) {
+        final addresses = CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+        printV("generated up to index ${mwebAddrs.length}");
+        // sleep for a bit to avoid making the main thread unresponsive:
+        await Future.delayed(Duration(milliseconds: 200));
+        mwebAddrs.addAll(addresses!);
+      }
+    } catch (_) {}
+    generating = false;
+    printV("Done generating MWEB addresses len: ${mwebAddrs.length}");
+
+    // ensure mweb addresses are up to date:
+    // This is the Case if the Litecoin Wallet is a hardware Wallet
+    if (mwebHd == null && scanSecretOverride == null) return;
+
+    if (mwebAddresses.length < mwebAddrs.length) {
+      List<BitcoinAddressRecord> addressRecords = mwebAddrs
+          .asMap()
+          .entries
+          .map((e) => BitcoinAddressRecord(
+                e.value,
+                index: e.key,
+                type: SegwitAddresType.mweb,
+                network: network,
+              ))
+          .toList();
+      addMwebAddresses(addressRecords);
+      printV("set ${addressRecords.length} mweb addresses");
+    }
+  }
+
+  Future<void> initMwebAddresses() async {
+    if (mwebAddrs.length < 1000) {
+      await ensureMwebAddressUpToIndexExists(20);
+      return;
+    }
+  }
+
+  @override
+  String getAddress({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) {
+    if (addressType == SegwitAddresType.mweb) {
+      if (mwebAddrs.length == 0) {
+        return "";
+      }
+      return hd == legacySideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+    }
+    return generateP2WPKHAddress(hd: hd, index: index, network: network);
+  }
+
+  @override
+  Future<String> getAddressAsync({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) async {
+    if (addressType == SegwitAddresType.mweb) {
+      await ensureMwebAddressUpToIndexExists(index);
+    }
+    return getAddress(index: index, hd: hd, addressType: addressType);
+  }
+
+  @action
+  @override
+  Future<BitcoinAddressRecord> getChangeAddress(
+      {List<BitcoinUnspent>? inputs,
+      List<BitcoinOutput>? outputs,
+      UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
+    // use regular change address on peg in, otherwise use mweb for change address:
+
+    if (!mwebEnabled || coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+      return super.getChangeAddress();
+    }
+
+    if (inputs != null && outputs != null) {
+      // check if this is a PEGIN:
+      bool outputsToMweb = false;
+      bool comesFromMweb = false;
+
+      for (var i = 0; i < outputs.length; i++) {
+        // TODO: probably not the best way to tell if this is an mweb address
+        // (but it doesn't contain the "mweb" text at this stage)
+        if (outputs[i].address.toAddress(network).length > 110) {
+          outputsToMweb = true;
+        }
+      }
+
+      inputs.forEach((element) {
+        if (!element.isSending || element.isFrozen) {
+          return;
+        }
+        if (element.address.startsWith("ltcmweb")) {
+          comesFromMweb = true;
+        }
+      });
+
+      bool isPegIn = !comesFromMweb && outputsToMweb;
+      bool isNonMweb = !comesFromMweb && !outputsToMweb;
+
+      // use regular change address if it's not an mweb tx or if it's a peg in:
+      if (isPegIn || isNonMweb) {
+        return super.getChangeAddress();
+      }
+    }
+
+    if (mwebEnabled) {
+      await ensureMwebAddressUpToIndexExists(1);
+      if (mwebAddrs.isNotEmpty) {
+        updateChangeAddresses();
+        return BitcoinAddressRecord(
+          mwebAddrs[0],
+          index: 0,
+          type: SegwitAddresType.mweb,
+          network: network,
+        );
+      }
+    }
+
+    return super.getChangeAddress();
+  }
+
+  @override
+  String get addressForExchange {
+    // don't use mweb addresses for exchange refund address:
+
+    final current = getFreshAddress();
+    final bool isMweb = receiveAddresses
+        .any((e) => e.address == current && e.type == SegwitAddresType.mweb);
+
+    if (isMweb) {
+      final segwit = receiveAddresses
+          .where((e) => e.type == SegwitAddresType.p2wpkh && !e.isUsed && !e.isHidden && !hiddenAddresses.contains(e.address))
+          .map((e) => e.address)
+          .toList();
+
+      return segwit.isNotEmpty ? segwit.first : current;
+    }
+
+    return current;
+  }
+
+  @override
+  List<ReceivePageOption> get receivePageOptions {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows || isHardwareWallet) {
+      return [
+        ...BitcoinReceivePageOption.allLitecoin
+            .where((element) => element != BitcoinReceivePageOption.mweb),
+        ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+      ];
+    }
+    return [
+      ...BitcoinReceivePageOption.allLitecoin,
+      ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+    ];
+  }
+
+  @override
+  PaymentURI getPaymentUri(String amount) => LitecoinURI(amount: amount, address: address);
+}

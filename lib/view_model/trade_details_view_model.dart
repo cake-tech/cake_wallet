@@ -1,0 +1,237 @@
+import 'dart:async';
+
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_provider_unsupported_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cw_core/currencies_with_memo.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/services.dart';
+import 'package:mobx/mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+part 'trade_details_view_model.g.dart';
+
+class TradeDetailsViewModel = TradeDetailsViewModelBase with _$TradeDetailsViewModel;
+
+abstract class TradeDetailsViewModelBase with Store {
+  TradeDetailsViewModelBase({
+    required Trade tradeForDetails,
+    required this.appStore,
+  })  : items = ObservableList<StandartListItem>(),
+        trade = tradeForDetails {
+    switch (trade.provider) {
+      case ExchangeProviderDescription.changeNow:
+        _provider = ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
+        break;
+      case ExchangeProviderDescription.sideShift:
+        _provider = SideShiftExchangeProvider();
+        break;
+      case ExchangeProviderDescription.simpleSwap:
+        _provider = SimpleSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.trocador:
+        _provider = TrocadorExchangeProvider();
+        break;
+      case ExchangeProviderDescription.exolix:
+        _provider = ExolixExchangeProvider();
+        break;
+      case ExchangeProviderDescription.thorChain:
+        _provider = ThorChainExchangeProvider();
+        break;
+      case ExchangeProviderDescription.swapTrade:
+        _provider = SwapTradeExchangeProvider();
+      case ExchangeProviderDescription.letsExchange:
+        _provider = LetsExchangeExchangeProvider();
+        break;
+      case ExchangeProviderDescription.stealthEx:
+        _provider = StealthExExchangeProvider();
+        break;
+      case ExchangeProviderDescription.chainflip:
+        _provider = ChainflipExchangeProvider();
+        break;
+      case ExchangeProviderDescription.xoSwap:
+        _provider = XOSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.swapsXyz:
+        _provider = SwapsXyzExchangeProvider();
+        break;
+      case ExchangeProviderDescription.jupiter:
+        _provider = JupiterExchangeProvider();
+        break;
+      case ExchangeProviderDescription.nearIntents:
+        _provider = NearIntentsExchangeProvider();
+        break;
+    }
+
+    _updateItems();
+
+    if (_provider != null) {
+      _updateTrade();
+      timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    }
+  }
+
+  static String? getTrackUrl(ExchangeProviderDescription provider, Trade trade) {
+    switch (provider) {
+      case ExchangeProviderDescription.changeNow:
+        return 'https://changenow.io/exchange/txs/${trade.id}';
+      case ExchangeProviderDescription.sideShift:
+        return 'https://sideshift.ai/orders/${trade.id}';
+      case ExchangeProviderDescription.simpleSwap:
+        return 'https://simpleswap.io/exchange?id=${trade.id}';
+      case ExchangeProviderDescription.trocador:
+        return 'https://trocador.app/en/checkout/${trade.id}';
+      case ExchangeProviderDescription.exolix:
+        return 'https://exolix.com/transaction/${trade.id}';
+      case ExchangeProviderDescription.thorChain:
+        return 'https://track.ninerealms.com/${trade.id}';
+      case ExchangeProviderDescription.swapTrade:
+        return 'https://swaptrade.io/send/${trade.id}';
+      case ExchangeProviderDescription.letsExchange:
+        return 'https://letsexchange.io/?transactionId=${trade.id}';
+      case ExchangeProviderDescription.stealthEx:
+        return 'https://stealthex.io/exchange/?id=${trade.id}';
+      case ExchangeProviderDescription.chainflip:
+        return 'https://scan.chainflip.io/channels/${trade.id}';
+      case ExchangeProviderDescription.xoSwap:
+        return  'https://orders.xoswap.com/${trade.id}';
+      case ExchangeProviderDescription.swapsXyz:
+        return  'https://scan.swaps.xyz/transactions/${trade.id}';
+      case ExchangeProviderDescription.jupiter:
+        return 'https://solscan.io/tx/${trade.txId}';
+      case ExchangeProviderDescription.nearIntents:
+        return  'https://explorer.near-intents.org/transactions/${trade.id}';
+    }
+    return null;
+  }
+
+  @observable
+  Trade trade;
+
+  @observable
+  ObservableList<StandartListItem> items;
+
+  ExchangeProvider? _provider;
+
+  Timer? timer;
+
+  final AppStore appStore;
+
+  @action
+  Future<void> _updateTrade() async {
+    try {
+      final updatedTrade = await _provider!.findTradeById(id: trade.id);
+
+      trade.mergeFindTradeByIdResult(updatedTrade);
+      await trade.save();
+
+      _updateItems();
+    } catch (e) {
+      printV(e.toString());
+    }
+  }
+
+  void _updateItems() {
+    final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
+
+    items.clear();
+
+    if (_provider == null)
+      items.add(TradeProviderUnsupportedItem(
+          error: S.current.exchange_provider_unsupported(trade.provider.title)));
+
+    items.add(
+        DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
+
+    final tradeFrom = trade.from;
+    final tradeTo   = trade.to;
+
+    if (tradeFrom != null && tradeTo != null) {
+      items.add(TradeDetailsListCardItem.tradeDetails(
+        id: trade.id,
+        extraId: trade.extraId,
+        createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
+        from: tradeFrom,
+        to: tradeTo,
+        onTap: (context) {
+          Clipboard.setData(ClipboardData(text: trade.id));
+          showBar<void>(context, S.of(context).copied_to_clipboard);
+        },
+      ));
+    }
+
+    final destinationMemo = trade.toAddressExtraId;
+    final destinationCurrency = trade.to;
+    if (destinationMemo != null &&
+        destinationMemo.isNotEmpty &&
+        destinationCurrency != null) {
+      final isDestinationTag =
+          memoLabelTypeFor(destinationCurrency) == MemoLabelType.destinationTag;
+      items.add(StandartListItem(
+          title: isDestinationTag ? S.current.destination_tag : S.current.memo,
+          value: destinationMemo));
+    }
+
+    items.add(StandartListItem(
+        title: S.current.trade_details_provider, value: trade.provider.toString()));
+
+    final trackUrl = TradeDetailsViewModelBase.getTrackUrl(trade.provider, trade);
+    if (trackUrl != null) {
+      items.add(TrackTradeListItem(
+          title: S.current.track, value: trackUrl, onTap: () => _launchUrl(trackUrl)));
+    }
+
+    if (trade.isRefund == true) {
+      items.add(StandartListItem(
+          title: 'Refund', value: trade.refundAddress ?? ''));
+    }
+
+    if (trade.provider == ExchangeProviderDescription.trocador) {
+      items.add(StandartListItem(
+          title: '${trade.providerName} ${S.current.id.toUpperCase()}',
+          value: trade.providerId ?? ''));
+
+      if (trade.password != null && trade.password!.isNotEmpty) {
+        items.add(StandartListItem(
+            title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
+      }
+    }
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz && trade.txId != null && trade.txId!.isNotEmpty) {
+      items.add(StandartListItem(
+          title: 'Transaction ID', value: trade.txId!));
+    }
+  }
+
+  void _launchUrl(String url) {
+    final uri = Uri.parse(url);
+    try {
+      launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {}
+  }
+
+
+}

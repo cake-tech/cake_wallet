@@ -1,0 +1,58 @@
+[
+  {
+    "question" : "Was ist der Unterschied zwischen verfügbarem Guthaben und vollständigem Guthaben?",
+    "answer" : "Nachdem Sie eine Transaktion getätigt oder Monero erhalten haben, muss die Transaktion noch bestätigt werden. In ungefähr 20 Minuten sollte Ihr \"verfügbares Guthaben\" aktualisiert werden!\nWenn Sie Monero senden, verringert sich manchmal Ihr verfügbares Guthaben um mehr als den Betrag, den Sie gesendet haben. Dies ist normal und zum Schutz Ihrer Privatsphäre erforderlich. Ihr \"vollständiges Guthaben\" sollte in 20 Minuten wieder normal sein.\n"
+  },
+  {
+    "question" : "Wie sende ich Monero an eine Börse, für die eine Zahlungs-ID erforderlich ist?",
+    "answer" : "Tippen Sie auf dem Wallet-Bildschirm auf die Schaltfläche \"Senden\". Kopieren Sie anschließend die Einzahlungsadresse der Börse und fügen Sie sie in das Feld \"Adresse\" ein. Kopieren Sie dann die vom Umtausch bereitgestellte Zahlungs-ID und fügen Sie sie in das Feld Zahlungs-ID ein. Geben Sie zum Schluss den Betrag ein, den Sie senden möchten, und los geht's!\n"
+  },
+  {
+    "question" : "Was kann ich tun, wenn ich beim Senden von Monero an eine Börse vergessen habe, die Zahlungs-ID einzugeben?",
+    "answer" : "Obwohl unser Support Sie bei diesem Problem nicht direkt unterstützen kann, ist es ein sehr häufiges Problem, mit dem die meisten Börsen vertraut sind. Wenden Sie sich einfach an den Support der Börse, erklären Sie, dass Sie vergessen haben, Ihre Zahlungs-ID anzugeben, und senden Sie ihnen dann Ihre Transaktions-ID als Nachweis. Sie finden die Transaktions-ID, indem Sie auf die Transaktion in Ihrem Wallet-Bildschirm tippen.\n"
+  },
+  {
+    "question" : "Was bedeuten \"Seed\" und \"Schlüssel\"?",
+    "answer" : "Ihre Schlüssel verschlüsseln die privaten Informationen in Ihrer Brieftasche und ermöglichen es Ihnen, Münzen auszugeben und eingehende Transaktionen anzuzeigen.\nIhr Startwert ist nur eine Version Ihres privaten Schlüssels, die so geschrieben wurde, dass Sie sie leichter notieren können. Ihr Same und Schlüssel sind tatsächlich dasselbe, nur in verschiedenen Formen!\nGeben Sie niemals Ihren Seed oder Schlüssel an jemanden weiter. Ihr Geld wird gestohlen, wenn Sie Ihren Seed oder Schlüssel herausgeben. Bitte notieren Sie sich jedoch Ihren Seed und bewahren Sie ihn an einem sicheren Ort auf (so können Sie Ihr Wallet wiederherstellen, wenn Sie Ihr Telefon verlieren.)\n"
+  },
+  {
+    "question" : "Wie viele Geldbörsen kann ich erstellen?",
+    "answer" : "Es gibt keine Grenzen! Sie können so viele Brieftaschen erstellen, wie Sie möchten.\n"
+  },
+  {
+    "question" : "Wie kann ich mein Wallet wiederherstellen?",
+    "answer" : "Tippen Sie auf das Menü •••, wählen Sie „Wallest“ und dann „Wallet wiederherstellen“. Geben Sie dann Ihren Seed (oder Ihre Schlüssel) und optional ein Datum vor der ersten Transaktion in Ihrem Wallet ein (dies beschleunigt den Synchronisierungsvorgang) .) Möglicherweise müssen Sie die App 15 bis 30 Minuten geöffnet lassen, um Ihr Wallet vollständig wiederherzustellen.\n"
+  },
+  {
+    "question" : "Was kann ich tun, wenn ich meinen Seed verliere?",
+    "answer" : "Wenn Sie Ihren Seed vergessen haben, haben Sie ihn wahrscheinlich irgendwo aufgeschrieben. Bitte überprüfen Sie Ihre Notizen und schauen Sie sich auf Ihrem Computer um. Wenn Sie es nirgendwo finden, haben Sie möglicherweise Cake Wallet gesichert (in diesem Fall können Sie es aus diesem Backup wiederherstellen.) Wenn keines dieser Probleme auftritt, können wir leider nichts tun.\n"
+  },
+  {
+    "question" : "Sammeln Sie Informationen zu meinem Wallet?",
+    "answer" : "Cake Wallet sammelt oder zeichnet keine Informationen über Ihr Wallet auf. Ihre Privatsphäre ist uns wichtig.\n"
+  },
+  {
+    "question" : "Kann ich eine Transaktion stornieren?",
+    "answer" : "Sobald eine Transaktion an die Blockchain gesendet wurde, kann sie leider nicht mehr rückgängig gemacht werden. Sie können die Transaktion jederzeit abbrechen, bevor sie gesendet wird. Überprüfen Sie die Adresse daher immer, bevor Sie eine Transaktion senden.\n"
+  },
+  {
+    "question" : "Was sind Subadressen und wie verwende ich sie?",
+    "answer" : "Eine Unteradresse ist im Grunde eine eindeutige Adresse, die Sie jederzeit generieren können. An sie gesendete Münzen landen weiterhin in Ihrer Hauptwallet, aber die Person, die die Coins sendet, kann Ihre Hauptadresse nicht ermitteln. Unteradressen beginnen immer mit „8“.\nSie können eine neue Unteradresse im Empfangsbildschirm erstellen, indem Sie auf das „+“ neben der Schaltfläche Unteradressen tippen. Geben Sie einen Namen für die Unteradresse ein und tippen Sie auf \"Hinzufügen\". Dann tippen Sie einfach auf den Namen der Subadresse, wenn Sie ihn verwenden möchten!\nWenn Sie paranoid sind, sollten Sie wahrscheinlich jedes Mal, wenn Sie Monero erhalten, eine neue Unteradresse erstellen.\n"
+  },
+  {
+    "question" : "Was ist eine Transaktions-ID?",
+    "answer" : "Ein Transaktions-Hash oder eine Transaktions-ID ist eine eindeutige Methode, um eine Transaktion zu identifizieren. Jede Transaktion hat einen eigenen Hash. Wenn Sie jemandem einen Transaktions-Hash zur Verfügung stellen müssen, gehen Sie einfach zum Hauptbildschirm der Brieftasche, tippen Sie auf die Transaktion, halten Sie im oberen Bereich die Taste gedrückt und wählen Sie Kopieren.\n"
+  },
+  {
+    "question" : "Ich habe meine XMR nicht erhalten! Was kann ich tun?",
+    "answer" : "Wenn Sie Ihren Monero nicht erhalten haben, möchten Sie möglicherweise auf das Menü ••• tippen und auf Reconnect (Neu verbinden) klicken. Wenn dies nicht funktioniert, gehen Sie in das Einstellungsmenü, tippen Sie auf das Feld \"Aktueller Knoten\" und wählen Sie einen Knoten mit einem grünen Punkt daneben aus.\n"
+  },
+  {
+    "question" : "Ich habe in der App keine Coins aus dem Umtausch erhalten. Was kann ich tun?",
+    "answer" : "Wenn Sie Probleme mit einem Austausch haben, besteht die beste Option, den Austausch selbst zu kontaktieren. Wir haben uns mit Chechenow, Simpleswap, Sideshift und Trocador zusammengetan. Am besten wechseln Sie zu https://changenow.io, https://simpleswap.io/, https://sideshift.ai/, https://trocador.app/ und kontaktieren Sie ihre Unterstützung.\n"
+  },
+  {
+    "question" : "Wie kontaktiere ich den Cake Wallet-Support?",
+    "answer" : "Senden Sie eine E-Mail an support@cakewallet.com, schließen Sie sich dem Telegramm unter @cakewallet_bot an oder twittern Sie @CakeWalletXMR!\n"
+  }
+]

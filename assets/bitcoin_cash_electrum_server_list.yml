@@ -1,0 +1,11 @@
+-
+  uri: bitcoincash.stackwallet.com:50002
+  isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Stack Wallet"
+-
+  uri: bch.aftrek.org:50002
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Aftrek"

@@ -1,0 +1,23 @@
+-
+  uri: ethereum-rpc.publicnode.com
+  useSSL: true
+  isDefault: true
+  isEnabledForAutoSwitching: true
+  label: "PublicNode"
+-
+  uri: eth.llamarpc.com
+  useSSL: true
+  label: "LlamaNodes"
+-
+  uri: rpc.flashbots.net
+  useSSL: true
+  label: "Flashbots"
+-
+  uri: eth-mainnet.public.blastapi.io
+  useSSL: true
+  label: "Blast"
+-
+  uri: eth.nownodes.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "NOWNodes"

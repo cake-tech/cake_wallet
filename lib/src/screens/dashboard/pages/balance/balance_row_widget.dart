@@ -1,0 +1,693 @@
+import 'dart:math';
+
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class BalanceRowWidget extends StatelessWidget {
+  BalanceRowWidget({
+    required this.availableBalanceLabel,
+    required this.availableBalance,
+    required this.availableFiatBalance,
+    required this.additionalBalanceLabel,
+    required this.additionalBalance,
+    required this.additionalFiatBalance,
+    required this.secondAvailableBalanceLabel,
+    required this.secondAvailableBalance,
+    required this.secondAvailableFiatBalance,
+    required this.secondAdditionalBalanceLabel,
+    required this.secondAdditionalBalance,
+    required this.secondAdditionalFiatBalance,
+    required this.frozenBalance,
+    required this.frozenFiatBalance,
+    required this.currency,
+    required this.hasAdditionalBalance,
+    required this.hasSecondAvailableBalance,
+    required this.hasSecondAdditionalBalance,
+    required this.isTestnet,
+    required this.dashboardViewModel,
+    super.key,
+  });
+
+  final String availableBalanceLabel;
+  final String availableBalance;
+  final String availableFiatBalance;
+  final String additionalBalanceLabel;
+  final String additionalBalance;
+  final String additionalFiatBalance;
+  final String secondAvailableBalanceLabel;
+  final String secondAvailableBalance;
+  final String secondAvailableFiatBalance;
+  final String secondAdditionalBalanceLabel;
+  final String secondAdditionalBalance;
+  final String secondAdditionalFiatBalance;
+  final String frozenBalance;
+  final String frozenFiatBalance;
+  final CryptoCurrency currency;
+  final bool hasAdditionalBalance;
+  final bool hasSecondAvailableBalance;
+  final bool hasSecondAdditionalBalance;
+  final bool isTestnet;
+  final DashboardViewModel dashboardViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(left: 16, right: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15.0),
+            gradient: LinearGradient(
+              colors: [
+                context.customColors.cardGradientColorPrimary,
+                context.customColors.cardGradientColorSecondary,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: TextButton(
+            onPressed: _showToast,
+            onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+            style: TextButton.styleFrom(
+              side: BorderSide(
+                  width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            ),
+            child: Container(
+              margin: const EdgeInsets.only(
+                top: 10,
+                left: 12,
+                right: 12,
+                bottom: 10,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: hasAdditionalBalance
+                                  ? () => _showBalanceDescription(
+                                      context, S.of(context).available_balance_description)
+                                  : null,
+                              child: Row(
+                                children: [
+                                  Semantics(
+                                    hint: 'Double tap to see more information',
+                                    container: true,
+                                    child: Text(
+                                      '${availableBalanceLabel}',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1,
+                                          ),
+                                    ),
+                                  ),
+                                  if (hasAdditionalBalance)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Icon(
+                                        Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            AutoSizeText(
+                              availableBalance,
+                              minFontSize: 16,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 24,
+                                    height: 1,
+                                  ),
+                              maxLines: 1,
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(height: 6),
+                            if (isTestnet)
+                              Text(
+                                S.of(context).testnet_coins_no_value,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      height: 1,
+                                    ),
+                              ),
+                            if (!isTestnet)
+                              Text(
+                                '${availableFiatBalance}',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      height: 1,
+                                    ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            CakeImageWidget(
+                              imageUrl: currency.iconPath,
+                              height: 40,
+                              width: 40,
+                              errorWidget: Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    currency.title.substring(0, min(currency.title.length, 2)),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              currency.title,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    height: 1,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (currency.isPotentialScam)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      margin: const EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_outlined,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            S.of(context).potential_scam,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onErrorContainer,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (frozenBalance.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 26),
+                        Row(
+                          children: [
+                            Text(
+                              S.of(context).frozen_balance,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    height: 1,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        AutoSizeText(
+                          frozenBalance,
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.primary,
+                                height: 1,
+                              ),
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        if (!isTestnet)
+                          Text(
+                            frozenFiatBalance,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(height: 1),
+                          ),
+                      ],
+                    ),
+                  if (hasAdditionalBalance)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        Text(
+                          '${additionalBalanceLabel}',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        AutoSizeText(
+                          additionalBalance,
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.secondary,
+                                height: 1,
+                              ),
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        if (!isTestnet)
+                          Text(
+                            '${additionalFiatBalance}',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(height: 1),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
+          SizedBox(height: 10),
+          Container(
+            margin: const EdgeInsets.only(left: 16, right: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                colors: [
+                  context.customColors.cardGradientColorPrimary,
+                  context.customColors.cardGradientColorSecondary,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: TextButton(
+              onPressed: _showToast,
+              onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+              style: TextButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, left: 12, right: 8, bottom: 10),
+                    child: Stack(
+                      children: [
+                        if (currency == CryptoCurrency.ltc)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(
+                                children: [
+                                  ImageIcon(
+                                    AssetImage('assets/images/mweb_logo.png'),
+                                    size: 40,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'MWEB',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        if (currency == CryptoCurrency.btc)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/lightning-icon.svg',
+                                    width: 40,
+                                    height: 40,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'Lightning',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        if (hasSecondAvailableBalance)
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: onPressedHelp,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          secondAvailableBalanceLabel,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                                height: 1,
+                                              ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: Icon(
+                                            Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  AutoSizeText(
+                                    secondAvailableBalance,
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w800,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
+                                    maxLines: 1,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(height: 6),
+                                  if (!isTestnet)
+                                    Text(
+                                      secondAvailableFiatBalance,
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1,
+                                          ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 0, left: 24, right: 8, bottom: 16),
+                    child: Stack(
+                      children: [
+                        if (hasSecondAdditionalBalance)
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 24),
+                                  Text(
+                                    secondAdditionalBalanceLabel,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          height: 1,
+                                        ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  AutoSizeText(
+                                    secondAdditionalBalance,
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          fontSize: 20,
+                                          color: Theme.of(context).colorScheme.secondary,
+                                          height: 1,
+                                        ),
+                                    maxLines: 1,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(height: 4),
+                                  if (!isTestnet)
+                                    Text(
+                                      '${secondAdditionalFiatBalance}',
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            height: 1,
+                                          ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  IntrinsicHeight(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Semantics(
+                              label: depositToL2Label,
+                              child: OutlinedButton(
+                                onPressed: () => depositToL2(context),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  side: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
+                                    width: 0,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        height: 30,
+                                        width: 30,
+                                        'assets/images/received.png',
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        depositToL2Label,
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                              color: Theme.of(context).colorScheme.onPrimary,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Semantics(
+                              label: withdrawFromL2Label,
+                              child: OutlinedButton(
+                                onPressed: () => withdrawFromL2(context),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.surface,
+                                  side: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
+                                    width: 0,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        height: 30,
+                                        width: 30,
+                                        'assets/images/upload.png',
+                                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        withdrawFromL2Label,
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondaryContainer,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  String get depositToL2Label => dashboardViewModel.type == WalletType.litecoin
+      ? S.current.litecoin_mweb_pegin
+      : S.current.bitcoin_lightning_deposit;
+
+  String get withdrawFromL2Label => dashboardViewModel.type == WalletType.litecoin
+      ? S.current.litecoin_mweb_pegout
+      : S.current.bitcoin_lightning_withdraw;
+
+  Future<void> depositToL2(BuildContext context) async {
+    PaymentRequest? paymentRequest = null;
+
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      final depositAddress = bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$depositAddress"));
+      }
+    } else if (dashboardViewModel.type == WalletType.bitcoin) {
+      final depositAddress = await bitcoin!.getUnusedSpakDepositAddress(dashboardViewModel.wallet);
+      if ((depositAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$depositAddress"));
+      }
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+      },
+    );
+  }
+
+  Future<void> withdrawFromL2(BuildContext context) async {
+    PaymentRequest? paymentRequest = null;
+    UnspentCoinType unspentCoinType = UnspentCoinType.any;
+    final withdrawAddress = bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
+
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.mweb;
+    } else if (dashboardViewModel.type == WalletType.bitcoin) {
+      if ((withdrawAddress?.isNotEmpty ?? false)) {
+        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$withdrawAddress"));
+      }
+      unspentCoinType = UnspentCoinType.lightning;
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.send,
+      arguments: {
+        'paymentRequest': paymentRequest,
+        'coinTypeToSpendFrom': unspentCoinType,
+      },
+    );
+  }
+
+  void onPressedHelp() {
+    var helpUri = Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin#lightning");
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      helpUri = Uri.parse("https://docs.cakewallet.com/cryptos/litecoin#mweb");
+    }
+
+    launchUrl(helpUri, mode: LaunchMode.externalApplication);
+  }
+
+  void _showBalanceDescription(BuildContext context, String content) {
+    showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));
+  }
+
+  void _showToast() async {
+    try {
+      await Fluttertoast.showToast(
+        msg: S.current.show_balance_toast,
+        backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
+      );
+    } catch (_) {}
+  }
+}

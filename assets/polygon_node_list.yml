@@ -1,0 +1,14 @@
+-
+  uri: polygon-bor-rpc.publicnode.com
+  useSSL: true
+  isDefault: true
+  isEnabledForAutoSwitching: true
+  label: "polygon-bor-rpc.publicnode.com"
+-
+  uri: polygon-rpc.com
+  label: "Ankr"
+-
+  uri: matic.nownodes.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "NOWNodes"

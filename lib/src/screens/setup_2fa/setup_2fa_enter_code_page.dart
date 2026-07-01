@@ -1,0 +1,242 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/view_model/auth_state.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/material.dart';
+
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
+
+import '../../../routes.dart';
+
+typedef OnTotpAuthenticationFinished = void Function(bool, TotpAuthCodePageState);
+
+class TotpAuthCodePage extends StatefulWidget {
+  TotpAuthCodePage(
+    this.setup2FAViewModel, {
+    required this.totpArguments,
+  });
+
+  final Setup2FAViewModel setup2FAViewModel;
+
+  final TotpAuthArgumentsModel totpArguments;
+
+  @override
+  TotpAuthCodePageState createState() => TotpAuthCodePageState();
+}
+
+class TotpAuthCodePageState extends State<TotpAuthCodePage> {
+  final _key = GlobalKey<ScaffoldState>();
+
+  ReactionDisposer? _reaction;
+  Flushbar<void>? _authBar;
+  Flushbar<void>? _progressBar;
+
+  @override
+  void initState() {
+    if (widget.totpArguments.onTotpAuthenticationFinished != null) {
+      _reaction ??= reaction((_) => widget.setup2FAViewModel.state, (ExecutionState state) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (state is ExecutedSuccessfullyState) {
+            widget.totpArguments.onTotpAuthenticationFinished!(true, this);
+          }
+
+          if (state is FailureState) {
+            printV(state.error);
+            widget.totpArguments.onTotpAuthenticationFinished!(false, this);
+          }
+
+          if (state is AuthenticationBanned) {
+            widget.totpArguments.onTotpAuthenticationFinished!(false, this);
+          }
+        });
+      });
+    }
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _reaction?.reaction.dispose();
+    super.dispose();
+  }
+
+  void changeProcessText(String text) {
+    dismissFlushBar(_authBar);
+    _progressBar = createBar<void>(text, context, duration: null)..show(_key.currentContext!);
+  }
+
+  Future<void> close({String? route, dynamic arguments}) async {
+    if (_key.currentContext == null) {
+      throw Exception('Key context is null. Should be not happened');
+    }
+    await Future<void>.delayed(Duration(milliseconds: 50));
+    if (route != null) {
+      Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
+    } else {
+      Navigator.of(_key.currentContext!).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _key,
+      body: TOTPEnterCode(
+        setup2FAViewModel: widget.setup2FAViewModel,
+        isForSetup: widget.totpArguments.isForSetup ?? false,
+        isClosable: widget.totpArguments.isClosable ?? true,
+      ),
+    );
+  }
+
+  void dismissFlushBar(Flushbar<dynamic>? bar) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await bar?.dismiss();
+    });
+  }
+}
+
+class TOTPEnterCode extends StatefulWidget {
+  const TOTPEnterCode({
+    required this.setup2FAViewModel,
+    required this.isForSetup,
+    required this.isClosable,
+  });
+
+
+  final Setup2FAViewModel setup2FAViewModel;
+  final bool isForSetup;
+  final bool isClosable;
+
+  @override
+  State<TOTPEnterCode> createState() => _TOTPEnterCodeState();
+}
+
+class _TOTPEnterCodeState extends State<TOTPEnterCode> {
+  final totpController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    totpController.addListener(() {
+      widget.setup2FAViewModel.enteredOTPCode = totpController.text;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: SafeArea(
+        child: Column(
+          children: [
+            ModalTopBar(
+              title: widget.isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa,
+              leadingIcon: Icon(Icons.arrow_back_ios_new),
+              onLeadingPressed: Navigator.of(context).pop,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                ),
+                child: Column(
+                  children: [
+
+                    BaseTextFormField(
+                      textAlign: TextAlign.left,
+                      hintText: S.current.totp_code,
+                      controller: totpController,
+                      keyboardType: TextInputType.number,
+                      placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 16,
+                          ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      S.current.please_fill_totp,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            height: 1.2,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Spacer(),
+                    Observer(
+                      builder: (context) {
+                        return PrimaryButton(
+                          isDisabled: widget.setup2FAViewModel.enteredOTPCode.length != 8,
+                          onPressed: () async {
+                            final result =
+                                await widget.setup2FAViewModel.totp2FAAuth(totpController.text, widget.isForSetup);
+                            final bannedState = widget.setup2FAViewModel.state is AuthenticationBanned;
+
+                            await showPopUp<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return PopUpCancellableAlertDialog(
+                                  contentText: _textDisplayedInPopupOnResult(result, bannedState, context),
+                                  actionButtonText: S.of(context).ok,
+                                  buttonAction: () {
+                                    result ? widget.setup2FAViewModel.success() : null;
+                                    if (widget.isForSetup && result) {
+                                      Navigator.pop(context);
+                                      // Navigator.of(context)
+                                      //     .popAndPushNamed(Routes.modify2FAPage);
+                                    } else {
+                                      Navigator.of(context).pop(result);
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                            if (widget.isForSetup && result) {
+                              if (context.mounted) {
+                                Navigator.pushReplacementNamed(context, Routes.modify2FAPage);
+                              }
+                            }
+                          },
+                          text: S.of(context).continue_text,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                        );
+                      },
+                    ),
+                    SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _textDisplayedInPopupOnResult(bool result, bool bannedState, BuildContext context) {
+    switch (result) {
+      case true:
+        return widget.isForSetup ? S.current.totp_2fa_success : S.current.totp_verification_success;
+      case false:
+        if (bannedState) {
+          final state = widget.setup2FAViewModel.state as AuthenticationBanned;
+          return S.of(context).failed_authentication(state.error);
+        } else {
+          return S.current.totp_2fa_failure;
+        }
+    }
+  }
+}

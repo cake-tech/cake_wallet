@@ -1,0 +1,19 @@
+name: No print statements in dart files
+
+on: [pull_request]
+
+jobs:
+  PR_test_build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for print() statements in dart code (use printV() instead)
+        if: github.event_name == 'pull_request'
+        run: |
+          GIT_GREP_OUT="$(git grep ' print(' | (grep .dart: || test $? = 1) | (grep -v print_verbose.dart || test $? = 1) | (grep -v print_verbose_dummy.dart || test $? = 1) || true)"
+          [[ "x$GIT_GREP_OUT" == "x" ]] && exit 0
+          echo "$GIT_GREP_OUT"
+          echo "There are .dart files which use print() statements"
+          echo "Please use printV from package:cw_core/utils/print_verbose.dart"
+          exit 1

@@ -1,0 +1,280 @@
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/setting_action_button.dart';
+import 'package:cake_wallet/src/widgets/setting_actions.dart';
+import 'package:flutter/material.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+
+class MenuWidget extends StatefulWidget {
+  MenuWidget(this.dashboardViewModel, Key? key);
+
+  final DashboardViewModel dashboardViewModel;
+
+  @override
+  MenuWidgetState createState() => MenuWidgetState();
+}
+
+class MenuWidgetState extends State<MenuWidget> {
+  MenuWidgetState()
+      : this.menuWidth = 0,
+        this.screenWidth = 0,
+        this.screenHeight = 0,
+        this.headerHeight = 120,
+        this.tileHeight = 60,
+        this.fromTopEdge = 50,
+        this.fromBottomEdge = 25,
+        this.moneroIcon = Image.asset('assets/new-ui/crypto_full_icons/monero.svg'),
+        this.bitcoinIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin.svg'),
+        this.litecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/litecoin.svg'),
+        this.havenIcon = Image.asset('assets/images/haven_menu.webp'),
+        this.ethereumIcon = Image.asset('assets/new-ui/crypto_full_icons/ethereum.svg'),
+        this.nanoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg'),
+        this.bananoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg'),
+        this.bitcoinCashIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin-cash.svg'),
+        this.polygonIcon = Image.asset('assets/new-ui/crypto_full_icons/polygon.svg'),
+        this.baseIcon = Image.asset('assets/new-ui/crypto_full_icons/base.svg'),
+        this.arbitrumIcon = Image.asset('assets/new-ui/crypto_full_icons/arbitrum.svg'),
+        this.bscIcon = Image.asset('assets/new-ui/crypto_full_icons/bnb.svg'),
+        this.solanaIcon = Image.asset('assets/new-ui/crypto_full_icons/solana.svg'),
+        this.tronIcon = Image.asset('assets/new-ui/crypto_full_icons/tron.svg'),
+        this.wowneroIcon = Image.asset('assets/new-ui/crypto_full_icons/wownero.svg'),
+        this.zanoIcon = Image.asset('assets/new-ui/crypto_full_icons/zano.svg'),
+        this.decredIcon = Image.asset('assets/new-ui/crypto_full_icons/decred.svg'),
+        this.dogecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg'),
+        this.zcashIcon = Image.asset('assets/new-ui/crypto_full_icons/zcash.svg');
+
+  final largeScreen = 731;
+
+  double menuWidth;
+  double screenWidth;
+  double screenHeight;
+
+  double headerHeight;
+  double tileHeight;
+  double fromTopEdge;
+  double fromBottomEdge;
+
+  Image moneroIcon;
+  Image bitcoinIcon;
+  Image litecoinIcon;
+  Image havenIcon;
+  Image ethereumIcon;
+  Image bitcoinCashIcon;
+  Image nanoIcon;
+  Image bananoIcon;
+  Image polygonIcon;
+  Image baseIcon;
+  Image arbitrumIcon;
+  Image bscIcon;
+  Image solanaIcon;
+  Image tronIcon;
+  Image wowneroIcon;
+  Image zanoIcon;
+  Image decredIcon;
+  Image dogecoinIcon;
+  Image zcashIcon;
+
+  @override
+  void initState() {
+    menuWidth = 0;
+    screenWidth = 0;
+    screenHeight = 0;
+
+    headerHeight = 120;
+    tileHeight = 60;
+    fromTopEdge = 50;
+    fromBottomEdge = 25;
+
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(afterLayout);
+  }
+
+  void afterLayout(dynamic _) {
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    setState(() {
+      menuWidth = screenWidth;
+
+      if (screenHeight > largeScreen) {
+        final scale = screenHeight / largeScreen;
+        tileHeight *= scale;
+        headerHeight *= scale;
+        fromTopEdge *= scale;
+        fromBottomEdge *= scale;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<SettingActions> items = List.of(SettingActions.all);
+    if (!widget.dashboardViewModel.hasSilentPayments) {
+      items.removeWhere(
+          (element) => element.name(context) == S.of(context).silent_payments_settings);
+    }
+    if (!widget.dashboardViewModel.isMoneroViewOnly) {
+      items.removeWhere((element) => element.name(context) == S.of(context).export_outputs);
+    }
+    if (!widget.dashboardViewModel.hasMweb) {
+      items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
+    }
+    int itemCount = items.length;
+
+    moneroIcon = Image.asset('assets/new-ui/crypto_full_icons/monero.svg');
+    bitcoinIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin.svg');
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(left: 24),
+          child: Container(
+            height: 60,
+            width: 4,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+              color: Theme.of(context).colorScheme.outline,
+            ),
+          ),
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              bottomLeft: Radius.circular(24),
+            ),
+            child: Container(
+              color: Theme.of(context).colorScheme.surface,
+              child: ListView.separated(
+                padding: EdgeInsets.only(top: 0),
+                itemBuilder: (_, index) {
+                  if (index == 0) {
+                    return Container(
+                      height: headerHeight,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                      padding: EdgeInsets.only(
+                        left: 24,
+                        top: fromTopEdge,
+                        right: 24,
+                        bottom: fromBottomEdge,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          _iconFor(type: widget.dashboardViewModel.type),
+                          SizedBox(width: 12),
+                          SingleChildScrollView(
+                            child: Container(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: widget.dashboardViewModel.subname.isNotEmpty
+                                    ? MainAxisAlignment.spaceBetween
+                                    : MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    widget.dashboardViewModel.name,
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
+                                  if (widget.dashboardViewModel.subname.isNotEmpty)
+                                    Observer(
+                                      builder: (_) => Text(
+                                        widget.dashboardViewModel.subname,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  index--;
+
+                  final item = items[index];
+                  final isLastTile = index == itemCount - 1;
+
+                  return SettingActionButton(
+                    key: item.key,
+                    isLastTile: isLastTile,
+                    tileHeight: tileHeight,
+                    selectionActive: false,
+                    fromBottomEdge: fromBottomEdge,
+                    fromTopEdge: fromTopEdge,
+                    onTap: () => item.onTap.call(context),
+                    image: item.image,
+                    title: item.name.call(context),
+                  );
+                },
+                separatorBuilder: (_, index) => Container(
+                  height: 0,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                itemCount: itemCount + 1,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _iconFor({required WalletType type}) {
+    switch (type) {
+      case WalletType.monero:
+        return moneroIcon;
+      case WalletType.bitcoin:
+        return bitcoinIcon;
+      case WalletType.litecoin:
+        return litecoinIcon;
+      case WalletType.haven:
+        return havenIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
+      case WalletType.bitcoinCash:
+        return bitcoinCashIcon;
+      case WalletType.nano:
+        return nanoIcon;
+      case WalletType.banano:
+        return bananoIcon;
+      case WalletType.polygon:
+        return polygonIcon;
+      case WalletType.solana:
+        return solanaIcon;
+      case WalletType.base:
+        return baseIcon;
+      case WalletType.arbitrum:
+        return arbitrumIcon;
+      case WalletType.bsc:
+        return bscIcon;
+      case WalletType.tron:
+        return tronIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
+      case WalletType.decred:
+        return decredIcon;
+      case WalletType.dogecoin:
+        return dogecoinIcon;
+      case WalletType.zcash:
+        return zcashIcon;
+      default:
+        throw Exception('No icon for ${type.toString()}');
+    }
+  }
+}

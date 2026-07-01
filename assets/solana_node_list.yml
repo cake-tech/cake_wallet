@@ -1,0 +1,20 @@
+-
+  uri: solana-mainnet.core.chainstack.com
+  useSSL: true
+  isDefault: true
+  isEnabledForAutoSwitching: true
+  label: "Chainstack"
+-
+  uri: rpc.ankr.com
+  useSSL: true
+  label: "Ankr"
+-
+  uri: api.mainnet-beta.solana.com:443
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Solana Beta"
+-
+  uri: solana-rpc.publicnode.com:443
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "PublicNode"

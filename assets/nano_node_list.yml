@@ -1,0 +1,37 @@
+-
+  uri: rpc.nano.to
+  isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Nano.to"
+-
+  uri: nano.nownodes.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "NOWNodes"
+-
+  uri: node.nautilus.io
+  path: /api
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Nautilus"
+-
+  uri: app.natrium.io
+  path: /api
+  useSSL: true
+  label: "Natrium"
+-
+  uri: rainstorm.city
+  path: /api
+  useSSL: true
+  label: "Rainstorm City"
+-
+  uri: node.somenano.com
+  path: /proxy
+  useSSL: true
+  label: "SomeNano"
+-
+  uri: nanoslo.0x.no
+  path: /proxy
+  useSSL: true
+  label: "0x.no"

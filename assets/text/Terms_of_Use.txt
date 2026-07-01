@@ -1,0 +1,188 @@
+Last Modified: January 11, 2022
+
+Acceptance of the Terms of Use
+==============================
+	These terms of use are entered into by and between You and Cake Labs LLC, a limited liability company formed under the laws of Nevis ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Cake Wallet and Monero.com apps, including any content, functionality, and services offered on or through the Cake Wallet app and the Monero.com app, as applicable (the “App").
+	Please read the Terms of Use carefully before you start to use the App. By using the App you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, incorporated herein by reference. If you do not wish to agree to these Terms of Use or the Privacy Policy, you must not access or use the App.
+
+Changes to the Terms of Use
+===========================
+
+	We may revise and update these Terms of Use from time to time in our sole discretion. All changes are effective immediately when we post them, and apply to all access to and use of the App thereafter.
+	Your continued use of the App following the posting of revised Terms of Use means that you accept and agree to the changes. You are expected to check this page from time to time so you are aware of any changes, as they are binding on you.
+
+Accessing the App and Security
+==============================
+
+	We reserve the right to withdraw or amend this App, and any service or material we provide on the App, in our sole discretion without notice. We will not be liable if for any reason all or any part of the App is unavailable at any time or for any period.
+
+	You are responsible for the following:
+
+		- Making all arrangements necessary for you to have access to the App.
+
+		- Ensuring that all persons who access the App through your internet connection are aware of these Terms of Use and comply with them.
+
+		- To access the App or some of the resources it offers, you may be asked to provide certain registration details or other information. It is a condition of your use of the App that all the information you provide on the App is correct, current, and complete. You agree that all information you provide during the use of this App or otherwise, including, but not limited to, through the use of any interactive features on the App, is governed by our Privacy Policy, and you consent to all actions we take with respect to your information consistent with our Privacy Policy.
+
+		- If you choose, or are provided with, a seed or private keys for any wallet within the App, you MUST treat such information as confidential, and you MUST NOT disclose it to any other person or entity.
+
+		- You MUST keep the app up to date. Failure to update the application means you will not be receiving the latest security fixes and features.
+
+Intellectual Property Rights
+============================
+
+	The App and its entire contents, features, and functionality (including but not limited to all information, software, text, displays, images, video, and audio, and the design, selection, and arrangement thereof) are owned by the Company, its licensors, or other providers of such material and are protected by United States and international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.
+		
+	These Terms of Use permit you to use the App for your personal and commercial use. You are permitted to download, store, publicly display, publicly perform, republish and transmit any of the code in our App. 
+	You are also permitted to reproduce, distribute, modify, or create derivative works of, any of the code in our App, under the license conditions published with the accompanying code. If there is no license offered for the specific code, then you must contact us for a license for that specific code.
+
+	You must not:
+		- Modify copies of any images from the Application.
+		- Use any illustrations, photographs, video or audio sequences, or any graphics separately from the accompanying text.
+		- Delete or modify any copyright, trademark, or other rights notices from copies of materials from this site.
+		- Claim ownership of any code, image, text or any other information authored or created by Cake Labs.
+
+Trademarks
+==========
+
+	The Company name, the term Cake Wallet, the Company logo, and all related names, logos, product and service names, designs, and slogans are trademarks of the Company or its affiliates or licensors. You must not use such marks without the prior written permission of the Company. All other names, logos, product and service names, designs, and slogans on this App are the trademarks of their respective owners.
+
+Prohibited Uses
+===============
+	You may use the App only for lawful purposes and in accordance with these Terms of Use. You agree not to use the App:
+
+		- In any way that violates any applicable federal, state, local, or international law or regulation (including, without limitation, any laws regarding the export of data or software to and from the US or other countries). 
+
+		- For the purpose of exploiting, harming, or attempting to exploit or harm minors in any way by exposing them to inappropriate content, asking for personally identifiable information, or otherwise.
+
+		- To impersonate or attempt to impersonate the Company, a Company employee, another user, or any other person or entity (including, without limitation, by using email addresses associated with any of the foregoing).
+
+		- To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the App, or which, as determined by us, may harm the Company or users of the App, or expose them to liability.
+
+	Additionally, you agree not to:
+
+		- Use the App in any manner that could disable, overburden, damage, or impair the App or interfere with any other party's use of the App, including their ability to engage in real time activities through the App.
+
+		- Use any robot, spider, or other automatic device, process, or means to access the App for any purpose, including monitoring or copying any of the material on the App.
+
+		- Use any manual process to monitor or copy any of the material on the App, or for any other purpose not expressly authorized in these Terms of Use, without our prior written consent.
+
+		- Use any device, software, or routine that interferes with the proper working of the App or the Nodes operated by Cake Labs.
+
+		- Introduce any viruses, Trojan horses, worms, logic bombs, or other material that is malicious or technologically harmful.
+
+		- Attempt to gain unauthorized access to, interfere with, damage, or disrupt any parts of the App, or any node, server, computer, or database connected to the App. 
+
+		- Attack the App or the Nodes operated by Cake Labs via a denial-of-service attack or a distributed denial-of-service attack.
+
+		- Otherwise attempt to interfere with the proper working of the App or the Nodes operated by Cake Labs.
+
+Information About You and Your Visits to the App
+================================================
+
+	All information we collect on this App is subject to our Privacy Policy. By using the App, you consent to all actions taken by us with respect to your information in compliance with the Privacy Policy. 
+
+Links from the App
+==================
+
+	If the App contains links to other sites and resources provided by third parties, these links are provided for your convenience only. We have no control over the contents of those sites or resources, and accept no responsibility for them or for any loss or damage that may arise from your use of them. If you decide to access any of the third-party Apps or services linked to this App, you do so entirely at your own risk and subject to the terms and conditions of use for such Apps.
+
+Geographic Restrictions
+=======================
+
+	Please consult with qualified legal counsel to assess the appropriate use of the App or any of its contents in the jurisdiction(s) you intend to use the App. The owner of the App makes no representation or warranty as to the suitability for use, compliance or other matter of law with respect to use in any jurisdiction. If you access the App, you do so on your own initiative and are responsible for compliance with local laws and regulations.
+
+Translations
+============
+
+	The App may contain translations of the English version of the content available on the App. These translations are provided only as a convenience. In the event of any conflict between the English language version and the translated version, the English language version shall take precedence. If you notice any inconsistencies, please report them on GitHub.
+
+Risks Related to the use of the App
+===================================
+
+	The App, the Company and the Company’s owners, partners, employees, contributors, and any affiliates will not be responsible for any losses, damages or claims arising from:
+
+		- Mistakes made by the user of any cryptocurrency-related software or service, e.g., forgotten passwords, payments sent to wrong cryptocurrency addresses, or accidental deletion of wallets;
+
+		- Software problems of the App and/or any cryptocurrency-related software or service, e.g., corrupted wallet file, incorrectly constructed transactions, unsafe cryptographic libraries, malware affecting the App and/or any cryptocurrency-related software or service;
+
+		- Technical failures in the hardware of the user of any cryptocurrency-related software or service, e.g., data loss due to a faulty or damaged storage device;
+
+		- Security problems experienced by the user of any cryptocurrency-related software or service, e.g., unauthorized access to users' wallets and/or accounts; or
+
+		- Actions or inactions of third parties and/or events experienced by third parties, e.g., bankruptcy of service providers, information security attacks on service providers, and fraud conducted by third parties.
+
+Investment Risks
+================
+
+	All investments, including investments in Monero, Litecoin and Bitcoin, are speculative in nature and involve substantial risk of loss. We encourage investors to invest carefully. We also encourage investors to get personal advice from professional investment advisors and to make independent investigations before making any investment. We do not in any way guarantee the success of any action you take with respect to investments on the App or otherwise. Past performance is not necessarily indicative of future results. All investments, including investments in Monero, Litecoin or Bitcoin, carry risk and all investment decisions of an individual remain the responsibility of that individual. Do not enter any investment without fully understanding the worst-case scenario of that investment, including but not limited to, large market fluctuations or total loss. Cake Labs does not provide investment advice.
+
+Tax Matters
+===========
+
+	The users of the App are solely responsible in determining what, if any, taxes apply to their cryptocurrency transactions. Cake Labs is not responsible for determining any taxes that apply to such transactions. You agree not to hold Cake Labs responsible for any issues relating to the taxation of purchases, sale, exchanges, transfers, or any other transactions related to any cryptocurrency.
+
+Cryptocurrency Transactions
+=======================================
+
+	The App does not store cryptocurrencies, including Monero, Litecoin or Bitcoin. Cryptocurrencies exist only by virtue of the ownership record maintained in their respective networks. Any transfer of title in cryptocurrency occurs within a decentralized cryptocurrency network, and not in the App.
+
+Disclaimer of Warranties
+========================
+
+	You understand that we cannot and do not guarantee or warrant that files available for downloading from the internet or the App will be free of viruses or other destructive code. You are responsible for implementing sufficient procedures and checkpoints to satisfy your particular requirements for anti-virus protection and accuracy of data input and output, and for maintaining a means external to our site for any reconstruction of any lost data. TO THE FULLEST EXTENT PROVIDED BY LAW, WE WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE CAUSED BY A DISTRIBUTED DENIAL-OF-SERVICE ATTACK, VIRUSES, OR OTHER TECHNOLOGICALLY HARMFUL MATERIAL THAT MAY INFECT YOUR COMPUTER EQUIPMENT, COMPUTER PROGRAMS, DATA, OR OTHER PROPRIETARY MATERIAL DUE TO YOUR USE OF THE APP OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE APP OR TO YOUR DOWNLOADING OF ANY MATERIAL POSTED ON IT, OR ON ANY APP LINKED TO IT.
+
+	YOUR USE OF THE APP, ITS CONTENT, AND ANY SERVICES OR ITEMS OBTAINED THROUGH THE APP IS AT YOUR OWN RISK. THE APP, ITS CONTENT, AND ANY SERVICES OR ITEMS OBTAINED THROUGH THE APP ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT ANY WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. NEITHER THE COMPANY NOR ANY PERSON ASSOCIATED WITH THE COMPANY MAKES ANY WARRANTY OR REPRESENTATION WITH RESPECT TO THE COMPLETENESS, SECURITY, RELIABILITY, QUALITY, ACCURACY, OR AVAILABILITY OF THE APP. WITHOUT LIMITING THE FOREGOING, NEITHER THE COMPANY NOR ANYONE ASSOCIATED WITH THE COMPANY REPRESENTS OR WARRANTS THAT THE APP, ITS CONTENT, OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE APP WILL BE ACCURATE, RELIABLE, ERROR-FREE, OR UNINTERRUPTED, THAT DEFECTS WILL BE CORRECTED, THAT OUR SITE OR THE SERVER THAT MAKES IT AVAILABLE ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS, OR THAT THE APP OR ANY SERVICES OR ITEMS OBTAINED THROUGH THE APP WILL OTHERWISE MEET YOUR NEEDS OR EXPECTATIONS. 
+
+	TO THE FULLEST EXTENT PROVIDED BY LAW, THE COMPANY HEREBY DISCLAIMS ALL WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY, NON-INFRINGEMENT, AND FITNESS FOR PARTICULAR PURPOSE. THE APP IS PROVIDED ON AN “AS IS” BASIS.
+
+	THE FOREGOING DOES NOT AFFECT ANY WARRANTIES THAT CANNOT BE EXCLUDED OR LIMITED UNDER APPLICABLE LAW.
+
+Limitation on Liability
+=======================
+
+	TO THE FULLEST EXTENT PROVIDED BY LAW, IN NO EVENT WILL THE COMPANY, ITS AFFILIATES, OR THEIR LICENSORS, SERVICE PROVIDERS, EMPLOYEES, AGENTS, OFFICERS, OR DIRECTORS BE LIABLE FOR DAMAGES OF ANY KIND, UNDER ANY LEGAL THEORY, ARISING OUT OF OR IN CONNECTION WITH YOUR USE, OR INABILITY TO USE, THE APP, ANY APPS LINKED TO IT, ANY CONTENT ON THE APP OR SUCH OTHER APPS, INCLUDING ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO, PERSONAL INJURY, PAIN AND SUFFERING, EMOTIONAL DISTRESS, LOSS OF REVENUE, LOSS OF PROFITS, LOSS OF BUSINESS OR ANTICIPATED SAVINGS, LOSS OF USE, LOSS OF GOODWILL, LOSS OF DATA, AND WHETHER CAUSED BY TORT (INCLUDING NEGLIGENCE), BREACH OF CONTRACT, OR OTHERWISE, EVEN IF FORESEEABLE. 
+
+	The limitation of liability set out above does not apply to liability resulting from our gross negligence or willful misconduct.
+
+	THE FOREGOING DOES NOT AFFECT ANY LIABILITY THAT CANNOT BE EXCLUDED OR LIMITED UNDER APPLICABLE LAW.
+
+Indemnification
+===============
+
+	You agree to defend, indemnify, and hold harmless the Company, its affiliates, licensors, and service providers, and its and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors, and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to your violation of these Terms of Use or your use of the App, including, but not limited to, your User Contributions, any use of the App's content, services, and products other than as expressly authorized in these Terms of Use, or your use of any information obtained from the App.
+
+Governing Law and Jurisdiction
+==============================
+
+	All matters relating to the App and these Terms of Use, and any dispute or claim arising therefrom or related thereto (in each case, including non-contractual disputes or claims), shall be governed by and construed in accordance with the internal laws of the State of Florida without giving effect to any choice or conflict of law provision or rule (whether of the State of Florida or any other jurisdiction).
+	
+	Any legal suit, action, or proceeding arising out of, or related to, these Terms of Use or the App shall be instituted exclusively in the federal courts of the United States or the courts of the State of Florida, although we retain the right to bring any suit, action, or proceeding against you for breach of these Terms of Use in your country of residence or any other relevant country. You waive any and all objections to the exercise of jurisdiction over you by such courts and to venue in such courts.
+
+Arbitration
+===========
+
+	At Company's sole discretion, it may require You to submit any disputes arising from these Terms of Use or use of the App, including disputes arising from or concerning their interpretation, violation, invalidity, non-performance, or termination, to final and binding arbitration under the Rules of Arbitration of the American Arbitration Association applying Florida law.
+
+Limitation on Time to File Claims
+=================================
+
+ANY CAUSE OF ACTION OR CLAIM YOU MAY HAVE ARISING OUT OF OR RELATING TO THESE TERMS OF USE OR THE APP MUST BE COMMENCED WITHIN ONE (1) YEAR AFTER THE CAUSE OF ACTION ACCRUES; OTHERWISE, SUCH CAUSE OF ACTION OR CLAIM IS PERMANENTLY BARRED.
+
+Waiver and Severability
+=======================
+
+	No waiver by the Company of any term or condition set out in these Terms of Use shall be deemed a further or continuing waiver of such term or condition or a waiver of any other term or condition, and any failure of the Company to assert a right or provision under these Terms of Use shall not constitute a waiver of such right or provision.
+
+	If any provision of these Terms of Use is held by a court or other tribunal of competent jurisdiction to be invalid, illegal, or unenforceable for any reason, such provision shall be eliminated or limited to the minimum extent such that the remaining provisions of the Terms of Use will continue in full force and effect. 
+
+Entire Agreement
+================
+
+	The Terms of Use and our Privacy Policy constitute the sole and entire agreement between you and Cake Labs LLC regarding the App and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, both written and oral, regarding the App.
+
+Your Comments and Concerns
+==========================
+
+	This App is operated by Cake Labs LLC.
+	All feedback, comments, and other communications relating to the App should be directed to info@cakewallet.com. All requests for technical support should be directed to support@cakewallet.com.

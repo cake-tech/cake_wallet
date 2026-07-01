@@ -1,0 +1,401 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/monero_wallet.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/decred/decred.dart';
+import 'package:polyseed/polyseed.dart';
+import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+
+part 'wallet_keys_view_model.g.dart';
+
+class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
+
+abstract class WalletKeysViewModelBase with Store {
+  WalletKeysViewModelBase(this._appStore)
+      : _wallet = _appStore.wallet!,
+        _walletName = _appStore.wallet!.type.name,
+        _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
+        _restoreHeightByTransactions = 0,
+        items = ObservableList<StandartListItem>(),
+        _title = _getInitialTitle(_appStore.wallet!) {
+    _populateKeysItems();
+
+    reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
+      _populateKeysItems();
+    });
+
+    if (_wallet.type == WalletType.monero ||
+        _wallet.type == WalletType.haven ||
+        _wallet.type == WalletType.wownero) {
+      final accountTransactions = _getWalletTransactions(_wallet);
+      if (accountTransactions.isNotEmpty) {
+        final incomingAccountTransactions =
+            accountTransactions.where((tx) => tx.direction == TransactionDirection.incoming);
+        if (incomingAccountTransactions.isNotEmpty) {
+          incomingAccountTransactions.toList().sort((a, b) => a.date.compareTo(b.date));
+          _restoreHeightByTransactions =
+              _getRestoreHeightByTransactions(_wallet.type, incomingAccountTransactions.first.date);
+        }
+      }
+    }
+  }
+
+  static String _getInitialTitle(WalletBase wallet) {
+    final baseName = walletTypeToString(wallet.type);
+    final keysLabel = S.current.wallet_keys;
+
+    final hwSuffix =
+        wallet.isHardwareWallet ? ' (${_hardwareWalletTypeLabel(wallet.hardwareWalletType!)})' : '';
+
+    return '$baseName $keysLabel $hwSuffix';
+  }
+
+  static String _hardwareWalletTypeLabel(HardwareWalletType type) {
+    switch (type) {
+      case HardwareWalletType.ledger:
+        return 'Ledger';
+      case HardwareWalletType.bitbox:
+        return 'BitBox';
+      case HardwareWalletType.trezor:
+        return 'Trezor';
+      case HardwareWalletType.cupcake:
+        return 'Cupcake';
+      case HardwareWalletType.coldcard:
+        return 'Coldcard';
+      case HardwareWalletType.seedsigner:
+        return 'SeedSigner';
+      case HardwareWalletType.keystone:
+        return 'Keystone';
+    }
+  }
+
+  bool get isBitcoin => _wallet.type == WalletType.bitcoin;
+
+  // this is incomplete, needs legacy seed toggle for XMR
+  bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
+  final ObservableList<StandartListItem> items;
+
+  @observable
+  String _title;
+
+  String get title => _title;
+
+  final WalletBase _wallet;
+  final String _walletName;
+  final AppStore _appStore;
+  final int _restoreHeight;
+
+  int _restoreHeightByTransactions;
+
+  AppStore get appStore => _appStore;
+
+  String get seed => _wallet.seed != null ? _wallet.seed! : '';
+
+  bool get isLegacySeedOnly =>
+      [WalletType.monero, WalletType.wownero].contains(_wallet.type) &&
+      _wallet.seed != null &&
+      !(Polyseed.isValidSeed(_wallet.seed!) || _wallet.seed!.split(' ').length == 12);
+
+  String get legacySeed {
+    if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
+        _wallet.seed != null &&
+        (Polyseed.isValidSeed(_wallet.seed!) || _wallet.seed!.split(' ').length == 12)) {
+      final langName = PolyseedLang.getByPhrase(_wallet.seed!).nameEnglish;
+
+      if (_wallet.type == WalletType.monero) {
+        return (_wallet as MoneroWalletBase).seedLegacy(langName);
+      } else if (_wallet.type == WalletType.wownero) {
+        return wownero!.getLegacySeed(_wallet, langName);
+      }
+    }
+    return '';
+  }
+
+  String get legacyRestoreHeight {
+    if (_wallet.type == WalletType.monero) {
+      return monero!.getRestoreHeight(_wallet)?.toString() ?? '';
+    }
+    if (_wallet.type == WalletType.wownero) {
+      return wownero!.getRestoreHeight(_wallet)?.toString() ?? '';
+    }
+    return '';
+  }
+
+  @observable
+  bool obscurePassphrase = true;
+
+  String get passphrase {
+    return _wallet.passphrase ?? '';
+  }
+
+  /// The Regex split the words based on any whitespace character.
+  ///
+  /// Either standard ASCII space (U+0020) or the full-width space character (U+3000) used by the Japanese.
+  List<String> get seedSplit => seed.isNotEmpty ? seed.split(RegExp(r'\s+')) : [];
+
+  List<String> get legacySeedSplit => legacySeed.isNotEmpty ? legacySeed.split(RegExp(r'\s+')) : [];
+
+  void _populateKeysItems() {
+    items.clear();
+
+    Map<String, String>? keys;
+
+    switch (_wallet.type) {
+      case WalletType.monero:
+        keys = monero!.getKeys(_wallet);
+        break;
+      case WalletType.wownero:
+        keys = wownero!.getKeys(_wallet);
+        break;
+      case WalletType.zano:
+        keys = zano!.getKeys(_wallet);
+        break;
+      case WalletType.zcash:
+        keys = zcash!.getKeys(_wallet);
+        break;
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
+      case WalletType.solana:
+      case WalletType.tron:
+        items.addAll([
+          if (_wallet.privateKey != null)
+            StandartListItem(
+              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              title: S.current.private_key,
+              value: _wallet.privateKey!,
+            ),
+        ]);
+        break;
+      case WalletType.nano:
+      case WalletType.banano:
+        // we always have the hex version of the seed and private key:
+        items.addAll([
+          if (_wallet.hexSeed != null)
+            StandartListItem(
+              key: ValueKey('${_walletName}_wallet_hex_seed_key'),
+              title: S.current.seed_hex_form,
+              value: _wallet.hexSeed!,
+            ),
+          if (_wallet.privateKey != null)
+            StandartListItem(
+              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              title: S.current.private_key,
+              value: _wallet.privateKey!,
+            ),
+        ]);
+        break;
+      case WalletType.decred:
+        final pubkey = decred!.pubkey(_appStore.wallet!);
+        items.addAll([
+          StandartListItem(title: S.current.view_key_public, value: pubkey),
+        ]);
+        break;
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
+        if (_wallet.type == WalletType.bitcoin) {
+          keys = bitcoin!.getSilentPaymentKeys(_appStore.wallet!);
+        }
+
+        final electrumKeys = bitcoin!.getWalletKeys(_appStore.wallet!);
+
+        items.addAll([
+          if ((electrumKeys['wif'] ?? '').isNotEmpty)
+            StandartListItem(title: "WIF", value: electrumKeys['wif']!),
+          if ((electrumKeys['privateKey'] ?? '').isNotEmpty)
+            StandartListItem(title: S.current.private_key, value: electrumKeys['privateKey']!),
+          if (electrumKeys['publicKey'] != null)
+            StandartListItem(title: S.current.public_key, value: electrumKeys['publicKey']!),
+          if (electrumKeys['xpub'] != null)
+            StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
+        ]);
+        break;
+      case WalletType.none:
+      case WalletType.haven:
+        break;
+    }
+
+    if (keys != null) {
+      items.addAll([
+        if ((keys['primaryAddress'] ?? '').isNotEmpty)
+          StandartListItem(
+              key: ValueKey('${_walletName}_wallet_primary_address_item_key'),
+              title: S.current.primary_address,
+              value: keys['primaryAddress']!),
+        if ((keys['publicSpendKey'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_public_spend_key_item_key'),
+            title: S.current.spend_key_public,
+            value: keys['publicSpendKey']!,
+          ),
+        if ((keys['privateSpendKey'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_private_spend_key_item_key'),
+            title: S.current.spend_key_private,
+            value: keys['privateSpendKey']!,
+          ),
+        if ((keys['publicViewKey'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_public_view_key_item_key'),
+            title: S.current.view_key_public,
+            value: keys['publicViewKey']!,
+          ),
+        if ((keys['privateViewKey'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_private_view_key_item_key'),
+            title: S.current.view_key_private,
+            value: keys['privateViewKey']!,
+          ),
+        if ((keys['tsk'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_transparent_secret_key_item_key'),
+            title: S.current.transparent_secret_key,
+            value: keys['tsk']!,
+          ),
+        if ((keys['uvk'] ?? '').isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_unified_view_key_item_key'),
+            title: S.current.unified_view_key,
+            value: keys['uvk']!,
+          ),
+      ]);
+    }
+  }
+
+  Future<int?> _currentHeight() async {
+    if (_wallet.type == WalletType.monero) {
+      return await monero!.getCurrentHeight();
+    }
+    if (_wallet.type == WalletType.wownero) {
+      return await wownero!.getCurrentHeight();
+    }
+    return null;
+  }
+
+  String get _scheme {
+    switch (_wallet.type) {
+      case WalletType.monero:
+        return 'monero-wallet';
+      case WalletType.bitcoin:
+        return 'bitcoin-wallet';
+      case WalletType.litecoin:
+        return 'litecoin-wallet';
+      case WalletType.haven:
+        return 'haven-wallet';
+      case WalletType.ethereum:
+        return 'ethereum-wallet';
+      case WalletType.bitcoinCash:
+        return 'bitcoincash-wallet';
+      case WalletType.nano:
+        return 'nano-wallet';
+      case WalletType.banano:
+        return 'banano-wallet';
+      case WalletType.polygon:
+        return 'polygon-wallet';
+      case WalletType.base:
+        return 'base-wallet';
+      case WalletType.arbitrum:
+        return 'arbitrum-wallet';
+      case WalletType.bsc:
+        return 'bsc-wallet';
+      case WalletType.solana:
+        return 'solana-wallet';
+      case WalletType.tron:
+        return 'tron-wallet';
+      case WalletType.wownero:
+        return 'wownero-wallet';
+      case WalletType.zano:
+        return 'zano-wallet';
+      case WalletType.decred:
+        return 'decred-wallet';
+      case WalletType.dogecoin:
+        return 'dogecoin-wallet';
+      case WalletType.zcash:
+        return 'zcash-wallet';
+      case WalletType.none:
+        throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
+    }
+  }
+
+  Future<String?> get restoreHeight async {
+    if (_wallet.type == WalletType.monero) {
+      return monero!.getRestoreHeight(_wallet)?.toString();
+    }
+    if (_wallet.type == WalletType.wownero) {
+      return wownero!.getRestoreHeight(_wallet)?.toString();
+    }
+    if (_wallet.type == WalletType.zcash) {
+      return zcash!.getKeys(_wallet)["restoreHeight"]?.toString();
+    }
+    if (_restoreHeightByTransactions != 0)
+      return getRoundedRestoreHeight(_restoreHeightByTransactions);
+    if (_restoreHeight != 0) return _restoreHeight.toString();
+
+    final currentHeight = await _currentHeight();
+    if (currentHeight == null) return null;
+
+    return getRoundedRestoreHeight(currentHeight);
+  }
+
+  Future<Map<String, String>> get _queryParams async {
+    final restoreHeightResult = await restoreHeight;
+    return {
+      if (_wallet.seed != null) 'seed': _wallet.seed!,
+      if (_wallet.seed == null && _wallet.hexSeed != null) 'hexSeed': _wallet.hexSeed!,
+      if (_wallet.seed == null && _wallet.privateKey != null) 'private_key': _wallet.privateKey!,
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult},
+      if (_wallet.passphrase != null) 'passphrase': _wallet.passphrase!
+    };
+  }
+
+  Future<Map<String, String>> get _queryParamsForLegacy async {
+    final restoreHeightResult = await restoreHeight;
+    return {
+      if (legacySeed.isNotEmpty) 'seed': legacySeed,
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult},
+      if ((_wallet.passphrase ?? '') != '') 'passphrase': _wallet.passphrase!
+    };
+  }
+
+  Future<Uri> getUrl(bool isLegacySeed) async => Uri(
+        scheme: _scheme,
+        queryParameters: isLegacySeed ? await _queryParamsForLegacy : await _queryParams,
+      );
+
+  List<TransactionInfo> _getWalletTransactions(WalletBase wallet) {
+    if (wallet.type == WalletType.monero) {
+      return monero!.getTransactionHistory(wallet).transactions.values.toList();
+    } else if (wallet.type == WalletType.wownero) {
+      return wownero!.getTransactionHistory(wallet).transactions.values.toList();
+    }
+    return [];
+  }
+
+  int _getRestoreHeightByTransactions(WalletType type, DateTime date) {
+    if (type == WalletType.monero) {
+      return monero!.getHeightByDate(date: date);
+    } else if (type == WalletType.wownero) {
+      return wownero!.getHeightByDate(date: date);
+    }
+    return 0;
+  }
+
+  String getRoundedRestoreHeight(int height) => ((height / 1000).floor() * 1000).toString();
+}

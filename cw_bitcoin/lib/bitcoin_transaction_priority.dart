@@ -1,0 +1,173 @@
+import 'package:cw_core/transaction_priority.dart';
+import 'package:flutter/foundation.dart';
+
+class BitcoinTransactionPriority extends TransactionPriority {
+  const BitcoinTransactionPriority({required String title, required int raw, String? description, String? hint})
+      : super(title: title, raw: raw, description: description, hint: hint);
+
+  static const List<BitcoinTransactionPriority> all = [fast, medium, slow, custom];
+  static const BitcoinTransactionPriority slow =
+      BitcoinTransactionPriority(title: 'Slow', description: "2 sat/byte", hint: "~ 24 h", raw: 0);
+  static const BitcoinTransactionPriority medium =
+      BitcoinTransactionPriority(title: 'Medium', description: "3 sat/byte", hint: "~ 1 h", raw: 1);
+  static const BitcoinTransactionPriority fast =
+      BitcoinTransactionPriority(title: 'Fast', description: "4 sat/byte", hint: "~ 30 min", raw: 2);
+  static const BitcoinTransactionPriority custom =
+  BitcoinTransactionPriority(title: 'Custom', raw: 3);
+
+  static BitcoinTransactionPriority deserialize({required int raw}) {
+    switch (raw) {
+      case 0:
+        return slow;
+      case 1:
+        return medium;
+      case 2:
+        return fast;
+      case 3:
+        return custom;
+      default:
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
+        }
+        return medium;
+    }
+  }
+
+  String get units => 'sat';
+
+  @override
+  String toString() {
+    var label = '';
+
+    switch (this) {
+      case BitcoinTransactionPriority.slow:
+        label = 'Slow ~24hrs+'; // '${S.current.transaction_priority_slow} ~24hrs';
+        break;
+      case BitcoinTransactionPriority.medium:
+        label = 'Medium'; // S.current.transaction_priority_medium;
+        break;
+      case BitcoinTransactionPriority.fast:
+        label = 'Fast';
+        break; // S.current.transaction_priority_fast;
+      case BitcoinTransactionPriority.custom:
+        label = 'Custom';
+        break;
+      default:
+        break;
+    }
+
+    return label;
+  }
+
+  String labelWithRate(int rate, int? customRate) {
+    final rateValue = this == custom ? customRate ??= 0 : rate;
+    return '${toString()} ($rateValue ${units}/byte)';
+  }
+}
+
+class LitecoinTransactionPriority extends BitcoinTransactionPriority {
+  const LitecoinTransactionPriority({required String title, required int raw})
+      : super(title: title, raw: raw);
+
+  static const List<LitecoinTransactionPriority> all = [fast, medium, slow];
+  static const LitecoinTransactionPriority slow =
+      LitecoinTransactionPriority(title: 'Slow', raw: 0);
+  static const LitecoinTransactionPriority medium =
+      LitecoinTransactionPriority(title: 'Medium', raw: 1);
+  static const LitecoinTransactionPriority fast =
+      LitecoinTransactionPriority(title: 'Fast', raw: 2);
+
+  static LitecoinTransactionPriority deserialize({required int raw}) {
+    switch (raw) {
+      case 0:
+        return slow;
+      case 1:
+        return medium;
+      case 2:
+        return fast;
+      default:
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
+        }
+        return medium;
+    }
+  }
+
+  @override
+  String get units => 'Litoshi';
+
+  @override
+  String toString() {
+    var label = '';
+
+    switch (this) {
+      case LitecoinTransactionPriority.slow:
+        label = 'Slow'; // S.current.transaction_priority_slow;
+        break;
+      case LitecoinTransactionPriority.medium:
+        label = 'Medium'; // S.current.transaction_priority_medium;
+        break;
+      case LitecoinTransactionPriority.fast:
+        label = 'Fast'; // S.current.transaction_priority_fast;
+        break;
+      default:
+        break;
+    }
+
+    return label;
+  }
+
+}
+class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
+  const BitcoinCashTransactionPriority({required String title, required int raw})
+      : super(title: title, raw: raw);
+
+  static const List<BitcoinCashTransactionPriority> all = [fast, medium, slow];
+  static const BitcoinCashTransactionPriority slow =
+  BitcoinCashTransactionPriority(title: 'Slow', raw: 0);
+  static const BitcoinCashTransactionPriority medium =
+  BitcoinCashTransactionPriority(title: 'Medium', raw: 1);
+  static const BitcoinCashTransactionPriority fast =
+  BitcoinCashTransactionPriority(title: 'Fast', raw: 2);
+
+  static BitcoinCashTransactionPriority deserialize({required int raw}) {
+    switch (raw) {
+      case 0:
+        return slow;
+      case 1:
+        return medium;
+      case 2:
+        return fast;
+      default:
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for BitcoinCashTransactionPriority deserialize');
+        }
+        return medium;
+    }
+  }
+
+  @override
+  String get units => 'Satoshi';
+
+  @override
+  String toString() {
+    var label = '';
+
+    switch (this) {
+      case BitcoinCashTransactionPriority.slow:
+        label = 'Slow'; // S.current.transaction_priority_slow;
+        break;
+      case BitcoinCashTransactionPriority.medium:
+        label = 'Medium'; // S.current.transaction_priority_medium;
+        break;
+      case BitcoinCashTransactionPriority.fast:
+        label = 'Fast'; // S.current.transaction_priority_fast;
+        break;
+      default:
+        break;
+    }
+
+    return label;
+  }
+}
+

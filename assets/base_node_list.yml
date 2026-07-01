@@ -1,0 +1,19 @@
+-
+  uri: base.nownodes.io
+  isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "NOWNodes"
+-
+  uri: base.llamarpc.com
+  useSSL: true
+  label: "LlamaNodes"
+-
+  uri: base-rpc.publicnode.com
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "PublicNode"
+-
+  uri: 1rpc.io/base
+  useSSL: true
+  label: "1RPC"

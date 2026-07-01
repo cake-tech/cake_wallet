@@ -1,0 +1,86 @@
+import 'package:flutter/material.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/core/sync_status_title.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
+
+class SyncIndicator extends StatelessWidget {
+  SyncIndicator({
+    required this.dashboardViewModel,
+    required this.onTap,
+    super.key,
+  });
+
+  final DashboardViewModel dashboardViewModel;
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(builder: (_) {
+      final syncIndicatorWidth = 237.0;
+      final status = dashboardViewModel.status;
+      final statusText = syncStatusTitle(status, dashboardViewModel.settingsStore.syncStatusDisplayMode);
+      final progress = status.progress();
+      final indicatorOffset = progress * syncIndicatorWidth;
+      final indicatorWidth = progress < 1
+          ? indicatorOffset > 0
+              ? indicatorOffset
+              : 0.0
+          : syncIndicatorWidth;
+
+      return ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(15)),
+          child: GestureDetector(
+            onTap: onTap,
+            onLongPress: dashboardViewModel.toggleSwitchStatusDisplayMode,
+            child: Container(
+              height: 30,
+              width: syncIndicatorWidth,
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              child: Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  progress <= 1
+                      ? Positioned(
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: indicatorWidth,
+                            height: 30,
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                          ))
+                      : Offstage(),
+                  Padding(
+                    padding: EdgeInsets.only(left: 24, right: 24),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        SyncIndicatorIcon(
+                          isSynced: status is SyncedSyncStatus,
+                          showTorIcon: dashboardViewModel.builtinTor,
+                          size: dashboardViewModel.builtinTor ? 16 : 6,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 6),
+                          child: Text(
+                            statusText,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ));
+    });
+  }
+}

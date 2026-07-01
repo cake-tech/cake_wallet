@@ -1,0 +1,7 @@
+name: cake_wallet
+description: Cake Wallet.
+version: 0.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
