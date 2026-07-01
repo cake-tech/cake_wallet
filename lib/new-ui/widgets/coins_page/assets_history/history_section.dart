@@ -143,7 +143,7 @@ class HistorySection extends StatelessWidget {
                       } else if (item is DateSectionItem) {
                         return Padding(
                             padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
-                            child: Text(DateFormat("MMMM yyyy").format(item.date),
+                            child: Text(DateFormat("MMMM yyyy", localeName).format(item.date),
                                 style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)));
                       } else if (item is OrderListItem) {
