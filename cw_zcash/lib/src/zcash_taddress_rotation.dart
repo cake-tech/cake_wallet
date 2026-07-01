@@ -106,19 +106,19 @@ class ZcashTaddressRotation {
         final sub = scanner
             .run(endHeight: height, gapLimit: maxD + _lookahead + 1, c: coin)
             .listen(
-          (_) {},
-          onError: (final e) {
-            printV("transparent chain scan: $e");
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-          },
-          onDone: () {
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-          },
-        );
+              (_) {},
+              onError: (final e) {
+                printV("transparent chain scan: $e");
+                if (!completer.isCompleted) {
+                  completer.complete();
+                }
+              },
+              onDone: () {
+                if (!completer.isCompleted) {
+                  completer.complete();
+                }
+              },
+            );
         await Future.any([
           completer.future,
           Future.delayed(Duration(seconds: (maxD + 2).clamp(8, 45))),
@@ -374,9 +374,7 @@ class ZcashTaddressRotation {
     BigInt transparentBal = BigInt.zero;
     try {
       transparentBal = await _rotationTransparentBalance(rotationAccount);
-      printV(
-        "rotation account $rotationAccount transparent balance: $transparentBal",
-      );
+      printV("rotation account $rotationAccount transparent balance: $transparentBal");
     } catch (e) {
       printV("getTBalance: $e");
       return;
@@ -411,11 +409,7 @@ class ZcashTaddressRotation {
       func: (final coin) async {
         final tx = await zkool_pay.prepare(
           recipients: [
-            zkool_paydart.Recipient(
-              assetBase: zecBase,
-              address: toAddress,
-              amount: transparentBal,
-            )
+            zkool_paydart.Recipient(assetBase: zecBase, address: toAddress, amount: transparentBal),
           ],
           options: zkool_pay.PaymentOptions(
             srcPools: 1,
@@ -460,8 +454,7 @@ class ZcashTaddressRotation {
     await _ensurePoolScanned(rotationAccount);
     final txs = await _loadTxHistory(rotationAccount);
     shieldedAccountsTx[mainAccountId] = txs;
-    if (mainAccountId != rotationAccount &&
-        shieldedAccountsTx.containsKey(rotationAccount)) {
+    if (mainAccountId != rotationAccount && shieldedAccountsTx.containsKey(rotationAccount)) {
       shieldedAccountsTx.remove(rotationAccount);
     }
 

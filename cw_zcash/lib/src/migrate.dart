@@ -9,16 +9,12 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart' as p;
 
 class ZkoolSeed {
-  ZkoolSeed({
-    required this.seed,
-    required this.passphrase,
-  });
+  ZkoolSeed({required this.seed, required this.passphrase});
 
-  factory ZkoolSeed.fromYwalletSeed({
-    required final String ywalletSeed,
-  }) {
+  factory ZkoolSeed.fromYwalletSeed({required final String ywalletSeed}) {
     final splSeed = ywalletSeed.split(" ");
-    String seed = "";;
+    String seed = "";
+    ;
     String passphrase = "";
     if ([13, 25].contains(splSeed.length)) {
       seed = splSeed.take(splSeed.length - 1).join(" ");
@@ -65,9 +61,10 @@ class YwalletAccountInfo {
 Future<void> migrateOldSqliteToZkool2({required final String walletName}) async {
   final dbFile = p.join(await pathForWalletTypeDir(type: WalletType.zcash), "zec.db");
   final migrateDb = await openDatabase(dbFile);
-  final outputRaw = await migrateDb.rawQuery("SELECT `id_account`, `name`, `seed`, `aindex`, `sk`, `ivk`, `address` FROM `accounts`");
+  final outputRaw = await migrateDb.rawQuery(
+    "SELECT `id_account`, `name`, `seed`, `aindex`, `sk`, `ivk`, `address` FROM `accounts`",
+  );
   final output = outputRaw.map(YwalletAccountInfo.fromJson);
-
 
   final walletId = await ZcashWalletBase.getLegacyZcashAccountIdForName(walletName);
   for (final ya in output) {
@@ -77,12 +74,13 @@ Future<void> migrateOldSqliteToZkool2({required final String walletName}) async 
     printV("migrating account: ${ya.name}");
     int birthHeight = await ZcashHeight.getBlockHeightByTime(DateTime(2026, 1, 1));
 
-    final accTxs = await migrateDb.rawQuery("SELECT height FROM transactions WHERE account = ${ya.idAccount}");
+    final accTxs = await migrateDb.rawQuery(
+      "SELECT height FROM transactions WHERE account = ${ya.idAccount}",
+    );
     for (final tx in accTxs) {
       final txHeight = int.tryParse(tx['height'].toString()) ?? birthHeight;
       birthHeight = min(birthHeight, txHeight);
     }
-
 
     final accountId = await ZcashWalletBase.restoreZcashWalletFromSeed(
       name: ya.name,
@@ -95,5 +93,4 @@ Future<void> migrateOldSqliteToZkool2({required final String walletName}) async 
   }
 
   throw Exception("migration not finished (wallet name: $walletName not found)");
-
 }

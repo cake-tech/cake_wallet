@@ -222,16 +222,37 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
 
   Widget _buildBottomWidget(TransactionDetailsListItem item) {
     return switch (item.runtimeType) {
-      AddressListItem => AddressFormatter.buildSegmentedAddress(
-          address: item.value,
-          evenTextStyle: TextStyle(
-              fontSize: 12,
-              fontFamily: "IBM Plex Mono",
-              color: Theme.of(context).colorScheme.onSurface)),
+      AddressListItem => _segmentedAddressList(item.value),
       _ => Text(
           item.value,
           style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         )
     };
+  }
+
+  Widget _segmentedAddressList(String value) {
+    final style = TextStyle(
+      fontSize: 12,
+      fontFamily: "IBM Plex Mono",
+      color: Theme.of(context).colorScheme.onSurface,
+    );
+    final lines = value
+        .split(RegExp(r'\n+'))
+        .map((final line) => line.trim())
+        .where((final line) => line.isNotEmpty)
+        .toList();
+    if (lines.length <= 1) {
+      return AddressFormatter.buildSegmentedAddress(
+        address: lines.isNotEmpty ? lines.first : value.trim(),
+        evenTextStyle: style,
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final line in lines)
+          AddressFormatter.buildSegmentedAddress(address: line, evenTextStyle: style),
+      ],
+    );
   }
 }

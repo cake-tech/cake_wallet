@@ -61,30 +61,32 @@ class ZcashMempoolService {
     while (_loopRunning && _nodeUrl == c.url) {
       try {
         final completer = Completer<void>();
-        _subscription = _mempoolInstance.run(c: c).listen(
-          (final msg) {
-            if (!_loopRunning) {
-              return;
-            }
-            switch (msg) {
-              case zkool_mempool.MempoolMsg_BlockHeight():
-                _onBlockMined();
-              case zkool_mempool.MempoolMsg_TxId(:final field0):
-                _onMempoolTx(field0);
-            }
-          },
-          onDone: () {
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-          },
-          onError: (final e) {
-            printV("mempool stream error: $e");
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-          },
-        );
+        _subscription = _mempoolInstance
+            .run(c: c)
+            .listen(
+              (final msg) {
+                if (!_loopRunning) {
+                  return;
+                }
+                switch (msg) {
+                  case zkool_mempool.MempoolMsg_BlockHeight():
+                    _onBlockMined();
+                  case zkool_mempool.MempoolMsg_TxId(:final field0):
+                    _onMempoolTx(field0);
+                }
+              },
+              onDone: () {
+                if (!completer.isCompleted) {
+                  completer.complete();
+                }
+              },
+              onError: (final e) {
+                printV("mempool stream error: $e");
+                if (!completer.isCompleted) {
+                  completer.complete();
+                }
+              },
+            );
         await completer.future;
       } catch (e) {
         printV("mempool loop error: $e");
@@ -107,8 +109,7 @@ class ZcashMempoolService {
     onAccountsUpdated?.call(_affectedAccountsForTx(tx));
   }
 
-  Set<int> _allAffectedAccounts() =>
-      _txsById.values.expand(_affectedAccountsForTx).toSet();
+  Set<int> _allAffectedAccounts() => _txsById.values.expand(_affectedAccountsForTx).toSet();
 
   Set<int> _affectedAccountsForTx(final zkool_mempool.MempoolTx tx) => {
     ...tx.notes.map((final n) => n.account),

@@ -24,6 +24,7 @@ dependencies:
       ref: dbd3dde8d8485428326a58e55660b7404666dd7c
 
   path_provider: any
+  sqflite_common_ffi: any
 dependency_overrides:
   decimal: ^2.3.3
 

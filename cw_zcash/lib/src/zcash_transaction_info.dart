@@ -43,7 +43,8 @@ class ZcashTransactionInfo extends TransactionInfo {
     if (additionalInfo['isAutoShield'] == true) {
       additionalInfo['memo'] ??= '';
       additionalInfo['memo'] =
-          '${additionalInfo['memo']}\nThis is an auto-shielding transaction. Enjoy default privacy!.'.trim();
+          '${additionalInfo['memo']}\nThis is an auto-shielding transaction. Enjoy default privacy!.'
+              .trim();
     }
   }
 

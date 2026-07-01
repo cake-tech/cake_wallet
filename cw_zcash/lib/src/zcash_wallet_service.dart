@@ -41,8 +41,7 @@ class ZcashWalletService
   static String normalizeTxId(final String txId) =>
       txId.replaceAll(RegExp(r'[^a-fA-F0-9]'), '').toLowerCase();
 
-  static bool isAutoshieldTx(final String txHash) =>
-      autoshieldTx.contains(normalizeTxId(txHash));
+  static bool isAutoshieldTx(final String txHash) => autoshieldTx.contains(normalizeTxId(txHash));
 
   static Future<void> addShieldedTx(final String txId) async {
     final pathForWalletType = await pathForWalletTypeDir(type: type);
@@ -86,7 +85,7 @@ class ZcashWalletService
   @override
   Future<bool> isWalletExit(final String name) async {
     final oldPath = (await pathForWallet(name: name, type: getType()));
-    final path = (await pathForWallet(name: name, type: getType()))+".v2";
+    final path = (await pathForWallet(name: name, type: getType())) + ".v2";
     return File(path).existsSync() || File(oldPath).existsSync();
   }
 
@@ -94,7 +93,7 @@ class ZcashWalletService
   Future<ZcashWallet> openWallet(final String name, final String password) async {
     await ZcashWalletBase.$init();
     if (await isWalletExit(name)) {
-      final path = (await pathForWallet(name: name, type: getType()))+".v2";
+      final path = (await pathForWallet(name: name, type: getType())) + ".v2";
       if (!File(path).existsSync()) {
         await migrateOldSqliteToZkool2(walletName: name);
       }
@@ -128,7 +127,7 @@ class ZcashWalletService
 
   @override
   Future<void> remove(final String wallet) async {
-    final path = (await pathForWalletDir(name: wallet, type: getType()))+".v2";
+    final path = (await pathForWalletDir(name: wallet, type: getType())) + ".v2";
     final file = Directory(path);
     final isExist = file.existsSync();
 
@@ -149,17 +148,11 @@ class ZcashWalletService
     if (currentWalletInfo == null) {
       throw Exception('Wallet not found');
     }
-    final accountId = await ZcashWalletBase.getZcashAccountIdForName(currentName);
-    if (accountId == null) {
-      throw Exception('Wallet account not found for name: $currentName');
+    if (!await isWalletExit(currentName)) {
+      throw Exception('Wallet not found');
     }
-    final currentWallet = ZcashWallet(
-      currentWalletInfo,
-      await currentWalletInfo.getDerivationInfo(),
-      accountId: accountId,
-    );
 
-    await currentWallet.renameWalletFiles(newName);
+    await ZcashWalletBase.renameWalletFilesForName(fromName: currentName, toName: newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
