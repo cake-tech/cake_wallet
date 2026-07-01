@@ -70,8 +70,6 @@ class BalanceCard extends StatelessWidget {
 
     final height = width * 0.62;
 
-
-
     return AnimatedContainer(
       duration: designSwitchDuration,
       width: width,
@@ -208,7 +206,7 @@ class BalanceCard extends StatelessWidget {
                           },
                           child: Text(
                             key: ValueKey(fiatFirst ? balance : fiatBalance),
-                            fiatFirst ? "$assetName $balance" : "$fiatCurrencyTitle $fiatBalance",
+                            fiatFirst ? "$assetName $balance" : fiatBalance,
                           ),
                         ),
                       ),

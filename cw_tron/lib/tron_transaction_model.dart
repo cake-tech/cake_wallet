@@ -1,10 +1,16 @@
 import 'package:blockchain_utils/hex/hex.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:on_chain/on_chain.dart';
 
 class TronTRC20TransactionModel extends TronTransactionModel {
   String? transactionId;
 
   String? tokenSymbol;
+
+  int? decimals;
+
+  CryptoCurrency get currency => CryptoCurrency(
+      name: tokenSymbol ?? "TRX", title: tokenSymbol ?? "TRX", decimals: decimals ?? 6);
 
   int? timestamp;
 
@@ -40,6 +46,7 @@ class TronTRC20TransactionModel extends TronTransactionModel {
   TronTRC20TransactionModel.fromJson(Map<String, dynamic> json) {
     transactionId = json['transaction_id'];
     tokenSymbol = json['token_info'] != null ? json['token_info']['symbol'] : null;
+    decimals = json['token_info'] != null ? json['token_info']['decimals'] : null;
     timestamp = json['block_timestamp'];
     from = json['from'];
     to = json['to'];

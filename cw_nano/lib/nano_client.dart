@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -85,10 +87,10 @@ class NanoClient {
       throw Exception(
           "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
     }
-    final String currentBalance = data["balance"] as String;
-    final String receivableBalance = data["receivable"] as String;
-    final BigInt cur = BigInt.parse(currentBalance);
-    final BigInt rec = BigInt.parse(receivableBalance);
+    final currentBalance = data["balance"] as String;
+    final receivableBalance = data["receivable"] as String;
+    final cur = Money(BigInt.parse(currentBalance), CryptoCurrency.nano);
+    final rec = Money(BigInt.parse(receivableBalance), CryptoCurrency.nano);
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
 
@@ -258,7 +260,7 @@ class NanoClient {
 
     // first get the current account balance:
     if (balanceAfterTx == null) {
-      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance;
+      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance.amount;
       final BigInt txAmount = BigInt.parse(amountRaw);
       balanceAfterTx = currentBalance - txAmount;
     }

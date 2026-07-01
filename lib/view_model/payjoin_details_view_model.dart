@@ -110,10 +110,10 @@ abstract class PayjoinDetailsViewModelBase with Store {
           value: '${transactionInfo!.height}',
           key: ValueKey('standard_list_item_transaction_details_height_key'),
         ),
-        if (transactionInfo!.feeFormatted()?.isNotEmpty ?? false)
+        if (transactionInfo!.fee != null)
           StandartListItem(
             title: S.current.transaction_details_fee,
-            value: transactionInfo!.feeFormatted()!,
+            value: transactionInfo!.fee!.toStringWithSymbol(),
             key: ValueKey('standard_list_item_transaction_details_fee_key'),
           ),
       ]);

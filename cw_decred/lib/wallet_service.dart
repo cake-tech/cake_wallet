@@ -10,7 +10,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:path/path.dart';
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 
 class DecredWalletService extends WalletService<
