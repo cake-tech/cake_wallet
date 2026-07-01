@@ -199,6 +199,8 @@
   "choose_a_provider": "Choose a provider",
   "choose_account": "Choose account",
   "choose_address": "\n\nPlease choose the address:",
+  "choose_amount_to_buy": "Choose amount to buy",
+  "choose_amount_to_sell": "Choose amount to sell",
   "choose_card_value": "Choose a card value",
   "choose_derivation": "Choose Wallet Derivation",
   "choose_from_available_options": "Choose from the available options:",

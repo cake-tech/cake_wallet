@@ -149,6 +149,59 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @observable
   bool skipIsReadyToTradeReaction = false;
 
+
+
+  // based on usd values, should have roughly equal worth (was done with ai though so it's subject to correction)
+  static final Map<FiatCurrency, List<String>> _defaultAmountsMap = {
+    FiatCurrency.amd: ["20000", "40000", "200000", "400000", "1000000"],
+    FiatCurrency.aud: ["100", "200", "1000", "2000", "5000"],
+    FiatCurrency.bgn: ["100", "200", "1000", "2000", "5000"],
+    FiatCurrency.brl: ["250", "500", "2500", "5000", "12500"],
+    FiatCurrency.cad: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.chf: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.clp: ["50000", "100000", "500000", "1000000", "2500000"],
+    FiatCurrency.cop: ["200000", "400000", "2000000", "4000000", "10000000"],
+    FiatCurrency.czk: ["1000", "2000", "10000", "20000", "50000"],
+    FiatCurrency.dkk: ["400", "800", "4000", "8000", "20000"],
+    FiatCurrency.egp: ["2500", "5000", "25000", "50000", "125000"],
+    FiatCurrency.eur: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.gbp: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.gtq: ["400", "800", "4000", "8000", "20000"],
+    FiatCurrency.hkd: ["400", "800", "4000", "8000", "20000"],
+    FiatCurrency.hrk: ["400", "800", "4000", "8000", "20000"],
+    FiatCurrency.huf: ["20000", "40000", "200000", "400000", "1000000"],
+    FiatCurrency.idr: ["800000", "1600000", "8000000", "16000000", "40000000"],
+    FiatCurrency.ils: ["200", "400", "2000", "4000", "10000"],
+    FiatCurrency.inr: ["5000", "10000", "50000", "100000", "250000"],
+    FiatCurrency.isk: ["7000", "14000", "70000", "140000", "350000"],
+    FiatCurrency.jpy: ["10000", "20000", "100000", "200000", "500000"],
+    FiatCurrency.krw: ["50000", "100000", "500000", "1000000", "2500000"],
+    FiatCurrency.mad: ["500", "1000", "5000", "10000", "25000"],
+    FiatCurrency.mxn: ["1000", "2000", "10000", "20000", "50000"],
+    FiatCurrency.myr: ["250", "500", "2500", "5000", "12500"],
+    FiatCurrency.ngn: ["50000", "100000", "500000", "1000000", "2500000"],
+    FiatCurrency.nok: ["500", "1000", "5000", "10000", "25000"],
+    FiatCurrency.nzd: ["100", "200", "1000", "2000", "5000"],
+    FiatCurrency.php: ["3000", "6000", "30000", "60000", "150000"],
+    FiatCurrency.pkr: ["15000", "30000", "150000", "300000", "750000"],
+    FiatCurrency.pln: ["200", "400", "2000", "4000", "10000"],
+    FiatCurrency.ron: ["250", "500", "2500", "5000", "12500"],
+    FiatCurrency.sek: ["500", "1000", "5000", "10000", "25000"],
+    FiatCurrency.sgd: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.thb: ["2000", "4000", "20000", "40000", "100000"],
+    FiatCurrency.tur: ["1500", "3000", "15000", "30000", "75000"],
+    FiatCurrency.twd: ["1500", "3000", "15000", "30000", "75000"],
+    FiatCurrency.usd: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.vnd: ["1000000", "2000000", "10000000", "20000000", "50000000"],
+    FiatCurrency.zar: ["1000", "2000", "10000", "20000", "50000"],
+    FiatCurrency.kes: ["5000", "10000", "50000", "100000", "250000"],
+  };
+
+  // the fallback is just the usd values.
+  // not great but this fallback shouldn't be triggered anyway
+  List<String> get defaultAmounts =>
+      _defaultAmountsMap[fiatCurrency] ?? ["50", "100", "500", "1000", "2500"];
+
   @computed
   bool get isReadyToTrade {
     final hasSelectedQuote = selectedQuote != null;
