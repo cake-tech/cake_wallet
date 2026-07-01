@@ -57,8 +57,8 @@ class TrezorHardwareWalletDevice extends HardwareWalletDevice {
   HardwareWalletConnectionType get connectionType => device.connectionType.toGeneric();
 }
 
-class Coldcard extends HardwareWalletDevice {
-  @override String get name => 'Colcard';
+class ColdcardHardwareWalletDevice extends HardwareWalletDevice {
+  @override String get name => 'Coldcard';
   @override HardwareWalletDeviceType get type => HardwareWalletDeviceType.coldcard;
   @override HardwareWalletConnectionType get connectionType => HardwareWalletConnectionType.usb;
 }
@@ -77,7 +77,7 @@ enum HardwareWalletDeviceType {
   trezorModelT,
   trezorSafe3,
   trezorSafe5,
-  trezorSafe7;
+  trezorSafe7,
   coldcard;
 }
 
