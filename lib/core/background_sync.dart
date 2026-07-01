@@ -213,7 +213,7 @@ class BackgroundSync {
         final action = tx.direction == TransactionDirection.incoming ? "Received" : "Sent";
         if (sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false) {
           await showNotification(
-              "$action ${wallet.currency.fullName} in ${wallet.name}", "${tx.amountFormatted()}");
+              "$action ${wallet.currency.fullName} in ${wallet.name}", "${tx.amount.toString()}");
         }
         printV(
             "${wallet.currency.fullName} in ${wallet.name}: TX: ${tx.date} ${tx.amount} ${tx.direction}");

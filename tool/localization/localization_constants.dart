@@ -66,6 +66,15 @@ class S implements WidgetsLocalizations {
 
   @override
   String get shareButtonLabel => "shareButtonLabel";
+
+  @override
+  String get noResultsFound => "noResultsFound";
+
+  @override
+  String get radioButtonUnselectedLabel => "radioButtonUnselectedLabel";
+
+  @override
+  String get searchResultsFound => "searchResultsFound";
 """;
 
 const part2 = """

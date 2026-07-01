@@ -2,39 +2,39 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'spl_token.g.dart';
+part 'spl_token.part.dart';
 
-@HiveType(typeId: SPLToken.typeId)
+// @HiveType(typeId: SPLToken.typeId)
 class SPLToken extends CryptoCurrency with HiveObjectMixin {
   @override
-  @HiveField(0)
+  // @HiveField(0)
   final String name;
 
-  @HiveField(1)
+  // @HiveField(1)
   final String symbol;
 
-  @HiveField(2)
+  // @HiveField(2)
   final String mintAddress;
 
-  @HiveField(3)
+  // @HiveField(3)
   final int decimal;
 
-  @HiveField(4, defaultValue: true)
+  // @HiveField(4, defaultValue: true)
   bool _enabled;
 
-  @HiveField(5)
+  // @HiveField(5)
   final String mint;
 
   @override
-  @HiveField(6)
+  // @HiveField(6)
   final String? iconPath;
 
   @override
-  @HiveField(7)
+  // @HiveField(7)
   final String? tag;
 
   @override
-  @HiveField(8, defaultValue: false)
+  // @HiveField(8, defaultValue: false)
   bool isPotentialScam;
 
   SPLToken({
