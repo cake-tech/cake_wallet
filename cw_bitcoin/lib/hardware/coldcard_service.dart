@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -13,10 +14,11 @@ class ColdcardService extends HardwareWalletService with BitcoinHardwareWalletSe
 
   final ColdCardDevice device;
 
-  @override Future<Uint8List> getMasterFingerprint() async {
-    return Uint8List(4)..buffer.asByteData().setUint32(0,  device.masterFingerprint!);
+  @override
+  Future<Uint8List> getMasterFingerprint() async {
+    return Uint8List(4)..buffer.asByteData().setUint32(0, device.masterFingerprint!);
   }
-  
+
   @override
   Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final accounts = <HardwareAccountData>[];
@@ -37,5 +39,15 @@ class ColdcardService extends HardwareWalletService with BitcoinHardwareWalletSe
     }
 
     return accounts;
+  }
+
+  @override
+  Future<Uint8List> signTransaction({required String transaction}) async =>
+      device.signTransaction(base64Decode(transaction));
+
+  @override
+  Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) async {
+    final result = await device.signMessage(message, subpath: derivationPath ?? 'm');
+    return result.$2;
   }
 }
