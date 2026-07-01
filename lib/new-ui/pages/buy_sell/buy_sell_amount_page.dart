@@ -1,16 +1,19 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
+import 'package:cake_wallet/new-ui/widgets/floating_amount_input.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class NewBuySellAmountPage extends StatefulWidget {
-  const NewBuySellAmountPage({super.key, required this.mode, required this.buySellViewModel});
+  const NewBuySellAmountPage({super.key, required this.buySellViewModel});
 
-  final BuySellPageMode mode;
   final BuySellViewModel buySellViewModel;
 
   @override
@@ -19,6 +22,7 @@ class NewBuySellAmountPage extends StatefulWidget {
 
 class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
   bool _customAmountMode = false;
+  final customInputController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,22 +44,37 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
             ModalTopBar(
               title: _pageTitle,
               leadingIcon: Icon(Icons.close),
-              onLeadingPressed: Navigator.of(context).pop,
+              onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
             ),
             Expanded(
-                child: BuySellDefaultAmountSelector(
-              defaultAmounts: widget.buySellViewModel.defaultAmounts,
-              currency: widget.buySellViewModel.fiatCurrency,
-              mode: widget.mode,
-              onSelected: (amount) {
-                if (amount == null) {
-                  setState(() {
-                    _customAmountMode = true;
-                  });
-                } else {
-                  widget.buySellViewModel.changeFiatAmount(amount: amount);
-                }
-              },
+                child: AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              child: _customAmountMode
+                  ? Observer(
+                      builder: (_) => BuySellCustomAmountInput(
+                            fiatCurrency: widget.buySellViewModel.fiatCurrency,
+                            cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
+                            cryptoAmount: widget.buySellViewModel.cryptoAmount,
+                            controller: customInputController,
+                            onContinuePressed: () {},
+                            onChanged: (amount) =>
+                                widget.buySellViewModel.changeFiatAmount(amount: amount),
+                          ))
+                  : BuySellDefaultAmountSelector(
+                      key: ValueKey(0),
+                      defaultAmounts: widget.buySellViewModel.defaultAmounts,
+                      currency: widget.buySellViewModel.fiatCurrency,
+                      mode: widget.buySellViewModel.mode,
+                      onSelected: (amount) {
+                        if (amount == null) {
+                          setState(() {
+                            _customAmountMode = true;
+                          });
+                        } else {
+                          widget.buySellViewModel.changeFiatAmount(amount: amount);
+                        }
+                      },
+                    ),
             ))
           ],
         ),
@@ -63,12 +82,68 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
     );
   }
 
-  String get _pageTitle => widget.mode == BuySellPageMode.buy
+  String get _pageTitle => widget.buySellViewModel.mode == BuySellPageMode.buy
       ? S.current.buy
       : S.current.sell +
           ((widget.buySellViewModel.cryptoCurrencies.length == 1)
               ? " ${widget.buySellViewModel.cryptoCurrencies.first.fullName}"
               : "");
+}
+
+class BuySellCustomAmountInput extends StatelessWidget {
+  const BuySellCustomAmountInput(
+      {super.key,
+      required this.fiatCurrency,
+      required this.cryptoCurrency,
+      required this.cryptoAmount,
+      required this.controller,
+      required this.onContinuePressed,
+      required this.onChanged});
+
+  final FiatCurrency fiatCurrency;
+  final CryptoCurrency cryptoCurrency;
+  final String cryptoAmount;
+  final TextEditingController controller;
+  final VoidCallback onContinuePressed;
+  final Function(String) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        SizedBox.shrink(),
+        Column(
+          spacing: 8,
+          children: [
+            FloatingAmountInput(
+              currency: fiatCurrency,
+              controller: controller,
+              onChanged: onChanged,
+            ),
+            Opacity(
+              opacity: cryptoAmount.isEmpty ? 0 : 1,
+              child: Text(
+                "≈ ${cryptoAmount} ${cryptoCurrency.symbol}",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            )
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: NewPrimaryButton(
+              onPressed: onContinuePressed,
+              text: S.of(context).continue_text,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary),
+        )
+      ],
+    );
+  }
 }
 
 class BuySellDefaultAmountSelector extends StatelessWidget {
@@ -100,6 +175,7 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: GridView.builder(
               shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               // +1 for "custom" option
               itemCount: defaultAmounts.length + 1,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

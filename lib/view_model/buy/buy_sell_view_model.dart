@@ -11,10 +11,13 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/buy/buy_sell_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 
@@ -25,6 +28,7 @@ class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with Store {
   BuySellViewModelBase(
     AppStore appStore,
+  {required this.mode}
   )   : _cryptoAmount = '',
         fiatAmount = '',
         cryptoCurrencyAddress = '',
@@ -81,7 +85,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     final formattedFiatAmount = double.tryParse(fiatAmount);
     final formattedCryptoAmount = double.tryParse(_cryptoAmount);
 
-    return isBuyAction
+    return mode == BuySellPageMode.buy
         ? formattedFiatAmount ?? 200.0
         : formattedCryptoAmount ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
   }
@@ -100,8 +104,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @observable
   List<FiatCurrency> fiatCurrencies;
 
-  @observable
-  bool isBuyAction = true;
+  final BuySellPageMode mode;
+
 
   @observable
   List<BuyProvider> providerList;
@@ -234,11 +238,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     _initialize();
   }
 
-  @action
-  void changeBuySellAction() {
-    isBuyAction = !isBuyAction;
-    _initialize();
-  }
 
   @action
   void changeFiatCurrency({required FiatCurrency currency}) {
@@ -267,16 +266,18 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
 
     if (!isReadyToTrade && !isBuySellQuoteFailed) {
-      _cryptoAmount = S.current.fetching;
+      _cryptoAmount = "...";
       return;
     } else if (isBuySellQuoteFailed) {
       _cryptoAmount = '';
       return;
     }
 
+    printV(bestRateQuote);
     if (bestRateQuote != null) {
       final enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0;
       final amount = enteredAmount / bestRateQuote!.rate;
+      printV(amount);
 
       _cryptoAmount = amount.toString().withMaxDecimals(cryptoCurrency.decimals);
     } else {
@@ -391,7 +392,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   void _setProviders() =>
-      providerList = isBuyAction ? availableBuyProviders : availableSellProviders;
+      providerList = mode == BuySellPageMode.buy ? availableBuyProviders : availableSellProviders;
 
   Future<void> _initialize() async {
     _setProviders();
@@ -420,7 +421,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     paymentMethodState = PaymentMethodLoading();
     selectedPaymentMethod = null;
     final result = await Future.wait(providerList.map((element) =>
-        element.getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction).timeout(
+        element.getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, mode == BuySellPageMode.buy).timeout(
               Duration(seconds: 10),
               onTimeout: () => [],
             )));
@@ -456,7 +457,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     buySellQuotState = BuySellQuotLoading();
 
     final List<BuyProvider> validProviders = providerList.where((provider) {
-      if (isBuyAction) {
+      if (mode == BuySellPageMode.buy) {
         return provider.supportedCryptoList
             .any((pair) => pair.from == cryptoCurrency && pair.to == fiatCurrency);
       } else {
@@ -476,7 +477,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           fiatCurrency: fiatCurrency,
           amount: amount,
           paymentType: selectedPaymentMethod?.paymentMethodType,
-          isBuyAction: isBuyAction,
+          isBuyAction: mode == BuySellPageMode.buy,
           walletAddress: wallet.walletAddresses.address,
           customPaymentMethodType: selectedPaymentMethod?.customPaymentMethodType,
         )
@@ -498,7 +499,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    if (isBuyAction) {
+    if (mode == BuySellPageMode.buy) {
       validQuotes.sort((a, b) => b.payout.compareTo(a.payout));
     } else {
       validQuotes.sort((a, b) => a.payout.compareTo(b.payout));
@@ -541,7 +542,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
       final Quote effectiveBestRateQuote =
       sortedRecommendedQuotes.reduce((a, b) {
-        return isBuyAction ? a.rate < b.rate ? a : b : a.rate > b.rate ? a : b;
+        return mode == BuySellPageMode.buy ? a.rate < b.rate ? a : b : a.rate > b.rate ? a : b;
       });
 
 
@@ -563,7 +564,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         context: context,
         quote: selectedQuote!,
         amount: amount,
-        isBuyAction: isBuyAction,
+        isBuyAction: mode == BuySellPageMode.buy,
         cryptoCurrencyAddress: cryptoCurrencyAddress,
       );
     } catch (e) {
