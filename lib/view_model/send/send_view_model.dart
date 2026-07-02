@@ -189,9 +189,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final query = output.address.trim();
     if (query.isEmpty) return null;
 
-    final isValidAddress = AddressValidator(type: selectedCryptoCurrency).isValid(query);
+    // Check if the address is valid for the current currency (except for Zano, which can use handles as addresses)
+    if (selectedCryptoCurrency != CryptoCurrency.zano) {
+      final isValidAddress = AddressValidator(type: selectedCryptoCurrency).isValid(query);
+      if (isValidAddress) return null;
+    }
 
-    if (isValidAddress) return null;
 
     final results = await _adrResService.resolve(
       query: query,

@@ -77,8 +77,12 @@ abstract class ContactViewModelBase with Store {
     if (currentCurrency == null) return null;
     if (query.isEmpty) return null;
 
-    final isValidAddress = AddressValidator(type: currentCurrency).isValid(query);
-    if (isValidAddress) return null;
+
+    // Check if the address is valid for the current currency (except for Zano, which can use handles as addresses)
+    if (currentCurrency != CryptoCurrency.zano) {
+      final isValidAddress = AddressValidator(type: currentCurrency).isValid(query);
+      if (isValidAddress) return null;
+    }
 
     final parsedAddresses = await adrResService.resolve(
       query: query,

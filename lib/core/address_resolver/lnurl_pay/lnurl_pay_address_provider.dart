@@ -13,7 +13,7 @@ class LNUrlPayAddressProvider extends AddressLookupProvider {
   AddressSource get source => AddressSource.lnurlPay;
 
   @override
-  List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.btc];
+  List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.btc, CryptoCurrency.btcln];
 
   @override
   bool canHandle(String q) => q.contains('.') && q.contains('@'); // LNURL-pay handle example: user@domain.com
@@ -33,16 +33,26 @@ class LNUrlPayAddressProvider extends AddressLookupProvider {
       final formattedName = query.trim();
       if (formattedName.isEmpty) return [];
 
-      final record = await LNUrlPayRecord.fetchAddressAndName(
-        formattedName: formattedName,
-        currency: CryptoCurrency.btc,
-      );
+      final result = <CryptoCurrency, String>{};
 
-      if (record == null || record.address.isEmpty) return [];
+      for (final currency in currencies) {
+        if (!supportedCurrencies.contains(currency)) continue;
+
+        final record = await LNUrlPayRecord.fetchAddressAndName(
+          formattedName: formattedName,
+          currency: currency,
+        );
+
+        if (record != null && record.address.isNotEmpty) {
+          result[currency] = record.address;
+        }
+      }
+
+      if (result.isEmpty) return [];
 
       return [
         ParsedAddress(
-          parsedAddressByCurrencyMap: {CryptoCurrency.btc: record.address},
+          parsedAddressByCurrencyMap: result,
           addressSource: AddressSource.lnurlPay,
           handle: formattedName,
           profileName: formattedName,
@@ -53,6 +63,4 @@ class LNUrlPayAddressProvider extends AddressLookupProvider {
       return [];
     }
   }
-
-
 }
