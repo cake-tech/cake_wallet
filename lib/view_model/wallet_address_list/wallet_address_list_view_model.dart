@@ -183,7 +183,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     await wallet.walletInfo.save();
   }
 
-  // payjoinEndpoint getter is broken, but uri works
   bool get hasPayjoin =>
       wallet.type == WalletType.bitcoin &&
       !isLightning &&

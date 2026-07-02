@@ -1,7 +1,5 @@
 import 'package:cw_core/payjoin_session.dart';
 import 'package:hive/hive.dart';
-import 'package:payjoin_flutter/receive.dart';
-import 'package:payjoin_flutter/send.dart';
 
 class PayjoinStorage {
   PayjoinStorage(this._payjoinSessionSources);
@@ -12,14 +10,14 @@ class PayjoinStorage {
   static const String _senderPrefix = 'pj_send_';
 
   Future<void> insertReceiverSession(
-    Receiver receiver,
+    String receiverId,
     String walletId,
   ) =>
       _payjoinSessionSources.put(
-        "$_receiverPrefix${receiver.id()}",
+        "$_receiverPrefix$receiverId",
         PayjoinSession(
           walletId: walletId,
-          receiver: receiver.toJson(),
+          receiver: receiverId,
         ),
       );
 
@@ -40,7 +38,8 @@ class PayjoinStorage {
   }
 
   Future<void> markReceiverSessionUnrecoverable(String sessionId, String reason) async {
-    final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
+    final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}");
+    if (session == null) return;
 
     session.status = PayjoinSessionStatus.unrecoverable.name;
     session.error = reason;
@@ -56,21 +55,22 @@ class PayjoinStorage {
   }
 
   Future<void> insertSenderSession(
-    Sender sender,
     String pjUrl,
     String walletId,
-    BigInt amount,
-  ) =>
+    BigInt amount, {
+    String? originalPsbt,
+    int? networkFeesSatPerVb,
+  }) =>
       _payjoinSessionSources.put(
         "$_senderPrefix$pjUrl",
         PayjoinSession(
           walletId: walletId,
           pjUri: pjUrl,
-          sender: sender.toJson(),
+          sender: 'v2',
           status: PayjoinSessionStatus.inProgress.name,
           inProgressSince: DateTime.now(),
           rawAmount: amount.toString(),
-        ),
+        )..originalPsbt = originalPsbt,
       );
 
   Future<void> markSenderSessionComplete(String pjUrl, String txId) async {
@@ -82,12 +82,21 @@ class PayjoinStorage {
   }
 
   Future<void> markSenderSessionUnrecoverable(String pjUrl, String reason) async {
-    final session = _payjoinSessionSources.get("$_senderPrefix$pjUrl")!;
+    final session = _payjoinSessionSources.get("$_senderPrefix$pjUrl");
+    if (session == null) return;
 
     session.status = PayjoinSessionStatus.unrecoverable.name;
     session.error = reason;
     await session.save();
   }
+
+  PayjoinSession? getSenderSession(String pjUrl) =>
+      _payjoinSessionSources.get("$_senderPrefix$pjUrl");
+
+  bool hasActiveReceiverSession(String walletId) => _payjoinSessionSources.values.any((s) =>
+      s.walletId == walletId &&
+      !s.isSenderSession &&
+      s.status == PayjoinSessionStatus.inProgress.name);
 
   List<PayjoinSession> readAllOpenSessions(String walletId) => _payjoinSessionSources.values
       .where((session) =>

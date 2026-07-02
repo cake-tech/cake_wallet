@@ -12,7 +12,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
-import 'package:payjoin_flutter/receive.dart' as payjoin;
 
 import 'lightning/utils.dart';
 
@@ -40,8 +39,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }) : super(walletInfo);
 
   final PayjoinManager payjoinManager;
-
-  payjoin.Receiver? currentPayjoinReceiver;
 
   @observable
   String? payjoinEndpoint = null;
@@ -74,24 +71,28 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   Future<void> initPayjoin() async {
     try {
       await payjoinManager.initPayjoin();
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(payjoinCompatibleAddress);
-      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
-
-      payjoinManager.resumeSessions();
     } catch (e) {
       printV(e);
-      // Ignore Connectivity errors
       if (!_isPayjoinConnectivityError(e.toString())) rethrow;
     }
   }
 
   @action
+  Future<void> ensurePayjoinReceiver() async {
+    await newPayjoinReceiver();
+  }
+
+  @action
   Future<void> newPayjoinReceiver() async {
     try {
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(payjoinCompatibleAddress);
-      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
-
-      payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);
+      final endpoint = await payjoinManager.initReceiver(payjoinCompatibleAddress);
+      if (endpoint.isNotEmpty) {
+        payjoinEndpoint = endpoint;
+        await payjoinManager.spawnReceiver(
+          pjEndpoint: endpoint,
+          address: payjoinCompatibleAddress,
+        );
+      }
     } catch (e) {
       printV(e);
       // Ignore Connectivity errors
