@@ -20,6 +20,9 @@ git checkout $HASH
 git reset --hard
 git submodule update --init --force --recursive
 
+# zcash-vote pulls orchard rev 768c365 which needs yanked halo2_gadgets 0.2; crate is unused by the shipped .so -> drop it
+rm -rf native/zcash-vote
+
 # in go I could nicely replace => the heck out of it
 # sadly rust is not go
 find . -name Cargo.toml -exec sed -i.bak -E '
