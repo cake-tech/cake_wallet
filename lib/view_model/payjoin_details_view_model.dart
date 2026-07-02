@@ -1,17 +1,20 @@
 import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -118,6 +121,32 @@ abstract class PayjoinDetailsViewModelBase with Store {
     }
   }
 
+  @action
+  void cancel() {
+    final wallet = getIt.get<AppStore>().wallet;
+    if (wallet == null) return;
+    bitcoin!.cancelPayjoinSession(wallet, payjoinSessionId);
+  }
+
+  @action
+  Future<void> fallbackBroadcast() async {
+    if (!payjoinSession.isSenderSession) return;
+    if (payjoinSession.originalPsbt == null) return;
+    final wallet = getIt.get<AppStore>().wallet;
+    if (wallet == null) return;
+    await bitcoin!.fallbackBroadcastPayjoin(wallet, payjoinSessionId);
+  }
+
+  bool get canCancel =>
+      payjoinSession.status == PayjoinSessionStatus.inProgress.name ||
+      payjoinSession.status == PayjoinSessionStatus.created.name;
+
+  bool get canFallback =>
+      payjoinSession.isSenderSession &&
+      payjoinSession.originalPsbt != null &&
+      (payjoinSession.status == PayjoinSessionStatus.inProgress.name ||
+       payjoinSession.status == PayjoinSessionStatus.unrecoverable.name);
+
   String _getStatusString() {
     switch (payjoinSession.status) {
       case 'success':
@@ -126,6 +155,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
       case 'inProgress':
         return S.current.payjoin_request_in_progress;
       case 'unrecoverable':
+        if (payjoinSession.error == 'Cancelled') return 'Cancelled';
         return S.current.error;
       default:
         return payjoinSession.status;

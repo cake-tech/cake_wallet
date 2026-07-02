@@ -52,6 +52,9 @@ class PayjoinSession extends HiveObject {
   // @HiveField(8)
   String? error;
 
+  // @HiveField(9)
+  String? originalPsbt;
+
   bool get isSenderSession => sender != null;
 
   BigInt get amount => BigInt.parse(rawAmount ?? "0");

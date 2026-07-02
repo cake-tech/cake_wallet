@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_bitcoin/src/utils/buffer_writer.dart';
 
@@ -42,35 +43,57 @@ extension PsbtSigner on PsbtV2 {
 
   Future<void> signWithUTXO(List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer,
       [UTXOGetterCallBack? getTaprootPair]) async {
-    final raw = BytesUtils.toHexString(extractUnsignedTX(getSegwit: false));
+    final reconstructedRaw = extractUnsignedTX(getSegwit: false);
+    final raw = BytesUtils.toHexString(reconstructedRaw);
     final tx = BtcTransaction.fromRaw(raw);
+    printV('[signWithUTXO] reconstructed unsigned_tx hex=$raw');
+    printV('[signWithUTXO] tx.inputs=${tx.inputs.length} utxos=${utxos.length}');
+    printV(
+        '[signWithUTXO] tx.version=${BytesUtils.toHexString(tx.version)} tx.locktime=${BytesUtils.toHexString(tx.locktime)}');
 
     /// when the transaction is taproot and we must use getTaproot transaction
     /// digest we need all of inputs amounts and owner script pub keys
     List<BigInt> taprootAmounts = [];
     List<Script> taprootScripts = [];
 
-    if (utxos.any((e) => e.utxo.isP2tr())) {
+    final anyP2tr = utxos.any((e) => e.utxo.isP2tr());
+    printV('[signWithUTXO] anySenderP2tr=$anyP2tr');
+    if (anyP2tr) {
       for (final input in tx.inputs) {
         final utxo = utxos
             .firstWhereOrNull((u) => u.utxo.txHash == input.txId && u.utxo.vout == input.txIndex);
 
         if (utxo == null) {
-          final trPair = await getTaprootPair!.call(input.txId, input.txIndex);
-          taprootAmounts.add(trPair.value);
-          taprootScripts.add(trPair.script);
+          printV(
+              '[signWithUTXO] input txid=${input.txId} vout=${input.txIndex} -> not in utxos, fetching taproot pair');
+          try {
+            final trPair = await getTaprootPair!.call(input.txId, input.txIndex);
+            taprootAmounts.add(trPair.value);
+            taprootScripts.add(trPair.script);
+            printV('[signWithUTXO]   fetched OK; amount=${trPair.value}');
+          } catch (e, s) {
+            printV('[signWithUTXO]   getTaprootPair FAILED: $e\n$s');
+            rethrow;
+          }
           continue;
         }
         taprootAmounts.add(utxo.utxo.value);
         taprootScripts.add(_findLockingScript(utxo, true));
       }
+      printV('[signWithUTXO] built taprootAmounts.len=${taprootAmounts.length}');
     }
 
     for (var i = 0; i < tx.inputs.length; i++) {
       final utxo = utxos.firstWhereOrNull((e) =>
           e.utxo.txHash == tx.inputs[i].txId &&
           e.utxo.vout == tx.inputs[i].txIndex); // ToDo: More robust verify
-      if (utxo == null) continue;
+      if (utxo == null) {
+        printV(
+            '[signWithUTXO] skip in[$i] txid=${tx.inputs[i].txId} vout=${tx.inputs[i].txIndex} (not in utxos)');
+        continue;
+      }
+      printV(
+          '[signWithUTXO] signing in[$i] txid=${tx.inputs[i].txId} vout=${tx.inputs[i].txIndex} scriptType=${utxo.utxo.scriptType.value}');
 
       /// We receive the owner's ScriptPubKey
       final script = _findLockingScript(utxo, false);
@@ -82,9 +105,11 @@ extension PsbtSigner on PsbtV2 {
       /// We generate transaction digest for current input
       final digest =
           _generateTransactionDigest(script, i, utxo.utxo, tx, taprootAmounts, taprootScripts);
+      printV('[signWithUTXO]   digest.len=${digest.length}');
 
       /// now we need sign the transaction digest
       final sig = signer(digest, utxo, utxo.privateKey, sighash);
+      printV('[signWithUTXO]   sig.len=${sig.length ~/ 2}');
 
       if (utxo.utxo.isP2tr()) {
         setInputTapKeySig(i, Uint8List.fromList(BytesUtils.fromHexString(sig)));
@@ -93,22 +118,50 @@ extension PsbtSigner on PsbtV2 {
             Uint8List.fromList(BytesUtils.fromHexString(sig)));
       }
     }
+    printV('[signWithUTXO] done');
   }
 
   List<int> _generateTransactionDigest(Script scriptPubKeys, int input, BitcoinUtxo utxo,
       BtcTransaction transaction, List<BigInt> taprootAmounts, List<Script> tapRootPubKeys) {
-    if (utxo.isSegwit()) {
-      if (utxo.isP2tr()) {
-        return transaction.getTransactionTaprootDigset(
+    final isSegwit = utxo.isSegwit();
+    final isP2tr = utxo.isP2tr();
+    printV('[digest] in[$input] isSegwit=$isSegwit isP2tr=$isP2tr');
+    printV('[digest] in[$input] scriptCode=${BytesUtils.toHexString(scriptPubKeys.toBytes())}');
+    printV('[digest] in[$input] amount=${utxo.value} sat');
+    printV(
+        '[digest] in[$input] tx.version=${BytesUtils.toHexString(transaction.version)} tx.locktime=${BytesUtils.toHexString(transaction.locktime)}');
+    printV('[digest] in[$input] tx.inputs.len=${transaction.inputs.length}');
+    for (var j = 0; j < transaction.inputs.length; j++) {
+      final inp = transaction.inputs[j];
+      printV(
+          '[digest]   txIn[$j] txid=${inp.txId} vout=${inp.txIndex} seq=${BytesUtils.toHexString(inp.sequence)}');
+    }
+    printV('[digest] in[$input] tx.outputs.len=${transaction.outputs.length}');
+    for (var j = 0; j < transaction.outputs.length; j++) {
+      final out = transaction.outputs[j];
+      printV(
+          '[digest]   txOut[$j] value=${out.amount} script=${BytesUtils.toHexString(out.scriptPubKey.toBytes())}');
+    }
+    final psbtLocktime = getGlobalFallbackLocktime();
+    printV('[digest] in[$input] PSBT fallbackLocktime field=${psbtLocktime ?? "null (→ 0)"}');
+
+    List<int> digest;
+    if (isSegwit) {
+      if (isP2tr) {
+        digest = transaction.getTransactionTaprootDigset(
           txIndex: input,
           scriptPubKeys: tapRootPubKeys,
           amounts: taprootAmounts,
         );
+      } else {
+        digest = transaction.getTransactionSegwitDigit(
+            txInIndex: input, script: scriptPubKeys, amount: utxo.value);
       }
-      return transaction.getTransactionSegwitDigit(
-          txInIndex: input, script: scriptPubKeys, amount: utxo.value);
+    } else {
+      digest = transaction.getTransactionDigest(txInIndex: input, script: scriptPubKeys);
     }
-    return transaction.getTransactionDigest(txInIndex: input, script: scriptPubKeys);
+    printV('[digest] in[$input] → digest=${BytesUtils.toHexString(digest)}');
+    return digest;
   }
 
   Script _findLockingScript(UtxoWithAddress utxo, bool isTaproot) {
@@ -160,6 +213,56 @@ extension PsbtSigner on PsbtV2 {
         return senderPub.toRedeemScript();
     }
     throw Exception("invalid bitcoin address type");
+  }
+
+  void signWithUTXOSync(List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer) {
+    final raw = BytesUtils.toHexString(extractUnsignedTX(getSegwit: false));
+    final tx = BtcTransaction.fromRaw(raw);
+
+    List<BigInt> taprootAmounts = [];
+    List<Script> taprootScripts = [];
+
+    if (utxos.any((e) => e.utxo.isP2tr())) {
+      for (var i = 0; i < tx.inputs.length; i++) {
+        final utxo = utxos.firstWhereOrNull(
+            (u) => u.utxo.txHash == tx.inputs[i].txId && u.utxo.vout == tx.inputs[i].txIndex);
+        if (utxo == null) {
+          final witnessUtxo = getInputWitnessUtxo(i);
+          if (witnessUtxo != null) {
+            final amount = witnessUtxo.$1;
+            final scriptPubKey = witnessUtxo.$2;
+            taprootAmounts.add(BigintUtils.fromBytes(amount.toList(), byteOrder: Endian.little));
+            taprootScripts.add(Script(script: scriptPubKey.toList()));
+          } else {
+            throw Exception("Missing witness UTXO for P2TR input $i");
+          }
+        } else {
+          taprootAmounts.add(utxo.utxo.value);
+          taprootScripts.add(_findLockingScript(utxo, true));
+        }
+      }
+    }
+
+    for (var i = 0; i < tx.inputs.length; i++) {
+      final utxo = utxos.firstWhereOrNull(
+          (e) => e.utxo.txHash == tx.inputs[i].txId && e.utxo.vout == tx.inputs[i].txIndex);
+      if (utxo == null) continue;
+
+      final script = _findLockingScript(utxo, false);
+      final int sighash = utxo.utxo.isP2tr()
+          ? BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL
+          : BitcoinOpCodeConst.SIGHASH_ALL;
+      final digest =
+          _generateTransactionDigest(script, i, utxo.utxo, tx, taprootAmounts, taprootScripts);
+      final sig = signer(digest, utxo, utxo.privateKey, sighash);
+
+      if (utxo.utxo.isP2tr()) {
+        setInputTapKeySig(i, Uint8List.fromList(BytesUtils.fromHexString(sig)));
+      } else {
+        setInputPartialSig(i, Uint8List.fromList(BytesUtils.fromHexString(utxo.public().toHex())),
+            Uint8List.fromList(BytesUtils.fromHexString(sig)));
+      }
+    }
   }
 }
 
