@@ -352,11 +352,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: build_daemon
-      ref: f20f2a24e0e1259f6ee53c6828d7c396d5b23bbf
-      resolved-ref: f20f2a24e0e1259f6ee53c6828d7c396d5b23bbf
+      ref: "565856b394c26a0d4c8cda88b69b6dcfaa2acd1f"
+      resolved-ref: "565856b394c26a0d4c8cda88b69b6dcfaa2acd1f"
       url: "https://github.com/dart-lang/build"
     source: git
-    version: "4.1.5"
+    version: "4.1.2"
   build_runner:
     dependency: "direct dev"
     description:
@@ -1871,8 +1871,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
-      resolved-ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
+      ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
+      resolved-ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
       url: "https://github.com/cake-tech/ledger-usb-plus"
     source: git
     version: "1.0.8"
@@ -2109,6 +2109,14 @@ packages:
       url: "https://github.com/dart-lang/native"
     source: git
     version: "0.19.2"
+  native_toolchain_rust:
+    dependency: transitive
+    description:
+      name: native_toolchain_rust
+      sha256: "8469a0e32a47a5c84b7fd300de9fd0e8082aac76c37922986324f5082a58350d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.6"
   nested:
     dependency: "direct overridden"
     description:
@@ -2600,9 +2608,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "9457422fce3f1524437f6a1429200f048931a2fe"
-      resolved-ref: "9457422fce3f1524437f6a1429200f048931a2fe"
-      url: "https://github.com/MrCyjaneK/rive_common"
+      ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      resolved-ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      url: "https://github.com/malik1004x/rive_common"
     source: git
     version: "0.4.15"
   riverpod:
@@ -3069,6 +3077,14 @@ packages:
       url: "https://github.com/payam-zahedi/toastification"
     source: git
     version: "3.2.0"
+  toml:
+    dependency: "direct overridden"
+    description:
+      name: toml
+      sha256: d968d149c8bd06dc14e09ea3a140f90a3f2ba71949e7a91df4a46f3107400e71
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.16.0"
   torch_dart:
     dependency: "direct main"
     description:
@@ -3161,8 +3177,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
-      resolved-ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+      ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
+      resolved-ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
       url: "https://github.com/cake-tech/universal_ble.git"
     source: git
     version: "2.0.0"
@@ -3491,5 +3507,5 @@ packages:
     source: git
     version: "6.24.0"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.19.0"
