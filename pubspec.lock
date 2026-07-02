@@ -2288,6 +2288,14 @@ packages:
       url: "https://github.com/llucax/pausable_timer"
     source: git
     version: "3.1.0+3"
+  payjoin:
+    dependency: transitive
+    description:
+      name: payjoin
+      sha256: "5ef7dd4fe3c3f9fe09469525622fa8329eff3823009a74e87ab60eaca573a010"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2+payjoin-1.0.0"
   payjoin_flutter:
     dependency: "direct overridden"
     description:

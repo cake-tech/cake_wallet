@@ -426,9 +426,11 @@ class WalletInfo {
 
   Future<void> setAddresses(Map<String, String> addresses) async {
     await WalletInfoAddressMap.deleteByWalletInfoId(internalId);
-    final entries = addresses.entries.toList();
-    for (final entry in entries) {
-      await WalletInfoAddressMap.insert(internalId, entry.key, entry.value);
+    final keys = addresses.keys.toList();
+    final values = addresses.values.toList();
+    // ToDo: check why the addresses list gets changed half way through
+    for (int i = 0; i < keys.length; i++) {
+      await WalletInfoAddressMap.insert(internalId, keys[i], values[i]);
     }
   }
 
@@ -591,7 +593,7 @@ class WalletInfo {
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
-    final info = WalletInfo(
+    return WalletInfo(
         json[selfIdColumn] as int,
         json['id'] as String,
         json['name'] as String,
@@ -616,9 +618,8 @@ class WalletInfo {
         json['addressPageType'] as String? ?? null,
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
-        json["favoriteTokenAddress"] as String? ?? null);
-    info.network = json['network'] as String?;
-    return info;
+        json["favoriteTokenAddress"] as String? ?? null)
+      ..network = json['network'] as String?;
   }
 
   Future<int> save() async {
