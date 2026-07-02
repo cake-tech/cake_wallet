@@ -173,7 +173,7 @@ dev_dependencies:
   mocktail: ^1.0.4
   build_runner: ^2.15.0
   logging: ^1.2.0
-  mobx_codegen: ^2.7.7
+  mobx_codegen: ^2.7.5
 #  hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
@@ -186,6 +186,7 @@ dev_dependencies:
   msix: ^3.16.9
 
 dependency_overrides:
+  toml: 0.16.0
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git

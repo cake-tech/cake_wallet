@@ -1,34 +1,30 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_persister.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_send_worker.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
-import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_bitcoin/psbt/utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:payjoin_flutter/common.dart';
-import 'package:payjoin_flutter/receive.dart';
-import 'package:payjoin_flutter/send.dart';
-import 'package:payjoin_flutter/src/config.dart' as pj_config;
-import 'package:payjoin_flutter/src/generated/api.dart' as pj_api;
-import 'package:payjoin_flutter/uri.dart' as PayjoinUri;
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:http/http.dart' as http;
+import 'package:payjoin/payjoin.dart' as pj;
 
 class PayjoinManager {
   PayjoinManager(this._payjoinStorage, this._wallet);
 
   final PayjoinStorage _payjoinStorage;
   final BitcoinWalletBase _wallet;
-  final Map<String, PayjoinPollerSession> _activePollers = {};
+  final http.Client _client = ProxyWrapper().getHttpIOClient();
+  final PayjoinEventStore _eventStore = PayjoinEventStore();
+  final Map<String, PayjoinReceiverWorker> _runningReceivers = {};
+  final Map<String, PayjoinSenderWorker> _runningSenders = {};
 
   static const List<String> ohttpRelayUrls = [
     'https://pj.bobspacebkk.com',
@@ -46,9 +42,7 @@ class PayjoinManager {
   StreamSubscription<String>? _logSubscription;
 
   Future<void> initPayjoin() async {
-    await initLogging();
-
-    await pj_config.PConfig.initializeApp();
+    await Future.wait([initLogging(), _eventStore.ensureOpen()]);
   }
 
   Future<void> initLogging() async {
@@ -74,320 +68,328 @@ class PayjoinManager {
 
   void writePayjoinLog(String message) {
     if (_logStreamController.isClosed) return;
-
     try {
       _logStreamController.add(message);
     } catch (_) {}
   }
 
   Future<void> resumeSessions() async {
-    await initLogging();
     final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
 
-    final spawnedSessions = allSessions.map((session) {
-      try {
-        if (session.isSenderSession) {
-          printV("Resuming Payjoin Sender Session ${session.pjUri!}");
-          return _spawnSender(
-            sender: Sender.fromJson(json: session.sender!),
-            pjUri: session.pjUri!,
-          );
-        }
-        final receiver = Receiver.fromJson(json: session.receiver!);
-        printV("Resuming Payjoin Receiver Session ${receiver.id()}");
-        return spawnReceiver(receiver: receiver);
-      } on pj_api.FfiSerdeJsonError catch (_) {
-        _payjoinStorage.markSenderSessionUnrecoverable(session.pjUri!, "Outdated Session");
+    for (final session in allSessions) {
+      if (session.isSenderSession) {
+        await _resumeSenderSession(session.pjUri ?? '');
+      } else {
+        await _resumeReceiverSession(session.receiver ?? '');
       }
-    }).nonNulls;
-
-    printV("Resumed ${spawnedSessions.length} Payjoin Sessions");
-    await Future.wait(spawnedSessions);
+    }
   }
 
-  Future<Sender> initSender(
-      String pjUriString, String originalPsbt, int networkFeesSatPerVb) async {
-    try {
-      final pjUri = (await PayjoinUri.Uri.fromStr(pjUriString)).checkPjSupported();
-      final minFeeRateSatPerKwu = BigInt.from(networkFeesSatPerVb * 250);
-      final senderBuilder = await SenderBuilder.fromPsbtAndUri(
-        psbtBase64: originalPsbt,
-        pjUri: pjUri,
-      );
-      final persister = PayjoinSenderPersister.impl();
-      final newSender = await senderBuilder.buildRecommended(minFeeRate: minFeeRateSatPerKwu);
-      final senderToken = await newSender.persist(persister: persister);
+  Future<void> _resumeReceiverSession(String sessionId) async {
+    if (sessionId.isEmpty) return;
 
-      return Sender.load(token: senderToken, persister: persister);
+    try {
+      final events = _eventStore.loadReceiver(sessionId);
+      if (events.isEmpty) {
+        await _payjoinStorage.markReceiverSessionUnrecoverable(
+          sessionId,
+          'Stale session from previous version',
+        );
+        return;
+      }
+
+      final persister = PayjoinReceiverPersister(_eventStore.box, sessionId);
+      final replayResult = pj.replayReceiverEventLog(persister: persister);
+      final state = replayResult.state();
+      replayResult.dispose();
+
+      if (state is pj.ClosedReceiveSession) {
+        await _payjoinStorage.markReceiverSessionComplete(
+          sessionId,
+          '',
+          '0',
+        );
+      } else if (state is pj.HasReplyableExceptionReceiveSession) {
+        await _payjoinStorage.markReceiverSessionUnrecoverable(
+          sessionId,
+          'Unrecoverable error',
+        );
+      } else {
+        writePayjoinLog("Receiver($sessionId) resume: ${state.runtimeType}");
+      }
+    } catch (e) {
+      writePayjoinLog("[ERROR] Resume receiver($sessionId) $e");
+    }
+  }
+
+  Future<void> _resumeSenderSession(String pjUri) async {
+    try {
+      final events = _eventStore.loadSender(pjUri);
+      if (events.isEmpty) {
+        return;
+      }
+
+      final persister = PayjoinSenderPersister(_eventStore.box, pjUri);
+      final replayResult = pj.replaySenderEventLog(persister: persister);
+      final state = replayResult.state();
+      replayResult.dispose();
+
+      if (state is pj.ClosedSendSession) {
+        await _payjoinStorage.markSenderSessionComplete(pjUri, '');
+      } else {
+        writePayjoinLog("Sender($pjUri) resume: ${state.runtimeType}");
+      }
+    } catch (e) {
+      writePayjoinLog("[ERROR] Resume sender($pjUri) $e");
+    }
+  }
+
+  Future<void> spawnNewSender({
+    required String pjUrl,
+    required String originalPsbt,
+    required BigInt amount,
+    int networkFeesSatPerVb = 1,
+    bool isTestnet = false,
+  }) async {
+    final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
+    await _payjoinStorage.insertSenderSession(
+      pjUri,
+      _wallet.id,
+      amount,
+      originalPsbt: originalPsbt,
+    );
+
+    final senderWorker = PayjoinSenderWorker();
+    final minFeeRateSatPerKwu = networkFeesSatPerVb * 250;
+    final ohttpRelay = randomOhttpRelayUrl();
+
+    _runningSenders[pjUri] = senderWorker;
+
+    try {
+      writePayjoinLog("Sender($pjUri) Created");
+
+      final proposalPsbt = await senderWorker.run(
+        originalPsbt,
+        pjUrl,
+        ohttpRelay,
+        minFeeRateSatPerKwu,
+      );
+      writePayjoinLog("Sender($pjUri) proposedPSBT len=${proposalPsbt.length}: $proposalPsbt");
+
+      final utxos = _wallet.getUtxoWithPrivateKeys();
+      writePayjoinLog("Sender($pjUri) utxos=${utxos.length}; types=${utxos.map((u) => u.utxo.scriptType.value).toList()}");
+      final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
+      writePayjoinLog("Sender($pjUri) finalizedPsbt: $finalizedPsbt");
+
+      final txId = getTxIdFromPsbtV0(finalizedPsbt);
+      writePayjoinLog("Sender($pjUri) expected: $txId");
+
+      _wallet.commitPsbt(finalizedPsbt);
+      await _payjoinStorage.markSenderSessionComplete(pjUri, txId);
+    } on PayjoinSenderCancelledException {
+      writePayjoinLog("Sender($pjUri) Cancelled by user");
+      await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, 'Cancelled');
+    } catch (e, s) {
+      writePayjoinLog("[ERROR] Sender($pjUri) $e\n$s");
+      await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, e.toString());
+    } finally {
+      _runningSenders.remove(pjUri);
+    }
+  }
+
+  Future<pj.OhttpKeys> _fetchOhttpKeys(
+    String ohttpRelay,
+    String directory,
+  ) async {
+    final keysUrl = Uri.parse('$directory/.well-known/ohttp-gateway');
+    final resp = await _client.get(
+      keysUrl,
+      headers: {'Accept': 'application/ohttp-keys'},
+    );
+    return pj.OhttpKeys.decode(bytes: resp.bodyBytes);
+  }
+
+  Future<String> initSender(
+    String pjUriString,
+    String originalPsbt,
+    int networkFeesSatPerVb,
+  ) async {
+    try {
+      final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
+      return pjUri.pjEndpoint();
     } catch (e) {
       throw Exception('Error initializing Payjoin Sender: $e');
     }
   }
 
-  Future<void> spawnNewSender({
-    required Sender sender,
-    required String pjUrl,
-    required BigInt amount,
-    bool isTestnet = false,
-  }) async {
-    final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
-    await _payjoinStorage.insertSenderSession(sender, pjUri, _wallet.id, amount);
-
-    return _spawnSender(isTestnet: isTestnet, sender: sender, pjUri: pjUri);
-  }
-
-  Future<void> _spawnSender({
-    required Sender sender,
-    required String pjUri,
-    bool isTestnet = false,
-  }) async {
-    final completer = Completer();
-    final receivePort = ReceivePort();
-
-    receivePort.listen((message) async {
-      if (message is Map<String, dynamic>) {
-        try {
-          switch (message['type'] as PayjoinSenderRequestTypes) {
-            case PayjoinSenderRequestTypes.requestPosted:
-              writePayjoinLog("Sender($pjUri) PayjoinSenderRequestTypes.requestPosted");
-              return;
-            case PayjoinSenderRequestTypes.psbtToSign:
-              writePayjoinLog("Sender($pjUri) PayjoinSenderRequestTypes.psbtToSign");
-
-              final proposalPsbt = message['psbt'] as String;
-              writePayjoinLog("Sender($pjUri) proposedPSBT: $proposalPsbt");
-
-              final utxos = _wallet.getUtxoWithPrivateKeys();
-              final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
-              writePayjoinLog("Sender($pjUri) finalizedPsbt: $finalizedPsbt");
-
-              final txId = getTxIdFromPsbtV0(finalizedPsbt);
-              writePayjoinLog("Sender($pjUri) expected: $txId");
-
-              _wallet.commitPsbt(finalizedPsbt);
-
-              _cleanupSession(pjUri);
-              await _payjoinStorage.markSenderSessionComplete(pjUri, txId);
-              completer.complete();
-          }
-        } catch (e) {
-          writePayjoinLog("[ERROR] Sender($pjUri) $e");
-          _cleanupSession(pjUri);
-          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, e.toString());
-          completer.complete();
-        }
-      } else if (message is PayjoinSessionError) {
-        _cleanupSession(pjUri);
-        if (message is UnrecoverableError) {
-          writePayjoinLog("[ERROR] Sender($pjUri) UnrecoverableError(${message.message})");
-          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, message.message);
-          completer.complete();
-        } else if (message is RecoverableError) {
-          writePayjoinLog("[ERROR] Sender($pjUri) RecoverableError(${message.message})");
-
-          completer.complete();
-        } else {
-          writePayjoinLog("[ERROR] Sender($pjUri) GenericError(${message.message})");
-
-          completer.completeError(message);
-        }
-      }
-    });
-
-    final isolate = await Isolate.spawn(
-      PayjoinSenderWorker.run,
-      [receivePort.sendPort, sender.toJson(), pjUri],
-    );
-
-    _activePollers[pjUri] = PayjoinPollerSession(isolate, receivePort);
-
-    return completer.future;
-  }
-
-  Future<Receiver> getUnusedReceiver(String address, [bool isTestnet = false]) async {
+  Future<String> getUnusedReceiver(String address, [bool isTestnet = false]) async {
     final session = _payjoinStorage.getUnusedActiveReceiverSession(_wallet.id);
-
-    if (session != null) {
-      await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
-
-      return Receiver.fromJson(json: session.receiver!);
-    }
-
+    if (session != null) return session.receiver ?? '';
     return initReceiver(address);
   }
 
-  Future<Receiver> initReceiver(String address,
-      [bool isTestnet = false, int retryCount = 0]) async {
-    if (retryCount > 0) writePayjoinLog("Retrying initReceiver ${retryCount + 1} attempt");
+  Future<String> initReceiver(String address, [bool isTestnet = false, int retryCount = 0]) async {
+    if (retryCount > 0) {
+      writePayjoinLog("Retrying initReceiver ${retryCount + 1} attempt");
+    }
 
     try {
-      final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
-        ohttpRelay: await randomOhttpRelayUrl(),
-        payjoinDirectory: payjoinDirectoryUrl,
+      final ohttpKeys = await _fetchOhttpKeys(
+        randomOhttpRelayUrl(),
+        payjoinDirectoryUrl,
       );
 
-      final newReceiver = await NewReceiver.create(
+      final receiver = pj.ReceiverBuilder(
         address: address,
-        network: isTestnet ? Network.testnet : Network.bitcoin,
         directory: payjoinDirectoryUrl,
         ohttpKeys: ohttpKeys,
       );
-      final persister = PayjoinReceiverPersister.impl();
-      final receiverToken = await newReceiver.persist(persister: persister);
-      final receiver = await Receiver.load(persister: persister, token: receiverToken);
+      final initialTransition = receiver.build();
 
-      await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
+      // Build with ephemeral persister to extract pjEndpoint
+      final ephemeral = _EphemeralReceiverPersister();
+      final initialized = initialTransition.save(persister: ephemeral);
 
-      return receiver;
+      final pjEndpoint = initialized.pjUri().pjEndpoint();
+
+      // Save Initialized event to durable store so worker replays this session
+      final durablePersister = PayjoinReceiverPersister(
+        _eventStore.box,
+        pjEndpoint,
+      );
+      for (final event in ephemeral.load()) {
+        durablePersister.save(event);
+      }
+
+      await _payjoinStorage.insertReceiverSession(
+        pjEndpoint,
+        _wallet.id,
+      );
+
+      return pjEndpoint;
     } catch (e) {
       writePayjoinLog(e.toString());
       if (e.toString().contains("error sending request for url") && retryCount < 5) {
         return initReceiver(address, isTestnet, ++retryCount);
-      } else {
-        rethrow;
       }
+      rethrow;
     }
   }
 
   Future<void> spawnReceiver({
-    required Receiver receiver,
+    required String pjEndpoint,
+    required String address,
     bool isTestnet = false,
   }) async {
-    final completer = Completer();
-    final receivePort = ReceivePort();
+    try {
+      final ohttpKeys = await _fetchOhttpKeys(
+        randomOhttpRelayUrl(),
+        payjoinDirectoryUrl,
+      );
 
-    SendPort? mainToIsolateSendPort;
-    List<UtxoWithPrivateKey> utxos = [];
-    String rawAmount = '0';
+      _payjoinStorage.markReceiverSessionInProgress(pjEndpoint);
 
-    receivePort.listen((message) async {
-      if (message is Map<String, dynamic>) {
-        try {
-          switch (message['type'] as PayjoinReceiverRequestTypes) {
-            case PayjoinReceiverRequestTypes.processOriginalTx:
-              final tx = message['tx'] as String;
-              rawAmount = getOutputAmountFromTx(tx, _wallet);
-              break;
-            case PayjoinReceiverRequestTypes.checkIsOwned:
-              (_wallet.walletAddresses as BitcoinWalletAddresses).newPayjoinReceiver();
-              _payjoinStorage.markReceiverSessionInProgress(receiver.id());
+      final persister = PayjoinReceiverPersister(
+        _eventStore.box,
+        pjEndpoint,
+      );
 
-              final inputScript = message['input_script'] as Uint8List;
-              final isOwned = _wallet.isMine(Script.fromRaw(byteData: inputScript));
-              mainToIsolateSendPort?.send({
-                'requestId': message['requestId'],
-                'result': isOwned,
-              });
-              break;
+      final utxos = _wallet.getUtxoWithPrivateKeys();
+      final worker = PayjoinReceiverWorker(
+        ohttpRelay: randomOhttpRelayUrl(),
+        utxos: utxos,
+        isMineChecker: (scriptBytes) {
+          final script = Script.fromRaw(byteData: scriptBytes);
+          return _wallet.isMine(script);
+        },
+        persister: persister,
+      );
 
-            case PayjoinReceiverRequestTypes.checkIsReceiverOutput:
-              final outputScript = message['output_script'] as Uint8List;
-              final isReceiverOutput = _wallet.isMine(Script.fromRaw(byteData: outputScript));
-              mainToIsolateSendPort?.send({
-                'requestId': message['requestId'],
-                'result': isReceiverOutput,
-              });
-              break;
+      _runningReceivers[pjEndpoint] = worker;
 
-            case PayjoinReceiverRequestTypes.getCandidateInputs:
-              utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
-              if (utxos.isEmpty) {
-                await _wallet.updateAllUnspents();
-                utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
-              }
-              mainToIsolateSendPort?.send({
-                'requestId': message['requestId'],
-                'result': utxos,
-              });
-              break;
-
-            case PayjoinReceiverRequestTypes.processPsbt:
-              final psbt = message['psbt'] as String;
-              writePayjoinLog(
-                  "Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.processPsbt: $psbt");
-
-              final signedPsbt = await _wallet.signPsbt(psbt, utxos);
-              mainToIsolateSendPort?.send({
-                'requestId': message['requestId'],
-                'result': signedPsbt,
-              });
-              break;
-
-            case PayjoinReceiverRequestTypes.proposalSent:
-              _cleanupSession(receiver.id());
-              final psbt = message['psbt'] as String;
-              writePayjoinLog(
-                  "Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.proposalSent: $psbt");
-
-              await _payjoinStorage.markReceiverSessionComplete(
-                  receiver.id(), getTxIdFromPsbtV0(psbt), rawAmount);
-              completer.complete();
-          }
-        } catch (e) {
-          _cleanupSession(receiver.id());
-          writePayjoinLog("[ERROR] Receiver(${receiver.id()}) $e");
-
-          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id(), e.toString());
-          completer.completeError(e);
-        }
-      } else if (message is PayjoinSessionError) {
-        _cleanupSession(receiver.id());
-        if (message is UnrecoverableError) {
-          writePayjoinLog(
-              "[ERROR] Receiver(${receiver.id()}) UnrecoverableError(${message.message})");
-
-          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id(), message.message);
-          completer.complete();
-        } else if (message is RecoverableError) {
-          writePayjoinLog(
-              "[ERROR] Receiver(${receiver.id()}) RecoverableError(${message.message})");
-
-          completer.complete();
-        } else {
-          writePayjoinLog("[ERROR] Receiver(${receiver.id()}) GenericError(${message.message})");
-
-          completer.completeError(message);
-        }
-      } else if (message is SendPort) {
-        mainToIsolateSendPort = message;
+      try {
+        final psbt = await worker.run(address, payjoinDirectoryUrl, ohttpKeys);
+        writePayjoinLog("Receiver($pjEndpoint) proposalSent: $psbt");
+        _payjoinStorage.markReceiverSessionComplete(
+          pjEndpoint,
+          getTxIdFromPsbtV0(psbt),
+          '0',
+        );
+      } finally {
+        _runningReceivers.remove(pjEndpoint);
       }
-    });
-
-    final isolate = await Isolate.spawn(
-      PayjoinReceiverWorker.run,
-      [receivePort.sendPort, receiver.toJson()],
-    );
-
-    _activePollers[receiver.id()] = PayjoinPollerSession(isolate, receivePort);
-
-    return completer.future;
+    } catch (e) {
+      writePayjoinLog("[ERROR] Receiver($pjEndpoint) $e");
+      _payjoinStorage.markReceiverSessionUnrecoverable(
+        pjEndpoint,
+        e.toString(),
+      );
+    }
   }
 
-  void cleanupSessions() {
-    final sessionIds = _activePollers.keys.toList();
-    for (final sessionId in sessionIds) {
-      _cleanupSession(sessionId);
+  void cancelReceiver(String pjEndpoint) {
+    _runningReceivers[pjEndpoint]?.cancel();
+    _runningReceivers.remove(pjEndpoint);
+    writePayjoinLog("Receiver($pjEndpoint) Cancelled");
+  }
+
+  void cancelAllReceivers() {
+    for (final entry in _runningReceivers.entries) {
+      entry.value.cancel();
+    }
+    _runningReceivers.clear();
+  }
+
+  void cancelSender(String pjUri) {
+    _runningSenders[pjUri]?.cancel();
+    writePayjoinLog("Sender($pjUri) Cancelled via cancelSender");
+  }
+
+  Future<void> fallbackBroadcast(String pjUri) async {
+    final session = _payjoinStorage.getSenderSession(pjUri);
+    final psbt = session?.originalPsbt;
+    if (psbt == null || psbt.isEmpty) {
+      writePayjoinLog("Fallback($pjUri) no originalPsbt");
+      throw Exception('No fallback PSBT available');
     }
 
+    cancelSender(pjUri);
+
+    try {
+      writePayjoinLog("Fallback($pjUri) broadcasting original PSBT");
+      await _wallet.commitPsbt(psbt);
+      final txId = getTxIdFromPsbtV0(psbt);
+      await _payjoinStorage.markSenderSessionComplete(pjUri, txId);
+      writePayjoinLog("Fallback($pjUri) broadcast tx $txId");
+    } catch (e) {
+      writePayjoinLog("[ERROR] Fallback($pjUri) $e");
+      rethrow;
+    }
+  }
+
+  bool hasActiveReceiverSession(String walletId) =>
+      _payjoinStorage.hasActiveReceiverSession(walletId);
+
+  void cleanupSessions() {
+    cancelAllReceivers();
+    for (final entry in _runningSenders.entries) {
+      entry.value.cancel();
+    }
+    _runningSenders.clear();
     _logSubscription?.cancel();
     _logStreamController.close();
   }
-
-  void _cleanupSession(String sessionId) {
-    writePayjoinLog("Cleaning $sessionId");
-    _activePollers[sessionId]?.close();
-    _activePollers.remove(sessionId);
-  }
 }
 
-class PayjoinPollerSession {
-  final Isolate isolate;
-  final ReceivePort port;
+class _EphemeralReceiverPersister extends pj.JsonReceiverSessionPersister {
+  final List<String> _events = [];
 
-  PayjoinPollerSession(this.isolate, this.port);
+  @override
+  void save(String event) => _events.add(event);
 
-  void close() {
-    isolate.kill();
-    port.close();
-  }
+  @override
+  List<String> load() => List.from(_events);
+
+  @override
+  void close() => _events.clear();
 }
