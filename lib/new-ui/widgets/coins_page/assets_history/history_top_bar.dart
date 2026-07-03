@@ -49,6 +49,7 @@ class HistoryTopBar extends StatelessWidget {
                     width: double.infinity,
                     color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175),
                   )
+                  else Container(height: 2)
                 ],
               ),
             ),
