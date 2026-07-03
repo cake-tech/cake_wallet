@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
@@ -86,7 +87,7 @@ class CakeImageWidget extends StatelessWidget {
               allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
               fit: fit ?? BoxFit.contain,
               placeholderBuilder: (_) {
-                return loadingWidget ?? const Center(child: CircularProgressIndicator());
+                return loadingWidget ?? SizedBox(height: height, width: width, child: Center(child: CupertinoActivityIndicator()));
               },
               errorBuilder: (_, __, ___) => _buildErrorWidget(context),
             )
@@ -99,7 +100,7 @@ class CakeImageWidget extends StatelessWidget {
               filterQuality: filterQuality ?? FilterQuality.medium,
               loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
                 if (progress == null) return child;
-                return loadingWidget ?? const Center(child: CircularProgressIndicator());
+                return loadingWidget ?? SizedBox(height: height, width: width, child: Center(child: CupertinoActivityIndicator()));
               },
               errorBuilder: (_, __, ___) => _buildErrorWidget(context),
             );

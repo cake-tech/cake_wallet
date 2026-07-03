@@ -1495,7 +1495,7 @@ Future<void> setup({
   getIt.registerFactory(() => BuyAmountViewModel());
 
   getIt.registerFactoryParam<BuySellViewModel, BuySellPageMode, void>(
-      (mode, _) => BuySellViewModel(mode: mode, getIt.get<AppStore>()));
+      (mode, _) => BuySellViewModel(mode: mode, getIt.get<AppStore>(), fiatConversionStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactoryParam<NewBuySellAmountPage, BuySellPageMode, void>((mode, _) =>
       NewBuySellAmountPage(buySellViewModel: getIt.get<BuySellViewModel>(param1: mode)));

@@ -46,7 +46,15 @@ class BuySellSelectorModal extends StatelessWidget {
 
   void openBuySellPage(BuildContext context, BuySellPageMode mode) {
     Navigator.of(context).pop();
-    showModalBottomSheet(useSafeArea:true, isScrollControlled: true, context: context, builder: (modalContext)=>ModalNavigator(rootPage: getIt.get<NewBuySellAmountPage>(param1: mode), parentContext: context,));
+    final page = getIt.get<NewBuySellAmountPage>(param1: mode);
+    showModalBottomSheet(
+        useSafeArea: true,
+        isScrollControlled: true,
+        context: context,
+        builder: (modalContext) => ModalNavigator(
+              rootPage: page,
+              parentContext: context,
+            ));
   }
 }
 

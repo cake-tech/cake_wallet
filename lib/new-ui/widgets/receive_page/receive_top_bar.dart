@@ -12,6 +12,7 @@ class ModalTopBar extends StatelessWidget {
         this.onTrailingPressed=nothing,
         this.leadingIcon,
         this.trailingIcon,
+        this.bottomText,
         this.padding,
         this.leadingWidget,
         this.trailingWidget}) {
@@ -25,6 +26,7 @@ class ModalTopBar extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final String? bottomText;
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
@@ -37,25 +39,32 @@ class ModalTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasBottomText =bottomText != null && bottomText!.isNotEmpty;
     return Padding(
       padding: padding??EdgeInsets.all(18),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
           Positioned(
-            top: 6,
+            top: hasBottomText ? -4 : 6,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Text(
-                    title,
-                    key: ValueKey(title),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
+                Column(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: Text(
+                        title,
+                        key: ValueKey(title),
+                        style: TextStyle(fontSize: hasBottomText ? 16 : 18, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    if(hasBottomText)
+                    Text(bottomText!, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),)
+                  ],
                 ),
                 if (subtitle != null && subtitle!.isNotEmpty)
                   Text(
