@@ -118,7 +118,7 @@ class ExceptionHandler {
 
     if (kDebugMode || kProfileMode) {
       if (_ignoreError(errorDetails.exception.toString()) ||
-          _ignoreError(errorDetails.stack.toString())) {
+          _ignoreError(errorDetails.stack.toString()) || _flutterErrorIgnore(errorDetails)) {
         printV("(BELOW ERROR IS IGNORED AND WILL NOT TRIGGER POPUP IN PROD)");
       }
       FlutterError.presentError(errorDetails);

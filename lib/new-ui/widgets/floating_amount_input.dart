@@ -3,7 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class FloatingAmountInput extends StatefulWidget {
-  const FloatingAmountInput({super.key, required this.currency, required this.controller, this.focusNode, this.inputFormatters, this.onChanged, this.validator});
+  const FloatingAmountInput(
+      {super.key,
+      required this.currency,
+      required this.controller,
+      this.focusNode,
+      this.inputFormatters,
+      this.onChanged,
+      this.validator});
 
   final Currency currency;
   final TextEditingController controller;
@@ -28,7 +35,7 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
 
   @override
   Widget build(BuildContext context) {
-    return  Center(
+    return Center(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -59,19 +66,17 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
                 hoverColor: Colors.transparent,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,
-                hintText: _amountFocused || widget.controller.text.isNotEmpty
-                    ? null
-                    : "0.00",
+                hintText: _amountFocused || widget.controller.text.isNotEmpty ? null : "0.00",
                 hintStyle: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                fontWeight: FontWeight.w400,
-                fontSize: 45,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 45,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
           ),
           const SizedBox(width: 8),
@@ -80,10 +85,10 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
-              fontWeight: FontWeight.w400,
-              fontSize: 45,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  fontWeight: FontWeight.w400,
+                  fontSize: 45,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),

@@ -179,7 +179,8 @@ class _CardsViewState extends State<CardsView> {
                           icon: Icons.arrow_forward_ios_rounded,
                           iconSize: 12,
                           onTap: () {
-                            showModalBottomSheet(context: context, builder: (context)=>BuySellSelectorModal());
+                            showModalBottomSheet(
+                                context: context, builder: (context) => BuySellSelectorModal());
                           },
                         )
                       ]

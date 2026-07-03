@@ -48,10 +48,9 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
             leadingIcon: Icon(Icons.arrow_back_ios_new),
             onLeadingPressed: Navigator.of(context).pop,
           ),
-          Expanded(
-              child: Observer(
+          Expanded(child: Observer(
             builder: (_) {
-              if(widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
+              if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 24,
@@ -64,7 +63,8 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                           S.of(context).could_not_load_quotes,
                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                         ),
-                        Text((widget.buySellViewModel.buySellQuotState as BuySellQuotFailed).errorMessage ??
+                        Text((widget.buySellViewModel.buySellQuotState as BuySellQuotFailed)
+                                .errorMessage ??
                             S.of(context).please_try_again_later)
                       ],
                     )
@@ -72,43 +72,56 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                 );
               }
 
-              if(widget.buySellViewModel.buySellQuotState is BuySellQuotLoading) {
-                return Center(child: Row(mainAxisAlignment:MainAxisAlignment.center, spacing:8, children: [
-                  CupertinoActivityIndicator(),
-                  Text(S.of(context).loading_rates, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),)
-                ],),);
+              if (widget.buySellViewModel.buySellQuotState is BuySellQuotLoading) {
+                return Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 8,
+                    children: [
+                      CupertinoActivityIndicator(),
+                      Text(
+                        S.of(context).loading_rates,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      )
+                    ],
+                  ),
+                );
               }
 
               return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18),
-              child: NewListSections(showHeader: true, sections: {
-                "": [
-                  ListItemRegularRow(
-                      keyValue: "payment method",
-                      label: S.of(context).payment_method,
-                      showArrow: true,
-                      onTap: (){
-
-                        final page =BuySellPaymentMethodPage(buySellViewModel: widget.buySellViewModel);
-                        Navigator.of(context).push(CupertinoPageRoute(builder: (context)=>Material(color: Colors.transparent,child: page,)));
-                      },
-                      trailingText: widget.buySellViewModel.selectedPaymentMethod?.title)
-                ],
-                S.of(context).available_providers: [
-                  ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
-                  ListItemDropdown(
-                      keyValue: "more options",
-                      label: S.of(context).more_options,
-                      onTap: () {
-                        setState(() {
-                          _allProvidersExpanded = !_allProvidersExpanded;
-                        });
-                      }),
-                  if (_allProvidersExpanded)
-                    ...widget.buySellViewModel.sortedQuotes.map(quoteListItem)
-                ]
-              }),
-            );
+                padding: EdgeInsets.symmetric(horizontal: 18),
+                child: NewListSections(showHeader: true, sections: {
+                  "": [
+                    ListItemRegularRow(
+                        keyValue: "payment method",
+                        label: S.of(context).payment_method,
+                        showArrow: true,
+                        onTap: () {
+                          final page =
+                              BuySellPaymentMethodPage(buySellViewModel: widget.buySellViewModel);
+                          Navigator.of(context).push(CupertinoPageRoute(
+                              builder: (context) => Material(
+                                    color: Colors.transparent,
+                                    child: page,
+                                  )));
+                        },
+                        trailingText: widget.buySellViewModel.selectedPaymentMethod?.title)
+                  ],
+                  S.of(context).available_providers: [
+                    ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
+                    ListItemDropdown(
+                        keyValue: "more options",
+                        label: S.of(context).more_options,
+                        onTap: () {
+                          setState(() {
+                            _allProvidersExpanded = !_allProvidersExpanded;
+                          });
+                        }),
+                    if (_allProvidersExpanded)
+                      ...widget.buySellViewModel.sortedQuotes.map(quoteListItem)
+                  ]
+                }),
+              );
             },
           ))
         ],
@@ -116,18 +129,19 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
     );
   }
 
-  String get _pageTitle => (widget.buySellViewModel.mode == BuySellPageMode.buy
-      ? S.current.buy
-      : S.current.sell) + " " + (widget.buySellViewModel.cryptoCurrency.fullName ?? "");
+  String get _pageTitle =>
+      (widget.buySellViewModel.mode == BuySellPageMode.buy ? S.current.buy : S.current.sell) +
+      " " +
+      (widget.buySellViewModel.cryptoCurrency.fullName ?? "");
 
   ListItem quoteListItem(Quote quote) => ListItemRegularRow(
       keyValue: quote.provider.title,
       label: quote.rampName ?? quote.provider.title,
-      secondaryLabel: quote.rampName != null? quote.provider.title : null,
+      secondaryLabel: quote.rampName != null ? quote.provider.title : null,
       subtitle: quote.badges.isEmpty ? null : quote.badges.join(" - "),
       subtitleColor: Theme.of(context).colorScheme.primary,
       iconPath: quote.darkIconPath,
-      onTap: (){
+      onTap: () {
         widget.buySellViewModel.changeOption(quote);
         navigateToConfirmation(context);
       },
@@ -137,14 +151,21 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 4,
         children: [
-          Text(widget.buySellViewModel.amountForQuote(quote).toStringWithSymbol(fractionalDigits: 8)),
-          Text("= ${widget.buySellViewModel.fiatAmountForQuote(quote).toStringWithSymbol(fractionalDigits: 2, trimZeros: false)}", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))
-
-        ],));
+          Text(widget.buySellViewModel
+              .amountForQuote(quote)
+              .toStringWithSymbol(fractionalDigits: 8)),
+          Text(
+              "= ${widget.buySellViewModel.fiatAmountForQuote(quote).toStringWithSymbol(fractionalDigits: 2, trimZeros: false)}",
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))
+        ],
+      ));
 
   void navigateToConfirmation(BuildContext context) {
-
     final page = BuySellConfirmationPage(buySellViewModel: widget.buySellViewModel);
-    Navigator.of(context).push(CupertinoPageRoute(builder: (context)=>Material(color: Colors.transparent,child: page,)));
+    Navigator.of(context).push(CupertinoPageRoute(
+        builder: (context) => Material(
+              color: Colors.transparent,
+              child: page,
+            )));
   }
 }

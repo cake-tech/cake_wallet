@@ -14,34 +14,51 @@ class BuySellSelectorModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surfaceDim,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(spacing:24, mainAxisSize: MainAxisSize.min, children: [
-          SizedBox.shrink(),
-          Text(S.of(context).buy_or_sell, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),),
-          Text(S.of(context).buy_or_sell_desc, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 18.0),
-            child: Column(spacing: 12,children: [
-              BuySellSelectorModalButton(title: S.of(context).buy_crypto, description: S.of(context).buy_crypto_desc, iconPath: "assets/new-ui/plus.svg", onTap: ()=>openBuySellPage(context, BuySellPageMode.buy),),
-              BuySellSelectorModalButton(title: S.of(context).sell_crypto, description: S.of(context).sell_crypto_desc, iconPath: "assets/new-ui/sell.svg", onTap: ()=>openBuySellPage(context, BuySellPageMode.sell))
-            ],),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceDim,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          SizedBox.shrink()
-        ])
-      )
-    );
+        ),
+        child: SafeArea(
+            top: false,
+            child: Column(spacing: 24, mainAxisSize: MainAxisSize.min, children: [
+              SizedBox.shrink(),
+              Text(
+                S.of(context).buy_or_sell,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              ),
+              Text(
+                S.of(context).buy_or_sell_desc,
+                style:
+                    TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 18.0),
+                child: Column(
+                  spacing: 12,
+                  children: [
+                    BuySellSelectorModalButton(
+                      title: S.of(context).buy_crypto,
+                      description: S.of(context).buy_crypto_desc,
+                      iconPath: "assets/new-ui/plus.svg",
+                      onTap: () => openBuySellPage(context, BuySellPageMode.buy),
+                    ),
+                    BuySellSelectorModalButton(
+                        title: S.of(context).sell_crypto,
+                        description: S.of(context).sell_crypto_desc,
+                        iconPath: "assets/new-ui/sell.svg",
+                        onTap: () => openBuySellPage(context, BuySellPageMode.sell))
+                  ],
+                ),
+              ),
+              SizedBox.shrink()
+            ])));
   }
 
   void openBuySellPage(BuildContext context, BuySellPageMode mode) {
@@ -58,9 +75,13 @@ class BuySellSelectorModal extends StatelessWidget {
   }
 }
 
-
 class BuySellSelectorModalButton extends StatelessWidget {
-  const BuySellSelectorModalButton({super.key, required this.title, required this.description, required this.iconPath, required this.onTap});
+  const BuySellSelectorModalButton(
+      {super.key,
+      required this.title,
+      required this.description,
+      required this.iconPath,
+      required this.onTap});
 
   final String title;
   final String description;
@@ -75,8 +96,8 @@ class BuySellSelectorModalButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            width: 1,              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-
+            width: 1,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
           ),
           gradient: LinearGradient(
             colors: [
@@ -87,16 +108,36 @@ class BuySellSelectorModalButton extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Padding(padding: EdgeInsets.all(24), child: Row(spacing: 20, children: [
-
-          CakeImageWidget(imageUrl: iconPath, width: 55, height: 55, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),),
-          Column(spacing: 8, crossAxisAlignment: CrossAxisAlignment.start,children: [
-            Text(title, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),),
-            Text(description, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),)
-          ],)
-
-        ],),),
-
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Row(
+            spacing: 20,
+            children: [
+              CakeImageWidget(
+                imageUrl: iconPath,
+                width: 55,
+                height: 55,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+              ),
+              Column(
+                spacing: 8,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(
+                        fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

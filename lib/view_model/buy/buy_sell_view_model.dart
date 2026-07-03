@@ -174,10 +174,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     return maxAmount.toStringAsFixed(2);
   }
 
-  Money amountForQuote(Quote quote) => Money.parse(double.parse(fiatAmount)/quote.rate, cryptoCurrency);
+  Money amountForQuote(Quote quote) =>
+      Money.parse(double.parse(fiatAmount) / quote.rate, cryptoCurrency);
 
   Money fiatAmountForQuote(Quote quote) {
-    return Money.parse((fiatConversionStore.prices[cryptoCurrency]! * double.parse(amountForQuote(quote).toString())).toStringAsFixed(2), fiatCurrency);
+    return Money.parse(
+        (fiatConversionStore.prices[cryptoCurrency]! *
+                double.parse(amountForQuote(quote).toString()))
+            .toStringAsFixed(2),
+        fiatCurrency);
   }
 
   // based on usd values, should have roughly equal worth (was done with ai though so it's subject to correction)
