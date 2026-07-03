@@ -109,6 +109,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                   ],
                   S.of(context).available_providers: [
                     ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
+                    if(widget.buySellViewModel.sortedQuotes.isNotEmpty)
                     ListItemDropdown(
                         keyValue: "more options",
                         label: S.of(context).more_options,
