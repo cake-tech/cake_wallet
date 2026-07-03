@@ -222,9 +222,11 @@
           Column(
             spacing: 8,
             children: [
+            if (hasCurrencySelector) ...[
               BuySellCurrencyPickerPill(curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
               SizedBox.shrink(),
-              FloatingAmountInput(
+            ],
+            FloatingAmountInput(
                 currency: fiatCurrency,
                 focusNode: focusNode,
                 controller: controller,
@@ -285,6 +287,7 @@
         spacing: 24,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          if(hasCurrencySelector)
           BuySellCurrencyPickerPill(curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
           Text(
             mode == BuySellPageMode.sell
