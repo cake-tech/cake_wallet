@@ -119,8 +119,8 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
     );
   }
 
-  void openHistoryModal(BuildContext context) {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
+  Future<void> openHistoryModal(BuildContext context) async {
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
         context: context,
         builder: (context) => ModalNavigator(
               rootPage: Material(
@@ -128,5 +128,6 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
                   child: HistoryModal(dashboardViewModel: widget.dashboardViewModel)),
               parentContext: context,
             ));
+    widget.dashboardViewModel.changeAllFilterItems(true);
   }
 }
