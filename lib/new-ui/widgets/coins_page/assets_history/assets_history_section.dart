@@ -109,6 +109,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
         if (tabs.length == 1)
           HistoryTopBar(
             onTap: () => openHistoryModal(context),
+            roundedBottom: widget.dashboardViewModel.itemsShort.isEmpty,
           ),
         tabs[_selectedTab].content
       ],
