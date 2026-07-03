@@ -215,45 +215,48 @@
 
     @override
     Widget build(BuildContext context) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox.shrink(),
-          Column(
-            spacing: 8,
-            children: [
-            if (hasCurrencySelector) ...[
-              BuySellCurrencyPickerPill(curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
-              SizedBox.shrink(),
-            ],
-            FloatingAmountInput(
-                currency: fiatCurrency,
-                focusNode: focusNode,
-                controller: controller,
-                onChanged: onChanged,
-              ),
-              Opacity(
-                opacity: cryptoAmount.isEmpty ? 0 : 1,
-                child: Text(
-                  "≈ ${cryptoAmount} ${cryptoCurrency.symbol}",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+      return Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox.shrink(),
+            Column(
+              spacing: 8,
+              children: [
+              if (hasCurrencySelector) ...[
+                BuySellCurrencyPickerPill(curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
+                SizedBox.shrink(),
+              ],
+              FloatingAmountInput(
+                  currency: fiatCurrency,
+                  focusNode: focusNode,
+                  controller: controller,
+                  onChanged: onChanged,
                 ),
-              )
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: NewPrimaryButton(
-                onPressed: onContinuePressed,
-                isLoading: isLoading,
-                text: S.of(context).continue_text,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary),
-          )
-        ],
+                Opacity(
+                  opacity: cryptoAmount.isEmpty ? 0 : 1,
+                  child: Text(
+                    "≈ ${cryptoAmount} ${cryptoCurrency.symbol}",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: NewPrimaryButton(
+                  onPressed: onContinuePressed,
+                  isLoading: isLoading,
+                  text: S.of(context).continue_text,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary),
+            )
+          ],
+        ),
       );
     }
   }
