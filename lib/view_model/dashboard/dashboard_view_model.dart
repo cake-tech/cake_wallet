@@ -96,104 +96,8 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
-        filterItems = [
-          // FilterItem(
-          //     value: () => transactionFilterStore.displayAll,
-          //     caption: S.current.all_transactions,
-          //     onChanged: transactionFilterStore.toggleAll),
-          FilterItem(
-              value: () => transactionFilterStore.displayOutgoing,
-              caption: S.current.send,
-              onChanged: transactionFilterStore.toggleOutgoing),
-          FilterItem(
-              value: () => transactionFilterStore.displayIncoming,
-              caption: S.current.receive,
-              onChanged: transactionFilterStore.toggleIncoming),
-          if (appStore.wallet!.type == WalletType.bitcoin)
-            FilterItem(
-              value: () => transactionFilterStore.displaySilentPayments,
-              caption: S.current.silent_payments,
-              onChanged: transactionFilterStore.toggleSilentPayments,
-            ),
-          SwapFilterItem(
-              enabledProviders: () => tradeFilterStore.enabledProviders,
-              allEnabled: () => tradeFilterStore.displayAllTrades,
-              value: () => tradeFilterStore.enabledProviders>0,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
-          FilterItem(
-              value: () => orderFilterStore.displayCakePay,
-              caption: 'Cake Pay',
-              onChanged: () =>
-                  orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
-        ],
-        exchangeFilterItems = [
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.changeNow,
-              value: () => tradeFilterStore.displayChangeNow,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.sideShift,
-              value: () => tradeFilterStore.displaySideShift,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.simpleSwap,
-              value: () => tradeFilterStore.displaySimpleSwap,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.trocador,
-              value: () => tradeFilterStore.displayTrocador,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.exolix,
-              value: () => tradeFilterStore.displayExolix,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.chainflip,
-              value: () => tradeFilterStore.displayChainflip,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.thorChain,
-              value: () => tradeFilterStore.displayThorChain,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.letsExchange,
-              value: () => tradeFilterStore.displayLetsExchange,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.stealthEx,
-              value: () => tradeFilterStore.displayStealthEx,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.xoSwap,
-              value: () => tradeFilterStore.displayXOSwap,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.swapTrade,
-              value: () => tradeFilterStore.displaySwapTrade,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.swapsXyz,
-              value: () => tradeFilterStore.displaySwapXyz,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
-          SwapProviderFilterItem(
-              providerDescription: ExchangeProviderDescription.nearIntents,
-              value: () => tradeFilterStore.displayNearIntents,
-              onChanged: () =>
-                  tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
-        ],
+        filterItems = [],
+        exchangeFilterItems = [],
         subname = '',
         name = appStore.wallet!.name,
         type = appStore.wallet!.type,
@@ -213,6 +117,8 @@ abstract class DashboardViewModelBase with Store {
     unawaited(isBatteryOptimizationEnabled());
     unawaited(_loadConstraints());
     final _wallet = wallet;
+
+    loadFilterItems();
 
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
@@ -345,6 +251,110 @@ abstract class DashboardViewModelBase with Store {
 
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
+
+
+  void loadFilterItems() {
+    filterItems = [
+      // FilterItem(
+      //     value: () => transactionFilterStore.displayAll,
+      //     caption: S.current.all_transactions,
+      //     onChanged: transactionFilterStore.toggleAll),
+      FilterItem(
+          value: () => transactionFilterStore.displayOutgoing,
+          caption: S.current.send,
+          onChanged: transactionFilterStore.toggleOutgoing),
+      FilterItem(
+          value: () => transactionFilterStore.displayIncoming,
+          caption: S.current.receive,
+          onChanged: transactionFilterStore.toggleIncoming),
+      if (appStore.wallet!.type == WalletType.bitcoin)
+        FilterItem(
+          value: () => transactionFilterStore.displaySilentPayments,
+          caption: S.current.silent_payments,
+          onChanged: transactionFilterStore.toggleSilentPayments,
+        ),
+      SwapFilterItem(
+          enabledProviders: () => tradeFilterStore.enabledProviders,
+          allEnabled: () => tradeFilterStore.displayAllTrades,
+          value: () => tradeFilterStore.enabledProviders>0,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
+      FilterItem(
+          value: () => orderFilterStore.displayCakePay,
+          caption: 'Cake Pay',
+          onChanged: () =>
+              orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
+    ];
+    exchangeFilterItems = [
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.changeNow,
+          value: () => tradeFilterStore.displayChangeNow,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.sideShift,
+          value: () => tradeFilterStore.displaySideShift,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.simpleSwap,
+          value: () => tradeFilterStore.displaySimpleSwap,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.trocador,
+          value: () => tradeFilterStore.displayTrocador,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.exolix,
+          value: () => tradeFilterStore.displayExolix,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.chainflip,
+          value: () => tradeFilterStore.displayChainflip,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.thorChain,
+          value: () => tradeFilterStore.displayThorChain,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.letsExchange,
+          value: () => tradeFilterStore.displayLetsExchange,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.stealthEx,
+          value: () => tradeFilterStore.displayStealthEx,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.xoSwap,
+          value: () => tradeFilterStore.displayXOSwap,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.swapTrade,
+          value: () => tradeFilterStore.displaySwapTrade,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.swapsXyz,
+          value: () => tradeFilterStore.displaySwapXyz,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.nearIntents,
+          value: () => tradeFilterStore.displayNearIntents,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+    ];
+  }
+
+
 
   bool _isTransactionDisposerCallbackRunning = false;
 
@@ -1254,6 +1264,7 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    loadFilterItems();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
