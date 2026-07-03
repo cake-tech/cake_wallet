@@ -544,7 +544,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         .toList();
 
     if (validQuotes.isEmpty) {
-      buySellQuotState = BuySellQuotFailed();
+      buySellQuotState = BuySellQuotFailed(errorMessage: "No provider could create a quote for ${cryptoCurrency.fullName}");
       return;
     }
 
