@@ -20,12 +20,12 @@ class HistoryTopBar extends StatelessWidget {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(18),
-                  bottom: roundedBottom ? Radius.zero : Radius.circular(18)
+                  bottom: roundedBottom ? Radius.circular(18) : Radius.zero
                 ),
                 color: Theme.of(context).colorScheme.surfaceContainer),
             child: Padding(
               padding: EdgeInsets.symmetric(
-                vertical: 8,
+                vertical: 4,
                 horizontal: 12,
               ),
               child: Column(
@@ -43,6 +43,7 @@ class HistoryTopBar extends StatelessWidget {
                       )
                     ],
                   ),
+                  if(!roundedBottom)
                   Container(
                     height: 1,
                     width: double.infinity,
