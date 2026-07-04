@@ -421,22 +421,32 @@ class AddressRow extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${S.of(context).transactions}: ${item.txCount}",
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            ),
-                            Text("${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                          ],
-                        )
+                        if (item.txCount != null || item.balance != null)
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              if (item.txCount != null)
+                                Text(
+                                  "${S.of(context).transactions}: ${item.txCount}",
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant),
+                                ),
+                              if (item.txCount != null && item.balance != null)
+                                const Spacer(),
+                              if (item.balance != null)
+                                Text(
+                                  "${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant),
+                                ),
+                            ],
+                          )
                       ],
                     ),
                   ),
