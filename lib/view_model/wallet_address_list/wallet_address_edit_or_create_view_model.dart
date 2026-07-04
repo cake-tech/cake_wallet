@@ -121,6 +121,18 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       return;
     }
 
+    if (wallet.type == WalletType.zcash) {
+      for (final infos in wallet.walletAddresses.addressInfos.values) {
+        for (final info in infos) {
+          if (info.address == _item!.address) {
+            info.label = label;
+          }
+        }
+      }
+      await wallet.walletAddresses.saveAddressesInBox();
+      return;
+    }
+
     final index = _item?.id;
     if (index != null) {
       if (wallet.type == WalletType.monero) {

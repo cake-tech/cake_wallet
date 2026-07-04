@@ -54,6 +54,27 @@ class ZcashTaddressRotation {
   static Map<int, List<Account>> rotationAccounts = {};
   static Map<int, List<Account>> rotationAccountsUsable = {};
   static Map<int, List<ShieldedTx>> shieldedAccountsTx = {};
+  static final Map<String, int> addressBalances = {};
+  static final Map<String, int> addressTxCounts = {};
+
+  static void refreshAddressMetadata(final Account account) {
+    try {
+      final address = WarpApi.getTAddr(coin, account.id);
+      addressBalances[address] =
+          WarpApi.getPoolBalances(coin, account.id, 0, true).transparent;
+      addressTxCounts[address] = WarpApi.getTxsSync(coin, account.id).length;
+    } catch (e) {
+      printV("Failed to refresh metadata for Zcash account ${account.id}: $e");
+    }
+  }
+
+  static int? balanceForAddress(final String address) => addressBalances[address];
+
+  static int? txCountForAddress(final String address) => addressTxCounts[address];
+
+  static List<Account> accountsForAccount(final int accountId) =>
+      rotationAccounts[accountId]?.toList() ?? [];
+
   static Future<void> init() async {
     printV("Deserializing previous state");
     if (_isStarted) {
@@ -416,6 +437,7 @@ class ZcashTaddressRotation {
     for (int i = 0; i < acc.length; i++) {
       final b = WarpApi.getBackup(coin, acc[i].id);
       printV("$i. ${b.seed?.split(" ").last}, ${b.index}, ${WarpApi.getTAddr(coin, acc[i].id)}");
+      refreshAddressMetadata(acc[i]);
     }
     return acc.map((final a) => WarpApi.getTAddr(coin, a.id)).toList();
   }
@@ -423,14 +445,14 @@ class ZcashTaddressRotation {
   static List<String>? allUsedAddressesForAccount(final int accountId) {
     final seed = WarpApi.getBackup(coin, accountId).seed;
     if (seed == null) return [];
-    final acc = rotationAccounts[seed]?.toList();
+    final acc = rotationAccounts[accountId]?.toList();
     if (acc == null) {
       printV("Nothing found");
       return null;
     }
     acc.removeWhere((final a1) {
-      for (int i = 0; i < (rotationAccountsUsable[seed]?.length ?? 0); i++) {
-        if (rotationAccountsUsable[seed]?[i].id == a1.id) {
+      for (int i = 0; i < (rotationAccountsUsable[accountId]?.length ?? 0); i++) {
+        if (rotationAccountsUsable[accountId]?[i].id == a1.id) {
           return true;
         }
       }
