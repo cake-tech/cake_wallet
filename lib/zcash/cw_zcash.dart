@@ -147,6 +147,13 @@ class CWZcash extends Zcash {
   }
 
   @override
+  Future<String> generateNewTransparentAddress(Object wallet) {
+    final zcashWallet = wallet as ZcashWallet;
+    return (zcashWallet.walletAddresses as ZcashWalletAddresses)
+        .generateNewTransparentAddress();
+  }
+
+  @override
   TransactionPriority getDefaultTransactionPriority() {
     return MoneroTransactionPriority.automatic;
   }

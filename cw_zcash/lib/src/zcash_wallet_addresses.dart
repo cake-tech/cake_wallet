@@ -271,6 +271,15 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     return allInfos;
   }
 
+  Future<String> generateNewTransparentAddress() async {
+    final labels = _labelsByAddress();
+    final newAddress = await ZcashTaddressRotation.generateAddressForAccount(accountId);
+    addressInfos = _buildTransparentAddressInfos(labels);
+    await saveAddressesInBox();
+    address = newAddress;
+    return newAddress;
+  }
+
   @override
   List<ReceivePageOption> get receivePageOptions {
     return [

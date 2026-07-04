@@ -56,6 +56,9 @@ class ZcashTaddressRotation {
   static Map<int, List<ShieldedTx>> shieldedAccountsTx = {};
   static final Map<String, int> addressBalances = {};
   static final Map<String, int> addressTxCounts = {};
+  static const int minimumUsableAddressPool = 5;
+  static const int recoveryGapLimit = 20;
+  static const int maximumManualUnusedGap = recoveryGapLimit - 1;
 
   static void refreshAddressMetadata(final Account account) {
     try {
@@ -74,6 +77,38 @@ class ZcashTaddressRotation {
 
   static List<Account> accountsForAccount(final int accountId) =>
       rotationAccounts[accountId]?.toList() ?? [];
+
+  static Future<String> generateAddressForAccount(final int accountId) async {
+    final mainSeed = WarpApi.getBackup(coin, accountId).seed;
+    if (mainSeed == null) {
+      throw StateError("Transparent address generation requires a wallet seed");
+    }
+
+    rotationAccounts[accountId] ??= WarpApi.getAccountList(coin).where((final account) {
+      return isSeedForWallet(mainSeed, WarpApi.getBackup(coin, account.id).seed);
+    }).toList();
+
+    if (_trailingUnusedCount(accountId) >= maximumManualUnusedGap) {
+      throw StateError(
+        "Use one of the existing transparent addresses before generating another",
+      );
+    }
+
+    final id = await _createRotationAccount(accountId, mainSeed);
+    final account = WarpApi.getAccountList(coin).firstWhere((final item) => item.id == id);
+    final accounts = rotationAccounts[accountId]!;
+    if (!accounts.any((final item) => item.id == account.id)) {
+      accounts.add(account);
+    }
+    rotationAccountsUsable[accountId] ??= [];
+    if (!rotationAccountsUsable[accountId]!.any((final item) => item.id == account.id)) {
+      rotationAccountsUsable[accountId]!.add(account);
+    }
+
+    refreshAddressMetadata(account);
+    await serializeToFile();
+    return WarpApi.getTAddr(coin, account.id);
+  }
 
   static Future<void> init() async {
     printV("Deserializing previous state");
@@ -193,6 +228,68 @@ class ZcashTaddressRotation {
   static Uint8List atob(final String value) =>
       Uint8List.fromList(List<int>.from(base64.decode(value)));
 
+  static List<Account> _sortedAccountsFor(final int accountId) {
+    final accounts = rotationAccounts[accountId]?.toList() ?? [];
+    accounts.sort((final a, final b) {
+      final aIndex = WarpApi.getBackup(coin, a.id).index;
+      final bIndex = WarpApi.getBackup(coin, b.id).index;
+      return aIndex.compareTo(bIndex);
+    });
+    return accounts;
+  }
+
+  static bool _isUnused(final Account account) {
+    refreshAddressMetadata(account);
+    final address = WarpApi.getTAddr(coin, account.id);
+    return (addressTxCounts[address] ?? 0) == 0 && (addressBalances[address] ?? 0) == 0;
+  }
+
+  static int _trailingUnusedCount(final int accountId) {
+    final accounts = _sortedAccountsFor(accountId);
+    int count = 0;
+    for (final account in accounts.reversed) {
+      if (!_isUnused(account)) break;
+      count++;
+    }
+    return count;
+  }
+
+  static int _nextAccountIndex(final int accountId) {
+    int nextIndex = 0;
+    for (final account in rotationAccounts[accountId] ?? <Account>[]) {
+      final index = WarpApi.getBackup(coin, account.id).index;
+      if (index >= nextIndex) nextIndex = index + 1;
+    }
+    return nextIndex;
+  }
+
+  static Future<int> _createRotationAccount(final int accountId, final String mainSeed) {
+    final seed = seedForOffset(mainSeed);
+    final name = CRC32.compute(accountId.toString()).toString();
+    final index = _nextAccountIndex(accountId);
+    return ZcashWalletService.runInDbMutex(
+      () => WarpApi.newAccount(coin, name, seed, index),
+    );
+  }
+
+  static Future<bool> _isRecoveryAccount(final int accountId) async {
+    final accounts = WarpApi.getAccountList(coin);
+    String? accountName;
+    for (final account in accounts) {
+      if (account.id == accountId) {
+        accountName = account.name;
+        break;
+      }
+    }
+    if (accountName == null) return false;
+
+    final walletInfos = await WalletInfo.selectList('type = ?', [WalletType.zcash.index]);
+    for (final walletInfo in walletInfos) {
+      if (walletInfo.name == accountName) return walletInfo.isRecovery;
+    }
+    return false;
+  }
+
   static Future<void> createAndSweepTAddresses() async {
     int chainHeight = 0;
     try {
@@ -217,11 +314,13 @@ class ZcashTaddressRotation {
       final acc = accounts[i];
       final backup = WarpApi.getBackup(coin, acc.id);
       await WarpApi.transparentSync(coin, acc.id, syncHeight);
+      refreshAddressMetadata(acc);
       if (backup.seed == null) continue;
       seeds[acc.id] = backup.seed!;
     }
     for (int i = 0; i < accounts.length; i++) {
-      final seed = seeds[accounts[i].id]!;
+      final seed = seeds[accounts[i].id];
+      if (seed == null) continue;
       if ([12, 13, 24, 25].contains(seed.split(" ").length)) {
         if (seed.split(" ").last.contains(":tgen:")) continue;
         rotationAccounts[accounts[i].id] = [];
@@ -276,13 +375,26 @@ class ZcashTaddressRotation {
 
     bool didAddNewAccount = false;
     for (int i = 0; i < raKeys.length; i++) {
-      if (rotationAccountsUsable[raKeys[i]]!.length < 5) {
-        final seed = seedForOffset(seeds[raKeys[i]]!);
-        final name = CRC32.compute(raKeys[i].toString()).toString();
-        final id = await ZcashWalletService.runInDbMutex(
-          () => WarpApi.newAccount(coin, name, seed, rotationAccounts[raKeys[i]]!.length),
-        );
-        printV("new id: $id / $seed");
+      final accountId = raKeys[i];
+      final mainSeed = seeds[accountId];
+      if (mainSeed == null || !await _isRecoveryAccount(accountId)) {
+        continue;
+      }
+
+      if (_trailingUnusedCount(accountId) < recoveryGapLimit) {
+        await _createRotationAccount(accountId, mainSeed);
+        didAddNewAccount = true;
+      }
+    }
+    if (didAddNewAccount) {
+      return createAndSweepTAddresses();
+    }
+
+    for (int i = 0; i < raKeys.length; i++) {
+      if (rotationAccountsUsable[raKeys[i]]!.length < minimumUsableAddressPool &&
+          _trailingUnusedCount(raKeys[i]) < maximumManualUnusedGap) {
+        final id = await _createRotationAccount(raKeys[i], seeds[raKeys[i]]!);
+        printV("new rotation account id: $id");
         printV("${rotationAccounts[raKeys[i]]}");
         printV(raKeys[i]);
         rotationAccounts[raKeys[i]]!.forEach((final a) {

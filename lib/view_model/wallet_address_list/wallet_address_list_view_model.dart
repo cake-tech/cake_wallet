@@ -483,7 +483,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       ].contains(wallet.type) && !isLightning && isZCashTransparent;
 
   @computed
-  bool get hasAddressRotation => hasAddressList && wallet.type != WalletType.zcash;
+  bool get hasAddressRotation => hasAddressList;
 
   @computed
   bool get isElectrumWallet => [
@@ -634,8 +634,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
     try {
       isRotatingAddress = true;
-      await createNewAddress(wallet, "");
-      wallet.walletAddresses.address = addressList.whereType<WalletAddressListItem>().last.address;
+      if (wallet.type == WalletType.zcash) {
+        if (!isZCashTransparent) {
+          throw StateError("A disposable transparent address type must be selected");
+        }
+        wallet.walletAddresses.address = await zcash!.generateNewTransparentAddress(wallet);
+      } else {
+        await createNewAddress(wallet, "");
+        wallet.walletAddresses.address =
+            addressList.whereType<WalletAddressListItem>().last.address;
+      }
     } finally {
       isRotatingAddress = false;
     }
