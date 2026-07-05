@@ -65,6 +65,7 @@ abstract class ContactViewModelBase with Store {
   void reset() {
     address = '';
     name = '';
+    displayName = '';
     currency = null;
   }
 

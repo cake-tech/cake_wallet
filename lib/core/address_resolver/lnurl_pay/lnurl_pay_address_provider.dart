@@ -13,7 +13,7 @@ class LNUrlPayAddressProvider extends AddressLookupProvider {
   AddressSource get source => AddressSource.lnurlPay;
 
   @override
-  List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.btc, CryptoCurrency.btcln];
+  List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.btcln];
 
   @override
   bool canHandle(String q) => q.contains('.') && q.contains('@'); // LNURL-pay handle example: user@domain.com

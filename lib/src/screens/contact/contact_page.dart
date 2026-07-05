@@ -28,7 +28,15 @@ class ContactPage extends BasePage {
     _nameController.text = contactViewModel.name;
     _addressController.text = contactViewModel.address;
     _nameController.addListener(() => contactViewModel.name = _nameController.text);
-    _addressController.addListener(() => contactViewModel.address = _addressController.text);
+    _addressController.addListener(() {
+      final address = _addressController.text;
+
+      if (address != contactViewModel.address) {
+        contactViewModel.displayName = '';
+      }
+
+      contactViewModel.address = address;
+    });
 
     autorun((_) => _currencyTypeController.text = "${contactViewModel.currency?.toString() ?? ""} ${contactViewModel.currency?.tag != null ? "(${contactViewModel.currency?.tag})" : ""}");
   }
@@ -99,7 +107,7 @@ class ContactPage extends BasePage {
                           focusNode: addressFocusNode,
                         displayName: contactViewModel.displayName,
                         addressController: _addressController,
-                        onEditingComplete: () => _extractParsedAddress(context),
+                        onEditingComplete: () {},
                         onPushPasteButton: (context) => _extractParsedAddress(context),
                         validator: AddressValidator(type: contactViewModel.currency!),
                         selectedCurrency: contactViewModel.currency!,
@@ -131,6 +139,7 @@ class ContactPage extends BasePage {
                   builder: (_) => PrimaryButton(
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
+                      _extractParsedAddress(context);
 
                       if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                         return;
