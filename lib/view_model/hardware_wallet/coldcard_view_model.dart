@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:coldcard_protocol/client.dart';
@@ -21,9 +22,9 @@ class ColdcardViewModel extends HardwareWalletViewModel {
     return _dev != null;
   }
 
-  // Future<void> updateBleState();
+  Future<void> updateBleState() async {}
 
-  // Stream<HardwareWalletDevice> scanForBleDevices();
+  Stream<HardwareWalletDevice> scanForBleDevices() => const Stream.empty();
 
   // only returns first coldcard device found
   @override
@@ -34,7 +35,7 @@ class ColdcardViewModel extends HardwareWalletViewModel {
     return found ? [ColdcardHardwareWalletDevice()] : [];
   }
 
-  // Future<void> stopScanning();
+  Future<void> stopScanning() async {}
 
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
     if (!(device is ColdcardHardwareWalletDevice)) return false;
@@ -58,7 +59,10 @@ class ColdcardViewModel extends HardwareWalletViewModel {
     return bitcoin!.getColdcardHardwareWalletService(_dev!);
   }
 
-  // Future<void> initWallet(WalletBase wallet);
+  Future<void> initWallet(WalletBase wallet) async {
+    return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+  }
 
-  // String? interpretErrorCode(String error) => null;
+  // todo: add proper error codes
+  String? interpretErrorCode(String error) => null;
 }
