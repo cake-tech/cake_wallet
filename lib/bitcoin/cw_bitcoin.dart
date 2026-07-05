@@ -565,6 +565,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  HardwareWalletService getColdcardHardwareWalletService(ColdCardDevice device) {
+    return ColdcardService(device);
+  }
+
+  @override
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses
