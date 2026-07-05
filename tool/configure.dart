@@ -103,6 +103,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:coldcard_protocol/client.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
@@ -274,6 +275,7 @@ abstract class Bitcoin {
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect, bool isBitcoin);
+  HardwareWalletService getColdcardHardwareWalletService(ColdCardDevice device);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
