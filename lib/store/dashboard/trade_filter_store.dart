@@ -71,10 +71,8 @@ abstract class TradeFilterStoreBase with Store {
 
   @computed
   int get enabledProviders => [
-    displayXMRTO,
     displayChangeNow,
     displaySideShift,
-    displayMorphToken,
     displaySimpleSwap,
     displayTrocador,
     displayExolix,
