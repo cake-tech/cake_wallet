@@ -11,8 +11,8 @@ import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/rounded_overlay_cards_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/text_icon_button.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/three_checkbox_alert_content_widget.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/routes.dart';
@@ -584,8 +584,11 @@ class CakePayBuyCardPage extends BasePage {
             final displayingOutputs = _sendViewModel.outputs
                 .map((o) => o.OutputCopyWithParsedAddress(
                       parsedAddress: ParsedAddress(
-                        addresses: [o.address],
-                        name: 'Cake Pay',
+                        parsedAddressByCurrencyMap: {
+                          cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency:
+                          o.address,
+                        },
+                        handle: 'Cake Pay',
                         profileName: order?.cards.first.cardName ?? 'Cake Pay',
                         profileImageUrl: order?.cards.first.cardImagePath ?? '',
                       ),
@@ -653,8 +656,11 @@ class CakePayBuyCardPage extends BasePage {
         final displayingOutputs = outputsCopy
             .map((o) => o.OutputCopyWithParsedAddress(
                   parsedAddress: ParsedAddress(
-                    addresses: [o.address],
-                    name: 'Cake Pay',
+                    parsedAddressByCurrencyMap: {
+                      cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency:
+                      o.address,
+                    },
+                    handle: 'Cake Pay',
                     profileName: order?.cards.first.cardName ?? 'Cake Pay',
                     profileImageUrl: order?.cards.first.cardImagePath ?? '',
                   ),
