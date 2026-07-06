@@ -5,7 +5,9 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/dotted_divider.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/manufacturer_option_tile.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -154,6 +156,11 @@ class SelectDeviceManufacturerPage extends BasePage {
                           if (onSelect != null)
                             return onSelect!.call(context, manufacturer.hardwareWalletType!);
 
+                          if (manufacturer.hardwareWalletType == HardwareWalletType.coldcard &&
+                              Platform.isAndroid) {
+                            return _onColdcardSelected(context);
+                          }
+
                           if (isAirgappedWallet(manufacturer.hardwareWalletType)) {
                             _onScanQRCode(context, manufacturer.hardwareWalletType!);
                           } else if (manufacturer.hardwareWalletType != null) {
@@ -199,6 +206,32 @@ class SelectDeviceManufacturerPage extends BasePage {
       ].contains(type);
 
   bool isRestoring = false;
+
+  // Coldcard can be used airgapped (QR) or over a live USB connection.
+  // The QR path reuses the existing airgapped scan flow (type: coldcard);
+  // the USB path routes into the standard connect-device flow with the
+  // dedicated coldcardUsb type, which resolves ColdcardViewModel via DI.
+  void _onColdcardSelected(BuildContext context) {
+    showPopUp<void>(
+      context: context,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: S.of(context).select_manufacturer_title,
+        // TODO: localize these labels via .arb before release
+        alertContent: 'Connect over USB, or scan an airgapped QR code?',
+        leftButtonText: 'QR Code',
+        rightButtonText: 'USB',
+        actionLeftButton: () {
+          Navigator.of(dialogContext).pop();
+          _onScanQRCode(context, HardwareWalletType.coldcard);
+        },
+        actionRightButton: () {
+          Navigator.of(dialogContext).pop();
+          Navigator.pushNamed(context, Routes.connectHardwareWallet,
+              arguments: [HardwareWalletType.coldcardUsb]);
+        },
+      ),
+    );
+  }
 
   Future<void> _onScanQRCode(BuildContext context, HardwareWalletType type) async {
     final isCameraPermissionGranted =
