@@ -79,7 +79,6 @@ class PendingZcashTransaction with PendingTransaction {
           cryptoAmount: Money.zero(CryptoCurrency.zec),
           address: "${o1.address},${o2.address}",
           sendAll: false,
-          cryptoAmount: "",
           isParsedAddress: false,
         );
       }).address,
