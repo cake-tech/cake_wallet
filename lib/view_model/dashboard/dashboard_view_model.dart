@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
@@ -35,7 +36,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -326,6 +326,10 @@ abstract class DashboardViewModelBase with Store {
                   appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
                   1;
         } catch (_) {}
+      } else {
+        confirmations = appStore.wallet!.transactionHistory.transactions.values
+            .map((item) => item.isPending)
+            .fold(0, (val, pending) => pending ? val + 1 : val);
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);
@@ -490,16 +494,23 @@ abstract class DashboardViewModelBase with Store {
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
+      // TODO(malik) update this in a saner way during the vm refactor
       String _txIdentityString(String txHash, TransactionDirection direction) => "${txHash}_$direction";
-      String _txIdentityStringConfirmations(String txHash, TransactionDirection direction, int confirmations) => "${txHash}_${direction}_$confirmations";
-
+      String _txIdentityStringConfirmations(
+              String txHash, TransactionDirection direction, int confirmations, bool isPending) =>
+          "${txHash}_${direction}_${confirmations}_$isPending";
 
       final existingKeys = transactions
-          .map((item) => _txIdentityStringConfirmations(item.transaction.txHash, item.transaction.direction, item.transaction.confirmations))
+          .map((item) => _txIdentityStringConfirmations(
+              item.transaction.txHash,
+              item.transaction.direction,
+              item.transaction.confirmations,
+              item.transaction.isPending))
           .toSet();
 
       final newTransactions = relevantTxs
-          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(tx.txHash, tx.direction, tx.confirmations)))
+          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(
+              tx.txHash, tx.direction, tx.confirmations, tx.isPending)))
           .map((tx) => TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
@@ -1291,6 +1302,10 @@ abstract class DashboardViewModelBase with Store {
                   appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
                   1;
         } catch (_) {}
+      } else {
+        confirmations = appStore.wallet!.transactionHistory.transactions.values
+            .map((item) => item.isPending)
+            .fold(0, (val, pending) => pending ? val + 1 : val);
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);

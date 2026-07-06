@@ -127,6 +127,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
             }).toList()
           )
         ),
+        if(widget.tabs.length > 1)
         Container(
           width: totalWidth,
           height: 2,

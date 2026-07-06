@@ -1,15 +1,12 @@
-import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_decred/amount_format.dart';
 
 class DecredTransactionInfo extends TransactionInfo {
   DecredTransactionInfo({
     required String id,
-    required int amount,
-    required int fee,
+    required Money amount,
+    required Money fee,
     required TransactionDirection direction,
     required bool isPending,
     required DateTime date,
@@ -27,20 +24,4 @@ class DecredTransactionInfo extends TransactionInfo {
     this.confirmations = confirmations;
     this.to = to;
   }
-
-  String? _fiatAmount;
-
-  @override
-  String amountFormatted() =>
-      '${formatAmount(decredAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(WalletType.decred).title}';
-
-  @override
-  String? feeFormatted() =>
-      '${formatAmount(decredAmountToString(amount: fee ?? 0))} ${walletTypeToCryptoCurrency(WalletType.decred).title}';
-
-  @override
-  String fiatAmount() => _fiatAmount ?? '';
-
-  @override
-  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }

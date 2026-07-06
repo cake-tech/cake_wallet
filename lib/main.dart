@@ -16,6 +16,7 @@ import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/node_check.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
@@ -46,6 +47,7 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
@@ -220,9 +222,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(ContactAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
-    CakeHive.registerAdapter(NodeAdapter());
-  }
 
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
@@ -286,13 +285,12 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
-  final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes =
-      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
   await performTradeHiveMigration(secureStorage);
+  await performNodeHiveMigration();
+  await validateBuiltinNodes();
 
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
@@ -309,8 +307,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await initialSetup(
     loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
-    nodes: nodes,
-    powNodes: powNodes,
     contactSource: contacts,
     ordersSource: orders,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
@@ -322,15 +318,13 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 66,
+    initialMigrationVersion: 68,
   );
 }
 
 Future<void> initialSetup({
   required bool loadWallet,
   required SharedPreferences sharedPreferences,
-  required Box<Node> nodes,
-  required Box<Node> powNodes,
   required Box<Contact> contactSource,
   required Box<Order> ordersSource,
   // required FiatConvertationService fiatConvertationService,
@@ -350,13 +344,9 @@ Future<void> initialSetup({
     version: initialMigrationVersion,
     sharedPreferences: sharedPreferences,
     contactSource: contactSource,
-    nodes: nodes,
-    powNodes: powNodes,
     havenSeedStore: havenSeedStore,
   );
   await setup(
-    nodeSource: nodes,
-    powNodeSource: powNodes,
     contactSource: contactSource,
     ordersSource: ordersSource,
     templates: templates,
@@ -368,11 +358,12 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
+  final settingsStore = getIt<SettingsStore>();
+  await checkCurrentNodes(sharedPreferences, settingsStore);
 
   await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
 
   await bootstrapOffline();
-  final settingsStore = getIt<SettingsStore>();
   if (!settingsStore.currentBuiltinTor) {
     bootstrapOnline(navigatorKey, loadWallet: loadWallet);
   }

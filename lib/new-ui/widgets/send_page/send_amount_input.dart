@@ -1,5 +1,7 @@
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/utils/decimal_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -8,15 +10,18 @@ class NewSendAmountInput extends StatefulWidget {
   const NewSendAmountInput(
       {super.key,
       required this.currency,
+      required this.maxDecimals,
       required this.hasPicker,
       required this.onPickerClicked,
       required this.currencyIconPath,
       required this.amountController,
-      this.validator});
+      this.validator,
+      });
 
   final String currency;
   final String currencyIconPath;
   final bool hasPicker;
+  final int maxDecimals;
   final VoidCallback onPickerClicked;
   final TextEditingController amountController;
   final FormFieldValidator<String>? validator;
@@ -62,14 +67,19 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                         children: [
                           Expanded(
                             child: TextField(
-                              keyboardType:
-                                  TextInputType.numberWithOptions(signed: false, decimal: true),
+                              keyboardType: TextInputType.numberWithOptions(
+                                signed: false,
+                                decimal: widget.maxDecimals > 0,
+                              ),
                               inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d*$'))
+                                DecimalInputFormatter(maxDecimals: widget.maxDecimals),
                               ],
-                              onChanged: state.didChange,
                               controller: widget.amountController,
-                              decoration: InputDecoration(hintText: "0", errorMaxLines: 3),
+                              decoration: InputDecoration(
+                                hintText: widget.maxDecimals > 0 ? "0" : "0.00",
+                                errorMaxLines: 3,
+                              ),
+                              onChanged: state.didChange,
                             ),
                           ),
                           FloatingIconButton(
@@ -80,7 +90,6 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                   widget.amountController.text = data.text!;
                                 }
                               }),
-                          SizedBox.shrink()
                         ],
                       ),
                     ),
@@ -109,7 +118,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                     spacing: 8,
                                     children: [
                                       if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                        CakeImageWidget(imageUrl: widget.currencyIconPath, width: 24, height: 24),
+                                        TokenImageWidget(imageUrl: widget.currencyIconPath, size: 24),
                                       Text(widget.currency),
                                       if (widget.hasPicker)
                                         CakeImageWidget(imageUrl:

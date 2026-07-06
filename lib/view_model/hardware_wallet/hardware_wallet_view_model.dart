@@ -6,9 +6,10 @@ import 'package:cw_core/wallet_type.dart';
 
 abstract class HardwareWalletViewModel {
   HardwareWalletType get hardwareWalletType;
-  bool get isConnected;
   bool get isBleEnabled;
   bool get hasBluetooth;
+
+  bool isConnected(WalletType type);
 
   Future<void> updateBleState();
 

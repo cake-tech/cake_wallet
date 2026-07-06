@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -6,6 +8,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_servic
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
@@ -14,7 +17,6 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'app_store.g.dart';
@@ -26,7 +28,6 @@ abstract class AppStoreBase with Store {
     required this.authenticationStore,
     required this.walletList,
     required this.settingsStore,
-    required this.nodeListStore,
     required this.themeStore,
   }) : _amountParsingProxy = AmountParsingProxy(settingsStore.displayAmountsInSatoshi) {
     reaction(
@@ -47,7 +48,6 @@ abstract class AppStoreBase with Store {
 
   SettingsStore settingsStore;
 
-  NodeListStore nodeListStore;
 
   ThemeStore themeStore;
 
@@ -66,13 +66,22 @@ abstract class AppStoreBase with Store {
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 
     if (isWalletConnectCompatibleChain(wallet.type)) {
-      await getIt.get<WalletKitService>().onDispose();
-      getIt.get<WalletKitService>().create();
-      await getIt.get<WalletKitService>().init();
+      unawaited(_setupWalletConnect());
     }
     await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
     await getIt
         .get<SharedPreferences>()
         .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+  }
+
+  Future<void> _setupWalletConnect() async {
+    try {
+      final wcService = getIt.get<WalletKitService>();
+      await wcService.onDispose();
+      wcService.create();
+      await wcService.init();
+    } catch (e, s) {
+      printV('WalletConnect setup failed: $e\n$s');
+    }
   }
 }

@@ -39,7 +39,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const Map<String, String> kNearDummyAddresses = {
     // UTXO
     'LTC': 'ltc1qhdwz74m3wuuhppv2mckagqk9e2e49z5j4kucnv',
-    'BTC': 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
+    'BTC': 'bc1qzwdt09dgr5nle2fkv7h5s6axgjqpdyp5g5tumz',
     'DOGE': 'D9t7rGQ9mE3hJ2z1w8pGQxkGmKjYwYc8pQ',
     'BCH': 'qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a',
 
@@ -251,6 +251,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final quoteObj = quote['quote'] as Map<String, dynamic>;
       final depositAddress = quoteObj['depositAddress'] as String;
       final depositMemo = quoteObj['depositMemo'] as String?;
+      final depositAmount = quoteObj['amountInFormatted'] as String?;
+
+      if (depositAmount == null) {
+        throw Exception('Deposit amount is null in quote response');
+      }
 
       final quoteRequest = quote['quoteRequest'] as Map<String, dynamic>;
       final fromAssetId = quoteRequest['originAsset'] as String;
@@ -275,8 +280,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final trade = Trade(
         id: depositAddress,
         // Using deposit address as trade ID
-        from: from,
-        to: to,
+        from: request.fromCurrency,
+        to: request.toCurrency,
         provider: description,
         providerName: title,
         state: TradeState.created,
@@ -284,7 +289,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         inputAddress: depositAddress,
         payoutAddress: request.toAddress,
         refundAddress: request.refundAddress,
-        amount: request.fromAmount,
+        amount: depositAmount,
         receiveAmount: quoteObj['amountOutFormatted']?.toString(),
         memo: depositMemo,
         isSendAll: isSendAll,

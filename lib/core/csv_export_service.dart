@@ -80,21 +80,15 @@ class CsvExportService {
             ? tx.to!
             : (tx.outputAddresses?.firstOrNull ?? ''));
 
-    // Split "0.2769 LTC" → amount="0.2769", currency="LTC"
-    final (amount, currency) = _splitAmountCurrency(tx.amountFormatted());
-
-    // fee is stored as (inputAmount - totalOutputAmount) which is negative for incoming
-    // transactions — only include it when the raw value is a sensible positive fee.
-    final fee = tx.fee != null && tx.fee! > 0 ? (tx.feeFormatted() ?? '') : '';
-    final (feeAmount, _) = fee.isNotEmpty ? _splitAmountCurrency(fee) : ('', '');
+    final fee = tx.fee != null && !tx.fee!.isZero ? tx.fee.toString() : '';
 
     return _row([
       'transaction',
       _isoDate(tx.date),
       type,
-      amount,
-      currency,
-      feeAmount,
+      tx.amount.toString(),
+      tx.amount.currency.symbol,
+      fee,
       tx.id,
       address,
       status,
@@ -107,15 +101,6 @@ class CsvExportService {
       '',
       tx.confirmations.toString(),
     ]);
-  }
-
-  /// Splits a formatted amount like "0.2769 LTC" into ("0.2769", "LTC").
-  /// If there is no trailing symbol the whole string is returned as the amount.
-  (String, String) _splitAmountCurrency(String formatted) {
-    final trimmed = formatted.trim();
-    final idx = trimmed.lastIndexOf(' ');
-    if (idx == -1) return (trimmed, '');
-    return (trimmed.substring(0, idx), trimmed.substring(idx + 1));
   }
 
   String _tradeRow(TradeListItem item) {
