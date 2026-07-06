@@ -146,6 +146,11 @@ abstract class PaymentViewModelBase with Store {
     await evm!.selectChain(appStore.wallet!, detectedChainId!, node: node);
   }
 
+  void applyManualEvmSelection(AddressDetectionResult detection) {
+    _lastDetectionResult = detection;
+    detectedWalletType = detection.detectedWalletType;
+  }
+
   Future<List<WalletInfo>> getWalletsByType(WalletType walletType) async {
     return (await WalletInfo.getAll()).where((wallet) => wallet.type == walletType).toList();
   }
