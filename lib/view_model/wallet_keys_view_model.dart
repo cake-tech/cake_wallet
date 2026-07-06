@@ -74,6 +74,7 @@ abstract class WalletKeysViewModelBase with Store {
       case HardwareWalletType.cupcake:
         return 'Cupcake';
       case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldcardUsb:
         return 'Coldcard';
       case HardwareWalletType.seedsigner:
         return 'SeedSigner';

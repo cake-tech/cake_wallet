@@ -243,6 +243,8 @@ class HardwareWalletTypeAdapter extends TypeAdapter<newWi.HardwareWalletType> {
         return newWi.HardwareWalletType.keystone;
       case 6:
         return newWi.HardwareWalletType.trezor;
+      case 7:
+        return newWi.HardwareWalletType.coldcardUsb;
       default:
         return newWi.HardwareWalletType.ledger;
     }
@@ -271,6 +273,9 @@ class HardwareWalletTypeAdapter extends TypeAdapter<newWi.HardwareWalletType> {
         break;
       case newWi.HardwareWalletType.trezor:
         writer.writeByte(6);
+        break;
+      case newWi.HardwareWalletType.coldcardUsb:
+        writer.writeByte(7);
         break;
     }
   }
