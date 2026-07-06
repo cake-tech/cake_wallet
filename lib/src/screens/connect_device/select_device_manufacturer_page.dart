@@ -207,10 +207,6 @@ class SelectDeviceManufacturerPage extends BasePage {
 
   bool isRestoring = false;
 
-  // Coldcard can be used airgapped (QR) or over a live USB connection.
-  // The QR path reuses the existing airgapped scan flow (type: coldcard);
-  // the USB path routes into the standard connect-device flow with the
-  // dedicated coldcardUsb type, which resolves ColdcardViewModel via DI.
   void _onColdcardSelected(BuildContext context) {
     showPopUp<void>(
       context: context,

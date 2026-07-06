@@ -191,6 +191,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         return 'assets/new-ui/hardware_wallets/device_trezor_safe_5.svg';
       case HardwareWalletDeviceType.trezorSafe7:
         return 'assets/new-ui/hardware_wallets/device_trezor_safe_7.svg';
+      case HardwareWalletDeviceType.coldcard:
+        return 'assets/images/hardware_wallet/coldcard_man.svg';
 
       default:
         return 'assets/new-ui/hardware_wallets/ledger_nano_x.svg';
