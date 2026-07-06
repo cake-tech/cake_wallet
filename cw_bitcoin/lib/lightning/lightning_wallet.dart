@@ -123,7 +123,9 @@ class LightningWallet {
 
   Future<void> close() async {
     _eventSubscription?.cancel();
-    await _sdk?.disconnect();
+    try {
+      await _sdk?.disconnect();
+    } catch (_) {}
     _logSubscription?.cancel();
   }
 
