@@ -133,9 +133,13 @@ dependencies:
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
   coldcard_protocol:
-    path: ../coldcard_protocol
+    git:
+      url: https://github.com/warp-records/coldcard-protocol
+      ref: 8796f280d082bf2e6c694c0923d8cea8d50ce7ab
   coldcard_usb:
-    path: ../coldcard-usb
+    git:
+      url: https://github.com/warp-records/coldcard-usb
+      ref: 985da9d9b378664697bb5c8a50f68755c2d59a7e
   hashlib: 1.19.2
   on_chain:
     git:
