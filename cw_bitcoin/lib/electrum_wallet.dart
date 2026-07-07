@@ -1536,7 +1536,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           inputOrdering: BitcoinOrdering.shuffle,
-          outputOrdering: BitcoinOrdering.none,
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       }
@@ -2297,7 +2297,7 @@ abstract class ElectrumWalletBase
         network: network,
         memo: memo,
         inputOrdering: BitcoinOrdering.shuffle,
-        outputOrdering: BitcoinOrdering.none,
+        outputOrdering: BitcoinOrdering.shuffle,
         enableRBF: true,
       );
 
