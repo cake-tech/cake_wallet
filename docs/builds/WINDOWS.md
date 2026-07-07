@@ -9,6 +9,9 @@ Windows 10 or later (64-bit), x86-64 based
 Flutter 3.27.4
 ```
 
+You will also need directory that's case sensitive, so make sure to: `fsutil.exe file setCaseSensitiveInfo C:\Users\user\work\cake_wallet enable` **before** cloning the repo, if you have wsl installed - make sure to do a full restart of wsl (or even better the machine).
+
+
 ### 1. Installing Flutter
 
 Install Flutter, specifically version `3.27.4` by following the [official docs](https://docs.flutter.dev/get-started/install/windows).
