@@ -195,6 +195,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         isHogExTx(firstInput);
 
     final fee = hasMissingInputTx ? null : inputAmount - totalOutAmount;
+    final walletCurrency = walletTypeToCryptoCurrency(type);
+    final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;
     return ElectrumTransactionInfo(type,
         id: bundle.originalTransaction.txId(),
         height: height,
@@ -202,9 +204,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
         isReplaced: false,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
-        fee: Money.fromInt(fee, walletTypeToCryptoCurrency(type)),
+        fee: feeMoney,
         direction: direction,
-        amount: Money.fromInt(amount, walletTypeToCryptoCurrency(type)),
+        amount: Money.fromInt(amount, walletCurrency),
         date: date,
         isHogEx: isHogEx,
         confirmations: bundle.confirmations);
