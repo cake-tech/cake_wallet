@@ -340,6 +340,7 @@ class _ContactListBodyState extends State<ContactListBody> {
           updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
           canReorder: widget.contactListViewModel.isEditable,
           shrinkWrap: true,
+          padding: const EdgeInsets.only(bottom: 250),
           itemBuilder: (context, index) {
             final contact = contacts[index];
             final contactContent =

@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/amount_sanitizer.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/payment_uris.dart';
@@ -16,9 +18,8 @@ class PaymentRequest {
   }
 
   factory PaymentRequest.fromBolt11(String invoice) {
-    final amountRaw = getBolt11Amount(invoice) ?? 0;
-    final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(amountRaw));
-    return PaymentRequest(invoice, amount, '', 'lightning', null);
+    final amount = getBolt11Amount(invoice) ?? Money.zero(CryptoCurrency.btcln);
+    return PaymentRequest(invoice, amount.toString(), '', 'lightning', null);
   }
 
   factory PaymentRequest.fromUri(Uri? uri) {
@@ -39,10 +40,10 @@ class PaymentRequest {
 
       address = uri.queryParameters['address'] ?? uri.path;
       try {
-        final lnAmount =
-            CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(uri.path) ?? 0));
+        final lnAmount = getBolt11Amount(uri.path) ?? Money.zero(CryptoCurrency.btcln);
+
         if (lnAmount != 0) {
-          amount = lnAmount;
+          amount = lnAmount.toString();
         }
       } catch (_) {}
       if (amount.isEmpty) {
@@ -116,8 +117,7 @@ class PaymentRequest {
   static bool _isAlreadyUsableAmount(String amount) {
     if (amount.isEmpty) return false;
 
-    // Try to parse as double - if successful, it's already in usable format
-    final parsed = double.tryParse(amount.replaceAll(',', '.'));
+    final parsed = double.tryParse(amount.sanitized());
     if (parsed == null) return false;
 
     // Check if the amount contains a decimal point and is a reasonable number,

@@ -47,6 +47,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
 
   @override
   Widget build(BuildContext context) {
+    final transactionInfoAmount = widget.transactionDetailsViewModel.transactionInfo.amount;
+
     return DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.9,
@@ -90,12 +92,12 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                 ),
                                 CopyWrapper(
                                   requireLongPress: true,
-                                  data: ClipboardData(text: widget.transactionDetailsViewModel.formattedCryptoAmount),
+                                  data: ClipboardData(text: transactionInfoAmount.toString()),
                                   builder: (context, copied)=> AnimatedSwitcher(
                                     duration: Duration(milliseconds: 300),
                                     child: Text(
                                       key: ValueKey(copied),
-                                      copied ? S.of(context).copied : widget.transactionDetailsViewModel.formattedCryptoAmount,
+                                      copied ? S.of(context).copied : transactionInfoAmount.toStringWithSymbol(),
                                       style: TextStyle(fontSize: 28, color: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface),
                                     ),
                                   ),
@@ -122,7 +124,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                   label: item.title,
                                                   trailingWidget: shouldBuildBottomWidget
                                                       ? null
-                                                      : _buildTrailingWIdget(item),
+                                                      : _buildTrailingWidget(item),
                                                   bottomWidget: shouldBuildBottomWidget
                                                       ? _buildBottomWidget(item)
                                                       : null);
@@ -203,7 +205,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
             ));
   }
 
-  Widget _buildTrailingWIdget(TransactionDetailsListItem item) {
+  Widget _buildTrailingWidget(TransactionDetailsListItem item) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: switch (item.runtimeType) {
