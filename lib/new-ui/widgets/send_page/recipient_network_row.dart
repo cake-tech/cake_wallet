@@ -52,16 +52,19 @@ class _RecipientNetworkRow extends StatelessWidget {
         children: [
           Text(
             S.of(context).network_prefix_on,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: colors.onSurfaceVariant, letterSpacing: -0.07),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           CakeImageWidget(
             imageUrl: networkIconPath,
             width: 16,
             height: 16,
             fit: BoxFit.cover,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Text(
             networkName,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -72,15 +75,15 @@ class _RecipientNetworkRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Container(
-            width: 32,
-            height: 32,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
               color: colors.surfaceContainer,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.keyboard_arrow_down,
-              size: 20,
+              size: 18,
               color: colors.onSurfaceVariant,
             ),
           ),

@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
@@ -68,16 +67,17 @@ class SelectRecipientNetworkSheet extends StatelessWidget {
         top: false,
         child: Column(
           children: [
-            SizedBox(height: 32),
             ModalTopBar(
               title: '',
               trailingIcon: const Icon(Icons.close),
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
-            Icon(
-              Icons.view_in_ar_outlined,
-              size: 75,
-              color: colors.onSurfaceVariant,
+            const SizedBox(height: 32),
+            CakeImageWidget(
+              imageUrl: 'assets/new-ui/network_cube.svg',
+              width: 75,
+              height: 75,
+              colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
             ),
             const SizedBox(height: 24),
             Text(
@@ -101,46 +101,46 @@ class SelectRecipientNetworkSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            Padding(
-               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (current != null) ...[
-                    CurrencyPickerListContainer(
-                      rows: [
-                        _NetworkRow(
-                          item: current,
-                          subtitle: S.of(context).current_network,
-                          onTap: () => Navigator.of(context).pop(current!.chainId),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                  if (compatible.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, bottom: 8),
-                      child: Text(
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (current != null) ...[
+                      NetworkListCard(
+                        rows: [
+                          RecipientNetworkListRow(
+                            item: current,
+                            subtitle: S.of(context).current_network,
+                            onTap: () => Navigator.of(context).pop(current!.chainId),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                    if (compatible.isNotEmpty) ...[
+                      Text(
                         S.of(context).compatible_networks,
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(color: colors.onSurfaceVariant),
+                            ?.copyWith(color: colors.onSurfaceVariant, letterSpacing: -0.06),
                       ),
-                    ),
-                    CurrencyPickerListContainer(
-                      rows: [
-                        for (final network in compatible)
-                          _NetworkRow(
-                            item: network,
-                            onTap: () => Navigator.of(context).pop(network.chainId),
-                          ),
-                      ],
-                    ),
+                      const SizedBox(height: 12),
+                      NetworkListCard(
+                        rows: [
+                          for (final network in compatible)
+                            RecipientNetworkListRow(
+                              item: network,
+                              onTap: () => Navigator.of(context).pop(network.chainId),
+                            ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 16),
                   ],
-                  const SizedBox(height: 16),
-                ],
+                ),
               ),
             ),
           ],
@@ -150,8 +150,41 @@ class SelectRecipientNetworkSheet extends StatelessWidget {
   }
 }
 
-class _NetworkRow extends StatelessWidget {
-  const _NetworkRow({required this.item, required this.onTap, this.subtitle});
+class NetworkListCard extends StatelessWidget {
+  const NetworkListCard({required this.rows});
+
+  final List<Widget> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final children = <Widget>[];
+    for (var i = 0; i < rows.length; i++) {
+      children.add(rows[i]);
+      if (i != rows.length - 1) {
+        children.add(Divider(
+          height: 1,
+          thickness: 1,
+          color: colors.surfaceContainerHigh,
+          indent: 48,
+          endIndent: 12,
+        ));
+      }
+    }
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(mainAxisSize: MainAxisSize.min, children: children),
+    );
+  }
+}
+
+class RecipientNetworkListRow extends StatelessWidget {
+  const RecipientNetworkListRow(
+      {super.key, required this.item, required this.onTap, this.subtitle});
 
   final RecipientNetworkItem item;
   final String? subtitle;
@@ -163,7 +196,7 @@ class _NetworkRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
             CakeImageWidget(
@@ -176,6 +209,7 @@ class _NetworkRow extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 4,
                 children: [
                   Text(
                     item.name,
@@ -187,15 +221,13 @@ class _NetworkRow extends StatelessWidget {
                   if (subtitle != null)
                     Text(
                       subtitle!,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: colors.onSurfaceVariant, letterSpacing: -0.06, fontSize: 12),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant, letterSpacing: -0.06, fontSize: 12),
                     ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, size: 20, color: colors.onSurfaceVariant),
+            Icon(Icons.chevron_right, size: 16, color: colors.onSurfaceVariant),
           ],
         ),
       ),
