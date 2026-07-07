@@ -1,15 +1,14 @@
 name: Cake Wallet Linux
 
-on: [pull_request]
-
 permissions:
   contents: read
   packages: write
 
+on: [pull_request]
+
 defaults:
   run:
     shell: bash
-
 
 jobs:
   PR_test_build:
@@ -28,6 +27,7 @@ jobs:
         - /opt/cw_cache_linux/root/.pub-cache/:/root/.pub-cache
         - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
         - /opt/cw_cache_linux/opt/generic_cache:/opt/generic_cache
+        - /var/run/docker.sock:/var/run/docker.sock
 
     steps:
       - name: Fix github actions messing up $HOME...
@@ -44,6 +44,14 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: configure git
         run: |
           git config --global --add safe.directory '*'
@@ -85,14 +93,12 @@ jobs:
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
-
       - name: Build dependencies utilizing ghcr cache
         run: |
           env \
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
             CW_DOCKER_USE_CLOUD=true \
             ./scripts/linux/docker/build.sh
-
 
       - name: Execute Build and Setup Commands
         run: |
@@ -107,7 +113,7 @@ jobs:
 
       - name: Build generated code
         run: |
-          ./model_generator.sh async
+          ./model_generator.sh
 
       - name: Generate localization
         run: |
