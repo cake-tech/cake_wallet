@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -17,7 +20,6 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -103,6 +105,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this._appStore,
     this.sendTemplateViewModel,
     this._fiatConversationStore,
+    this._adrResService,
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
@@ -180,6 +183,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   void removeOutput(Output output) {
     if (isBatchSending) outputs.remove(output);
+  }
+
+  Future<ParsedAddress?> resolveAddressForOutput(Output output) async {
+    final query = output.address.trim();
+    if (query.isEmpty) return null;
+
+    // Check if the address is valid for the current currency (except for Zano, which can use handles as addresses)
+    if (selectedCryptoCurrency != CryptoCurrency.zano) {
+      final isValidAddress = AddressValidator(type: selectedCryptoCurrency).isValid(query);
+      if (isValidAddress) return null;
+    }
+
+
+    final results = await _adrResService.resolve(
+      query: query,
+      wallet: wallet,
+      currency: selectedCryptoCurrency,
+    );
+
+    return results.isEmpty ? null : results.first;
   }
 
   @action
@@ -383,14 +406,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
-  bool isSendToSilentPayments(Output output) =>
-      wallet.type == WalletType.bitcoin &&
-      (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
-          RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-              .hasMatch(output.extractedAddress) ||
-          (output.parsedAddress.addresses.isNotEmpty &&
-              RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-                  .hasMatch(output.parsedAddress.addresses[0])));
+  bool isSendToSilentPayments(Output output) {
+    if (wallet.type != WalletType.bitcoin) return false;
+
+    final sp = RegExp(AddressValidator.silentPaymentAddressPatternMainnet);
+
+    final address = output.extractedAddress.isNotEmpty
+        ? output.extractedAddress
+        : output.address;
+
+    return sp.hasMatch(address);
+  }
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -454,6 +480,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final HardwareWalletViewModel? hardwareWalletViewModel;
   final FeesViewModel feesViewModel;
   final FiatConversionStore _fiatConversationStore;
+  final AddressResolverService _adrResService;
   final Box<TransactionDescription> transactionDescriptionBox;
 
   @computed
@@ -606,8 +633,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       clearOutputs();
 
       outputs.first.address = paymentRequest.address;
-      outputs.first.parsedAddress =
-          ParsedAddress(addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
+      outputs.first.parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {currency:paymentRequest.address}, handle: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -1342,7 +1368,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     for (final output in outputs) {
       final address =
-          output.isParsedAddress ? output.parsedAddress.addresses.first : output.address;
+          output.isParsedAddress ? output.parsedAddress.parsedAddressByCurrencyMap[selectedCryptoCurrency] ?? '' : output.address;
 
       if (address.isNotEmpty &&
           !contactAddresses.contains(address) &&
