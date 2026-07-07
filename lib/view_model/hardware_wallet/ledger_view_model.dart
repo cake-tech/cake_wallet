@@ -61,6 +61,10 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   bool isBleEnabled = false;
 
   @override
+  @observable
+  bool isConnecting = false;
+
+  @override
   bool get hasBluetooth => true;
 
   bool _bleIsInitialized = false;
@@ -109,10 +113,11 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
+  @action
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
     if (!(device is LedgerHardwareWalletDevice)) return false;
-    if (_isConnecting) return false;
-    _isConnecting = true;
+    if (isConnecting) return false;
+    isConnecting = true;
     _connectingWalletType = type;
     if (isConnected(type)) {
       try {
@@ -132,23 +137,22 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
 
     try {
       _connection = await ledger.connect(device.device);
-      _isConnecting = false;
+      isConnecting = false;
       return true;
     } catch (e) {
       printV(e);
     }
-    _isConnecting = false;
+    isConnecting = false;
     return false;
   }
 
   StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   sdk.LedgerConnection? _connection;
-  bool _isConnecting = false;
   WalletType? _connectingWalletType;
 
   void _connectionChangeListener(sdk.BleConnectionState event) {
     printV('Ledger Device State Changed: $event');
-    if (event == sdk.BleConnectionState.disconnected && !_isConnecting) {
+    if (event == sdk.BleConnectionState.disconnected && !isConnecting) {
       _connection = null;
       if (_connectingWalletType == WalletType.monero) {
         monero!.resetLedgerConnection();

@@ -8,6 +8,7 @@ abstract class HardwareWalletViewModel {
   HardwareWalletType get hardwareWalletType;
   bool get isBleEnabled;
   bool get hasBluetooth;
+  bool get isConnecting;
 
   bool isConnected(WalletType type);
 

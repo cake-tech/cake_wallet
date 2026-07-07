@@ -16,6 +16,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -134,6 +135,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     _longWaitTimer?.cancel();
 
     widget.hardwareWalletVM.stopScanning();
+    _isConnectPressed = false;
     super.dispose();
   }
 
@@ -160,24 +162,35 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     }
   }
 
+  var _isConnectPressed = false;
   Future<void> _connectToDevice(HardwareWalletDevice device) async {
-    final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
+    if(_isConnectPressed) return;
+    _isConnectPressed = true;
+    try {
+      final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
+      _isConnectPressed = false;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isConnected) widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (isConnected) widget.onConnectDevice(
+            navigatorKey.currentContext!, widget.hardwareWalletVM);
+      });
+
+    } catch (_) {
+      _isConnectPressed = false;
+    }
   }
 
   String _getDeviceTileLeading(HardwareWalletDeviceType deviceType) {
+    printV(deviceType);
     switch (deviceType) {
       case HardwareWalletDeviceType.ledgerNanoX:
-        return 'assets/new-ui/hardware_wallets/ledger_nano_x.svg';
+        return 'assets/new-ui/hardware_wallets/device_ledger_nano_x.svg';
       case HardwareWalletDeviceType.ledgerNanoGen5:
         return 'assets/new-ui/hardware_wallets/device_ledger_nano_gen_5.svg';
       case HardwareWalletDeviceType.ledgerStax:
-        return 'assets/new-ui/hardware_wallets/ledger_stax.svg';
+        return 'assets/new-ui/hardware_wallets/device_ledger_stax.svg';
       case HardwareWalletDeviceType.ledgerFlex:
-        return 'assets/new-ui/hardware_wallets/ledger_flex.svg';
+        return 'assets/new-ui/hardware_wallets/device_ledger_flex.svg';
       case HardwareWalletDeviceType.BitBox02:
       case HardwareWalletDeviceType.BitBox02Nova:
         return 'assets/new-ui/hardware_wallets/device_bitbox.svg';
@@ -193,7 +206,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         return 'assets/new-ui/hardware_wallets/device_trezor_safe_7.svg';
 
       default:
-        return 'assets/new-ui/hardware_wallets/ledger_nano_x.svg';
+        return 'assets/new-ui/hardware_wallets/device_ledger_nano_x.svg';
     }
   }
 
@@ -260,14 +273,28 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                                         Row(
                                           spacing: 12,
                                           children: [
-                                            CakeImageWidget(
-                                              imageUrl: _getDeviceTileLeading(item.type),
-                                              width: 24,
-                                              height: 24,
-                                              colorFilter: ColorFilter.mode(
+                                            Observer(builder: (_) {
+                                              if (widget.hardwareWalletVM.isConnecting) {
+                                                return CupertinoActivityIndicator(
+                                                  animating: true,
+                                                  color: Theme
+                                                      .of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                  radius: 12,
+                                                );
+                                              }
+
+                                              return CakeImageWidget(
+                                                imageUrl: _getDeviceTileLeading(item.type),
+                                                width: 24,
+                                                height: 24,
+                                                colorFilter: ColorFilter.mode(
                                                   Theme.of(context).colorScheme.onSurfaceVariant,
-                                                  BlendMode.srcIn),
-                                            ),
+                                                  BlendMode.srcIn,
+                                                ),
+                                              );
+                                            }),
                                             Text(item.name)
                                           ],
                                         ),
