@@ -8,6 +8,8 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/message_list_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/widgets/transaction_message_preview.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -112,11 +114,12 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                             .map((item) {
                                               if (item.value.isEmpty) return null;
 
+                                              final isMessage = item is MessageListItem;
                                               final shouldBuildBottomWidget =
-                                                  item.value.length > 25;
+                                                  isMessage || item.value.length > 25;
 
                                               return ListItemRegularRow(
-                                                copyableText: item.value,
+                                                copyableText: isMessage ? null : item.value,
                                                   showArrow: false,
                                                   keyValue:
                                                       ((item.key as ValueKey?)?.value as String?) ??
@@ -228,6 +231,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
 
   Widget _buildBottomWidget(TransactionDetailsListItem item) {
     return switch (item.runtimeType) {
+      MessageListItem => TransactionMessagePreview(message: item.value),
       AddressListItem => AddressFormatter.buildSegmentedAddress(
           address: item.value,
           evenTextStyle: TextStyle(

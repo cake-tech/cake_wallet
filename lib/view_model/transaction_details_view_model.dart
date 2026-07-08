@@ -20,6 +20,7 @@ import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_list_fee_picker_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/message_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_expandable_list_item.dart';
@@ -218,6 +219,18 @@ class TxDetailRowDefinition {
         title: S.current.transaction_details_title,
         valueGetter: (vm) => vm.transactionInfo.additionalInfo['comment'] as String? ?? "",
         applicable: (vm) => vm.wallet.type == WalletType.zano),
+
+
+    TxDetailRowDefinition(
+        keyString: "standard_list_item_transaction_details_sender_message_key",
+        title: S.current.transaction_details_message,
+        valueGetter: (vm) =>
+            vm.transactionInfo.additionalInfo['senderComment'] as String? ?? "",
+        applicable: (vm) =>
+            isLightning(vm.transactionInfo) &&
+            vm.transactionInfo.direction == TransactionDirection.incoming &&
+            ((vm.transactionInfo.additionalInfo['senderComment'] as String?) ?? '').isNotEmpty,
+        listItemBuilder: MessageListItem.new),
 
 
     TxDetailRowDefinition(

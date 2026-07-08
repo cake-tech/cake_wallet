@@ -4,9 +4,11 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/message_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
+import 'package:cake_wallet/src/screens/transaction_details/widgets/transaction_message_preview.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
@@ -39,6 +41,22 @@ class TransactionDetailsPage extends BasePage {
             itemCounter: (int _) => transactionDetailsViewModel.items.length,
             itemBuilder: (__, index) {
               final item = transactionDetailsViewModel.items[index];
+
+              if (item is MessageListItem) {
+                return Padding(
+                  key: item.key,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${item.title}:',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                      const SizedBox(height: 8),
+                      TransactionMessagePreview(message: item.value),
+                    ],
+                  ),
+                );
+              }
 
               if (item is StandartListItem) {
                 Widget? addressTextWidget;

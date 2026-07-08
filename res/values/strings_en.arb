@@ -1246,6 +1246,7 @@
   "transaction_details_date": "Date",
   "transaction_details_fee": "Fee",
   "transaction_details_height": "Height",
+  "transaction_details_message": "Message",
   "transaction_details_recipient_address": "Recipient addresses",
   "transaction_details_source_address": "Source address",
   "transaction_details_title": "Transaction Details",
