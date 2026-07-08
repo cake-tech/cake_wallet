@@ -16,7 +16,7 @@ class ColdcardService extends HardwareWalletService with BitcoinHardwareWalletSe
 
   @override
   Future<Uint8List> getMasterFingerprint() async {
-    return Uint8List(4)..buffer.asByteData().setUint32(0, device.masterFingerprint!);
+    return Uint8List(4)..buffer.asByteData().setUint32(0, device.masterFingerprint!, Endian.little);
   }
 
   @override
