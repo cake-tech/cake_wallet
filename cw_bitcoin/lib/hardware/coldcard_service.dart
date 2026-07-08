@@ -43,7 +43,7 @@ class ColdcardService extends HardwareWalletService with BitcoinHardwareWalletSe
 
   @override
   Future<Uint8List> signTransaction({required String transaction}) async =>
-      device.signTransaction(base64Decode(transaction));
+      device.signTransaction(base64Decode(transaction), finalize: true);
 
   @override
   Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) async {

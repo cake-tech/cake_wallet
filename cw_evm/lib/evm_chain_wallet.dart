@@ -515,6 +515,7 @@ abstract class EVMChainWalletBase
         break;
       case HardwareWalletType.cupcake:
       case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldcardUsb:
       case HardwareWalletType.seedsigner:
       case HardwareWalletType.keystone:
         throw UnimplementedError();
