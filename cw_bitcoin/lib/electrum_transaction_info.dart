@@ -209,6 +209,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         amount: Money.fromInt(amount, walletCurrency),
         date: date,
         isHogEx: isHogEx,
+        additionalInfo: {'hasMissingInputTx': hasMissingInputTx},
         confirmations: bundle.confirmations);
   }
 
