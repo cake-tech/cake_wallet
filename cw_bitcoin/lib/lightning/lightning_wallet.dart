@@ -441,6 +441,18 @@ class LightningWallet {
       direction = TransactionDirection.incoming;
     }
 
+    final additionalInfo = <String, dynamic>{"isLightning": true};
+
+    // Surface the payer's LNURL comment on received lightning-address payments.
+    // It arrives out-of-band on the payment details and is otherwise dropped.
+    final details = payment.details;
+    if (details is PaymentDetails_Lightning) {
+      final senderComment = details.lnurlReceiveMetadata?.senderComment;
+      if (senderComment != null && senderComment.isNotEmpty) {
+        additionalInfo["senderComment"] = senderComment;
+      }
+    }
+
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: payment.id,
@@ -450,7 +462,7 @@ class LightningWallet {
       fee: Money(payment.fees, currency),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
-      additionalInfo: {"isLightning": true},
+      additionalInfo: additionalInfo,
     );
   }
 
