@@ -23,11 +23,11 @@ dependencies:
   coldcard_protocol:
     git:
       url: https://github.com/warp-records/coldcard-protocol
-      ref: 8796f280d082bf2e6c694c0923d8cea8d50ce7ab
+      ref: 30b7ea705fc4cf1ab0aa5c51c3483fa2b60fe4f9
   coldcard_usb:
     git:
       url: https://github.com/warp-records/coldcard-usb
-      ref: 985da9d9b378664697bb5c8a50f68755c2d59a7e
+      ref: 16b1115ab23dc21585f7f97ba06375c28fbe2ee7
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
