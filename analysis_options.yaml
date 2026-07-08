@@ -130,6 +130,9 @@ linter:
     - valid_regexps
     - void_checks
     - prefer_final_locals
+    - prefer_interpolation_to_compose_strings
+    - null_closures
+    - no_wildcard_variable_uses
 
 
 
