@@ -61,14 +61,15 @@ class ConnectDevicePage extends BasePage {
 
   @override
   Widget body(BuildContext context) => PopScope(
-      canPop: !isReconnect,
-      child: ConnectDevicePageBody(
-        walletType,
-        onConnectDevice,
-        allowChangeWallet,
-        hardwareWalletVM,
-        currentTheme,
-      ));
+        canPop: !isReconnect,
+        child: ConnectDevicePageBody(
+          walletType,
+          onConnectDevice,
+          allowChangeWallet,
+          hardwareWalletVM,
+          currentTheme,
+        ),
+      );
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
@@ -141,6 +142,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   Future<void> _refreshUsbDevices() async {
     final dev = await widget.hardwareWalletVM.getAllUsbDevices();
+
     if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
   }
 
@@ -164,17 +166,17 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   var _isConnectPressed = false;
   Future<void> _connectToDevice(HardwareWalletDevice device) async {
-    if(_isConnectPressed) return;
+    if (_isConnectPressed) return;
     _isConnectPressed = true;
     try {
       final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
       _isConnectPressed = false;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (isConnected) widget.onConnectDevice(
-            navigatorKey.currentContext!, widget.hardwareWalletVM);
+        if (isConnected) {
+          widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
+        }
       });
-
     } catch (_) {
       _isConnectPressed = false;
     }
@@ -184,29 +186,29 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     printV(deviceType);
     switch (deviceType) {
       case HardwareWalletDeviceType.ledgerNanoX:
-        return 'assets/new-ui/hardware_wallets/device_ledger_nano_x.svg';
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";
       case HardwareWalletDeviceType.ledgerNanoGen5:
-        return 'assets/new-ui/hardware_wallets/device_ledger_nano_gen_5.svg';
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_gen_5.svg";
       case HardwareWalletDeviceType.ledgerStax:
-        return 'assets/new-ui/hardware_wallets/device_ledger_stax.svg';
+        return "assets/new-ui/hardware_wallets/device_ledger_stax.svg";
       case HardwareWalletDeviceType.ledgerFlex:
-        return 'assets/new-ui/hardware_wallets/device_ledger_flex.svg';
+        return "assets/new-ui/hardware_wallets/device_ledger_flex.svg";
       case HardwareWalletDeviceType.BitBox02:
       case HardwareWalletDeviceType.BitBox02Nova:
-        return 'assets/new-ui/hardware_wallets/device_bitbox.svg';
+        return "assets/new-ui/hardware_wallets/device_bitbox.svg";
       case HardwareWalletDeviceType.trezorModelOne:
-        return 'assets/new-ui/hardware_wallets/device_trezor_model_one.svg';
+        return "assets/new-ui/hardware_wallets/device_trezor_model_one.svg";
       case HardwareWalletDeviceType.trezorModelT:
-        return 'assets/new-ui/hardware_wallets/device_trezor_model_t.svg';
+        return "assets/new-ui/hardware_wallets/device_trezor_model_t.svg";
       case HardwareWalletDeviceType.trezorSafe3:
-        return 'assets/new-ui/hardware_wallets/device_trezor_safe_3.svg';
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_3.svg";
       case HardwareWalletDeviceType.trezorSafe5:
-        return 'assets/new-ui/hardware_wallets/device_trezor_safe_5.svg';
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_5.svg";
       case HardwareWalletDeviceType.trezorSafe7:
-        return 'assets/new-ui/hardware_wallets/device_trezor_safe_7.svg';
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_7.svg";
 
       default:
-        return 'assets/new-ui/hardware_wallets/device_ledger_nano_x.svg';
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";
     }
   }
 
@@ -222,7 +224,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   Widget build(BuildContext context) => Center(
         child: Container(
           width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
           child: Column(
             children: [
               Expanded(
@@ -230,9 +232,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   child: Column(
                     spacing: 24,
                     children: [
-                      CakeImageWidget(
-                        imageUrl: "assets/new-ui/hardware_wallet.svg",
-                      ),
+                      const CakeImageWidget(imageUrl: "assets/new-ui/hardware_wallet.svg"),
                       Text(
                         description,
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -243,7 +243,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                           offstage: widget.hardwareWalletVM.isBleEnabled ||
                               !widget.hardwareWalletVM.hasBluetooth,
                           child: Padding(
-                            padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                             child: Text(
                               S.of(context).ledger_please_enable_bluetooth,
                               style: Theme.of(context).textTheme.titleMedium,
@@ -254,8 +254,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       ),
                       Container(
                         decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(18)),
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                         child: ListView.separated(
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
@@ -277,8 +278,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                                               if (widget.hardwareWalletVM.isConnecting) {
                                                 return CupertinoActivityIndicator(
                                                   animating: true,
-                                                  color: Theme
-                                                      .of(context)
+                                                  color: Theme.of(context)
                                                       .colorScheme
                                                       .onSurfaceVariant,
                                                   radius: 12,
@@ -308,15 +308,18 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                                                 width: 24,
                                                 height: 24,
                                                 colorFilter: ColorFilter.mode(
-                                                    Theme.of(context).colorScheme.primary,
-                                                    BlendMode.srcIn),
+                                                  Theme.of(context).colorScheme.primary,
+                                                  BlendMode.srcIn,
+                                                ),
                                               ),
                                             CakeImageWidget(
-                                                imageUrl: "assets/new-ui/arrow_forward.svg",
-                                                height: 16,
-                                                colorFilter: ColorFilter.mode(
-                                                    Theme.of(context).colorScheme.onSurfaceVariant,
-                                                    BlendMode.srcIn))
+                                              imageUrl: "assets/new-ui/arrow_forward.svg",
+                                              height: 16,
+                                              colorFilter: ColorFilter.mode(
+                                                Theme.of(context).colorScheme.onSurfaceVariant,
+                                                BlendMode.srcIn,
+                                              ),
+                                            )
                                           ],
                                         )
                                       ],
@@ -325,10 +328,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                                 ),
                               );
                             },
-                            separatorBuilder: (context, index) => Container(
-                                height: 1,
-                                color: Theme.of(context).colorScheme.surfaceContainerHigh),
-                            itemCount: allDevices.length),
+                          separatorBuilder: (context, index) => Container(
+                            height: 1,
+                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          ),
+                          itemCount: allDevices.length,
+                        ),
                       ),
                       if (widget.allowChangeWallet) ...[
                         PrimaryButton(
@@ -365,7 +370,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (BuildContext bottomSheetContext) => InfoStepsBottomSheet(
+      builder: (_) => InfoStepsBottomSheet(
         titleText: S.of(context).how_to_connect,
         steps: [
           InfoStep('assets/images/wallet_connect_step_icons/step1_power.svg',

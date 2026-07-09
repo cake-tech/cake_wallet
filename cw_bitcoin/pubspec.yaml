@@ -41,7 +41,10 @@ dependencies:
     git:
       url: https://github.com/konstantinullrich/payjoin-flutter
       ref: b28c825b1d63381e8c2b25ef2ccabacbf833ce53
-  ledger_flutter_plus: ^1.4.1
+  ledger_flutter_plus:
+    git:
+      url: https://github.com/vespr-wallet/ledger-flutter-plus
+      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
