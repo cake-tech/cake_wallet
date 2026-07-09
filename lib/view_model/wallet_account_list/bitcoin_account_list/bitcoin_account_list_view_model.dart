@@ -103,6 +103,6 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
 
   String _balanceForAccount(int accountIndex) {
     final balance = bitcoin!.balanceForAccount(_wallet, accountIndex);
-    return balance.fullAvailableBalance.toString();
+    return balance.available.toStringWithSymbol();
   }
 }
