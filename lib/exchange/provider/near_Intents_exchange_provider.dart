@@ -280,8 +280,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final trade = Trade(
         id: depositAddress,
         // Using deposit address as trade ID
-        from: from,
-        to: to,
+        from: request.fromCurrency,
+        to: request.toCurrency,
         provider: description,
         providerName: title,
         state: TradeState.created,

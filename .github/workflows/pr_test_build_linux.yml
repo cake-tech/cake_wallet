@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: [Linux, amd64, forlinux]
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -116,10 +116,18 @@ jobs:
           ./scripts/prepare_moneroc.sh
           mkdir -p scripts/monero_c/release
           pushd scripts/monero_c/release
-            mkdir -p $(git describe --tags)
-            pushd $(git describe --tags)
+            TAG=$(git describe --tags)
+            mkdir -p "$TAG"
+            pushd "$TAG"
               wget https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC2/release-bundle.zip
               unzip release-bundle.zip
+              # RC2's bundle puts everything under an inner v0.18.4.6-*/ dir, strip it
+              shopt -s nullglob
+              for inner in v0.18.4.6-*/; do
+                mv "$inner"* .
+                rmdir "$inner"
+              done
+              shopt -u nullglob
               rm release-bundle.zip
             popd
           popd
@@ -219,6 +227,9 @@ jobs:
           xmessage -timeout 30 "restore_wallet_through_seeds_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
+      - name: Test [cw_core]
+        timeout-minutes: 15
+        run: cd cw_core && flutter test
       - name: Test [cw_monero]
         timeout-minutes: 15
         run: cd cw_monero && flutter test
