@@ -26,9 +26,7 @@ class TransactionCommitFailed implements Exception {
   TransactionCommitFailed({this.errorMessage});
 
   @override
-  String toString() {
-    return errorMessage ?? "unknown error";
-  }
+  String toString() => errorMessage ?? "unknown error";
 }
 
 class TransactionCommitFailedDustChange implements Exception {}
@@ -56,10 +54,6 @@ class CreateAssociatedTokenAccountException implements Exception {
 class SignSPLTokenTransactionRentException implements Exception {}
 
 class NoAssociatedTokenAccountException implements Exception {}
-
-
-/// ==============================================================================
-/// ==============================================================================
 
 class RestoreFromSeedException implements Exception {
   final String message;

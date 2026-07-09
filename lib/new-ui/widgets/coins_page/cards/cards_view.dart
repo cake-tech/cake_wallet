@@ -161,7 +161,7 @@ class _CardsViewState extends State<CardsView> {
               walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
             } else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalanceRaw ?? "0.00";
+              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
             }
 
             // the card designs is empty if widget gets built before it loads.
@@ -199,7 +199,7 @@ class _CardsViewState extends State<CardsView> {
               assetName: assetName,
               capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
-              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrencyTicker ??
+              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                   widget.dashboardViewModel.settingsStore.fiatCurrency.title,
               fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
               fiatBalance: walletFiatBalance,

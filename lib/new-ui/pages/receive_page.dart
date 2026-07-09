@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_type.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_address_widget.dart';
@@ -22,6 +23,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -194,29 +196,37 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: Icon(Icons.close),
-              trailingIcon: _largeQrMode
-                  ? Icon(Icons.share)
-                  : widget.addressListViewModel.hasAddressRotation
-                          /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
-                          &&
-                          !(widget.receiveOptionViewModel.selectedReceiveOption.description ?? "")
-                              .toLowerCase()
-                              .contains("mweb")
-                      ? Icon(Icons.refresh)
-                      : null,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
-              onTrailingPressed: () {
-                if (_largeQrMode) {
-                  ShareUtil.share(
-                    text: widget.addressListViewModel.uri.toString(),
-                    context: context,
-                  );
-                } else if (widget.addressListViewModel.hasAddressRotation) {
-                  widget.addressListViewModel.rotateAddress();
-                }
-              },
+              trailingWidget: Observer(
+                builder: (_) => AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: _largeQrMode || widget.addressListViewModel.hasAddressRotation
+                      /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
+                      &&
+                      !(widget.receiveOptionViewModel.selectedReceiveOption.description ?? "")
+                          .toLowerCase()
+                          .contains("mweb") ? ModernButton(
+                    key: ValueKey(_largeQrMode),
+                      size: 36,
+                      icon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.isRotatingAddress
+                          ? CupertinoActivityIndicator()
+                          : Icon(Icons.refresh),
+                      onPressed: () {
+                        if(_largeQrMode) {
+                              ShareUtil.share(
+                                text: widget.addressListViewModel.uri.toString(),
+                                context: context,
+                              );
+                        } else {
+                          if(widget.addressListViewModel.hasAddressRotation) {
+                            widget.addressListViewModel.rotateAddress();
+                          }
+                        }
+                      }):SizedBox.shrink(),
+                ),
+              ),
             ),
             Expanded(
               child: Column(

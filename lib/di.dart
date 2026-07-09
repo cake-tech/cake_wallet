@@ -6,6 +6,9 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
@@ -29,7 +32,6 @@ import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
@@ -37,7 +39,6 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -198,7 +199,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -906,6 +906,7 @@ Future<void> setup({
       getIt.get<AppStore>(),
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
+      getIt.get<AddressResolverService>(),
       getIt.get<BalanceViewModel>(),
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
@@ -1138,7 +1139,10 @@ Future<void> setup({
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
   getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
-      (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
+      (ContactRecord? contact, _) => ContactViewModel(_contactSource,
+          getIt.get<AppStore>(),
+          getIt.get<AddressResolverService>(),
+          contact: contact));
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
       (CryptoCurrency? cur, _) =>
@@ -1312,7 +1316,10 @@ Future<void> setup({
 
   getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
       (PaymentRequest? paymentRequest, __) {
-    return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
+    return ExchangePage(getIt.get<ExchangeViewModel>(),
+        getIt.get<AuthService>(),
+        getIt.get<AddressResolverService>(),
+        paymentRequest);
   });
 
   getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, CryptoCurrency?>(
@@ -1320,6 +1327,7 @@ Future<void> setup({
     return NewSwapPage(
       getIt.get<ExchangeViewModel>(),
       getIt.get<AuthService>(),
+      getIt.get<AddressResolverService>(),
       paymentRequest,
       walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
       initialCurrency: initialCurrency,
@@ -1557,7 +1565,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuySellViewModel(getIt.get<AppStore>()));
 
-  getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
+  getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>(), getIt.get<AddressResolverService>()));
 
   getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final items = args.first as List<SelectableItem>;
@@ -1655,10 +1663,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolver(
-      yatService: getIt.get<YatService>(),
-      wallet: getIt.get<AppStore>().wallet!,
-      settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerFactory<AddressResolverService>(
+        () => AddressResolverService(settingsStore: getIt.get<SettingsStore>()),
+  );
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));

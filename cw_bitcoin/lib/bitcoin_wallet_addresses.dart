@@ -159,11 +159,24 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   String get addressForExchange {
-    if (addressPageType == LightningAddressType.p2l) {
-      final addresses = receiveAddresses
-          .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
-      return addresses.first.address;
+
+    final current = getFreshAddress();
+    final availableReceiveAddresses = receiveAddresses.where((element) =>
+        !element.isUsed &&
+            !element.isHidden &&
+            !hiddenAddresses.contains(element.address));
+
+    final bool isSilentPaymentsPage = addressPageType == SilentPaymentsAddresType.p2sp;
+    final bool isLightningPage = addressPageType == LightningAddressType.p2l;
+
+    if (isSilentPaymentsPage || isLightningPage) {
+      final segwit = availableReceiveAddresses
+          .where((e) => e.type == SegwitAddresType.p2wpkh)
+          .map((e) => e.address)
+          .toList();
+
+      return segwit.isNotEmpty ? segwit.first : current;
     }
-    return address;
+    return current;
   }
 }

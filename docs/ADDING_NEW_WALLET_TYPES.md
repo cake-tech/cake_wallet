@@ -121,7 +121,6 @@ cd cw_walletx && flutter pub get && dart run build_runner build --delete-conflic
 dev_dependencies:
   build_runner: ^2.0.0
   mobx_codegen: ^2.0.0
-  hive_generator: ^2.0.0
 ```
 
 ---

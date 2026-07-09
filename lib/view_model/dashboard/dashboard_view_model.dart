@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/account.dart';
@@ -37,7 +38,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';

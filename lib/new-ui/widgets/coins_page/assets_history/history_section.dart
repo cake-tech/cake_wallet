@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:flutter/material.dart';
@@ -101,9 +103,6 @@ class HistorySection extends StatelessWidget {
                         final trade = item.trade;
                         final tradeFrom = trade.from;
                         final tradeTo = trade.to;
-                        if (tradeFrom == null || tradeTo == null) {
-                          return const SizedBox.shrink();
-                        }
 
                         return GestureDetector(
                           onTap: () => Navigator.of(context)
@@ -114,8 +113,8 @@ class HistorySection extends StatelessWidget {
                             provider: trade.provider,
                             date:
                                 DateFormat('HH:mm').format(item.trade.createdAt ?? DateTime.now()),
-                            amount: trade.amountFormatted(),
-                            receiveAmount: trade.receiveAmountFormatted(),
+                            amount: dashboardViewModel.balanceDisplayMode == BalanceDisplayMode.hiddenBalance ? "---" : trade.amountFormatted(),
+                            receiveAmount: dashboardViewModel.balanceDisplayMode == BalanceDisplayMode.hiddenBalance ? "---" : trade.receiveAmountFormatted(),
                             roundedBottom: roundedBottom,
                             roundedTop: roundedTop,
                             bottomSeparator: !roundedBottom,
@@ -135,7 +134,7 @@ class HistorySection extends StatelessWidget {
                           child: HistoryOrderTile(
                             date: DateFormat('HH:mm').format(item.order.createdAt),
                             amount: item.orderFormattedAmount,
-                            amountFiat: "USD 0.00",
+                            amountFiat: "",
                             roundedBottom: roundedBottom,
                             roundedTop: roundedTop,
                             bottomSeparator: !roundedBottom,
@@ -152,8 +151,8 @@ class HistorySection extends StatelessWidget {
                           child: PayjoinHistoryTile(
                               createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
                               amount: dashboardViewModel.appStore.amountParsingProxy
-                                  .getDisplayCryptoString(
-                                      session.amount.toInt(), CryptoCurrency.btc),
+                                  .asDisplayString(Money(
+                                      session.amount, CryptoCurrency.btc)),
                               currency: item.transaction?.from ?? "BTC",
                               state: item.status,
                               isSending: session.isSenderSession,

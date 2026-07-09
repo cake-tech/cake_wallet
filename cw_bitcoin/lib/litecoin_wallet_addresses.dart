@@ -230,13 +230,21 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @override
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
-    try {
-      final addresses = receiveAddresses
-          .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
-      return addresses.first.address;
-    } catch (_) {
-      return receiveAddresses.first.address;
+
+    final current = getFreshAddress();
+    final bool isMweb = receiveAddresses
+        .any((e) => e.address == current && e.type == SegwitAddresType.mweb);
+
+    if (isMweb) {
+      final segwit = receiveAddresses
+          .where((e) => e.type == SegwitAddresType.p2wpkh && !e.isUsed && !e.isHidden && !hiddenAddresses.contains(e.address))
+          .map((e) => e.address)
+          .toList();
+
+      return segwit.isNotEmpty ? segwit.first : current;
     }
+
+    return current;
   }
 
   @override

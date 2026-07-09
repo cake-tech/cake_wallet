@@ -1,44 +1,25 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:cw_core/balance.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/balance.dart";
+import "package:cw_core/currency.dart";
 
 class SolanaBalance extends Balance {
-  SolanaBalance(this.balance, bool isToken) : super(
-      BigInt.from(int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0),
-      BigInt.from(int.tryParse(balance.toStringAsFixed(isToken ? 6 : 9).replaceFirst(".", "")) ?? 0));
+  SolanaBalance(Money balance) : super(balance, balance.copyWith(amount: BigInt.zero));
 
-  // Using raw amount from RPC to avoid decimals mismatch for SPL tokens.
-  SolanaBalance.forToken(BigInt rawAmount, double uiAmount)
-      : balance = uiAmount,
-        super(rawAmount, rawAmount);
+  factory SolanaBalance.zero(Currency currency) => SolanaBalance(Money.zero(currency));
 
-  final double balance;
-
-  String get formattedAdditionalBalance => _balanceFormatted();
-
-  String get formattedAvailableBalance => _balanceFormatted();
-
-  String _balanceFormatted() {
-    String stringBalance = balance.toString();
-    if (stringBalance.toString().length >= 12) {
-      stringBalance = stringBalance.substring(0, 12);
-    }
-    return stringBalance;
-  }
-
-  static SolanaBalance? fromJSON(String? jsonSource, bool isToken) {
-    if (jsonSource == null) {
-      return null;
-    }
+  static SolanaBalance? fromJSON(String? jsonSource, Currency currency) {
+    if (jsonSource == null) return null;
 
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return SolanaBalance(decoded['balance'], isToken);
+      return SolanaBalance(currency.parseAmount(decoded["balance"]));
     } catch (e) {
-      return SolanaBalance(0.0, isToken);
+      return SolanaBalance(Money.zero(currency));
     }
   }
 
-  String toJSON() => json.encode({'balance': balance.toString()});
+  String toJSON() => json.encode({"balance": available.toString()});
 }

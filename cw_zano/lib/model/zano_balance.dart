@@ -1,17 +1,15 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_zano/zano_formatter.dart';
+import 'package:cw_core/currency.dart';
 
 class ZanoBalance extends Balance {
-  final BigInt total;
-  final BigInt unlocked;
-  final int decimalPoint;
-  ZanoBalance({required this.total, required this.unlocked, this.decimalPoint = ZanoFormatter.defaultDecimalPoint}) : super(unlocked, (total - unlocked));
+  final Money total;
+  final Money unlocked;
 
-  ZanoBalance.empty({this.decimalPoint = ZanoFormatter.defaultDecimalPoint}): total = BigInt.zero, unlocked = BigInt.zero, super(BigInt.zero, BigInt.zero);
+  ZanoBalance({required this.total, required this.unlocked}) : super(unlocked, (total - unlocked));
 
-  @override
-  String get formattedAdditionalBalance => ZanoFormatter.bigIntAmountToString(total - unlocked, decimalPoint);
-
-  @override
-  String get formattedAvailableBalance => ZanoFormatter.bigIntAmountToString(unlocked, decimalPoint);
+  ZanoBalance.empty(Currency currency)
+      : total = Money.zero(currency),
+        unlocked = Money.zero(currency),
+        super(Money.zero(currency), Money.zero(currency));
 }
