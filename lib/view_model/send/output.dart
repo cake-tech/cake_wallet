@@ -1,16 +1,16 @@
 import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/address_sources.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -37,7 +37,8 @@ class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
   OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
-      : key = UniqueKey(),
+      :
+        key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
         cryptoFullBalance = '',
@@ -47,7 +48,7 @@ abstract class OutputBase with Store {
         memo = "",
         extractedAddress = '',
         estimatedFee = Money.zero(cryptoCurrencyHandler()),
-        parsedAddress = ParsedAddress(addresses: []) {
+        parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
     autorun((_) {
       final status = _wallet.syncStatus;
       printV("Sync status changed to $status. Recalculating fees");
@@ -55,6 +56,7 @@ abstract class OutputBase with Store {
       calculateEstimatedFee();
     });
   }
+
 
   Key key;
 
@@ -83,7 +85,7 @@ abstract class OutputBase with Store {
 
   @observable
   String note;
-  
+
   @observable
   String memo;
 
@@ -99,7 +101,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
+      parsedAddress.addressSource != AddressSource.notParsed && parsedAddress.handle.isNotEmpty;
 
   String roundedCryptoAmount(int digits) => displayCryptoAmount.withMaxDecimals(digits);
 
@@ -272,10 +274,22 @@ abstract class OutputBase with Store {
     resetParsedAddress();
   }
 
+  @action
   void resetParsedAddress() {
     displayName = null;
     extractedAddress = '';
-    parsedAddress = ParsedAddress(addresses: []);
+    note = '';
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {});
+  }
+
+  @action
+  void applyAddressLookupResult(ParsedAddress result) {
+    final currency = cryptoCurrencyHandler();
+
+    parsedAddress = result;
+    extractedAddress = result.parsedAddressByCurrencyMap[currency] ?? '';
+    note = result.description;
+    displayName = result.profileName.isNotEmpty ? result.profileName : result.handle;
   }
 
   @action
@@ -334,33 +348,26 @@ abstract class OutputBase with Store {
 
   Map<String, dynamic> get extra {
     final fields = <String, dynamic>{};
-    if (parsedAddress.parseFrom == ParseFrom.bip353) {
-      fields['bip353_name'] = parsedAddress.name;
+    if (parsedAddress.addressSource == AddressSource.bip353) {
+      fields['bip353_name'] = parsedAddress.handle;
       fields['bip353_proof'] = parsedAddress.bip353DnsProof;
     }
     return fields;
   }
 
-  Future<void> fetchParsedAddress(BuildContext context) async {
-    final domain = address;
-    final currency = cryptoCurrencyHandler();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    if(parsedAddress.name.isNotEmpty) {
-      displayName = parsedAddress.name;
-    }
-
-    if (parsedAddress.parseFrom == ParseFrom.lnurlpay) {
-      cryptoCurrencyHandler(CryptoCurrency.btcln);
-    }
-    extractedAddress = await extractAddressFromParsed(context, parsedAddress);
-    note = parsedAddress.description;
-  }
-
+  @action
   void loadContact(ContactBase contact) {
-    address = contact.name;
-    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
-    extractedAddress = parsedAddress.addresses.first;
-    note = parsedAddress.description;
+    final currency = cryptoCurrencyHandler();
+
+    address = contact.address;
+    applyAddressLookupResult(
+      ParsedAddress(
+        parsedAddressByCurrencyMap: {currency: contact.address},
+        addressSource: AddressSource.contact,
+        handle: contact.name,
+        profileName: contact.name,
+      ),
+    );
   }
 }
 
