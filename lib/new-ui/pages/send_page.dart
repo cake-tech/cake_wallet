@@ -1060,24 +1060,25 @@ class _NewSendPageState extends State<NewSendPage> {
         ),
       );
     } else {
-      final proceed = await SwapFromNetworkPage.push(
-        context: context,
-        title: swapConfirmTitle,
-        primaryButtonText: swapConfirmPrimary,
-        primaryHasSwapIcon: !isEvmTarget,
-        destinationtNetworkName: destinationNetworkName,
-        destinationNetworkIconPath: destinationNetworkIcon,
-        currentNetworkName: currentNetworkName,
-        currentNetworkIconPath: currentNetworkIcon,
+      await Navigator.of(context).push<void>(
+        CupertinoPageRoute(
+          builder: (pageContext) => SwapFromNetworkPage(
+            title: swapConfirmTitle,
+            primaryButtonText: swapConfirmPrimary,
+            primaryHasSwapIcon: !isEvmTarget,
+            destinationNetworkName: destinationNetworkName,
+            destinationNetworkIconPath: destinationNetworkIcon,
+            currentNetworkName: currentNetworkName,
+            currentNetworkIconPath: currentNetworkIcon,
+            onProceed: () => _onSwapSelected(pageContext, result),
+          ),
+        ),
       );
-      if (!mounted || proceed != true) return;
-      await _handleSwapFlow(result);
     }
   }
 
   Future<void> _onSwapSelected(BuildContext pageContext, PaymentFlowResult result) async {
-    if (Navigator.of(pageContext).canPop()) Navigator.of(pageContext).pop();
-    await _handleSwapFlow(result);
+    await _handleSwapFlow(result, pageContext);
   }
 
   Future<void> _onSwitchWalletSelected(
@@ -1130,21 +1131,26 @@ class _NewSendPageState extends State<NewSendPage> {
       }
     });
 
-    if (isEVMCompatibleChain(widget.sendViewModel.wallet.type) && result.chainId != null) {
-      final appStore = getIt.get<AppStore>();
-      final node = appStore.settingsStore
-          .getCurrentNode(widget.sendViewModel.wallet.type, chainId: result.chainId);
-      await evm!.selectChain(widget.sendViewModel.wallet, result.chainId!, node: node);
+    try {
+      if (isEVMCompatibleChain(widget.sendViewModel.wallet.type) && result.chainId != null) {
+        final appStore = getIt.get<AppStore>();
+        final node = appStore.settingsStore
+            .getCurrentNode(widget.sendViewModel.wallet.type, chainId: result.chainId);
+        await evm!.selectChain(widget.sendViewModel.wallet, result.chainId!, node: node);
+      }
+      await widget.sendViewModel.wallet.updateBalance();
+    } catch (e, s) {
+      printV('completeWalletSwitch failed: $e\n$s');
+    } finally {
+      if (loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted &&
+          Navigator.canPop(loadingBottomSheetContext!)) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+      loadingBottomSheetContext = null;
     }
 
-    await Future.delayed(const Duration(seconds: 2));
-    if (loadingBottomSheetContext != null &&
-        loadingBottomSheetContext!.mounted &&
-        Navigator.canPop(loadingBottomSheetContext!)) {
-      Navigator.of(loadingBottomSheetContext!).pop();
-    }
-
-    await widget.sendViewModel.wallet.updateBalance();
+    if (!mounted) return;
     final detectedCurrency = result.addressDetectionResult?.detectedCurrency;
     if (detectedCurrency != null) {
       widget.sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
@@ -1234,13 +1240,20 @@ class _NewSendPageState extends State<NewSendPage> {
         _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(
                 paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
-      } catch (e) {}
+      } catch (e) {
+        printV('applyPaymentRequest: failed to parse amount "${paymentRequest.amount}": $e');
+      }
     }
     _memoControllers[_selectedOutput].text = paymentRequest.note;
   }
 
-  Future<void> _handleSwapFlow(PaymentFlowResult result) async {
+  Future<void> _handleSwapFlow(PaymentFlowResult result, BuildContext presentContext) async {
     if (!mounted) return;
+
+    final destWalletType = result.walletType;
+    if (destWalletType == null) return;
+    final receiveCurrency = result.detectedCurrency ??
+        walletTypeToCryptoCurrency(destWalletType, chainId: result.chainId);
 
     final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
     final depositBalanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
@@ -1259,13 +1272,13 @@ class _NewSendPageState extends State<NewSendPage> {
       walletSwitcherViewModel: widget.walletSwitcherViewModel,
       fromSend: SwapFromSendArgs(
         recipientAddress: result.addressDetectionResult?.address ?? '',
-        receiveCurrency: result.detectedCurrency!,
-        targetWalletType: result.walletType!,
+        receiveCurrency: receiveCurrency,
+        targetWalletType: destWalletType,
         depositBalanceByAsset: depositBalanceByAsset,
       ),
     );
     await showModalBottomSheet<void>(
-      context: context,
+      context: presentContext,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,

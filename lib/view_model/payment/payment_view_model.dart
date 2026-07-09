@@ -147,8 +147,10 @@ abstract class PaymentViewModelBase with Store {
   }
 
   void applyManualEvmSelection(AddressDetectionResult detection) {
-    _lastDetectionResult = detection;
-    detectedWalletType = detection.detectedWalletType;
+    runInAction(() {
+      _lastDetectionResult = detection;
+      detectedWalletType = detection.detectedWalletType;
+    });
   }
 
   Future<List<WalletInfo>> getWalletsByType(WalletType walletType) async {

@@ -51,6 +51,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:mobx/mobx.dart' as mobx;
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SwapFromSendArgs {
@@ -102,6 +103,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
   final _receiveAddressFocus = FocusNode();
   final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
   Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
+  final List<ReactionDisposer> _disposers = [];
 
   bool get _shouldWaitTillSynced =>
       [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.ltc]
@@ -138,6 +140,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
       final depositFiatAmountController = depositKey.currentState!.fiatAmountController;
       final receiveFiatAmountController = receiveKey.currentState!.fiatAmountController;
 
+      ReactionDisposer reaction<T>(T Function(Reaction) fn, void Function(T) effect) {
+        final disposer = mobx.reaction<T>(fn, effect);
+        _disposers.add(disposer);
+        return disposer;
+      }
+
       depositFiatAmountController.addListener(() {
         if (!depositKey.currentState!.amountFocusNode.hasFocus) {
           return;
@@ -145,6 +153,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         widget.exchangeViewModel.isFixedRateMode = false;
         widget.exchangeViewModel.isSendAllEnabled = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
+          if (!mounted) return;
           if (double.tryParse(depositFiatAmountController.text) != null) {
             widget.exchangeViewModel
                 .setDepositAmountFromFiat(fiatAmount: depositFiatAmountController.text);
@@ -158,6 +167,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         widget.exchangeViewModel.enableFixedRateMode();
         widget.exchangeViewModel.isSendAllEnabled = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
+          if (!mounted) return;
           if (double.tryParse(receiveFiatAmountController.text) != null) {
             String text = receiveFiatAmountController.text;
             if (text.contains(".")) {
@@ -414,6 +424,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   @override
   void dispose() {
+    for (final disposer in _disposers) {
+      disposer();
+    }
+    _disposers.clear();
+    _receiveAmountDebounce.cancel();
+    _depositAmountDebounce.cancel();
     _depositAmountFocus.dispose();
     _depositAddressFocus.dispose();
     _receiveAmountFocus.dispose();
@@ -964,6 +980,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     }
     _memoReactionDisposer?.call();
     memoController.dispose();
+    addressController.dispose();
+    amountController.dispose();
+    fiatAmountController.dispose();
+    amountFocusNode.dispose();
     super.dispose();
   }
 

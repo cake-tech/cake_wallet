@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
@@ -16,6 +15,7 @@ class SwapFromNetworkPage extends StatelessWidget {
     required this.destinationNetworkIconPath,
     required this.currentNetworkName,
     required this.currentNetworkIconPath,
+    required this.onProceed,
     this.primaryHasSwapIcon = false,
   });
 
@@ -26,31 +26,7 @@ class SwapFromNetworkPage extends StatelessWidget {
   final String destinationNetworkIconPath;
   final String currentNetworkName;
   final String currentNetworkIconPath;
-
-  static Future<bool?> push({
-    required BuildContext context,
-    required String title,
-    required String primaryButtonText,
-    required String destinationtNetworkName,
-    required String destinationNetworkIconPath,
-    required String currentNetworkName,
-    required String currentNetworkIconPath,
-    bool primaryHasSwapIcon = false,
-  }) {
-    return Navigator.of(context).push<bool>(
-      CupertinoPageRoute(
-        builder: (_) => SwapFromNetworkPage(
-          title: title,
-          primaryButtonText: primaryButtonText,
-          destinationNetworkName: destinationtNetworkName,
-          destinationNetworkIconPath: destinationNetworkIconPath,
-          currentNetworkName: currentNetworkName,
-          currentNetworkIconPath: currentNetworkIconPath,
-          primaryHasSwapIcon: primaryHasSwapIcon,
-        ),
-      ),
-    );
-  }
+  final VoidCallback onProceed;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +99,7 @@ class SwapFromNetworkPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   NewPrimaryButton(
-                    onPressed: () => Navigator.of(context).pop(true),
+                    onPressed: onProceed,
                     image: primaryHasSwapIcon
                         ? SvgPicture(
                             AssetBytesLoader('assets/new-ui/swap_arrows.svg.vec'),
