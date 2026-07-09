@@ -545,71 +545,79 @@ abstract class EVMChainWalletBase
     await save();
   }
 
-  bool isTokenPropertiesSuspicious(Erc20Token token) {
-    bool isTokenWhitelisted = getDefaultTokenContractAddresses
-        .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
+  static const _urlLikeSuspiciousMarkers = [
+    't.me',
+    '.me',
+    'telegram',
+    'http',
+    'https',
+    '.com',
+    '.org',
+    '.top',
+    '.live',
+    '.xyz',
+    'www',
+    '🎁',
+    'airdrop',
+    'distribution',
+  ];
 
-    final defaultTokenSymbols = EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId);
+  static final _suspiciousWordPattern =
+      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
 
-    // Normalize the token data to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+  static const _knownNonEvmNativeSymbols = {
+    'ICP',
+    'SOL',
+    'TRX',
+    'ATOM',
+    'DOT',
+    'ADA',
+    'XRP',
+    'XLM',
+    'XMR',
+    'ALGO',
+    'NEAR',
+    'TON',
+    'HBAR',
+    'APT',
+    'SUI',
+    'KAS',
+  };
+
+  static bool _hasSuspiciousData(String normalized) {
+    final lower = normalized.toLowerCase();
+    if (_urlLikeSuspiciousMarkers.any(lower.contains)) return true;
+    return _suspiciousWordPattern.hasMatch(lower);
+  }
+
+  bool isTokenPropertiesSuspicious(
+    Erc20Token token, {
+    Set<String>? cachedWhitelistLower,
+    Set<String>? cachedDefaultSymbolsUpper,
+  }) {
+    final whitelistLower = cachedWhitelistLower ??
+        getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+    final defaultSymbolsUpper = cachedDefaultSymbolsUpper ??
+        EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId).toSet();
+
+    final isTokenWhitelisted = whitelistLower.contains(token.contractAddress.toLowerCase());
+
     final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
     final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
     final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
 
-    final suspiciousStrings = [
-      't.me',
-      '.me',
-      'telegram',
-      'http',
-      'https',
-      '.com',
-      '.org',
-      '.top',
-      '.live',
-      'airdrop',
-      'reward',
-      'distribution',
-      'www',
-      '.xyz',
-      '🎁',
-      'bot',
-      'claim',
-      'reward',
-    ];
-
-    final hasSuspiciousData = suspiciousStrings.any(
-      (element) =>
-          normalizedName.toLowerCase().contains(element) ||
-          normalizedSymbol.toLowerCase().contains(element) ||
-          normalizedTitle.toLowerCase().contains(element),
-    );
+    final hasSuspiciousData = _hasSuspiciousData(normalizedName) ||
+        _hasSuspiciousData(normalizedSymbol) ||
+        _hasSuspiciousData(normalizedTitle);
 
     final nativeSymbol = currency.title.toUpperCase();
     final hasSuspiciousNativeSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
 
     final hasSuspiciousDefaultTokenSymbol =
-        defaultTokenSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+        defaultSymbolsUpper.contains(normalizedSymbol) && !isTokenWhitelisted;
 
-    const knownNonEvmNativeSymbols = {
-      'ICP',
-      'SOL',
-      'TRX',
-      'ATOM',
-      'DOT',
-      'ADA',
-      'XRP',
-      'XLM',
-      'XMR',
-      'ALGO',
-      'NEAR',
-      'TON',
-      'HBAR',
-      'APT',
-      'SUI',
-      'KAS',
-    };
     final hasSuspiciousNonEvmNativeSymbol =
-        knownNonEvmNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+        _knownNonEvmNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
 
     return hasSuspiciousData ||
         hasSuspiciousNativeSymbol ||
@@ -617,19 +625,32 @@ abstract class EVMChainWalletBase
         hasSuspiciousNonEvmNativeSymbol;
   }
 
-  Future<void> _checkForExistingScamTokens() async {
-    for (var token in erc20Currencies) {
-      bool isPotentialScam = false;
+  String get _scamCheckDoneKey => 'evm_scam_check_v2_done_${walletInfo.name}';
 
-      if (isTokenPropertiesSuspicious(token)) {
-        isPotentialScam = true;
+  Future<void> _checkForExistingScamTokens() async {
+    final prefs = await sharedPrefs.future;
+    if (prefs.getBool(_scamCheckDoneKey) == true) return;
+
+    final whitelistLower =
+        getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+    final defaultSymbolsUpper =
+        EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId).toSet();
+
+    for (var token in erc20Currencies) {
+      final suspicious = isTokenPropertiesSuspicious(
+        token,
+        cachedWhitelistLower: whitelistLower,
+        cachedDefaultSymbolsUpper: defaultSymbolsUpper,
+      );
+
+      if (suspicious && !token.isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
         await token.save();
+        continue;
       }
 
-      // For fixing wrongly classified tokens
-      if (!isPotentialScam && token.isPotentialScam) {
+      if (!suspicious && token.isPotentialScam) {
         token.isPotentialScam = false;
 
         if (token.iconPath == null || token.iconPath!.isEmpty) {
@@ -645,6 +666,8 @@ abstract class EVMChainWalletBase
         await token.save();
       }
     }
+
+    await prefs.setBool(_scamCheckDoneKey, true);
   }
 
   Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {

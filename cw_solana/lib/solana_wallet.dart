@@ -156,15 +156,34 @@ abstract class SolanaWalletBase
     await save();
   }
 
+  String get _scamCheckDoneKey => 'solana_scam_check_v2_done_${walletInfo.name}';
+
   Future<void> _checkForExistingScamTokens() async {
     if (!splTokensBox.isOpen) return;
 
+    final prefs = await _sharedPrefs.future;
+    if (prefs.getBool(_scamCheckDoneKey) == true) return;
+
+    final defaultMints =
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultSymbolsUpper = DefaultSPLTokens()
+        .initialSPLTokens
+        .map((t) => t.symbol.toUpperCase())
+        .toSet();
+
     for (final token in splTokensBox.values) {
-      if (isTokenPropertiesSuspicious(token) && !token.isPotentialScam) {
+      final suspicious = isTokenPropertiesSuspicious(
+        token,
+        cachedDefaultMints: defaultMints,
+        cachedDefaultSymbolsUpper: defaultSymbolsUpper,
+      );
+      if (suspicious && !token.isPotentialScam) {
         token.isPotentialScam = true;
         await token.save();
       }
     }
+
+    await prefs.setBool(_scamCheckDoneKey, true);
   }
 
   Future<SolanaPrivateKey> getPrivateKey({
@@ -685,79 +704,87 @@ abstract class SolanaWalletBase
     }
   }
 
-  bool isTokenPropertiesSuspicious(SPLToken token) {
-    final defaultMints =
-        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
-    final isTokenWhitelisted = defaultMints.contains(token.mintAddress);
+  static const _urlLikeSuspiciousMarkers = [
+    't.me',
+    '.me',
+    'telegram',
+    'http',
+    'https',
+    '.com',
+    '.org',
+    '.top',
+    '.live',
+    '.xyz',
+    'www',
+    '🎁',
+    'airdrop',
+    'distribution',
+  ];
 
-    final defaultTokenSymbols = DefaultSPLTokens()
-        .initialSPLTokens
-        .map((t) => t.symbol.toUpperCase())
-        .toSet();
+  static final _suspiciousWordPattern =
+      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
+
+  static const _knownNonSolanaNativeSymbols = {
+    'BTC',
+    'ETH',
+    'BNB',
+    'AVAX',
+    'MATIC',
+    'POL',
+    'ICP',
+    'TRX',
+    'ATOM',
+    'DOT',
+    'ADA',
+    'XRP',
+    'XLM',
+    'XMR',
+    'ALGO',
+    'NEAR',
+    'TON',
+    'HBAR',
+    'APT',
+    'SUI',
+    'KAS',
+  };
+
+  static bool _hasSuspiciousData(String normalized) {
+    final lower = normalized.toLowerCase();
+    if (_urlLikeSuspiciousMarkers.any(lower.contains)) return true;
+    return _suspiciousWordPattern.hasMatch(lower);
+  }
+
+  bool isTokenPropertiesSuspicious(
+    SPLToken token, {
+    Set<String>? cachedDefaultMints,
+    Set<String>? cachedDefaultSymbolsUpper,
+  }) {
+    final defaultMints = cachedDefaultMints ??
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultSymbolsUpper = cachedDefaultSymbolsUpper ??
+        DefaultSPLTokens()
+            .initialSPLTokens
+            .map((t) => t.symbol.toUpperCase())
+            .toSet();
+
+    final isTokenWhitelisted = defaultMints.contains(token.mintAddress);
 
     final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
     final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
     final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
 
-    const suspiciousStrings = [
-      't.me',
-      '.me',
-      'telegram',
-      'http',
-      'https',
-      '.com',
-      '.org',
-      '.top',
-      '.live',
-      'airdrop',
-      'reward',
-      'distribution',
-      'www',
-      '.xyz',
-      '🎁',
-      'bot',
-      'claim',
-      'reward',
-    ];
-
-    final hasSuspiciousData = suspiciousStrings.any(
-      (element) =>
-          normalizedName.toLowerCase().contains(element) ||
-          normalizedSymbol.toLowerCase().contains(element) ||
-          normalizedTitle.toLowerCase().contains(element),
-    );
+    final hasSuspiciousData = _hasSuspiciousData(normalizedName) ||
+        _hasSuspiciousData(normalizedSymbol) ||
+        _hasSuspiciousData(normalizedTitle);
 
     const nativeSymbol = 'SOL';
     final hasSuspiciousNativeSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
 
     final hasSuspiciousDefaultTokenSymbol =
-        defaultTokenSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+        defaultSymbolsUpper.contains(normalizedSymbol) && !isTokenWhitelisted;
 
-    const knownNonSolanaNativeSymbols = {
-      'BTC',
-      'ETH',
-      'BNB',
-      'AVAX',
-      'MATIC',
-      'POL',
-      'ICP',
-      'TRX',
-      'ATOM',
-      'DOT',
-      'ADA',
-      'XRP',
-      'XLM',
-      'XMR',
-      'ALGO',
-      'NEAR',
-      'TON',
-      'HBAR',
-      'APT',
-      'SUI',
-      'KAS',
-    };
     final hasSuspiciousNonSolanaNativeSymbol =
-        knownNonSolanaNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+        _knownNonSolanaNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
 
     return hasSuspiciousData ||
         hasSuspiciousNativeSymbol ||
