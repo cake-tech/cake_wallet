@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
@@ -11,13 +13,14 @@ void main() {
       expect(content, Uri.parse("https://cake.cash/.well-known/lnurlp/konsti"));
     });
 
-    test('get amount', () async {
-      CakeTor.instance = await CakeTorInstance.getInstance();
-
-      final content = await LNURL.getPayRequestAmount(
-          "LNURL1DP68GURN8GHJ7CTSWQHXY6T5WFJHZAT9WD6ZU6T09AUZ7URJDAU8JTMKXYHKCM308A5N6MNHVVNXJEPAXGMNWWPEX3JRGDTPXVNXZ0FCX5CRQVPSXQNX602VFE24YNP9XGC8W6T5DQJNYVRPD4HH2MN5GTRNLZ");
-      expect(content, 8500);
-    });
+    // This tests includes a rest request to an URL that expired and due to the lack of an alternative URL we ignore this test
+    // test('get amount', () async {
+    //   CakeTor.instance = await CakeTorInstance.getInstance();
+    //
+    //   final content = await LNURL.getPayRequestAmount(
+    //       "LNURL1DP68GURN8GHJ7CTSWQHXY6T5WFJHZAT9WD6ZU6T09AUZ7URJDAU8JTMKXYHKCM308A5N6MNHVVNXJEPAXGMNWWPEX3JRGDTPXVNXZ0FCX5CRQVPSXQNX602VFE24YNP9XGC8W6T5DQJNYVRPD4HH2MN5GTRNLZ");
+    //   expect(content, Money.fromInt(8500, CryptoCurrency.btcln));
+    // });
 
     test('get no amount', () async {
       CakeTor.instance = await CakeTorInstance.getInstance();
@@ -64,22 +67,22 @@ void main() {
 
     test("should get the amount 1 BTC encoded as bitcoin", () {
       final invoice = "lnbc11p5exaxspp5u6e6lx90rw2vqr2e5axt8ur3v98qnmqfsmh8r0l0mcm7ry70vyvsdqqcqzzsxqrrsssp5eqydmrufk39dwhuxzajwx4xyffn0mlcu3qa8vjwry6qev5gsepkq9qxpqysgqt0zldve9uxt3txjt8wp0gev52lquljgugy26nneue85pjwk5yak4hs2d8533tus07pq5ka6zrnd0ruaeepwres8p7ws5mx63xlwff5sqlxcy8a";
-      expect(getBolt11Amount(invoice), 100000000);
+      expect(getBolt11Amount(invoice), Money.fromInt(100000000, CryptoCurrency.btcln));
     });
 
     test("should get the amount 0,1 BTC encoded as millibitcoin", () {
       final invoice = "lnbc100m1p5exagmpp5n4c5tml3h8h7k4gthc9papkyeymceqqvcldkng4nvxwzj7nu9jnsdqqcqzzsxqrrsssp58kgzrh7y3pevantduc4yg33aa6r79ed6xgmhr0dy40zc8pxrz5ms9qxpqysgqcq27km3v3wcz6pntmsfnz259zy6tff0uwjz9kamdrvmxmdv09gp44mh0ygn7gweqf4zdev4x8e67p5kcvahethchdkkjexhtk7emuqcpasz0lp";
-      expect(getBolt11Amount(invoice), 10000000);
+      expect(getBolt11Amount(invoice), Money.fromInt(10000000, CryptoCurrency.btcln));
     });
 
     test("should get the amount 1000 SATS encoded as microbitcoin", () {
       final invoice = "lnbc10u1p5exfgvpp5n3s9dsw9ddax5c3h8437ya7y4g582uyufyna626yr9vqdfjrhwzqdqqcqzzsxqrrsssp5mmkyp5h35fpaxm4063f3kc7d4nmgd4gd8fv8086wxd784m76kmpq9qxpqysgqye9r0vahpjy9l2je6vakxzk3cjnsyx76r29c4amkz4cmapq5tqt5l7rl0emkd003jjvz2d8jqrw6wc4cduvapuyeseh7a855l82wutcpeq30kg";
-      expect(getBolt11Amount(invoice), 1000);
+      expect(getBolt11Amount(invoice), Money.fromInt(1000, CryptoCurrency.btcln));
     });
 
     test("should get the amount 1 SAT encoded as nanobitcoin", () {
       final invoice = "lnbc10n1p5exazppp5szh273r6nzvwydzsdlg0ws0vhxwnc6nqtqt4sjt0vu6x6l8t5csqdqqcqzzsxqrrsssp5nkup6uht7xlfqaj8lxpe5kx0ejum9p4pvv3nlnndr9ykzge3393s9qxpqysgqufh05a7qs0ezeckvmh7tjkr9ngng96nq274twg20z45ysp7afpdrttm2ky73cpjwpjqsmtzzd79w6lyvszgmkanwn8mj0jcfunrwv3qprg3z3j";
-      expect(getBolt11Amount(invoice), 1);
+      expect(getBolt11Amount(invoice), Money.fromInt(1, CryptoCurrency.btcln));
     });
   });
 }

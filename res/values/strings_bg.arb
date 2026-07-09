@@ -40,6 +40,8 @@
   "address_from_yat": "Този адрес е от ${emoji} в Yat",
   "address_label": "Етикет на адреса",
   "address_label_explainer": "Можете да получите достъп и да управлявате всички използвани преди адреси, като натиснете „Addresses“.",
+  "address_not_allowed_as_receive": "адресът не е разрешен като адрес за получаване",
+  "address_not_allowed_as_refund": "адресът не е разрешен като адрес за възстановяване на средства",
   "address_or_alias": "Адрес или псевдоним",
   "address_remove_contact": "Премахване на контакт",
   "address_remove_content": "Сигурни ли сте, че искате да премахнете избрания контакт?",

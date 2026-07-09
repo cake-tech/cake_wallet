@@ -40,6 +40,8 @@
   "address_from_yat": "Ang address na ito ay mula sa ${emoji} sa Yat",
   "address_label": "Label ng address",
   "address_label_explainer": "Maaari mong i-access at pamahalaan ang lahat ng dati mong ginamit na address sa pamamagitan ng pagpindot sa Mga Address",
+  "address_not_allowed_as_receive": "hindi pinapayagan ang address bilang address ng pagtanggap",
+  "address_not_allowed_as_refund": "hindi pinapayagan ang address bilang address ng refund",
   "address_or_alias": "Address o alyas",
   "address_remove_contact": "Alisin ang contact",
   "address_remove_content": "Sigurado ka bang gusto mong alisin ang napiling contact?",

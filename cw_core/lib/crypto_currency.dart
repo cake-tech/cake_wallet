@@ -1,9 +1,9 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/format_fixed.dart';
-import 'package:cw_core/parse_fixed.dart';
 
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
@@ -21,17 +21,29 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     this.groups = const {},
   }) : super(title: title, raw: raw);
 
-  final String name;
-  final String? tag;
-  final String? fullName;
-  final String? iconPath;
   final String? flatIconPath;
   final String? chainIconPath;
-  @override
-  final int decimals;
   final bool enabled;
   final bool isPotentialScam;
   final Set<String> groups;
+
+  @override
+  final String name;
+
+  @override
+  final String? fullName;
+
+  @override
+  final String? tag;
+
+  @override
+  final String? iconPath;
+
+  @override
+  final int decimals;
+
+  @override
+  String get symbol => title;
 
   set enabled(bool value) => this.enabled = value;
 
@@ -432,13 +444,13 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   bool titleAndTagEqual(CryptoCurrency other) => title == other.title && tag == other.tag;
 
+  @override
+  Money parseAmount(String value) => Money.parse(value, this);
+
+  @override
+  Money? tryParseAmount(String value) => Money.tryParse(value, this);
+
   /// Format the raw amount into its decimal representation eg. turn Sats into Bitcoin
   String formatAmount(BigInt amount, {int? fractionalDigits, bool trimZeros = true}) =>
       formatFixed(amount, decimals, fractionalDigits: fractionalDigits, trimZeros: trimZeros);
-
-  /// Parse the [value] and turn it into the smallest denomination eg. turn Bitcoin into Sats
-  BigInt parseAmount(String value) => parseFixed(value, decimals);
-
-  /// Try parsing the [value] and turn it into the smallest denomination eg. turn Bitcoin into Sats
-  BigInt? tryParseAmount(String value) => tryParseFixed(value, decimals);
 }
