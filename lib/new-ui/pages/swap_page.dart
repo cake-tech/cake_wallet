@@ -23,6 +23,7 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -65,9 +66,13 @@ class SwapFromSendArgs {
   final CryptoCurrency receiveCurrency;
   final WalletType targetWalletType;
   final Map<CryptoCurrency, CurrencyPickerBalance>? depositBalanceByAsset;
+
+  bool get isEVMTarget => isEVMCompatibleChain(targetWalletType);
 }
+
 class NewSwapPage extends StatefulWidget {
-  NewSwapPage(this.exchangeViewModel, this.authService,this.adrResService, this.initialPaymentRequest,
+  NewSwapPage(
+      this.exchangeViewModel, this.authService, this.adrResService, this.initialPaymentRequest,
       {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency, this.fromSend}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
@@ -469,11 +474,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     printV("$domain");
-    final parsedAddress = await widget.adrResService.resolve(
-        query: domain,
-        wallet: widget.exchangeViewModel.wallet,
-        currency: currency);
-    return parsedAddress.isNotEmpty ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? '' : '';
+    final parsedAddress = await widget.adrResService
+        .resolve(query: domain, wallet: widget.exchangeViewModel.wallet, currency: currency);
+    return parsedAddress.isNotEmpty
+        ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 
   void _showFeeAlert(BuildContext context) async {
@@ -506,11 +511,17 @@ class _NewSwapPageState extends State<NewSwapPage> {
     final fromSend = widget.fromSend;
     final fromType = widget.exchangeViewModel.wallet.type;
     final fromName = walletTypeToString(fromType);
-    final fromIcon = getCryptoCurrencyForWalletListItem(fromType).chainIconPath ?? '';
+    final fromCurrency = getCryptoCurrencyForWalletListItem(fromType);
+    final fromIcon = (fromSend?.isEVMTarget ?? false)
+        ? (fromCurrency.chainIconPath ?? fromCurrency.iconPath ?? '')
+        : (fromCurrency.chainIconPath ?? fromCurrency.flatIconPath ?? '');
+
     final toName = fromSend != null ? walletTypeToString(fromSend.targetWalletType) : '';
-    final toIcon = fromSend != null
-        ? getCryptoCurrencyForWalletListItem(fromSend.targetWalletType).chainIconPath ?? ''
-        : '';
+    final toCurrency =
+        fromSend != null ? getCryptoCurrencyForWalletListItem(fromSend.targetWalletType) : null;
+    final toIcon =
+        toCurrency?.chainIconPath ?? toCurrency?.iconPath ?? toCurrency?.flatIconPath ?? '';
+
     return KeyboardHideOverlay(
       unfocusOnTap: true,
       child: Container(
@@ -525,11 +536,13 @@ class _NewSwapPageState extends State<NewSwapPage> {
                   fromSend != null ? S.of(context).swap_from_network(fromName) : S.of(context).swap,
               leadingIcon: Icon(fromSend != null ? Icons.arrow_back_ios_new : Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: fromSend != null ? null : CakeImageWidget(imageUrl:
-                "assets/new-ui/options.svg",
-                colorFilter:
-                    ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-              ),
+              trailingIcon: fromSend != null
+                  ? null
+                  : CakeImageWidget(
+                      imageUrl: "assets/new-ui/options.svg",
+                      colorFilter:
+                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                    ),
               onTrailingPressed: () {
                 Navigator.of(context).push(CupertinoPageRoute(
                     builder: (context) => Material(
@@ -561,6 +574,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         label: S.of(context).from,
                                         networkName: fromName,
                                         networkIconPath: fromIcon,
+                                        networkIconColor: fromSend.isEVMTarget
+                                            ? Theme.of(context).colorScheme.primary
+                                            : null,
                                         walletName: widget.exchangeViewModel.wallet.name,
                                       ),
                                     ),
@@ -612,7 +628,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           type: widget.exchangeViewModel.depositCurrency),
                                       onPushPasteButton: (context) async {
                                         final clipboard = await Clipboard.getData('text/plain');
-                                        widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
+                                        widget.exchangeViewModel.depositAddress =
+                                            clipboard?.text ?? '';
 
                                         final domain = widget.exchangeViewModel.depositAddress;
                                         widget.exchangeViewModel.depositAddress =
@@ -628,7 +645,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                     ),
                                   ),
                                   SwapLimitPopup(exchangeViewModel: widget.exchangeViewModel),
-                                if (fromSend != null)
+                                  if (fromSend != null)
                                     Column(
                                       children: [
                                         SizedBox(height: 24),
@@ -694,8 +711,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             ? AmountValidator(
                                                 isAutovalidate: true,
                                                 currency: widget.exchangeViewModel.receiveCurrency,
-                                                minValue: widget.exchangeViewModel.limits.min.toString(),
-                                                maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                                minValue:
+                                                    widget.exchangeViewModel.limits.min.toString(),
+                                                maxValue:
+                                                    widget.exchangeViewModel.limits.max.toString(),
                                                 amountParsingProxy:
                                                     widget.exchangeViewModel.amountParsingProxy,
                                               ).call(value)
@@ -705,7 +724,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           type: widget.exchangeViewModel.receiveCurrency),
                                       onPushPasteButton: (context) async {
                                         final clipboard = await Clipboard.getData('text/plain');
-                                        widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
+                                        widget.exchangeViewModel.receiveAddress =
+                                            clipboard?.text ?? '';
 
                                         final domain = widget.exchangeViewModel.receiveAddress;
                                         widget.exchangeViewModel.receiveAddress =
@@ -877,8 +897,8 @@ class SwapProviderPreview extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                             color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
-                      CakeImageWidget(imageUrl:
-                        "assets/new-ui/chooser.svg",
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/chooser.svg",
                         colorFilter: ColorFilter.mode(
                             Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
                       )
@@ -1150,8 +1170,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         onTap: _presentCurrencyPicker,
                         child: Container(
                           decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(999999),
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(999999),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.only(top: 4.0, bottom: 4, left: 4, right: 4),
@@ -1183,11 +1203,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                 ] else
                                   const SizedBox(width: 10),
                                 Container(
-                                  width:16,height:16,
+                                  width: 16,
+                                  height: 16,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(9999999999),
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh
-                                  ),
+                                      borderRadius: BorderRadius.circular(9999999999),
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                   child: Padding(
                                     padding: const EdgeInsets.all(4.0),
                                     child: RotatedBox(
@@ -1250,111 +1270,115 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                   },
                 ),
                 if (!widget.hideWalletPicker)
-                Observer(
-                  builder: (_) {
-                    final addressEmpty = (widget.isReceiverCard &&
-                            widget.exchangeViewModel.receiveAddress.isEmpty) ||
-                        (!widget.isReceiverCard && widget.exchangeViewModel.depositAddress.isEmpty);
-                    final addressPickerText = widget.isReceiverCard
-                        ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
-                        : S.of(context).from;
-                    final addressDescription = widget.isReceiverCard
-                        ? widget.exchangeViewModel.receiveAddressDisplayName ??
-                            _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
-                        : widget.exchangeViewModel.isSendFromExternal
-                            ? S.of(context).external
-                            : widget.exchangeViewModel.wallet.name;
-                    return Row(
-                      spacing: 8,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: _presentWalletPicker,
-                            child: Container(
-                              height: 36,
-                              decoration: BoxDecoration(
-                                  color: (addressEmpty && widget.isReceiverCard)
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.surfaceContainerHigh,
-                                  borderRadius: BorderRadius.circular(9999)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                child: Observer(
-                                  builder: (_) => Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        spacing: 8,
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Text(
-                                            addressPickerText,
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: (addressEmpty && widget.isReceiverCard)
-                                                    ? Theme.of(context).colorScheme.onPrimary
-                                                    : Theme.of(context).colorScheme.onSurface),
-                                          ),
-                                          Text(
-                                            addressDescription,
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: Theme.of(context).colorScheme.primary),
-                                          )
-                                        ],
-                                      ),
-                                      RotatedBox(
-                                        quarterTurns: 2,
-                                        child: CakeImageWidget(
-                                          imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                                          colorFilter: ColorFilter.mode(
-                                            (addressEmpty && widget.isReceiverCard)
-                                                ? Theme.of(context).colorScheme.onPrimary
-                                                : Theme.of(context).colorScheme.onSurface,
-                                            BlendMode.srcIn,
-                                          ),
+                  Observer(
+                    builder: (_) {
+                      final addressEmpty = (widget.isReceiverCard &&
+                              widget.exchangeViewModel.receiveAddress.isEmpty) ||
+                          (!widget.isReceiverCard &&
+                              widget.exchangeViewModel.depositAddress.isEmpty);
+                      final addressPickerText = widget.isReceiverCard
+                          ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
+                          : S.of(context).from;
+                      final addressDescription = widget.isReceiverCard
+                          ? widget.exchangeViewModel.receiveAddressDisplayName ??
+                              _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
+                          : widget.exchangeViewModel.isSendFromExternal
+                              ? S.of(context).external
+                              : widget.exchangeViewModel.wallet.name;
+                      return Row(
+                        spacing: 8,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: _presentWalletPicker,
+                              child: Container(
+                                height: 36,
+                                decoration: BoxDecoration(
+                                    color: (addressEmpty && widget.isReceiverCard)
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context).colorScheme.surfaceContainerHigh,
+                                    borderRadius: BorderRadius.circular(9999)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                  child: Observer(
+                                    builder: (_) => Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          spacing: 8,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Text(
+                                              addressPickerText,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: (addressEmpty && widget.isReceiverCard)
+                                                      ? Theme.of(context).colorScheme.onPrimary
+                                                      : Theme.of(context).colorScheme.onSurface),
+                                            ),
+                                            Text(
+                                              addressDescription,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Theme.of(context).colorScheme.primary),
+                                            )
+                                          ],
                                         ),
-                                      )
-                                    ],
+                                        RotatedBox(
+                                          quarterTurns: 2,
+                                          child: CakeImageWidget(
+                                            imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                            colorFilter: ColorFilter.mode(
+                                              (addressEmpty && widget.isReceiverCard)
+                                                  ? Theme.of(context).colorScheme.onPrimary
+                                                  : Theme.of(context).colorScheme.onSurface,
+                                              BlendMode.srcIn,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        if (!widget.isReceiverCard &&
-                            widget.exchangeViewModel.isSendFromExternal &&
-                            widget.exchangeViewModel.depositAddress.isEmpty)
-                          ModernButton.svg(
-                            svgPath: "assets/new-ui/refund_address.svg",
-                            onPressed: askForRefundAddress,
-                            size: 36,
-                            iconSize: 18,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          ),
-                        if (widget.isReceiverCard &&
-                            widget.exchangeViewModel.receiveAddress.isEmpty) ...[
-                          ModernButton.svg(
-                            svgPath: "assets/new-ui/paste.svg",
-                            onPressed: () => widget.onPushPasteButton?.call(context),
-                            size: 36,
-                            iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          ),
-                          ModernButton.svg(
-                            svgPath: "assets/new-ui/scan.svg",
-                            onPressed: () => _presentQRScanner(context),
-                            size: 36,
-                            iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          ),
-                        ]
-                      ],
-                    );
-                  },
-                ),
+                          if (!widget.isReceiverCard &&
+                              widget.exchangeViewModel.isSendFromExternal &&
+                              widget.exchangeViewModel.depositAddress.isEmpty)
+                            ModernButton.svg(
+                              svgPath: "assets/new-ui/refund_address.svg",
+                              onPressed: askForRefundAddress,
+                              size: 36,
+                              iconSize: 18,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                            ),
+                          if (widget.isReceiverCard &&
+                              widget.exchangeViewModel.receiveAddress.isEmpty) ...[
+                            ModernButton.svg(
+                              svgPath: "assets/new-ui/paste.svg",
+                              onPressed: () => widget.onPushPasteButton?.call(context),
+                              size: 36,
+                              iconSize: 20,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                            ),
+                            ModernButton.svg(
+                              svgPath: "assets/new-ui/scan.svg",
+                              onPressed: () => _presentQRScanner(context),
+                              size: 36,
+                              iconSize: 20,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                            ),
+                          ]
+                        ],
+                      );
+                    },
+                  ),
                 if (widget.isReceiverCard)
                   Observer(builder: (_) {
                     final selected = widget.exchangeViewModel.receiveCurrency;
@@ -1547,12 +1571,14 @@ class _SwapSectionHeader extends StatelessWidget {
     required this.label,
     required this.networkName,
     required this.networkIconPath,
+    this.networkIconColor,
     this.walletName,
   });
 
   final String label;
   final String networkName;
   final String networkIconPath;
+  final Color? networkIconColor;
   final String? walletName;
 
   @override
@@ -1568,10 +1594,16 @@ class _SwapSectionHeader extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.07),
+                style: textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.07),
               ),
               const SizedBox(width: 8),
-              CakeImageWidget(imageUrl: networkIconPath, width: 16, height: 16, color: colors.primary),
+              CakeImageWidget(
+                imageUrl: networkIconPath,
+                width: 16,
+                height: 16,
+                color: networkIconColor,
+              ),
               const SizedBox(width: 4),
               Text(
                 networkName,

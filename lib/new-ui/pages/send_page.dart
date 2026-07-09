@@ -296,7 +296,6 @@ class _NewSendPageState extends State<NewSendPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
@@ -917,10 +916,11 @@ class _NewSendPageState extends State<NewSendPage> {
     final networks = chains.map((chain) {
       final walletType =
           evm!.getWalletTypeByChainId(chain.chainId) ?? widget.sendViewModel.wallet.type;
+      final currency = getCryptoCurrencyForWalletListItem(walletType);
       return RecipientNetworkItem(
         chainId: chain.chainId,
         name: chain.name,
-        iconPath: getCryptoCurrencyForWalletListItem(walletType).chainIconPath ?? '',
+        iconPath: currency.chainIconPath ?? currency.iconPath ?? currency.flatIconPath ?? '',
       );
     }).toList();
 
@@ -1030,18 +1030,27 @@ class _NewSendPageState extends State<NewSendPage> {
     if (!mounted || result.walletType == null) return;
 
     final destinationType = result.walletType!;
+    final isEvmTarget = isEVMCompatibleChain(destinationType);
     final destinationChainId = result.chainId;
     final destinationNetworkName = _networkDisplayName(destinationType, destinationChainId);
-    final destinationNetworkIcon =
-        getCryptoCurrencyForWalletListItem(destinationType, chainId: destinationChainId).chainIconPath ?? '';
+    final destinationCurrency =
+        getCryptoCurrencyForWalletListItem(destinationType, chainId: destinationChainId);
+    final destinationNetworkIcon = isEvmTarget
+        ? (destinationCurrency.chainIconPath ?? destinationCurrency.iconPath ?? '')
+        : (destinationCurrency.iconPath ?? destinationCurrency.flatIconPath) ?? '';
+    final destinationIconColor = isEvmTarget ? Theme.of(context).colorScheme.primary : null;
 
     final currentType = widget.sendViewModel.wallet.type;
     final currentChainId = isEVMCompatibleChain(currentType) && evm != null
         ? evm!.getChainIdByWalletType(currentType)
         : null;
     final currentNetworkName = _networkDisplayName(currentType, currentChainId);
-    final currentNetworkIcon =
-        getCryptoCurrencyForWalletListItem(currentType, chainId: currentChainId).chainIconPath ?? '';
+    final currentCurrency =
+        getCryptoCurrencyForWalletListItem(currentType, chainId: currentChainId);
+    final currentNetworkIcon = currentCurrency.chainIconPath ??
+        currentCurrency.iconPath ??
+        currentCurrency.flatIconPath ??
+        '';
 
     final hasSingleWallet =
         result.type == PaymentFlowType.singleWallet || result.wallets.length == 1;
@@ -1049,7 +1058,6 @@ class _NewSendPageState extends State<NewSendPage> {
         result.type == PaymentFlowType.multipleWallets || result.wallets.length > 1;
     final hasWallet = hasSingleWallet || hasMultipleWallets || result.wallet != null;
 
-    final isEvmTarget = isEVMCompatibleChain(destinationType);
     final decisionTitle = isEvmTarget
         ? S.of(context).send_to_network(destinationNetworkName)
         : S.of(context).network_address_detected(destinationNetworkName);
@@ -1067,6 +1075,7 @@ class _NewSendPageState extends State<NewSendPage> {
             title: decisionTitle,
             destinationNetworkName: destinationNetworkName,
             destinationIconPath: destinationNetworkIcon,
+            destinationIconColor: destinationIconColor,
             currentNetworkName: currentNetworkName,
             onSwitchWallet: () => _onSwitchWalletSelected(
               pageContext,
@@ -1227,8 +1236,10 @@ class _NewSendPageState extends State<NewSendPage> {
     );
     widget.paymentViewModel.applyManualEvmSelection(detection);
 
-    final currentChainId = evm!.getChainIdByWalletType(widget.sendViewModel.wallet.type);
-    if (target.chainId == currentChainId) {
+    final currentType = widget.sendViewModel.wallet.type;
+    final currentChainId =
+        isEVMCompatibleChain(currentType) ? evm!.getChainIdByWalletType(currentType) : null;
+    if (currentChainId != null && target.chainId == currentChainId) {
       widget.sendViewModel.setSelectedCryptoCurrency(target.currency.title);
       _applyPaymentRequest(paymentRequest);
       return;
@@ -1501,8 +1512,8 @@ Future<bool> showParsedAddressConfirmationAlert(
             ? parsedAddress.addressSource.iconPath
             : parsedAddress.profileImageUrl,
         alertContent: S.of(context).extracted_address_content(
-          '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
-        ),
+              '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
+            ),
         buttonText: S.of(context).ok,
         buttonAction: () => Navigator.of(context).pop(true),
       );

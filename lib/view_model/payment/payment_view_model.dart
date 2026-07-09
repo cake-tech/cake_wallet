@@ -252,7 +252,8 @@ class PaymentFlowResult {
     if (chainId == null && addressDetectionResult.detectedCurrency != null) {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
-    if (chainId == null) {
+
+    if (chainId == null && isEVMCompatibleChain(wallet.type)) {
       chainId = evm?.getChainIdByWalletType(wallet.type);
     }
 
@@ -274,7 +275,7 @@ class PaymentFlowResult {
     if (chainId == null && addressDetectionResult.detectedCurrency != null) {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
-    if (chainId == null) {
+    if (chainId == null && isEVMCompatibleChain(wallets.first.type)) {
       chainId = evm?.getChainIdByWalletType(wallets.first.type);
     }
 
@@ -296,7 +297,7 @@ class PaymentFlowResult {
     if (chainId == null && addressDetectionResult.detectedCurrency != null) {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
-    if (chainId == null) {
+    if (chainId == null && isEVMCompatibleChain(walletType)) {
       chainId = evm?.getChainIdByWalletType(walletType);
     }
 
