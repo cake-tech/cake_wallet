@@ -213,8 +213,6 @@ abstract class ExchangeTradeViewModelBase with Store {
   Future<void> confirmSending() async {
     final canSendError = checkIfCanSend(trade, wallet);
 
-    print ('canSendError: ------------- $canSendError');
-
     if (canSendError != null) {
       sendViewModel.state = FailureState(canSendError);
       return;
@@ -364,8 +362,12 @@ abstract class ExchangeTradeViewModelBase with Store {
       if (tradeFrom == null) throw Exception('Trade from currency is null');
 
       bool _sameCurrency(CryptoCurrency a, CryptoCurrency b) => a.titleAndTagEqual(b);
-      bool _isTokenBelongingToWallet(CryptoCurrency cur) =>
-          wallet.currency == cur && tradeFrom.tag == cur.title;
+
+      bool _isTokenBelongingToWallet(CryptoCurrency cur) {
+        final chainTag = cur.tag ?? cur.title;
+       return  wallet.currency == cur &&
+           tradeFrom.tag?.toUpperCase() == chainTag.toUpperCase();
+      }
 
       final canSend = _sameCurrency(tradeFrom, wallet.currency) ||
           (_sameCurrency(tradeFrom, CryptoCurrency.btcln) &&
