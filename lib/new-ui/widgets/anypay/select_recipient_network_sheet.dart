@@ -8,11 +8,13 @@ class RecipientNetworkItem {
     required this.chainId,
     required this.name,
     required this.iconPath,
+    this.chainBadgeIconPath,
   });
 
   final int chainId;
   final String name;
   final String iconPath;
+  final String? chainBadgeIconPath;
 }
 
 class SelectRecipientNetworkSheet extends StatelessWidget {
@@ -184,11 +186,12 @@ class NetworkListCard extends StatelessWidget {
 
 class RecipientNetworkListRow extends StatelessWidget {
   const RecipientNetworkListRow(
-      {super.key, required this.item, required this.onTap, this.subtitle});
+      {super.key, required this.item, required this.onTap, this.subtitle, this.imageOverride});
 
-  final RecipientNetworkItem item;
   final String? subtitle;
+  final String? imageOverride;
   final VoidCallback onTap;
+  final RecipientNetworkItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -196,14 +199,15 @@ class RecipientNetworkListRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         child: Row(
           children: [
             CakeImageWidget(
-              imageUrl: item.iconPath,
+              imageUrl: imageOverride ?? item.iconPath,
               width: 24,
               height: 24,
               fit: BoxFit.cover,
+              color: colors.primary,
             ),
             const SizedBox(width: 12),
             Expanded(

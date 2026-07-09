@@ -41,7 +41,17 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     Navigator.of(context).maybePop();
   }
 
-  double _fiatValueFor(CryptoCurrency c) => _args.balanceByAsset?[c]?.fiatValue ?? 0;
+  late final Map<String, CurrencyPickerBalance> _balanceByKey = {
+    for (final e
+        in (_args.balanceByAsset ?? const <CryptoCurrency, CurrencyPickerBalance>{}).entries)
+      _assetKey(e.key): e.value,
+  };
+
+  String _assetKey(CryptoCurrency c) => c.title.toUpperCase();
+
+  CurrencyPickerBalance? _balanceFor(CryptoCurrency c) => _balanceByKey[_assetKey(c)];
+
+  double _fiatValueFor(CryptoCurrency c) => _balanceFor(c)?.fiatValue ?? 0;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +87,7 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
                           CurrencyPickerRow(
                             currency: native,
                             isSelected: _args.selected == native,
-                            trailing: _BalanceTrailing(balance: _args.balanceByAsset?[native]),
+                            trailing: _BalanceTrailing(balance: _balanceFor(native)),
                             onTap: () => _selectCurrency(native),
                           ),
                         ],
@@ -96,7 +106,7 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
                             CurrencyPickerRow(
                               currency: t,
                               isSelected: _args.selected == t,
-                              trailing: _BalanceTrailing(balance: _args.balanceByAsset?[t]),
+                              trailing: _BalanceTrailing(balance: _balanceFor(t)),
                               onTap: () => _selectCurrency(t),
                             ),
                         ],

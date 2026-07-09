@@ -62,6 +62,7 @@ class SwitchNetworkWalletPage extends StatelessWidget {
                   width: 50,
                   height: 50,
                   fit: BoxFit.contain,
+                  color: colors.primary,
                 ),
               ],
             ),
@@ -74,7 +75,7 @@ class SwitchNetworkWalletPage extends StatelessWidget {
                   .titleLarge
                   ?.copyWith(fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: -0.1),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 24),
             Text(
               S.of(context).select_compatible_wallet,
               textAlign: TextAlign.center,

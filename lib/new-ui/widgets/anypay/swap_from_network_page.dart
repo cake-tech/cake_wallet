@@ -59,6 +59,7 @@ class SwapFromNetworkPage extends StatelessWidget {
                             width: 50,
                             height: 50,
                             fit: BoxFit.contain,
+                            color: colors.primary,
                           ),
                           Icon(Icons.arrow_forward, color: colors.primary, size: 28),
                           CakeImageWidget(
@@ -66,6 +67,7 @@ class SwapFromNetworkPage extends StatelessWidget {
                             width: 50,
                             height: 50,
                             fit: BoxFit.contain,
+                            color: colors.primary,
                           ),
                         ],
                       ),

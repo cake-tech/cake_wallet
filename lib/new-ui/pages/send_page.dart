@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -34,12 +35,12 @@ import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/recipient_dot_row.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/evm_address_detected_sheet.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/recipient_network_row.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/select_recipient_network_sheet.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/send_to_network_page.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/swap_from_network_page.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/switch_network_wallet_page.dart';
+import 'package:cake_wallet/new-ui/widgets/anypay/evm_address_detected_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart';
+import 'package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/anypay/send_to_network_page.dart';
+import 'package:cake_wallet/new-ui/widgets/anypay/swap_from_network_page.dart';
+import 'package:cake_wallet/new-ui/widgets/anypay/switch_network_wallet_page.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
@@ -919,7 +920,7 @@ class _NewSendPageState extends State<NewSendPage> {
       return RecipientNetworkItem(
         chainId: chain.chainId,
         name: chain.name,
-        iconPath: getCryptoCurrencyIconForWalletListItem(walletType, chainId: chain.chainId),
+        iconPath: getCryptoCurrencyForWalletListItem(walletType).chainIconPath ?? '',
       );
     }).toList();
 
@@ -1032,7 +1033,7 @@ class _NewSendPageState extends State<NewSendPage> {
     final destinationChainId = result.chainId;
     final destinationNetworkName = _networkDisplayName(destinationType, destinationChainId);
     final destinationNetworkIcon =
-        getCryptoCurrencyIconForWalletListItem(destinationType, chainId: destinationChainId);
+        getCryptoCurrencyForWalletListItem(destinationType, chainId: destinationChainId).chainIconPath ?? '';
 
     final currentType = widget.sendViewModel.wallet.type;
     final currentChainId = isEVMCompatibleChain(currentType) && evm != null
@@ -1040,7 +1041,7 @@ class _NewSendPageState extends State<NewSendPage> {
         : null;
     final currentNetworkName = _networkDisplayName(currentType, currentChainId);
     final currentNetworkIcon =
-        getCryptoCurrencyIconForWalletListItem(currentType, chainId: currentChainId);
+        getCryptoCurrencyForWalletListItem(currentType, chainId: currentChainId).chainIconPath ?? '';
 
     final hasSingleWallet =
         result.type == PaymentFlowType.singleWallet || result.wallets.length == 1;
@@ -1193,6 +1194,7 @@ class _NewSendPageState extends State<NewSendPage> {
         chainId: chain.chainId,
         name: chain.name,
         iconPath: getCryptoCurrencyIconForWalletListItem(walletType, chainId: chain.chainId),
+        chainBadgeIconPath: getCryptoCurrencyForWalletListItem(walletType).chainIconPath,
       );
     }).toList();
 
@@ -1249,7 +1251,6 @@ class _NewSendPageState extends State<NewSendPage> {
     );
   }
 
-  /// Apply payment request to current form
   void _applyPaymentRequest(PaymentRequest paymentRequest) {
     if (widget.sendViewModel.usePayjoin) {
       widget.sendViewModel.payjoinUri = paymentRequest.pjUri;
@@ -1288,6 +1289,7 @@ class _NewSendPageState extends State<NewSendPage> {
     final page = NewSwapPage(
       getIt.get<ExchangeViewModel>(),
       widget.authService,
+      getIt.get<AddressResolverService>(),
       null,
       walletSwitcherViewModel: widget.walletSwitcherViewModel,
       fromSend: SwapFromSendArgs(

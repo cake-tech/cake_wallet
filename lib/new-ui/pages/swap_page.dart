@@ -506,10 +506,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
     final fromSend = widget.fromSend;
     final fromType = widget.exchangeViewModel.wallet.type;
     final fromName = walletTypeToString(fromType);
-    final fromIcon = getCryptoCurrencyIconForWalletListItem(fromType);
+    final fromIcon = getCryptoCurrencyForWalletListItem(fromType).chainIconPath ?? '';
     final toName = fromSend != null ? walletTypeToString(fromSend.targetWalletType) : '';
     final toIcon = fromSend != null
-        ? getCryptoCurrencyIconForWalletListItem(fromSend.targetWalletType)
+        ? getCryptoCurrencyForWalletListItem(fromSend.targetWalletType).chainIconPath ?? ''
         : '';
     return KeyboardHideOverlay(
       unfocusOnTap: true,
@@ -525,7 +525,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                   fromSend != null ? S.of(context).swap_from_network(fromName) : S.of(context).swap,
               leadingIcon: Icon(fromSend != null ? Icons.arrow_back_ios_new : Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: CakeImageWidget(imageUrl:
+              trailingIcon: fromSend != null ? null : CakeImageWidget(imageUrl:
                 "assets/new-ui/options.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
@@ -1571,7 +1571,7 @@ class _SwapSectionHeader extends StatelessWidget {
                 style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.07),
               ),
               const SizedBox(width: 8),
-              CakeImageWidget(imageUrl: networkIconPath, width: 16, height: 16),
+              CakeImageWidget(imageUrl: networkIconPath, width: 16, height: 16, color: colors.primary),
               const SizedBox(width: 4),
               Text(
                 networkName,

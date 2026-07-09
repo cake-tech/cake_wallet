@@ -51,6 +51,7 @@ class SendToNetworkPage extends StatelessWidget {
                         width: 75,
                         height: 75,
                         fit: BoxFit.contain,
+                        color: colors.primary,
                       ),
                       const SizedBox(height: 24),
                       Text(
