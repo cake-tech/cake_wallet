@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart';
@@ -42,6 +43,7 @@ import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -51,9 +53,22 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
+class SwapFromSendArgs {
+  const SwapFromSendArgs({
+    required this.recipientAddress,
+    required this.receiveCurrency,
+    required this.targetWalletType,
+    this.depositBalanceByAsset,
+  });
+
+  final String recipientAddress;
+  final CryptoCurrency receiveCurrency;
+  final WalletType targetWalletType;
+  final Map<CryptoCurrency, CurrencyPickerBalance>? depositBalanceByAsset;
+}
 class NewSwapPage extends StatefulWidget {
   NewSwapPage(this.exchangeViewModel, this.authService, this.initialPaymentRequest,
-      {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency}) {
+      {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency, this.fromSend}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
@@ -69,6 +84,7 @@ class NewSwapPage extends StatefulWidget {
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
   final PaymentRequest? initialPaymentRequest;
+  final SwapFromSendArgs? fromSend;
   late final String? depositWalletName;
   late final String? receiveWalletName;
 
@@ -271,11 +287,16 @@ class _NewSwapPageState extends State<NewSwapPage> {
           widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
         } else {
           printV("bestrate");
-          if (depositAmountController.text == S.current.all)
+          if (depositAmountController.text == S.current.all) {
             widget.exchangeViewModel
                 .changeDepositAmount(amount: widget.exchangeViewModel.depositAmount);
-          else
+          } else if (depositAmountController.text.isEmpty &&
+              widget.exchangeViewModel.depositAmount.isNotEmpty) {
+            widget.exchangeViewModel.changeDepositAmount(
+                amount: widget.exchangeViewModel.depositAmountCanonical, isCanonical: true);
+          } else {
             widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+          }
         }
       });
 
@@ -315,6 +336,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           () => widget.exchangeViewModel.receiveAddress = receiveAddressController.text);
 
       receiveAmountController.addListener(() {
+        if (widget.fromSend != null) return;
         if (receiveAmountController.text != widget.exchangeViewModel.receiveAmount) {
           _receiveAmountDebounce.run(() {
             widget.exchangeViewModel.calculateBestRate();
@@ -378,6 +400,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
           printV('error: ${e.toString()}');
           // TODO
         }
+      }
+
+      if (widget.fromSend != null) {
+        widget.exchangeViewModel.changeReceiveCurrency(currency: widget.fromSend!.receiveCurrency);
+        widget.exchangeViewModel.receiveAddress = widget.fromSend!.recipientAddress;
+        receiveKey.currentState?.addressController.text = widget.fromSend!.recipientAddress;
+        widget.exchangeViewModel.depositAddress =
+            widget.exchangeViewModel.wallet.walletAddresses.addressForExchange;
       }
     });
   }
@@ -454,6 +484,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final fromSend = widget.fromSend;
+    final fromType = widget.exchangeViewModel.wallet.type;
+    final fromName = walletTypeToString(fromType);
+    final fromIcon = getCryptoCurrencyIconForWalletListItem(fromType);
+    final toName = fromSend != null ? walletTypeToString(fromSend.targetWalletType) : '';
+    final toIcon = fromSend != null
+        ? getCryptoCurrencyIconForWalletListItem(fromSend.targetWalletType)
+        : '';
     return KeyboardHideOverlay(
       unfocusOnTap: true,
       child: Container(
@@ -464,8 +502,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
         child: Column(
           children: [
             ModalTopBar(
-              title: S.of(context).swap,
-              leadingIcon: Icon(Icons.close),
+              title:
+                  fromSend != null ? S.of(context).swap_from_network(fromName) : S.of(context).swap,
+              leadingIcon: Icon(fromSend != null ? Icons.arrow_back_ios_new : Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
               trailingIcon: CakeImageWidget(imageUrl:
                 "assets/new-ui/options.svg",
@@ -478,6 +517,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                         child: SwapOptionsPage(exchangeViewModel: widget.exchangeViewModel))));
               },
             ),
+            SizedBox(height: 24),
             Expanded(
               child: SafeArea(
                 child: Padding(
@@ -495,6 +535,16 @@ class _NewSwapPageState extends State<NewSwapPage> {
                               controller: ModalScrollController.of(context),
                               child: Column(
                                 children: [
+                                  if (fromSend != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 12),
+                                      child: _SwapSectionHeader(
+                                        label: S.of(context).from,
+                                        networkName: fromName,
+                                        networkIconPath: fromIcon,
+                                        walletName: widget.exchangeViewModel.wallet.name,
+                                      ),
+                                    ),
                                   Observer(
                                     builder: (_) => SwapAmountBox(
                                       isReceiverCard: false,
@@ -506,7 +556,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           ? () => widget.exchangeViewModel.enableSendAllAmount()
                                           : null,
                                       key: depositKey,
-                                      title: S.of(context).send,
+                                      title: fromSend != null ? '' : S.of(context).send,
+                                      hideWalletPicker: fromSend != null,
+                                      balanceByAsset: fromSend?.depositBalanceByAsset,
+                                      filteredNetwork: fromSend != null
+                                          ? widget.exchangeViewModel.wallet.type
+                                          : null,
                                       currency: widget.exchangeViewModel.depositCurrency,
                                       useBaseUnit: widget.exchangeViewModel.useDepositBaseUnit,
                                       hasRefundAddress: true,
@@ -554,25 +609,47 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                     ),
                                   ),
                                   SwapLimitPopup(exchangeViewModel: widget.exchangeViewModel),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: Stack(
-                                      alignment: Alignment.center,
+                                if (fromSend != null)
+                                    Column(
                                       children: [
-                                        Container(
-                                          height: 1,
-                                          width: double.infinity,
-                                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                        ),
-                                        ModernButton.svg(
-                                          size: 36,
-                                          iconSize: 24,
-                                          svgPath: "assets/new-ui/swap_amounts.svg",
-                                          onPressed: widget.exchangeViewModel.reverseSwapDirection,
-                                        ),
+                                        SizedBox(height: 24),
+                                        Icon(Icons.arrow_downward,
+                                            size: 24,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                        SizedBox(height: 24),
                                       ],
+                                    )
+                                  else
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            height: 1,
+                                            width: double.infinity,
+                                            color:
+                                                Theme.of(context).colorScheme.surfaceContainerHigh,
+                                          ),
+                                          ModernButton.svg(
+                                            size: 36,
+                                            iconSize: 24,
+                                            svgPath: "assets/new-ui/swap_amounts.svg",
+                                            onPressed:
+                                                widget.exchangeViewModel.reverseSwapDirection,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                  if (fromSend != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 12),
+                                      child: _SwapSectionHeader(
+                                        label: S.of(context).to,
+                                        networkName: toName,
+                                        networkIconPath: toIcon,
+                                      ),
+                                    ),
                                   Observer(
                                     builder: (_) => SwapAmountBox(
                                       isReceiverCard: true,
@@ -580,7 +657,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       exchangeViewModel: widget.exchangeViewModel,
                                       onDispose: disposeBestRateSync,
                                       key: receiveKey,
-                                      title: S.of(context).receive,
+                                      title: fromSend != null ? '' : S.of(context).receive,
+                                      amountlessAddressMode: fromSend != null,
+                                      filteredNetwork:
+                                          fromSend != null ? fromSend.targetWalletType : null,
                                       currencies: widget.exchangeViewModel.receiveCurrencies,
                                       currency: widget.exchangeViewModel.receiveCurrency,
                                       useBaseUnit: widget.exchangeViewModel.useReceiveBaseUnit,
@@ -813,6 +893,10 @@ class SwapAmountBox extends StatefulWidget {
     required this.exchangeViewModel,
     required this.isReceiverCard,
     required this.walletSwitcherViewModel,
+    this.filteredNetwork,
+    this.amountlessAddressMode = false,
+    this.hideWalletPicker = false,
+    this.balanceByAsset,
   }) : super(key: key);
 
   final List<Currency> currencies;
@@ -832,6 +916,10 @@ class SwapAmountBox extends StatefulWidget {
   final Function()? onDispose;
   final ExchangeViewModel exchangeViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
+  final WalletType? filteredNetwork;
+  final bool amountlessAddressMode;
+  final bool hideWalletPicker;
+  final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
 
   @override
   State<SwapAmountBox> createState() => SwapAmountBoxState();
@@ -892,17 +980,81 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
         : null;
 
+    final colors = Theme.of(context).colorScheme;
+
+    if (widget.amountlessAddressMode) {
+      return Column(
+        spacing: 12,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.title.isNotEmpty)
+            Text(
+              widget.title,
+              style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
+            ),
+          GestureDetector(
+            onTap: _presentCurrencyPicker,
+            child: Container(
+              height: 52,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: colors.surfaceContainer,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                children: [
+                  CakeImageWidget(
+                    imageUrl: widget.currency.iconPath ?? "",
+                    width: 24,
+                    height: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    currencyToShow,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(letterSpacing: -0.08),
+                  ),
+                  if (chainIconPath != null && chainIconPath.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    CakeImageWidget(
+                      imageUrl: chainIconPath,
+                      width: 12,
+                      height: 12,
+                      colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
+                    ),
+                  ],
+                  const Spacer(),
+                  Icon(Icons.keyboard_arrow_down, size: 18, color: colors.onSurfaceVariant),
+                ],
+              ),
+            ),
+          ),
+          NewSendAddressInput(
+            addressController: addressController,
+            selectedCurrency: widget.currency,
+            validator: widget.addressTextFieldValidator,
+            onEditingComplete: () {},
+            onURIScanned: (uri) => addressController.text = uri.path,
+            onPushPasteButton: widget.onPushPasteButton,
+            onPushAddressBookButton: widget.onPushAddressBookButton,
+            onSelectedContact: (contact) => addressController.text = contact.address,
+          ),
+        ],
+      );
+    }
+
     return Column(
       spacing: 12,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.title,
-          style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
+        if (widget.title.isNotEmpty)
+          Text(
+            widget.title,
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
         Container(
           decoration: ShapeDecoration(
               color: Theme.of(context).colorScheme.surfaceContainer,
@@ -1074,6 +1226,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     );
                   },
                 ),
+                if (!widget.hideWalletPicker)
                 Observer(
                   builder: (_) {
                     final addressEmpty = (widget.isReceiverCard &&
@@ -1245,6 +1398,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       args: CurrencyPickerArgs(
         items: currencies,
         selected: selected,
+        filterByNetwork: widget.filteredNetwork,
+        balanceByAsset: widget.balanceByAsset,
         recentsSource: RecentsSource.trades,
         onSelected: widget.onCurrencySelected,
         symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
@@ -1361,5 +1516,74 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       }
     } catch (_) {}
     return null;
+  }
+}
+
+class _SwapSectionHeader extends StatelessWidget {
+  const _SwapSectionHeader({
+    required this.label,
+    required this.networkName,
+    required this.networkIconPath,
+    this.walletName,
+  });
+
+  final String label;
+  final String networkName;
+  final String networkIconPath;
+  final String? walletName;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                label,
+                style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.07),
+              ),
+              const SizedBox(width: 8),
+              CakeImageWidget(imageUrl: networkIconPath, width: 16, height: 16),
+              const SizedBox(width: 4),
+              Text(
+                networkName,
+                style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500, letterSpacing: -0.07, color: colors.primary),
+              ),
+            ],
+          ),
+          if (walletName != null)
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CakeImageWidget(
+                    imageUrl: 'assets/new-ui/wallet_filled.svg',
+                    width: 16,
+                    height: 16,
+                    colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      walletName!,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -0.06,
+                          color: colors.onSurfaceVariant),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

@@ -7,7 +7,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
@@ -48,7 +47,8 @@ import 'package:cake_wallet/routes.dart' show Routes;
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/new-ui/pages/swap_page.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -1242,12 +1242,34 @@ class _NewSendPageState extends State<NewSendPage> {
   Future<void> _handleSwapFlow(PaymentFlowResult result) async {
     if (!mounted) return;
 
-    final bottomSheet = getIt.get<SwapConfirmationBottomSheet>(param1: result);
-    await showModalBottomSheet<Trade?>(
+    final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
+    final depositBalanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
+      for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
+        r.asset: CurrencyPickerBalance(
+          amount: '${r.availableBalance} ${r.asset.title}',
+          fiat: isFiatDisabled ? null : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}',
+          fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
+        ),
+    };
+
+    final page = NewSwapPage(
+      getIt.get<ExchangeViewModel>(),
+      widget.authService,
+      null,
+      walletSwitcherViewModel: widget.walletSwitcherViewModel,
+      fromSend: SwapFromSendArgs(
+        recipientAddress: result.addressDetectionResult?.address ?? '',
+        receiveCurrency: result.detectedCurrency!,
+        targetWalletType: result.walletType!,
+        depositBalanceByAsset: depositBalanceByAsset,
+      ),
+    );
+    await showModalBottomSheet<void>(
       context: context,
-      isDismissible: true,
       isScrollControlled: true,
-      builder: (BuildContext context) => bottomSheet,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => page,
     );
   }
 
