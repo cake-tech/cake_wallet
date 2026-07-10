@@ -76,6 +76,21 @@ void startAuthenticationStateChange(
                 );
                 return;
               }
+
+              if (!monero!.hasGlobalLedgerConnection()) {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (context) => AlertWithOneAction(
+                    alertTitle: "Unexpected Error",
+                    alertContent:
+                    "Unexpected Error while trying to connect to the device (UnexpectedViewModel: ${ledgerVM.toString()})",
+                    buttonText: S.of(context).try_again,
+                    buttonAction: Navigator.of(context).pop,
+                  ),
+                );
+                return;
+              }
+
               showPopUp<void>(
                 context: context,
                 builder: (context) => AlertWithOneAction(
