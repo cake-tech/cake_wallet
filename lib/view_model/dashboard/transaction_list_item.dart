@@ -55,6 +55,12 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
+
+    if (balanceViewModel.wallet.type == WalletType.bitcoin &&
+        transaction.additionalInfo['hasMissingInputTx'] == true) {
+      return 'Transaction has missing data';
+    }
+
     if (transaction.additionalInfo['autoShield'] == true) {
       return "Autoshield";
     }
