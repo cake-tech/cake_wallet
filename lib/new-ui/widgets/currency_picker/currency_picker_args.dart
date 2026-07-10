@@ -63,6 +63,7 @@ class CurrencyPickerArgs {
     required this.onSelected,
     required this.symbolResolver,
     this.recentsSource = RecentsSource.none,
+    this.useSingleNetworkLayout = false,
   });
 
   final CryptoCurrency? selected;
@@ -72,6 +73,5 @@ class CurrencyPickerArgs {
   final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final RecentsSource recentsSource;
-
-  bool get isPreFiltered => filterByNetwork != null;
+  final bool useSingleNetworkLayout;
 }

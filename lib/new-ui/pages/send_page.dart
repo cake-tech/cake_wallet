@@ -883,6 +883,7 @@ class _NewSendPageState extends State<NewSendPage> {
         selected: widget.sendViewModel.selectedCryptoCurrency,
         filterByNetwork: widget.sendViewModel.walletType,
         balanceByAsset: balanceByAsset,
+        useSingleNetworkLayout: true,
         symbolResolver: widget.sendViewModel.amountParsingProxy.getCryptoSymbol,
         onSelected: (currency) {
           widget.sendViewModel.selectedCryptoCurrency = currency;
@@ -1083,6 +1084,7 @@ class _NewSendPageState extends State<NewSendPage> {
               paymentRequest,
               destinationNetworkName,
               destinationNetworkIcon,
+              destinationIconColor,
               hasMultipleWallets,
             ),
             onSwap: () => _onSwapSelected(pageContext, result),
@@ -1098,8 +1100,11 @@ class _NewSendPageState extends State<NewSendPage> {
             primaryHasSwapIcon: !isEvmTarget,
             destinationNetworkName: destinationNetworkName,
             destinationNetworkIconPath: destinationNetworkIcon,
+            destinationIconColor: destinationIconColor,
             currentNetworkName: currentNetworkName,
             currentNetworkIconPath: currentNetworkIcon,
+            currentIconColor:
+                isEVMCompatibleChain(currentType) ? Theme.of(context).colorScheme.primary : null,
             onProceed: () => _onSwapSelected(pageContext, result),
           ),
         ),
@@ -1117,6 +1122,7 @@ class _NewSendPageState extends State<NewSendPage> {
     PaymentRequest paymentRequest,
     String destName,
     String destIcon,
+    Color? destIconColor,
     bool hasMultipleWallets,
   ) async {
     WalletInfo? destinationWalletInfo;
@@ -1125,6 +1131,7 @@ class _NewSendPageState extends State<NewSendPage> {
         context: pageContext,
         networkName: destName,
         targetIconPath: destIcon,
+        destinationIconColor: destIconColor,
         wallets: result.wallets,
       );
       if (destinationWalletInfo == null) return;
@@ -1148,21 +1155,23 @@ class _NewSendPageState extends State<NewSendPage> {
     final success = await widget.walletSwitcherViewModel.switchToSelectedWallet();
     if (!success || !mounted) return;
 
+    bool completedFlow = false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        showModalBottomSheet<void>(
-          context: context,
-          isDismissible: false,
-          builder: (BuildContext context) {
-            loadingBottomSheetContext = context;
-            return LoadingBottomSheet(titleText: S.of(context).loading_your_wallet);
-          },
-        );
-      }
+      if (!mounted || completedFlow) return;
+      showModalBottomSheet<void>(
+        context: context,
+        isDismissible: false,
+        builder: (BuildContext context) {
+          loadingBottomSheetContext = context;
+          return LoadingBottomSheet(titleText: S.of(context).loading_your_wallet);
+        },
+      );
     });
 
     try {
-      if (isEVMCompatibleChain(widget.sendViewModel.wallet.type) && result.chainId != null) {
+      if (evm != null &&
+          isEVMCompatibleChain(widget.sendViewModel.wallet.type) &&
+          result.chainId != null) {
         final appStore = getIt.get<AppStore>();
         final node = appStore.settingsStore
             .getCurrentNode(widget.sendViewModel.wallet.type, chainId: result.chainId);
@@ -1172,6 +1181,7 @@ class _NewSendPageState extends State<NewSendPage> {
     } catch (e, s) {
       printV('completeWalletSwitch failed: $e\n$s');
     } finally {
+      completedFlow = true;
       if (loadingBottomSheetContext != null &&
           loadingBottomSheetContext!.mounted &&
           Navigator.canPop(loadingBottomSheetContext!)) {

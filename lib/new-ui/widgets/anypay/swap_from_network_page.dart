@@ -16,6 +16,8 @@ class SwapFromNetworkPage extends StatelessWidget {
     required this.currentNetworkName,
     required this.currentNetworkIconPath,
     required this.onProceed,
+    this.currentIconColor,
+    this.destinationIconColor,
     this.primaryHasSwapIcon = false,
   });
 
@@ -24,8 +26,10 @@ class SwapFromNetworkPage extends StatelessWidget {
   final bool primaryHasSwapIcon;
   final String destinationNetworkName;
   final String destinationNetworkIconPath;
+  final Color? destinationIconColor;
   final String currentNetworkName;
   final String currentNetworkIconPath;
+  final Color? currentIconColor;
   final VoidCallback onProceed;
 
   @override
@@ -59,7 +63,7 @@ class SwapFromNetworkPage extends StatelessWidget {
                             width: 50,
                             height: 50,
                             fit: BoxFit.contain,
-                            color: colors.primary,
+                            color: currentIconColor,
                           ),
                           Icon(Icons.arrow_forward, color: colors.primary, size: 28),
                           CakeImageWidget(
@@ -67,7 +71,7 @@ class SwapFromNetworkPage extends StatelessWidget {
                             width: 50,
                             height: 50,
                             fit: BoxFit.contain,
-                            color: colors.primary,
+                            color: destinationIconColor,
                           ),
                         ],
                       ),

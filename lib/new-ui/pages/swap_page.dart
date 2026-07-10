@@ -123,6 +123,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       // if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
       //   showMaterialModalBottomSheet(
       //       context: context,
@@ -420,7 +422,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
       if (widget.fromSend != null) {
         widget.exchangeViewModel.changeReceiveCurrency(currency: widget.fromSend!.receiveCurrency);
         widget.exchangeViewModel.receiveAddress = widget.fromSend!.recipientAddress;
-        receiveKey.currentState?.addressController.text = widget.fromSend!.recipientAddress;
         widget.exchangeViewModel.depositAddress =
             widget.exchangeViewModel.wallet.walletAddresses.addressForExchange;
       }
@@ -508,17 +509,20 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     final fromSend = widget.fromSend;
     final fromType = widget.exchangeViewModel.wallet.type;
     final fromName = walletTypeToString(fromType);
     final fromCurrency = getCryptoCurrencyForWalletListItem(fromType);
-    final fromIcon = (fromSend?.isEVMTarget ?? false)
-        ? (fromCurrency.chainIconPath ?? fromCurrency.iconPath ?? '')
-        : (fromCurrency.chainIconPath ?? fromCurrency.flatIconPath ?? '');
+    final fromIcon = fromCurrency.chainIconPath ??
+        ((fromSend?.isEVMTarget ?? false) ? fromCurrency.iconPath : fromCurrency.flatIconPath) ??
+        '';
+    final fromIconColor = isEVMCompatibleChain(fromType) ? colorScheme.primary : null;
 
-    final toName = fromSend != null ? walletTypeToString(fromSend.targetWalletType) : '';
-    final toCurrency =
-        fromSend != null ? getCryptoCurrencyForWalletListItem(fromSend.targetWalletType) : null;
+    final targetType = fromSend?.targetWalletType;
+    final toName = targetType != null ? walletTypeToString(targetType) : '';
+    final toCurrency = targetType != null ? getCryptoCurrencyForWalletListItem(targetType) : null;
     final toIcon =
         toCurrency?.chainIconPath ?? toCurrency?.iconPath ?? toCurrency?.flatIconPath ?? '';
 
@@ -526,7 +530,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
       unfocusOnTap: true,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(
@@ -541,7 +545,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                   : CakeImageWidget(
                       imageUrl: "assets/new-ui/options.svg",
                       colorFilter:
-                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                          ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
                     ),
               onTrailingPressed: () {
                 Navigator.of(context).push(CupertinoPageRoute(
@@ -574,9 +578,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         label: S.of(context).from,
                                         networkName: fromName,
                                         networkIconPath: fromIcon,
-                                        networkIconColor: fromSend.isEVMTarget
-                                            ? Theme.of(context).colorScheme.primary
-                                            : null,
+                                        networkIconColor: fromIconColor,
                                         walletName: widget.exchangeViewModel.wallet.name,
                                       ),
                                     ),
@@ -594,6 +596,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       title: fromSend != null ? '' : S.of(context).send,
                                       hideWalletPicker: fromSend != null,
                                       balanceByAsset: fromSend?.depositBalanceByAsset,
+                                      useSingleNetworkLayout: fromSend != null,
                                       filteredNetwork: fromSend != null
                                           ? widget.exchangeViewModel.wallet.type
                                           : null,
@@ -651,7 +654,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         SizedBox(height: 24),
                                         Icon(Icons.arrow_downward,
                                             size: 24,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                            color: colorScheme.onSurfaceVariant),
                                         SizedBox(height: 24),
                                       ],
                                     )
@@ -665,7 +668,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             height: 1,
                                             width: double.infinity,
                                             color:
-                                                Theme.of(context).colorScheme.surfaceContainerHigh,
+                                                colorScheme.surfaceContainerHigh,
                                           ),
                                           ModernButton.svg(
                                             size: 36,
@@ -684,6 +687,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         label: S.of(context).to,
                                         networkName: toName,
                                         networkIconPath: toIcon,
+                                        networkIconColor: fromSend.isEVMTarget
+                                            ? colorScheme.primary
+                                            : null,
                                       ),
                                     ),
                                   Observer(
@@ -756,7 +762,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                             if (widget.exchangeViewModel.isFixedRateMode)
                               Text(S.of(context).exchange_rate_is_fixed,
                                   style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: colorScheme.onSurfaceVariant,
                                       fontSize: 12)),
                             SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
                             Observer(
@@ -801,8 +807,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                     : () => PresentProviderPicker(
                                             exchangeViewModel: widget.exchangeViewModel)
                                         .presentProviderPicker(context),
-                                color: Theme.of(context).colorScheme.primary,
-                                textColor: Theme.of(context).colorScheme.onPrimary,
+                                color: colorScheme.primary,
+                                textColor: colorScheme.onPrimary,
                                 isDisabled: _swapButtonDisabled(),
                                 isLoading: widget.exchangeViewModel.tradeState is TradeIsCreating,
                               ),
@@ -936,6 +942,7 @@ class SwapAmountBox extends StatefulWidget {
     this.amountlessAddressMode = false,
     this.hideWalletPicker = false,
     this.balanceByAsset,
+    this.useSingleNetworkLayout = false,
   }) : super(key: key);
 
   final List<Currency> currencies;
@@ -959,6 +966,7 @@ class SwapAmountBox extends StatefulWidget {
   final bool amountlessAddressMode;
   final bool hideWalletPicker;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
+  final bool useSingleNetworkLayout;
 
   @override
   State<SwapAmountBox> createState() => SwapAmountBoxState();
@@ -1427,13 +1435,33 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
     final currencies = rawCurrencies.whereType<CryptoCurrency>().toList();
-    appendEvmDefaultTokens(currencies);
+    final restrictToCurrentBalances = !widget.isReceiverCard &&
+        widget.balanceByAsset != null &&
+        widget.balanceByAsset!.isNotEmpty;
+    if (!restrictToCurrentBalances) {
+      appendEvmDefaultTokens(currencies);
+    }
     if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
       currencies.sort((a, b) {
         if (a == CryptoCurrency.btcln) return -1;
         if (b == CryptoCurrency.btcln) return 1;
         return 0;
       });
+    }
+
+    List<CryptoCurrency> items = currencies;
+    if (restrictToCurrentBalances) {
+      final allowed = {
+        for (final asset in widget.balanceByAsset!.keys) asset.title.toUpperCase(),
+      };
+      items = currencies.where((c) => allowed.contains(c.title.toUpperCase())).toList();
+    }
+    
+    if (widget.isReceiverCard && widget.filteredNetwork != null) {
+      final network = widget.filteredNetwork!;
+      items = items
+          .where((c) => cryptoCurrencyOrTokenToWalletType(c) == network)
+          .toList();
     }
 
     final selected = widget.isReceiverCard
@@ -1443,10 +1471,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     CurrencyPickerSheet.show(
       context: context,
       args: CurrencyPickerArgs(
-        items: currencies,
+        items: items,
         selected: selected,
         filterByNetwork: widget.filteredNetwork,
         balanceByAsset: widget.balanceByAsset,
+        useSingleNetworkLayout: widget.useSingleNetworkLayout,
         recentsSource: RecentsSource.trades,
         onSelected: widget.onCurrencySelected,
         symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
