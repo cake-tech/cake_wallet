@@ -566,6 +566,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: currentAccountIndex,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.zero(currency),
@@ -624,6 +625,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return PendingBitcoinTransaction(
         btcTx,
         type,
+        accountIndex: currentAccountIndex,
         electrumClient: electrumClient,
         amount: Money.zero(currency),
         fee: Money.zero(currency),

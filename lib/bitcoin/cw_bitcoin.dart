@@ -955,6 +955,12 @@ class CWBitcoin extends Bitcoin {
       return true;
     }
 
+    // Locally created transactions store the account index explicitly,
+    // so use it first instead of checking the addresses.
+    if (tx.accountIndex != null) {
+      return tx.accountIndex == bitcoinWallet.currentAccountIndex;
+    }
+
     final accountAddresses = bitcoinWallet.walletAddresses.allAddresses
         .where((address) => address.accountIndex == bitcoinWallet.currentAccountIndex)
         .map((address) => address.address)

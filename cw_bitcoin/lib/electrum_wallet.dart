@@ -1600,6 +1600,7 @@ abstract class ElectrumWalletBase
         return PendingBitcoinTransaction(
           transaction,
           type,
+          accountIndex: currentAccountIndex,
           electrumClient: electrumClient,
           amount: estimatedTx.amount,
           fee: estimatedTx.fee,
@@ -1684,6 +1685,7 @@ abstract class ElectrumWalletBase
       return PendingBitcoinTransaction(
         transaction,
         type,
+        accountIndex: currentAccountIndex,
         electrumClient: electrumClient,
         amount: estimatedTx.amount,
         fee: estimatedTx.fee,
@@ -2456,6 +2458,7 @@ abstract class ElectrumWalletBase
       return PendingBitcoinTransaction(
         transaction,
         type,
+        accountIndex: transactionHistory.transactions[hash]?.accountIndex ?? currentAccountIndex,
         electrumClient: electrumClient,
         amount: Money.fromInt(sendingAmount, currency),
         fee: Money.fromInt(newFee, currency),

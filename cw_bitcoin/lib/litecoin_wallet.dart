@@ -1359,6 +1359,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final tx = PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: 0,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.fromInt(resp.fee.toInt(), currency),
