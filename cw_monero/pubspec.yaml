@@ -29,10 +29,7 @@ dependencies:
       ref: 3bfb3856a838f2bf6b729501837bb0295dedf25d
       path: impls/monero.dart
   mutex: ^3.1.0
-  ledger_flutter_plus:
-    git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+  ledger_flutter_plus: ^1.4.1
   trezor_flutter:
     git:
       url: https://github.com/cake-tech/trezor-flutter.git
