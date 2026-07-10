@@ -1254,6 +1254,7 @@
   "transaction_error": "Transaction Error",
   "transaction_key": "Transaction Key",
   "transaction_memo_optional": "Transaction Memo (optional)",
+  "transaction_preimage": "Preimage",
   "transaction_priority_fast": "Fast",
   "transaction_priority_fastest": "Fastest",
   "transaction_priority_medium": "Medium",
