@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
@@ -15,13 +16,11 @@ class SendToNetworkPage extends StatelessWidget {
     required this.currentNetworkName,
     required this.onSwitchWallet,
     required this.onSwap,
-    this.destinationIconColor,
   });
 
   final String title;
   final String destinationNetworkName;
   final String destinationIconPath;
-  final Color? destinationIconColor;
   final String currentNetworkName;
   final VoidCallback onSwitchWallet;
   final VoidCallback onSwap;
@@ -53,7 +52,7 @@ class SendToNetworkPage extends StatelessWidget {
                         width: 75,
                         height: 75,
                         fit: BoxFit.contain,
-                        color: destinationIconColor,
+                        color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
                       ),
                       const SizedBox(height: 24),
                       Text(

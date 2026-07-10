@@ -25,7 +25,7 @@ class RecipientNetworkSelector extends StatelessWidget {
 
     return _RecipientNetworkRow(
       networkName: currentChain.name,
-      networkIconPath: getCryptoCurrencyForWalletListItem(wallet.type).chainIconPath ?? '',
+      networkIconPath: symbolIconPathForWalletType(wallet.type) ?? '',
       onTap: () => onTap(currentChain),
     );
   }
@@ -63,7 +63,7 @@ class _RecipientNetworkRow extends StatelessWidget {
             width: 16,
             height: 16,
             fit: BoxFit.cover,
-            color: Theme.of(context).colorScheme.primary,
+            color: isMonochromeSymbolIcon(networkIconPath) ? colors.primary : null,
           ),
           const SizedBox(width: 8),
           Text(

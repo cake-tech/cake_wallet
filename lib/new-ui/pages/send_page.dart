@@ -917,11 +917,10 @@ class _NewSendPageState extends State<NewSendPage> {
     final networks = chains.map((chain) {
       final walletType =
           evm!.getWalletTypeByChainId(chain.chainId) ?? widget.sendViewModel.wallet.type;
-      final currency = getCryptoCurrencyForWalletListItem(walletType);
       return RecipientNetworkItem(
         chainId: chain.chainId,
         name: chain.name,
-        iconPath: currency.chainIconPath ?? currency.iconPath ?? currency.flatIconPath ?? '',
+        iconPath: symbolIconPathForWalletType(walletType) ?? '',
       );
     }).toList();
 
@@ -1034,24 +1033,14 @@ class _NewSendPageState extends State<NewSendPage> {
     final isEvmTarget = isEVMCompatibleChain(destinationType);
     final destinationChainId = result.chainId;
     final destinationNetworkName = _networkDisplayName(destinationType, destinationChainId);
-    final destinationCurrency =
-        getCryptoCurrencyForWalletListItem(destinationType, chainId: destinationChainId);
-    final destinationNetworkIcon = isEvmTarget
-        ? (destinationCurrency.chainIconPath ?? destinationCurrency.iconPath ?? '')
-        : (destinationCurrency.iconPath ?? destinationCurrency.flatIconPath) ?? '';
-    final destinationIconColor = isEvmTarget ? Theme.of(context).colorScheme.primary : null;
+    final destinationNetworkIcon = symbolIconPathForWalletType(destinationType) ?? '';
 
     final currentType = widget.sendViewModel.wallet.type;
     final currentChainId = isEVMCompatibleChain(currentType) && evm != null
         ? evm!.getChainIdByWalletType(currentType)
         : null;
     final currentNetworkName = _networkDisplayName(currentType, currentChainId);
-    final currentCurrency =
-        getCryptoCurrencyForWalletListItem(currentType, chainId: currentChainId);
-    final currentNetworkIcon = currentCurrency.chainIconPath ??
-        currentCurrency.iconPath ??
-        currentCurrency.flatIconPath ??
-        '';
+    final currentNetworkIcon = symbolIconPathForWalletType(currentType) ?? '';
 
     final hasSingleWallet =
         result.type == PaymentFlowType.singleWallet || result.wallets.length == 1;
@@ -1076,7 +1065,6 @@ class _NewSendPageState extends State<NewSendPage> {
             title: decisionTitle,
             destinationNetworkName: destinationNetworkName,
             destinationIconPath: destinationNetworkIcon,
-            destinationIconColor: destinationIconColor,
             currentNetworkName: currentNetworkName,
             onSwitchWallet: () => _onSwitchWalletSelected(
               pageContext,
@@ -1084,7 +1072,6 @@ class _NewSendPageState extends State<NewSendPage> {
               paymentRequest,
               destinationNetworkName,
               destinationNetworkIcon,
-              destinationIconColor,
               hasMultipleWallets,
             ),
             onSwap: () => _onSwapSelected(pageContext, result),
@@ -1100,11 +1087,8 @@ class _NewSendPageState extends State<NewSendPage> {
             primaryHasSwapIcon: !isEvmTarget,
             destinationNetworkName: destinationNetworkName,
             destinationNetworkIconPath: destinationNetworkIcon,
-            destinationIconColor: destinationIconColor,
             currentNetworkName: currentNetworkName,
             currentNetworkIconPath: currentNetworkIcon,
-            currentIconColor:
-                isEVMCompatibleChain(currentType) ? Theme.of(context).colorScheme.primary : null,
             onProceed: () => _onSwapSelected(pageContext, result),
           ),
         ),
@@ -1122,7 +1106,6 @@ class _NewSendPageState extends State<NewSendPage> {
     PaymentRequest paymentRequest,
     String destName,
     String destIcon,
-    Color? destIconColor,
     bool hasMultipleWallets,
   ) async {
     WalletInfo? destinationWalletInfo;
@@ -1131,7 +1114,6 @@ class _NewSendPageState extends State<NewSendPage> {
         context: pageContext,
         networkName: destName,
         targetIconPath: destIcon,
-        destinationIconColor: destIconColor,
         wallets: result.wallets,
       );
       if (destinationWalletInfo == null) return;
@@ -1213,7 +1195,7 @@ class _NewSendPageState extends State<NewSendPage> {
         chainId: chain.chainId,
         name: chain.name,
         iconPath: getCryptoCurrencyIconForWalletListItem(walletType, chainId: chain.chainId),
-        chainBadgeIconPath: getCryptoCurrencyForWalletListItem(walletType).chainIconPath,
+        chainBadgeIconPath: symbolIconPathForWalletType(walletType),
       );
     }).toList();
 

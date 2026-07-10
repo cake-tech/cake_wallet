@@ -110,3 +110,48 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
 
   return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
 }
+
+String? symbolIconPathForWalletType(WalletType type) {
+  const prefix = 'assets/new-ui/card_icons/symbol_icons';
+  switch (type) {
+    case WalletType.monero:
+      return '$prefix/xmr-symbol.svg';
+    case WalletType.bitcoin:
+      return '$prefix/btc-symbol.svg';
+    case WalletType.litecoin:
+      return '$prefix/ltc-symbol.svg';
+    case WalletType.ethereum:
+      return '$prefix/eth-symbol.svg';
+    case WalletType.base:
+      return '$prefix/base-symbol.svg';
+    case WalletType.arbitrum:
+      return '$prefix/arb-symbol.svg';
+    case WalletType.bsc:
+      return '$prefix/bnb-symbol.svg';
+    case WalletType.bitcoinCash:
+      return '$prefix/bch-symbol.svg';
+    case WalletType.polygon:
+      return '$prefix/pol-symbol.svg';
+    case WalletType.solana:
+      return '$prefix/sol-symbol.svg';
+    case WalletType.tron:
+      return '$prefix/trx-symbol.svg';
+    case WalletType.zano:
+      return '$prefix/zano-symbol.svg';
+    case WalletType.decred:
+      return '$prefix/dcr-symbol.svg';
+    case WalletType.dogecoin:
+      return '$prefix/doge-symbol.svg';
+    case WalletType.zcash:
+      return '$prefix/zec-symbol.svg';
+    case WalletType.nano:
+      return '$prefix/xno-symbol.svg';
+    case WalletType.wownero:
+    case WalletType.haven:
+    case WalletType.banano:
+    case WalletType.none:
+      return null;
+  }
+}
+
+bool isMonochromeSymbolIcon(String path) => path.contains('/symbol_icons/');

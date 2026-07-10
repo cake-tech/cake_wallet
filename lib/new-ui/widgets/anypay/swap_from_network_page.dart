@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
@@ -16,8 +17,6 @@ class SwapFromNetworkPage extends StatelessWidget {
     required this.currentNetworkName,
     required this.currentNetworkIconPath,
     required this.onProceed,
-    this.currentIconColor,
-    this.destinationIconColor,
     this.primaryHasSwapIcon = false,
   });
 
@@ -26,10 +25,8 @@ class SwapFromNetworkPage extends StatelessWidget {
   final bool primaryHasSwapIcon;
   final String destinationNetworkName;
   final String destinationNetworkIconPath;
-  final Color? destinationIconColor;
   final String currentNetworkName;
   final String currentNetworkIconPath;
-  final Color? currentIconColor;
   final VoidCallback onProceed;
 
   @override
@@ -63,7 +60,9 @@ class SwapFromNetworkPage extends StatelessWidget {
                             width: 50,
                             height: 50,
                             fit: BoxFit.contain,
-                            color: currentIconColor,
+                            color: isMonochromeSymbolIcon(currentNetworkIconPath)
+                                ? colors.primary
+                                : null,
                           ),
                           Icon(Icons.arrow_forward, color: colors.primary, size: 28),
                           CakeImageWidget(
@@ -71,7 +70,9 @@ class SwapFromNetworkPage extends StatelessWidget {
                             width: 50,
                             height: 50,
                             fit: BoxFit.contain,
-                            color: destinationIconColor,
+                            color: isMonochromeSymbolIcon(destinationNetworkIconPath)
+                                ? colors.primary
+                                : null,
                           ),
                         ],
                       ),

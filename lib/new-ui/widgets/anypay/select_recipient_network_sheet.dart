@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class RecipientNetworkItem {
@@ -207,7 +208,7 @@ class RecipientNetworkListRow extends StatelessWidget {
               width: 24,
               height: 24,
               fit: BoxFit.cover,
-              color: colors.primary,
+              color: isMonochromeSymbolIcon(imageOverride ?? item.iconPath) ? colors.primary : null,
             ),
             const SizedBox(width: 12),
             Expanded(

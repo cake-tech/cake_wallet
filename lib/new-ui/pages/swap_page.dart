@@ -510,21 +510,15 @@ class _NewSwapPageState extends State<NewSwapPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     final fromSend = widget.fromSend;
     final fromType = widget.exchangeViewModel.wallet.type;
     final fromName = walletTypeToString(fromType);
-    final fromCurrency = getCryptoCurrencyForWalletListItem(fromType);
-    final fromIcon = fromCurrency.chainIconPath ??
-        ((fromSend?.isEVMTarget ?? false) ? fromCurrency.iconPath : fromCurrency.flatIconPath) ??
-        '';
-    final fromIconColor = isEVMCompatibleChain(fromType) ? colorScheme.primary : null;
+    final fromIcon = symbolIconPathForWalletType(fromType) ?? '';
 
     final targetType = fromSend?.targetWalletType;
     final toName = targetType != null ? walletTypeToString(targetType) : '';
-    final toCurrency = targetType != null ? getCryptoCurrencyForWalletListItem(targetType) : null;
-    final toIcon =
-        toCurrency?.chainIconPath ?? toCurrency?.iconPath ?? toCurrency?.flatIconPath ?? '';
+    final toIcon = (targetType != null ? symbolIconPathForWalletType(targetType) : null) ?? '';
 
     return KeyboardHideOverlay(
       unfocusOnTap: true,
@@ -544,8 +538,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                   ? null
                   : CakeImageWidget(
                       imageUrl: "assets/new-ui/options.svg",
-                      colorFilter:
-                          ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+                      colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
                     ),
               onTrailingPressed: () {
                 Navigator.of(context).push(CupertinoPageRoute(
@@ -578,7 +571,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         label: S.of(context).from,
                                         networkName: fromName,
                                         networkIconPath: fromIcon,
-                                        networkIconColor: fromIconColor,
                                         walletName: widget.exchangeViewModel.wallet.name,
                                       ),
                                     ),
@@ -653,8 +645,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       children: [
                                         SizedBox(height: 24),
                                         Icon(Icons.arrow_downward,
-                                            size: 24,
-                                            color: colorScheme.onSurfaceVariant),
+                                            size: 24, color: colorScheme.onSurfaceVariant),
                                         SizedBox(height: 24),
                                       ],
                                     )
@@ -667,8 +658,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           Container(
                                             height: 1,
                                             width: double.infinity,
-                                            color:
-                                                colorScheme.surfaceContainerHigh,
+                                            color: colorScheme.surfaceContainerHigh,
                                           ),
                                           ModernButton.svg(
                                             size: 36,
@@ -687,9 +677,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         label: S.of(context).to,
                                         networkName: toName,
                                         networkIconPath: toIcon,
-                                        networkIconColor: fromSend.isEVMTarget
-                                            ? colorScheme.primary
-                                            : null,
                                       ),
                                     ),
                                   Observer(
@@ -761,9 +748,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                               SendSyncingIndicator(status: widget.exchangeViewModel.status),
                             if (widget.exchangeViewModel.isFixedRateMode)
                               Text(S.of(context).exchange_rate_is_fixed,
-                                  style: TextStyle(
-                                      color: colorScheme.onSurfaceVariant,
-                                      fontSize: 12)),
+                                  style:
+                                      TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
                             SwapProviderPreview(exchangeViewModel: widget.exchangeViewModel),
                             Observer(
                               builder: (_) => LoadingPrimaryButton(
@@ -1456,13 +1442,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       };
       items = currencies.where((c) => allowed.contains(c.title.toUpperCase())).toList();
     }
-    
+
     if (widget.isReceiverCard && widget.filteredNetwork != null) {
       final network = widget.filteredNetwork!;
-      items = items
-          .where((c) => cryptoCurrencyOrTokenToWalletType(c) == network)
-          .toList();
+      items = items.where((c) => cryptoCurrencyOrTokenToWalletType(c) == network).toList();
     }
+
+    if (items.length <= 1) return;
 
     final selected = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrency
@@ -1600,14 +1586,12 @@ class _SwapSectionHeader extends StatelessWidget {
     required this.label,
     required this.networkName,
     required this.networkIconPath,
-    this.networkIconColor,
     this.walletName,
   });
 
   final String label;
   final String networkName;
   final String networkIconPath;
-  final Color? networkIconColor;
   final String? walletName;
 
   @override
@@ -1631,7 +1615,7 @@ class _SwapSectionHeader extends StatelessWidget {
                 imageUrl: networkIconPath,
                 width: 16,
                 height: 16,
-                color: networkIconColor,
+                color: isMonochromeSymbolIcon(networkIconPath) ? colors.primary : null,
               ),
               const SizedBox(width: 4),
               Text(

@@ -13,12 +13,10 @@ class SwitchNetworkWalletPage extends StatelessWidget {
     required this.wallets,
     required this.networkName,
     required this.destinationIconPath,
-    this.destinationIconColor,
   });
 
   final String networkName;
   final String destinationIconPath;
-  final Color? destinationIconColor;
   final List<WalletInfo> wallets;
 
   static Future<WalletInfo?> push({
@@ -26,7 +24,6 @@ class SwitchNetworkWalletPage extends StatelessWidget {
     required String networkName,
     required String targetIconPath,
     required List<WalletInfo> wallets,
-    Color? destinationIconColor,
   }) {
     return Navigator.of(context).push<WalletInfo>(
       CupertinoPageRoute(
@@ -34,7 +31,6 @@ class SwitchNetworkWalletPage extends StatelessWidget {
           networkName: networkName,
           destinationIconPath: targetIconPath,
           wallets: wallets,
-          destinationIconColor: destinationIconColor,
         ),
       ),
     );
@@ -66,7 +62,7 @@ class SwitchNetworkWalletPage extends StatelessWidget {
                   width: 50,
                   height: 50,
                   fit: BoxFit.contain,
-                  color: destinationIconColor,
+                  color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
                 ),
               ],
             ),
