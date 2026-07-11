@@ -12,7 +12,7 @@ class LightThemeCustomColors extends CustomThemeColors {
   Color get backgroundMainColor => const Color(0xFF000000);
   
   @override
-  Color get backgroundGradientColor => const Color(0xFFE7E7FD);
+  Color get backgroundGradientColor => const Color(0xFFEDEDFA);
   
   @override
   Color get cardGradientColorPrimary => const Color(0xFFFFFFFF);
