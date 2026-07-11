@@ -32,6 +32,12 @@ jobs:
         api-level: [ 29 ]
 
     steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
       - name: configure git
         run: |
           git config --global --add safe.directory '*'
