@@ -987,17 +987,15 @@ class _NewSendPageState extends State<NewSendPage> {
           );
           break;
         case PaymentFlowType.evmNetworkSelection:
-          final targetChain = paymentRequest.scheme.isNotEmpty &&
-                  result.chainId != null &&
-                  evm != null
-              ? evm!.getChainInfoByChainId(result.chainId!)
-              : null;
+          final targetChain =
+              paymentRequest.scheme.isNotEmpty && result.chainId != null && evm != null
+                  ? evm!.getChainInfoByChainId(result.chainId!)
+                  : null;
           final currentChainId =
               evm != null && isEVMCompatibleChain(widget.sendViewModel.wallet.type)
                   ? evm!.getChainIdByWalletType(widget.sendViewModel.wallet.type)
                   : null;
-          final isCrossChain =
-              targetChain != null && targetChain.chainId != currentChainId;
+          final isCrossChain = targetChain != null && targetChain.chainId != currentChainId;
 
           if (isCrossChain) {
             await _handleEvmNetworkFlow(targetChain, paymentRequest);
@@ -1321,8 +1319,7 @@ class _NewSendPageState extends State<NewSendPage> {
         result.detectedCurrency ??
         walletTypeToCryptoCurrency(destWalletType, chainId: result.chainId);
 
-    final receiveAmount =
-        paymentRequest.amount.isNotEmpty ? paymentRequest.amount : null;
+    final receiveAmount = paymentRequest.amount.isNotEmpty ? paymentRequest.amount : null;
 
     final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
     final depositBalanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
