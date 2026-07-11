@@ -60,12 +60,14 @@ class SwapFromSendArgs {
     required this.receiveCurrency,
     required this.targetWalletType,
     this.depositBalanceByAsset,
+    this.receiveAmount,
   });
 
   final String recipientAddress;
   final CryptoCurrency receiveCurrency;
   final WalletType targetWalletType;
   final Map<CryptoCurrency, CurrencyPickerBalance>? depositBalanceByAsset;
+  final String? receiveAmount;
 
   bool get isEVMTarget => isEVMCompatibleChain(targetWalletType);
 }
@@ -424,6 +426,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
         widget.exchangeViewModel.receiveAddress = widget.fromSend!.recipientAddress;
         widget.exchangeViewModel.depositAddress =
             widget.exchangeViewModel.wallet.walletAddresses.addressForExchange;
+        final receiveAmount = widget.fromSend!.receiveAmount;
+        if (receiveAmount != null && receiveAmount.isNotEmpty) {
+          widget.exchangeViewModel.setCanonicalReceiveAmount(receiveAmount);
+          widget.exchangeViewModel.enableFixedRateMode();
+        }
       }
     });
   }

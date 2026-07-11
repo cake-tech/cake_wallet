@@ -53,6 +53,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
@@ -950,7 +951,8 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
-    if (uri.contains('@') || paymentRequest.address.contains('@')) return;
+    final isEip681 = uri.toLowerCase().startsWith('ethereum:');
+    if (!isEip681 && (uri.contains('@') || paymentRequest.address.contains('@'))) return;
 
     if (OpenCryptoPayService.isOpenCryptoPayQR(uri) &&
         widget.sendViewModel.selectedCryptoCurrency != CryptoCurrency.btcln) {
@@ -985,7 +987,21 @@ class _NewSendPageState extends State<NewSendPage> {
           );
           break;
         case PaymentFlowType.evmNetworkSelection:
-          if (widget.sendViewModel.isEVMWallet) {
+          final targetChain = paymentRequest.scheme.isNotEmpty &&
+                  result.chainId != null &&
+                  evm != null
+              ? evm!.getChainInfoByChainId(result.chainId!)
+              : null;
+          final currentChainId =
+              evm != null && isEVMCompatibleChain(widget.sendViewModel.wallet.type)
+                  ? evm!.getChainIdByWalletType(widget.sendViewModel.wallet.type)
+                  : null;
+          final isCrossChain =
+              targetChain != null && targetChain.chainId != currentChainId;
+
+          if (isCrossChain) {
+            await _handleEvmNetworkFlow(targetChain, paymentRequest);
+          } else if (widget.sendViewModel.isEVMWallet) {
             _applyPaymentRequest(paymentRequest);
           } else {
             await _showEvmNetworkPicker(paymentRequest, result.walletType);
@@ -1074,7 +1090,7 @@ class _NewSendPageState extends State<NewSendPage> {
               destinationNetworkIcon,
               hasMultipleWallets,
             ),
-            onSwap: () => _onSwapSelected(pageContext, result),
+            onSwap: () => _onSwapSelected(pageContext, result, paymentRequest),
           ),
         ),
       );
@@ -1089,15 +1105,19 @@ class _NewSendPageState extends State<NewSendPage> {
             destinationNetworkIconPath: destinationNetworkIcon,
             currentNetworkName: currentNetworkName,
             currentNetworkIconPath: currentNetworkIcon,
-            onProceed: () => _onSwapSelected(pageContext, result),
+            onProceed: () => _onSwapSelected(pageContext, result, paymentRequest),
           ),
         ),
       );
     }
   }
 
-  Future<void> _onSwapSelected(BuildContext pageContext, PaymentFlowResult result) async {
-    await _handleSwapFlow(result, pageContext);
+  Future<void> _onSwapSelected(
+    BuildContext pageContext,
+    PaymentFlowResult result,
+    PaymentRequest paymentRequest,
+  ) async {
+    await _handleSwapFlow(result, pageContext, paymentRequest);
   }
 
   Future<void> _onSwitchWalletSelected(
@@ -1173,10 +1193,16 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (!mounted) return;
-    final detectedCurrency = result.addressDetectionResult?.detectedCurrency;
-    if (detectedCurrency != null) {
-      widget.sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
+    final contract = paymentRequest.contractAddress;
+    if (contract != null && contract.isNotEmpty) {
+      await widget.sendViewModel.fetchTokenForContractAddress(contract);
+    } else {
+      final detectedCurrency = result.addressDetectionResult?.detectedCurrency;
+      if (detectedCurrency != null) {
+        widget.sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
+      }
     }
+    if (!mounted) return;
     _applyPaymentRequest(paymentRequest);
   }
 
@@ -1271,13 +1297,32 @@ class _NewSendPageState extends State<NewSendPage> {
     _memoControllers[_selectedOutput].text = paymentRequest.note;
   }
 
-  Future<void> _handleSwapFlow(PaymentFlowResult result, BuildContext presentContext) async {
+  Future<void> _handleSwapFlow(
+    PaymentFlowResult result,
+    BuildContext presentContext,
+    PaymentRequest paymentRequest,
+  ) async {
     if (!mounted) return;
 
     final destWalletType = result.walletType;
     if (destWalletType == null) return;
-    final receiveCurrency = result.detectedCurrency ??
+
+    CryptoCurrency? resolvedToken;
+    final contract = paymentRequest.contractAddress;
+    if (contract != null && contract.isNotEmpty) {
+      resolvedToken = await TokenUtilities.findTokenByAddress(
+        walletType: destWalletType,
+        address: contract,
+      );
+    }
+    if (!mounted) return;
+
+    final receiveCurrency = resolvedToken ??
+        result.detectedCurrency ??
         walletTypeToCryptoCurrency(destWalletType, chainId: result.chainId);
+
+    final receiveAmount =
+        paymentRequest.amount.isNotEmpty ? paymentRequest.amount : null;
 
     final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
     final depositBalanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
@@ -1300,6 +1345,7 @@ class _NewSendPageState extends State<NewSendPage> {
         receiveCurrency: receiveCurrency,
         targetWalletType: destWalletType,
         depositBalanceByAsset: depositBalanceByAsset,
+        receiveAmount: receiveAmount,
       ),
     );
     await showModalBottomSheet<void>(
