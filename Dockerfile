@@ -52,7 +52,7 @@ RUN set -o xtrace \
     # for x86 emulators
     libatk-bridge2.0-0 libgdk-pixbuf-xlib-2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
     # Linux desktop dependencies
-    clang cmake libgtk-3-dev ninja-build pkg-config libsecret-1-0 libsecret-1-dev gir1.2-secret-1 \
+    clang lld cmake libgtk-3-dev ninja-build pkg-config libsecret-1-0 libsecret-1-dev gir1.2-secret-1 \
     # monero_c dependencies
     autoconf automake build-essential ccache gperf libtool llvm \
     # extra stuff for KVM
