@@ -23,6 +23,9 @@ class SavingsCard extends StatelessWidget {
     this.isLoading = false,
     this.fiatSavingsBalance,
     this.fiatCurrency,
+    this.savingsBalanceV1,
+    this.fiatSavingsBalanceV1,
+    this.onWithdrawV1Pressed,
   });
 
   final bool isEnabled;
@@ -30,8 +33,11 @@ class SavingsCard extends StatelessWidget {
   final String interestRate;
   final String savingsBalance;
   final String? fiatSavingsBalance;
+  final String? savingsBalanceV1;
+  final String? fiatSavingsBalanceV1;
   final FiatCurrency? fiatCurrency;
   final CryptoCurrency currency;
+  final VoidCallback? onWithdrawV1Pressed;
   final VoidCallback onAddSavingsPressed;
   final VoidCallback onRemoveSavingsPressed;
   final VoidCallback onApproveSavingsPressed;
@@ -98,46 +104,72 @@ class SavingsCard extends StatelessWidget {
                     onTooltipPressed: onTooltipPressed,
                   ),
                 ),
+                if (savingsBalanceV1 != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: getAssetBalanceRow(
+                      context,
+                      title: "${S.of(context).deuro_savings_balance} V1",
+                      amount: savingsBalanceV1!,
+                      fiatAmount: fiatSavingsBalanceV1,
+                      currency: currency,
+                      fiatCurrency: fiatCurrency,
+                      hideSymbol: true,
+                    ),
+                  ),
                 isLoading
                     ? CupertinoActivityIndicator(color: Theme.of(context).colorScheme.onSurface)
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: isEnabled
+                        children: savingsBalanceV1 != null
                             ? [
                                 Expanded(
                                   child: getButton(
                                     context,
-                                    label: S.of(context).deuro_savings_add,
-                                    imagePath: 'assets/images/received.png',
-                                    onPressed: onAddSavingsPressed,
+                                    label: "${S.of(context).deuro_savings_remove} V1",
+                                    onPressed: onWithdrawV1Pressed ?? () {},
                                     backgroundColor: Theme.of(context).colorScheme.primary,
                                     color: Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: getButton(
-                                    context,
-                                    label: S.of(context).deuro_savings_remove,
-                                    imagePath: 'assets/images/upload.png',
-                                    onPressed: onRemoveSavingsPressed,
-                                    backgroundColor: Theme.of(context).colorScheme.surface,
-                                    color: Theme.of(context).colorScheme.onSecondaryContainer,
-                                  ),
-                                ),
-                              ]
-                            : [
-                                Expanded(
-                                  child: getButton(
-                                    context,
-                                    label: S.of(context).deuro_savings_approve_app,
-                                    onPressed: onApproveSavingsPressed,
-                                    backgroundColor: Theme.of(context).colorScheme.primary,
-                                    color: Theme.of(context).colorScheme.onPrimary,
-                                    icon: Icons.check,
+                                    icon: Icons.arrow_downward,
                                   ),
                                 )
-                              ],
+                              ]
+                            : isEnabled
+                                ? [
+                                    Expanded(
+                                      child: getButton(
+                                        context,
+                                        label: S.of(context).deuro_savings_add,
+                                        imagePath: 'assets/images/received.png',
+                                        onPressed: onAddSavingsPressed,
+                                        backgroundColor: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: getButton(
+                                        context,
+                                        label: S.of(context).deuro_savings_remove,
+                                        imagePath: 'assets/images/upload.png',
+                                        onPressed: onRemoveSavingsPressed,
+                                        backgroundColor: Theme.of(context).colorScheme.surface,
+                                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                      ),
+                                    ),
+                                  ]
+                                : [
+                                    Expanded(
+                                      child: getButton(
+                                        context,
+                                        label: S.of(context).deuro_savings_approve_app,
+                                        onPressed: onApproveSavingsPressed,
+                                        backgroundColor: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                        icon: Icons.check,
+                                      ),
+                                    )
+                                  ],
                       ),
               ],
             ),
@@ -264,33 +296,33 @@ class SavingsCard extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(
-            child: Center(
-              child: Column(
-                children: [
-                  CakeImageWidget(
-                    imageUrl: currency.iconPath,
-                    height: 40,
-                    width: 40,
-                    errorWidget: Container(
-                      height: 30.0,
-                      width: 30.0,
-                      child: Center(
-                        child: Text(
-                          currency.title.substring(0, min(currency.title.length, 2)),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontSize: 11,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+          if (!hideSymbol)
+            SizedBox(
+              child: Center(
+                child: Column(
+                  children: [
+                    CakeImageWidget(
+                      imageUrl: currency.iconPath,
+                      height: 40,
+                      width: 40,
+                      errorWidget: Container(
+                        height: 30.0,
+                        width: 30.0,
+                        child: Center(
+                          child: Text(
+                            currency.title.substring(0, min(currency.title.length, 2)),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontSize: 11,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).colorScheme.surfaceContainer,
                         ),
                       ),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                      ),
                     ),
-                  ),
-                  if (!hideSymbol) ...[
                     const SizedBox(height: 3),
                     Text(
                       currency.title,
@@ -301,11 +333,10 @@ class SavingsCard extends StatelessWidget {
                             height: 1,
                           ),
                     ),
-                  ]
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       );
 }

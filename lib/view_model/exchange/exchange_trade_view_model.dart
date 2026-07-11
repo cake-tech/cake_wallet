@@ -415,9 +415,13 @@ abstract class ExchangeTradeViewModelBase with Store {
       return null;
     }
 
-    // Using trade currency here so the external-send QR encodes the correct scheme
-    final uriWalletType =
-        cryptoCurrencyOrTokenToWalletType(fromCurrency) ?? wallet.type;
+    // Using the trade's `from` currency so the external-send QR encodes the correct scheme.
+    final uriWalletType = cryptoCurrencyOrTokenToWalletType(fromCurrency);
+
+    // for other currencies that we don't have wallets for
+    if (uriWalletType == null) {
+      return ExternalAddressURI(address: inputAddress, amount: amount);
+    }
 
     printV(uriWalletType);
 

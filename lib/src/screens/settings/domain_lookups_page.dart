@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/settings/connection_sync_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -20,47 +21,21 @@ class DomainLookupsPage extends BasePage {
         return Container(
           padding: EdgeInsets.only(top: 10),
           child: Column(
-            children: [
-              SettingsSwitcherCell(
-                  title: 'Twitter',
-                  value: _connectionsSyncViewModel.lookupTwitter,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsTwitter(value)),
-              SettingsSwitcherCell(
-                  title: 'Mastodon',
-                  value: _connectionsSyncViewModel.looksUpMastodon,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsMastodon(value)),
-              SettingsSwitcherCell(
-                  title: 'Yat service',
-                  value: _connectionsSyncViewModel.looksUpYatService,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsYatService(value)),
-              SettingsSwitcherCell(
-                  title: 'Unstoppable Domains',
-                  value: _connectionsSyncViewModel.looksUpUnstoppableDomains,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsUnstoppableDomains(value)),
-              SettingsSwitcherCell(
-                  title: 'OpenAlias',
-                  value: _connectionsSyncViewModel.looksUpOpenAlias,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsOpenAlias(value)),
-              SettingsSwitcherCell(
-                  title: 'Ethereum Name Service',
-                  value: _connectionsSyncViewModel.looksUpENS,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsENS(value)),
-              SettingsSwitcherCell(
-                  title: 'Zcash Names',
-                  value: _connectionsSyncViewModel.lookupsZcashNames,
-                  onValueChange: (_, bool value) =>
-                      _connectionsSyncViewModel.setLookupsZcashNames(value)),
-              SettingsSwitcherCell(
-                  title: '.well-known',
-                  value: _connectionsSyncViewModel.looksUpWellKnown,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsWellKnown(value)),
-              SettingsSwitcherCell(
-                  title: 'Zano Aliases',
-                  value: _connectionsSyncViewModel.lookupsZanoAlias,
-                  onValueChange: (_, bool value) => _connectionsSyncViewModel.setLookupsZanoAlias(value)),
-
-              //if (!isHaven) it does not work correctly
-            ],
+            children: _connectionsSyncViewModel.domainLookupSources
+                .map(
+                  (source) => SettingsSwitcherCell(
+                    title: source.label,
+                    leading: source.iconPath.isNotEmpty ? CakeImageWidget(
+                      imageUrl: source.iconPath,
+                      width: 24,
+                      height: 24,
+                    ) : SizedBox(width: 24, height: 24),
+                    value: _connectionsSyncViewModel.lookupValue(source),
+                    onValueChange: (_, bool value) =>
+                        _connectionsSyncViewModel.setLookupValue(source, value),
+                  ),
+                )
+                .toList(),
           ),
         );
       }),

@@ -119,22 +119,21 @@ class _CardsViewState extends State<CardsView> {
             late final String walletBalance;
             late final String walletFiatBalance;
             if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-              if(widget.dashboardViewModel.balanceViewModel.displayMode == BalanceDisplayMode.hiddenBalance) {
+              if (widget.dashboardViewModel.balanceViewModel.displayMode ==
+                  BalanceDisplayMode.hiddenBalance) {
                 walletBalance = '●●●●●●';
                 walletFiatBalance = '●●●●●●';
               } else {
                 walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
                 walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
               }
-            } else if(widget.dashboardViewModel.balanceViewModel.showCombinedBalance){
+            } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
               walletBalance = "";
               walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
-
-            }else {
+            } else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalanceRaw ?? "0.00";
+              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
             }
-
 
             // the card designs is empty if widget gets built before it loads.
             // should get populated before user sees anything
@@ -191,7 +190,8 @@ class _CardsViewState extends State<CardsView> {
               assetName: assetName,
               capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
-              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrencyTicker ?? widget.dashboardViewModel.settingsStore.fiatCurrency.title,
+              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
+                  widget.dashboardViewModel.settingsStore.fiatCurrency.title,
               fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,

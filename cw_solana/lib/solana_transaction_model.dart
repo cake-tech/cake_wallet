@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/money.dart';
+
 class SolanaTransactionModel {
   final String id;
 
@@ -5,22 +7,16 @@ class SolanaTransactionModel {
 
   final String to;
 
-  final double amount;
+  final Money amount;
 
-  // If this is an outgoing transaction
   final bool isOutgoingTx;
 
   // The Program ID of this transaction, e.g, System Program, Token Program...
   final String programId;
 
-  // The DateTime from the UNIX timestamp of the block where the transaction was included
   final DateTime blockTime;
 
-  // The Transaction fee
-  final double fee;
-
-  // The token symbol
-  final String tokenSymbol;
+  final Money fee;
 
   SolanaTransactionModel({
     required this.id,
@@ -30,18 +26,6 @@ class SolanaTransactionModel {
     required this.programId,
     required int blockTimeInInt,
     this.isOutgoingTx = false,
-    required this.tokenSymbol,
     required this.fee,
   }) : blockTime = DateTime.fromMillisecondsSinceEpoch(blockTimeInInt * 1000);
-
-  factory SolanaTransactionModel.fromJson(Map<String, dynamic> json) => SolanaTransactionModel(
-        id: json['id'],
-        blockTimeInInt: int.parse(json["timeStamp"]) * 1000,
-        from: json["from"],
-        to: json["to"],
-        amount: double.parse(json["value"]),
-        programId: json["programId"],
-        fee: json['fee'],
-        tokenSymbol: json['tokenSymbol'],
-      );
 }

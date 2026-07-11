@@ -29,6 +29,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.arbEth,
     CryptoCurrency.usdcArb,
     CryptoCurrency.usdtArb,
+    CryptoCurrency.trx,
+    CryptoCurrency.usdttrc20,
     ];
 
   static const _baseURL = 'chainflip-broker.io';
@@ -315,6 +317,11 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
+    // Chainflip uses 'tron' as the network slug, but Cake uses tag 'TRX' (and null
+    // for native TRX), so these can't go through the generic title.tag logic below.
+    if (currency == CryptoCurrency.trx) return 'trx.tron';
+    if (currency == CryptoCurrency.usdttrc20) return 'usdt.tron';
+
     final tag = currency.tag?.toLowerCase();
     final title = currency.title.toLowerCase();
 
@@ -330,6 +337,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       'ETHEREUM' => 'Ethereum',
       'ARBITRUM' => 'Arbitrum',
       'SOLANA' => 'Solana',
+      'TRON' => 'Tron',
       _ => name
     };
 
@@ -350,6 +358,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       'eth.arb' => CryptoCurrency.arbEth,
       'usdc.arb' => CryptoCurrency.usdcArb,
       'usdt.arb' => CryptoCurrency.usdtArb,
+      'trx.tron' => CryptoCurrency.trx,
+      'usdt.tron' => CryptoCurrency.usdttrc20,
       _ => null
     };
 
