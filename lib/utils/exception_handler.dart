@@ -299,6 +299,7 @@ class ExceptionHandler {
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
+    "Pending Request Canceled | RequestQueue disposed",
     "reown_core/relay_client/websocket/websocket_handler.dart",
     "Image upload failed due to loss of GPU access",
     "transport error",
