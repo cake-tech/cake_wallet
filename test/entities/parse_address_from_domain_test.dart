@@ -9,7 +9,7 @@ void main() {
     // late MockWalletBase mockWallet;
     // late MockSettingsStore mockSettingsStore;
     // late MockBuildContext mockContext;
-    // late AddressResolver addressResolver;
+    // late AddressResolver addressResolverUtils;
     //
     // setUp(() {
     //   mockYatService = MockYatService();
@@ -20,7 +20,7 @@ void main() {
     //   when(mockWallet.type).thenReturn(WalletType.bitcoin);
     //   when(mockWallet.currency).thenReturn(CryptoCurrency.btc);
     //
-    //   addressResolver = AddressResolver(
+    //   addressResolverUtils = AddressResolverUtils(
     //     yatService: mockYatService,
     //     wallet: mockWallet,
     //     settingsStore: mockSettingsStore,
@@ -145,25 +145,25 @@ ltcmweb1qq0at62jjucmawxp78qutn0cqwkwahcfx7fxls0r2ma5llg5w6wyy2qe20gxa3rku2658j88
     //
     // group('isEmailFormat', () {
     //   test('returns true for valid email format', () {
-    //     expect(addressResolver.isEmailFormat('user@example.com'), isTrue);
-    //     expect(addressResolver.isEmailFormat('name.surname@domain.co.uk'), isTrue);
-    //     expect(addressResolver.isEmailFormat('user123@subdomain.example.org'), isTrue);
+    //     expect(addressResolverUtils.isEmailFormat('user@example.com'), isTrue);
+    //     expect(addressResolverUtils.isEmailFormat('name.surname@domain.co.uk'), isTrue);
+    //     expect(addressResolverUtils.isEmailFormat('user123@subdomain.example.org'), isTrue);
     //   });
     //
     //   test('returns false for invalid email format', () {
-    //     expect(addressResolver.isEmailFormat('user@'), isFalse);
-    //     expect(addressResolver.isEmailFormat('@domain.com'), isFalse);
-    //     expect(addressResolver.isEmailFormat('user@domain'), isFalse);
-    //     expect(addressResolver.isEmailFormat('user.domain.com'), isFalse);
-    //     expect(addressResolver.isEmailFormat('user@domain@com'), isFalse);
-    //     expect(addressResolver.isEmailFormat('bc1qhg4l43pmq5v5atmtlr7gnwyuxs043cvrut5hkq'), isFalse);
+    //     expect(addressResolverUtils.isEmailFormat('user@'), isFalse);
+    //     expect(addressResolverUtils.isEmailFormat('@domain.com'), isFalse);
+    //     expect(addressResolverUtils.isEmailFormat('user@domain'), isFalse);
+    //     expect(addressResolverUtils.isEmailFormat('user.domain.com'), isFalse);
+    //     expect(addressResolverUtils.isEmailFormat('user@domain@com'), isFalse);
+    //     expect(addressResolverUtils.isEmailFormat('bc1qhg4l43pmq5v5atmtlr7gnwyuxs043cvrut5hkq'), isFalse);
     //   });
     // });
     //
     // group('resolve', () {
     //   test('returns ParsedAddress with original text when no resolution is possible', () async {
     //     final text = 'bc1qhg4l43pmq5v5atmtlr7gnwyuxs043cvrut5hkq';
-    //     final result = await addressResolver.resolve(mockContext, text, CryptoCurrency.btc);
+    //     final result = await addressResolverUtils.resolve(mockContext, text, CryptoCurrency.btc);
     //
     //     expect(result, isA<ParsedAddress>());
     //     expect(result.addresses, [text]);
