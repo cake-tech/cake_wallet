@@ -451,10 +451,11 @@ abstract class ElectrumWalletBase
 
   bool get shouldUseBatchFetching => useBatchForHistory && _isBatchSupported == true;
 
-  bool get isInitialRestoreSync =>
+  bool get isBitcoinBip39InitialRestoreSync =>
       type == WalletType.bitcoin &&
-          walletInfo.isRecovery &&
-          transactionHistory.transactions.isEmpty;
+      derivationInfo.derivationType == DerivationType.bip39 &&
+      walletInfo.isRecovery &&
+      transactionHistory.transactions.isEmpty;
 
 
   @override
@@ -2603,13 +2604,13 @@ abstract class ElectrumWalletBase
       printV('[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchFetching');
 
       if (type == WalletType.bitcoin) {
-        // if (isInitialRestoreSync) {
-        //   await fetchBitcoinTransactionsForInitialRestore(historiesWithDetails);
-        // } else {
+        if (isBitcoinBip39InitialRestoreSync) {
+          await fetchBitcoinTransactionsForInitialRestore(historiesWithDetails);
+        } else {
           await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
               ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
               : fetchTransactionsForAddressType(historiesWithDetails, type)));
-        //}
+        }
       } else if (type == WalletType.bitcoinCash) {
         await Future.wait(BITCOIN_CASH_ADDRESS_TYPES
             .map((type) => shouldUseBatchFetching
@@ -2654,9 +2655,12 @@ abstract class ElectrumWalletBase
 
   Future<void> fetchTransactionsForAddressType(
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
-    BitcoinAddressType type,
-  ) async {
-    final addressesByType = walletAddresses.allAddresses.where((addr) => addr.type == type);
+    BitcoinAddressType type, {
+    int? accountIndex,
+  }) async {
+    final addressesByType = walletAddresses.allAddresses
+        .where((addr) => addr.type == type)
+        .where((addr) => accountIndex == null || addr.accountIndex == accountIndex);
     final hiddenAddresses = addressesByType.where((addr) => addr.isHidden == true);
     final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false);
     walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
@@ -2774,10 +2778,18 @@ abstract class ElectrumWalletBase
   Future<void> fetchBitcoinTransactionsForInitialRestore(
       Map<String, ElectrumTransactionInfo> historiesWithDetails,
       ) async {
-    final accountIndexes = walletAddresses.accountIndexes.toList()..sort();
+    int accountIndex = 0;
 
-    for (final accountIndex in accountIndexes) {
-      final historyCountBeforeAccount = historiesWithDetails.length;
+    while (true) {
+      if (!mainHdByTypeAndAccount.containsKey(accountIndex)) {
+        _prepareHdForAccount(accountIndex, currency);
+      }
+
+      if (!walletAddresses.accountIndexes.contains(accountIndex)) {
+        walletAddresses.accountIndexes.add(accountIndex);
+        await walletAddresses.prepareAccountAddresses(accountIndex);
+      }
+
 
       for (final addressType in BITCOIN_ADDRESS_TYPES) {
         if (shouldUseBatchFetching) {
@@ -2790,16 +2802,34 @@ abstract class ElectrumWalletBase
           await fetchTransactionsForAddressType(
             historiesWithDetails,
             addressType,
-           // accountIndex: accountIndex,
+            accountIndex: accountIndex,
           );
         }
       }
 
-      final accountHasHistory = historiesWithDetails.length > historyCountBeforeAccount;
+
+      final accountHasHistory = walletAddresses.allAddresses
+          .where((addr) => addr.accountIndex == accountIndex)
+          .any((addr) => addr.isUsed);
 
       if (!accountHasHistory) {
+        // Account has no history — remove it from the wallet and stop discovering
+        if (accountIndex > 0) {
+          walletAddresses.accountIndexes.remove(accountIndex);
+          walletAddresses.removeAddressesForAccount(accountIndex);
+        }
         break;
       }
+
+      // If the account has history, add it to the wallet (if it's not the first account).
+      if (accountIndex > 0) {
+        await walletInfo.addAccount(
+          accountIndex: accountIndex,
+          label: 'Account $accountIndex',
+        );
+      }
+      // Move on to the next account index
+      accountIndex++;
     }
   }
 

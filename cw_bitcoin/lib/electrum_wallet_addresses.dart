@@ -147,6 +147,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final Map<int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>> mainHdByTypeAndAccount;
   final Map<int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>> sideHdByTypeAndAccount;
   List<int> accountIndexes;
+
+  @observable
   int currentAccountIndex;
   final Bip32Slip10Secp256k1 legacyMainHd;
   final Bip32Slip10Secp256k1 legacySideHd;
@@ -1023,6 +1025,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       silentAddresses.remove(addressRecord);
       updateAddressesByMatch();
     }
+
+    // Remove all addresses associated with a specific account index.
+  @action
+  void removeAddressesForAccount(int accountIndex) {
+    _addresses.removeWhere((addr) => addr.accountIndex == accountIndex);
+    updateAddressesByMatch();
+    updateReceiveAddresses();
+    updateChangeAddresses();
+  }
 
   Bip32Slip10Secp256k1 _hdForAddressGeneration({
     required bool isHidden,
