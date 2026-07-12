@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:path/path.dart' as p;
 import 'package:cw_evm/clients/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_client_factory.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
@@ -166,29 +168,30 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
+    if (currentName == newName) return;
+
     final currentWalletInfo = await _findWalletByName(currentName);
     if (currentWalletInfo == null) {
       throw Exception('Wallet not found');
     }
 
-    final currentWallet = await _openWalletInstance(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
+    final type = currentWalletInfo.type;
 
-    await currentWallet.renameWalletFiles(newName);
+    await copyWalletFilesTo(fromName: currentName, toName: newName, type: type);
+    await saveBackup(newName, walletInfo: currentWalletInfo);
 
-    // Update walletInfo with new name before saving backup
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, currentWalletInfo.type);
-    newWalletInfo.name = newName;
+    currentWalletInfo.id = WalletBase.idFor(newName, type);
+    currentWalletInfo.name = newName;
+    await currentWalletInfo.save();
 
-    // Pass walletInfo to saveBackup to avoid lookup (since WalletInfo not saved yet)
-    await saveBackup(newName, walletInfo: newWalletInfo);
-
-    await newWalletInfo.save();
+    final oldDir = Directory(p.join(await pathForWalletTypeDir(type: type), currentName));
+    if (oldDir.existsSync()) {
+      try {
+        await oldDir.delete(recursive: true);
+      } catch (e) {
+        printV('rename: failed to delete old wallet dir "$currentName": $e');
+      }
+    }
   }
 
   @override

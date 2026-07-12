@@ -7,6 +7,13 @@ abstract class PaymentURI {
   final String address;
 }
 
+class ExternalAddressURI extends PaymentURI {
+  ExternalAddressURI({required super.amount, required super.address});
+
+  @override
+  String toString() => address;
+}
+
 class MoneroURI extends PaymentURI {
   MoneroURI({required super.amount, required super.address});
 
