@@ -35,6 +35,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -445,9 +446,9 @@ class SendPage extends BasePage {
                                     }
                   
                                     if (sendViewModel.wallet.type == WalletType.monero) {
-                                      int amount = 0;
+                                      var amount = Money.zero(sendViewModel.wallet.currency);
                                       for (var item in sendViewModel.outputs) {
-                                        amount += item.formattedCryptoAmount;
+                                        amount += item.cryptoAmountMoney;
                                       }
                                       if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                                         await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
@@ -779,7 +780,6 @@ class SendPage extends BasePage {
     }
 
     output.resetParsedAddress();
-    await output.fetchParsedAddress(context);
   }
 
   Output _defineCurrentOutput() {

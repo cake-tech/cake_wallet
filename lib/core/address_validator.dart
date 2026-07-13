@@ -12,29 +12,54 @@ const AFTER_REGEX = '(\$|\\s)';
 class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type, bool isTestnet = false})
       : super(
-          errorMessage: S.current.error_text_address,
-          useAdditionalValidation: [CryptoCurrency.btc, CryptoCurrency.ltc].contains(type)
-              ? (String txt) {
-                  final RegExp lightningInvoiceRegex = RegExp(
-                      r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]+$',
-                      caseSensitive: false);
-                  if (lightningInvoiceRegex.hasMatch(txt)) return true;
+    errorMessage: S.current.error_text_address,
+    useAdditionalValidation: [CryptoCurrency.btc, CryptoCurrency.ltc].contains(type)
+        ? (String txt) {
+      final RegExp lightningInvoiceRegex = RegExp(
+          r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]+$',
+          caseSensitive: false);
+      if (lightningInvoiceRegex.hasMatch(txt)) return true;
 
-                  return BitcoinAddressUtils.validateAddress(
-                    address: txt,
-                    network: type == CryptoCurrency.btc
-                        ? isTestnet
-                            ? BitcoinNetwork.testnet
-                            : BitcoinNetwork.mainnet
-                        : LitecoinNetwork.mainnet,
-                  );
-                }
-              : type == CryptoCurrency.zano
-                  ? zano?.validateAddress
-                  : null,
-          pattern: getPattern(type, isTestnet: isTestnet),
-          length: getLength(type),
-        );
+      return BitcoinAddressUtils.validateAddress(
+        address: txt,
+        network: type == CryptoCurrency.btc
+            ? isTestnet
+            ? BitcoinNetwork.testnet
+            : BitcoinNetwork.mainnet
+            : LitecoinNetwork.mainnet,
+      );
+    }
+        : type == CryptoCurrency.zano
+        ? zano?.validateAddress
+        : null,
+    pattern: getPattern(type, isTestnet: isTestnet),
+    length: getLength(type),
+  );
+
+  static const List<CryptoCurrency> reliableValidateCurrencies = [
+    CryptoCurrency.xmr,
+    CryptoCurrency.btc,
+    CryptoCurrency.ltc,
+    CryptoCurrency.bch,
+    CryptoCurrency.trx,
+    CryptoCurrency.nano,
+    CryptoCurrency.sol,
+    CryptoCurrency.zano,
+    CryptoCurrency.ada,
+    CryptoCurrency.xrp,
+    CryptoCurrency.xhv,
+    CryptoCurrency.zaddr,
+    CryptoCurrency.zec,
+    CryptoCurrency.dcr,
+    CryptoCurrency.rvn,
+    CryptoCurrency.near,
+    CryptoCurrency.rune,
+    CryptoCurrency.scrt,
+    CryptoCurrency.stx,
+    CryptoCurrency.kmd,
+    CryptoCurrency.doge,
+    CryptoCurrency.btcln,
+  ];
 
   static String getPattern(CryptoCurrency type, {bool isTestnet = false}) {
     var pattern = "";
@@ -146,13 +171,13 @@ class AddressValidator extends TextValidator {
         pattern = '[0-9a-zA-Z.]+';
       case CryptoCurrency.zec:
         pattern =
-          '(?:'
-          't1[0-9A-Za-z]{33}'
-          '|t3[0-9A-Za-z]{33}'
-          '|zs[a-z0-9]{76}'
-          '|zxviews[a-z0-9]{278}'
-          '|u1[a-z0-9]{1,300}'
-          ')';
+        '(?:'
+            't1[0-9A-Za-z]{33}'
+            '|t3[0-9A-Za-z]{33}'
+            '|zs[a-z0-9]{76}'
+            '|zxviews[a-z0-9]{278}'
+            '|u1[a-z0-9]{1,300}'
+            ')';
       case CryptoCurrency.dcr:
         pattern = '(D|T|S)[ksecS]([0-9a-zA-Z])+';
       case CryptoCurrency.rvn:
@@ -344,7 +369,7 @@ class AddressValidator extends TextValidator {
             '|([0-9a-zA-Z]{106})';
       case CryptoCurrency.btc:
         pattern =
-            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
+        '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
       case CryptoCurrency.ltc:
         pattern = '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'

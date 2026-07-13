@@ -9,7 +9,6 @@ import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -50,10 +49,9 @@ String _moneroRecipientAddressForDisplay(String raw, WalletType walletType) {
   return match?.group(0) ?? raw.trim();
 }
 
-bool isLightning(TransactionInfo tx) {
-  printV(tx.additionalInfo);
-  return (tx.additionalInfo["isLightning"] as bool?) ?? false;
-}
+bool isLightning(TransactionInfo tx) => (tx.additionalInfo["isLightning"] as bool?) ?? false;
+
+bool hasLightningPreimage(TransactionInfo tx) => (tx.additionalInfo["preimage"] as String?) != null;
 
 class TxDetailRowDefinition {
   final String keyString;
@@ -79,22 +77,22 @@ class TxDetailRowDefinition {
         title: S.current.transaction_details_date,
         valueGetter: (vm) => DateFormatter.withCurrentLocal().format(vm.transactionInfo.date)),
 
-
     TxDetailRowDefinition(
-        keyString: "standard_list_item_transaction_details_height_key",
-        title: S.current.transaction_details_height,
-        valueGetter: (vm) => vm.transactionInfo.height?.toString() ?? "",
-        applicable: (vm) => !([WalletType.solana, WalletType.tron].contains(vm.wallet.type) &&
-            !isLightning(vm.transactionInfo))),
-
+      keyString: "standard_list_item_transaction_details_height_key",
+      title: S.current.transaction_details_height,
+      valueGetter: (vm) => vm.transactionInfo.height?.toString() ?? "",
+      applicable: (vm) =>
+          ![WalletType.solana, WalletType.tron].contains(vm.wallet.type) ||
+          !isLightning(vm.transactionInfo),
+    ),
 
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_fee_key",
         title: S.current.transaction_details_fee,
-        valueGetter: (vm) => vm.transactionInfo.feeFormatted()!,
+        valueGetter: (vm) => vm.transactionInfo.fee!.toStringWithSymbol(),
         applicable: (vm) =>
             vm.wallet.type != WalletType.nano &&
-            (vm.transactionInfo.feeFormatted() ?? "").isNotEmpty),
+            (vm.transactionInfo.fee?.toStringWithSymbol() ?? "").isNotEmpty),
 
 
     TxDetailRowDefinition(
@@ -188,6 +186,13 @@ class TxDetailRowDefinition {
         },
         applicable: (vm) => vm.wallet.type == WalletType.monero),
 
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_lightning_preimage",
+      title: S.current.transaction_preimage,
+      valueGetter: (vm) => vm.transactionInfo.additionalInfo['preimage'] as String? ?? "",
+      applicable: (vm) =>
+          hasLightningPreimage(vm.transactionInfo) && isLightning(vm.transactionInfo),
+    ),
 
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_confirmed_key",
@@ -316,10 +321,9 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
+    if (isEVMCompatibleChain(wallet.type)) return evm!.assetOfTransaction(wallet, transactionInfo);
 
-    if (isEVMCompatibleChain(wallet.type)) {
-      return evm!.assetOfTransaction(wallet, transactionInfo);
-    }
+    if (isLightning(transactionInfo)) return CryptoCurrency.btcln;
 
     return switch (wallet.type) {
       WalletType.solana => solana!.assetOfTransaction(wallet, transactionInfo),
@@ -328,7 +332,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       _ => walletTypeToCryptoCurrency(wallet.type)
     };
   }
-
 
   // TODO integrate these getters with the TransactionInfo object
   String get formattedPendingStatus {
@@ -496,14 +499,15 @@ abstract class TransactionDetailsViewModelBase with Store {
     RBFListItems.add(
       StandartListItem(
         title: S.current.old_fee,
-        value: tx.feeFormatted() ?? '0.0',
+        value: tx.fee?.toStringWithSymbol() ?? '0.0',
         key: ValueKey('standard_list_item_rbf_old_fee_key'),
       ),
     );
 
     if (transactionInfo.fee != null && rawTransaction.isNotEmpty) {
       final size = bitcoin!.getTransactionVSize(wallet, rawTransaction);
-      final recommendedRate = (transactionInfo.fee! / size).round() + 1;
+      final recommendedRate = (transactionInfo.fee! / BigInt.from(size)) +
+          transactionInfo.fee!.copyWith(amount: BigInt.one);
 
       RBFListItems.add(
           StandartListItem(title: 'New recommended fee rate', value: '$recommendedRate sat/byte'));
@@ -609,14 +613,14 @@ abstract class TransactionDetailsViewModelBase with Store {
     if (wallet.type == WalletType.bitcoin) {
       final crypto = isLightning(transactionInfo) ? CryptoCurrency.btcln : CryptoCurrency.btc;
       final amount = _appStore.amountParsingProxy
-          .getDisplayCryptoString(transactionInfo.amount, crypto)
+          .asDisplayString(transactionInfo.amount)
           .withMaxDecimals(8)
           .withLocalSeperator(_appStore.settingsStore.languageCode);
 
       return '$amount ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
     }
 
-    return transactionInfo.amountFormatted();
+    return transactionInfo.amount.toStringWithSymbol();
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee);

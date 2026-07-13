@@ -303,14 +303,14 @@ class CWMonero extends Monero {
       MoneroTransactionCreationCredentials(
           outputs: outputs
               .map((out) => OutputInfo(
-                  fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
-                  address: out.address,
-                  note: out.note,
-                  sendAll: out.sendAll,
-                  extractedAddress: out.extractedAddress,
-                  isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
+                    fiatAmount: out.fiatAmount,
+                    cryptoAmount: out.cryptoAmountMoney,
+                    address: out.address,
+                    note: out.note,
+                    sendAll: out.sendAll,
+                    extractedAddress: out.extractedAddress,
+                    isParsedAddress: out.isParsedAddress,
+                  ))
               .toList(),
           priority: priority as MoneroTransactionPriority);
 
@@ -413,7 +413,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  bool needExportOutputs(Object wallet, int amount) {
+  bool needExportOutputs(Object wallet, Money amount) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.needExportOutputs(amount);
   }

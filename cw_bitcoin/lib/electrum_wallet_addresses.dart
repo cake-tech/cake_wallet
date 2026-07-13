@@ -170,9 +170,22 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   List<BitcoinAddressRecord> get allAddresses => _addresses;
 
+  @observable
+  bool addressRefreshToggle = false;
+
+  @action
+  String getFreshAddress() {
+    addressRefreshToggle = !addressRefreshToggle;
+    return address;
+  }
+
+  @override
+  String get addressForExchange => getFreshAddress();
+
   @override
   @computed
   String get address {
+    final _ = addressRefreshToggle;
     if (addressPageType == SilentPaymentsAddresType.p2sp) {
       if (activeSilentAddress != null) {
         return activeSilentAddress!;
@@ -198,7 +211,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     ];
 
     final typeMatchingReceiveAddressesAll =
-        typeMatchingAddressesAll.where((addr) => !addr.isUsed).toList();
+        typeMatchingAddressesAll.where((addr) => !addr.isUsed && !hiddenAddresses.contains(addr.address)).toList();
     final typeMatchingReceiveAddresses = <BitcoinAddressRecord>[
       ...typeMatchingReceiveAddressesAll.where((a) => !a.isLegacyDerivation),
       ...typeMatchingReceiveAddressesAll.where((a) => a.isLegacyDerivation),
@@ -221,10 +234,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final locked = lockedReceiveAddressByType[addressPageType];
-    if (locked != null) return locked;
+    if (locked != null && !hiddenAddresses.contains(locked)) return locked;
 
     final prev = previousAddressRecord;
-    if (prev != null && prev.type == addressPageType && !prev.isUsed && !prev.isLegacyDerivation) {
+    if (prev != null &&
+        prev.type == addressPageType &&
+        !prev.isUsed &&
+        !prev.isLegacyDerivation &&
+        !hiddenAddresses.contains(prev.address)) {
       return prev.address;
     }
 

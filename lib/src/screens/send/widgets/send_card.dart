@@ -594,7 +594,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   controller: addressController,
                   onURIScanned: (uri) async {
                     output.resetParsedAddress();
-                    await output.fetchParsedAddress(context);
 
                     // Process the payment through the new flow
                     await _handlePaymentFlow(
@@ -620,7 +619,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     _justHandledPasteButton = true;
                     try {
                       output.resetParsedAddress();
-                      await output.fetchParsedAddress(context);
 
                       final address =
                           output.isParsedAddress ? output.extractedAddress : output.address;
@@ -643,7 +641,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     output.resetParsedAddress();
                   },
                   onSelectedContact: (contact) {
-                    output.loadContact(contact);
                   },
                   validator: validator,
                   selectedCurrency: sendViewModel.selectedCryptoCurrency,
@@ -1032,8 +1029,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         final current = addressController.text.trim();
         if (current.isEmpty) return;
         if (_justHandledPasteButton || _lastHandledAddress == current) return;
-
-        await output.fetchParsedAddress(context);
 
         // If it's a URI with params, go through URI flow
         if (current.contains('=')) {
