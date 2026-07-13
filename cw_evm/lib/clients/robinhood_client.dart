@@ -27,7 +27,6 @@ class RobinhoodClient extends EVMChainClient {
     EtherAmount? finalGasPrice = gasPrice;
 
     if (gasPrice == null && maxFeePerGas != null) {
-      // If we have EIP-1559 parameters but no legacy gasPrice, then use maxFeePerGas as gasPrice
       finalGasPrice = maxFeePerGas;
     }
 
