@@ -552,7 +552,8 @@ abstract class ZcashWalletBase
     final TransactionDirection? directionOverride,
     final BigInt? amountOverride,
   }) {
-    final confirmations = tx.height > 0 && currentHeight > 0 ? currentHeight - tx.height + 1 : 0;
+    final confirmations =
+        tx.height > 0 && currentHeight >= tx.height ? currentHeight - tx.height + 1 : 0;
     final memo = extraMemo != null ? "${tx.memo ?? ''}\n$extraMemo".trim() : tx.memo;
     final direction = directionOverride ?? tx.direction;
     final recipientAddresses = _recipientAddresses(_paymentOutputAddresses(tx), direction);

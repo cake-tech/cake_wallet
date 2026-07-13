@@ -237,7 +237,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
       color: Theme.of(context).colorScheme.onSurface,
     );
     final lines = value
-        .split(RegExp(r'\n+'))
+        .split(RegExp(r'[,\n]'))
         .map((final line) => line.trim())
         .where((final line) => line.isNotEmpty)
         .toList();
