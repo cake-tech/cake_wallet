@@ -47,8 +47,6 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
 
   @override
   Widget build(BuildContext context) {
-    final transactionInfoAmount = widget.transactionDetailsViewModel.transactionInfo.amount;
-
     return DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.9,
@@ -88,17 +86,29 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                 Text(
                                   widget.transactionDetailsViewModel.formattedTitle +
                                       widget.transactionDetailsViewModel.formattedStatus,
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
-                                CopyWrapper(
-                                  requireLongPress: true,
-                                  data: ClipboardData(text: transactionInfoAmount.toString()),
-                                  builder: (context, copied)=> AnimatedSwitcher(
-                                    duration: Duration(milliseconds: 300),
-                                    child: Text(
-                                      key: ValueKey(copied),
-                                      copied ? S.of(context).copied : transactionInfoAmount.toStringWithSymbol(),
-                                      style: TextStyle(fontSize: 28, color: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface),
+                                Observer(
+                                  builder: (_) => CopyWrapper(
+                                    requireLongPress: true,
+                                    data: ClipboardData(
+                                      text:
+                                          widget.transactionDetailsViewModel.transactionCopyAmount,
+                                    ),
+                                    builder: (context, copied) => AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 300),
+                                      child: Text(
+                                        key: ValueKey(copied),
+                                        copied
+                                            ? S.of(context).copied
+                                            : widget.transactionDetailsViewModel.transactionAmount,
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          color: copied
+                                              ? Theme.of(context).colorScheme.primary
+                                              : Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),

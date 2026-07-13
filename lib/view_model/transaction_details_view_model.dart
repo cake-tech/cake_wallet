@@ -6,7 +6,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -89,7 +88,7 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_fee_key",
         title: S.current.transaction_details_fee,
-        valueGetter: (vm) => vm.transactionInfo.fee!.toStringWithSymbol(),
+        valueGetter: (vm) => vm.feeAmount,
         applicable: (vm) =>
             vm.wallet.type != WalletType.nano &&
             (vm.transactionInfo.fee?.toStringWithSymbol() ?? "").isNotEmpty),
@@ -333,6 +332,18 @@ abstract class TransactionDetailsViewModelBase with Store {
     };
   }
 
+  @computed
+  String get transactionAmount =>
+      _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.amount);
+
+  @computed
+  String get feeAmount =>
+      _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.fee!);
+
+  @computed
+  String get transactionCopyAmount =>
+      _appStore.amountParsingProxy.asDisplayString(transactionInfo.amount);
+
   // TODO integrate these getters with the TransactionInfo object
   String get formattedPendingStatus {
     switch (wallet.type) {
@@ -571,9 +582,6 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
   }
 
-
-
-
   @action
   Future<void> _checkForRBF(TransactionInfo tx) async {
     if (wallet.type == WalletType.bitcoin &&
@@ -611,31 +619,5 @@ abstract class TransactionDetailsViewModelBase with Store {
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
   }
 
-  String get formattedCryptoAmount {
-    if (wallet.type == WalletType.bitcoin) {
-      final crypto = isLightning(transactionInfo) ? CryptoCurrency.btcln : CryptoCurrency.btc;
-      final amount = _appStore.amountParsingProxy
-          .asDisplayString(transactionInfo.amount)
-          .withMaxDecimals(8)
-          .withLocalSeperator(_appStore.settingsStore.languageCode);
-
-      return '$amount ${_appStore.amountParsingProxy.getCryptoSymbol(crypto)}';
-    }
-
-    return transactionInfo.amount.toStringWithSymbol();
-  }
-
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee);
-
-  @computed
-  String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFiatAmount + ' ' + sendViewModel.fiat.title;
-
-  @computed
-  String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
-      ? ''
-      : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
-
-
 }
