@@ -78,7 +78,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   .firstWhereOrNull((item) => item.value.contains("Lightning")) ??
               ReceivePageOption.mainnet,
         );
-        widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
+        widget.addressListViewModel.selectedCurrency = CryptoCurrency.btcln;
       } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
         widget.receiveOptionViewModel.selectReceiveOption(
           widget.receiveOptionViewModel.options
@@ -102,6 +102,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
         (ReceivePageOption option) {
       if (widget.dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {
+        widget.addressListViewModel.selectedCurrency =
+            option.value.contains("Lightning") ? CryptoCurrency.btcln : CryptoCurrency.btc;
         widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
         return;
       }

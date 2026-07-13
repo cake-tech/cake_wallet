@@ -83,7 +83,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   String get cryptoCurrencySymbol =>
-      _appStore.amountParsingProxy.getCryptoSymbol(tokenCurrency ?? wallet.currency);
+      _appStore.amountParsingProxy.getCryptoSymbol(tokenCurrency ??
+          (selectedCurrency is CryptoCurrency
+              ? selectedCurrency as CryptoCurrency
+              : wallet.currency));
 
   void setTokenCurrency(Currency curr) {
     if(curr == wallet.currency || curr == CryptoCurrency.btcln) {
@@ -135,8 +138,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   String _amount = '';
 
   @computed
-  String get displayAmount => _appStore.amountParsingProxy
-      .getDisplayCryptoAmount(_amount, tokenCurrency ?? wallet.currency);
+  String get displayAmount => _appStore.amountParsingProxy.getDisplayCryptoAmount(
+      _amount,
+      tokenCurrency ??
+          (selectedCurrency is CryptoCurrency
+              ? selectedCurrency as CryptoCurrency
+              : wallet.currency));
 
   // NOT PRECISE! just for display purposes.
   @computed
