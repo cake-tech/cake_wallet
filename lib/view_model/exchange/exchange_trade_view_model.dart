@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cake_wallet/utils/qr_util.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
@@ -48,8 +50,8 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.feesViewModel,
     required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
-        isSendable = _checkIfCanSend(tradesStore, wallet),
-        isSwapsXYZCanSendFromExternal = _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
+        isSwapsXYZCanSendFromExternal =
+            _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     setUpOutput();
     switch (trade.provider) {
@@ -115,11 +117,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   Trade trade;
 
-  @observable
-  bool isSendable;
-
-
   bool isSwapsXYZCanSendFromExternal;
+
+  bool get isSendable => checkIfCanSend(trade, wallet) == null;
 
   /// Providers that should hide the "send from external" button
   static const List<Type> _providersThatHideExternalSend = [
@@ -212,7 +212,13 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @action
   Future<void> confirmSending() async {
-    if (!isSendable) return;
+    final canSendError = checkIfCanSend(trade, wallet);
+
+    if (canSendError != null) {
+      _logCanSendError(trade, wallet, canSendError);
+      sendViewModel.state = FailureState(canSendError);
+      return;
+    }
 
     final selected = trade.from;
     if (selected == null) {
@@ -302,18 +308,17 @@ abstract class ExchangeTradeViewModelBase with Store {
       items.add(
         isSwapsXYZCanSendFromExternal
             ? ExchangeTradeItem(
-            title: S.current.send_to_this_address('${tradeFrom}', tagFrom) +
-                ':',
-            data: trade.inputAddress ?? '',
-            isCopied: false,
-            isReceiveDetail: false,
-            isExternalSendDetail: true)
+                title: S.current.send_to_this_address('${tradeFrom}', tagFrom) + ':',
+                data: trade.inputAddress ?? '',
+                isCopied: false,
+                isReceiveDetail: false,
+                isExternalSendDetail: true)
             : ExchangeTradeItem(
-            title: 'Smart contract call (no address required)',
-            data: 'Wallet will execute a contract call. On-chain transaction',
-            isCopied: false,
-            isReceiveDetail: false,
-            isExternalSendDetail: true),
+                title: 'Smart contract call (no address required)',
+                data: 'Wallet will execute a contract call. On-chain transaction',
+                isCopied: false,
+                isReceiveDetail: false,
+                isExternalSendDetail: true),
       );
     }
 
@@ -348,64 +353,65 @@ abstract class ExchangeTradeViewModelBase with Store {
     );
   }
 
-  static bool _checkIfCanSend(TradesStore tradesStore, WalletBase wallet) {
-    final trade = tradesStore.trade!;
+  String? checkIfCanSend(Trade? trade, WalletBase wallet) {
+    if (trade == null) return 'Trade is null';
+
     final tradeFrom = trade.from;
+    if (tradeFrom == null) return 'Trade from currency is null';
 
-    bool _sameCurrency(CryptoCurrency? a, CryptoCurrency? b) =>
-        a != null && b != null && a.titleAndTagEqual(b);
+    bool _sameCurrency(CryptoCurrency a, CryptoCurrency b) => a.titleAndTagEqual(b);
 
-    bool _isEthToken() =>
-        wallet.currency == CryptoCurrency.eth && tradeFrom?.tag == CryptoCurrency.eth.title;
+    bool _isTokenBelongingToWallet(CryptoCurrency cur) {
+      final chainTag = cur.tag ?? cur.title;
+      return wallet.currency == cur &&
+          (tradeFrom.tag?.toUpperCase() == chainTag.toUpperCase() ||
+              tradeFrom.title.toUpperCase() == chainTag.toUpperCase());
+    }
 
-    bool _isPolygonToken() =>
-        wallet.currency == CryptoCurrency.maticpoly &&
-        tradeFrom?.tag == CryptoCurrency.maticpoly.tag;
+    final canSend = _sameCurrency(tradeFrom, wallet.currency) ||
+        (_sameCurrency(tradeFrom, CryptoCurrency.btcln) && wallet.currency == CryptoCurrency.btc) ||
+        trade.provider == ExchangeProviderDescription.xmrto ||
+        _isTokenBelongingToWallet(CryptoCurrency.eth) ||
+        _isTokenBelongingToWallet(CryptoCurrency.maticpoly) ||
+        _isTokenBelongingToWallet(CryptoCurrency.baseEth) ||
+        _isTokenBelongingToWallet(CryptoCurrency.arbEth) ||
+        _isTokenBelongingToWallet(CryptoCurrency.trx) ||
+        _isTokenBelongingToWallet(CryptoCurrency.sol) ||
+        _isTokenBelongingToWallet(CryptoCurrency.bnb) ||
+        _isTokenBelongingToWallet(CryptoCurrency.robEth);
 
-    bool _isBaseToken() =>
-        wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.tag;
+    if (!canSend) {
+      return 'Wallet currency ${wallet.currency.title} does not match trade from currency ${tradeFrom.title} or is not a supported token for this wallet.';
+    }
 
-    bool _isArbitrumToken() =>
-        wallet.currency == CryptoCurrency.arbEth &&
-        (tradeFrom?.tag == CryptoCurrency.arbEth.tag ||
-            tradeFrom?.title == CryptoCurrency.arbEth.tag); // This is to handle the CryptoCurrency.arb that doesn't have a tag but fully belongs to the Arbitrum chain
+    return null;
+  }
 
-    bool _isTronToken() =>
-        wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
-
-    bool _isSplToken() =>
-        wallet.currency == CryptoCurrency.sol && tradeFrom?.tag == CryptoCurrency.sol.title;
-
-    bool _isBscToken() =>
-        wallet.currency == CryptoCurrency.bnb && tradeFrom?.tag == CryptoCurrency.bnb.tag;
-
-    bool _isRobinhoodToken() =>
-        wallet.currency == CryptoCurrency.robEth && tradeFrom?.tag == CryptoCurrency.robEth.tag;
-
-    return _sameCurrency(tradeFrom, wallet.currency) ||
-        (_sameCurrency(tradeFrom, CryptoCurrency.btcln) &&
-            wallet.currency == CryptoCurrency.btc) ||
-        tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
-        _isEthToken() ||
-        _isPolygonToken() ||
-        _isSplToken() ||
-        _isTronToken() ||
-        _isBaseToken() ||
-        _isArbitrumToken() ||
-        _isBscToken() ||
-        _isRobinhoodToken();
+  void _logCanSendError(Trade? trade, WalletBase wallet, String error) {
+    ExchangeProviderLogger.logError(
+      provider: trade?.provider,
+      function: '_checkIfCanSend',
+      error: error,
+      requestData: {
+        'tradeId': trade?.id,
+        'tradeFrom': trade?.from?.title,
+        'tradeFromTag': trade?.from?.tag,
+        'tradeTo': trade?.to?.title,
+        'tradeToTag': trade?.to?.tag,
+        'walletName': wallet.name,
+        'walletCurrency': wallet.currency.title,
+        'walletCurrencyTag': wallet.currency.tag,
+      },
+    );
   }
 
   static bool _checkIfSwapsXYZCanSendFromExternal(Trade trade, WalletBase wallet) {
     final provider = trade.provider;
 
-    if (provider == ExchangeProviderDescription.swapsXyz &&
-        isEVMCompatibleChain(wallet.type)) {
-
-      if(trade.routerData != null &&  trade.routerData != '0x') {
+    if (provider == ExchangeProviderDescription.swapsXyz && isEVMCompatibleChain(wallet.type)) {
+      if (trade.routerData != null && trade.routerData != '0x') {
         return false;
       }
-
     }
     return true;
   }
@@ -456,9 +462,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.monero:
         return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.wownero:
-        return MoneroURI(
-            address: inputAddress,
-            amount: amount);
+        return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: inputAddress);
       case WalletType.nano:

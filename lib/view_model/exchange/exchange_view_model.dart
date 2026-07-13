@@ -45,6 +45,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/amount/money_double.dart';
 import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -804,7 +805,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     final amount_ = _enteredAmount / (forcedProvider == null ? bestRate : forcedProviderRate);
-    _depositAmount = Money.tryParse(amount_.toStringAsFixed(depositCurrency.decimals), depositCurrency);
+    _depositAmount = amount_.tryToMoney(depositCurrency);
   }
 
   @action
@@ -863,8 +864,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     final amount_ = _enteredAmount * (forcedProvider == null ? bestRate : forcedProviderRate);
-    _receiveAmount =
-        Money.tryParse(amount_.toStringAsFixed(min(20, receiveCurrency.decimals)), receiveCurrency);
+    _receiveAmount = amount_.tryToMoney(receiveCurrency);
   }
 
   bool checkIfInputMeetsMinOrMaxCondition(String input) {
