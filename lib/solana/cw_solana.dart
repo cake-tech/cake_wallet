@@ -387,9 +387,11 @@ class CWSolana extends Solana {
         tokenChecks.add((() async {
           final token = item.token;
 
+          final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
+
           final fiatResult = await _getTokenUsdValueAndFiatCheck(token, item.balance);
 
-          final isSpam = !fiatResult.hasValidFiatPrice;
+          final isSpam = isPropertiesSuspicious || !fiatResult.hasValidFiatPrice;
 
           token.isPotentialScam = isSpam;
           token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
