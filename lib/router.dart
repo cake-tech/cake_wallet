@@ -679,7 +679,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeConfirmPage>());
 
     case Routes.tradeDetails:
-      return MaterialPageRoute<void>(
+      return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
