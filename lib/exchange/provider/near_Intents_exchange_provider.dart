@@ -271,15 +271,17 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         throw Exception('Failed to parse to currency from assetId: $toAssetId');
       }
 
-      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency.$1, tag: fromCurrency.$2);
-      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency.$1, tag: toCurrency.$2);
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency.$1,
+          tag: fromCurrency.$2);
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency.$1,
+          tag: toCurrency.$2);
 
 
       final trade = Trade(
         id: depositAddress,
         // Using deposit address as trade ID
         from: request.fromCurrency,
-        to: request.fromCurrency,
+        to: request.toCurrency,
         provider: description,
         providerName: title,
         state: TradeState.created,
