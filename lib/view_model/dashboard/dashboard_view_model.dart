@@ -274,9 +274,9 @@ abstract class DashboardViewModelBase with Store {
           onChanged: transactionFilterStore.toggleSilentPayments,
         ),
       SwapFilterItem(
-          enabledProviders: () => tradeFilterStore.enabledProviders,
+          enabledProviders: () => tradeFilterStore.enabledProvidersCount,
           allEnabled: () => tradeFilterStore.displayAllTrades,
-          value: () => tradeFilterStore.enabledProviders>0,
+          value: () => tradeFilterStore.enabledProvidersCount>0,
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
       FilterItem(

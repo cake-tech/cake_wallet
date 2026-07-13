@@ -70,7 +70,7 @@ abstract class TradeFilterStoreBase with Store {
   bool displayNearIntents;
 
   @computed
-  int get enabledProviders => [
+  int get enabledProvidersCount => [
     displayChangeNow,
     displaySideShift,
     displaySimpleSwap,
