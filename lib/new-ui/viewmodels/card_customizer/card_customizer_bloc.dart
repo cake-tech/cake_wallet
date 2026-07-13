@@ -174,29 +174,29 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(accountName: event.newAccountName));
   }
 
-  void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) {
-    BalanceCardStyleSettings.fromCardDesign(
+  void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) async {
+    await BalanceCardStyleSettings.fromCardDesign(
             walletInfoId: _wallet.walletInfo.internalId,
             accountIndex: state.accountIndex,
             cardOrder: state.cardOrder,
             design: state.selectedDesign,
             iconStyleIndex: state.selectedIconIndex,
             gradientIndexOverride: state.selectedColorIndex)
-        .insert()
-        .then((value) {
-      emit(CardCustomizerSaved(
-          state.selectedDesignIndex,
-          state.selectedColorIndex,
-          state.availableDesigns,
-          state.availableColors,
-          state.accountName,
-          state.accountIndex,
-          state.displaySats,
-          state.cardOrder,
-          availableIconPaths: state.availableIconPaths,
-          selectedIconIndex: state.selectedIconIndex));
-    });
-    saveAccountName();
+        .insert();
+
+    await saveAccountName();
+
+    emit(CardCustomizerSaved(
+        state.selectedDesignIndex,
+        state.selectedColorIndex,
+        state.availableDesigns,
+        state.availableColors,
+        state.accountName,
+        state.accountIndex,
+        state.displaySats,
+        state.cardOrder,
+        availableIconPaths: state.availableIconPaths,
+        selectedIconIndex: state.selectedIconIndex));
   }
 
   Future<void> saveAccountName() async {

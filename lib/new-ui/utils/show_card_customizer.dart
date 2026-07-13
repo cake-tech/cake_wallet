@@ -53,6 +53,7 @@ Future<void> showCardCustomizer({
   bloc.add(DesignSaved());
   await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
   await dashboardViewModel.loadCardDesigns();
+  await dashboardViewModel.accountListViewModel?.reload();
 
   onSaved?.call();
 }
