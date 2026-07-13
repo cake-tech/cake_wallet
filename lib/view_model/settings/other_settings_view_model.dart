@@ -102,6 +102,7 @@ abstract class OtherSettingsViewModelBase with Store {
         WalletType.solana,
         WalletType.tron,
         WalletType.arbitrum,
+        WalletType.robinhood,
       ].contains(_wallet.type));
 
   String getDisplayPriority(dynamic priority) {

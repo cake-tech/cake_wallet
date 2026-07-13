@@ -1558,6 +1558,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.bnb;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.robinhood:
+        depositCurrency = CryptoCurrency.robEth;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.solana:
         depositCurrency = CryptoCurrency.sol;
         receiveCurrency = CryptoCurrency.xmr;

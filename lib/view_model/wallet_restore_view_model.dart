@@ -54,6 +54,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.decred:
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -92,6 +93,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.base,
     WalletType.arbitrum,
     WalletType.bsc,
+    WalletType.robinhood,
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
@@ -171,6 +173,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           return evm!.createEVMRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
@@ -277,6 +280,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           return evm!.createEVMRestoreWalletFromPrivateKey(
             name: name,
             password: password,

@@ -379,6 +379,9 @@ abstract class ExchangeTradeViewModelBase with Store {
     bool _isBscToken() =>
         wallet.currency == CryptoCurrency.bnb && tradeFrom?.tag == CryptoCurrency.bnb.tag;
 
+    bool _isRobinhoodToken() =>
+        wallet.currency == CryptoCurrency.robEth && tradeFrom?.tag == CryptoCurrency.robEth.tag;
+
     return _sameCurrency(tradeFrom, wallet.currency) ||
         (_sameCurrency(tradeFrom, CryptoCurrency.btcln) &&
             wallet.currency == CryptoCurrency.btc) ||
@@ -389,7 +392,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isTronToken() ||
         _isBaseToken() ||
         _isArbitrumToken() ||
-        _isBscToken();
+        _isBscToken() ||
+        _isRobinhoodToken();
   }
 
   static bool _checkIfSwapsXYZCanSendFromExternal(Trade trade, WalletBase wallet) {
@@ -443,6 +447,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return ArbitrumURI(amount: amount, address: inputAddress);
       case WalletType.bsc:
         return BSCURI(amount: amount, address: inputAddress);
+      case WalletType.robinhood:
+        return RobinhoodURI(amount: amount, address: inputAddress);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: inputAddress);
       case WalletType.tron:

@@ -35,8 +35,9 @@ Future<void> main(List<String> args) async {
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
   final hasBsc = args.contains('${prefix}bsc');
+  final hasRobinhood = args.contains('${prefix}robinhood');
   final hasZcash = args.contains('${prefix}zcash');
-  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc;
+  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc || hasRobinhood;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -71,6 +72,7 @@ Future<void> main(List<String> args) async {
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
+    hasRobinhood: hasRobinhood,
     hasZcash: hasZcash,
   );
   await generateWalletTypes(
@@ -90,6 +92,7 @@ Future<void> main(List<String> args) async {
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
+    hasRobinhood: hasRobinhood,
     hasZcash: hasZcash,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
@@ -1803,6 +1806,7 @@ Future<void> generatePubspec({
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
+  required bool hasRobinhood,
   required bool hasZcash,
 }) async {
   const cwCore = """
@@ -1914,7 +1918,7 @@ Future<void> generatePubspec({
     output += '\n$flutterSecureStorage\n';
   }
 
-  if (hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc) {
+  if (hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc || hasRobinhood) {
     output += '\n$cwEVM';
   }
 
@@ -1963,6 +1967,7 @@ Future<void> generateWalletTypes({
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
+  required bool hasRobinhood,
   required bool hasZcash,
 }) async {
   final walletTypesFile = File(walletTypesPath);
@@ -1989,6 +1994,10 @@ Future<void> generateWalletTypes({
 
   if (hasBsc) {
     outputContent += '\tWalletType.bsc,\n';
+  }
+
+  if (hasRobinhood) {
+    outputContent += '\tWalletType.robinhood,\n';
   }
 
   if (hasSolana) {

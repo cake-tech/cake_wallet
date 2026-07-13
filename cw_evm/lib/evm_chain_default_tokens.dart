@@ -4,6 +4,7 @@ import 'package:cw_evm/tokens/base_tokens.dart';
 import 'package:cw_evm/tokens/bsc_tokens.dart';
 import 'package:cw_evm/tokens/ethereum_tokens.dart';
 import 'package:cw_evm/tokens/polygon_tokens.dart';
+import 'package:cw_evm/tokens/robinhood_tokens.dart';
 
 /// Default ERC20 tokens for each EVM chain and utility methods for interacting with them
 class EVMChainDefaultTokens {
@@ -14,6 +15,7 @@ class EVMChainDefaultTokens {
       8453 => BaseTokens.tokens,
       42161 => ArbitrumTokens.tokens,
       56 => BSCTokens.tokens,
+      4663 => RobinhoodTokens.tokens,
       _ => [],
     };
   }

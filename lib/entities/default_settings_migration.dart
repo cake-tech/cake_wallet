@@ -56,6 +56,7 @@ const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
+const robinhoodDefaultNodeUri = 'rpc.mainnet.chain.robinhood.com';
 const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
 
 Future<void> defaultSettingsMigration(
@@ -605,6 +606,14 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "LetsExchange",
             enabled: true,
+          );
+          break;
+        case 68:
+          await addWalletNodeList(type: WalletType.robinhood);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.robinhood,
+            currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
           );
           break;
         default:

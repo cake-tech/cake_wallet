@@ -54,6 +54,8 @@ abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
         return ArbitrumURI(amount: amount, address: address);
       case 56:
         return BSCURI(amount: amount, address: address);
+      case 4663:
+        return RobinhoodURI(amount: amount, address: address);
       default:
         return EthereumURI(amount: amount, address: address);
     }

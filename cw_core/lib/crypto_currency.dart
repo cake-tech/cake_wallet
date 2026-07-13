@@ -141,6 +141,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.arbEth,
     CryptoCurrency.usdcArb,
     CryptoCurrency.usdtArb,
+    CryptoCurrency.robEth,
   ];
 
   static const havenCurrencies = [
@@ -278,6 +279,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const usdcArb = CryptoCurrency(title: 'USDC', tag: 'ARB', fullName: 'USDC Coin', raw: 108, name: 'usdcarb', iconPath: 'assets/new-ui/crypto_full_icons/usdc.svg',  decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const usdtArb = CryptoCurrency(title: 'USDT', tag: 'ARB', fullName: 'USDT Tether', raw: 109, name: 'usdtarb', iconPath: 'assets/new-ui/crypto_full_icons/usdt.svg',  decimals: 6, groups: const {CurrencyGroups.stablecoin});
   static const ltcmweb = CryptoCurrency(title: 'LTC', fullName: 'Litecoin MWeb', raw: 110, name: 'ltcmweb', iconPath: 'assets/new-ui/crypto_full_icons/litecoin.svg', decimals: 8);
+  static const robEth = CryptoCurrency(title: 'ETH', tag: 'ROB', fullName: 'Ethereum', raw: 111, name: 'robeth', iconPath: 'assets/new-ui/crypto_full_icons/ethereum.svg', decimals: 18, flatIconPath: "assets/new-ui/balance_card_icons/robinhood.svg", chainIconPath: "assets/new-ui/chain_badges/robinhood.svg");
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies, ...zcashCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
@@ -319,6 +321,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'base': baseEth,
     'arbitrum': arbEth,
     'bsc': bnb,
+    'rob': robEth,
+    'robinhood': robEth,
   };
 
   static CryptoCurrency deserialize({required int raw}) {

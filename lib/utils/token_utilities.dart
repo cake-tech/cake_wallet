@@ -180,6 +180,7 @@ class TokenUtilities {
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
       WalletType.bsc => '${walletKey}_${Erc20Token.bscBoxName}',
+      WalletType.robinhood => '${walletKey}_${Erc20Token.robinhoodBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
   }

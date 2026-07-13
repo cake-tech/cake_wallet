@@ -188,12 +188,14 @@ abstract class OutputBase with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           final isNative = [
             CryptoCurrency.eth,
             CryptoCurrency.maticpoly,
             CryptoCurrency.baseEth,
             CryptoCurrency.arbEth,
-            CryptoCurrency.bnb
+            CryptoCurrency.bnb,
+            CryptoCurrency.robEth
           ].contains(cryptoCurrencyHandler());
 
           final fee = isNative

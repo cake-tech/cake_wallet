@@ -191,6 +191,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:

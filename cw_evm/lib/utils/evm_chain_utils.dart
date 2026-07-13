@@ -11,13 +11,15 @@ class EVMChainUtils {
       8453 => _basePriorityFee(priority),
       56 => _ethereumPriorityFee(priority),
       42161 => 0, // Arbitrum doesn't use priority fees
+      4663 => 0, // Robinhood Chain (Arbitrum Orbit) doesn't use priority fees
       _ => _ethereumPriorityFee(priority),
     };
   }
 
   static bool hasPriorityFee(int chainId) {
     return switch (chainId) {
-      42161 => false, // Arbitrum doesn't use priority fees
+      42161 => false,
+      4663 => false,
       _ => true,
     };
   }
@@ -47,6 +49,7 @@ class EVMChainUtils {
       8453 => "${sanitizedName}_${Erc20Token.baseBoxName}",
       42161 => "${sanitizedName}_${Erc20Token.arbitrumBoxName}",
       56 => "${sanitizedName}_${Erc20Token.bscBoxName}",
+      4663 => "${sanitizedName}_${Erc20Token.robinhoodBoxName}",
       _ => "${sanitizedName}_${Erc20Token.ethereumBoxName}",
     };
   }
@@ -58,6 +61,7 @@ class EVMChainUtils {
       8453 => 'base_transactions.json',
       42161 => 'arbitrum_transactions.json',
       56 => 'bsc_transactions.json',
+      4663 => 'robinhood_transactions.json',
       _ => 'transactions_$chainId.json', // Generic format for other chains
     };
   }
@@ -70,6 +74,7 @@ class EVMChainUtils {
       8453 => 'use_basescan',
       42161 => 'use_arbiscan',
       56 => 'use_bscscan',
+      4663 => 'use_robinhoodscan',
       _ => 'use_etherscan',
     };
   }
@@ -81,6 +86,7 @@ class EVMChainUtils {
       8453 => 'BASE',
       42161 => 'ARB',
       56 => 'BSC',
+      4663 => 'ROB',
       _ => 'ETH',
     };
   }
@@ -92,6 +98,7 @@ class EVMChainUtils {
       8453 => 'ETH',
       42161 => 'ETH',
       56 => 'BNB',
+      4663 => 'ETH',
       _ => 'ETH',
     };
   }
@@ -103,6 +110,7 @@ class EVMChainUtils {
       8453 => 'BASE',
       42161 => 'ARBITRUM',
       56 => 'BSC',
+      4663 => 'ETH',
       _ => 'ETH',
     };
   }
