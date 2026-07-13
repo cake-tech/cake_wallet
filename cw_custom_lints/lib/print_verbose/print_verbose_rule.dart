@@ -29,7 +29,7 @@ class PrintVerboseRule extends AnalysisRule {
   ) {
     final filePath = context.definingUnit.file.path;
 
-    if (filePath.contains("/tool/")) {
+    if (filePath.contains("/tool/") || filePath.contains("print_verbose.dart")) {
       // tool/ is allowed to use print as it never makes its way into the app
       return;
     }
