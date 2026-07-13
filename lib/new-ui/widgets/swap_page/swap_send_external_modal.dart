@@ -4,11 +4,11 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class SwapSendExternalModal extends StatefulWidget {
   const SwapSendExternalModal(
@@ -45,7 +45,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
 
   @override
   Widget build(BuildContext context) {
-    if (uri == null) return SizedBox.shrink();
+    if (widget.address.isEmpty) return SizedBox.shrink();
     final resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.8 : 0.54);
 
     return PopScope(
@@ -139,7 +139,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                               child: QrImage(
                                 size: animatedSize,
                                 embeddedImagePath: widget.from.iconPath,
-                                data: uri.toString(),
+                                data: uri?.toString() ?? widget.address,
                               ),
                             ),
                           );
@@ -175,7 +175,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                       children: [
                         Flexible(
                           child: NewPrimaryButton(
-                              onPressed: ()=> Clipboard.setData(ClipboardData(text:widget.address)),
+                              onPressed: () => ClipboardUtil.copyToClipboard(context, widget.address),
                               text: S.of(context).copy,
                               color: Theme.of(context).colorScheme.primary,
                               textColor: Theme.of(context).colorScheme.onPrimary),

@@ -297,10 +297,10 @@ class PayjoinManager {
               break;
 
             case PayjoinReceiverRequestTypes.getCandidateInputs:
-              utxos = _wallet.getUtxoWithPrivateKeys();
+              utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
               if (utxos.isEmpty) {
                 await _wallet.updateAllUnspents();
-                utxos = _wallet.getUtxoWithPrivateKeys();
+                utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
               }
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],

@@ -10,6 +10,7 @@ class FilteredList extends StatefulWidget {
     this.canReorder = true,
     this.shrinkWrap = false,
     this.physics,
+    this.padding,
   });
 
   final ObservableList<dynamic> list;
@@ -18,6 +19,7 @@ class FilteredList extends StatefulWidget {
   final bool canReorder;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
+  final EdgeInsets? padding;
 
   @override
   FilteredListState createState() => FilteredListState();
@@ -48,6 +50,7 @@ class FilteredListState extends State<FilteredList> {
           ),
           shrinkWrap: widget.shrinkWrap,
           physics: widget.physics ?? const BouncingScrollPhysics(),
+          padding: widget.padding,
           itemBuilder: widget.itemBuilder,
           itemCount: widget.list.length,
           onReorder: (int oldIndex, int newIndex) {
