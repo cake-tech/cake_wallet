@@ -25,7 +25,7 @@ class RobinhoodTokens {
         symbol: "WETH",
         contractAddress: "0x0bd7d308f8e1639fab988df18a8011f41eacad73",
         decimal: 18,
-        enabled: true,
+        enabled: false,
       ),
       Erc20Token(
         name: "Apple",
