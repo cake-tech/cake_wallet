@@ -29,6 +29,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -75,8 +76,7 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
         keyString: "standard_list_item_transaction_details_date_key",
         title: S.current.transaction_details_date,
-        valueGetter: (vm) => DateFormatter.withCurrentLocal().format(vm.transactionInfo.date)),
-
+        valueGetter: (vm) => DateFormat("d MMMM yyyy, HH:mm", vm._appStore.settingsStore.languageCode).format(vm.transactionInfo.date)),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_height_key",
       title: S.current.transaction_details_height,
