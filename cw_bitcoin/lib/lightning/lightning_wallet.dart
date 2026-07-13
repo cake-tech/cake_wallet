@@ -441,6 +441,11 @@ class LightningWallet {
       direction = TransactionDirection.incoming;
     }
 
+    String? preimage;
+    if (payment.details != null && payment.details is PaymentDetails_Lightning) {
+      preimage = (payment.details as PaymentDetails_Lightning).htlcDetails.preimage;
+    }
+
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: payment.id,
@@ -450,7 +455,10 @@ class LightningWallet {
       fee: Money(payment.fees, currency),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
-      additionalInfo: {"isLightning": true},
+      additionalInfo: {
+        "isLightning": true,
+        if (preimage != null) "preimage": preimage,
+      },
     );
   }
 

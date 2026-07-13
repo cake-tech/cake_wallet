@@ -299,14 +299,15 @@ class ExceptionHandler {
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
+    "Pending Request Canceled | RequestQueue disposed",
     "reown_core/relay_client/websocket/websocket_handler.dart",
     "Image upload failed due to loss of GPU access",
     "transport error",
     "SdkError.sparkError(field0: Operator RPC error: Connection error: status: Unavailable, message: \"dns error\", details: []",
     "the timeout of the request was reached",
 
-    "support for coin removed, your seedphrase:"
-    "Exception: Invalid image data"
+    "support for coin removed, your seedphrase:",
+    "Exception: Invalid image data",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
@@ -441,8 +442,20 @@ class ExceptionHandler {
   }
 
   static bool _flutterErrorIgnore(FlutterErrorDetails errorDetails) {
-    // most probably a flutter context error so just ignore it if there is no stack we can debug with
-    return errorDetails.exception.toString().contains("Null check operator used on a null value") &&
-        errorDetails.stack == null;
+    if (errorDetails.exception.toString().contains("Null check operator used on a null value")) {
+      // Most probably a flutter context error so just ignore it if there is no
+      // stack we can debug with.
+      if (errorDetails.stack == null) {
+        return true;
+      }
+
+      final stack = errorDetails.stack.toString();
+      if (stack.contains("handleFocusHighlightModeChange") ||
+          stack.contains("_HighlightModeManager")) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

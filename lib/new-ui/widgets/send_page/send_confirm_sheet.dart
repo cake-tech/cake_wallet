@@ -227,13 +227,14 @@ class SendTransactionDetails extends StatelessWidget {
               decimals: 2)
           : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
-      final showAddress = !sendViewModel.outputs.any((e) =>
-          RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
-          RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
-          (e.isParsedAddress &&
-              e.parsedAddress.addresses.isNotEmpty &&
-              RegExp(AddressValidator.lnurlMatcher)
-                  .hasMatch(e.parsedAddress.addresses.firstOrNull?.toLowerCase() ?? "")));
+    final showAddress = !sendViewModel.outputs.any((e) =>
+        RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
+        RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
+        (e.isParsedAddress &&
+            e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency] != null &&
+            e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!.isNotEmpty &&
+            RegExp(AddressValidator.lnurlMatcher)
+                .hasMatch(e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!.toLowerCase())));
 
       final outputs = sendViewModel.outputs;
 

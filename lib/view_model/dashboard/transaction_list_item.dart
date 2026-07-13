@@ -51,10 +51,16 @@ class TransactionListItem extends ActionListItem with Keyable {
           .withLocalSeperator(_appStore.settingsStore.languageCode);
     }
 
-    return transaction.amount.toStringWithSymbol();
+    return transaction.amount.toStringWithSymbol(fractionalDigits: 8);
   }
 
   String get formattedTitle {
+
+    if (balanceViewModel.wallet.type == WalletType.bitcoin &&
+        transaction.additionalInfo['hasMissingInputTx'] == true) {
+      return 'Transaction has missing data';
+    }
+
     if (transaction.additionalInfo['autoShield'] == true) {
       return "Autoshield";
     }

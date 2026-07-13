@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -606,30 +605,6 @@ abstract class TronWalletBase
 
   Future<TronToken?> getTronToken(String contractAddress) async =>
       await _client.getTronToken(contractAddress, _tronAddress);
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    const transactionHistoryFileNameForWallet = 'tron_transactions.json';
-
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
 
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {

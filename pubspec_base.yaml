@@ -291,6 +291,7 @@ flutter:
     - assets/new-ui/crypto_full_icons/
     - assets/new-ui/hardware_wallets/
     - assets/new-ui/node_speed_badges/
+    - assets/new-ui/address_sources/
 
   fonts:
     - family: Lato

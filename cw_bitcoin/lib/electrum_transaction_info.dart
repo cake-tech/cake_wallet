@@ -18,7 +18,7 @@ class ElectrumTransactionBundle {
       {required this.ins, required this.confirmations, this.time});
 
   final BtcTransaction originalTransaction;
-  final List<BtcTransaction> ins;
+  final List<BtcTransaction?> ins;
   final int? time;
   final int confirmations;
 }
@@ -127,9 +127,14 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
 
+    var hasMissingInputTx = false;
     for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
-      final inputTransaction = bundle.ins[i];
+      final inputTransaction = i < bundle.ins.length ? bundle.ins[i] : null;
+      if (inputTransaction == null || input.txIndex >= inputTransaction.outputs.length) {
+        hasMissingInputTx = true;
+        continue;
+      }
       final outTransaction = inputTransaction.outputs[input.txIndex];
       inputAmount += outTransaction.amount.toInt();
       if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
@@ -184,9 +189,14 @@ class ElectrumTransactionInfo extends TransactionInfo {
       final b = tx.outputs.first.scriptPubKey.toBytes();
       return b.length == 34 && b[0] == 88 && b[1] == 32;
     };
-    final isHogEx = isHogExTx(bundle.originalTransaction) && isHogExTx(bundle.ins.first);
+    final firstInput = bundle.ins.isNotEmpty ? bundle.ins.first : null;
+    final isHogEx = firstInput != null &&
+        isHogExTx(bundle.originalTransaction) &&
+        isHogExTx(firstInput);
 
-    final fee = inputAmount - totalOutAmount;
+    final fee = hasMissingInputTx ? null : inputAmount - totalOutAmount;
+    final walletCurrency = walletTypeToCryptoCurrency(type);
+    final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;
     return ElectrumTransactionInfo(type,
         id: bundle.originalTransaction.txId(),
         height: height,
@@ -194,11 +204,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
         isReplaced: false,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
-        fee: Money.fromInt(fee, walletTypeToCryptoCurrency(type)),
+        fee: feeMoney,
         direction: direction,
-        amount: Money.fromInt(amount, walletTypeToCryptoCurrency(type)),
+        amount: Money.fromInt(amount, walletCurrency),
         date: date,
         isHogEx: isHogEx,
+        additionalInfo: {'hasMissingInputTx': hasMissingInputTx},
         confirmations: bundle.confirmations);
   }
 
