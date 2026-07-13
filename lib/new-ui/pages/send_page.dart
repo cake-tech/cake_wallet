@@ -235,15 +235,17 @@ class _NewSendPageState extends State<NewSendPage> {
         widget.sendViewModel.walletCurrencyName ==
             widget.initialPaymentRequest!.scheme.toLowerCase()) {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
-      _amountControllers[0].text = widget.initialPaymentRequest!.amount;
       _memoControllers[0].text = widget.initialPaymentRequest!.note;
       final contractAddress = widget.initialPaymentRequest!.contractAddress;
       if (contractAddress != null && contractAddress.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
-          }
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted) return;
+          await widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
+          if (!mounted) return;
+          _amountControllers[0].text = widget.initialPaymentRequest!.amount;
         });
+      } else {
+        _amountControllers[0].text = widget.initialPaymentRequest!.amount;
       }
     }
 
@@ -254,14 +256,15 @@ class _NewSendPageState extends State<NewSendPage> {
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            final prefix = widget.initialPaymentRequest!.scheme.isNotEmpty
-                ? "${widget.initialPaymentRequest!.scheme}:"
-                : "";
-            final amount = widget.initialPaymentRequest!.amount.isNotEmpty
-                ? "?amount=${widget.initialPaymentRequest!.amount}"
-                : "";
-            final uri = prefix + widget.initialPaymentRequest!.address + amount;
-            _handlePaymentFlow(uri, widget.initialPaymentRequest!);
+            final paymentRequest = widget.initialPaymentRequest!;
+            final prefix = paymentRequest.scheme.isNotEmpty ? "${paymentRequest.scheme}:" : "";
+            final chainSuffix =
+                (paymentRequest.scheme == 'ethereum' && paymentRequest.chainId != null && paymentRequest.chainId != 1)
+                    ? "@${paymentRequest.chainId}"
+                    : "";
+            final amount = paymentRequest.amount.isNotEmpty ? "?amount=${paymentRequest.amount}" : "";
+            final uri = prefix + paymentRequest.address + chainSuffix + amount;
+            _handlePaymentFlow(uri, paymentRequest);
           }
         },
       );

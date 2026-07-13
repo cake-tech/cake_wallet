@@ -6,8 +6,17 @@ import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
-  PaymentRequest(this.address, this.amount, this.note, this.scheme, this.pjUri,
-      {this.callbackUrl, this.callbackMessage, this.contractAddress});
+  PaymentRequest(
+    this.address,
+    this.amount,
+    this.note,
+    this.scheme,
+    this.pjUri, {
+    this.callbackUrl,
+    this.callbackMessage,
+    this.contractAddress,
+    this.chainId,
+  });
 
   factory PaymentRequest.fromString(String input) {
     try {
@@ -32,6 +41,7 @@ class PaymentRequest {
     String? callbackMessage;
     String? pjUri;
     String? contractAddress;
+    int? chainId;
 
     if (uri != null) {
       if (uri.queryParameters['pj'] != null) {
@@ -61,6 +71,7 @@ class PaymentRequest {
         address = paymentUri.address;
         amount = paymentUri.amount;
         contractAddress = paymentUri.contractAddress;
+        chainId = paymentUri.chainId;
       } else if (scheme == "tron") {
         final token = uri.queryParameters['token'];
         if (token != null && token.isNotEmpty) {
@@ -99,6 +110,7 @@ class PaymentRequest {
       callbackUrl: callbackUrl,
       callbackMessage: callbackMessage,
       contractAddress: contractAddress,
+      chainId: chainId,
     );
   }
 
@@ -110,6 +122,7 @@ class PaymentRequest {
   final String? callbackUrl;
   final String? callbackMessage;
   final String? contractAddress;
+  final int? chainId;
 
   /// Checks if the amount string is already in a usable format (e.g., "123.45") and doesn't need to be converted from raw format.
   ///
@@ -119,10 +132,6 @@ class PaymentRequest {
 
     final parsed = double.tryParse(amount.sanitized());
     if (parsed == null) return false;
-
-    // Check if the amount contains a decimal point and is a reasonable number,
-    // it's likely already in usable format rather than raw format
-    // Raw amounts are typically very large integers without decimal points
     if (amount.contains('.') && parsed > 0 && parsed < 1000000000) return true;
 
     // If it's a small integer (less than 1 billion), it's likely already usable
