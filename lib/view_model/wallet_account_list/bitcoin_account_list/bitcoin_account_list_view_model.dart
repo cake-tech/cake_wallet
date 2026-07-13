@@ -16,11 +16,11 @@ class BitcoinAccountListViewModel = BitcoinAccountListViewModelBase
 abstract class BitcoinAccountListViewModelBase with Store implements WalletAccountListViewModel {
   BitcoinAccountListViewModelBase(this._wallet, this.settingsStore) : scrollOffsetFromTop = 0 {
     _setDefaultAccountUntilStorageLoads();
-    _loadAccounts();
+    unawaited(_loadAccounts());
 
     reaction(
       (_) => bitcoin!.accountBalancesKey(_wallet),
-      (_) => _loadAccounts(),
+      (_) => unawaited(_loadAccounts()),
     );
   }
 
@@ -38,7 +38,7 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
   }
 
   void init() {
-    _loadAccounts();
+    unawaited(_loadAccounts());
   }
 
   @override
@@ -51,35 +51,32 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
 
   @override
   @action
-  void select(AccountListItem account) {
-    unawaited(() async {
-      await bitcoin!.setCurrentAccount(_wallet, account.id);
-      runInAction(() {
-        selectedAccount = account;
-      });
-      reload();
-    }());
+  Future<void> select(AccountListItem account) async {
+    await bitcoin!.setCurrentAccount(_wallet, account.id);
+    runInAction(() {
+      selectedAccount = account;
+    });
+    await reload();
   }
 
   @action
-  void _loadAccounts() {
-    _wallet.walletInfo.getAccounts().then((storedAccounts) {
-      final items = storedAccounts
-          .map((account) => AccountListItem(
-                id: account.accountIndex,
-                label: account.label,
-                balance: _balanceForAccount(account.accountIndex),
-                isSelected: account.isSelected,
-              ))
-          .toList();
+  Future<void> _loadAccounts() async {
+    final storedAccounts = await _wallet.walletInfo.getAccounts();
+    final items = storedAccounts
+        .map((account) => AccountListItem(
+              id: account.accountIndex,
+              label: account.label,
+              balance: _balanceForAccount(account.accountIndex),
+              isSelected: account.isSelected,
+            ))
+        .toList();
 
-      runInAction(() {
-        accounts = ObservableList<AccountListItem>.of(items);
-        selectedAccount = accounts.firstWhere(
-          (account) => account.isSelected,
-          orElse: () => accounts.first,
-        );
-      });
+    runInAction(() {
+      accounts = ObservableList<AccountListItem>.of(items);
+      selectedAccount = accounts.firstWhere(
+        (account) => account.isSelected,
+        orElse: () => accounts.first,
+      );
     });
   }
 
@@ -97,8 +94,8 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
 
   @override
   @action
-  void reload() {
-    _loadAccounts();
+  Future<void> reload() {
+    return _loadAccounts();
   }
 
   String _balanceForAccount(int accountIndex) {

@@ -250,8 +250,14 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         });
 
     if (res != null && res is bool && res == true) {
-      accountListViewModel.reload();
+      await accountListViewModel.reload();
       await Future<void>.delayed(Duration.zero);
+
+      final accounts = accountListViewModel.accounts;
+      if (accounts.isNotEmpty) {
+        final newestAccount = accounts.reduce((a, b) => a.id > b.id ? a : b);
+        await accountListViewModel.select(newestAccount);
+      }
 
       await widget.dashboardViewModel.loadCardDesigns();
       loadCards();

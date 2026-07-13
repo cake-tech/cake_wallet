@@ -59,16 +59,50 @@ class _CardsViewState extends State<CardsView> {
     return min(numCards - 1, limit);
   }
 
+  final List<ReactionDisposer> _disposers = [];
+
   @override
   void initState() {
     super.initState();
     _selectedIndex = _currentSelectedVisualIndex();
-    reaction(
-          (_) => widget.dashboardViewModel.cardOrder.values.toList(),
-          (_) => setState(() {
-        _selectedIndex = _currentSelectedVisualIndex();
-      }),
-    );
+
+    _disposers.add(reaction(
+      (_) => widget.dashboardViewModel.cardOrder.values.toList(),
+      (_) {
+        if (!mounted) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
+    ));
+
+    _disposers.add(reaction(
+      (_) => widget.dashboardViewModel.accountListViewModel?.selectedAccount?.id,
+      (_) {
+        if (!mounted) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
+    ));
+
+    _disposers.add(reaction(
+      (_) => widget.dashboardViewModel.accountListViewModel?.accounts.length,
+      (_) {
+        if (!mounted) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
+    ));
+  }
+
+  @override
+  void dispose() {
+    for (final disposer in _disposers) {
+      disposer();
+    }
+    super.dispose();
   }
 
   @override
@@ -78,13 +112,14 @@ class _CardsViewState extends State<CardsView> {
     if (oldWidget.lightningMode != widget.lightningMode ||
         oldWidget.dashboardViewModel.accountListViewModel?.accounts.length !=
             widget.dashboardViewModel.accountListViewModel?.accounts.length ||
-        oldWidget.dashboardViewModel.cardDesigns.length != widget.dashboardViewModel.cardDesigns.length) {
+        oldWidget.dashboardViewModel.cardDesigns.length !=
+            widget.dashboardViewModel.cardDesigns.length) {
       _selectedIndex = _currentSelectedVisualIndex();
     }
   }
 
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
-      Map<int, int> order, bool compactMode, double overlapAmount) {
+      bool compactMode, double overlapAmount) {
     final accountListViewModel = widget.dashboardViewModel.accountListViewModel;
 
     final baseTop = overlapAmount * (numCards - 1);
@@ -94,7 +129,6 @@ class _CardsViewState extends State<CardsView> {
     final scale = pow(scaleFactor, howFarBehind).toDouble();
 
     final top = baseTop - (howFarBehind * overlapAmount);
-
 
     final left = (parentWidth - effectiveCardWidth) / 2.0;
 
@@ -192,22 +226,21 @@ class _CardsViewState extends State<CardsView> {
                 : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
 
             return BalanceCard(
-              width: effectiveCardWidth,
-              accountName: accountName,
-              accountBalance: accountBalance,
-              designSwitchDuration: Duration(milliseconds: 150),
-              assetName: assetName,
-              capitalizeAssetName: _shouldCapitalizeAssetName(),
-              balance: walletBalance,
-              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
-                  widget.dashboardViewModel.settingsStore.fiatCurrency.title,
-              fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
-              fiatBalance: walletFiatBalance,
-              selected: _selectedIndex == visualIndex,
-              onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
-              design: cardDesign,
-              actions: widget.actions ?? []
-            );
+                width: effectiveCardWidth,
+                accountName: accountName,
+                accountBalance: accountBalance,
+                designSwitchDuration: Duration(milliseconds: 150),
+                assetName: assetName,
+                capitalizeAssetName: _shouldCapitalizeAssetName(),
+                balance: walletBalance,
+                fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
+                    widget.dashboardViewModel.settingsStore.fiatCurrency.title,
+                fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
+                fiatBalance: walletFiatBalance,
+                selected: _selectedIndex == visualIndex,
+                onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
+                design: cardDesign,
+                actions: widget.actions ?? []);
           }),
         ),
       ),
@@ -235,7 +268,8 @@ class _CardsViewState extends State<CardsView> {
     }
   }
 
-  double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878, responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);
+  double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878,
+      responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);
 
   double _getBoxHeight(int numCards, double overlapAmount) {
     return
@@ -254,9 +288,15 @@ class _CardsViewState extends State<CardsView> {
         widget.dashboardViewModel.cardDesigns.length;
   }
 
-  int _realIndexForVisualIndex(int visualIndex) {
+  int _realIndexForVisualIndex(int visualIndex, int numCards) {
     if (widget.lightningMode) {
       return widget.dashboardViewModel.cardDesigns.length - 1;
+    }
+
+
+    if (widget.dashboardViewModel.cardOrder.length != numCards ||
+        !widget.dashboardViewModel.cardOrder.containsKey(visualIndex)) {
+      return visualIndex;
     }
 
     return widget.dashboardViewModel.cardOrder[visualIndex] ?? visualIndex;
@@ -278,7 +318,7 @@ class _CardsViewState extends State<CardsView> {
     }
 
     final selectedRealIndex = accounts.indexWhere(
-          (account) => account.id == selectedAccount.id,
+      (account) => account.id == selectedAccount.id,
     );
 
     if (selectedRealIndex < 0) {
@@ -300,7 +340,6 @@ class _CardsViewState extends State<CardsView> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (context) {
-      final accountListViewModel = widget.dashboardViewModel.accountListViewModel;
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
@@ -312,31 +351,15 @@ class _CardsViewState extends State<CardsView> {
         _selectedIndex = _currentSelectedVisualIndex();
       }
 
-      Map<int, int> order =
-          widget.lightningMode || widget.dashboardViewModel.cardOrder.length != numCards
-              ? Map<int, int>.fromEntries(
-                  List.generate(numCards, (i) => MapEntry(i, i)),
-                )
-              : widget.dashboardViewModel.cardOrder;
-
-      for (int i = _cardsToRender(numCards); i >= 0; i--) {
-        int visualIndex = (_selectedIndex - i + numCards) % numCards;
-        if (order[visualIndex] == null) {
-          order = Map<int, int>.fromEntries(
-            List.generate(numCards, (i) => MapEntry(i, i)),
-          );
-        }
-      }
-
       final bool compactMode = widget.allowCompactMode && numCards >= compactModeTreshold;
       final double overlapAmount = compactMode ? 5.0 : 46.0;
       for (int i = _cardsToRender(numCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
-        final realIndex = _realIndexForVisualIndex(visualIndex);
+        final realIndex = _realIndexForVisualIndex(visualIndex, numCards);
 
-        children.add(_buildCard(
-            visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount));
+        children.add(
+            _buildCard(visualIndex, realIndex, numCards, parentWidth, compactMode, overlapAmount));
       }
 
       return AnimatedContainer(

@@ -432,6 +432,9 @@ abstract class DashboardViewModelBase with Store {
     cardDesigns.clear();
     final newOrder = <int, int>{};
 
+    final orderableCount =
+        (wallet.type == WalletType.bitcoin) ? numAccounts - 1 : numAccounts;
+
     for (int i = 0; i < numAccounts; i++) {
       late final int index;
       final isLightning = wallet.type == WalletType.bitcoin && i == lightningCardIndex;
@@ -449,13 +452,19 @@ abstract class DashboardViewModelBase with Store {
 
       cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
 
-      if (setting?.cardOrder != null) {
-        newOrder[setting!.cardOrder] = i;
+      if (isLightning) {
+        continue;
+      }
+
+      if (setting?.cardOrder != null &&
+          setting!.cardOrder >= 0 &&
+          setting.cardOrder < orderableCount) {
+        newOrder[setting.cardOrder] = i;
       }
     }
 
     // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
-    for (int i = 0; i < numAccounts; i++) {
+    for (int i = 0; i < orderableCount; i++) {
       if (!newOrder.containsValue(i)) {
         int free = 0;
         while (newOrder.containsKey(free)) {

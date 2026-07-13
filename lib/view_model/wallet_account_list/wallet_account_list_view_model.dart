@@ -8,7 +8,7 @@ abstract class WalletAccountListViewModel {
 
   CryptoCurrency get currency;
 
-  void select(AccountListItem account);
+  Future<void> select(AccountListItem account);
 
-  void reload();
+  Future<void> reload();
 }
