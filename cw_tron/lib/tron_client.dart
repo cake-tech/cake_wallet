@@ -328,12 +328,11 @@ class TronClient {
         );
 
     return PendingTronTransaction(
-      signedTransaction: signature,
-      amount: totalAmount,
-      fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
-      sendTransaction: sendTx,
-      id: rawTransaction.txID
-    );
+        signedTransaction: signature,
+        amount: totalAmount,
+        fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
+        sendTransaction: sendTx,
+        id: rawTransaction.txID);
   }
 
   Future<TransactionRaw> _signNativeTransaction(

@@ -20,17 +20,20 @@ class TransferParams {
   });
 
   Map<String, dynamic> toJson() => {
-    'destinations': destinations,
-    'fee': fee.toInt(),
-    'mixin': mixin,
-    'payment_id': paymentId,
-    'comment': comment,
-    'push_payer': pushPayer,
-    'hide_receiver': hideReceiver,
-  };
+        'destinations': destinations,
+        'fee': fee.toInt(),
+        'mixin': mixin,
+        'payment_id': paymentId,
+        'comment': comment,
+        'push_payer': pushPayer,
+        'hide_receiver': hideReceiver,
+      };
 
   factory TransferParams.fromJson(Map<String, dynamic> json) => TransferParams(
-        destinations: (json['destinations'] as List<dynamic>?)?.map((e) => Destination.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+        destinations: (json['destinations'] as List<dynamic>?)
+                ?.map((e) => Destination.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
         fee: BigInt.from(json['fee'] as int? ?? 0),
         mixin: json['mixin'] as int? ?? 0,
         paymentId: json['payment_id'] as String? ?? '',

@@ -92,7 +92,9 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return KeyboardHideOverlay(child:CakePayCardsPageBody(cardsListViewModel: _cardsListViewModel, titleColor: titleColor));
+    return KeyboardHideOverlay(
+        child:
+            CakePayCardsPageBody(cardsListViewModel: _cardsListViewModel, titleColor: titleColor));
   }
 }
 

@@ -258,76 +258,75 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: ListView.separated(
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              final item = allDevices[index];
-                              return GestureDetector(
-                                onTap: () => _connectToDevice(item),
-                                behavior: HitTestBehavior.opaque,
-                                child: SizedBox(
-                                  height: 48,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          spacing: 12,
-                                          children: [
-                                            Observer(builder: (_) {
-                                              if (widget.hardwareWalletVM.isConnecting) {
-                                                return CupertinoActivityIndicator(
-                                                  animating: true,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                                  radius: 12,
-                                                );
-                                              }
-
-                                              return CakeImageWidget(
-                                                imageUrl: _getDeviceTileLeading(item.type),
-                                                width: 24,
-                                                height: 24,
-                                                colorFilter: ColorFilter.mode(
-                                                  Theme.of(context).colorScheme.onSurfaceVariant,
-                                                  BlendMode.srcIn,
-                                                ),
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            final item = allDevices[index];
+                            return GestureDetector(
+                              onTap: () => _connectToDevice(item),
+                              behavior: HitTestBehavior.opaque,
+                              child: SizedBox(
+                                height: 48,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        spacing: 12,
+                                        children: [
+                                          Observer(builder: (_) {
+                                            if (widget.hardwareWalletVM.isConnecting) {
+                                              return CupertinoActivityIndicator(
+                                                animating: true,
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                                radius: 12,
                                               );
-                                            }),
-                                            Text(item.name)
-                                          ],
-                                        ),
-                                        Row(
-                                          spacing: 12,
-                                          children: [
-                                            if (item.connectionType ==
-                                                HardwareWalletConnectionType.ble)
-                                              CakeImageWidget(
-                                                imageUrl: "assets/new-ui/bluetooth.svg",
-                                                width: 24,
-                                                height: 24,
-                                                colorFilter: ColorFilter.mode(
-                                                  Theme.of(context).colorScheme.primary,
-                                                  BlendMode.srcIn,
-                                                ),
-                                              ),
-                                            CakeImageWidget(
-                                              imageUrl: "assets/new-ui/arrow_forward.svg",
-                                              height: 16,
+                                            }
+
+                                            return CakeImageWidget(
+                                              imageUrl: _getDeviceTileLeading(item.type),
+                                              width: 24,
+                                              height: 24,
                                               colorFilter: ColorFilter.mode(
                                                 Theme.of(context).colorScheme.onSurfaceVariant,
                                                 BlendMode.srcIn,
                                               ),
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
+                                            );
+                                          }),
+                                          Text(item.name)
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 12,
+                                        children: [
+                                          if (item.connectionType ==
+                                              HardwareWalletConnectionType.ble)
+                                            CakeImageWidget(
+                                              imageUrl: "assets/new-ui/bluetooth.svg",
+                                              width: 24,
+                                              height: 24,
+                                              colorFilter: ColorFilter.mode(
+                                                Theme.of(context).colorScheme.primary,
+                                                BlendMode.srcIn,
+                                              ),
+                                            ),
+                                          CakeImageWidget(
+                                            imageUrl: "assets/new-ui/arrow_forward.svg",
+                                            height: 16,
+                                            colorFilter: ColorFilter.mode(
+                                              Theme.of(context).colorScheme.onSurfaceVariant,
+                                              BlendMode.srcIn,
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    ],
                                   ),
                                 ),
-                              );
-                            },
+                              ),
+                            );
+                          },
                           separatorBuilder: (context, index) => Container(
                             height: 1,
                             color: Theme.of(context).colorScheme.surfaceContainerHigh,

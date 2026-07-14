@@ -37,7 +37,6 @@ extension MaxDecimals on String {
     return parts.join(".");
   }
 
-
   /// Format a stringified number to a localized representation
   ///     1.000.000,00 in de_DE
   ///     1’000’000.00 in de_CH

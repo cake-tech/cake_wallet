@@ -14,7 +14,8 @@ class AddressResolverUtils {
     final result = <CryptoCurrency, String>{};
 
     for (final currency in currencies) {
-      final address = await UnstoppableAddressProvider.fetchUnstoppableDomainAddress(domain, currency.title);
+      final address =
+          await UnstoppableAddressProvider.fetchUnstoppableDomainAddress(domain, currency.title);
       if (address.isNotEmpty) {
         result[currency] = address;
       }

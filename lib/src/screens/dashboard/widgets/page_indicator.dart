@@ -76,8 +76,7 @@ class _PageIndicatorState extends State<PageIndicator> {
     );
   }
 
-  double _estimateItemWidthForAction(
-      BuildContext context, PageIndicatorActions action,
+  double _estimateItemWidthForAction(BuildContext context, PageIndicatorActions action,
       {Color? color}) {
     final text = action.name(context);
     final textPainter = TextPainter(
@@ -86,15 +85,11 @@ class _PageIndicatorState extends State<PageIndicator> {
       textDirection: Directionality.of(context),
       textScaler: MediaQuery.of(context).textScaler,
     )..layout();
-    return iconWidth +
-        iconSpacing +
-        textPainter.width +
-        pillHorizontalPadding * 2;
+    return iconWidth + iconSpacing + textPainter.width + pillHorizontalPadding * 2;
   }
 
   @override
   Widget build(BuildContext context) {
-
     final visibleActions = PageIndicatorActions.all.where((action) {
       return action.isEnabled?.call(widget.dashboardViewModel) ?? true;
     }).toList();
@@ -127,34 +122,28 @@ class _PageIndicatorState extends State<PageIndicator> {
     ];
 
     final totalItemsWidth =
-        actionWidths.fold(0.0, (sum, width) => sum + width) +
-            barHorizontalPadding * 2;
+        actionWidths.fold(0.0, (sum, width) => sum + width) + barHorizontalPadding * 2;
 
     final barWidth = math.min(totalItemsWidth, screenWidth * 0.95);
 
     final count = visibleActions.length;
     final firstLeft = edgePadding;
-    final secondLeft =
-        barWidth - (isRTL ? actionWidths.first : actionWidths[1]) - edgePadding;
+    final secondLeft = barWidth - (isRTL ? actionWidths.first : actionWidths[1]) - edgePadding;
 
     final List<double> positions;
 
     if (count == 2) {
       positions = [firstLeft, secondLeft];
     } else {
-      final lastLeft = barWidth -
-          (isRTL ? actionWidths.first : actionWidths.last) -
-          edgePadding;
+      final lastLeft = barWidth - (isRTL ? actionWidths.first : actionWidths.last) - edgePadding;
 
-      final centerLeft = (isRTL
-          ? actionWidths.last + edgePadding
-          : actionWidths.first + edgePadding);
+      final centerLeft =
+          (isRTL ? actionWidths.last + edgePadding : actionWidths.first + edgePadding);
 
       positions = [firstLeft, centerLeft, lastLeft];
     }
 
-    final left =
-        (isRTL ? positions.reversed.toList() : positions)[selectedIndex];
+    final left = (isRTL ? positions.reversed.toList() : positions)[selectedIndex];
     final currentAction = visibleActions[selectedIndex];
 
     return Align(
@@ -191,8 +180,7 @@ class _PageIndicatorState extends State<PageIndicator> {
                         pillResizeDuration: pillResizeDuration,
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: barHorizontalPadding),
+                        padding: const EdgeInsets.symmetric(horizontal: barHorizontalPadding),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -210,47 +198,36 @@ class _PageIndicatorState extends State<PageIndicator> {
                                     height: barHeight,
                                     width: i == selectedIndex
                                         ? pillWidth
-                                        : _estimateItemWidthForAction(
-                                            context, visibleActions[i]),
+                                        : _estimateItemWidthForAction(context, visibleActions[i]),
                                     alignment: Alignment.center,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         TweenAnimationBuilder<Color?>(
-                                          duration: const Duration(
-                                              milliseconds: 300),
+                                          duration: const Duration(milliseconds: 300),
                                           curve: Curves.easeOutCubic,
                                           tween: ColorTween(
                                             begin: inactiveColor,
-                                            end: i == selectedIndex
-                                                ? activeColor
-                                                : inactiveColor,
+                                            end: i == selectedIndex ? activeColor : inactiveColor,
                                           ),
-                                          builder: (context, color, _) =>
-                                              SvgPicture.asset(
+                                          builder: (context, color, _) => SvgPicture.asset(
                                             visibleActions[i].image,
                                             width: iconWidth,
                                             height: iconHeight,
-                                            colorFilter: ColorFilter.mode(
-                                                color!, BlendMode.srcIn),
+                                            colorFilter: ColorFilter.mode(color!, BlendMode.srcIn),
                                           ),
                                         ),
                                         SizedBox(width: iconSpacing),
                                         TweenAnimationBuilder<Color?>(
-                                          duration: const Duration(
-                                              milliseconds: 300),
+                                          duration: const Duration(milliseconds: 300),
                                           curve: Curves.easeOutCubic,
                                           tween: ColorTween(
                                             begin: inactiveColor,
-                                            end: i == selectedIndex
-                                                ? activeColor
-                                                : inactiveColor,
+                                            end: i == selectedIndex ? activeColor : inactiveColor,
                                           ),
-                                          builder: (context, color, _) =>
-                                              Text(
+                                          builder: (context, color, _) => Text(
                                             visibleActions[i].name(context),
-                                            style: textStyle.copyWith(
-                                                color: color),
+                                            style: textStyle.copyWith(color: color),
                                             overflow: TextOverflow.fade,
                                             softWrap: false,
                                           ),
@@ -315,9 +292,8 @@ class AnimatedPill extends StatelessWidget {
         duration: pillResizeDuration,
         curve: Curves.easeOutCubic,
         width: estimateWidthForAction,
-        decoration: BoxDecoration(
-            color: pillColor,
-            borderRadius: BorderRadius.circular(pillBorderRadius)),
+        decoration:
+            BoxDecoration(color: pillColor, borderRadius: BorderRadius.circular(pillBorderRadius)),
         clipBehavior: Clip.hardEdge,
         alignment: Alignment.center,
       ),

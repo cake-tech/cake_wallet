@@ -11,7 +11,8 @@ class WalletInfoBar extends StatelessWidget {
       required this.lightningMode,
       required this.name,
       required this.hardwareWalletType,
-      required this.onCustomizeButtonTap, required this.hasCustomize});
+      required this.onCustomizeButtonTap,
+      required this.hasCustomize});
 
   final bool lightningMode;
   final String name;
@@ -31,7 +32,6 @@ class WalletInfoBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-
         children: [
           AnimatedSwitcher(
             duration: Duration(milliseconds: 150),
@@ -46,8 +46,8 @@ class WalletInfoBar extends StatelessWidget {
                 ? const SizedBox.shrink(key: ValueKey("empty"))
                 : Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: CakeImageWidget(imageUrl:
-                      hardwareWalletIcon!,
+                    child: CakeImageWidget(
+                      imageUrl: hardwareWalletIcon!,
                       key: ValueKey("hardware_wallet_icon"),
                       width: 24,
                       height: 24,
@@ -60,8 +60,10 @@ class WalletInfoBar extends StatelessWidget {
           ),
           Text(
             name,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
           ),
           if (hasCustomize) ...[
             SizedBox(width: 8),

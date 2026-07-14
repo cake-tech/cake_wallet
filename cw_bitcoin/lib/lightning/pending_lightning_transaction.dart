@@ -10,10 +10,9 @@ class PendingLightningTransaction with PendingTransaction {
     required this.commitOverride,
   });
 
-
   final bool isSendAll;
   Future<String> Function() commitOverride;
-  final List<void Function()> _listeners =[];
+  final List<void Function()> _listeners = [];
 
   @override
   String id;

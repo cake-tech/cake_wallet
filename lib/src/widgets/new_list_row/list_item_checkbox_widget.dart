@@ -14,7 +14,10 @@ class ListItemCheckboxWidget extends StatefulWidget {
     this.subtitleColor,
     this.onTap,
     this.isFirstInSection = false,
-    this.isLastInSection = false, this.subtitle, this.iconPath, this.showArrow = false,
+    this.isLastInSection = false,
+    this.subtitle,
+    this.iconPath,
+    this.showArrow = false,
   });
 
   final String keyValue;
@@ -34,15 +37,14 @@ class ListItemCheckboxWidget extends StatefulWidget {
 }
 
 class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
-
-
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
       iconPath: widget.iconPath,
-      onTap: widget.onTap ?? () {
-        widget.onChanged(!widget.value);
-      },
+      onTap: widget.onTap ??
+          () {
+            widget.onChanged(!widget.value);
+          },
       isFirstInSection: widget.isFirstInSection,
       height: widget.subtitle != null ? 64 : 50,
       isLastInSection: widget.isLastInSection,
@@ -56,7 +58,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                 children: [
                   if (widget.iconPath != null)
                     widget.iconPath!.toLowerCase().endsWith("svg")
-                        ? CakeImageWidget(imageUrl:widget.iconPath!, height: 26, width: 26)
+                        ? CakeImageWidget(imageUrl: widget.iconPath!, height: 26, width: 26)
                         : Image.asset(
                             widget.iconPath!,
                             width: 26,
@@ -64,29 +66,31 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                           ),
                   Expanded(
                     child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(child: Text(widget.label)),
-                          if (widget.showArrow)
-                            Icon(
-                              Icons.chevron_right,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            )
-                        ],
-                      ),
-                      if (widget.subtitle != null)
-                        Text(
-                          widget.subtitle!,
-                          style: TextStyle(
-                              fontSize: 12, color: widget.subtitleColor ?? Theme.of(context).colorScheme.onSurfaceVariant),
-                        )
-                    ],
-                  ),
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(child: Text(widget.label)),
+                            if (widget.showArrow)
+                              Icon(
+                                Icons.chevron_right,
+                                size: 18,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              )
+                          ],
+                        ),
+                        if (widget.subtitle != null)
+                          Text(
+                            widget.subtitle!,
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: widget.subtitleColor ??
+                                    Theme.of(context).colorScheme.onSurfaceVariant),
+                          )
+                      ],
+                    ),
                   ),
                 ],
               ),

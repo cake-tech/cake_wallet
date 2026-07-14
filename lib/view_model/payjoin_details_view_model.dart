@@ -18,8 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 part 'payjoin_details_view_model.g.dart';
 
-class PayjoinDetailsViewModel = PayjoinDetailsViewModelBase
-    with _$PayjoinDetailsViewModel;
+class PayjoinDetailsViewModel = PayjoinDetailsViewModelBase with _$PayjoinDetailsViewModel;
 
 abstract class PayjoinDetailsViewModelBase with Store {
   PayjoinDetailsViewModelBase(
@@ -61,8 +60,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
       ),
       TradeDetailsListCardItem(
         id: "${payjoinSession.isSenderSession ? S.current.outgoing : S.current.incoming} Payjoin",
-        createdAt:
-            dateFormat.format(payjoinSession.inProgressSince!).toString(),
+        createdAt: dateFormat.format(payjoinSession.inProgressSince!).toString(),
         pair:
             '${bitcoin!.formatterBitcoinAmountToString(amount: payjoinSession.amount.toInt())} BTC',
         onTap: (_) {},

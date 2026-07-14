@@ -125,14 +125,12 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       } catch (_) {}
     }
 
-    final ledger = device.connectionType == HardwareWalletConnectionType.ble
-        ? ledgerPlusBLE
-        : ledgerPlusUSB;
+    final ledger =
+        device.connectionType == HardwareWalletConnectionType.ble ? ledgerPlusBLE : ledgerPlusUSB;
 
     if (_connectionChangeSubscription == null) {
-      _connectionChangeSubscription = ledger
-          .deviceStateChanges(device.device.id)
-          .listen(_connectionChangeListener);
+      _connectionChangeSubscription =
+          ledger.deviceStateChanges(device.device.id).listen(_connectionChangeListener);
     }
 
     try {
@@ -186,9 +184,11 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.monero:
         return monero!.setLedgerConnection(wallet, connection);
       case WalletType.bitcoin:
-        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return bitcoin!
+            .setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
-        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return bitcoin!
+            .setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
@@ -214,7 +214,6 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
     }
   }
 
-
   @override
   String? interpretErrorCode(String error) {
     if (error.contains("Make sure no other program is communicating with the Ledger")) {
@@ -228,8 +227,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       return S.current.ledger_error_tx_rejected_by_user;
     } else if (errorCode.contains("5515")) {
       return S.current.ledger_error_device_locked;
-    } else
-    if (["6e01", "6a87", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+    } else if (["6e01", "6a87", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
       return S.current.ledger_error_wrong_app;
     }
     return null;

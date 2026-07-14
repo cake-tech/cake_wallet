@@ -25,8 +25,7 @@ import 'package:rxdart/subjects.dart';
 ReactionDisposer? _onAuthenticationStateChange;
 
 dynamic loginError;
-StreamController<dynamic> authenticatedErrorStreamController =
-    BehaviorSubject<dynamic>();
+StreamController<dynamic> authenticatedErrorStreamController = BehaviorSubject<dynamic>();
 
 void startAuthenticationStateChange(
   AuthenticationStore authenticationStore,
@@ -83,7 +82,7 @@ void startAuthenticationStateChange(
                   builder: (context) => AlertWithOneAction(
                     alertTitle: "Unexpected Error",
                     alertContent:
-                    "Unexpected Error while trying to connect to the device (UnexpectedViewModel: ${ledgerVM.toString()})",
+                        "Unexpected Error while trying to connect to the device (UnexpectedViewModel: ${ledgerVM.toString()})",
                     buttonText: S.of(context).try_again,
                     buttonAction: Navigator.of(context).pop,
                   ),

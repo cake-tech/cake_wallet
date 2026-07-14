@@ -640,8 +640,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   onPushAddressBookButton: (context) async {
                     output.resetParsedAddress();
                   },
-                  onSelectedContact: (contact) {
-                  },
+                  onSelectedContact: (contact) {},
                   validator: validator,
                   selectedCurrency: sendViewModel.selectedCryptoCurrency,
                 );
@@ -671,8 +670,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
                 currencyAmountTextFieldWidgetKey:
                     ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
-                selectedCurrency: output.useSatoshi ? "SATS" : sendViewModel.selectedCryptoCurrency.title,
-                selectedCurrencyDecimals: output.useSatoshi ? 0 : sendViewModel.selectedCryptoCurrency.decimals,
+                selectedCurrency:
+                    output.useSatoshi ? "SATS" : sendViewModel.selectedCryptoCurrency.title,
+                selectedCurrencyDecimals:
+                    output.useSatoshi ? 0 : sendViewModel.selectedCryptoCurrency.decimals,
                 amountFocusNode: widget.cryptoAmountFocus,
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
@@ -976,8 +977,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.setSendAll(await sendViewModel.sendingBalance);
       }
 
-      output.setCryptoAmount(sendViewModel.amountParsingProxy
-          .getCanonicalCryptoAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency));
+      output.setCryptoAmount(sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+          cryptoAmountController.text, sendViewModel.selectedCryptoCurrency));
     });
 
     reaction((_) => output.fiatAmount, (String amount) {
@@ -991,8 +992,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.sendAll = false;
       }
 
-      final cryptoAmount = sendViewModel.amountParsingProxy
-          .getCanonicalCryptoAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency);
+      final cryptoAmount = sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+          cryptoAmountController.text, sendViewModel.selectedCryptoCurrency);
       if (amount != cryptoAmount) {
         cryptoAmountController.text = sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(amount, sendViewModel.selectedCryptoCurrency);

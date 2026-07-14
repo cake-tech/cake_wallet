@@ -25,7 +25,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   BitboxViewModelBase() {
     if (!Platform.isIOS && !isMoneroOnly) {
       bitboxManager = sdk.BitboxManager();
-      }
+    }
   }
 
   @override
@@ -103,7 +103,8 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return bitcoin!
+            .setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
