@@ -87,7 +87,7 @@ class HistoryTileBase extends StatelessWidget {
               bottomLeft: Radius.circular(roundedBottom ? 22 : 0),
               bottomRight: Radius.circular(roundedBottom ? 22 : 0),
             )),
-            color: Theme.of(context).colorScheme.onInverseSurface,
+            color: Theme.of(context).colorScheme.surfaceContainer,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -151,7 +151,7 @@ class HistoryTileBase extends StatelessWidget {
           ),
         ),
         if(bottomSeparator) Container(
-          color: Theme.of(context).colorScheme.onInverseSurface,
+          color: Theme.of(context).colorScheme.surfaceContainer,
           child: Padding(
             padding: EdgeInsets.only(left: 56, right: 16),
             child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175)),

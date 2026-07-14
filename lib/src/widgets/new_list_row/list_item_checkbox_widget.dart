@@ -11,6 +11,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.subtitleColor,
     this.onTap,
     this.isFirstInSection = false,
     this.isLastInSection = false, this.subtitle, this.iconPath, this.showArrow = false,
@@ -22,6 +23,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final String? iconPath;
   final bool showArrow;
   final bool value;
+  final Color? subtitleColor;
   final VoidCallback? onTap;
   final ValueChanged<bool> onChanged;
   final bool isFirstInSection;
@@ -81,7 +83,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                         Text(
                           widget.subtitle!,
                           style: TextStyle(
-                              fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              fontSize: 12, color: widget.subtitleColor ?? Theme.of(context).colorScheme.onSurfaceVariant),
                         )
                     ],
                   ),

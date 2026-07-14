@@ -88,6 +88,8 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                       children: [
                         TextField(
                           focusNode: widget.focusNode,
+                          autocorrect: false,
+                          enableSuggestions: false,
                           onSubmitted: (val) => FocusScope.of(context).unfocus(),
                           onChanged: state.didChange,
                           onEditingComplete: () {
