@@ -51,8 +51,7 @@ class _Visitor extends SimpleAstVisitor<void> {
 
     if (uriString.startsWith("package:http")) {
       final prefixNode = node.prefix;
-      if (prefixNode != null &&
-          prefixNode.name == "very_insecure_http_do_not_use") {
+      if (prefixNode != null && prefixNode.name == "very_insecure_http_do_not_use") {
         return;
       }
 
