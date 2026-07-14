@@ -1537,6 +1537,7 @@ abstract class ElectrumWalletBase
           fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
+          inputOrdering: BitcoinOrdering.shuffle,
           outputOrdering: BitcoinOrdering.none,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
@@ -2302,6 +2303,7 @@ abstract class ElectrumWalletBase
         fee: BigInt.from(newFee),
         network: network,
         memo: memo,
+        inputOrdering: BitcoinOrdering.shuffle,
         outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
       );
