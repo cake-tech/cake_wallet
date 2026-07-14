@@ -139,7 +139,7 @@ dependencies:
   coldcard_usb:
     git:
       url: https://github.com/warp-records/coldcard-usb
-      ref: 16b1115ab23dc21585f7f97ba06375c28fbe2ee7
+      ref: fdb9d1b5d5d01bb3ad2a219759c51f504a3ed6c5
   hashlib: 1.19.2
   on_chain:
     git:

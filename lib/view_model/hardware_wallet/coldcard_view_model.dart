@@ -9,6 +9,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/scheduler.dart';
 
 class ColdcardViewModel extends HardwareWalletViewModel {
   HardwareWalletType get hardwareWalletType => HardwareWalletType.coldcardUsb;
@@ -45,6 +46,9 @@ class ColdcardViewModel extends HardwareWalletViewModel {
     try {
       _dev = await ColdCardDevice.create(ColdcardUsbTransport());
       _isConnecting = false;
+      // manually trigger device connect callback by scheduleing a frame
+      // for some reason on connect, the next frame fails to render
+      SchedulerBinding.instance.scheduleFrame();
       return true;
     } catch (e) {
       printV(e);
