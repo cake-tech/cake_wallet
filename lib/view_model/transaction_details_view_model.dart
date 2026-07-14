@@ -55,7 +55,6 @@ bool isLightning(TransactionInfo tx) => (tx.additionalInfo["isLightning"] as boo
 bool hasLightningPreimage(TransactionInfo tx) => (tx.additionalInfo["preimage"] as String?) != null;
 
 class TxDetailRowDefinition {
-
   TxDetailRowDefinition({
     required this.keyString,
     required this.title,
@@ -559,8 +558,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         customItemIndex: customItemIndex ?? 0,
         displayItem: (dynamic priority, sliderValue) =>
             sendViewModel.feesViewModel.displayFeeRate(priority, sliderValue.round()),
-        onSliderChanged: (newValue) =>
-            setNewFee(value: newValue, priority: transactionPriority!),
+        onSliderChanged: (newValue) => setNewFee(value: newValue, priority: transactionPriority!),
         onItemSelected: (dynamic item, sliderValue) {
           transactionPriority = item as TransactionPriority;
           return setNewFee(value: sliderValue, priority: transactionPriority!);

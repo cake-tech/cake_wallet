@@ -149,7 +149,7 @@ class DEuroSavingsPage extends BasePage {
       await _requireHardwareWallet(context);
       _dEuroViewModel.prepareSavingsEdit(amount, false);
     }
-      _editSheetIsOpen = false;
+    _editSheetIsOpen = false;
   }
 
   Future<void> _onReinvestInterest(BuildContext context) async {
@@ -425,9 +425,7 @@ class DEuroSavingsPage extends BasePage {
         balanceTitle: isAdding
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
-        balance: isAdding
-            ? _dEuroViewModel.accountBalance
-            : _dEuroViewModel.savingsBalance,
+        balance: isAdding ? _dEuroViewModel.accountBalance : _dEuroViewModel.savingsBalance,
         footerType: FooterType.none,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),

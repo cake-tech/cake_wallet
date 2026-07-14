@@ -139,8 +139,7 @@ class _PaymentConfirmationContent extends StatelessWidget {
                   clipBehavior: Clip.none,
                   children: [
                     Image.asset(
-                      paymentFlowResult.addressDetectionResult?.detectedCurrency?.iconPath ??
-                          '',
+                      paymentFlowResult.addressDetectionResult?.detectedCurrency?.iconPath ?? '',
                       width: 70,
                       height: 70,
                       errorBuilder: (context, error, stackTrace) => Icon(

@@ -66,18 +66,18 @@ abstract class OtherSettingsViewModelBase with Store {
   void setAutoGenerateSubaddresses(bool value) {
     _wallet.isEnabledAutoGenerateSubaddress = value;
     _settingsStore.autoGenerateSubaddressStatus =
-    value ? AutoGenerateSubaddressStatus.enabled : AutoGenerateSubaddressStatus.disabled;
+        value ? AutoGenerateSubaddressStatus.enabled : AutoGenerateSubaddressStatus.disabled;
   }
 
   bool get isAutoGenerateSubaddressesVisible => [
-    WalletType.monero,
-    WalletType.wownero,
-    WalletType.bitcoin,
-    WalletType.litecoin,
-    WalletType.bitcoinCash,
-    WalletType.dogecoin,
-    WalletType.decred
-  ].contains(_wallet.type);
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.dogecoin,
+        WalletType.decred
+      ].contains(_wallet.type);
 
   @computed
   bool get isMoneroWallet => _wallet.type == WalletType.monero;

@@ -135,11 +135,11 @@ class RBFDetailsPage extends BasePage {
           showPopUp<void>(
             context: context,
             builder: (popupContext) => AlertWithOneAction(
-                alertTitle: S.of(popupContext).error,
-                alertContent: state.error,
-                buttonText: S.of(popupContext).ok,
-                buttonAction: () => Navigator.of(popupContext).pop(),
-              ),
+              alertTitle: S.of(popupContext).error,
+              alertContent: state.error,
+              buttonText: S.of(popupContext).ok,
+              buttonAction: () => Navigator.of(popupContext).pop(),
+            ),
           );
         });
       }
@@ -148,19 +148,19 @@ class RBFDetailsPage extends BasePage {
           showPopUp<void>(
             context: context,
             builder: (popupContext) => AlertWithTwoActions(
-                alertTitle: state.title ?? "",
-                alertContent: state.message ?? "",
-                rightButtonText: S.of(context).ok,
-                leftButtonText: S.of(context).cancel,
-                actionRightButton: () {
-                  state.onConfirm?.call();
-                  Navigator.of(popupContext).pop();
-                },
-                actionLeftButton: () {
-                  state.onCancel?.call();
-                  Navigator.of(popupContext).pop();
-                },
-              ),
+              alertTitle: state.title ?? "",
+              alertContent: state.message ?? "",
+              rightButtonText: S.of(context).ok,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () {
+                state.onConfirm?.call();
+                Navigator.of(popupContext).pop();
+              },
+              actionLeftButton: () {
+                state.onCancel?.call();
+                Navigator.of(popupContext).pop();
+              },
+            ),
           );
         });
       }
@@ -190,38 +190,38 @@ class RBFDetailsPage extends BasePage {
               isDismissible: false,
               isScrollControlled: true,
               builder: (bottomSheetContext) => ConfirmSendingBottomSheet(
-                  key: const ValueKey("rbf_confirm_sending_bottom_sheet"),
-                  titleText: S.of(bottomSheetContext).confirm_transaction,
-                  isSlideActionEnabled: transactionDetailsViewModel.sendViewModel.isReadyForSend,
-                  walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                  titleIconPath:
-                      transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
-                  currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
-                  amount: S.of(bottomSheetContext).send_amount,
-                  amountValue:
-                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: transactionDetailsViewModel
-                      .sendViewModel.pendingTransactionFiatAmountFormatted,
-                  fee: S.of(bottomSheetContext).send_fee,
-                  feeValue:
-                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: transactionDetailsViewModel
-                      .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                  outputs: transactionDetailsViewModel.sendViewModel.outputs,
-                  footerType: FooterType.slideActionButton,
-                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
-                  onSlideActionComplete: () async {
-                    Navigator.of(bottomSheetContext).pop();
-                    await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
-                    try {
-                      if (bottomSheetContext.mounted) {
-                        Navigator.of(bottomSheetContext).pop();
-                      }
-                    } catch (_) {}
-                  },
-                  change: transactionDetailsViewModel.sendViewModel.pendingTransaction!.change,
-                  amountParsingProxy: transactionDetailsViewModel.sendViewModel.amountParsingProxy,
-                ),
+                key: const ValueKey("rbf_confirm_sending_bottom_sheet"),
+                titleText: S.of(bottomSheetContext).confirm_transaction,
+                isSlideActionEnabled: transactionDetailsViewModel.sendViewModel.isReadyForSend,
+                walletType: transactionDetailsViewModel.sendViewModel.walletType,
+                titleIconPath:
+                    transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
+                amount: S.of(bottomSheetContext).send_amount,
+                amountValue:
+                    transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                fiatAmountValue:
+                    transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                fee: S.of(bottomSheetContext).send_fee,
+                feeValue:
+                    transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                feeFiatAmount: transactionDetailsViewModel
+                    .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                outputs: transactionDetailsViewModel.sendViewModel.outputs,
+                footerType: FooterType.slideActionButton,
+                accessibleNavigationModeSlideActionButtonText: S.of(context).send,
+                onSlideActionComplete: () async {
+                  Navigator.of(bottomSheetContext).pop();
+                  await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
+                  try {
+                    if (bottomSheetContext.mounted) {
+                      Navigator.of(bottomSheetContext).pop();
+                    }
+                  } catch (_) {}
+                },
+                change: transactionDetailsViewModel.sendViewModel.pendingTransaction!.change,
+                amountParsingProxy: transactionDetailsViewModel.sendViewModel.amountParsingProxy,
+              ),
             );
             if (result == null) {
               await transactionDetailsViewModel.sendViewModel.dismissTransaction();
@@ -236,11 +236,11 @@ class RBFDetailsPage extends BasePage {
             showPopUp<void>(
               context: context,
               builder: (popupContext) => AlertWithOneAction(
-                  alertTitle: S.of(popupContext).sending,
-                  alertContent: S.of(popupContext).transaction_sent,
-                  buttonText: S.of(popupContext).ok,
-                  buttonAction: () => Navigator.of(popupContext).pop(),
-                ),
+                alertTitle: S.of(popupContext).sending,
+                alertContent: S.of(popupContext).transaction_sent,
+                buttonText: S.of(popupContext).ok,
+                buttonAction: () => Navigator.of(popupContext).pop(),
+              ),
             );
           }
         });

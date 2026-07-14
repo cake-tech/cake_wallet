@@ -15,7 +15,7 @@ abstract class ListItem {
   final bool isLastInSection;
 
   BorderRadius get radius => BorderRadius.vertical(
-    top: Radius.circular(isFirstInSection ? 16 : 0),
-    bottom: Radius.circular(isLastInSection ? 16 : 0),
-  );
+        top: Radius.circular(isFirstInSection ? 16 : 0),
+        bottom: Radius.circular(isLastInSection ? 16 : 0),
+      );
 }

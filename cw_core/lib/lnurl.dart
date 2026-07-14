@@ -11,7 +11,7 @@ const _LUD17_PREFIXES = ["lnurlw", "lnurlc", "lnurlp", "keyauth"];
 bool isBolt11ZeroInvoice(String invoice) {
   try {
     final request =
-    const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+        const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
     final prefix = _BOLT_PREFIXES.firstWhere(request.hrp.startsWith, orElse: () => "");
 
@@ -24,7 +24,7 @@ bool isBolt11ZeroInvoice(String invoice) {
 /// Get the amount of a Bolt 11 Invoice in
 int? _getAmountBolt11Msat(String invoice) {
   final request =
-  const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+      const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
   final prefix = _BOLT_PREFIXES.firstWhere(
     request.hrp.startsWith,

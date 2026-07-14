@@ -352,9 +352,9 @@ class Savings extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<SavingsData> savings({
-        required _i1.EthereumAddress accountOwner,
-        _i1.BlockNum? atBlock,
-      }) async {
+    required _i1.EthereumAddress accountOwner,
+    _i1.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[21];
     assert(checkSignature(function, '1f7cdd5f'));
     final params = [accountOwner];

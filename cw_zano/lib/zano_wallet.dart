@@ -129,7 +129,8 @@ abstract class ZanoWalletBase
   }
 
   static Future<ZanoWallet> create({required WalletCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
+    final wallet = ZanoWallet(credentials.walletInfo!,
+        await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.createWallet(path, credentials.password!);
@@ -146,7 +147,8 @@ abstract class ZanoWalletBase
 
   static Future<ZanoWallet> restore(
       {required ZanoRestoreWalletFromSeedCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
+    final wallet = ZanoWallet(credentials.walletInfo!,
+        await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.restoreWalletFromSeed(
@@ -232,9 +234,12 @@ abstract class ZanoWalletBase
     final isZano = credentials.currency == CryptoCurrency.zano;
     final outputs = credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalanceZano = balance[CryptoCurrency.zano]?.unlocked ?? Money.zero(CryptoCurrency.zano);
-    final unlockedBalanceCurrency = balance[credentials.currency]?.unlocked ?? Money.zero(credentials.currency);
-    final fee = Money(BigInt.from(calculateEstimatedFee(credentials.priority)), CryptoCurrency.zano);
+    final unlockedBalanceZano =
+        balance[CryptoCurrency.zano]?.unlocked ?? Money.zero(CryptoCurrency.zano);
+    final unlockedBalanceCurrency =
+        balance[credentials.currency]?.unlocked ?? Money.zero(credentials.currency);
+    final fee =
+        Money(BigInt.from(calculateEstimatedFee(credentials.priority)), CryptoCurrency.zano);
 
     var totalAmount = Money.zero(credentials.currency);
     void checkForEnoughBalances() {
@@ -398,8 +403,8 @@ abstract class ZanoWalletBase
       syncStatus = AttemptingSyncStatus();
       _lastKnownBlockHeight = 0;
       _initialSyncHeight = 0;
-      _updateSyncInfoTimer ??=
-          Timer.periodic(Duration(milliseconds: _pollIntervalMilliseconds), (_) => _updateSyncInfo());
+      _updateSyncInfoTimer ??= Timer.periodic(
+          Duration(milliseconds: _pollIntervalMilliseconds), (_) => _updateSyncInfo());
     } catch (e) {
       syncStatus = FailedSyncStatus();
       printV((e.toString()));

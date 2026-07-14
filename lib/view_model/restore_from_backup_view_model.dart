@@ -32,7 +32,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
   void reset() => filePath = '';
 
   @action
-  Future<void> import(String password,{bool checkBackupApp = true}) async {
+  Future<void> import(String password, {bool checkBackupApp = true}) async {
     try {
       state = IsExecutingState();
 
@@ -49,7 +49,8 @@ abstract class RestoreFromBackupViewModelBase with Store {
         rethrow;
       } catch (e, s) {
         if (e.toString().contains("unknown_backup_version")) {
-          state = FailureState('This is not a valid backup file, please make sure you have selected the correct one');
+          state = FailureState(
+              'This is not a valid backup file, please make sure you have selected the correct one');
         } else {
           state = FailureState(e.toString() + "\n" + s.toString());
         }
