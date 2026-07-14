@@ -6,6 +6,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AccountCreationModal extends StatefulWidget {
   const AccountCreationModal({
@@ -22,6 +23,8 @@ class AccountCreationModal extends StatefulWidget {
 }
 
 class _AccountCreationModalState extends State<AccountCreationModal> {
+  static const int maxAccountNameLength = 25;
+
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -68,13 +71,25 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                             Expanded(
                               child: TextField(
                                 controller: _controller,
-                                decoration: InputDecoration(hintText: S.of(context).account_name),
+                                maxLength: maxAccountNameLength,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(maxAccountNameLength),
+                                ],
+                                decoration: InputDecoration(
+                                  hintText: S.of(context).account_name,
+                                  counterText: '',
+                                ),
                               ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: GestureDetector(
-                                onTap: () async => _controller.text = await generateName(),
+                                onTap: () async {
+                                  final generated = await generateName();
+                                  _controller.text = generated.length > maxAccountNameLength
+                                      ? generated.substring(0, maxAccountNameLength)
+                                      : generated;
+                                },
                                 child: Container(
                                   decoration: BoxDecoration(
                                       color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -93,6 +108,8 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                       NewPrimaryButton(
                         onPressed: () async {
                           if (widget.state() is IsExecutingState) return;
+                          if (_controller.text.isEmpty ||
+                              _controller.text.length > maxAccountNameLength) return;
 
                           final future = widget.onPressed(_controller.text);
                           setState(() {});
@@ -104,7 +121,8 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                         text: S.of(context).continue_text,
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
-                        disabled: _controller.text.isEmpty,
+                        disabled: _controller.text.isEmpty ||
+                            _controller.text.length > maxAccountNameLength,
                         isLoading: widget.state() is IsExecutingState,
                       ),
                       SizedBox(),
