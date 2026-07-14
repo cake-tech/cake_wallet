@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -322,7 +323,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       }
     }
 
-    throw Exception('Unexpected type: ${type.toString()}');
+    throw BadWalletTypeException('Unexpected type: ${type.toString()}');
   }
 
   Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {

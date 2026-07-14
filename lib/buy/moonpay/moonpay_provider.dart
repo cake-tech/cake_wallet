@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
@@ -109,7 +110,7 @@ class MoonPayProvider extends BuyProvider {
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
     } else {
-      throw Exception(
+      throw BuySellProviderResponseException(
           'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
     }
   }
@@ -272,7 +273,7 @@ class MoonPayProvider extends BuyProvider {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception('Could not launch URL');
+        throw BuySellLaunchException('Could not launch URL');
       }
     } catch (e) {
       if (context.mounted) {

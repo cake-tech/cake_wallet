@@ -9,6 +9,7 @@ import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -232,7 +233,7 @@ class LightningWallet {
               return res.payment.id;
             } on SdkError_SparkError catch (e) {
               if (e.field0.contains("AlreadyExists")) {
-                throw Exception("Invoice already paid");
+                throw TransactionSendingException("Invoice already paid");
               }
               rethrow;
             }

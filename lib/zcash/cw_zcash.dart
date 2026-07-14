@@ -190,7 +190,7 @@ class CWZcash extends Zcash {
       case ZcashReceivePageOption.shieldedOrchard:
         return ZcashAddressType.shieldedOrchard;
       default:
-        throw Exception("Unknown ReceivePageOption!");
+        throw ArgumentError("Unknown ReceivePageOption!");
     }
   }
 

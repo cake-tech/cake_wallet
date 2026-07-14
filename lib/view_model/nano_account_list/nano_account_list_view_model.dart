@@ -1,5 +1,6 @@
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:mobx/mobx.dart';
@@ -36,7 +37,7 @@ abstract class NanoAccountListViewModelBase with Store {
           .toList();
     }
 
-    throw Exception('Unexpected wallet type: ${_wallet.type} for nano');
+    throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type} for nano');
   }
 
   final WalletBase _wallet;

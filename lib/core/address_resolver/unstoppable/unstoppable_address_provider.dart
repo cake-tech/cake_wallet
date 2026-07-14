@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/core/address_resolver/address_lookup_provider.dart';
+import "package:cake_wallet/core/address_resolver/address_resolver_exceptions.dart";
 import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/openalias/openalias_record.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
@@ -216,12 +217,12 @@ class UnstoppableAddressProvider extends AddressLookupProvider {
 
       final jsonParsed = json.decode(response.body) as Map<String, dynamic>;
       if (jsonParsed["records"] == null) {
-        throw Exception(".records response from $uri is empty");
+        throw AddressResolverServerResponseException(".records response from $uri is empty");
       };
       final records = jsonParsed["records"] as Map<String, dynamic>;
       final key = "crypto.${ticker.toUpperCase()}.address";
       if (records[key] == null) {
-        throw Exception(".records.${key} response from $uri is empty");
+        throw AddressResolverServerResponseException(".records.${key} response from $uri is empty");
       }
 
       return records[key] as String? ?? '';

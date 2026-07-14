@@ -7,6 +7,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import "package:cake_wallet/view_model/viewmodel_exceptions.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -931,7 +932,8 @@ abstract class DashboardViewModelBase with Store {
     if (permissionStatus != PermissionStatus.granted) {
       final resp = await Permission.notification.request();
       if (resp == PermissionStatus.denied) {
-        throw Exception("Notification permission denied");
+        throw const SystemPermissionException(
+            Permission.notification, "Notification permission denied");
       }
     }
     backgroundSyncNotificationsEnabled = value;

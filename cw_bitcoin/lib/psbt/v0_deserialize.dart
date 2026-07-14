@@ -1,5 +1,6 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:flutter/foundation.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_bitcoin/src/psbt/map_extension.dart';
@@ -11,7 +12,7 @@ extension PsbtSigner on PsbtV2 {
   void deserializeV0(Uint8List psbt) {
     final bufferReader = BufferReader(psbt);
     if (!listEquals(bufferReader.readSlice(5), Uint8List.fromList([0x70, 0x73, 0x62, 0x74, 0xff]))) {
-      throw Exception("Invalid magic bytes");
+      throw DeserializeException("Invalid magic bytes");
     }
     while (_readKeyPair(globalMap, bufferReader)) {}
 

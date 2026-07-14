@@ -5,6 +5,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _MoneroCacheDebugState extends State<MoneroCacheDebug> {
 
   late DebuggableWallets wallet = switch (dashboardViewModel.wallet.type) {
     WalletType.monero => DebuggableWallets.monero,
-    _ => throw Exception("Unknown wallet type"),
+    _ => throw BadWalletTypeException("Unknown wallet type"),
   };
 
   late Map<String, dynamic> walletCache = switch (wallet) {

@@ -14,7 +14,7 @@ class OrderSourceDescription extends EnumerableItem<int> with Serializable<int> 
       case 1:
         return order;
       default:
-        throw Exception('Invalid OrderSourceDescription raw value: $raw');
+        throw DeserializeException('Invalid OrderSourceDescription raw value: $raw');
     }
   }
 }

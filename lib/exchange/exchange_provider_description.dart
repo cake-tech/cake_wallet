@@ -1,4 +1,5 @@
 import 'package:cw_core/enumerable_item.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 
 class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<int> {
   const ExchangeProviderDescription(
@@ -81,7 +82,7 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       case 16:
         return jupiter;
       default:
-        throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
+        throw ArgumentError('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }
   }
 }

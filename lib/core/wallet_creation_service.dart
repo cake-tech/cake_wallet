@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+
 
 class WalletCreationService {
   WalletCreationService(
@@ -44,7 +46,7 @@ class WalletCreationService {
 
   Future<void> checkIfExists(String name) async {
     if (await exists(name)) {
-      throw Exception('Wallet with name ${name} already exists!');
+      throw WalletCreationException('Wallet with name ${name} already exists!');
     }
   }
 

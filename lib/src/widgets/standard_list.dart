@@ -220,7 +220,7 @@ class SectionStandardList extends StatelessWidget {
 
   Widget buildTitle(List<Widget> items, int sectionIndex) {
     if (sectionTitleBuilder == null) {
-      throw Exception('Cannot to build title. sectionTitleBuilder is null');
+      throw ArgumentError('Cannot to build title. sectionTitleBuilder is null');
     }
 
     return sectionTitleBuilder!.call(sectionIndex);

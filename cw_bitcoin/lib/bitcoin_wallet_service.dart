@@ -5,6 +5,7 @@ import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
@@ -81,7 +82,7 @@ class BitcoinWalletService extends WalletService<
   Future<BitcoinWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     try {
       final wallet = await BitcoinWalletBase.open(
@@ -115,7 +116,7 @@ class BitcoinWalletService extends WalletService<
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
 

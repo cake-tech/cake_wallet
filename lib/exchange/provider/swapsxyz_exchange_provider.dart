@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/amount_converter.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -72,7 +74,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       final chains = await _geSupportedChain();
-      if (chains.isEmpty) throw Exception('Failed to fetch supported chains');
+      if (chains.isEmpty) throw ExchangeProviderResponseException('Failed to fetch supported chains');
 
       final fromToUse = isFixedRateMode ? to : from;
       final toToUse = isFixedRateMode ? from : to;
@@ -96,7 +98,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(_baseUrl, _getPaths, params);
       final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       if (res.statusCode != 200) {
-        throw Exception('Unexpected http status: ${res.statusCode}');
+        throw ExchangeProviderResponseException('Unexpected http status: ${res.statusCode}');
       }
 
       final body = json.decode(res.body) as Map<String, dynamic>;
@@ -104,7 +106,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final paths =
           (body['paths'] as List? ?? const []).cast<Map<String, dynamic>>();
       if (paths.isEmpty) {
-        throw Exception('No paths for ${fromToUse.title} -> ${toToUse.title}');
+        throw ExchangeProviderResponseException('No paths for ${fromToUse.title} -> ${toToUse.title}');
       }
 
       final int requestedDstId = dstChain.chainId;
@@ -127,11 +129,11 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
           path['supportsExactAmountOut'] as bool? ?? false;
 
       if (isFixedRateMode && !supportsExactAmountOut) {
-        throw Exception(
+        throw ExchangeProviderResponseException(
             'This route does not support fixed receive (exact-amount-out)');
       }
       if (!isFixedRateMode && !supportsExactAmountIn) {
-        throw Exception(
+        throw ExchangeProviderResponseException(
             'This route does not support exact send (exact-amount-in)');
       }
 
@@ -173,7 +175,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       return Limits(min: min, max: max);
     } catch (e) {
       printV('fetchLimits error: $e');
-      throw Exception('Error fetching limits: $e');
+      throw ExchangeProviderResponseException('Error fetching limits: $e');
     }
   }
 
@@ -289,12 +291,12 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final sender = request.refundAddress.trim();
       final recipient = request.toAddress.trim();
       if (sender.isEmpty || recipient.isEmpty) {
-        throw Exception(
+        throw ArgumentError(
             'Sender (refundAddress) or recipient (toAddress) is empty');
       }
 
       final chains = await _geSupportedChain();
-      if (chains.isEmpty) throw Exception('Failed to fetch supported chains');
+      if (chains.isEmpty) throw ExchangeProviderResponseException('Failed to fetch supported chains');
       final srcChain = _findChainByCurrency(request.fromCurrency, chains);
       final dstChain = _findChainByCurrency(request.toCurrency, chains);
 
@@ -312,7 +314,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final amountStr = isFixedRateMode ? request.toAmount : request.fromAmount;
       final rawAmount = double.tryParse(amountStr) ?? 0.0;
-      if (rawAmount <= 0) throw Exception('Invalid amount');
+      if (rawAmount <= 0) throw ArgumentError('Invalid amount');
 
       final formattedAmount = AmountConverter.toBaseUnits(
         amountStr,
@@ -339,7 +341,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
       if (res.statusCode != 200) {
-        throw Exception('getAction failed: ${res.statusCode} ${res.body}');
+        throw ExchangeProviderResponseException('getAction failed: ${res.statusCode} ${res.body}');
       }
 
       final data = json.decode(res.body) as Map<String, dynamic>;
@@ -364,13 +366,13 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
           _decodeMethodSelector(routerData) == _swapAndExecuteSig;
 
       if (!isAllowed) {
-        throw Exception('Does not support that method selector');
+        throw ExchangeProviderResponseException('Does not support that method selector');
       }
 
       final txValue = txObj['value']?.toString() ?? '0';
 
       final bridgeIds = (data['bridgeIds'] as List?) ?? const [];
-      if (txId.isEmpty) throw Exception('No txId returned by getAction');
+      if (txId.isEmpty) throw ExchangeProviderResponseException('No txId returned by getAction');
 
       final amtIn = (data['amountIn'] as Map?) ?? const {};
       final amtInMax = (data['amountInMax'] as Map?) ?? const {};
@@ -465,14 +467,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({required String id}) async {
     if (id.isEmpty) {
-      throw Exception('Trade id is empty');
+      throw ArgumentError('Trade id is empty');
     }
 
     final uri = Uri.https(_baseUrl, _getStatus, {'txId': id});
     final resp = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
     if (resp.statusCode != 200) {
-      throw Exception('getStatus failed: ${resp.statusCode} ${resp.body}');
+      throw ExchangeProviderResponseException('getStatus failed: ${resp.statusCode} ${resp.body}');
     }
 
     final data = json.decode(resp.body) as Map<String, dynamic>;
@@ -482,7 +484,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final error = data['error'] as Map<String, dynamic>?;
       if (error != null) {
         final code = error['code']?.toString() ?? 'unknown';
-        throw Exception(
+        throw ExchangeProviderResponseException(
             'SwapXyzExchangeProvider findTradeById error: ($id) $code');
       }
     }
@@ -775,7 +777,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       (c) {
         return c.name.toUpperCase() == network;
       },
-      orElse: () => throw Exception('Unsupported chain for ${cur.title}'),
+      orElse: () => throw BadCurrencyException('Unsupported chain for ${cur.title}', cur),
     );
   }
 

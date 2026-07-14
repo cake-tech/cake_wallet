@@ -3,6 +3,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -67,7 +68,7 @@ class LitecoinWalletService extends WalletService<
 
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
 
     try {
@@ -100,7 +101,7 @@ class LitecoinWalletService extends WalletService<
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
 

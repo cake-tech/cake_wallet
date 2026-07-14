@@ -1,3 +1,4 @@
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:payjoin_flutter/src/generated/api/receive.dart';
 import 'package:payjoin_flutter/src/generated/api/send.dart';
 
@@ -21,7 +22,7 @@ class PayjoinSenderPersister implements DartSenderPersister {
   Future<FfiSender> load({required SenderToken token}) async {
     final sender = _store[token.toBytes().toString()];
     if (sender == null) {
-      throw Exception('Sender not found for the provided token.');
+      throw PayjoinSenderException('Sender not found for the provided token.');
     }
     return sender;
   }
@@ -53,7 +54,7 @@ class PayjoinReceiverPersister implements DartReceiverPersister {
   Future<FfiReceiver> load({required ReceiverToken token}) async {
     final receiver = _store[token.toBytes().toString()];
     if (receiver == null) {
-      throw Exception('Receiver not found for the provided token.');
+      throw PayjoinReceiverException('Receiver not found for the provided token.');
     }
     return receiver;
   }

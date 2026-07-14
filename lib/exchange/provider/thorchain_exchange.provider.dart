@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -199,16 +201,16 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    if (id.isEmpty) throw Exception('Trade id is empty');
+    if (id.isEmpty) throw ArgumentError('Trade id is empty');
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
     final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');
     final response = await ProxyWrapper().get(clearnetUri: uri);
     
 
     if (response.statusCode == 404) {
-      throw Exception('Trade not found for id: $formattedId');
+      throw TradeNotFoundException(id, description:'Trade not found for id: $formattedId', provider: description);
     } else if (response.statusCode != 200) {
-      throw Exception('Unexpected HTTP status: ${response.statusCode}');
+      throw ExchangeProviderResponseException('Unexpected HTTP status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body);
@@ -216,7 +218,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? true;
     if (!inboundObservedStarted) {
-      throw Exception('Trade has not started for id: $formattedId');
+      throw TradeNotCreatedException(description, description: 'Trade has not started for id: $formattedId');
     }
 
     final currentState = _updateStateBasedOnStages(stagesJson) ?? TradeState.notFound;
@@ -294,28 +296,28 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       ExchangeProviderLogger.logError(
         provider: description,
         function: '_getSwapQuote',
-        error: Exception('Unexpected HTTP status: ${response.statusCode}'),
+        error: ExchangeProviderResponseException('Unexpected HTTP status: ${response.statusCode}'),
         stackTrace: StackTrace.current,
         requestData: {
           'params': params,
           'url': uri.toString(),
         },
       );
-      throw Exception('Unexpected HTTP status: ${response.statusCode}');
+      throw ExchangeProviderResponseException('Unexpected HTTP status: ${response.statusCode}');
     }
 
     if (response.body.contains('error')) {
       ExchangeProviderLogger.logError(
         provider: description,
         function: '_getSwapQuote',
-        error: Exception('Unexpected response: ${response.body}'),
+        error: ExchangeProviderResponseException('Unexpected response: ${response.body}'),
         stackTrace: StackTrace.current,
         requestData: {
           'params': params,
           'url': uri.toString(),
         },
       );
-      throw Exception('Unexpected response: ${response.body}');
+      throw ExchangeProviderResponseException('Unexpected response: ${response.body}');
     }
 
     return json.decode(response.body) as Map<String, dynamic>;

@@ -3,6 +3,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'shared_preferences.g.dart';
 
+class SharedPreferencesException  extends CakeException{
+  const SharedPreferencesException(super.message);
+}
+
 class DevSharedPreferences = DevSharedPreferencesBase with _$DevSharedPreferences;
 
 enum PreferenceType {
@@ -62,8 +66,8 @@ abstract class DevSharedPreferencesBase with Store {
       case PreferenceType.listString:
         await sharedPreferences!.setStringList(key, List<String>.from(value as Iterable<dynamic>));
         break;
-      default:
-        throw Exception("Unknown preference type: $type");
+      case PreferenceType.unknown:
+        throw SharedPreferencesException("Unknown preference type: $type");
     }
   }
 

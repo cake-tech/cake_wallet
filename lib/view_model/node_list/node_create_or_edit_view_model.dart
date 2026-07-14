@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -314,10 +315,10 @@ abstract class NodeCreateOrEditViewModelBase with Store {
           await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
       String? code = await presentQRScanner(context);
-      if (code == null) throw Exception("Unexpected QR code value: aborted");
+      if (code == null) throw ScanValueException("Unexpected QR code value: aborted");
 
       if (code.isEmpty) {
-        throw Exception('Unexpected scan QR code value: value is empty');
+        throw ScanValueException('Unexpected scan QR code value: value is empty');
       }
 
       if (code.startsWith("monero_node:"))
@@ -326,7 +327,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
       final uri = Uri.tryParse(code);
       if (uri == null || uri.host.isEmpty) {
-        throw Exception('Invalid QR code: Unable to parse or missing host.');
+        throw ScanValueException('Invalid QR code: Unable to parse or missing host.');
       }
 
       final queryParams = uri.queryParameters;

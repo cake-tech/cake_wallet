@@ -32,7 +32,7 @@ class MoneroTransactionPriority extends TransactionPriority {
         return fastest;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for MoneroTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for MoneroTransactionPriority deserialize');
         }
         return medium;
     }

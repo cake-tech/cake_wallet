@@ -23,7 +23,7 @@ class DogecoinTransactionPriority extends BitcoinTransactionPriority {
         return fast;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for DogecoinTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for DogecoinTransactionPriority deserialize');
         }
         return medium;
     }

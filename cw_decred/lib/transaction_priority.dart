@@ -21,7 +21,7 @@ class DecredTransactionPriority extends TransactionPriority {
         return fast;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for DecredTransactionPriority deserialize');
+          throw Deserialize('Unexpected token: $raw for DecredTransactionPriority deserialize');
         }
         return medium;
     }

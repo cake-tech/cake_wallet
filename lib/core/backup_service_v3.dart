@@ -144,14 +144,17 @@ class BackupMetadata {
   }
 }
 
-class IncompatibleBackupAppException implements Exception {
-  IncompatibleBackupAppException({
+class IncompatibleBackupAppException implements InvalidBackupException {
+  const IncompatibleBackupAppException({
     required this.sourceAppName,
     required this.currentAppName,
   });
 
   final String sourceAppName;
   final String currentAppName;
+
+  @override
+  String get message => toString();
 
   @override
   String toString() {
@@ -177,7 +180,7 @@ class BackupServiceV3 extends $BackupService {
       final bytesRead = raf.readIntoSync(buffer);
       
       if (bytesRead == 0) {
-        throw Exception('Invalid backup file: empty file');
+        throw InvalidBackupException('Invalid backup file: empty file');
       }
 
       // Check if first byte is version 1 or 2
@@ -217,7 +220,7 @@ class BackupServiceV3 extends $BackupService {
     final version = getVersionFile(file);
     switch (version) {
       case BackupVersion.unknown:
-        throw Exception('unknown_backup_version');
+        throw UnknownBackupVersionException();
       case BackupVersion.v1:
         final data = file.readAsBytesSync();
         final backupBytes = data.toList()..removeAt(0);
@@ -247,7 +250,7 @@ class BackupServiceV3 extends $BackupService {
 
     final metadataFile = archive.findFile('metadata.json');
     if (metadataFile == null) {
-      throw Exception('Invalid v3 backup: missing metadata.json');
+      throw InvalidBackupException('Invalid v3 backup: missing metadata.json');
     }
     final metadataBytes = metadataFile.rawContent!.readBytes();
     final metadataString = utf8.decode(metadataBytes);
@@ -256,7 +259,7 @@ class BackupServiceV3 extends $BackupService {
 
     final dataFile = archive.findFile('data.bin');
     if (dataFile == null) {
-      throw Exception('Invalid v3 backup: missing data.bin');
+      throw InvalidBackupException('Invalid v3 backup: missing data.bin');
     }
     final dataStream = dataFile.rawContent!.getStream();
     
@@ -275,7 +278,7 @@ class BackupServiceV3 extends $BackupService {
 
       // readBytes stores position internally, so we don't need to think about it.
       if (chunk.sha512sum.encrypted != chunkChecksum) {
-        throw Exception('Invalid v3 backup: chunk (${chunk.length.encrypted} bytes) checksum mismatch at index $chunkIndex\n'
+        throw InvalidBackupException('Invalid v3 backup: chunk (${chunk.length.encrypted} bytes) checksum mismatch at index $chunkIndex\n'
             'expected: ${chunk.sha512sum.encrypted}\n'
             'got: $chunkChecksum');
       }
@@ -286,7 +289,7 @@ class BackupServiceV3 extends $BackupService {
 
     final sha512sum = (await sha512.bind(decryptedData.openRead()).first).toString();
     if (sha512sum.toString() != metadata.sha512sum) {
-      throw Exception('Invalid v3 backup: SHA512 checksum mismatch\n'
+      throw InvalidBackupException('Invalid v3 backup: SHA512 checksum mismatch\n'
           'expected: ${metadata.sha512sum}\n'
           'got: $sha512sum');
     }

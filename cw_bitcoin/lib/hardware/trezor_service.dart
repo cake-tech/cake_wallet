@@ -185,6 +185,6 @@ String _getScriptType(BitcoinAddressType addressType) {
     case SegwitAddresType.p2wpkh:
       return "PAYTOWITNESS";
     default:
-      throw Exception("Unknown Address Type");
+      throw ArgumentError("Unknown Address Type");
   }
 }

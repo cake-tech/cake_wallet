@@ -1,4 +1,5 @@
 import 'dart:convert';
+import "package:cake_wallet/core/address_resolver/address_resolver_exceptions.dart";
 import 'package:cake_wallet/core/address_resolver/mastodon/mastodon_user.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -52,7 +53,7 @@ class MastodonAPI {
       
 
       if (response.statusCode != 200) {
-        throw Exception('Unexpected HTTP status: ${response.statusCode}');
+        throw AddressResolverServerResponseException('Unexpected HTTP status: ${response.statusCode}');
       }
 
       final List<dynamic> responseJSON = json.decode(response.body) as List<dynamic>;

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -68,7 +69,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       );
 
       if (response.statusCode != 200) {
-        throw Exception('StealthEx fetch limits failed: ${response.body}');
+        throw ExchangeProviderResponseException('StealthEx fetch limits failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final min = _toDouble(responseJSON['min_amount']);
@@ -76,7 +77,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       return Limits(min: min, max: max);
     } catch (e) {
       log(e.toString());
-      throw Exception('StealthEx failed to fetch limits');
+      throw ExchangeProviderResponseException('StealthEx failed to fetch limits');
     }
   }
 
@@ -216,7 +217,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
             'rateId': rateId,
           },
         );
-        throw Exception('StealthEx create trade failed: ${response.body}');
+        throw ExchangeProviderResponseException('StealthEx create trade failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final deposit = responseJSON['deposit'] as Map<String, dynamic>;
@@ -332,7 +333,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception('StealthEx fetch trade failed: ${response.body}');
+      throw ExchangeProviderResponseException('StealthEx fetch trade failed: ${response.body}');
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final deposit = responseJSON['deposit'] as Map<String, dynamic>;

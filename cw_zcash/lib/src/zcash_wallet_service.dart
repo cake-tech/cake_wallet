@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -118,7 +119,7 @@ class ZcashWalletService
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -127,7 +128,7 @@ class ZcashWalletService
   Future<void> rename(final String currentName, final String password, final String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     final accountId = await ZcashWalletBase.getZcashAccountIdForName(currentName);
     if (accountId == null) {

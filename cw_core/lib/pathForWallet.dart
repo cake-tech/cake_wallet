@@ -52,7 +52,7 @@ Future<void> copyWalletFilesTo({
   }
 
   if (Directory(p.join(typeRoot, toName)).existsSync()) {
-    throw Exception('Cannot rename wallet: "$toName" already exists');
+    throw IOException('Cannot rename wallet: "$toName" already exists');
   }
 
   final destinationDir = Directory(p.join(typeRoot, toName));

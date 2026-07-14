@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node_list.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -81,7 +82,7 @@ abstract class NodeListViewModelBase with Store {
 
     final node = isPow ? settingsStore.powNodes[walletType] : settingsStore.nodes[walletType];
     if (node == null) {
-      throw Exception('No node for wallet type: $walletType');
+      throw NodeLookupException('No node for wallet type: $walletType');
     }
     return node;
   }
@@ -171,11 +172,11 @@ abstract class NodeListViewModelBase with Store {
         if (nodeWalletType != null) {
           node = (await Node.getDefaultForWalletType(nodeWalletType))!;
         } else {
-          throw Exception(
+          throw BadChainIdException(
               'Cannot reset node for EVM wallet: wallet type not found for chainId: $chainId');
         }
       } else {
-        throw Exception('Cannot reset node for EVM wallet: chainId is null');
+        throw BadChainIdException('Cannot reset node for EVM wallet: chainId is null');
       }
     } else {
       node = (await Node.getDefaultForWalletType(_appStore.wallet!.type))!;
@@ -201,7 +202,7 @@ abstract class NodeListViewModelBase with Store {
           return;
         }
       }
-      throw Exception('Cannot set node for EVM wallet: chainId or wallet type not found');
+      throw BadChainIdException('Cannot set node for EVM wallet: chainId or wallet type not found');
     }
 
     // For non-EVM wallets, use the wallet type directly

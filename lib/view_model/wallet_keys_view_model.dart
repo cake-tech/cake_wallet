@@ -6,6 +6,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -330,7 +331,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.zcash:
         return 'zcash-wallet';
       case WalletType.none:
-        throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
+        throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }
   }
 

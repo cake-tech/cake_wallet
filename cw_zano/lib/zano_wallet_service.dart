@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -68,7 +69,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   Future<ZanoWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException('Wallet not found');
     }
     try {
       final wallet = await ZanoWalletBase.open(name: name, password: password, walletInfo: walletInfo);
@@ -92,7 +93,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -101,7 +102,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     final currentWallet = ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password);
 

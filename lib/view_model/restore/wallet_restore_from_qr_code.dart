@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -117,8 +118,8 @@ class WalletRestoreFromQRCode {
 
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
     String? code = await presentQRScanner(context);
-    if (code == null) throw Exception("QR scan is cancelled");
-    if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
+    if (code == null) throw ScanValueException("QR scan is cancelled");
+    if (code.isEmpty) throw ScanValueException('Unexpected scan QR code value: value is empty');
 
     if (code.startsWith("[")) code = code.substring(code.indexOf("]") + 1);
 
@@ -133,7 +134,7 @@ class WalletRestoreFromQRCode {
       await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
       walletType =
           await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletType?;
-      if (walletType == null) throw Exception("Failed to determine wallet type.");
+      if (walletType == null) throw BadWalletTypeException("Failed to determine wallet type.");
 
       final seedPhrase = _extractSeedPhraseFromUrl(code, walletType);
 
@@ -141,7 +142,7 @@ class WalletRestoreFromQRCode {
           ? '$walletType:?seed=$seedPhrase'
           : code.startsWith(prefix)
               ? '$walletType:?$prefix=$code'
-              : throw Exception('Failed to determine valid seed phrase');
+              : throw BadMnemonicException('Failed to determine valid seed phrase');
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
@@ -170,7 +171,7 @@ class WalletRestoreFromQRCode {
       case WalletRestoreMode.keys:
         return RestoredWallet.fromKey(credentials);
       default:
-        throw Exception('Unexpected restore mode: ${credentials['mode']}');
+        throw ScanValueException('Unexpected restore mode: ${credentials['mode']}');
     }
   }
 
@@ -179,7 +180,7 @@ class WalletRestoreFromQRCode {
     if (credentials.containsKey('tx_payment_id')) {
       final txIdValue = credentials['tx_payment_id'] as String? ?? '';
       if (txIdValue.isNotEmpty) return WalletRestoreMode.txids;
-      throw Exception('Unexpected restore mode: tx_payment_id is invalid');
+      throw ScanValueException('Unexpected restore mode: tx_payment_id is invalid');
     }
 
     if (credentials.containsKey("xpub") || credentials.containsKey("zpub")) {
@@ -201,7 +202,7 @@ class WalletRestoreFromQRCode {
 
       seedValue.split(' ').forEach((element) {
         if (!words.contains(element)) {
-          throw Exception(
+          throw ScanValueException(
               "Unexpected restore mode: mnemonic_seed is invalid or doesn't match wallet type");
         }
       });
@@ -214,13 +215,13 @@ class WalletRestoreFromQRCode {
 
       return spendKeyValue.isNotEmpty || viewKeyValue.isNotEmpty
           ? WalletRestoreMode.keys
-          : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
+          : throw ScanValueException('Unexpected restore mode: spend_key or view_key is invalid');
     }
 
     if (isEVMCompatibleChain(type) && credentials.containsKey('private_key')) {
       final privateKey = credentials['private_key'] as String;
       if (privateKey.isEmpty) {
-        throw Exception('Unexpected restore mode: private_key');
+        throw ScanValueException('Unexpected restore mode: private_key');
       }
       return WalletRestoreMode.keys;
     }
@@ -229,7 +230,7 @@ class WalletRestoreFromQRCode {
         credentials.containsKey('hexSeed')) {
       final hexSeed = credentials['hexSeed'] as String;
       if (hexSeed.isEmpty) {
-        throw Exception('Unexpected restore mode: hexSeed');
+        throw ScanValueException('Unexpected restore mode: hexSeed');
       }
       return WalletRestoreMode.seed;
     }
@@ -237,7 +238,7 @@ class WalletRestoreFromQRCode {
     if (type == WalletType.solana && credentials.containsKey('private_key')) {
       final privateKey = credentials['private_key'] as String;
       if (privateKey.isEmpty) {
-        throw Exception('Unexpected restore mode: private_key');
+        throw ScanValueException('Unexpected restore mode: private_key');
       }
       return WalletRestoreMode.keys;
     }
@@ -245,7 +246,7 @@ class WalletRestoreFromQRCode {
     if (type == WalletType.tron && credentials.containsKey('private_key')) {
       final privateKey = credentials['private_key'] as String;
       if (privateKey.isEmpty) {
-        throw Exception('Unexpected restore mode: private_key');
+        throw ScanValueException('Unexpected restore mode: private_key');
       }
       return WalletRestoreMode.keys;
     }
@@ -262,7 +263,7 @@ class WalletRestoreFromQRCode {
       return WalletRestoreMode.keys;
     }
 
-    throw Exception('Unexpected restore mode: restore params are invalid');
+    throw ScanValueException('Unexpected restore mode: restore params are invalid');
   }
 }
 

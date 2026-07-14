@@ -6,6 +6,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -920,7 +921,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     final map = isHidden ? sideHdByType : mainHdByType;
     final hd = map[type];
-    if (hd == null) throw Exception("HD not found for type $type");
+    if (hd == null) throw WalletKeysException("HD not found for type $type");
     return hd;
   }
   

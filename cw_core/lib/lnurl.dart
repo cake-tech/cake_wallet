@@ -3,10 +3,15 @@ import 'dart:convert';
 import 'package:bech32/bech32.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
 const _BOLT_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
 const _LUD17_PREFIXES = ['lnurlw', 'lnurlc', 'lnurlp', 'keyauth'];
+
+class Bech32EncodeException extends CakeException {
+  const Bech32EncodeException(super.message);
+}
 
 bool isBolt11ZeroInvoice(String invoice) {
   try {
@@ -161,8 +166,8 @@ List<int> _convert(List<int> data, int inBits, int outBits, bool pad) {
   if (pad) {
     if (bits > 0) result.add((value << (outBits - bits)) & maxV);
   } else {
-    if (bits >= inBits) throw Exception('[BECH32] Excess padding');
-    if ((value << (outBits - bits)) & maxV > 0) throw Exception('[BECH32] Non-zero padding');
+    if (bits >= inBits) throw Bech32EncodeException('Excess padding');
+    if ((value << (outBits - bits)) & maxV > 0) throw Bech32EncodeException('Non-zero padding');
   }
 
   return result;
