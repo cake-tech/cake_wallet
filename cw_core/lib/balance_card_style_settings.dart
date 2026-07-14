@@ -82,7 +82,7 @@ class BalanceCardStyleSettings {
     required int accountIndex,
     required int cardOrder,
     required CardDesign design,
-    required bool hidden
+    required bool hidden,
     int iconStyleIndex = 0,
     int? gradientIndexOverride,
   }) {
