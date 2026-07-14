@@ -35,7 +35,8 @@ class EVMChainTransactionModel {
     this.evmSignatureName,
   });
 
-  factory EVMChainTransactionModel.fromJson(Map<String, dynamic> json, String defaultSymbol, int chainId) =>
+  factory EVMChainTransactionModel.fromJson(
+          Map<String, dynamic> json, String defaultSymbol, int chainId) =>
       EVMChainTransactionModel(
         date: DateTime.fromMillisecondsSinceEpoch(int.parse(json["timeStamp"]) * 1000),
         hash: json["hash"] ?? "",

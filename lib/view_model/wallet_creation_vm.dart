@@ -25,8 +25,7 @@ part 'wallet_creation_vm.g.dart';
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._appStore, this.walletCreationService,
-      this.seedSettingsViewModel,
+  WalletCreationVMBase(this._appStore, this.walletCreationService, this.seedSettingsViewModel,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
         name = '';
@@ -81,7 +80,6 @@ abstract class WalletCreationVMBase with Store {
   Future<void> _create({dynamic options}) async {
     final type = this.type;
     try {
-
       state = IsExecutingState();
       if (name.isEmpty) {
         name = await generateName();
@@ -101,9 +99,9 @@ abstract class WalletCreationVMBase with Store {
 
       final credentials = getCredentials(options);
 
-      final di = ((credentials.derivationInfo?.derivationPath??"") == "") 
-        ? getDefaultCreateDerivation()
-        : credentials.derivationInfo;
+      final di = ((credentials.derivationInfo?.derivationPath ?? "") == "")
+          ? getDefaultCreateDerivation()
+          : credentials.derivationInfo;
 
       final diId = await di!.save();
       credentials.derivationInfo = di;
@@ -118,7 +116,8 @@ abstract class WalletCreationVMBase with Store {
         path: path,
         dirPath: dirPath,
         address: '',
-        showIntroCakePayCard: (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
+        showIntroCakePayCard:
+            (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfoId: diId,
         hardwareWalletType: credentials.hardwareWalletType,
       );

@@ -50,13 +50,13 @@ class DesktopActionButton extends StatelessWidget {
                   AutoSizeText(
                     title,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: isEnabled
-                          ? Theme.of(context).colorScheme.onPrimaryContainer
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                      height: 1,
-                    ),
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: isEnabled
+                              ? Theme.of(context).colorScheme.onPrimaryContainer
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                          height: 1,
+                        ),
                     maxLines: 1,
                     textAlign: TextAlign.center,
                   )

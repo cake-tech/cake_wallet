@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class PulsingDot extends StatefulWidget {
-  const PulsingDot({super.key,});
-
+  const PulsingDot({
+    super.key,
+  });
 
   final double size = 5;
   final Color color = const Color(0xFFFFC414);
@@ -14,8 +15,7 @@ class PulsingDot extends StatefulWidget {
   State<PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<PulsingDot>
-    with SingleTickerProviderStateMixin {
+class _PulsingDotState extends State<PulsingDot> with SingleTickerProviderStateMixin {
   late final AnimationController controller;
 
   @override
@@ -38,7 +38,7 @@ class _PulsingDotState extends State<PulsingDot>
         duration: widget.fadeOutDuration,
       );
       await Future.delayed(widget.restDuration);
-      if(!mounted) return;
+      if (!mounted) return;
       controller.value = 1.0;
     }
   }

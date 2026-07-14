@@ -41,11 +41,10 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
           controller.addWebMessageListener(
             WebMessageListener(
               jsObjectName: 'ReactNativeWebView',
-              onPostMessage: (WebMessage? message, WebUri? sourceOrigin,
-                  bool isMainFrame, PlatformJavaScriptReplyProxy replyProxy) {
+              onPostMessage: (WebMessage? message, WebUri? sourceOrigin, bool isMainFrame,
+                  PlatformJavaScriptReplyProxy replyProxy) {
                 final shortenedMessage = message?.data.toString().substring(16);
-                if (shortenedMessage != null &&
-                    _isJsonString(shortenedMessage)) {
+                if (shortenedMessage != null && _isJsonString(shortenedMessage)) {
                   final parsedMessage = jsonDecode(shortenedMessage);
                   final eventType = parsedMessage["event"];
                   if (eventType == 'loaded') {

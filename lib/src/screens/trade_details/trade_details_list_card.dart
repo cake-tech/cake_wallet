@@ -19,13 +19,11 @@ class TradeDetailsListCardItem extends StandartListItem {
       required CryptoCurrency to,
       required void Function(BuildContext) onTap,
       String? extraId}) {
-
-
-      final extraIdTitle = from == CryptoCurrency.xrp
-          ? S.current.destination_tag
-          : from == CryptoCurrency.xlm
-          ? S.current.memo
-          : S.current.extra_id;
+    final extraIdTitle = from == CryptoCurrency.xrp
+        ? S.current.destination_tag
+        : from == CryptoCurrency.xlm
+            ? S.current.memo
+            : S.current.extra_id;
 
     return TradeDetailsListCardItem(
         id: '${S.current.trade_details_id}  ${formatAsText(id)}',

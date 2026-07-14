@@ -6,13 +6,16 @@ class EmployedEntries {
 
   EmployedEntries({required this.receive, required this.send});
 
-  factory EmployedEntries.fromJson(Map<String, dynamic> json) =>
-      EmployedEntries(
-        receive: json['receive'] == null ? [] : (json['receive'] as List<dynamic>)
-            .map((e) => Receive.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        send: json['spent'] == null ? [] : (json['spent'] as List<dynamic>)
-            .map((e) => Receive.fromJson(e as Map<String, dynamic>))
-            .toList(),
+  factory EmployedEntries.fromJson(Map<String, dynamic> json) => EmployedEntries(
+        receive: json['receive'] == null
+            ? []
+            : (json['receive'] as List<dynamic>)
+                .map((e) => Receive.fromJson(e as Map<String, dynamic>))
+                .toList(),
+        send: json['spent'] == null
+            ? []
+            : (json['spent'] as List<dynamic>)
+                .map((e) => Receive.fromJson(e as Map<String, dynamic>))
+                .toList(),
       );
 }

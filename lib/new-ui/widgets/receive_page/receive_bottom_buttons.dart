@@ -34,7 +34,6 @@ class ReceiveBottomButtons extends StatefulWidget {
 }
 
 class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
-
   @override
   Widget build(BuildContext context) {
     final double targetOpacity = widget.largeQrMode ? 0 : 1;
@@ -57,27 +56,33 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
               spacing: 16,
               children: [
                 GestureDetector(
-                    onTap: widget.copyData == null ? widget.onCopyButtonPressed : null,
-                    child: IgnorePointer(
-                        ignoring: widget.copyData == null,
-                        child: CopyWrapper(
-                          data: widget.copyData,
-                          builder: (context, copied) => AnimatedSwitcher(
-                            duration: Duration(milliseconds: 200),
-                            child: IgnorePointer(
-                              child: ModernButton.svg(
-                                key: ValueKey(copied),
-                                size: 60,
-                                iconSize: 32,
-                                svgPath: "assets/new-ui/copy.svg",
-                                onPressed: () {},
-                                label: copied ? S.of(context).copied : S.of(context).copy,
-                                iconColor: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer,
-                                backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
+                  onTap: widget.copyData == null ? widget.onCopyButtonPressed : null,
+                  child: IgnorePointer(
+                    ignoring: widget.copyData == null,
+                    child: CopyWrapper(
+                      data: widget.copyData,
+                      builder: (context, copied) => AnimatedSwitcher(
+                        duration: Duration(milliseconds: 200),
+                        child: IgnorePointer(
+                          child: ModernButton.svg(
+                            key: ValueKey(copied),
+                            size: 60,
+                            iconSize: 32,
+                            svgPath: "assets/new-ui/copy.svg",
+                            onPressed: () {},
+                            label: copied ? S.of(context).copied : S.of(context).copy,
+                            iconColor: copied
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.surfaceContainer,
+                            backgroundColor: copied
+                                ? Theme.of(context).colorScheme.surfaceContainerHighest
+                                : Theme.of(context).colorScheme.primary,
                           ),
-                        ),),),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 ModernButton.svg(
                     size: 60,
                     iconSize: 32,

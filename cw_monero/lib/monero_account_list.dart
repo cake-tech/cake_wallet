@@ -46,26 +46,27 @@ abstract class MoneroAccountListBase with Store {
   }
 
   static Map<int, List<Account>> cachedAccounts = {};
-  
+
   List<Account> getAll() {
     final allAccounts = account_list.getAllAccount();
     final currentCount = allAccounts.length;
     cachedAccounts[account_list.currentWallet!.ffiAddress()] ??= [];
-    
+
     if (cachedAccounts[account_list.currentWallet!.ffiAddress()]!.length == currentCount) {
       return cachedAccounts[account_list.currentWallet!.ffiAddress()]!;
     }
-    
-    cachedAccounts[account_list.currentWallet!.ffiAddress()] = allAccounts.map((accountRow) {
-        final balance = accountRow.getUnlockedBalance();
 
-        return Account(
-          id: accountRow.getRowId(),
-          label: accountRow.getLabel(),
-          balance: moneroAmountToString(amount: account_list.currentWallet!.amountFromString(balance)),
-        );
-      }).toList();
-    
+    cachedAccounts[account_list.currentWallet!.ffiAddress()] = allAccounts.map((accountRow) {
+      final balance = accountRow.getUnlockedBalance();
+
+      return Account(
+        id: accountRow.getRowId(),
+        label: accountRow.getLabel(),
+        balance:
+            moneroAmountToString(amount: account_list.currentWallet!.amountFromString(balance)),
+      );
+    }).toList();
+
     return cachedAccounts[account_list.currentWallet!.ffiAddress()]!;
   }
 
