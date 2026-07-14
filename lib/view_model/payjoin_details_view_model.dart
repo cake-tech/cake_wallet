@@ -123,7 +123,6 @@ abstract class PayjoinDetailsViewModelBase with Store {
 
   @action
   Future<void> fallbackBroadcast() async {
-    if (!payjoinSession.isSenderSession) return;
     if (payjoinSession.originalPsbt == null) return;
     final wallet = getIt.get<AppStore>().wallet;
     if (wallet == null) return;
@@ -136,8 +135,8 @@ abstract class PayjoinDetailsViewModelBase with Store {
       payjoinSession.status == PayjoinSessionStatus.created.name;
 
   bool get canFallback =>
-      payjoinSession.isSenderSession &&
-      payjoinSession.originalPsbt != null &&
+      payjoinSession.originalPsbt?.isNotEmpty == true &&
+      !payjoinSession.usedFallback &&
       (payjoinSession.status == PayjoinSessionStatus.inProgress.name ||
           payjoinSession.status == PayjoinSessionStatus.unrecoverable.name);
 
@@ -162,7 +161,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
       case 'waiting':
         return S.current.payjoin_request_awaiting_tx;
       case 'unrecoverable':
-        if (payjoinSession.error == 'Cancelled') return 'Cancelled';
+        if (payjoinSession.error == 'Cancelled') return S.current.cancelled;
         return S.current.error;
       default:
         return payjoinSession.status;

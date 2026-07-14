@@ -307,14 +307,27 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return getAddress(index: 0, hd: mainHd, addressType: addressPageType);
   }
 
-  String get payjoinCompatibleAddress {
+  /// Generates a fresh receive address suitable for payjoin and registers it
+  /// in the wallet's tracked address set so that:
+  ///   - isMine(script) returns true for the resulting output
+  ///   - identifyReceiverOutputs flags the receiver's output correctly
+  ///   - the UTXO is scanned, balanced, and spendable once confirmed
+  ///
+  /// Silent Payments and Lightning page types are mapped to p2wpkh since the
+  /// payjoin (BIP78) protocol requires a script-based output the receiver can
+  /// identify and sign.
+  ///
+  /// Each call derives a new address at the next unused index of the
+  /// resolved type; callers should cache the returned string for the lifetime
+  /// of one payjoin session rather than invoking this repeatedly.
+  @action
+  String generatePayjoinCompatibleAddress() {
     final addrType = (addressPageType == SilentPaymentsAddresType.p2sp ||
             addressPageType == LightningAddressType.p2l)
         ? SegwitAddresType.p2wpkh
         : addressPageType;
 
-    final mainHd = mainHdByType[addrType] ?? mainHdByType.values.first;
-    return getAddress(index: 0, hd: mainHd, addressType: addrType);
+    return generateNewAddress(type: addrType).address;
   }
 
   Map<String, int> currentReceiveAddressIndexByType;
@@ -441,12 +454,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
+  BaseBitcoinAddressRecord generateNewAddress({String label = '', BitcoinAddressType? type}) {
     if (addressPageType is LightningAddressType) {
       throw Exception("Lightning addresses cannot be rotated");
     }
 
-    if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
+    // Silent payment path is only valid when no explicit type override is
+    // requested; callers that need a payjoin-compatible type (e.g. p2wpkh)
+    // must bypass this branch and fall through to the regular derivation.
+    if (type == null &&
+        addressPageType == SilentPaymentsAddresType.p2sp &&
+        silentAddress != null) {
       final currentSilentAddressIndex = silentAddresses
               .where((addressRecord) => addressRecord.type != SegwitAddresType.p2tr)
               .length -
@@ -471,17 +489,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return address;
     }
 
-    final newAddressIndex = addressesByReceiveType.fold(
-        0, (int acc, addressRecord) => addressRecord.isHidden == false ? acc + 1 : acc);
+    final effectiveType = type ?? addressPageType;
+    // Count over the full _addresses list filtered by the effective type so an
+    // explicit type override (which may differ from addressPageType) yields a
+    // correct per-type index. Semantically equivalent to the previous
+    // addressesByReceiveType.fold when type == null.
+    final newAddressIndex = _addresses.fold<int>(
+        0,
+        (int acc, addressRecord) =>
+            !addressRecord.isHidden && addressRecord.type == effectiveType ? acc + 1 : acc);
 
-    final hd = _hdFor(isHidden: false, type: addressPageType, isLegacyDerivation: false);
+    final hd = _hdFor(isHidden: false, type: effectiveType, isLegacyDerivation: false);
     final address = BitcoinAddressRecord(
-      getAddress(index: newAddressIndex, hd: hd, addressType: addressPageType),
+      getAddress(index: newAddressIndex, hd: hd, addressType: effectiveType),
       index: newAddressIndex,
       isHidden: false,
       isLegacyDerivation: false,
       name: label,
-      type: addressPageType,
+      type: effectiveType,
       network: network,
     );
     Future.delayed(Duration.zero, () {
