@@ -149,8 +149,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               bleDevices.add(device);
               if (longWait) longWait = false;
             }))
-          ..onError((e) {
-            throw e.toString();
+          ..onError((Object e) {
+            printV(e);
           });
         _bleRefreshTimer?.cancel();
         _bleRefreshTimer = null;

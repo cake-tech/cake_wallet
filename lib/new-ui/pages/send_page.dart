@@ -803,6 +803,8 @@ class _NewSendPageState extends State<NewSendPage> {
           }
           showModalBottomSheet(
               isScrollControlled: true,
+              isDismissible: false,
+              enableDrag: false,
               context: navigatorKey.currentContext ?? context,
               backgroundColor: Colors.transparent,
               builder: (context) {
