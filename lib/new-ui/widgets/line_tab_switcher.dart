@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -29,7 +30,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
   void didUpdateWidget(covariant LineTabSwitcher oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.tabs.length != widget.tabs.length) {
+    if (!listEquals(oldWidget.tabs, widget.tabs)) {
       textWidgetKeys = List.generate(widget.tabs.length, (_) => GlobalKey());
       textWidgetSizes = [];
       totalWidth = 0;

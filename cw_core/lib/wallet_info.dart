@@ -428,11 +428,9 @@ class WalletInfo {
 
   Future<void> setAddresses(Map<String, String> addresses) async {
     await WalletInfoAddressMap.deleteByWalletInfoId(internalId);
-    final keys = addresses.keys.toList();
-    final values = addresses.values.toList();
-    // ToDo: check why the addresses list gets changed half way through
-    for (int i = 0; i < keys.length; i++) {
-      await WalletInfoAddressMap.insert(internalId, keys[i], values[i]);
+    final entries = addresses.entries.toList();
+    for (final entry in entries) {
+      await WalletInfoAddressMap.insert(internalId, entry.key, entry.value);
     }
   }
 
