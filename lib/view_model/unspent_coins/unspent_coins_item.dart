@@ -6,20 +6,19 @@ part 'unspent_coins_item.g.dart';
 class UnspentCoinsItem = UnspentCoinsItemBase with _$UnspentCoinsItem;
 
 abstract class UnspentCoinsItemBase with Store, UnspentComparable {
-  UnspentCoinsItemBase({
-    required this.address,
-    required this.amount,
-    required this.hash,
-    required this.isFrozen,
-    required this.note,
-    required this.isSending,
-    required this.isChange,
-    required this.value,
-    required this.vout,
-    required this.keyImage,
-    required this.isSilentPayment,
-    this.isBeingSaved = false
-  });
+  UnspentCoinsItemBase(
+      {required this.address,
+      required this.amount,
+      required this.hash,
+      required this.isFrozen,
+      required this.note,
+      required this.isSending,
+      required this.isChange,
+      required this.value,
+      required this.vout,
+      required this.keyImage,
+      required this.isSilentPayment,
+      this.isBeingSaved = false});
 
   @observable
   String address;
@@ -53,7 +52,6 @@ abstract class UnspentCoinsItemBase with Store, UnspentComparable {
 
   @observable
   bool isSilentPayment;
-
 
   @observable
   bool isBeingSaved;

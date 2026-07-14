@@ -1,4 +1,3 @@
-
 class BuyException implements Exception {
   BuyException({required this.title, required this.content});
 

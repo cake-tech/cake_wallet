@@ -20,8 +20,8 @@ class CopyLinkItem extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
         ),
         SizedBox(width: 50),
         Row(

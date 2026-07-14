@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 class LinkListItem extends SettingsListItem {
   LinkListItem(
       {required String title,
-        required this.link,
-        required this.linkTitle,
-        this.icon,
-        this.lightIcon,
-        this.hasIconColor = false})
+      required this.link,
+      required this.linkTitle,
+      this.icon,
+      this.lightIcon,
+      this.hasIconColor = false})
       : super(title);
 
   final String? icon;

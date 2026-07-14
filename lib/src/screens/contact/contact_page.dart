@@ -24,7 +24,7 @@ class ContactPage extends BasePage {
         _nameController = TextEditingController(),
         _addressController = TextEditingController(),
         _currencyTypeController = TextEditingController(),
-        addressFocusNode = FocusNode(){
+        addressFocusNode = FocusNode() {
     _nameController.text = contactViewModel.name;
     _addressController.text = contactViewModel.address;
     _nameController.addListener(() => contactViewModel.name = _nameController.text);
@@ -38,7 +38,8 @@ class ContactPage extends BasePage {
       contactViewModel.address = address;
     });
 
-    autorun((_) => _currencyTypeController.text = "${contactViewModel.currency?.toString() ?? ""} ${contactViewModel.currency?.tag != null ? "(${contactViewModel.currency?.tag})" : ""}");
+    autorun((_) => _currencyTypeController.text =
+        "${contactViewModel.currency?.toString() ?? ""} ${contactViewModel.currency?.tag != null ? "(${contactViewModel.currency?.tag})" : ""}");
   }
 
   @override
@@ -105,13 +106,13 @@ class ContactPage extends BasePage {
                       builder: (_) {
                         return NewSendAddressInput(
                           focusNode: addressFocusNode,
-                        displayName: contactViewModel.displayName,
-                        addressController: _addressController,
-                        onEditingComplete: () {},
-                        onPushPasteButton: (context) => _extractParsedAddress(context),
-                        validator: AddressValidator(type: contactViewModel.currency!),
-                        selectedCurrency: contactViewModel.currency!,
-                      );
+                          displayName: contactViewModel.displayName,
+                          addressController: _addressController,
+                          onEditingComplete: () {},
+                          onPushPasteButton: (context) => _extractParsedAddress(context),
+                          validator: AddressValidator(type: contactViewModel.currency!),
+                          selectedCurrency: contactViewModel.currency!,
+                        );
                       },
                     ),
                   )
@@ -216,17 +217,17 @@ class ContactPage extends BasePage {
       }
     });
 
-    reaction((_)=>contactViewModel.address, (val){
-      if(val != _addressController.text) {
+    reaction((_) => contactViewModel.address, (val) {
+      if (val != _addressController.text) {
         _addressController.text = val;
       }
     });
   }
 
   Future<bool> showParsedAddressConfirmationAlert(
-      BuildContext context,
-      ParsedAddress parsedAddress,
-      ) async {
+    BuildContext context,
+    ParsedAddress parsedAddress,
+  ) async {
     final confirmed = await showPopUp<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -237,8 +238,8 @@ class ContactPage extends BasePage {
               ? parsedAddress.addressSource.iconPath
               : parsedAddress.profileImageUrl,
           alertContent: S.of(context).extracted_address_content(
-            '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
-          ),
+                '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
+              ),
           buttonText: S.of(context).ok,
           buttonAction: () => Navigator.of(context).pop(true),
         );

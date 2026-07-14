@@ -94,7 +94,11 @@ class AppsWidget extends StatelessWidget {
                                       ),
                                   softWrap: true,
                                 ),
-                                isCake == true ? CakeImageWidget(imageUrl: "assets/new-ui/cakelabs-icon.svg", color: Theme.of(context).colorScheme.onSurfaceVariant) : SizedBox(),
+                                isCake == true
+                                    ? CakeImageWidget(
+                                        imageUrl: "assets/new-ui/cakelabs-icon.svg",
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant)
+                                    : SizedBox(),
                               ],
                             ),
                             SizedBox(height: 5),
@@ -114,7 +118,6 @@ class AppsWidget extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         size: 20,
                       )
-
                     ],
                   ),
                   if (hint != null) ...[
@@ -137,11 +140,8 @@ class AppsWidget extends StatelessWidget {
             ),
         ],
       );
-    }
-    else {
-      return Stack(
-
-      );
+    } else {
+      return Stack();
     }
   }
 }

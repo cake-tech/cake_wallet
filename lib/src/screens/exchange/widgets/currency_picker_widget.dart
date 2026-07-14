@@ -39,7 +39,7 @@ class CurrencyPickerWidget extends StatelessWidget {
                   pickListItem(index);
                 },
                 title: pickerItemsList[index].name,
-                iconPath: pickerItemsList[index].iconPath, 
+                iconPath: pickerItemsList[index].iconPath,
                 tag: pickerItemsList[index].tag,
               );
             }),

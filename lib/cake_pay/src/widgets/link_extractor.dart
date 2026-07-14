@@ -31,7 +31,7 @@ class ClickableLinksText extends StatelessWidget {
             text: url,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
-                   fontSize: 18,
+                  fontSize: 18,
                 ),
             recognizer: TapGestureRecognizer()
               ..onTap = () async {

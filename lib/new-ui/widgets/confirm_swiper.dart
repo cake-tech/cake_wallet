@@ -44,8 +44,7 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
         return GestureDetector(
           onHorizontalDragUpdate: (d) {
             setState(() {
-              drag = max(pillHorizontalPadding,
-                  min(maxDrag, drag + d.delta.dx));
+              drag = max(pillHorizontalPadding, min(maxDrag, drag + d.delta.dx));
             });
           },
           onHorizontalDragEnd: (_) {
@@ -69,9 +68,7 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
                     height: pillSize + pillHorizontalPadding * 2,
                     width: areaWidth,
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerLowest,
+                      color: Theme.of(context).colorScheme.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(99999),
                     ),
                     child: Center(
@@ -116,8 +113,7 @@ class TrackClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final left = cut.clamp(0.0, size.width);
     final rect = Rect.fromLTRB(left, 0, size.width, size.height);
-    return Path()
-      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)));
+    return Path()..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)));
   }
 
   @override
@@ -168,7 +164,11 @@ class _FlowingTextState extends State<FlowingText> with SingleTickerProviderStat
               return LinearGradient(
                 begin: Alignment(-1 + (controller.value) * 2, 0),
                 end: Alignment(controller.value * 2, 0),
-                colors: [Colors.transparent, Theme.of(context).colorScheme.surfaceContainerHighest, Colors.transparent],
+                colors: [
+                  Colors.transparent,
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                  Colors.transparent
+                ],
               ).createShader(r);
             },
             blendMode: BlendMode.srcATop,

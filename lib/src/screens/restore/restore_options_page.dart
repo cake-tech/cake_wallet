@@ -23,9 +23,9 @@ class RestoreOptionsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => _RestoreOptionsBody(
-    isNewInstall: isNewInstall,
-    themeType: currentTheme.type,
-  );
+        isNewInstall: isNewInstall,
+        themeType: currentTheme.type,
+      );
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
@@ -157,7 +157,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
   Future<void> _onScanQRCode(BuildContext context) async {
     final isCameraPermissionGranted =
-    await PermissionHandler.checkPermission(Permission.camera, context);
+        await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
     try {

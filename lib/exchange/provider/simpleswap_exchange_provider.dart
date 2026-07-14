@@ -17,7 +17,6 @@ import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class SimpleSwapExchangeProvider extends ExchangeProvider {
   SimpleSwapExchangeProvider();
 
-
   static final apiKey =
       DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
   static const apiAuthority = 'api.simpleswap.io';
@@ -63,7 +62,6 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(apiAuthority, rangePath, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -84,13 +82,12 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -103,7 +100,6 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       };
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
 
       if (response.body == "null") {
         ExchangeProviderLogger.logError(
@@ -123,7 +119,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         );
         return 0.00;
       }
-      
+
       final data = json.decode(response.body) as String;
       final rate = double.parse(data) / amount;
 
@@ -190,7 +186,6 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -299,8 +294,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final params = {'api_key': apiKey, 'id': id};
     final uri = Uri.https(apiAuthority, getExchangePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
-    
+
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
     }
@@ -325,8 +319,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final status = responseJSON['status'] as String;
     final payoutAddress = responseJSON['address_to'] as String;
 
-    final fromParsed =
-        CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
+    final fromParsed = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
     final toParsed = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     return Trade(
       id: id,
