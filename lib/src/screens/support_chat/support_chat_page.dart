@@ -11,15 +11,14 @@ class SupportChatPage extends StatelessWidget {
   final SupportViewModel supportViewModel;
   final SecureStorage secureStorage;
 
-
   @override
   Widget build(BuildContext context) => Container(
-    color: Theme.of(context).colorScheme.surface,
-    child: SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Column(
-          children: [
+        color: Theme.of(context).colorScheme.surface,
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Column(
+              children: [
                 ModalTopBar(
                     title: S.current.settings_support,
                     leadingIcon: Icon(Icons.arrow_back_ios_new),
@@ -42,12 +41,11 @@ class SupportChatPage extends StatelessWidget {
                     return Container();
                   },
                 ),
-          ],
+              ],
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
-  Future<String> getCookie() async =>
-      await secureStorage.read(key: COOKIE_KEY) ?? "";
+  Future<String> getCookie() async => await secureStorage.read(key: COOKIE_KEY) ?? "";
 }

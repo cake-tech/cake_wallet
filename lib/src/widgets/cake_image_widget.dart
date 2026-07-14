@@ -87,7 +87,11 @@ class CakeImageWidget extends StatelessWidget {
               allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
               fit: fit ?? BoxFit.contain,
               placeholderBuilder: (_) {
-                return loadingWidget ?? SizedBox(height: height, width: width, child: Center(child: CupertinoActivityIndicator()));
+                return loadingWidget ??
+                    SizedBox(
+                        height: height,
+                        width: width,
+                        child: Center(child: CupertinoActivityIndicator()));
               },
               errorBuilder: (_, __, ___) => _buildErrorWidget(context),
             )
@@ -100,7 +104,11 @@ class CakeImageWidget extends StatelessWidget {
               filterQuality: filterQuality ?? FilterQuality.medium,
               loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
                 if (progress == null) return child;
-                return loadingWidget ?? SizedBox(height: height, width: width, child: Center(child: CupertinoActivityIndicator()));
+                return loadingWidget ??
+                    SizedBox(
+                        height: height,
+                        width: width,
+                        child: Center(child: CupertinoActivityIndicator()));
               },
               errorBuilder: (_, __, ___) => _buildErrorWidget(context),
             );

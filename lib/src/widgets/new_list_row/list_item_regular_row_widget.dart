@@ -23,13 +23,14 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.foregroundColor,
       this.trailingIconSize,
       this.bottomWidget,
-        this.subtitleColor,
+      this.subtitleColor,
       this.trailingWidget,
       this.copyableText,
       this.leadingIconErrorWidget,
       this.leadingIconSize,
       this.badgeIconSize,
-      this.iconColor, this.secondaryLabel});
+      this.iconColor,
+      this.secondaryLabel});
 
   final String keyValue;
   final String label;
@@ -88,7 +89,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
 
               final imageWidget = badgeIconPath != null
                   ? Stack(
-                    clipBehavior: Clip.none,
+                      clipBehavior: Clip.none,
                       children: [
                         leadingIcon!,
                         Positioned(
@@ -141,14 +142,21 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                             style: foregroundColor == null
                                                 ? textStyle
                                                 : textStyle.copyWith(color: foregroundColor)),
-                                        if(secondaryLabel != null)
-                                        Text(secondaryLabel!, style: textStyle.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),)
+                                        if (secondaryLabel != null)
+                                          Text(
+                                            secondaryLabel!,
+                                            style: textStyle.copyWith(
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant),
+                                          )
                                       ],
                                     ),
                                   if (subtitle != null)
                                     Text(
                                       subtitle!,
-                                      style: subtitleColor == null ? labelStyle.copyWith(fontSize: 12) : labelStyle.copyWith(fontSize: 12, color: subtitleColor),
+                                      style: subtitleColor == null
+                                          ? labelStyle.copyWith(fontSize: 12)
+                                          : labelStyle.copyWith(fontSize: 12, color: subtitleColor),
                                     ),
                                 ],
                               ),

@@ -5,7 +5,6 @@ class EmailValidator extends TextValidator {
   EmailValidator()
       : super(
           errorMessage: 'Invalid email address',
-          pattern:
-              '^[^@]+@[^@]+\.[^@]+',
+          pattern: '^[^@]+@[^@]+\.[^@]+',
         );
 }

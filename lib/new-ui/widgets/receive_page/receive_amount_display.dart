@@ -3,7 +3,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-
 class ReceiveAmountDisplay extends StatelessWidget {
   const ReceiveAmountDisplay(
       {super.key, required this.walletAddressListViewModel, required this.largeQrMode});
@@ -11,69 +10,66 @@ class ReceiveAmountDisplay extends StatelessWidget {
   final WalletAddressListViewModel walletAddressListViewModel;
   final bool largeQrMode;
 
-
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) =>
-          AnimatedOpacity(
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            opacity: largeQrMode || walletAddressListViewModel.displayAmount.isEmpty ? 0 : 1,
-            child: AnimatedAlign(
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              heightFactor: largeQrMode || walletAddressListViewModel.displayAmount.isEmpty ? 0 : 1,
-              alignment: Alignment.topCenter,
-              child: Container(
-                width: double.infinity,
-                child: Row(
-                  spacing: 4,
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Theme
-                              .of(context)
-                              .colorScheme
-                              .surfaceContainer
-                      ),
-                      child:
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          spacing: 8.0,
-                          children: [
-                            Text(walletAddressListViewModel.displayAmount, style: TextStyle(color: Theme
-                                .of(context)
-                                .colorScheme
-                                .primary, fontSize: 16, fontWeight: FontWeight.w500),),
-                            Text(walletAddressListViewModel.cryptoCurrencySymbol,
-                                style: TextStyle(color: Theme
-                                    .of(context)
-                                    .colorScheme
-                                    .primary, fontSize: 16, fontWeight: FontWeight.w500))
-                          ],
+      builder: (_) => AnimatedOpacity(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        opacity: largeQrMode || walletAddressListViewModel.displayAmount.isEmpty ? 0 : 1,
+        child: AnimatedAlign(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          heightFactor: largeQrMode || walletAddressListViewModel.displayAmount.isEmpty ? 0 : 1,
+          alignment: Alignment.topCenter,
+          child: Container(
+            width: double.infinity,
+            child: Row(
+              spacing: 4,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context).colorScheme.surfaceContainer),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      spacing: 8.0,
+                      children: [
+                        Text(
+                          walletAddressListViewModel.displayAmount,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500),
                         ),
-                      ),
-
+                        Text(walletAddressListViewModel.cryptoCurrencySymbol,
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500))
+                      ],
                     ),
-                    if(!walletAddressListViewModel.isFiatDisabled)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(_getFiatAmount(),
-                        style: TextStyle(color: Theme
-                            .of(context)
-                            .colorScheme
-                            .onSurfaceVariant, fontSize: 16, fontWeight: FontWeight.w500),),
-                    )
-                  ],
+                  ),
                 ),
-              ),
+                if (!walletAddressListViewModel.isFiatDisabled)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _getFiatAmount(),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  )
+              ],
             ),
           ),
+        ),
+      ),
     );
   }
 

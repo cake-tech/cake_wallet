@@ -155,10 +155,10 @@ extension PaymentTypeTitle on PaymentType {
   }
 
   bool get isMonochromeIcon => [
-    "assets/new-ui/buy_payment_methods/all_methods.svg",
-    "assets/new-ui/buy_payment_methods/debit_card.svg",
-    "assets/new-ui/buy_payment_methods/bank_transfer.svg"
-  ].contains(darkIconPath);
+        "assets/new-ui/buy_payment_methods/all_methods.svg",
+        "assets/new-ui/buy_payment_methods/debit_card.svg",
+        "assets/new-ui/buy_payment_methods/bank_transfer.svg"
+      ].contains(darkIconPath);
 
   String? get description {
     switch (this) {

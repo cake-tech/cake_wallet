@@ -1,25 +1,25 @@
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:flutter/material.dart';
 
-void nothing(){}
+void nothing() {}
 
 class ModalTopBar extends StatelessWidget {
   ModalTopBar(
       {super.key,
-        required this.title,
-        this.subtitle,
-        this.onLeadingPressed=nothing,
-        this.onTrailingPressed=nothing,
-        this.leadingIcon,
-        this.trailingIcon,
-        this.bottomText,
-        this.padding,
-        this.leadingWidget,
-        this.trailingWidget}) {
-    if(leadingIcon != null && leadingWidget != null) {
+      required this.title,
+      this.subtitle,
+      this.onLeadingPressed = nothing,
+      this.onTrailingPressed = nothing,
+      this.leadingIcon,
+      this.trailingIcon,
+      this.bottomText,
+      this.padding,
+      this.leadingWidget,
+      this.trailingWidget}) {
+    if (leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }
-    if(trailingIcon != null && trailingWidget != null) {
+    if (trailingIcon != null && trailingWidget != null) {
       throw Exception("Cannot have both trailingIcon and trailingWidget");
     }
   }
@@ -39,9 +39,9 @@ class ModalTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasBottomText =bottomText != null && bottomText!.isNotEmpty;
+    final hasBottomText = bottomText != null && bottomText!.isNotEmpty;
     return Padding(
-      padding: padding??EdgeInsets.all(18),
+      padding: padding ?? EdgeInsets.all(18),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
@@ -59,16 +59,20 @@ class ModalTopBar extends StatelessWidget {
                       child: Text(
                         title,
                         key: ValueKey(title),
-                        style: TextStyle(fontSize: hasBottomText ? 16 : 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: hasBottomText ? 16 : 18, fontWeight: FontWeight.w600),
                       ),
                     ),
-                    if(hasBottomText)
-                    Text(bottomText!, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),)
+                    if (hasBottomText)
+                      Text(
+                        bottomText!,
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      )
                   ],
                 ),
                 if (subtitle != null && subtitle!.isNotEmpty)
-                  Text(
-                      subtitle!,
+                  Text(subtitle!,
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium
@@ -83,11 +87,11 @@ class ModalTopBar extends StatelessWidget {
               if (leadingIcon != null || leadingWidget != null)
                 leadingIcon != null
                     ? ModernButton(
-                    key: ValueKey(leadingIcon.hashCode),
-                    size: buttonSize,
-                    onPressed: onLeadingPressed,
-                    icon: leadingIcon!,
-                    iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
+                        key: ValueKey(leadingIcon.hashCode),
+                        size: buttonSize,
+                        onPressed: onLeadingPressed,
+                        icon: leadingIcon!,
+                        iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
                     : leadingWidget!
               else
                 Container(width: buttonSize),
@@ -96,10 +100,11 @@ class ModalTopBar extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   child: trailingIcon != null
                       ? ModernButton(
-                    key: ValueKey(trailingIcon.hashCode),
-                    size: buttonSize,
-                    onPressed: onTrailingPressed,
-                    icon: trailingIcon!,)
+                          key: ValueKey(trailingIcon.hashCode),
+                          size: buttonSize,
+                          onPressed: onTrailingPressed,
+                          icon: trailingIcon!,
+                        )
                       : trailingWidget!,
                 )
               else

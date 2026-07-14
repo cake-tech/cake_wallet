@@ -9,7 +9,8 @@ part 'security_settings_view_model.g.dart';
 class SecuritySettingsViewModel = SecuritySettingsViewModelBase with _$SecuritySettingsViewModel;
 
 abstract class SecuritySettingsViewModelBase with Store {
-  SecuritySettingsViewModelBase(this._settingsStore, this._authService) : _biometricAuth = BiometricAuth();
+  SecuritySettingsViewModelBase(this._settingsStore, this._authService)
+      : _biometricAuth = BiometricAuth();
 
   final BiometricAuth _biometricAuth;
   final SettingsStore _settingsStore;
@@ -51,9 +52,7 @@ abstract class SecuritySettingsViewModelBase with Store {
       _settingsStore.pinTimeOutDuration = duration;
 
   @action
-  void setEnableDuressPin(bool value) =>
-      _settingsStore.enableDuressPin = value;
+  void setEnableDuressPin(bool value) => _settingsStore.enableDuressPin = value;
 
   Future<void> clearDuressPin() async => await _authService.clearDuressPin();
-
 }

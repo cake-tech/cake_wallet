@@ -147,7 +147,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               EdgeInsets.only(left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
                           child: InkWell(
                             key: ValueKey('disclaimer_check_key'),
-                            onTap: () => setState(() =>_checked = !_checked),
+                            onTap: () => setState(() => _checked = !_checked),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[

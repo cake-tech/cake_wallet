@@ -12,6 +12,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
+
 class XOSwapExchangeProvider extends ExchangeProvider {
   XOSwapExchangeProvider() {
     _addAppVersionHeader();
@@ -54,7 +55,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'BASE': 'basemainnet',
     'ARB': 'arbitrum',
   };
-  
+
   static const supportedTags = [
     'POL',
     'ETH',
@@ -76,18 +77,21 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'ARB',
   ];
 
-
   String _normalizeXOSwapsNetwork(String string) {
     final lower = string.toLowerCase();
 
-    if (lower.endsWith('matic0a883d9b')) return string.replaceFirst(RegExp(r'matic0a883d9b$', caseSensitive: false), 'POL');
-    if (lower.endsWith('matic86e249c1')) return string.replaceFirst(RegExp(r'matic86e249c1$', caseSensitive: false), 'POL');
-    if (lower.endsWith('bscddedf0f8')) return string.replaceFirst(RegExp(r'bscddedf0f8$', caseSensitive: false), 'BSC');
-    if (lower.endsWith('basemainnetb5a52617')) return string.replaceFirst(RegExp(r'basemainnetb5a52617$', caseSensitive: false), 'BASE');
+    if (lower.endsWith('matic0a883d9b'))
+      return string.replaceFirst(RegExp(r'matic0a883d9b$', caseSensitive: false), 'POL');
+    if (lower.endsWith('matic86e249c1'))
+      return string.replaceFirst(RegExp(r'matic86e249c1$', caseSensitive: false), 'POL');
+    if (lower.endsWith('bscddedf0f8'))
+      return string.replaceFirst(RegExp(r'bscddedf0f8$', caseSensitive: false), 'BSC');
+    if (lower.endsWith('basemainnetb5a52617'))
+      return string.replaceFirst(RegExp(r'basemainnetb5a52617$', caseSensitive: false), 'BASE');
 
     return string;
   }
-  
+
   @override
   String get title => 'XOSwap';
 
@@ -116,7 +120,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
           {'networks': normalizedNetwork, 'query': currency.title});
 
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
-      
+
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
       }
@@ -124,7 +128,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final decoded = jsonDecode(response.body);
       if (decoded is! List) throw const FormatException('Unexpected response format');
       final assets = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-
 
       final asset = assets.firstWhere(
         (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
@@ -138,7 +141,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String removeNonAlphanumeric(String str) => str.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+  String removeNonAlphanumeric(String str) =>
+      str.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 
   Future<List<dynamic>> getRatesForPair({
     required CryptoCurrency from,
@@ -169,8 +173,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final rates = await getRatesForPair(from: from, to: to);
       if (rates.isEmpty) throw Exception('No rates found for $from to $to');
 
-    double minLimit = double.infinity;
-    double maxLimit = 0;
+      double minLimit = double.infinity;
+      double maxLimit = 0;
 
       for (var rate in rates) {
         final double currentMin = double.parse(rate['min']['value'].toString());
@@ -186,13 +190,12 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);
       if (rates.isEmpty) {
@@ -337,7 +340,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error'] ?? 'Unknown error';
         final message = responseJSON['message'] ?? '';
-        
+
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'createTrade',
@@ -356,7 +359,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        
+
         throw Exception('$error\n$message');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -456,7 +459,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(_apiAuthority, '$_apiPath$_orders/$id');
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
-      
+
       if (response.statusCode != 200) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         if (responseJSON.containsKey('code') && responseJSON['code'] == 'NOT_FOUND') {
@@ -507,10 +510,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         toAssetTag = 'ETH';
         toAssetBase = 'BASE';
       }
-      
-      final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromAssetBase,tag: fromAssetTag);
-      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAssetBase,tag: toAssetTag);
 
+      final fromCurrency =
+          CryptoCurrency.safeParseCurrencyFromString(fromAssetBase, tag: fromAssetTag);
+      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAssetBase, tag: toAssetTag);
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
@@ -553,9 +556,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
   // ensure something remains before tag (at least 2 chars)
   String? _extractTagFromAsset(String asset) {
-
-
-
     for (final tag in supportedTags) {
       if (asset.endsWith(tag)) {
         final prefixLength = asset.length - tag.length;

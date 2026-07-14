@@ -277,8 +277,7 @@ class BuySellPage extends BasePage {
         (_) => _onWalletNameChange(
             buySellViewModel, buySellViewModel.cryptoCurrency, cryptoCurrencyKey));
 
-    reaction(
-        (_) => buySellViewModel.cryptoCurrency,
+    reaction((_) => buySellViewModel.cryptoCurrency,
         (currency) => _onCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatCurrency,
@@ -361,8 +360,7 @@ class BuySellPage extends BasePage {
     key.currentState!.changeWalletName(isCurrentTypeWallet ? buySellViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
-        address:
-            isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.addressForBuy : '');
+        address: isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.addressForBuy : '');
 
     key.currentState!.changeAmount(amount: '');
   }
@@ -504,8 +502,8 @@ class BuySellPage extends BasePage {
     String domain,
     CryptoCurrency currency,
   ) async {
-    final parsedAddresses = await _resolver.resolve(
-        query: domain, wallet: buySellViewModel.wallet, currency: currency);
+    final parsedAddresses =
+        await _resolver.resolve(query: domain, wallet: buySellViewModel.wallet, currency: currency);
     return parsedAddresses.isNotEmpty
         ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
         : '';

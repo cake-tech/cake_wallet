@@ -16,7 +16,6 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 part 'node_list_view_model.g.dart';
 
-
 class NodeSpeed {
   final String iconPath;
   final String darkIconPath;
@@ -24,20 +23,19 @@ class NodeSpeed {
   // fraction of best node ping needed to be classified as this speed.
   final double treshold;
 
-  const NodeSpeed._(this.iconPath,  this.darkIconPath, this.treshold);
+  const NodeSpeed._(this.iconPath, this.darkIconPath, this.treshold);
 
-  static const disconnected = NodeSpeed._(
-      "assets/new-ui/node_speed_badges/disconnected.svg", "assets/new-ui/node_speed_badges/disconnected-dark.svg", 0);
-  static const slow = NodeSpeed._(
-      "assets/new-ui/node_speed_badges/slow.svg", "assets/new-ui/node_speed_badges/slow-dark.svg", 0);
-  static const medium = NodeSpeed._(
-      "assets/new-ui/node_speed_badges/medium.svg", "assets/new-ui/node_speed_badges/medium.svg", 0.5);
+  static const disconnected = NodeSpeed._("assets/new-ui/node_speed_badges/disconnected.svg",
+      "assets/new-ui/node_speed_badges/disconnected-dark.svg", 0);
+  static const slow = NodeSpeed._("assets/new-ui/node_speed_badges/slow.svg",
+      "assets/new-ui/node_speed_badges/slow-dark.svg", 0);
+  static const medium = NodeSpeed._("assets/new-ui/node_speed_badges/medium.svg",
+      "assets/new-ui/node_speed_badges/medium.svg", 0.5);
   static const fast = NodeSpeed._(
       "assets/new-ui/node_speed_badges/fast.svg", "assets/new-ui/node_speed_badges/fast.svg", 0.8);
 
   static const all = [fast, medium, slow, disconnected];
 }
-
 
 class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 
@@ -63,7 +61,6 @@ abstract class NodeListViewModelBase with Store {
       bindNodes();
     });
   }
-  
 
   @computed
   Node get currentNode {
@@ -103,9 +100,8 @@ abstract class NodeListViewModelBase with Store {
   final bool isPow;
   final ObservableMap<String, int> _nodeSpeeds;
 
-
   @computed
-  List<Node> get nonCurrentNodes => nodes.where((item)=>item != currentNode).toList();
+  List<Node> get nonCurrentNodes => nodes.where((item) => item != currentNode).toList();
 
   @observable
   bool isTestingNodeSpeed = false;
@@ -117,9 +113,8 @@ abstract class NodeListViewModelBase with Store {
       final nodes = this.nodes.toList();
       await Future.wait(nodes.map((node) async {
         final sw = Stopwatch()..start();
-        final res = await node
-            .requestNode()
-            .timeout(const Duration(seconds: 10), onTimeout: () => false);
+        final res =
+            await node.requestNode().timeout(const Duration(seconds: 10), onTimeout: () => false);
         sw.stop();
         if (res) {
           _nodeSpeeds[node.uriRaw] = sw.elapsedMilliseconds;
@@ -163,7 +158,6 @@ abstract class NodeListViewModelBase with Store {
     Node node;
     if (walletType == WalletType.bitcoin && wallet.isTestnet) {
       node = (await getBitcoinTestnetDefaultElectrumServer())!;
-
     } else if (isEVMCompatibleChain(walletType)) {
       final chainId = evm!.getSelectedChainId(wallet);
       if (chainId != null) {
@@ -205,12 +199,11 @@ abstract class NodeListViewModelBase with Store {
     }
 
     // For non-EVM wallets, use the wallet type directly
-    if(isPow) {
+    if (isPow) {
       settingsStore.powNodes[walletType] = node;
     } else {
       settingsStore.nodes[walletType] = node;
     }
-
   }
 
   @action
@@ -235,7 +228,8 @@ abstract class NodeListViewModelBase with Store {
     }
 
     // For non-EVM wallets, use the wallet type directly
-    nodes.addAll(isPow ? await Node.getAllForWalletTypePow(walletType) : await Node.getAllForWalletType(walletType));
-
+    nodes.addAll(isPow
+        ? await Node.getAllForWalletTypePow(walletType)
+        : await Node.getAllForWalletType(walletType));
   }
 }

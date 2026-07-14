@@ -81,7 +81,7 @@ class USDT0Service {
           );
 
           final pendingApproval = await wallet.createApprovalTransaction(
-            Money(maxUint,token),
+            Money(maxUint, token),
             adapter,
             priority,
             useBlinkProtection: useBlinkProtection,
