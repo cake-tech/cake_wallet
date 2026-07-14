@@ -30,6 +30,7 @@ class _CopyWrapperState extends State<CopyWrapper> {
   void handleCopy() async {
     if (widget.data == null) return;
     ClipboardUtil.setSensitiveDataToClipboard(widget.data!, isSensitive: widget.isSensitive);
+    HapticFeedback.mediumImpact();
     if (await shouldShowCopied()) {
       setState(() => copied = true);
       Future.delayed(widget.duration, () {
