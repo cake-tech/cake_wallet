@@ -44,7 +44,7 @@ enum HardwareWalletType {
   coldcard,
   seedsigner,
   keystone,
-  trezor,
+  trezor;
 }
 
 enum WalletInfoAddressType {
@@ -428,9 +428,9 @@ class WalletInfo {
 
   Future<void> setAddresses(Map<String, String> addresses) async {
     await WalletInfoAddressMap.deleteByWalletInfoId(internalId);
-    final keys = addresses.keys.toList();
-    for (final address in keys) {
-      await WalletInfoAddressMap.insert(internalId, address, addresses[address]!);
+    final entries = addresses.entries.toList();
+    for (final entry in entries) {
+      await WalletInfoAddressMap.insert(internalId, entry.key, entry.value);
     }
   }
 
@@ -452,7 +452,8 @@ class WalletInfo {
     await WalletInfoAddressInfo.deleteByWalletInfoId(internalId);
     final entries = addressInfos.entries.toList();
     for (final addressInfo in entries) {
-      for (final info in addressInfo.value) {
+      final infoList = addressInfo.value.toList();
+      for (final info in infoList) {
         await WalletInfoAddressInfo.insert(
           walletInfoId: internalId,
           mapKey: addressInfo.key,

@@ -1,4 +1,4 @@
-# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
+# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
 
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 ENV GOLANG_VERSION=1.24.1
 
 # Pin Flutter version to latest known-working version
-ENV FLUTTER_VERSION=3.32.0
+ENV FLUTTER_VERSION=3.41.9
 
 # Pin Android Studio, platform, and build tools versions to latest known-working version
 # Comes from https://developer.android.com/studio/#command-tools
@@ -52,7 +52,7 @@ RUN set -o xtrace \
     # for x86 emulators
     libatk-bridge2.0-0 libgdk-pixbuf-xlib-2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
     # Linux desktop dependencies
-    clang cmake libgtk-3-dev ninja-build pkg-config libsecret-1-0 libsecret-1-dev gir1.2-secret-1 \
+    clang lld cmake libgtk-3-dev ninja-build pkg-config libsecret-1-0 libsecret-1-dev gir1.2-secret-1 \
     # monero_c dependencies
     autoconf automake build-essential ccache gperf libtool llvm \
     # extra stuff for KVM

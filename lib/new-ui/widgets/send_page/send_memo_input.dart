@@ -8,11 +8,15 @@ class NewSendMemoInput extends StatelessWidget {
       {super.key,
       required this.memoController,
       required this.maxMemoLength,
-      required this.memoLength});
+      required this.memoLength,
+      this.hintText,
+      this.disclaimerText});
 
   final TextEditingController memoController;
   final int maxMemoLength;
   final int memoLength;
+  final String? hintText;
+  final String? disclaimerText;
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +34,8 @@ class NewSendMemoInput extends StatelessWidget {
                 child: TextField(
                   maxLength: maxMemoLength,
                   controller: memoController,
-                  decoration:
-                      InputDecoration(hintText: S.of(context).memo_optional, counterText: ""),
+                  decoration: InputDecoration(
+                      hintText: hintText ?? S.of(context).memo_optional, counterText: ""),
                 ),
               ),
               SizedBox(width: 12),
@@ -52,9 +56,12 @@ class NewSendMemoInput extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(S.of(context).memo_disclaimer,
-                  style: TextStyle(
-                      fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              Expanded(
+                child: Text(disclaimerText ?? S.of(context).memo_disclaimer,
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ),
               Text("${memoController.text.length} / ${maxMemoLength}",
                   style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary))
             ],

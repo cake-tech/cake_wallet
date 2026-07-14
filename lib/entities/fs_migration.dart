@@ -29,7 +29,7 @@ Future<void> migrate_android_v1() async {
   await android_migrate_wallets(appDocDir: appDocDir);
 }
 
-Future<void> ios_migrate_v1(Box<Trade> tradeSource, Box<Contact> contactSource) async {
+Future<void> ios_migrate_v1(Box<Contact> contactSource) async {
   final prefs = await SharedPreferences.getInstance();
 
   if (prefs.getBool('ios_migration_v1_completed') ?? false) {
@@ -40,7 +40,7 @@ Future<void> ios_migrate_v1(Box<Trade> tradeSource, Box<Contact> contactSource) 
   await ios_migrate_pin();
   await ios_migrate_wallet_passwords();
   await ios_migrate_wallet_info();
-  await ios_migrate_trades_list(tradeSource);
+  await ios_migrate_trades_list();
   await ios_migrate_address_book(contactSource);
 
   await prefs.setBool('ios_migration_v1_completed', true);
@@ -343,7 +343,7 @@ Future<void> ios_migrate_wallet_info() async {
   }
 }
 
-Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
+Future<void> ios_migrate_trades_list() async {
   final prefs = await SharedPreferences.getInstance();
 
   if (prefs.getBool('ios_migration_trade_list_completed') ?? false) {
@@ -366,7 +366,8 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
     final key = masterPassword!.replaceAll('-', '');
     final decoded = await ios_legacy_helper.decrypt(content, key: key, salt: secrets.salt);
     final decodedJson = json.decode(decoded) as List<dynamic>;
-    final trades = decodedJson.map((dynamic el) {
+
+    for (final dynamic el in decodedJson) {
       final elAsMap = el as Map<String, dynamic>;
       final providerAsString = elAsMap['provider'] as String;
       final fromAsString = elAsMap['from'] as String;
@@ -393,17 +394,19 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
           break;
       }
 
-      return Trade(
+      if (provider == null) continue;
+
+      await Trade(
         id: tradeId,
-        provider: provider!,
+        provider: provider,
         from: from,
         to: to,
         createdAt: date,
         amount: '',
         receiveAmount: '',
-      );
-    });
-    await tradeSource.addAll(trades);
+      ).save();
+    }
+
     await prefs.setBool('ios_migration_trade_list_completed', true);
   } catch (e) {
     printV(e.toString());

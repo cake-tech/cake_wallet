@@ -115,6 +115,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
 
+  @action
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
       item.isBeingSaved = true;
@@ -128,8 +129,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
       existingInfo.note = item.note;
 
       await existingInfo.save();
-      await _updateUnspents();
-      await wallet.updateBalance();
       item.isBeingSaved = false;
       isSavingItems = false;
     } catch (e) {

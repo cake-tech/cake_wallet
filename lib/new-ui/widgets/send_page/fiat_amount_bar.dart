@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 class FiatAmountBar extends StatelessWidget {
   const FiatAmountBar(
@@ -12,8 +11,8 @@ class FiatAmountBar extends StatelessWidget {
       this.onAllButtonPressed,
       required this.cryptoAmount,
       required this.fiatAmount,
-      required this.cryptoCurrency,
-      required this.fiatCurrency,
+      required this.cryptoCurrencySymbol,
+      required this.fiatCurrencySymbol,
       this.allAmount,
       this.foregroundElementColor,
       this.textColor, this.allAmountColor, this.allAmountTextColor});
@@ -24,8 +23,8 @@ class FiatAmountBar extends StatelessWidget {
 
   final String cryptoAmount;
   final String fiatAmount;
-  final String cryptoCurrency;
-  final String fiatCurrency;
+  final String cryptoCurrencySymbol;
+  final String fiatCurrencySymbol;
   final String? allAmount;
   final Color? foregroundElementColor;
   final Color? textColor;
@@ -47,16 +46,15 @@ class FiatAmountBar extends StatelessWidget {
               iconSize: 18,
               onPressed: onSwitchButtonPressed,
             ),
-            Observer(
-                builder: (_) => GestureDetector(
-                  onTap: onSwitchButtonPressed,
-                  child: Text(
-                        fiatInputMode
-                            ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount.withMaxDecimals(8)} ${cryptoCurrency}"
-                            : "${fiatAmount.isEmpty ? "0" : fiatAmount} ${fiatCurrency}",
-                        style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
-                      ),
-                )),
+            GestureDetector(
+              onTap: onSwitchButtonPressed,
+              child: Text(
+                fiatInputMode
+                    ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount.withMaxDecimals(8)} $cryptoCurrencySymbol"
+                    : "${fiatAmount.isEmpty ? "0" : fiatAmount} $fiatCurrencySymbol",
+                style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+              ),
+            ),
           ],
         ),
         if (allAmount != null && allAmount!.isNotEmpty)

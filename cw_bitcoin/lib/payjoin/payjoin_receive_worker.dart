@@ -179,7 +179,17 @@ class PayjoinReceiverWorker {
       final unspent = listUnspent as List<UtxoWithPrivateKey>;
       if (unspent.isEmpty) throw RecoverableError('No unspent outputs available');
 
-      final selectedUtxo = await _inputPairFromUtxo(unspent[0]);
+      final candidateInputs =
+          await Future.wait(unspent.map(_inputPairFromUtxo));
+
+      // Prefer a UTXO that avoids the Unnecessary Input Heuristic (UIH2);
+      // fall back to the first candidate if none preserves privacy.
+      InputPair selectedUtxo = candidateInputs.first;
+      try {
+        selectedUtxo =
+            await pj5.tryPreservingPrivacy(candidateInputs: candidateInputs);
+      } catch (_) {}
+
       final pj6 = await pj5.contributeInputs(replacementInputs: [selectedUtxo]);
       final pj7 = await pj6.commitInputs();
 

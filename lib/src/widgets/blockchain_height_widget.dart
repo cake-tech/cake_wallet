@@ -62,8 +62,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         dateController.text = '';
       }
       try {
-        _changeHeight(
-            restoreHeightController.text.isNotEmpty ? int.parse(restoreHeightController.text) : 0);
+        final int _height;
+        if (restoreHeightController.text.isNotEmpty) {
+          _height = int.tryParse(restoreHeightController.text) ?? 0;
+        } else {
+          _height = 0;
+        }
+        _changeHeight(_height);
       } catch (_) {
         _changeHeight(0);
       }

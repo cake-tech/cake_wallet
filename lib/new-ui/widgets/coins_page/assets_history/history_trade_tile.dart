@@ -15,13 +15,13 @@ class HistoryTradeTile extends StatelessWidget {
       required this.roundedTop,
       required this.roundedBottom,
       required this.bottomSeparator,
-      required this.from,
-      required this.to,
+      this.from,
+      this.to,
       required this.swapState,
       required this.provider});
 
-  final CryptoCurrency from;
-  final CryptoCurrency to;
+  final CryptoCurrency? from;
+  final CryptoCurrency? to;
   final ExchangeProviderDescription provider;
   final String date;
   final String amount;
@@ -32,6 +32,11 @@ class HistoryTradeTile extends StatelessWidget {
   final TradeState swapState;
 
   Widget _getLeadingStack(BuildContext context) {
+    if (from == null || to == null) {
+      return SizedBox(width: 50, height: 50);
+    }
+
+
     double currencyIconSize = 22.0;
 
     return SizedBox(
@@ -39,28 +44,30 @@ class HistoryTradeTile extends StatelessWidget {
       width: 50,
       child: Stack(
         children: [
-          CakeImageWidget(imageUrl: _getIconPath(from),
-              width: currencyIconSize, height: currencyIconSize),
+          CakeImageWidget(
+              imageUrl: _getIconPath(from!), width: currencyIconSize, height: currencyIconSize),
           Positioned(
-              top: currencyIconSize / 2,
-              left: currencyIconSize / 2,
-              child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          width: 2,
-                          color: Theme.of(context).colorScheme.surfaceContainer),
-                      shape: BoxShape.circle),
-                  child: CakeImageWidget(imageUrl: _getIconPath(to),
-                      width: currencyIconSize, height: currencyIconSize))),
+            top: currencyIconSize / 2,
+            left: currencyIconSize / 2,
+            child: Container(
+              decoration: BoxDecoration(
+                  border:
+                      Border.all(width: 2, color: Theme.of(context).colorScheme.surfaceContainer),
+                  shape: BoxShape.circle),
+              child: CakeImageWidget(
+                imageUrl: _getIconPath(to!),
+                width: currencyIconSize,
+                height: currencyIconSize,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     final fromChainIcon = _getChainIcon(from);
     final toChainIcon = _getChainIcon(to);
 
@@ -83,8 +90,8 @@ class HistoryTradeTile extends StatelessWidget {
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500)),
-          Text(from.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          if (fromChainIcon.isNotEmpty)
+          if(from?.title != null) Text(from!.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          if (fromChainIcon?.isNotEmpty ?? false)
             CakeImageWidget(
               imageUrl: fromChainIcon,
               width: 12,
@@ -104,10 +111,11 @@ class HistoryTradeTile extends StatelessWidget {
             receiveAmount.withMaxDecimals(8),
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
+          if(to!=null)
           Text(
-            to.title,
+            to!.title,
           ),
-          if (toChainIcon.isNotEmpty) CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12)
+          if (toChainIcon?.isNotEmpty ?? false) CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12)
         ],
       ),
       leadingIcon: _getLeadingStack(context),
@@ -118,35 +126,32 @@ class HistoryTradeTile extends StatelessWidget {
   }
 
   String _getIconPath(CryptoCurrency currency) {
-    try { // temporarily until we migrate from hive to sqlite and store the full currency object
-      if (currency.iconPath != null) {
-        return currency.iconPath!;
+    try {
+      if (currency.title.isNotEmpty) {
+        final live = CryptoCurrency.safeParseCurrencyFromString(currency.title, tag: currency.tag);
+        if (live?.iconPath != null) return live!.iconPath!;
       }
+
+      if (currency.iconPath != null) return currency.iconPath!;
 
       if (currency.name.isNotEmpty) {
-        final currencyFromName = CryptoCurrency.fromString(currency.name);
-        if (currencyFromName.iconPath != null) {
-          return currencyFromName.iconPath!;
-        }
-      }
-
-      if (currency.title.isNotEmpty) {
-        final currencyFromTitle = CryptoCurrency.fromString(currency.title);
-        if (currencyFromTitle.iconPath != null) {
-          return currencyFromTitle.iconPath!;
-        }
+        final byName = CryptoCurrency.safeParseCurrencyFromString(currency.name);
+        if (byName?.iconPath != null) return byName!.iconPath!;
       }
     } catch (_) {}
 
-    //TODO approporiate fallback
     return "";
   }
 
-  String _getChainIcon(CryptoCurrency currency) {
+  String? _getChainIcon(CryptoCurrency? currency) {
+    if(currency == null) return null;
     try {
-      if (currency.chainIconPath != null) {
-        return currency.chainIconPath!;
+      if (currency.title.isNotEmpty) {
+        final parsedCurrency = CryptoCurrency.safeParseCurrencyFromString(currency.title, tag: currency.tag);
+        if (parsedCurrency?.chainIconPath != null) return parsedCurrency!.chainIconPath!;
       }
+
+      if (currency.chainIconPath != null) return currency.chainIconPath!;
 
       if ((currency.tag ?? "").isNotEmpty) {
         final currencyFromTag = CryptoCurrency.fromString(currency.tag!);

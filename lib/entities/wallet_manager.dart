@@ -4,7 +4,6 @@ import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletManager {
@@ -161,6 +160,16 @@ class WalletManager {
     if (oldGroupName != null) {
       await _sharedPreferences.setString(newNameKey, oldGroupName);
       await _sharedPreferences.remove(oldNameKey);
+    }
+  }
+
+  String? getGroupName(WalletInfo walletInfo) {
+    try {
+        final groupKey = _resolveGroupKey(walletInfo);
+        final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
+        return group.groupName;
+    } catch (_) {
+        return null;
     }
   }
 }

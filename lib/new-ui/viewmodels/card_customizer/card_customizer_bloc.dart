@@ -18,11 +18,14 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   final bool displaySats;
 
   CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
-      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
+      : super(CardCustomizerNotLoaded(
+            0, 0, [CardDesign.genericDefault], [],
+            "", -1, displaySats, 0)) {
 
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
     on<ColorSelected>(_onColorSelected);
+    on<IconStyleSelected>(_onIconStyleSelected);
     on<DesignSaved>(_onDesignSaved);
     on<AccountNameChanged>(_onAccountNameChanged);
 
@@ -46,6 +49,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     final List<CardDesign> ret = List<CardDesign>.empty(growable: true);
     final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
 
+    ret.add(CardDesign.gradientOnlyDesign);
     ret.add(CardDesign.forCurrencyIcon(curr));
 
     if (CardDesign.specialDesignsForCurrencies[curr] != null)
@@ -55,26 +59,30 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   int _initSelectedDesign(CardDesign currentDesign) {
-    if (currentDesign.backgroundType == CardDesignBackgroundTypes.svgIcon)
+    if (currentDesign.backgroundType == CardDesignBackgroundTypes.gradientOnly) {
       return 0;
-    else if (currentDesign.backgroundType == CardDesignBackgroundTypes.svgFull)
+    }
+    if (currentDesign.backgroundType == CardDesignBackgroundTypes.svgIcon) {
       return 1;
-    else
-      return 0;
+    }
+    if (currentDesign.backgroundType == CardDesignBackgroundTypes.svgFull) {
+      return 2;
+    }
+    return 0;
+  }
+
+  int _initSelectedIconIndex(
+    BalanceCardStyleSettings? settings,
+    List<CardIconPath> availableIconPaths,
+  ) {
+    if (settings == null || availableIconPaths.isEmpty) return 0;
+    if (settings.iconStyleIndex >= availableIconPaths.length) return 0;
+    return settings.iconStyleIndex;
   }
 
   int _initSelectedColor(CardDesign currentDesign) {
-    int ret = CardDesign.allGradients.indexOf(currentDesign.gradient);
-    if(ret == -1) {
-      // special design with its own color. select last color in list.
-      return CardDesign.allGradients.length;
-    } else if (ret == -1) {
-      // no color selected, select default.
-      return 0;
-    } else {
-      // select whatever's selected.
-      return ret;
-    }
+    final ret = CardDesign.allGradients.indexOf(currentDesign.gradient);
+    return ret == -1 ? CardDesign.allGradients.length : ret;
   }
 
   void _init(_Init event, Emitter<CardCustomizerState> emit) async {
@@ -93,24 +101,40 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     } else {
       accountIndex = -1;
     }
+    final curr =
+        lightningMode ? CryptoCurrency.btcln : _wallet.currency;
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
-    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, lightningMode ? CryptoCurrency.btcln : _wallet.currency);
+    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, curr);
     final availableDesigns = _initAvailableDesigns(lightningMode: lightningMode);
     final availableColors = _updateAvailableColors(currentDesign);
-    final selectedDesign = _initSelectedDesign(currentDesign);
+    final selectedDesignIndex = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
+    final availableIconPaths = CardDesign.iconPathsForWalletType(curr);
+    final selectedIconIndex = _initSelectedIconIndex(
+        currentDesignSettings, availableIconPaths);
 
-    emit(CardCustomizerInitial(selectedDesign, selectedColor, availableDesigns, availableColors,
-        accountName, accountIndex, displaySats, currentDesignSettings?.cardOrder ?? 0));
+    emit(CardCustomizerInitial(
+        selectedDesignIndex,
+        selectedColor,
+        availableDesigns,
+        availableColors,
+        accountName,
+        accountIndex,
+        displaySats,
+        currentDesignSettings?.cardOrder ?? 0,
+        availableIconPaths: availableIconPaths,
+        selectedIconIndex: selectedIconIndex));
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
     final newColors = _updateAvailableColors(state.availableDesigns[event.newDesignIndex]);
     late final int newColorIndex;
-    if (newColors.length < state.availableColors.length) {
+    if (newColors.isEmpty) {
+      newColorIndex = 0;
+    } else if (newColors.length < state.availableColors.length) {
       newColorIndex = 0;
     } else {
-      newColorIndex = state.selectedColorIndex;
+      newColorIndex = state.selectedColorIndex.clamp(0, newColors.length - 1);
     }
 
     emit(state.copyWith(
@@ -123,17 +147,36 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(selectedColorIndex: event.newColorIndex));
   }
 
+  void _onIconStyleSelected(
+      IconStyleSelected event, Emitter<CardCustomizerState> emit) {
+    emit(state.copyWith(selectedIconIndex: event.iconIndex));
+  }
+
   void _onAccountNameChanged(AccountNameChanged event, Emitter<CardCustomizerState> emit) {
     emit(state.copyWith(accountName: event.newAccountName));
   }
 
   void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) {
     BalanceCardStyleSettings.fromCardDesign(
-            _wallet.walletInfo.internalId, state.accountIndex, state.cardOrder, state.selectedDesign)
+            walletInfoId: _wallet.walletInfo.internalId,
+            accountIndex: state.accountIndex,
+            cardOrder: state.cardOrder,
+            design: state.selectedDesign,
+            iconStyleIndex: state.selectedIconIndex,
+            gradientIndexOverride: state.selectedColorIndex)
         .insert()
         .then((value) {
-      emit(CardCustomizerSaved(state.selectedDesignIndex, state.selectedColorIndex,
-          state.availableDesigns, state.availableColors, state.accountName, state.accountIndex, state.displaySats, state.cardOrder));
+      emit(CardCustomizerSaved(
+          state.selectedDesignIndex,
+          state.selectedColorIndex,
+          state.availableDesigns,
+          state.availableColors,
+          state.accountName,
+          state.accountIndex,
+          state.displaySats,
+          state.cardOrder,
+          availableIconPaths: state.availableIconPaths,
+          selectedIconIndex: state.selectedIconIndex));
     });
     saveAccountName();
   }

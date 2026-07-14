@@ -105,7 +105,7 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
   }
 
   if (type == WalletType.base) {
-    return "assets/images/crypto/base_icon.webp";
+    return "assets/new-ui/crypto_full_icons/base.svg";
   }
 
   return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";

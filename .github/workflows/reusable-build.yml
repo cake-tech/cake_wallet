@@ -21,7 +21,7 @@ jobs:
   PR_test_build:
     runs-on: [Linux, amd64, android]
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -115,6 +115,7 @@ jobs:
         run: |
           pushd scripts/android
             source ./app_env.sh cakewallet
+            export GITHUB_HUH=yeah
             ./app_config.sh
           popd
 

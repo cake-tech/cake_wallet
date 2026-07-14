@@ -55,6 +55,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.swapsXyz;
 
@@ -382,7 +385,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final reqAmountRaw = reqAmountStr.replaceAll('n', '');
 
       final needToRegisterInSwapXyz =
-          vmId == 'alt-vm' || bridgeIds.contains('alt-vm');
+          vmId == 'alt-vm' || bridgeIds.contains('alt-vm')
+              || chainId == 'solana' || bridgeIds.contains('solana');
 
       final trade = Trade(
         id: txId,
@@ -407,10 +411,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         requiresTokenApproval: requiresTokenApproval,
         routerData: routerData,
         routerValue: txValue,
-        userCurrencyFromRaw:
-            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw:
-            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
 
       return trade;
@@ -421,7 +421,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }
 
   /// Register a broadcasted tx with Swaps.xyz (required for alt-vm).
-  Future<bool> registerAltVmTx({
+  static Future<bool> registerAltVmTx({
     required String txId,
     required String txHash,
     required int chainId,
@@ -554,8 +554,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       state: state,
       createdAt: createdAt,
       refundAddress: refundAddress,
-      userCurrencyFromRaw: '${fromSymbol.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toSymbol.toUpperCase()}' + '_',
     );
   }
 

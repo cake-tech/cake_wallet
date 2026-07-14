@@ -4,6 +4,10 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_confirm_sheet.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
@@ -89,7 +93,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
-import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
@@ -136,6 +139,8 @@ import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
@@ -358,7 +363,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   arguments: [availableWalletTypes.first, hardwareWalletType]),
               isReconnect: false,
             ),
-            getIt.get<LedgerViewModel>(),
+            getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType),
           ),
         );
       }
@@ -366,7 +371,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
-              if (hardwareWalletType == HardwareWalletType.trezor) {
+              if (hardwareWalletType == HardwareWalletType.trezor && type != WalletType.monero) {
                 Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
                     arguments: [type, hardwareWalletType]);
                 return;
@@ -674,7 +679,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeConfirmPage>());
 
     case Routes.tradeDetails:
-      return MaterialPageRoute<void>(
+      return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
@@ -754,12 +759,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.unspentCoinsList:
-      final coinTypeToSpendFrom = settings.arguments as UnspentCoinType?;
-      return handleRouteWithPlatformAwareness(
-        (context) => FeatureFlag.hasNewUi
-            ? getIt.get<NewCoinControlPage>(param1: coinTypeToSpendFrom)
-            : getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom),
-      );
+      final args = settings.arguments as CoinControlPageArgs?;
+      return handleRouteWithPlatformAwareness((context) =>
+          getIt.get<NewCoinControlPage>(param1: args?.coinTypeToSpendFrom, param2: args?.canEdit));
 
     case Routes.unspentCoinsDetails:
       final args = settings.arguments as List;
@@ -1033,6 +1035,21 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.dEuroSavings:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DEuroSavingsPage>(),
+      );
+
+    case Routes.bridgeHistoryPage:
+      return handleRouteWithPlatformAwareness(
+        (context) => BridgeHistoryPage(settings.arguments as BridgeHistoryViewModel),
+      );
+
+    case Routes.bridgeDestinationNetworkPage:
+      return handleRouteWithPlatformAwareness(
+        (context) => BridgeNetworkPage(settings.arguments as BridgeViewModel),
+      );
+
+    case Routes.bridgeReceivingWalletPage:
+      return handleRouteWithPlatformAwareness(
+        (context) => BridgeReceivingWalletPage(settings.arguments as BridgeViewModel),
       );
 
     default:

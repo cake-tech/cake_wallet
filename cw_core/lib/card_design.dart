@@ -3,7 +3,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
-enum CardDesignBackgroundTypes { image, svgIcon, svgFull }
+enum CardDesignBackgroundTypes { image, svgIcon, svgFull, gradientOnly }
 
 class CardColorCombination {
   final Color textColor;
@@ -34,17 +34,26 @@ class CardColorCombination {
   );
 }
 
+class CardIconPath {
+  final String path;
+  final bool preColored;
+
+  const CardIconPath(this.path, {this.preColored = false});
+}
+
 class CardDesign {
   final Gradient gradient;
   final String imagePath;
   final CardDesignBackgroundTypes backgroundType;
   final CardColorCombination colors;
+  final bool preColoredIcon;
 
   const CardDesign(
       {this.backgroundType = CardDesignBackgroundTypes.svgIcon,
         this.gradient = const LinearGradient(colors: [Colors.black], begin: Alignment.topCenter, end: Alignment.bottomCenter),
         this.imagePath = "assets/new-ui/blank.svg",
-        this.colors = CardColorCombination.dark});
+        this.colors = CardColorCombination.dark,
+        this.preColoredIcon = false});
 
   static const LinearGradient gradientOrange = LinearGradient(
     colors: <Color>[Color(0xFFFF7C02), Color(0xFFFF5602)],
@@ -119,6 +128,10 @@ class CardDesign {
   ];
 
   static const genericDefault = CardDesign(gradient: gradientBlue);
+
+  static const gradientOnlyDesign = CardDesign(
+      backgroundType: CardDesignBackgroundTypes.gradientOnly,
+      gradient: gradientBlue);
 
   static const btc = CardDesign(
       imagePath: "assets/new-ui/balance_card_icons/bitcoin.svg");
@@ -332,10 +345,68 @@ class CardDesign {
       imagePath: "assets/new-ui/balance_card_backgrounds/bnb.svg");
 
   CardDesign withGradient(Gradient gradient) => CardDesign(
-      gradient: gradient, colors: preferredColorCombinations[gradient] ?? colors, imagePath: imagePath, backgroundType: backgroundType);
+      gradient: gradient,
+      colors: preferredColorCombinations[gradient] ?? colors,
+      imagePath: imagePath,
+      backgroundType: backgroundType,
+      preColoredIcon: preColoredIcon);
 
   CardDesign withGradientAndColorCombination(Gradient gradient, CardColorCombination cardColorCombination) => CardDesign(
-      gradient: gradient, colors: cardColorCombination, imagePath: imagePath, backgroundType: backgroundType);
+      gradient: gradient,
+      colors: cardColorCombination,
+      imagePath: imagePath,
+      backgroundType: backgroundType,
+      preColoredIcon: preColoredIcon);
+
+  CardDesign withIcon(CardIconPath icon) => CardDesign(
+      gradient: gradient,
+      colors: colors,
+      imagePath: icon.path,
+      backgroundType: backgroundType,
+      preColoredIcon: icon.preColored);
+
+  static const String _balanceCardIconPrefix = "assets/new-ui/balance_card_icons";
+  static const String _chainIconPrefix = "assets/new-ui/card_icons/chain_icons";
+  static const String _ogIconPrefix = "assets/new-ui/card_icons/og_icons";
+  static const String _outlineIconPrefix = "assets/new-ui/card_icons/outline_icons";
+  static const String _symbolIconPrefix = "assets/new-ui/card_icons/symbol_icons";
+  static const String _genericCakeIcon = "$_balanceCardIconPrefix/cake-card-icon.svg";
+
+  static const Map<CryptoCurrency, _CurrencyIconNames> _iconNames = {
+    CryptoCurrency.arbEth: _CurrencyIconNames(ticker: 'arb', longName: 'arbitrum'),
+    CryptoCurrency.baseEth: _CurrencyIconNames(ticker: 'base', longName: 'base', chainFile: 'base_icon'),
+    CryptoCurrency.bch: _CurrencyIconNames(ticker: 'bch', longName: 'bitcoin_cash', chainFile: 'bitcoin-cash'),
+    CryptoCurrency.btc: _CurrencyIconNames(ticker: 'btc', longName: 'bitcoin', outlineFile: 'BTC'),
+    CryptoCurrency.bnb: _CurrencyIconNames(ticker: 'bnb', longName: 'bnb'),
+    CryptoCurrency.dcr: _CurrencyIconNames(ticker: 'dcr', longName: 'decred'),
+    CryptoCurrency.doge: _CurrencyIconNames(ticker: 'doge', longName: 'dogecoin'),
+    CryptoCurrency.eth: _CurrencyIconNames(ticker: 'eth', longName: 'ethereum'),
+    CryptoCurrency.btcln: _CurrencyIconNames(ticker: 'ln', longName: 'lightning'),
+    CryptoCurrency.ltc: _CurrencyIconNames(ticker: 'ltc', longName: 'litecoin'),
+    CryptoCurrency.xmr: _CurrencyIconNames(
+        ticker: 'xmr', longName: 'monero', ogPath: 'assets/images/xmr-og.webp'),
+    CryptoCurrency.nano: _CurrencyIconNames(ticker: 'xno', longName: 'nano'),
+    CryptoCurrency.maticpoly: _CurrencyIconNames(ticker: 'pol', longName: 'polygon'),
+    CryptoCurrency.sol: _CurrencyIconNames(ticker: 'sol', longName: 'solana'),
+    CryptoCurrency.trx: _CurrencyIconNames(
+        ticker: 'trx', longName: 'tron', ogPath: '$_ogIconPrefix/tron-og.svg'),
+    CryptoCurrency.zano: _CurrencyIconNames(ticker: 'zano', longName: 'zano'),
+    CryptoCurrency.zec: _CurrencyIconNames(ticker: 'zec', longName: 'zcash'),
+  };
+
+  static List<CardIconPath> iconPathsForWalletType(CryptoCurrency currency) {
+    final n = _iconNames[currency];
+    if (n == null) return const [];
+
+    return [
+      CardIconPath('$_symbolIconPrefix/${n.ticker}-symbol.svg'),
+      CardIconPath('$_outlineIconPrefix/${n.outlineFile ?? n.ticker}-outline.svg'),
+      CardIconPath('$_balanceCardIconPrefix/${n.longName}.svg'),
+      CardIconPath('$_chainIconPrefix/${n.chainFile ?? n.longName}.svg', preColored: true),
+      CardIconPath(n.ogPath ?? '$_ogIconPrefix/${n.ticker}-og.svg', preColored: true),
+      const CardIconPath(_genericCakeIcon),
+    ];
+  }
 
   static const List<CardDesign> all = [genericDefault, btc, eth, xmr, ltc, eth, pol, doge, base, sol, btcln, tron, zano, dcr, arbitrum, zec, bnb, ethSpecial, btcSpecial, xmrSpecial, ltcSpecial, lnSpecial, tronSpecial, bchSpecial, wowSpecial, dogeSpecial, polSpecial, dcrSpecial, zanoSpecial, arbitrumSpecial, zecSpecial, bnbSpecial];
 
@@ -403,31 +474,91 @@ class CardDesign {
     CardDesign.gradientBlack: CardColorCombination.black,
   };
 
+  CardDesign withIconStyleIndex(int iconStyleIndex, CryptoCurrency currency) {
+    final paths = iconPathsForWalletType(currency);
+    if (paths.isEmpty) return this;
+    if (iconStyleIndex < 0 || iconStyleIndex >= paths.length) return this;
+    return withIcon(paths[iconStyleIndex]);
+  }
+
+  static Gradient gradientForStoredIndex(
+    int gradientIndex,
+    CryptoCurrency walletCurrency,
+  ) {
+    final n = CardDesign.allGradients.length;
+    final special = specialDesignsForCurrencies[walletCurrency];
+    if (gradientIndex >= 0 && gradientIndex < n) {
+      return CardDesign.allGradients[gradientIndex];
+    }
+    if (gradientIndex == n && special != null) {
+      return special.gradient;
+    }
+    return gradientBlue;
+  }
+
   static CardDesign fromStyleSettings(
       BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
     if (setting == null) {
       return CardDesign.forCurrencySpecial(walletCurrency);
-    } else if (setting.backgroundImagePath.isNotEmpty) {
-      return CardDesign(
-        imagePath: setting.backgroundImagePath,
+    }
+
+    if (setting.isGradientOnly) {
+      final gradient = gradientForStoredIndex(setting.gradientIndex, walletCurrency);
+      final textColors = preferredColorCombinations[gradient]
+          ?? specialDesignsForCurrencies[walletCurrency]?.colors
+          ?? gradientOnlyDesign.colors;
+      return gradientOnlyDesign.withGradientAndColorCombination(gradient, textColors);
+    }
+
+    if (setting.backgroundImagePath.isNotEmpty) {
+      return CardDesign(imagePath: setting.backgroundImagePath);
+    }
+
+    if (setting.useSpecialDesign && setting.gradientIndex != -1) {
+      return CardDesign.forCurrencySpecial(walletCurrency).withGradient(
+        gradientForStoredIndex(setting.gradientIndex, walletCurrency),
       );
-    } else if (setting.useSpecialDesign && setting.gradientIndex != -1) {
-      return CardDesign.forCurrencySpecial(walletCurrency)
-          .withGradient(CardDesign.allGradients[setting.gradientIndex]);
-    } else if (!setting.useSpecialDesign && setting.gradientIndex == -1) {
+    }
+
+    if (!setting.useSpecialDesign && setting.gradientIndex == -1) {
       final specialColors =
-          specialDesignsForCurrencies[walletCurrency] ??
-              genericDefault;
-      return CardDesign.forCurrencyIcon(walletCurrency)
-          .withGradientAndColorCombination(specialColors.gradient, specialColors.colors);
-    } else if (setting.useSpecialDesign) {
-      return CardDesign.forCurrencySpecial(walletCurrency);
-    } else if (setting.gradientIndex != -1) {
-      return CardDesign.forCurrencyIcon(walletCurrency)
-          .withGradient(CardDesign.allGradients[setting.gradientIndex]);
-    } else {
-      printV("somehow, the user saved the design settings with literally no customization?");
+          specialDesignsForCurrencies[walletCurrency] ?? genericDefault;
+      final design = CardDesign.forCurrencyIcon(walletCurrency)
+          .withGradientAndColorCombination(
+              specialColors.gradient, specialColors.colors);
+      return design.withIconStyleIndex(setting.iconStyleIndex, walletCurrency);
+    }
+    if (setting.useSpecialDesign) {
       return CardDesign.forCurrencySpecial(walletCurrency);
     }
+    if (setting.gradientIndex != -1) {
+      final baseIcon = CardDesign.forCurrencyIcon(walletCurrency);
+      final gradient = gradientForStoredIndex(setting.gradientIndex, walletCurrency);
+      final textColors = preferredColorCombinations[gradient]
+          ?? specialDesignsForCurrencies[walletCurrency]?.colors
+          ?? baseIcon.colors;
+      return baseIcon
+          .withGradientAndColorCombination(gradient, textColors)
+          .withIconStyleIndex(setting.iconStyleIndex, walletCurrency);
+    }
+    printV("somehow, the user saved the design settings with literally no "
+        "customization?");
+    return CardDesign.forCurrencySpecial(walletCurrency);
   }
+}
+
+class _CurrencyIconNames {
+  final String ticker;
+  final String longName;
+  final String? outlineFile;
+  final String? chainFile;
+  final String? ogPath;
+
+  const _CurrencyIconNames({
+    required this.ticker,
+    required this.longName,
+    this.outlineFile,
+    this.chainFile,
+    this.ogPath,
+  });
 }

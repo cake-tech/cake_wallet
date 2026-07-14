@@ -1,10 +1,22 @@
 [
   {
-    "title": "Performance enhancements",
-    "description": "Improve app performance and speed"
+    "title": "MONERO + TREZOR",
+    "description": "Secure your XMR with hardware wallet support!"
+  },
+  {
+    "title": "NEW WalletConnect UI",
+    "description": "connecting to Web3 dApps made safer and easier"
+  },
+  {
+    "title": "UI improvements",
+    "description": "Added some fresh UI elements just for you"
+  },
+  {
+    "title": "Sync enhancements",
+    "description": "Optimized sync for Bitcoin and Litecoin"
   },
   {
     "title": "Bug fixes",
-    "description": "Squash more bugs, to make your experience smooth"
+    "description": "Squashed more bugs"
   }
 ]
