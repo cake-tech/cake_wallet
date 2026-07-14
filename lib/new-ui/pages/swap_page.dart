@@ -22,6 +22,7 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -50,10 +51,28 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
+class SwapFromSendArgs {
+  const SwapFromSendArgs({
+    required this.recipientAddress,
+    required this.receiveCurrency,
+    required this.targetWalletType,
+    this.depositBalanceByAsset,
+    this.receiveAmount,
+  });
+
+  final String recipientAddress;
+  final CryptoCurrency receiveCurrency;
+  final WalletType targetWalletType;
+  final Map<CryptoCurrency, CurrencyPickerBalance>? depositBalanceByAsset;
+  final String? receiveAmount;
+
+  bool get isEVMTarget => isEVMCompatibleChain(targetWalletType);
+}
+
 class NewSwapPage extends StatefulWidget {
   NewSwapPage(
       this.exchangeViewModel, this.authService, this.adrResService, this.initialPaymentRequest,
-      {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency}) {
+      {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency, this.fromSend}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
@@ -67,6 +86,7 @@ class NewSwapPage extends StatefulWidget {
 
   final ExchangeViewModel exchangeViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
+  final SwapFromSendArgs? fromSend;
   final AuthService authService;
   final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
