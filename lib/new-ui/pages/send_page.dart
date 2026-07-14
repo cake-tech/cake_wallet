@@ -4,7 +4,6 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -13,6 +12,9 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/new-ui/widgets/picker.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart';
@@ -38,7 +40,6 @@ import 'package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
 import 'package:cake_wallet/routes.dart' show Routes;
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
@@ -49,11 +50,11 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 
@@ -125,7 +126,7 @@ class SendPageModes {
       helpContent: SendPageHelpContent(
           title: S.current.about_litecoin_privacy,
           imagePath: "assets/new-ui/mweb_help.svg",
-          description: S.current.mweb_help_desc_1 + "\n\n" + S.current.mweb_help_desc_2,
+          description: "${S.current.mweb_help_desc_1}\n\n${S.current.mweb_help_desc_2}",
           disclaimer: S.current.mweb_help_disclaimer),
       popOnConfirmation: false);
 
@@ -136,7 +137,7 @@ class SendPageModes {
       helpContent: SendPageHelpContent(
           title: S.current.about_litecoin_privacy,
           imagePath: "assets/new-ui/mweb_help.svg",
-          description: S.current.mweb_help_desc_1 + "\n\n" + S.current.mweb_help_desc_2,
+          description: "${S.current.mweb_help_desc_1}\n\n${S.current.mweb_help_desc_2}",
           disclaimer: S.current.mweb_help_disclaimer),
       popOnConfirmation: false);
 
@@ -186,12 +187,12 @@ class NewSendPage extends StatefulWidget {
 }
 
 class _NewSendPageState extends State<NewSendPage> {
-  bool _fiatInputMode = false;
+
   int _selectedOutput = 0;
 
-  List<TextEditingController> _amountControllers = [];
-  List<TextEditingController> _addressControllers = [];
-  List<TextEditingController> _memoControllers = [];
+  final _amountControllers = <TextEditingController>[];
+  final _addressControllers = <TextEditingController>[];
+  final _memoControllers = <TextEditingController>[];
   final _formKey = GlobalKey<FormState>();
   final _addressFocusNode = FocusNode();
   BuildContext? loadingBottomSheetContext;
@@ -207,7 +208,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
     reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, ((bool all) {
       if (all) {
-        _fiatInputMode = false;
+        widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = false;
         _amountControllers[_selectedOutput].text = S.current.all;
       }
     }));
@@ -230,6 +231,14 @@ class _NewSendPageState extends State<NewSendPage> {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
       _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      final contractAddress = widget.initialPaymentRequest!.contractAddress;
+      if (contractAddress != null && contractAddress.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
+          }
+        });
+      }
     }
 
     /// if the current wallet doesn't match the one in the qr code
@@ -255,14 +264,33 @@ class _NewSendPageState extends State<NewSendPage> {
     _addressFocusNode.addListener(() async {
       if (!_addressFocusNode.hasFocus && _addressControllers[_selectedOutput].text.isNotEmpty) {
         final output = widget.sendViewModel.outputs[_selectedOutput];
-        output.fetchParsedAddress(context).then((val) {
-          if (_addressControllers[_selectedOutput].text != output.extractedAddress) {
-            _addressControllers[_selectedOutput].text = output.extractedAddress;
-          }
-        });
+        await _resolveAddressForOutput(output);
       }
     });
   }
+
+  Future<void> _resolveAddressForOutput(Output output) async {
+    final result = await widget.sendViewModel.resolveAddressForOutput(output);
+    if (result == null) return;
+
+    final confirmed = await showParsedAddressConfirmationAlert(context, result);
+
+    if (confirmed) {
+      output.applyAddressLookupResult(result);
+    } else {
+      output.resetParsedAddress();
+      return;
+    }
+
+    final outputIndex = widget.sendViewModel.outputs.indexOf(output);
+    if (outputIndex >= 0 &&
+        outputIndex < _addressControllers.length &&
+        output.extractedAddress.isNotEmpty &&
+        _addressControllers[outputIndex].text != output.extractedAddress) {
+      _addressControllers[outputIndex].text = output.extractedAddress;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +397,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                           focusNode: _addressFocusNode,
                                           onURIScanned: (uri) async {
                                             output.resetParsedAddress();
-                                            await output.fetchParsedAddress(context);
+                                            await _resolveAddressForOutput(output);
 
                                             // Process the payment through the new flow
                                             await _handlePaymentFlow(
@@ -396,7 +424,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             _justHandledPasteButton = true;
                                             try {
                                               output.resetParsedAddress();
-                                              await output.fetchParsedAddress(context);
+                                              await _resolveAddressForOutput(output);
 
                                               final address = output.isParsedAddress
                                                   ? output.extractedAddress
@@ -433,41 +461,46 @@ class _NewSendPageState extends State<NewSendPage> {
                                             ? widget.sendViewModel.allAmountValidator
                                             : widget.sendViewModel.amountValidator(output),
                                         amountController: _amountControllers[_selectedOutput],
-                                        currency: _fiatInputMode
+                                        currency: output.isFiatEntry
                                             ? widget.sendViewModel.fiatCurrency.title
                                             : widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                        currencyIconPath: _fiatInputMode
+                                        currencyIconPath: output.isFiatEntry
                                             ? ""
                                             : widget.sendViewModel.selectedCryptoCurrency
                                                     .iconPath ??
                                                 "",
-                                        hasPicker: (_fiatInputMode ||
+                                        hasPicker: (output.isFiatEntry ||
                                             widget.sendViewModel.hasMultipleTokens),
-                                        onPickerClicked: () {
-                                          _presentCurrencyPicker(context);
-                                        },
+                                        onPickerClicked: () => _presentCurrencyPicker(context),
+                                        maxDecimals: output.isFiatEntry
+                                            ? widget.sendViewModel.fiatCurrency.decimals
+                                            : widget.sendViewModel.useBaseUnits
+                                                ? 0
+                                                : widget
+                                                    .sendViewModel.selectedCryptoCurrency.decimals,
                                       ),
                                       FiatAmountBar(
-                                        fiatInputMode: _fiatInputMode,
+                                        fiatInputMode: output.isFiatEntry,
                                         onSwitchButtonPressed: () {
-                                          setState(() {
-                                            _fiatInputMode = !_fiatInputMode;
-                                            _amountControllers[_selectedOutput].text =
-                                                _fiatInputMode
-                                                    ? output.fiatAmount
-                                                    : output.displayCryptoAmount;
-                                          });
+                                          widget.sendViewModel.outputs[_selectedOutput]
+                                              .isFiatEntry = !output.isFiatEntry;
+                                          _amountControllers[_selectedOutput].text =
+                                              output.isFiatEntry
+                                                  ? output.fiatAmount
+                                                  : output.displayCryptoAmount;
                                         },
                                         fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
                                         cryptoAmount:
                                             _wrapAmount(output.roundedCryptoAmount(6), 20),
                                         allAmount: widget.sendViewModel.balance,
-                                        cryptoCurrency:
+                                        cryptoCurrencySymbol:
                                             widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                        fiatCurrency: widget.sendViewModel.fiatCurrency.title,
+                                        fiatCurrencySymbol:
+                                            widget.sendViewModel.fiatCurrency.symbol,
                                         onAllButtonPressed: () async {
                                           output.setSendAll(
                                               await widget.sendViewModel.sendingBalance);
+                                          await output.calculateEstimatedFee();
                                         },
                                       ),
                                     ],
@@ -513,7 +546,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             label: "Coin Control",
                                             onTap: () {
                                               showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,);
+                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,canEdit: true);
                                               });
                                             }
                                           ),
@@ -634,7 +667,7 @@ class _NewSendPageState extends State<NewSendPage> {
       final amount = _amountControllers[_selectedOutput].text.sanitized();
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
-      if (_fiatInputMode) {
+      if (output.isFiatEntry) {
         if (amount != output.fiatAmount) {
           output.sendAll = false;
           output.setFiatAmount(amount);
@@ -694,7 +727,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
     for (var i = 0; i < widget.sendViewModel.outputs.length; i++) {
       if (i < _amountControllers.length && !widget.sendViewModel.outputs[i].sendAll) {
-        if (_fiatInputMode) {
+        if (widget.sendViewModel.outputs[i].isFiatEntry) {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
@@ -723,12 +756,13 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (widget.sendViewModel.wallet.isHardwareWallet) {
-      if (!widget.sendViewModel.hardwareWalletViewModel!.isConnected) {
+      if (!widget.sendViewModel.hardwareWalletViewModel!
+          .isConnected(widget.sendViewModel.walletType)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: widget.sendViewModel.walletType,
               hardwareWalletType: widget.sendViewModel.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (BuildContext context, _) {
+              onConnectDevice: (_, __) {
                 widget.sendViewModel.hardwareWalletViewModel!
                     .initWallet(widget.sendViewModel.wallet);
                 Navigator.of(context).pop();
@@ -745,8 +779,12 @@ class _NewSendPageState extends State<NewSendPage> {
         amount += item.cryptoAmountMoney;
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
-        await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-            arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet));
+        if (widget.sendViewModel.wallet.hardwareWalletType == HardwareWalletType.trezor) {
+          await monero!.syncTrezor(widget.sendViewModel.wallet);
+        } else {
+          await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
+              arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet));
+        }
         await Future.delayed(Duration(seconds: 1)); // wait for monero to refresh the state
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
@@ -760,11 +798,13 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (!widget.mode.popOnConfirmation) {
+          if (!widget.mode.popOnConfirmation && Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
           }
           showModalBottomSheet(
               isScrollControlled: true,
+              isDismissible: false,
+              enableDrag: false,
               context: navigatorKey.currentContext ?? context,
               backgroundColor: Colors.transparent,
               builder: (context) {
@@ -795,32 +835,45 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   void _presentCurrencyPicker(BuildContext context) {
-    if (!_fiatInputMode && !widget.sendViewModel.hasMultipleTokens) {
+    final output = widget.sendViewModel.outputs[_selectedOutput];
+
+    if (!output.isFiatEntry && !widget.sendViewModel.hasMultipleTokens) return;
+
+    if (output.isFiatEntry) {
+      FiatCurrencyPickerSheet.show(
+        context: context,
+        selected: widget.sendViewModel.fiatCurrency,
+        onSelected: (cur) async {
+          widget.sendViewModel.setFiatCurrency(cur);
+          await output.calculateEstimatedFee();
+        },
+      );
       return;
     }
 
-    final output = widget.sendViewModel.outputs[_selectedOutput];
+    final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
+    final balanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
+      for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
+        r.asset: CurrencyPickerBalance(
+          amount: '${r.availableBalance} ${r.asset.title}',
+          fiat: isFiatDisabled
+              ? null
+              : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}',
+          fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
+        ),
+    };
 
-    showPopUp<void>(
+    CurrencyPickerSheet.show(
       context: context,
-      builder: (_) => CurrencyPicker(
-        key: ValueKey('send_page_currency_picker_dialog_button_key'),
-        selectedAtIndex: _fiatInputMode
-            ? widget.sendViewModel.fiatCurrencies.indexOf(widget.sendViewModel.fiatCurrency)
-            : widget.sendViewModel.currencies.indexOf(widget.sendViewModel.selectedCryptoCurrency),
-        items:
-            _fiatInputMode ? widget.sendViewModel.fiatCurrencies : widget.sendViewModel.currencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) async {
-          late final selectedCurrency;
-          if (_fiatInputMode) {
-            selectedCurrency = widget.sendViewModel.setFiatCurrency(cur as FiatCurrency);
-          } else {
-            selectedCurrency =
-                widget.sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency);
-          }
-          await output.calculateEstimatedFee();
-          return selectedCurrency;
+      args: CurrencyPickerArgs(
+        items: widget.sendViewModel.currencies,
+        selected: widget.sendViewModel.selectedCryptoCurrency,
+        filterByNetwork: widget.sendViewModel.walletType,
+        balanceByAsset: balanceByAsset,
+        symbolResolver: widget.sendViewModel.amountParsingProxy.getCryptoSymbol,
+        onSelected: (currency) {
+          widget.sendViewModel.selectedCryptoCurrency = currency;
+          output.calculateEstimatedFee();
         },
       ),
     );
@@ -828,10 +881,11 @@ class _NewSendPageState extends State<NewSendPage> {
 
   void _handleLightningInvoicePaste() {
     try {
-      final lnAmount = CryptoCurrency.btcln.formatAmount(
-          BigInt.from(getBolt11Amount(_addressControllers[_selectedOutput].text) ?? 0));
-      if (lnAmount != 0) {
-        _amountControllers[_selectedOutput].text = lnAmount;
+      final lnAmount = getBolt11Amount(_addressControllers[_selectedOutput].text) ??
+          Money.zero(CryptoCurrency.btcln);
+      if (!lnAmount.isZero) {
+        _amountControllers[_selectedOutput].text =
+            widget.sendViewModel.amountParsingProxy.asDisplayString(lnAmount);
       }
     } catch (_) {}
   }
@@ -852,6 +906,12 @@ class _NewSendPageState extends State<NewSendPage> {
 
       if (paymentRequest.contractAddress != null) {
         await widget.sendViewModel.fetchTokenForContractAddress(paymentRequest.contractAddress!);
+      }
+
+      // This automatically switches to lightning mode if you are in a bitcoin wallet
+      if (result.addressDetectionResult?.detectedCurrency == CryptoCurrency.btcln) {
+        widget.sendViewModel.selectedCryptoCurrency = CryptoCurrency.btcln;
+        widget.sendViewModel.coinTypeToSpendFrom = UnspentCoinType.lightning;
       }
 
       switch (result.type) {
@@ -969,7 +1029,7 @@ class _NewSendPageState extends State<NewSendPage> {
           onNext: (PaymentFlowResult newResult) {
             final selectedChainId = newResult.chainId;
             final isCompatible =
-                selectedChainId == evm!.getSelectedChainId(widget.sendViewModel.wallet);
+                selectedChainId == evm?.getSelectedChainId(widget.sendViewModel.wallet);
 
             if (isCompatible) {
               widget.sendViewModel.setSelectedCryptoCurrency(
@@ -1185,7 +1245,7 @@ class _NewSendPageState extends State<NewSendPage> {
       try{
         _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(
-            paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
+                paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
       } catch(e) {
 
       }
@@ -1292,7 +1352,7 @@ class _NewSendPageState extends State<NewSendPage> {
                 // height: MediaQuery.of(context).size.height*0.4,
                 child: ModalNavigator(
                     parentContext: modalContext,
-                    heightMode: ModalHeightModes.autoLock,
+                    heightMode: ModalHeightModes.natural,
                     rootPage: Material(
                       child: NewPicker(
                           title: S.of(context).set_fees,
@@ -1390,4 +1450,29 @@ class SendHelpPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<bool> showParsedAddressConfirmationAlert(
+  BuildContext context,
+  ParsedAddress parsedAddress,
+) async {
+  final confirmed = await showPopUp<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertWithOneAction(
+        alertTitle: S.of(context).address_detected,
+        headerTitleText: parsedAddress.profileName.isEmpty ? null : parsedAddress.profileName,
+        headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
+            ? parsedAddress.addressSource.iconPath
+            : parsedAddress.profileImageUrl,
+        alertContent: S.of(context).extracted_address_content(
+          '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
+        ),
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(context).pop(true),
+      );
+    },
+  );
+
+  return confirmed ?? false;
 }

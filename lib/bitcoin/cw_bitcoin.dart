@@ -177,7 +177,7 @@ class CWBitcoin extends Bitcoin {
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
+        .map<ElectrumSubAddress>((addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
             address: addr.address,
@@ -190,7 +190,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority,
+  Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     try {
       final sk = ECPrivate.random();
@@ -232,7 +232,7 @@ class CWBitcoin extends Bitcoin {
 
       return estimatedTx.amount.amount.toInt();
     } catch (_) {
-      return 0;
+      return Money.zero(wallet.currency);
     }
   }
 

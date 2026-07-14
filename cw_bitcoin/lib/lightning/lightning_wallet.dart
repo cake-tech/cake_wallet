@@ -23,7 +23,7 @@ class LightningWallet {
   final String apiKey;
   final String lnurlDomain;
   final Network network;
-  late BreezSdk sdk;
+  BreezSdk? _sdk;
 
   String? cachedAddress;
 
@@ -43,6 +43,8 @@ class LightningWallet {
 
   Currency get currency => CryptoCurrency.btcln;
 
+  BreezSdk get sdk => _sdk!;
+
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
 
@@ -60,7 +62,7 @@ class LightningWallet {
         logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
       } catch (e) {
         // Silently fail or use printV(e) so it doesn't crash the app
-        print("Failed to write to log: $e");
+        printV("Failed to write to log: $e");
       }
     }, onError: (e) {
       try {
@@ -69,7 +71,7 @@ class LightningWallet {
         }
         logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
       } catch (err) {
-        print("Failed to write error to log: $err");
+        printV("Failed to write error to log: $err");
       }
     });
   }
@@ -97,7 +99,7 @@ class LightningWallet {
         storageDir: "$appPath/.breez/",
       );
 
-      sdk = await connect(request: connectRequest);
+      _sdk = await connect(request: connectRequest);
 
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
       _logStream ??= initLogging().asBroadcastStream();
@@ -121,7 +123,9 @@ class LightningWallet {
 
   Future<void> close() async {
     _eventSubscription?.cancel();
-    await sdk.disconnect();
+    try {
+      await _sdk?.disconnect();
+    } catch (_) {}
     _logSubscription?.cancel();
   }
 
@@ -225,6 +229,7 @@ class LightningWallet {
               final res = await sdk.sendPayment(
                   request: SendPaymentRequest(prepareResponse: prepareResponse));
               printV(res.payment.status.name);
+              return res.payment.id;
             } on SdkError_SparkError catch (e) {
               if (e.field0.contains("AlreadyExists")) {
                 throw Exception("Invoice already paid");
@@ -240,14 +245,14 @@ class LightningWallet {
       PrepareLnurlPayRequest request;
       if (inputType is InputType_LightningAddress) {
         request = PrepareLnurlPayRequest(
-          amountSats: amountSats!,
+          amount: amountSats!,
           payRequest: inputType.field0.payRequest,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
           feePolicy: feePolicy,
         );
       } else {
         request = PrepareLnurlPayRequest(
-          amountSats: amountSats!,
+          amount: amountSats!,
           payRequest: (inputType as InputType_LnurlPay).field0,
           validateSuccessActionUrl: optionalValidateSuccessActionUrl,
           feePolicy: feePolicy,
@@ -264,6 +269,7 @@ class LightningWallet {
           final res =
               await sdk.lnurlPay(request: LnurlPayRequest(prepareResponse: prepareResponse));
           printV(res.payment.status.name);
+          return res.payment.id;
         },
       );
     } else if (inputType is InputType_BitcoinAddress) {
@@ -302,8 +308,9 @@ class LightningWallet {
           commitOverride: () async {
             final options =
                 SendPaymentOptions.bitcoinAddress(confirmationSpeed: onchainConfirmationSpeed);
-            await sdk.sendPayment(
+            final res = await sdk.sendPayment(
                 request: SendPaymentRequest(prepareResponse: prepareResponse, options: options));
+            return res.payment.id;
           },
         );
       }
@@ -434,6 +441,11 @@ class LightningWallet {
       direction = TransactionDirection.incoming;
     }
 
+    String? preimage;
+    if (payment.details != null && payment.details is PaymentDetails_Lightning) {
+      preimage = (payment.details as PaymentDetails_Lightning).htlcDetails.preimage;
+    }
+
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: payment.id,
@@ -443,7 +455,10 @@ class LightningWallet {
       fee: Money(payment.fees, currency),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
-      additionalInfo: {"isLightning": true},
+      additionalInfo: {
+        "isLightning": true,
+        if (preimage != null) "preimage": preimage,
+      },
     );
   }
 

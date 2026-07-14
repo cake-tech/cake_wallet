@@ -162,9 +162,7 @@ class CWSolana extends Solana {
   }
 
   @override
-  double? getEstimateFees(WalletBase wallet) {
-    return (wallet as SolanaWallet).estimatedFee;
-  }
+  Money? getEstimateFees(WalletBase wallet) => (wallet as SolanaWallet).estimatedFee;
 
   @override
   List<SPLToken> getDefaultSPLTokens() => DefaultSPLTokens().initialSPLTokens;
@@ -389,9 +387,11 @@ class CWSolana extends Solana {
         tokenChecks.add((() async {
           final token = item.token;
 
+          final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
+
           final fiatResult = await _getTokenUsdValueAndFiatCheck(token, item.balance);
 
-          final isSpam = !fiatResult.hasValidFiatPrice;
+          final isSpam = isPropertiesSuspicious || !fiatResult.hasValidFiatPrice;
 
           token.isPotentialScam = isSpam;
           token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
@@ -403,4 +403,27 @@ class CWSolana extends Solana {
       await Future.wait(tokenChecks);
     } catch (_) {}
   }
+
+  @override
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required DateTime blockTime,
+    required String to,
+    required String from,
+    String? tokenSymbol,
+    required TransactionDirection direction,
+    required Money amount,
+    required bool isPending,
+    required Money fee,
+  }) =>
+      SolanaTransactionInfo(
+        id: id,
+        date: blockTime,
+        to: to,
+        from: from,
+        direction: direction,
+        amount: amount,
+        isPending: isPending,
+        fee: fee,
+      );
 }

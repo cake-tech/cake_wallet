@@ -323,6 +323,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         'fromAddress': request.refundAddress,
         'toAmount': request.toAmount,
         'toAddress': request.toAddress,
+        if (request.toAddressExtraId.isNotEmpty) 'toAddressTag': request.toAddressExtraId,
         'pairId': pairId,
       };
 
@@ -426,6 +427,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         payoutAddress: payoutAddress,
         extraId: extraId,
         isSendAll: isSendAll,
+        toAddressExtraId: request.toAddressExtraId,
       );
     } catch (e, s) {
       ExchangeProviderLogger.logError(

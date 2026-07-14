@@ -103,6 +103,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
@@ -213,7 +214,7 @@ abstract class Bitcoin {
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet);
 
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority,
+  Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
@@ -335,8 +336,10 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
+import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -344,6 +347,9 @@ import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/api/wallet.dart' as monero_wallet_api;
 import 'package:cw_monero/ledger.dart';
+import 'package:cw_monero/monero_unspent.dart';
+import 'package:cw_monero/api/account_list.dart';
+import 'package:cw_monero/trezor.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -449,7 +455,7 @@ abstract class Monero {
     HardwareWalletType? hardwareWalletType,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
-  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required HardwareWalletService hardwareWalletService});
 WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
@@ -470,6 +476,10 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
   String? getLastLedgerCommand();
+  void setHardwareWalletService(Object wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorClient client);
+  Future<void> syncTrezor(Object wallet);
   Map<String, List<int>> debugCallLength();
   Map<String, dynamic> getWalletCacheDebug();
 }
@@ -906,6 +916,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/transaction_direction.dart';
 
 """;
   const solanaCWHeaders = """
@@ -964,7 +975,7 @@ abstract class Solana {
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
-  double? getEstimateFees(WalletBase wallet);
+  Money? getEstimateFees(WalletBase wallet);
   List<SPLToken> getDefaultSPLTokens();
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
@@ -1000,6 +1011,17 @@ abstract class Solana {
   });
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
+  
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required DateTime blockTime,
+    required String to,
+    required String from,
+    required TransactionDirection direction,
+    required Money amount,
+    required bool isPending,
+    required Money fee,
+  });
 }
 
 class JupiterSwapFailedException implements Exception {
@@ -1042,7 +1064,9 @@ Future<void> generateTron(bool hasImplementation) async {
   final outputFile = File(tronOutputPath);
   const tronCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -1050,7 +1074,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/tron_token.dart';
-import 'package:hive/hive.dart';
+import 'package:cw_core/transaction_direction.dart';
 
 """;
   const tronCWHeaders = """
@@ -1089,14 +1113,24 @@ abstract class Tron {
   String getTokenAddress(CryptoCurrency asset);
   String getTronBase58Address(String hexAddress, WalletBase wallet);
 
-  String? getTronNativeEstimatedFee(WalletBase wallet);
-  String? getTronTRC20EstimatedFee(WalletBase wallet);
+  Money? getTronNativeEstimatedFee(WalletBase wallet);
+  Money? getTronTRC20EstimatedFee(WalletBase wallet);
 
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
   List<TronToken> getDefaultTronTokens();
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required Money amount,
+    Money? fee,
+    required TransactionDirection direction,
+    required DateTime blockTime,
+    String? to,
+    String? from,
+    required bool isPending,
+  });
 }
   """;
 
@@ -1323,6 +1357,7 @@ import 'dart:math' as math;
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
@@ -1341,6 +1376,7 @@ import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
 import 'package:web3dart/web3dart.dart';
+import 'package:cw_core/transaction_direction.dart';
 
 """;
   const evmCWHeaders = """
@@ -1351,6 +1387,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
@@ -1503,9 +1540,11 @@ abstract class EVM {
   
   // Chain-specific integrations (optional, can be null for non-Ethereum chains)
   Future<Money>? getDEuroSavingsBalance(WalletBase wallet) => null;
+  Future<Money>? getDEuroSavingsV1Balance(WalletBase wallet) => null;
   Future<Money>? getDEuroAccruedInterest(WalletBase wallet) => null;
   Future<BigInt>? getDEuroInterestRate(WalletBase wallet) => null;
   Future<BigInt>? getDEuroSavingsApproved(WalletBase wallet) => null;
+  Future<PendingTransaction>? withdrawDEuroSavingV1(WalletBase wallet, TransactionPriority priority) => null;
   Future<PendingTransaction>? addDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;
   Future<PendingTransaction>? removeDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority) => null;
   Future<PendingTransaction>? reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority) => null;
@@ -1563,6 +1602,24 @@ abstract class EVM {
     WalletBase wallet,
     TransactionPriority priority,
   );
+  
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required int height,
+    required Money amount,
+    required Money fee,
+    required String tokenSymbol,
+    int exponent = 18,
+    required TransactionDirection direction,
+    required bool isPending,
+    required DateTime date,
+    required int confirmations,
+    String? to,
+    String? from,
+    String? evmSignatureName,
+    String? contractAddress,
+    required int chainId,
+  });
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }

@@ -69,6 +69,10 @@ class DEuroSavingsPage extends BasePage {
                       onTooltipPressed: () => _onSavingsTooltipPressed(context),
                       isEnabled: _dEuroViewModel.isEnabled,
                       isLoading: _dEuroViewModel.isLoading,
+                      onWithdrawV1Pressed: () => _onWithdrawV1(context),
+                      savingsBalanceV1: _dEuroViewModel.savingsBalanceV1
+                          ?.toStringWithPrecision(fractionalDigits: 6),
+                      fiatSavingsBalanceV1: _dEuroViewModel.fiatSavingsBalanceV1Formated,
                     ),
                   ),
                   Observer(
@@ -127,6 +131,16 @@ class DEuroSavingsPage extends BasePage {
     _editSheetIsOpen = false;
   }
 
+  Future<void> _onWithdrawV1(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    try {
+      await _requireHardwareWallet(context);
+      await _dEuroViewModel.prepareSavingsV1Withdraw();
+    } catch (_) {}
+    _editSheetIsOpen = false;
+  }
+
   Future<void> _onSavingsRemove(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
@@ -161,7 +175,7 @@ class DEuroSavingsPage extends BasePage {
 
   Future<void> _requireHardwareWallet(BuildContext context) async {
     if (_dEuroViewModel.wallet.isHardwareWallet) {
-      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected) {
+      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected(_dEuroViewModel.wallet.type)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: _dEuroViewModel.wallet.type,

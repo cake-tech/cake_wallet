@@ -54,13 +54,13 @@ abstract class DEuroViewModelBase with Store {
 
   @computed
   String get pendingTransactionFiatAmountFormatted {
-    final amount = transaction == null ? '0.00' : _getDEuroFiatAmount(transaction!.amount);
-    return isFiatDisabled ? '' : '$amount ${fiat.symbol}';
+    final amount = transaction == null ? "0.00" : _getDEuroFiatAmount(transaction!.amount);
+    return isFiatDisabled ? "" : "$amount ${fiat.symbol}";
   }
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted {
-    var amount = '0.00';
+    var amount = "0.00";
     try {
       if (transaction != null) {
         final feeCurrency = CryptoCurrency.eth;
@@ -70,7 +70,7 @@ abstract class DEuroViewModelBase with Store {
         );
       }
     } catch (_) {}
-    return isFiatDisabled ? '' : '$amount ${fiat.symbol}';
+    return isFiatDisabled ? "" : "$amount ${fiat.symbol}";
   }
 
   @computed
@@ -88,10 +88,16 @@ abstract class DEuroViewModelBase with Store {
   String get fiatSavingsBalanceFormated => _getDEuroFiatAmount(savingsBalance);
 
   @observable
+  Money? savingsBalanceV1 = null;
+
+  @computed
+  String get fiatSavingsBalanceV1Formated => _getDEuroFiatAmount(savingsBalanceV1);
+
+  @observable
   ExecutionState state = InitialExecutionState();
 
   @observable
-  String interestRateFormated = '0';
+  String interestRateFormated = "0";
 
   @observable
   Money accruedInterest = ZERO;
@@ -128,6 +134,10 @@ abstract class DEuroViewModelBase with Store {
     approvedTokens = await evm!.getDEuroSavingsApproved(_appStore.wallet!) ?? BigInt.zero;
     savingsBalance = await evm!.getDEuroSavingsBalance(_appStore.wallet!) ?? ZERO;
     accruedInterest = await evm!.getDEuroAccruedInterest(_appStore.wallet!) ?? ZERO;
+
+    final v1Balance = await evm!.getDEuroSavingsV1Balance(_appStore.wallet!) ?? ZERO;
+    savingsBalanceV1 = v1Balance.isZero ? null : v1Balance;
+
     isLoading = false;
   }
 
@@ -149,9 +159,8 @@ abstract class DEuroViewModelBase with Store {
       state = TransactionCommitting();
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final approval = await evm!.enableDEuroSaving(_appStore.wallet!, priority);
-      if (approval == null) {
-        throw Exception('DEuro saving not available');
-      }
+      if (approval == null) throw Exception("DEuro saving not available");
+
       approvalTransaction = approval;
       state = InitialExecutionState();
     } catch (e) {
@@ -165,13 +174,13 @@ abstract class DEuroViewModelBase with Store {
       state = TransactionCommitting();
 
       if (amountRaw.isEmpty || amountRaw.trim().isEmpty) {
-        throw Exception('Invalid amount: amount cannot be empty');
+        throw Exception("Invalid amount: amount cannot be empty");
       }
 
       final amount = tryParseFixed(amountRaw, 18);
       
       if (amount == BigInt.zero || amount == null) {
-        throw Exception('Invalid amount: amount cannot be zero');
+        throw Exception("Invalid amount: amount cannot be zero");
       }
 
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
@@ -179,9 +188,24 @@ abstract class DEuroViewModelBase with Store {
       final tx = await (isAdding
           ? evm!.addDEuroSaving(_appStore.wallet!, amount, priority)
           : evm!.removeDEuroSaving(_appStore.wallet!, amount, priority));
-      if (tx == null) {
-        throw Exception('DEuro saving not available');
-      }
+      if (tx == null) throw Exception("DEuro saving not available");
+
+      transaction = tx;
+      state = InitialExecutionState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
+  @action
+  Future<void> prepareSavingsV1Withdraw() async {
+    try {
+      state = TransactionCommitting();
+      actionType = DEuroActionType.withdraw;
+      final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
+      final tx = await evm!.withdrawDEuroSavingV1(_appStore.wallet!, priority);
+      if (tx == null) throw Exception("DEuro saving not available");
+
       transaction = tx;
       state = InitialExecutionState();
     } catch (e) {
@@ -191,13 +215,13 @@ abstract class DEuroViewModelBase with Store {
 
   Future<void> prepareCollectInterest() async {
     if (accruedInterest < MIN_ACCRUED_INTEREST) {
-      state = FailureState('Accrued interest is below minimum threshold');
+      state = FailureState("Accrued interest is below minimum threshold");
       return;
     }
 
     final formatted = accruedInterestFormated;
-    if (formatted.isEmpty || formatted == '0.000000') {
-      state = FailureState('Invalid accrued interest amount');
+    if (formatted.isEmpty || formatted == "0.000000") {
+      state = FailureState("Invalid accrued interest amount");
       return;
     }
 
@@ -210,9 +234,8 @@ abstract class DEuroViewModelBase with Store {
       actionType = DEuroActionType.reinvest;
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final tx = await evm!.reinvestDEuroInterest(_appStore.wallet!, priority);
-      if (tx == null) {
-        throw Exception('DEuro saving not available');
-      }
+      if (tx == null) throw Exception("DEuro saving not available");
+
       transaction = tx;
       state = InitialExecutionState();
     } catch (e) {
@@ -259,7 +282,9 @@ abstract class DEuroViewModelBase with Store {
     state = InitialExecutionState();
   }
 
-  String _getDEuroFiatAmount(Money amount) {
+  String _getDEuroFiatAmount(Money? amount) {
+    if (amount == null) return "0.00";
+
     try {
       var dEuro = CryptoCurrency.deuro;
       final keys = _fiatConversationStore.prices.keys.toList();
@@ -271,16 +296,11 @@ abstract class DEuroViewModelBase with Store {
         cryptoAmount: amount.toStringWithPrecision(fractionalDigits: 6),
       );
     } catch (_) {
-      return '0.00';
+      return "0.00";
     }
   }
 }
 
 class NoEtherState extends ExecutionState {}
 
-enum DEuroActionType {
-  deposit,
-  withdraw,
-  reinvest,
-  none;
-}
+enum DEuroActionType { deposit, withdraw, reinvest, none }

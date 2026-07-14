@@ -6,27 +6,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ListItemRegularRowWidget extends StatelessWidget {
-  const ListItemRegularRowWidget({
-    super.key,
-    required this.keyValue,
-    required this.label,
-    this.subtitle,
-    this.trailingText,
-    this.trailingTextPadding,
-    this.mainPadding,
-    this.iconPath,
-    this.onTap,
-    this.isFirstInSection = false,
-    this.isLastInSection = false,
-    this.showArrow = true,
-    this.trailingIconPath,
-    this.truncateTrailingText = false,
-    this.foregroundColor,
-    this.trailingIconSize,
-    this.bottomWidget,
-    this.trailingWidget,
-    this.copyableText
-  });
+  const ListItemRegularRowWidget(
+      {super.key,
+      required this.keyValue,
+      required this.label,
+      this.subtitle,
+      this.trailingText,
+      this.iconPath,
+      this.badgeIconPath,
+        this.trailingTextPadding,
+        this.mainPadding,
+      this.onTap,
+      this.isFirstInSection = false,
+      this.isLastInSection = false,
+      this.showArrow = true,
+      this.trailingIconPath,
+      this.truncateTrailingText = false,
+      this.foregroundColor,
+      this.trailingIconSize,
+      this.bottomWidget,
+      this.trailingWidget,
+      this.copyableText,
+      this.leadingIconErrorWidget,
+      this.leadingIconSize,
+      this.badgeIconSize,
+      this.iconColor});
 
   final String keyValue;
   final String label;
@@ -35,6 +39,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final EdgeInsets? trailingTextPadding;
   final EdgeInsets? mainPadding;
   final String? iconPath;
+  final String? badgeIconPath;
   final VoidCallback? onTap;
   final bool isFirstInSection;
   final bool isLastInSection;
@@ -46,6 +51,10 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final Color? foregroundColor;
   final double? trailingIconSize;
   final String? copyableText;
+  final Widget? leadingIconErrorWidget;
+  final double? leadingIconSize;
+  final double? badgeIconSize;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +76,38 @@ class ListItemRegularRowWidget extends StatelessWidget {
             isFirstInSection: isFirstInSection,
             isLastInSection: isLastInSection,
             builder: (context, textStyle, labelStyle) {
+              final leadingIcon = iconPath != null
+                  ? CakeImageWidget(
+                      imageUrl: iconPath!,
+                      width: leadingIconSize ?? 24,
+                      height: leadingIconSize ?? 24,
+                      errorWidget: leadingIconErrorWidget,
+                      colorFilter:
+                          iconColor == null ? null : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+                    )
+                  : null;
+
+              final imageWidget = badgeIconPath != null
+                  ? Stack(
+                    clipBehavior: Clip.none,
+                      children: [
+                        leadingIcon!,
+                        Positioned(
+                          right: -3,
+                          bottom: -3,
+                          child: CakeImageWidget(
+                            imageUrl: badgeIconPath!,
+                            width: badgeIconSize ?? 10,
+                            height: badgeIconSize ?? 10,
+                            errorWidget: leadingIconErrorWidget,
+                            colorFilter: iconColor == null
+                                ? null
+                                : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+                          ),
+                        ),
+                      ],
+                    )
+                  : leadingIcon;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -82,11 +123,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                               if (iconPath != null)
                                 Padding(
                                     padding: const EdgeInsets.only(right: 12.0,),
-                                    child: CakeImageWidget(
-                                      imageUrl: iconPath!,
-                                      width: 24,
-                                      height: 24,
-                                    )),
+                                    child: imageWidget ?? SizedBox(),
                               Flexible(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,

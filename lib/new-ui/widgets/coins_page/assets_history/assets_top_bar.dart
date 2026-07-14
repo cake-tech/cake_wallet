@@ -1,9 +1,6 @@
-import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/line_tab_switcher.dart';
-import 'package:cake_wallet/new-ui/widgets/new_elevated_button.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -11,19 +8,19 @@ class AssetsTopBar extends StatelessWidget {
   const AssetsTopBar({
     super.key,
     required this.onTabChange,
+    required this.onTransactionHistoryOpened,
     required this.selectedTab,
     required this.tabs, required this.dashboardViewModel,
   });
 
   final void Function(int) onTabChange;
+  final VoidCallback onTransactionHistoryOpened;
   final int selectedTab;
-  final List<String> tabs;
+  final List<AssetsHistorySectionTab> tabs;
   final DashboardViewModel dashboardViewModel;
 
   @override
   Widget build(BuildContext context) {
-    final settingsButtonText = _getSettingsButtonText();
-    final hasTokenSettingsButton = settingsButtonText != null;
 
     return SliverToBoxAdapter(
       child: Padding(
@@ -32,47 +29,69 @@ class AssetsTopBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if(tabs.length > 1)
           LineTabSwitcher(
-            tabs: tabs,
+            tabs: tabs.map((item)=>item.title).toList(),
             onTabChange: onTabChange,
             selectedTab: selectedTab,
-          )
-      else SizedBox.shrink(),
-          Opacity(
-            opacity: hasTokenSettingsButton ? 1 : 0,
-            child: NewElevatedButton(
-              buttonText: settingsButtonText,
-              onPressed: () {
-                if (tabs[selectedTab] == S.of(context).assets) {
-                  Navigator.of(context).pushNamed(
-                    Routes.homeSettings,
-                    arguments: dashboardViewModel.balanceViewModel,
-                  );
-                } else if(tabs[selectedTab] == S.of(context).history) {
-                  showPopUp<void>(
-                    context: context,
-                    builder: (context) => FilterWidget(filterItems: dashboardViewModel.filterItems),
-                  );
-                }
-              },
-            ),
           ),
+      AnimatedSwitcher(
+        duration: Duration(milliseconds: 300),
+        layoutBuilder: (currentChild, previousChildren) {
+          return Stack(
+            alignment: Alignment.centerRight,
+            children: <Widget>[
+              ...previousChildren,
+              if (currentChild != null) currentChild,
+            ],
+          );
+        },
+        child: Row(
+          key: ValueKey(selectedTab),
+          spacing: 8,
+          children: [
+
+            Opacity(
+              opacity: tabs[selectedTab].actionButton != null ? 1 : 0,
+              child: GestureDetector(
+                onTap: () {
+                    if(tabs[selectedTab].actionButton != null) {
+                      tabs[selectedTab].actionButton?.onPressed();
+                    }
+                  },
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(999999),
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Row(
+                      spacing: 6,
+                      children: [
+
+                        if ((tabs[selectedTab].actionButton?.title ?? "").isNotEmpty)
+                                Text(
+                                  tabs[selectedTab].actionButton?.title ?? "",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                                ),
+                        CakeImageWidget(
+                            imageUrl: tabs[selectedTab].actionButton?.iconPath,
+                            colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
           ],
         ),
       ),
     );
   }
 
-  String? _getSettingsButtonText() {
-    if (tabs[selectedTab] == S.current.assets &&
-        dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled) {
-      return S.current.tokens;
-    }
-
-    if (tabs[selectedTab] == S.current.history) {
-      return S.current.filters;
-    }
-    return null;
-  }
 }

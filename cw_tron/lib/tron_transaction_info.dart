@@ -47,7 +47,7 @@ class TronTransactionInfo extends TransactionInfo {
     return TronTransactionInfo(
       id: data['id'] as String,
       amount: Money(BigInt.parse(data['tronAmount']), currency),
-      fee: Money(BigInt.parse(data['txFee']), CryptoCurrency.trx),
+      fee: Money.tryParse(data['txFee']?.toString() ?? '0', CryptoCurrency.trx, isBaseUnit: true),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       blockTime: DateTime.fromMillisecondsSinceEpoch(data['blockTime'] as int),
       to: data['to'],

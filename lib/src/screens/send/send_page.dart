@@ -427,7 +427,7 @@ class SendPage extends BasePage {
                                     }
                   
                                     if (sendViewModel.wallet.isHardwareWallet) {
-                                      if (!sendViewModel.hardwareWalletViewModel!.isConnected) {
+                                      if (!sendViewModel.hardwareWalletViewModel!.isConnected(sendViewModel.walletType)) {
                                         await Navigator.of(context).pushNamed(Routes.connectDevices,
                                             arguments: ConnectDevicePageParams(
                                               walletType: sendViewModel.walletType,
@@ -780,7 +780,6 @@ class SendPage extends BasePage {
     }
 
     output.resetParsedAddress();
-    await output.fetchParsedAddress(context);
   }
 
   Output _defineCurrentOutput() {

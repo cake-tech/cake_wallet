@@ -332,6 +332,7 @@ class TronClient {
       amount: totalAmount,
       fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
       sendTransaction: sendTx,
+      id: rawTransaction.txID
     );
   }
 

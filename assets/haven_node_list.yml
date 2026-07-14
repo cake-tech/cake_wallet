@@ -1,4 +1,4 @@
 -
   uri: nodes.havenprotocol.org:443
   useSSL: true
-  is_default: true
+  isDefault: true

@@ -14,8 +14,8 @@ mixin PendingTransaction {
   Money get fee;
 
   String get amountFormatted;
-  String get feeFormatted => fee.toStringWithSymbol();
-  String get feeFormattedValue => fee.toString();
+  String get feeFormatted => fee.toStringWithSymbol(fractionalDigits: 8);
+  String get feeFormattedValue => fee.toStringWithPrecision(fractionalDigits: 8);
   String? feeRate;
   String get hex;
   String? get evmTxHashFromRawHex => null;

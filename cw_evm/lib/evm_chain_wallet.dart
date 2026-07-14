@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
@@ -29,7 +28,6 @@ import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
-import 'package:cw_evm/evm_erc20_currency.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -416,7 +414,12 @@ abstract class EVMChainWalletBase
     final tokenSymbol = transactionModel.tokenSymbol ??
         EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId);
 
-    final amountCurrency = ERC20Currency(decimals: decimals, symbol: tokenSymbol);
+    final amountCurrency = Erc20Token(
+      name: '',
+      contractAddress: transactionModel.contractAddress,
+      decimal: decimals,
+      symbol: tokenSymbol,
+    );
     return EVMChainTransactionInfo(
       id: transactionModel.hash,
       height: transactionModel.blockNumber,
@@ -541,67 +544,112 @@ abstract class EVMChainWalletBase
     await save();
   }
 
-  bool isTokenPropertiesSuspicious(Erc20Token token) {
-    bool isTokenWhitelisted = getDefaultTokenContractAddresses
-        .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
+  static const _urlLikeSuspiciousMarkers = [
+    't.me',
+    '.me',
+    'telegram',
+    'http',
+    'https',
+    '.com',
+    '.org',
+    '.top',
+    '.live',
+    '.xyz',
+    'www',
+    '🎁',
+    'airdrop',
+    'distribution',
+  ];
 
-    final defaultTokenSymbols = EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId);
+  static final _suspiciousWordPattern =
+      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
 
-    // Normalize the token data to check for homoglyph spoofing attack, characters that look like ASCII (Cyrillic, Greek, etc.)
+  static const _knownNonEvmNativeSymbols = {
+    'ICP',
+    'SOL',
+    'TRX',
+    'ATOM',
+    'DOT',
+    'ADA',
+    'XRP',
+    'XLM',
+    'XMR',
+    'ALGO',
+    'NEAR',
+    'TON',
+    'HBAR',
+    'APT',
+    'SUI',
+    'KAS',
+  };
+
+  static bool _hasSuspiciousData(String normalized) {
+    final lower = normalized.toLowerCase();
+    if (_urlLikeSuspiciousMarkers.any(lower.contains)) return true;
+    return _suspiciousWordPattern.hasMatch(lower);
+  }
+
+  bool isTokenPropertiesSuspicious(
+    Erc20Token token, {
+    Set<String>? cachedWhitelistLower,
+    Set<String>? cachedDefaultSymbolsUpper,
+  }) {
+    final whitelistLower = cachedWhitelistLower ??
+        getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+    final defaultSymbolsUpper = cachedDefaultSymbolsUpper ??
+        EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId).toSet();
+
+    final isTokenWhitelisted = whitelistLower.contains(token.contractAddress.toLowerCase());
+
     final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
     final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
     final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
 
-    final suspiciousStrings = [
-      't.me',
-      '.me',
-      'telegram',
-      'http',
-      'https',
-      '.com',
-      '.org',
-      '.top',
-      '.live',
-      'airdrop',
-      'reward',
-      'distribution',
-      'www',
-      '.xyz',
-      '🎁',
-      'bot',
-      'claim',
-      'reward',
-    ];
-
-    final hasSuspiciousData = suspiciousStrings.any(
-      (element) =>
-          normalizedName.toLowerCase().contains(element) ||
-          normalizedSymbol.toLowerCase().contains(element) ||
-          normalizedTitle.toLowerCase().contains(element),
-    );
+    final hasSuspiciousData = _hasSuspiciousData(normalizedName) ||
+        _hasSuspiciousData(normalizedSymbol) ||
+        _hasSuspiciousData(normalizedTitle);
 
     final nativeSymbol = currency.title.toUpperCase();
     final hasSuspiciousNativeSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
 
     final hasSuspiciousDefaultTokenSymbol =
-        defaultTokenSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+        defaultSymbolsUpper.contains(normalizedSymbol) && !isTokenWhitelisted;
 
-    return hasSuspiciousData || hasSuspiciousNativeSymbol || hasSuspiciousDefaultTokenSymbol;
+    final hasSuspiciousNonEvmNativeSymbol =
+        _knownNonEvmNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    return hasSuspiciousData ||
+        hasSuspiciousNativeSymbol ||
+        hasSuspiciousDefaultTokenSymbol ||
+        hasSuspiciousNonEvmNativeSymbol;
   }
 
-  Future<void> _checkForExistingScamTokens() async {
-    for (var token in erc20Currencies) {
-      bool isPotentialScam = false;
+  String get _scamCheckDoneKey => 'evm_scam_check_v2_done_${walletInfo.name}';
 
-      if (isTokenPropertiesSuspicious(token)) {
-        isPotentialScam = true;
+  Future<void> _checkForExistingScamTokens() async {
+    final prefs = await sharedPrefs.future;
+    if (prefs.getBool(_scamCheckDoneKey) == true) return;
+
+    final whitelistLower =
+        getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+    final defaultSymbolsUpper =
+        EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId).toSet();
+
+    for (var token in erc20Currencies) {
+      final suspicious = isTokenPropertiesSuspicious(
+        token,
+        cachedWhitelistLower: whitelistLower,
+        cachedDefaultSymbolsUpper: defaultSymbolsUpper,
+      );
+
+      if (suspicious && !token.isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
         await token.save();
+        continue;
       }
 
-      // For fixing wrongly classified tokens
-      if (!isPotentialScam && token.isPotentialScam) {
+      if (!suspicious && token.isPotentialScam) {
         token.isPotentialScam = false;
 
         if (token.iconPath == null || token.iconPath!.isEmpty) {
@@ -617,6 +665,8 @@ abstract class EVMChainWalletBase
         await token.save();
       }
     }
+
+    await prefs.setBool(_scamCheckDoneKey, true);
   }
 
   Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {
@@ -668,6 +718,9 @@ abstract class EVMChainWalletBase
           DiscoveredToken(
             token: newToken,
             balanceWei: token.balanceWei,
+            verifiedContract: token.verifiedContract,
+            moralisUsdPrice: token.usdPrice,
+            moralisUsdValue: token.usdValue,
           ),
         );
       }
@@ -955,8 +1008,8 @@ abstract class EVMChainWalletBase
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
 
-      totalAmount = outputs.fold<Money>(
-          Money.zero(transactionCurrency), (acc, output) => acc + output.cryptoAmount);
+      totalAmount = outputs.fold<Money>(Money.zero(transactionCurrency),
+          (acc, output) => acc + output.cryptoAmount.copyWith(currency: transactionCurrency));
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -976,7 +1029,7 @@ abstract class EVMChainWalletBase
     } else {
       final output = outputs.first;
       if (!output.sendAll) {
-        totalAmount = output.cryptoAmount;
+        totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
@@ -1087,18 +1140,19 @@ abstract class EVMChainWalletBase
       gas = GasParamsHandler.zero();
     }
 
-    // Validate NATIVE Balance (for Gas + Value)
     final nativeBal = balance[nativeCurrency]?.available ?? Money.zero(nativeCurrency);
-    final requiredNative = valueWei + Money.fromInt(gas.estimatedGasFee, nativeCurrency);
+    var requiredNative = Money.fromInt(gas.estimatedGasFee, nativeCurrency);
+
+    if (valueWei.currency == nativeCurrency) {
+      requiredNative += valueWei;
+    }
 
     if (requiredNative > nativeBal) {
       throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
     }
 
-    // Validate ERC20 Balance (Only if source is NOT native)
     final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
 
-    // Check for both 0xeeee... AND 0x0000... (Zero Address)
     final isNativeSource = sourceTokenAddress == null ||
         cleanAddress == '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
         cleanAddress == '0x0000000000000000000000000000000000000000';
@@ -1268,6 +1322,10 @@ abstract class EVMChainWalletBase
           existingTxInfo.direction == TransactionDirection.outgoing &&
           _hasEvmTokenContractAddress(newTxInfo) &&
           !_hasEvmTokenContractAddress(existingTxInfo)) {
+        result[transactionModel.hash] = newTxInfo;
+      }
+
+      else if (existingTxInfo.isPending) {
         result[transactionModel.hash] = newTxInfo;
       }
     }
@@ -1644,30 +1702,6 @@ abstract class EVMChainWalletBase
     );
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final transactionHistoryFileNameForWallet = getTransactionHistoryFileName();
-
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
-
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {
       _transactionsUpdateTimer!.cancel();
@@ -1748,10 +1782,16 @@ class GasParamsHandler {
 class DiscoveredToken {
   final Erc20Token token;
   final BigInt balanceWei;
+  final bool verifiedContract;
+  final double? moralisUsdPrice;
+  final double? moralisUsdValue;
 
   const DiscoveredToken({
     required this.token,
     required this.balanceWei,
+    required this.verifiedContract,
+    this.moralisUsdPrice,
+    this.moralisUsdValue,
   });
 }
 

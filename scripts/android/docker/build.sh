@@ -57,7 +57,7 @@ bitbox_ver=$(tinysha $SCRIPT_DIR/Dockerfile.bitbox $REPO_ROOT/scripts/build_bitb
 monero_ver=$(tinysha $SCRIPT_DIR/Dockerfile.monero $REPO_ROOT/scripts/prepare_moneroc.sh $REPO_ROOT/scripts/android/build_monero_all.sh)
 mwebd_ver=$(tinysha $SCRIPT_DIR/Dockerfile.mwebd $(find $REPO_ROOT/cw_mweb/go -type f))
 zcash_ver=$(tinysha $SCRIPT_DIR/Dockerfile.zcash $REPO_ROOT/scripts/prepare_zcash.sh $REPO_ROOT/scripts/android/build_zcash.sh)
-decred_ver=$(tinysha $SCRIPT_DIR/Dockerfile.torch $SCRIPT_DIR/Dockerfile.decred $REPO_ROOT/scripts/android/build_decred.sh)
+decred_ver=$(tinysha $SCRIPT_DIR/Dockerfile.torch $SCRIPT_DIR/Dockerfile.decred $REPO_ROOT/scripts/android/build_decred.sh $REPO_ROOT/cw_decred/pubspec.yaml)
 echo $base_ver $torch_ver $reown_ver $bitbox_ver $monero_ver $mwebd_ver $zcash_ver $decred_ver > /tmp/docker_build_versions
 final_ver=$(tinysha /tmp/docker_build_versions)
 

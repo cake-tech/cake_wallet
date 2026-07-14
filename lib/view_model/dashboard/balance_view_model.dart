@@ -70,23 +70,24 @@ class BalanceRecord {
 
   String get combinedAvailableBalance =>
       (raw.available + (raw.secondAvailable ?? Money.zero(raw.available.currency)))
-          .toString().withMaxDecimals(8);
-
-  String get combinedFiatAvailableBalance =>
-      "$fiatCurrency " +
-      _withLocalSeperator(((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
-              (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
           .toString()
-          .withMaxDecimals(2));
+          .withMaxDecimals(8);
+
+  String get combinedFiatAvailableBalance => fiatCurrency != null
+      ? "$fiatCurrency " +
+          _withLocalSeperator(((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
+                  (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
+              .toStringAsFixed(2))
+      : "";
 
   String get fiatAvailableBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw)}": "";
+      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw)}" : "";
 
   String get fiatAdditionalBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAdditionalBalanceRaw)}": "";
+      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAdditionalBalanceRaw)}" : "";
 
   String get fiatFrozenBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatFrozenBalanceRaw)}": "";
+      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatFrozenBalanceRaw)}" : "";
 
   String get fiatSecondAvailableBalance => fiatCurrency != null
       ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAvailableBalanceRaw)}"
@@ -295,21 +296,17 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final availableFiatBalance = isFiatDisabled
-          ? ''
-          : _getFiatBalance(price: price, cryptoAmount: value.available);
+      final availableFiatBalance =
+          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.available);
 
-      final additionalFiatBalance = isFiatDisabled
-          ? ''
-          : _getFiatBalance(price: price, cryptoAmount: value.unavailable);
+      final additionalFiatBalance =
+          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.unavailable);
 
-      final frozenFiatBalance = isFiatDisabled
-          ? ''
-          : _getFiatBalance(price: price, cryptoAmount: value.frozen);
+      final frozenFiatBalance =
+          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.frozen);
 
-      final secondAvailableFiatBalance = isFiatDisabled
-          ? ''
-          : _getFiatBalance(price: price, cryptoAmount: value.secondAvailable);
+      final secondAvailableFiatBalance =
+          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.secondAvailable);
 
       final secondAdditionalFiatBalance = isFiatDisabled
           ? ''
@@ -454,12 +451,13 @@ abstract class BalanceViewModelBase with Store {
     }
 
     if (wallet.walletInfo.favoriteTokenAddress != null) {
-      return formattedBalances.firstWhereOrNull((item) => (getTokenAddressBasedOnWallet(item.asset) ==
+      return formattedBalances.firstWhereOrNull((item) =>
+              (getTokenAddressBasedOnWallet(item.asset) ==
                   wallet.walletInfo.favoriteTokenAddress)) ??
-          formattedBalances.elementAt(0);
+          formattedBalances.elementAtOrNull(0);
     }
 
-    return formattedBalances.elementAt(0);
+    return formattedBalances.elementAtOrNull(0);
   }
 
   String? getTokenAddressBasedOnWallet(CryptoCurrency asset) {
@@ -484,8 +482,8 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   bool get showCombinedBalance {
-    if(wallet.type == WalletType.bitcoin) return false;
-    if(balances.values.length == 1) return false;
+    if (wallet.type == WalletType.bitcoin) return false;
+    if (balances.values.length == 1) return false;
 
     return wallet.walletInfo.showCombinedBalance;
   }

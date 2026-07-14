@@ -21,6 +21,10 @@ class SolanaTransactionInfo extends TransactionInfo {
   final String? to;
   @override
   final String? from;
+
+  @override
+  String get txHash => id.replaceFirst(RegExp(r'_(outgoing|incoming)$'), '');
+
   @override
   final Money amount;
   @override

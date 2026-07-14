@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -94,10 +93,10 @@ abstract class TronWalletBase
   WalletAddresses walletAddresses;
 
   @observable
-  String? nativeTxEstimatedFee;
+  Money? nativeTxEstimatedFee;
 
   @observable
-  String? trc20EstimatedFee;
+  Money? trc20EstimatedFee;
 
   @override
   @observable
@@ -255,10 +254,10 @@ abstract class TronWalletBase
 
   Future<void> _getEstimatedFees() async {
     final nativeFee = await _getNativeTxFee();
-    nativeTxEstimatedFee = TronHelper.fromSun(BigInt.from(nativeFee));
+    nativeTxEstimatedFee = Money.fromInt(nativeFee, currency);
 
     final trc20Fee = await _getTrc20TxFee();
-    trc20EstimatedFee = TronHelper.fromSun(BigInt.from(trc20Fee));
+    trc20EstimatedFee =  Money.fromInt(trc20Fee, currency);
 
     log('Native Estimated Fee: $nativeTxEstimatedFee');
     log('TRC20 Estimated Fee: $trc20EstimatedFee');
@@ -336,7 +335,7 @@ abstract class TronWalletBase
       if (shouldSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        totalAmount = output.cryptoAmount;
+        totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
       if (walletBalanceForCurrency < totalAmount || totalAmount < Money.zero(transactionCurrency)) {
@@ -606,30 +605,6 @@ abstract class TronWalletBase
 
   Future<TronToken?> getTronToken(String contractAddress) async =>
       await _client.getTronToken(contractAddress, _tronAddress);
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    const transactionHistoryFileNameForWallet = 'tron_transactions.json';
-
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
 
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {
