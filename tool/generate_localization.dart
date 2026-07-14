@@ -37,7 +37,7 @@ Future<void> main(List<String> args) async {
 
   extraInfo.forEach((key, dynamic value) async {
     if (key != srcDir) {
-      printV('Wrong key: $key');
+      print('Wrong key: $key');
       return;
     }
 
@@ -45,7 +45,7 @@ Future<void> main(List<String> args) async {
     final dir = Directory(dirPath);
 
     if (!await dir.exists()) {
-      printV('Wrong directory path: $dirPath');
+      print('Wrong directory path: $dirPath');
       return;
     }
 
@@ -55,7 +55,7 @@ Future<void> main(List<String> args) async {
       // normalizing the case so keys match LanguageService.supportedLocales.
       final fileName = element.uri.pathSegments.last;
       if (!fileName.startsWith('strings_') || !fileName.endsWith('.arb')) {
-        printV('Wrong file: ${element.path}');
+        print('Wrong file: ${element.path}');
         return;
       }
       final parts =
@@ -67,7 +67,7 @@ Future<void> main(List<String> args) async {
     });
 
     if (!localePath.keys.contains(defaultLocale)) {
-      printV("Locale list doesn't contain $defaultLocale");
+      print("Locale list doesn't contain $defaultLocale");
       return;
     }
 
@@ -124,7 +124,7 @@ Future<void> main(List<String> args) async {
 
       await File(outputPath + localeListFileName).writeAsString(locales);
     } catch (e) {
-      printV(e.toString());
+      print(e.toString());
     }
   });
 }

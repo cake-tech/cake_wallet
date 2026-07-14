@@ -11,7 +11,12 @@ class DecimalInputFormatter extends TextInputFormatter {
     final text = newValue.text;
     if (text.isEmpty) return newValue;
 
-    if (S.current.all.startsWith(text)) return TextEditingValue(text: "");
+    if (S.current.all.startsWith(text)) {
+      return const TextEditingValue(
+        text: "",
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
 
     final regex = maxDecimals == 0 ? RegExp(r'^\d*$') : RegExp('^\\d*([.,]\\d{0,$maxDecimals})?\$');
     return regex.hasMatch(text) ? newValue.copyWith(text: text.replaceAll(',', '.')) : oldValue;

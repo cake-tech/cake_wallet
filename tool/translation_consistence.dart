@@ -7,14 +7,14 @@ import 'utils/translation/translation_constants.dart';
 import 'utils/translation/translation_utils.dart';
 
 void main(List<String> args) async {
-  printV('Checking Consistency of all arb-files. Default: $defaultLang');
+  print('Checking Consistency of all arb-files. Default: $defaultLang');
 
   final doFix = args.contains("--fix");
 
   if (doFix)
-    printV('Auto fixing enabled!\n');
+    print('Auto fixing enabled!\n');
   else
-    printV('Auto fixing disabled!\nRun with arg "--fix" to enable autofix\n');
+    print('Auto fixing disabled!\nRun with arg "--fix" to enable autofix\n');
 
   final fileName = getArbFileName(defaultLang);
   final file = File(fileName);
@@ -27,7 +27,7 @@ void main(List<String> args) async {
       final missingDefaults = <String, String>{};
 
       missingKeys.forEach((key) {
-        printV('Missing in "$lang": "$key"');
+        print('Missing in "$lang": "$key"');
         if (doFix)
           missingDefaults[key] = arbObj[key] as String;
       });
