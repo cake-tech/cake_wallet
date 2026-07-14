@@ -149,6 +149,7 @@ class CWBitcoin extends Bitcoin {
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
     String? payjoinUri,
+    bool shouldSaveRecipientAddress = false,
   }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
@@ -169,7 +170,8 @@ class CWBitcoin extends Bitcoin {
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
-        payjoinUri: payjoinUri);
+        payjoinUri: payjoinUri,
+        shouldSaveRecipientAddress: shouldSaveRecipientAddress);
   }
 
   @override
@@ -831,11 +833,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> ensurePayjoinSession(Object wallet) async {
+  Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false}) async {
     final _wallet = wallet as ElectrumWallet;
     final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
     addresses.payjoinEndpoint = null;
-    await addresses.newPayjoinReceiver();
+    await addresses.newPayjoinReceiver(shouldSaveRecipientAddress: shouldSaveRecipientAddress);
   }
 
   @override
