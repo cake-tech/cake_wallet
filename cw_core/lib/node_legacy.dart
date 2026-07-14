@@ -19,17 +19,15 @@ import 'node.dart' as node_new;
 part 'node_legacy.part.dart';
 
 Future<void> performNodeHiveMigration() async {
-  if(!CakeHive.isAdapterRegistered(Node.typeId)) {
+  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
     CakeHive.registerAdapter(NodeAdapter());
   }
 
   final nodeBox = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodeBox = await CakeHive.openBox<Node>(Node.boxName+"pow");
+  final powNodeBox = await CakeHive.openBox<Node>(Node.boxName + "pow");
   final builtinNodes = await loadAllDefaultNodes();
   final builtinPowNodes = await loadDefaultNanoPowNodes();
   await Node.migrateAllToSqlite(nodeBox, powNodeBox, builtinNodes, builtinPowNodes);
-
-
 }
 
 Uri createUriFromElectrumAddress(String address, String path) =>
@@ -62,31 +60,26 @@ class Node extends HiveObject with Keyable {
     final list = nodeBox.values.toList();
     final powList = powNodeBox.values.toList();
     for (final node in list) {
-      if(defaultNodes.any((item)=>item.uri == node.uri)) {
+      if (defaultNodes.any((item) => item.uri == node.uri)) {
         // default nodes will be added by validateBuiltinNodes(), no need to migrate them.
         await node.delete();
         continue;
       }
-      await node.migrateToSqlite(
-          isPow: false,
-          isBuiltin: false,
-          isOfficial: false);
+      await node.migrateToSqlite(isPow: false, isBuiltin: false, isOfficial: false);
       await node.delete();
     }
     for (final node in powList) {
-      if(defaultPowNodes.any((item)=>item.uri == node.uri)) {
+      if (defaultPowNodes.any((item) => item.uri == node.uri)) {
         await node.delete();
         continue;
       }
-      await node.migrateToSqlite(
-          isPow: true,
-          isBuiltin: false,
-          isOfficial: false);
+      await node.migrateToSqlite(isPow: true, isBuiltin: false, isOfficial: false);
       await node.delete();
     }
   }
 
-  Future<void> migrateToSqlite({required bool isPow, required bool isBuiltin, required bool isOfficial}) async {
+  Future<void> migrateToSqlite(
+      {required bool isPow, required bool isBuiltin, required bool isOfficial}) async {
     final newNode = node_new.Node(
       id: key as int,
       login: login,
@@ -105,7 +98,6 @@ class Node extends HiveObject with Keyable {
     );
     await newNode.save();
   }
-
 
   Node.fromMap(Map<String, Object?> map)
       : uriRaw = map['uri'] as String? ?? '',
@@ -209,15 +201,15 @@ class Node extends HiveObject with Keyable {
   @override
   bool operator ==(other) =>
       other is Node &&
-          (other.uriRaw == uriRaw &&
-              other.login == login &&
-              other.label == label &&
-              other.password == password &&
-              other.typeRaw == typeRaw &&
-              other.useSSL == useSSL &&
-              other.trusted == trusted &&
-              other.socksProxyAddress == socksProxyAddress &&
-              other.path == path);
+      (other.uriRaw == uriRaw &&
+          other.login == login &&
+          other.label == label &&
+          other.password == password &&
+          other.typeRaw == typeRaw &&
+          other.useSSL == useSSL &&
+          other.trusted == trusted &&
+          other.socksProxyAddress == socksProxyAddress &&
+          other.path == path);
 
   @override
   int get hashCode =>
@@ -242,6 +234,4 @@ class Node extends HiveObject with Keyable {
   set type(WalletType type) => typeRaw = serializeToInt(type);
 
   dynamic _keyIndex;
-
-
 }

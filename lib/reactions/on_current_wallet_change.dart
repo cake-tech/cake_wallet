@@ -113,8 +113,7 @@ void startCurrentWalletChangeReaction(
       }
 
       if (wallet.type == WalletType.solana) {
-        await solana!
-            .discoverAndAddWalletTokens(wallet);
+        await solana!.discoverAndAddWalletTokens(wallet);
       }
     } catch (e) {
       printV(e.toString());

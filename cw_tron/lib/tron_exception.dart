@@ -5,6 +5,7 @@ class TronMnemonicIsIncorrectException implements Exception {
   String toString() =>
       'Tron mnemonic has incorrect format. Mnemonic should contain 12 or 24 words separated by space.';
 }
+
 class TronTransactionCreationException implements Exception {
   final String exceptionMessage;
 

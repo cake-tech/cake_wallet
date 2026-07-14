@@ -5,4 +5,3 @@ class AuthenticationBanned extends ExecutionState {
 
   final String error;
 }
-

@@ -423,14 +423,14 @@ class ERC681URI extends PaymentURI {
 
   static int _getChainID(String path) {
     return int.parse(RegExp(
-      r'@\d*',
-    ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
+          r'@\d*',
+        ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
         "1");
   }
 
   static (bool, String) _getTargetAddress(String path) {
     final targetAddress =
-    RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false).firstMatch(path)!.group(0)!;
+        RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false).firstMatch(path)!.group(0)!;
     return (path.contains("/"), targetAddress);
   }
 
@@ -523,4 +523,3 @@ class LightningPaymentRequest extends PaymentURI {
   @override
   String toString() => bolt11Invoice ?? "lightning:$lnURL";
 }
-

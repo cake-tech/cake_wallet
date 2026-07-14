@@ -12,15 +12,14 @@ class EVMChainTransactionCreationException implements Exception {
   String toString() => exceptionMessage;
 }
 
-
 class EVMChainTransactionFeesException implements Exception {
   final String exceptionMessage;
 
-  EVMChainTransactionFeesException(String message)
-      : exceptionMessage = message;
+  EVMChainTransactionFeesException(String message) : exceptionMessage = message;
 
   EVMChainTransactionFeesException.fromCurrency(String currency)
-      : exceptionMessage = 'Transaction failed due to insufficient $currency balance to cover the fees.';
+      : exceptionMessage =
+            'Transaction failed due to insufficient $currency balance to cover the fees.';
 
   @override
   String toString() => exceptionMessage;
@@ -39,15 +38,15 @@ class InsufficientGasFeeException implements Exception {
   static String _buildMessage(BigInt? requiredGasFee, BigInt? currentBalance) {
     const baseMessage = 'Insufficient ETH for gas fees.';
     const addEthMessage = ' Please add ETH to your wallet to cover transaction fees.';
-    
+
     if (requiredGasFee != null) {
       final requiredEth = (requiredGasFee / BigInt.from(10).pow(18)).toStringAsFixed(8);
-      final balanceInfo = currentBalance != null 
+      final balanceInfo = currentBalance != null
           ? ', Available: ${(currentBalance / BigInt.from(10).pow(18)).toStringAsFixed(8)} ETH'
           : '';
       return '$baseMessage Required: ~$requiredEth ETH$balanceInfo.$addEthMessage';
     }
-    
+
     return '$baseMessage$addEthMessage';
   }
 

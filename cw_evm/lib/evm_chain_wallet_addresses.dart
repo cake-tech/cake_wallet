@@ -23,7 +23,6 @@ abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
 
   final int _selectedChainId;
 
-
   @override
   Future<void> init() async {
     address = walletInfo.address;

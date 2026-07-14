@@ -6,7 +6,8 @@ part 'exchange_provider_logs_view_model.g.dart';
 
 enum LogFilter { all, success, error }
 
-class ExchangeProviderLogsViewModel = ExchangeProviderLogsViewModelBase with _$ExchangeProviderLogsViewModel;
+class ExchangeProviderLogsViewModel = ExchangeProviderLogsViewModelBase
+    with _$ExchangeProviderLogsViewModel;
 
 abstract class ExchangeProviderLogsViewModelBase with Store {
   @observable
@@ -60,7 +61,7 @@ abstract class ExchangeProviderLogsViewModelBase with Store {
   void loadLogs() {
     isLoading = true;
     error = null;
-    
+
     try {
       logs.clear();
       logs.addAll(ExchangeProviderLogger.logs);

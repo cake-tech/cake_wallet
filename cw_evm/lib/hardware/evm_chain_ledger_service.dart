@@ -11,8 +11,7 @@ class EVMChainLedgerService extends HardwareWalletService {
   final LedgerConnection ledgerConnection;
 
   @override
-  Future<List<HardwareAccountData>> getAvailableAccounts(
-      {int index = 0, int limit = 5}) async {
+  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final ethereumLedgerApp = EthereumLedgerApp(ledgerConnection);
 
     await ethereumLedgerApp.getVersion();
@@ -22,8 +21,7 @@ class EVMChainLedgerService extends HardwareWalletService {
 
     for (final i in indexRange) {
       final derivationPath = "m/44'/60'/$i'/0/0";
-      final address = await ethereumLedgerApp.getAccounts(
-          accountsDerivationPath: derivationPath);
+      final address = await ethereumLedgerApp.getAccounts(accountsDerivationPath: derivationPath);
 
       accounts.add(HardwareAccountData(
         address: address.first,

@@ -25,11 +25,9 @@ Future<void> validateBuiltinNodes() async {
   for (final listNode in builtinFromList) {
     // preserve proxy settings from user
     try {
-      final matchedDbNode = builtinFromDb.firstWhere(
-              (dbNode) => dbNode.uri == listNode.uri
-      );
+      final matchedDbNode = builtinFromDb.firstWhere((dbNode) => dbNode.uri == listNode.uri);
       listNode.socksProxyAddress = matchedDbNode.socksProxyAddress;
-    } catch(e) {}
+    } catch (e) {}
   }
 
   final dbSet = builtinFromDb.toSet();
@@ -121,7 +119,7 @@ class Node {
       "label": label,
       'password': password,
       "isPow": isPow ? 1 : 0,
-      'useSSL': (useSSL??false) ? 1 : 0,
+      'useSSL': (useSSL ?? false) ? 1 : 0,
       "typeRaw": typeRaw,
       'trusted': trusted ? 1 : 0,
       'socksProxyAddress': socksProxyAddress,
@@ -165,7 +163,6 @@ class Node {
   }
 
   Future<int> save() async {
-
     final json = toMap();
     if (json[selfIdColumn] == 0) {
       json[selfIdColumn] = null;
@@ -174,9 +171,9 @@ class Node {
     return id;
   }
 
-
-  static Future<List<Node>> selectList(String where, List<dynamic> whereArgs, {String? orderBy}) async {
-    if(orderBy == null) {
+  static Future<List<Node>> selectList(String where, List<dynamic> whereArgs,
+      {String? orderBy}) async {
+    if (orderBy == null) {
       orderBy = selfIdColumn;
     }
     final list = await db!.query(
@@ -189,7 +186,7 @@ class Node {
   }
 
   static Future<Node?> select(String where, List<dynamic> whereArgs, {String? orderBy}) async {
-    if(orderBy == null) {
+    if (orderBy == null) {
       orderBy = selfIdColumn;
     }
     final list = await db!.query(
@@ -200,7 +197,6 @@ class Node {
     );
     return list.isEmpty ? null : Node.fromMap(list.first);
   }
-
 
   static Future<List<Node>> getAll() async {
     return selectList("isPow = ?", [0]);
@@ -219,11 +215,15 @@ class Node {
   }
 
   static Future<Node?> getDefaultForWalletType(WalletType type) async {
-    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 0, 1])).firstOrNull;
+    return (await selectList(
+            "typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 0, 1]))
+        .firstOrNull;
   }
 
   static Future<Node?> getDefaultPowForWalletType(WalletType type) async {
-    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 1, 1])).firstOrNull;
+    return (await selectList(
+            "typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 1, 1]))
+        .firstOrNull;
   }
 
   static Future<List<Node>> getAllForWalletTypePow(WalletType type) async {
@@ -237,7 +237,6 @@ class Node {
   static Future<Node?> get(int id) async {
     return select("${selfIdColumn} = ?", [id]);
   }
-
 
   int id;
   late String uriRaw;
@@ -261,7 +260,6 @@ class Node {
 
   static String get tableName => "Node";
   static String get selfIdColumn => "${tableName}Id";
-
 
   bool get isSSL => useSSL ?? false;
 
@@ -334,7 +332,6 @@ class Node {
       socksProxyAddress.hashCode ^
       path.hashCode;
 
-
   WalletType get type => deserializeFromInt(typeRaw);
 
   set type(WalletType type) => typeRaw = serializeToInt(type);
@@ -389,7 +386,6 @@ class Node {
         body: jsonBody,
       );
 
-
       final resBody = json.decode(response.body) as Map<String, dynamic>;
 
       return resBody['result']['height'] != null;
@@ -409,15 +405,13 @@ class Node {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
-
       final jsonBody = json.encode(body);
 
       final response = await ProxyWrapper().post(
-        clearnetUri: rpcUri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonBody,
-        allowMitmMoneroBypassSSLCheck: true
-      );
+          clearnetUri: rpcUri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonBody,
+          allowMitmMoneroBypassSSLCheck: true);
       // Check if we received a 401 Unauthorized response
       if (response.statusCode == 401) {
         final daemonRpc = DaemonRpc(
@@ -496,7 +490,6 @@ class Node {
       final ProxySocket socket;
       socket = await ProxyWrapper().getSocksSocket(useSSL ?? false, uri.host, uri.port);
 
-
       socket.destroy();
       return true;
     } catch (_) {
@@ -533,9 +526,12 @@ class Node {
 
   Future<bool> requestEthereumServer() async {
     try {
-      final req = await ProxyWrapper().getHttpClient()
-        .getUrl(uri,)
-        .timeout(Duration(seconds: 15));
+      final req = await ProxyWrapper()
+          .getHttpClient()
+          .getUrl(
+            uri,
+          )
+          .timeout(Duration(seconds: 15));
       final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
@@ -546,13 +542,13 @@ class Node {
   }
 
   Future<bool> requestDecredNode() async {
-  if (uri.host == "default-spv-nodes") {
-    // Just show default port as ok. The wallet will connect to a list of known
-    // nodes automatically.
-    return true;
-  }
-  try {
-    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+    if (uri.host == "default-spv-nodes") {
+      // Just show default port as ok. The wallet will connect to a list of known
+      // nodes automatically.
+      return true;
+    }
+    try {
+      final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
       socket.destroy();
       return true;
     } catch (_) {

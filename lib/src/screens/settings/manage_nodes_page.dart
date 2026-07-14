@@ -55,10 +55,10 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
             ModernButton(
                 size: 36,
                 icon: Icon(Icons.add),
-                onPressed: ()async {
+                onPressed: () async {
                   final res = await Navigator.of(context)
-                    .pushNamed(widget.isPow ? Routes.newPowNode : Routes.newNode);
-                  if(res != null && res is Node) {
+                      .pushNamed(widget.isPow ? Routes.newPowNode : Routes.newNode);
+                  if (res != null && res is Node) {
                     widget.nodeListViewModel.nodes.add(res);
                   }
                 })
@@ -75,12 +75,11 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                 // horizontal: 0,
                 node: widget.nodeListViewModel.currentNode,
                 speed: widget.nodeListViewModel.nodeSpeedFor(widget.nodeListViewModel.currentNode),
-                onEditComplete: (res)async{
-                  if(res != null && res is Node) {
-                    widget.nodeListViewModel.nodes.removeWhere((item)=>item.id == res.id);
+                onEditComplete: (res) async {
+                  if (res != null && res is Node) {
+                    widget.nodeListViewModel.nodes.removeWhere((item) => item.id == res.id);
                     widget.nodeListViewModel.nodes.add(res);
                   }
-
                 },
                 onTap: () {},
                 isSelected: true,
@@ -93,7 +92,7 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                 color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(18)),
             child: ClipRRect(
-            borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(18),
               child: Observer(
                 builder: (BuildContext context) {
                   int itemsCount = widget.nodeListViewModel.nonCurrentNodes.length;
@@ -119,11 +118,11 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                             isPow: widget.isPow,
                             speed: widget.nodeListViewModel.nodeSpeedFor(node),
                             onEditComplete: (res) async {
-                              if(res != null && res is Node) {
-                                widget.nodeListViewModel.nodes.removeWhere((item)=>item.id == res.id);
+                              if (res != null && res is Node) {
+                                widget.nodeListViewModel.nodes
+                                    .removeWhere((item) => item.id == res.id);
                                 widget.nodeListViewModel.nodes.add(res);
                               }
-
                             },
                             onTap: () async {
                               await showPopUp<void>(

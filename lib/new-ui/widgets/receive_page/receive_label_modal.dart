@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
-
-
 class ReceiveLabelModal extends StatefulWidget {
   const ReceiveLabelModal({super.key, required this.walletAddressEditOrCreateViewModel});
 
@@ -45,7 +43,13 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> defaultLabels = [S.of(context).donation, S.of(context).savings, S.of(context).business, S.of(context).mining, S.of(context).salary];
+    List<String> defaultLabels = [
+      S.of(context).donation,
+      S.of(context).savings,
+      S.of(context).business,
+      S.of(context).mining,
+      S.of(context).salary
+    ];
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -54,7 +58,7 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
           child: SafeArea(
-            top:false,
+            top: false,
             child: Column(
               spacing: 24,
               mainAxisSize: MainAxisSize.min,

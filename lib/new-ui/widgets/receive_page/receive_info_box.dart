@@ -10,9 +10,16 @@ import 'package:flutter/material.dart';
 
 class ReceiveInfoBox extends StatelessWidget {
   ReceiveInfoBox(
-      {super.key, required this.iconPath, required this.message, required this.onDismissed, this.bottomWidget});
+      {super.key,
+      required this.iconPath,
+      required this.message,
+      required this.onDismissed,
+      this.bottomWidget});
 
-  static ReceiveInfoBox? forWalletType(WalletType type, {required VoidCallback onDismissed, required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus, List<CryptoCurrency>? supportedCurrencies}) {
+  static ReceiveInfoBox? forWalletType(WalletType type,
+      {required VoidCallback onDismissed,
+      required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus,
+      List<CryptoCurrency>? supportedCurrencies}) {
     switch (type) {
       case WalletType.nano:
         return null;
@@ -25,21 +32,18 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.zano:
       case WalletType.bsc:
       case WalletType.robinhood:
-        if(autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled)
-          return null;
+        if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
         return ReceiveInfoBox(
-          iconPath: "",
-          message:
-              "${S.current.infobox_multichain} ${walletTypeToString(type)}",
-          onDismissed: onDismissed,
+            iconPath: "",
+            message: "${S.current.infobox_multichain} ${walletTypeToString(type)}",
+            onDismissed: onDismissed,
             bottomWidget: InfoboxCurrencyRow(
               currencies: supportedCurrencies ?? [],
               chainIconPath:
                   "assets/new-ui/chain_badges/${type == WalletType.robinhood ? 'robinhood' : walletTypeToString(type).toLowerCase()}.svg",
             ));
       default:
-        if(autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled)
-          return null;
+        if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
           message: S.current.infobox_auto_address,
@@ -67,14 +71,14 @@ class ReceiveInfoBox extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              if(iconPath.isNotEmpty)
-              CakeImageWidget(imageUrl:
-                iconPath,
-                width: 16,
-                height: 16,
-                colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-              ),
+              if (iconPath.isNotEmpty)
+                CakeImageWidget(
+                  imageUrl: iconPath,
+                  width: 16,
+                  height: 16,
+                  colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                ),
               Flexible(
                 child: Column(
                     spacing: 10,
@@ -127,8 +131,9 @@ class InfoboxCurrencyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currenciesWithImage = currencies.where((item)=>item.iconPath != null).toList();
-    final currenciesLimited = currenciesWithImage.sublist(0, min(currenciesWithImage.length, maxCurrencies));
+    final currenciesWithImage = currencies.where((item) => item.iconPath != null).toList();
+    final currenciesLimited =
+        currenciesWithImage.sublist(0, min(currenciesWithImage.length, maxCurrencies));
 
     final double stackWidth = iconSize + (overlap * (currenciesLimited.length));
 

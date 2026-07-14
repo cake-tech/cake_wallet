@@ -18,7 +18,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.haven:
       path = 'assets/haven_node_list.yml';
       break;
-  // TODO: (refactoring) each wallet would have its path, so `wallet.nodePath` would be decided based on chain id in Evm wallet
+    // TODO: (refactoring) each wallet would have its path, so `wallet.nodePath` would be decided based on chain id in Evm wallet
     case WalletType.ethereum:
       path = 'assets/ethereum_server_list.yml';
       break;
@@ -152,7 +152,6 @@ Future<List<Node>> loadAllDefaultNodes() async {
 }
 
 Future<void> resetToDefault() async {
-
   final nodes = await loadAllDefaultNodes();
 
   final currentNodes = await Node.getAll();
@@ -162,15 +161,14 @@ Future<void> resetToDefault() async {
   for (final node in nodes) {
     try {
       final curr = currentNodes.firstWhere(
-            (item) => item.uri == node.uri && item.typeRaw == node.typeRaw,
+        (item) => item.uri == node.uri && item.typeRaw == node.typeRaw,
       );
-        node.id = curr.id;
-    } catch(e) {}
-
+      node.id = curr.id;
+    } catch (e) {}
   }
 
   await Node.deleteAll();
-  for(final node in nodes) {
+  for (final node in nodes) {
     await node.save();
   }
 }
@@ -178,7 +176,7 @@ Future<void> resetToDefault() async {
 Future<void> resetPowToDefault() async {
   final nanoPowNodes = await loadDefaultNanoPowNodes();
   await Node.deleteAllPow();
-  for(final node in nanoPowNodes) {
+  for (final node in nanoPowNodes) {
     node.save();
   }
 }
@@ -186,12 +184,9 @@ Future<void> resetPowToDefault() async {
 Future<Node> getDefaultNodeFromFiles(WalletType type, {bool isPow = false}) async {
   final nodes = isPow ? await loadDefaultNanoPowNodes() : await loadDefaultNodes(type);
   try {
-    return nodes.firstWhere((item)=>item.isDefault);
-  } catch(e) {
+    return nodes.firstWhere((item) => item.isDefault);
+  } catch (e) {
     // ideally the yamls would always have a default, but this is better than nothing
     return nodes.first;
   }
 }
-
-
-

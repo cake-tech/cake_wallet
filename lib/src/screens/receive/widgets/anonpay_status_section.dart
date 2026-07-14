@@ -28,9 +28,9 @@ class AnonInvoiceStatusSection extends StatelessWidget {
               Text(
                 S.current.status,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -50,9 +50,9 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                     Text(
                       invoiceInfo.status,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSecondaryContainer,
+                          ),
                     ),
                   ],
                 ),
@@ -66,16 +66,16 @@ class AnonInvoiceStatusSection extends StatelessWidget {
               Text(
                 'ID',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               Text(
                 invoiceInfo.invoiceId,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
               ),
             ],
           ),

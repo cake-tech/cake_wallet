@@ -19,7 +19,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   static final List<CryptoCurrency> _notSupportedAsSourceToken = [
     CryptoCurrency.sol,
     ...CryptoCurrency.all.where(
-          (c) => (c.tag ?? '').toUpperCase() == 'SOL' || c.tag == CryptoCurrency.bnb.tag,
+      (c) => (c.tag ?? '').toUpperCase() == 'SOL' || c.tag == CryptoCurrency.bnb.tag,
     ),
   ];
 
@@ -58,8 +58,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   bool get supportsMemoOrDestinationTag => false;
 
   @override
-  ExchangeProviderDescription get description =>
-      ExchangeProviderDescription.swapsXyz;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.swapsXyz;
 
   @override
   Future<bool> checkIsAvailable() async => true;
@@ -101,8 +100,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final body = json.decode(res.body) as Map<String, dynamic>;
 
-      final paths =
-          (body['paths'] as List? ?? const []).cast<Map<String, dynamic>>();
+      final paths = (body['paths'] as List? ?? const []).cast<Map<String, dynamic>>();
       if (paths.isEmpty) {
         throw Exception('No paths for ${fromToUse.title} -> ${toToUse.title}');
       }
@@ -121,18 +119,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         );
       }
 
-      final supportsExactAmountIn =
-          path['supportsExactAmountIn'] as bool? ?? false;
-      final supportsExactAmountOut =
-          path['supportsExactAmountOut'] as bool? ?? false;
+      final supportsExactAmountIn = path['supportsExactAmountIn'] as bool? ?? false;
+      final supportsExactAmountOut = path['supportsExactAmountOut'] as bool? ?? false;
 
       if (isFixedRateMode && !supportsExactAmountOut) {
-        throw Exception(
-            'This route does not support fixed receive (exact-amount-out)');
+        throw Exception('This route does not support fixed receive (exact-amount-out)');
       }
       if (!isFixedRateMode && !supportsExactAmountIn) {
-        throw Exception(
-            'This route does not support exact send (exact-amount-in)');
+        throw Exception('This route does not support exact send (exact-amount-in)');
       }
 
       Map<String, dynamic>? useLimits;
@@ -192,8 +186,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
     if (res.statusCode != 200) return null;
     final body = json.decode(res.body) as Map<String, dynamic>;
-    final paths =
-        (body['paths'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+    final paths = (body['paths'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
     if (paths.isEmpty) return null;
     final p = paths.first;
     return _PathInfo(
@@ -210,14 +203,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
     try {
-
-      if(_notSupportedAsSourceToken.contains(from) || _notSupportedAsSourceToken.contains(to)) {
-        printV(
-            'fetchRate: source token ${from.title} is not supported as source token');
+      if (_notSupportedAsSourceToken.contains(from) || _notSupportedAsSourceToken.contains(to)) {
+        printV('fetchRate: source token ${from.title} is not supported as source token');
         return 0.0;
       }
-
-
 
       final chains = await _geSupportedChain();
       if (chains.isEmpty) return 0.0;
@@ -225,8 +214,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final srcChain = _findChainByCurrency(from, chains);
       final dstChain = _findChainByCurrency(to, chains);
 
-      await _ensureTokensCached(
-          fromChain: srcChain, toChain: dstChain, from: from, to: to);
+      await _ensureTokensCached(fromChain: srcChain, toChain: dstChain, from: from, to: to);
 
       final srcToken = _getTokenAddress(currency: from, chain: srcChain);
       final dstToken = _getTokenAddress(currency: to, chain: dstChain);
@@ -252,8 +240,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       );
 
       final params = {
-        'swapDirection':
-            isReceiveAmount ? 'exact-amount-out' : 'exact-amount-in',
+        'swapDirection': isReceiveAmount ? 'exact-amount-out' : 'exact-amount-in',
         'srcToken': srcToken,
         'dstToken': dstToken,
         'srcChainId': '${srcChain.chainId}',
@@ -262,8 +249,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       };
 
       final uri = Uri.https(_baseUrl, _getQuotePaths, params);
-      final response =
-          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
         printV('fetchRate failed: ${response.body}');
@@ -289,8 +275,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final sender = request.refundAddress.trim();
       final recipient = request.toAddress.trim();
       if (sender.isEmpty || recipient.isEmpty) {
-        throw Exception(
-            'Sender (refundAddress) or recipient (toAddress) is empty');
+        throw Exception('Sender (refundAddress) or recipient (toAddress) is empty');
       }
 
       final chains = await _geSupportedChain();
@@ -305,10 +290,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         to: request.toCurrency,
       );
 
-      final srcToken =
-          _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
-      final dstToken =
-          _getTokenAddress(currency: request.toCurrency, chain: dstChain);
+      final srcToken = _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
+      final dstToken = _getTokenAddress(currency: request.toCurrency, chain: dstChain);
 
       final amountStr = isFixedRateMode ? request.toAmount : request.fromAmount;
       final rawAmount = double.tryParse(amountStr) ?? 0.0;
@@ -316,9 +299,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final formattedAmount = AmountConverter.toBaseUnits(
         amountStr,
-        isFixedRateMode
-            ? request.toCurrency.decimals
-            : request.fromCurrency.decimals,
+        isFixedRateMode ? request.toCurrency.decimals : request.fromCurrency.decimals,
       );
 
       final params = {
@@ -329,8 +310,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         'dstChainId': '${dstChain.chainId}',
         'dstToken': dstToken,
         'slippage': '300',
-        'swapDirection':
-            isFixedRateMode ? 'exact-amount-out' : 'exact-amount-in',
+        'swapDirection': isFixedRateMode ? 'exact-amount-out' : 'exact-amount-in',
         'amount': formattedAmount,
         'recipient': recipient,
       };
@@ -375,18 +355,16 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final amtIn = (data['amountIn'] as Map?) ?? const {};
       final amtInMax = (data['amountInMax'] as Map?) ?? const {};
       final srcTokenAddr = amtIn['address']?.toString();
-      final srcTokenDecs =
-          (amtIn['decimals'] as num?)?.toInt() ?? request.fromCurrency.decimals;
-      final requiresTokenApproval =
-          data['requiresTokenApproval'] as bool? ?? false;
+      final srcTokenDecs = (amtIn['decimals'] as num?)?.toInt() ?? request.fromCurrency.decimals;
+      final requiresTokenApproval = data['requiresTokenApproval'] as bool? ?? false;
 
-      final reqAmountStr =
-          (amtInMax['amount'] ?? amtIn['amount'])?.toString() ?? '0';
+      final reqAmountStr = (amtInMax['amount'] ?? amtIn['amount'])?.toString() ?? '0';
       final reqAmountRaw = reqAmountStr.replaceAll('n', '');
 
-      final needToRegisterInSwapXyz =
-          vmId == 'alt-vm' || bridgeIds.contains('alt-vm')
-              || chainId == 'solana' || bridgeIds.contains('solana');
+      final needToRegisterInSwapXyz = vmId == 'alt-vm' ||
+          bridgeIds.contains('alt-vm') ||
+          chainId == 'solana' ||
+          bridgeIds.contains('solana');
 
       final trade = Trade(
         id: txId,
@@ -452,8 +430,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final List<dynamic> body = json.decode(res.body) as List<dynamic>;
       if (body.isEmpty) return false;
 
-      final isSuccess =
-          (body[0] as Map<String, dynamic>)['success'] as bool? ?? false;
+      final isSuccess = (body[0] as Map<String, dynamic>)['success'] as bool? ?? false;
 
       return isSuccess;
     } catch (e) {
@@ -482,8 +459,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final error = data['error'] as Map<String, dynamic>?;
       if (error != null) {
         final code = error['code']?.toString() ?? 'unknown';
-        throw Exception(
-            'SwapXyzExchangeProvider findTradeById error: ($id) $code');
+        throw Exception('SwapXyzExchangeProvider findTradeById error: ($id) $code');
       }
     }
 
@@ -499,10 +475,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
     final payoutAddress = dstTransaction?['toAddress']?.toString();
 
-    final srcPaymentToken =
-        (srcTransaction?['paymentToken'] as Map?)?.cast<String, dynamic>();
-    final dstPaymentToken =
-        (dstTransaction?['paymentToken'] as Map?)?.cast<String, dynamic>();
+    final srcPaymentToken = (srcTransaction?['paymentToken'] as Map?)?.cast<String, dynamic>();
+    final dstPaymentToken = (dstTransaction?['paymentToken'] as Map?)?.cast<String, dynamic>();
 
     final fromSymbol = (srcPaymentToken?['symbol'] as String?) ?? '';
     final toSymbol = (dstPaymentToken?['symbol'] as String?) ?? '';
@@ -523,8 +497,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     String? receiveAmount;
     if (dstAmountRaw != null) {
       final dstAmountMinimal = _stripN(dstAmountRaw);
-      receiveAmount =
-          AmountConverter.fromBaseUnits(dstAmountMinimal, dstDecimals);
+      receiveAmount = AmountConverter.fromBaseUnits(dstAmountMinimal, dstDecimals);
     }
 
     final srcAmountMinimal = _stripN(srcAmountRaw);
@@ -537,8 +510,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     final timestamp = srcTs ?? dstTs;
 
     final createdAt = timestamp != null
-        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true)
-            .toLocal()
+        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true).toLocal()
         : null;
 
     return Trade(
@@ -581,8 +553,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     if (_supportedChainList.isNotEmpty) return _supportedChainList;
     try {
       final uri = Uri.https(_baseUrl, _getChainList);
-      final response =
-          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       if (response.statusCode != 200) return [];
 
       final data = json.decode(response.body) as List<dynamic>;
@@ -677,8 +648,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       // Case 1: String "all" -> cache empty list to indicate all tokens supported
       if (tokensField is String) {
         if (tokensField.toLowerCase() == 'all') {
-          _tokensCache[pathChainId] =
-              _tokensCache[pathChainId] ?? <TokenPathInfo>[];
+          _tokensCache[pathChainId] = _tokensCache[pathChainId] ?? <TokenPathInfo>[];
         }
         continue;
       }
@@ -705,9 +675,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 // Merge by symbol, prefer entries that have a non-empty address/decimals
   void _mergeCache(int chainId, List<TokenPathInfo> incoming) {
     final existing = _tokensCache[chainId] ?? const <TokenPathInfo>[];
-    final bySymbol = <String, TokenPathInfo>{
-      for (final t in existing) t.symbol: t
-    };
+    final bySymbol = <String, TokenPathInfo>{for (final t in existing) t.symbol: t};
 
     for (final t in incoming) {
       final cur = bySymbol[t.symbol];
@@ -758,8 +726,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     return symbol;
   }
 
-  Map<String, dynamic>? findTokenBySymbol(
-      {required String title, required List<dynamic> tokens}) {
+  Map<String, dynamic>? findTokenBySymbol({required String title, required List<dynamic> tokens}) {
     final reqSymbol = title.toUpperCase();
     for (final token in tokens) {
       final map = token as Map<String, dynamic>;

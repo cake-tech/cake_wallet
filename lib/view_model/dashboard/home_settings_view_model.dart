@@ -34,10 +34,9 @@ abstract class HomeSettingsViewModelBase with Store {
         showCombinedBalance = _balanceViewModel.wallet.walletInfo.showCombinedBalance,
         favoriteToken = _balanceViewModel.wallet.currency {
     _updateTokensList();
-  _updateLocalFavoriteToken();
+    _updateLocalFavoriteToken();
 
-
-  // React to wallet changes
+    // React to wallet changes
     reaction((_) => _balanceViewModel.wallet, (_) {
       _updateTokensList();
     });
@@ -61,7 +60,8 @@ abstract class HomeSettingsViewModelBase with Store {
   final ObservableSet<CryptoCurrency> tokens;
 
   @computed
-  List<CryptoCurrency> get enabledTokens => [_balanceViewModel.wallet.currency, ...tokens.where((item)=>item.enabled).toList()];
+  List<CryptoCurrency> get enabledTokens =>
+      [_balanceViewModel.wallet.currency, ...tokens.where((item) => item.enabled).toList()];
 
   WalletType get walletType => _balanceViewModel.wallet.type;
 
@@ -415,11 +415,10 @@ abstract class HomeSettingsViewModelBase with Store {
   void _updateFiatPrices(CryptoCurrency token) async {
     if (token.isPotentialScam) return; // don't fetch price data for potential scam tokens
     try {
-      _balanceViewModel.fiatConversionStore.prices[token] =
-          await FiatConversionService.fetchPrice(
-              crypto: token,
-              fiat: _settingsStore.fiatCurrency,
-              torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly);
+      _balanceViewModel.fiatConversionStore.prices[token] = await FiatConversionService.fetchPrice(
+          crypto: token,
+          fiat: _settingsStore.fiatCurrency,
+          torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly);
     } catch (_) {}
   }
 
@@ -501,7 +500,6 @@ abstract class HomeSettingsViewModelBase with Store {
     }
   }
 
-
   // FIXME these two observables cause duplicated state and are needed because mobx. remove them as part of the refactor and replace with proper getters
   @observable
   bool showCombinedBalance;
@@ -521,7 +519,7 @@ abstract class HomeSettingsViewModelBase with Store {
   Future<void> setFavoriteToken(CryptoCurrency token) async {
     final String? address;
 
-    if(token == _balanceViewModel.wallet.currency) {
+    if (token == _balanceViewModel.wallet.currency) {
       address = null;
     } else {
       address = getTokenAddressBasedOnWallet(token);
@@ -535,10 +533,10 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   Future<void> _updateLocalFavoriteToken() async {
     favoriteToken = await TokenUtilities.findTokenByAddress(
-        walletType: _balanceViewModel.wallet.type, address: _balanceViewModel.wallet.walletInfo.favoriteTokenAddress ?? "") ??
+            walletType: _balanceViewModel.wallet.type,
+            address: _balanceViewModel.wallet.walletInfo.favoriteTokenAddress ?? "") ??
         _balanceViewModel.wallet.currency;
   }
-
 
   @action
   void _refreshTokensList() {

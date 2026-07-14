@@ -26,8 +26,7 @@ class HeaderRow extends StatelessWidget {
           Text(
             S.of(context).history,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface),
+                fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
           ),
           Row(
             children: [
@@ -61,8 +60,7 @@ class HeaderRow extends StatelessWidget {
                 container: true,
                 child: GestureDetector(
                   key: ValueKey('transactions_page_header_row_transaction_filter_button_key'),
-                  onTap: () {
-                  },
+                  onTap: () {},
                   child: Semantics(
                     label: 'Transaction Filter',
                     button: true,

@@ -8,7 +8,7 @@ class SideMenu extends StatelessWidget {
     required this.bottomItems,
     required this.width,
   });
-  
+
   final List<SideMenuItem> topItems;
   final List<SideMenuItem> bottomItems;
   final double width;

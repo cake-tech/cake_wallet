@@ -138,7 +138,8 @@ class PreferencesKey {
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
-  static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
+  static String backgroundSyncLastTrigger(String walletId) =>
+      'background_sync_last_trigger_${walletId}';
   static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
   static const syncStatusDisplayMode = 'sync_status_display_mode';
