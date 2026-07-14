@@ -30,7 +30,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   @override
   void initState() {
     super.initState();
-    if(widget.walletAddressListViewModel.selectedCurrency is FiatCurrency) {
+    if (widget.walletAddressListViewModel.selectedCurrency is FiatCurrency) {
       _amountController.text = widget.walletAddressListViewModel.fiatAmount;
     } else {
       _amountController.text = widget.walletAddressListViewModel.displayAmount;
@@ -103,7 +103,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                     ),
                                     RotatedBox(
                                         quarterTurns: 2,
-                                        child: CakeImageWidget(imageUrl:"assets/new-ui/dropdown_arrow.svg"))
+                                        child: CakeImageWidget(
+                                            imageUrl: "assets/new-ui/dropdown_arrow.svg"))
                                   ],
                                 ),
                               ),
@@ -137,7 +138,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                               controller: _amountController,
                               keyboardType: TextInputType.numberWithOptions(
                                 signed: false,
-                                decimal: widget.walletAddressListViewModel.selectedCurrencyDecimals > 0,
+                                decimal:
+                                    widget.walletAddressListViewModel.selectedCurrencyDecimals > 0,
                               ),
                               inputFormatters: [
                                 DecimalInputFormatter(
@@ -159,7 +161,6 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 border: InputBorder.none,
                                 filled: true,
                                 fillColor: Colors.transparent,
-
                               ),
                               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                             ),
@@ -209,7 +210,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                     NewPrimaryButton(
                       text: S.of(context).continue_text,
                       onPressed: () {
-                        if(double.tryParse(_amountController.text) != null) {
+                        if (double.tryParse(_amountController.text) != null) {
                           widget.walletAddressListViewModel.changeAmount(_amountController.text);
                         }
                         Navigator.of(context).pop();
@@ -228,9 +229,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   }
 
   void _presentTokenCurrencyPicker(BuildContext context) {
-    final items = widget.walletAddressListViewModel.tokenCurrencies
-        .whereType<CryptoCurrency>()
-        .toList();
+    final items =
+        widget.walletAddressListViewModel.tokenCurrencies.whereType<CryptoCurrency>().toList();
     CurrencyPickerSheet.show(
       context: context,
       args: CurrencyPickerArgs(

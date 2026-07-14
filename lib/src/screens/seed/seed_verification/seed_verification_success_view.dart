@@ -21,12 +21,12 @@ class SeedVerificationSuccessView extends StatelessWidget {
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-              child: CakeImageWidget(
-                height: 128,
-                imageUrl: currentTheme.isDark
-                    ? 'assets/images/seed_verified_dark.png'
-                    : 'assets/images/seed_verified_light.png',
-              ),
+            child: CakeImageWidget(
+              height: 128,
+              imageUrl: currentTheme.isDark
+                  ? 'assets/images/seed_verified_dark.png'
+                  : 'assets/images/seed_verified_light.png',
+            ),
           ),
           SizedBox(height: 40),
           Text(
@@ -72,7 +72,9 @@ class SeedVerificationSuccessView extends StatelessWidget {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               }
             },
-            text: (walletType == WalletType.bitcoin) ? S.current.continue_text : S.current.open_wallet,
+            text: (walletType == WalletType.bitcoin)
+                ? S.current.continue_text
+                : S.current.open_wallet,
             color: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.onPrimary,
           ),

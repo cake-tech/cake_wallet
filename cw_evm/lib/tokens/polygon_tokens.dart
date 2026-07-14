@@ -75,8 +75,7 @@ class PolygonTokens {
       if (token.iconPath?.isEmpty ?? true) {
         try {
           iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.toUpperCase())
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
               .iconPath;
         } catch (_) {}
       } else {
@@ -87,4 +86,3 @@ class PolygonTokens {
     }).toList();
   }
 }
-

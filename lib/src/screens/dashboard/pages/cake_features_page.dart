@@ -27,27 +27,27 @@ class CakeFeaturesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradientBackground(
       scaffold: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                        child: IntrinsicHeight(
-                          child: !FeatureFlag.hasNewUi ? _buildOldUi(context) : _buildNewUi(context),
-                        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      child: IntrinsicHeight(
+                        child: !FeatureFlag.hasNewUi ? _buildOldUi(context) : _buildNewUi(context),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 
@@ -58,9 +58,9 @@ class CakeFeaturesPage extends StatelessWidget {
         child: Text(
           S.of(context).apps,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
         ),
       );
     }
@@ -72,10 +72,10 @@ class CakeFeaturesPage extends StatelessWidget {
         child: Text(
           S.of(context).apps,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: 18.0,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+                fontSize: 18.0,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
         ),
       ),
     );
@@ -101,7 +101,8 @@ class CakeFeaturesPage extends StatelessWidget {
               onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
               title: S.of(context).deuro_savings,
               subTitle: S.of(context).deuro_savings_subtitle,
-              image: Image.asset('assets/images/deuro_icon.png', height: 80, width: 80, fit: BoxFit.cover),
+              image: Image.asset('assets/images/deuro_icon.png',
+                  height: 80, width: 80, fit: BoxFit.cover),
             );
           }
           return const SizedBox();
@@ -128,7 +129,10 @@ class CakeFeaturesPage extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.only(left: 24, bottom: 8),
-            child: CakeImageWidget(imageUrl: "assets/new-ui/by-cakelabs.svg", height: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            child: CakeImageWidget(
+                imageUrl: "assets/new-ui/by-cakelabs.svg",
+                height: 20,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
         AppsWidget(
@@ -163,9 +167,9 @@ class CakeFeaturesPage extends StatelessWidget {
           child: Text(
             "Featured Apps",
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
           ),
         ),
         AppsWidget(

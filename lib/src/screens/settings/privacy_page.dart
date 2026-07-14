@@ -38,44 +38,43 @@ class PrivacyPage extends BasePage {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                NewListSections(
-                  sections: {
-                    "1": [
-                      if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
-                        ListItemToggle(
-                            keyValue: "auto_generate_subaddresses",
-                            label: _privacySettingsViewModel.isMoneroWallet
-                                ? S.of(context).auto_generate_subaddresses
-                                : S.of(context).auto_generate_addresses,
-                            value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
-                            onChanged: (val) {
-                              _privacySettingsViewModel.setAutoGenerateSubaddresses(val);
-                            }),
+                NewListSections(sections: {
+                  "1": [
+                    if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
                       ListItemToggle(
-                          keyValue: "save_recipient_address",
-                          label: S.of(context).settings_save_recipient_address,
-                          value: _privacySettingsViewModel.shouldSaveRecipientAddress,
+                          keyValue: "auto_generate_subaddresses",
+                          label: _privacySettingsViewModel.isMoneroWallet
+                              ? S.of(context).auto_generate_subaddresses
+                              : S.of(context).auto_generate_addresses,
+                          value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                           onChanged: (val) {
-                            _privacySettingsViewModel.setShouldSaveRecipientAddress(val);
+                            _privacySettingsViewModel.setAutoGenerateSubaddresses(val);
                           }),
-                      if (_privacySettingsViewModel.canUsePayjoin)
-                        ListItemToggle(
-                            keyValue: "use_payjoin",
-                            label: S.of(context).use_payjoin,
-                            value: _privacySettingsViewModel.usePayjoin,
-                            onChanged: (val) {
-                              _privacySettingsViewModel.setUsePayjoin(val);
-                            }),
-                      if (_privacySettingsViewModel.canUseLightning)
-                        ListItemToggle(
-                            keyValue: "enable_lightning",
-                            label: S.of(context).enable_lightning,
-                            value: _privacySettingsViewModel.useLightning,
-                            onChanged: (val) {
-                              _privacySettingsViewModel.setUseLightning(val);
-                            }),
-                    ],
-                    "": [
+                    ListItemToggle(
+                        keyValue: "save_recipient_address",
+                        label: S.of(context).settings_save_recipient_address,
+                        value: _privacySettingsViewModel.shouldSaveRecipientAddress,
+                        onChanged: (val) {
+                          _privacySettingsViewModel.setShouldSaveRecipientAddress(val);
+                        }),
+                    if (_privacySettingsViewModel.canUsePayjoin)
+                      ListItemToggle(
+                          keyValue: "use_payjoin",
+                          label: S.of(context).use_payjoin,
+                          value: _privacySettingsViewModel.usePayjoin,
+                          onChanged: (val) {
+                            _privacySettingsViewModel.setUsePayjoin(val);
+                          }),
+                    if (_privacySettingsViewModel.canUseLightning)
+                      ListItemToggle(
+                          keyValue: "enable_lightning",
+                          label: S.of(context).enable_lightning,
+                          value: _privacySettingsViewModel.useLightning,
+                          onChanged: (val) {
+                            _privacySettingsViewModel.setUseLightning(val);
+                          }),
+                  ],
+                  "": [
                     if (_privacySettingsViewModel.isBitcoin)
                       ListItemRegularRow(
                           iconPath: "assets/new-ui/settings_row_icons/silent-payments.svg",
@@ -83,23 +82,22 @@ class PrivacyPage extends BasePage {
                           label: S.of(context).silent_payments,
                           onTap: () =>
                               Navigator.of(context).pushNamed(Routes.silentPaymentsSettings)),
-                      if (_privacySettingsViewModel.hasMWEB)
-                        ListItemRegularRow(
-                            iconPath: "assets/new-ui/settings_row_icons/mweb.svg",
-                            keyValue: "mweb",
-                            label: "MWEB",
-                            onTap: () =>
-                                Navigator.of(context).pushNamed(Routes.mwebSettings)),
-                      if (_privacySettingsViewModel.hasCoinControl)
+                    if (_privacySettingsViewModel.hasMWEB)
+                      ListItemRegularRow(
+                          iconPath: "assets/new-ui/settings_row_icons/mweb.svg",
+                          keyValue: "mweb",
+                          label: "MWEB",
+                          onTap: () => Navigator.of(context).pushNamed(Routes.mwebSettings)),
+                    if (_privacySettingsViewModel.hasCoinControl)
                       ListItemRegularRow(
                           iconPath: "assets/new-ui/settings_row_icons/coin-control.svg",
                           keyValue: "coin_control",
                           label: "Coin Control",
-                          onTap: () =>
-                              Navigator.of(context).pushNamed(Routes.unspentCoinsList, arguments: CoinControlPageArgs(canEdit: false, coinTypeToSpendFrom: null))),
+                          onTap: () => Navigator.of(context).pushNamed(Routes.unspentCoinsList,
+                              arguments:
+                                  CoinControlPageArgs(canEdit: false, coinTypeToSpendFrom: null))),
                   ],
-                }
-                ),
+                }),
               ],
             );
           }),

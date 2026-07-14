@@ -288,7 +288,8 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
             SwapConfirmationTextfield(
               key: ValueKey('swap_confirmation_bottomsheet_address_textfield_key'),
               isAddress: true,
-              walletType: cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.receiveCurrency),
+              walletType:
+                  cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.receiveCurrency),
               hintText: 'Destination Address',
               focusNode: _addressFocus,
               controller: _addressController,

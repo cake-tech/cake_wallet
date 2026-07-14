@@ -14,8 +14,7 @@ class GetWalletStatusResult {
       required this.progress,
       required this.walletState});
 
-  factory GetWalletStatusResult.fromJson(Map<String, dynamic> json) =>
-      GetWalletStatusResult(
+  factory GetWalletStatusResult.fromJson(Map<String, dynamic> json) => GetWalletStatusResult(
         currentDaemonHeight: json['current_daemon_height'] as int? ?? 0,
         currentWalletHeight: json['current_wallet_height'] as int? ?? 0,
         isDaemonConnected: json['is_daemon_connected'] as bool? ?? false,

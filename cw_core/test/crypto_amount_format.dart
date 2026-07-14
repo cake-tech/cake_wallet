@@ -35,7 +35,7 @@ void main() {
   group('String.withLocalSeperator', () {
     group('Locale en_US', () {
       const locale = 'en_US';
-      
+
       test('should not have a grouping separator', () {
         final input = '123.45';
         final result = input.withLocalSeperator(locale);
@@ -57,10 +57,10 @@ void main() {
         expect(result, equals('1,000,000.4567'));
       });
     });
-    
+
     group('Locale de_DE', () {
       const locale = 'de_DE';
-      
+
       test('should not have a grouping separator', () {
         final input = '123.45';
         final result = input.withLocalSeperator(locale);

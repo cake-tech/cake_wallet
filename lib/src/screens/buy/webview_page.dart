@@ -78,9 +78,8 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
 
         return PermissionResponse(
           resources: request.resources,
-          action: permissionGranted
-              ? PermissionResponseAction.GRANT
-              : PermissionResponseAction.DENY,
+          action:
+              permissionGranted ? PermissionResponseAction.GRANT : PermissionResponseAction.DENY,
         );
       },
     );

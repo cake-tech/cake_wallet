@@ -30,13 +30,13 @@ abstract class BackupViewModelBase with Store {
     init();
 
     reaction((_) => editBackupPasswordViewModel.backupPassword, (value) {
-      if(value != backupPassword) {
+      if (value != backupPassword) {
         backupPassword = value;
       }
     });
 
-    reaction((_)=>backupPassword, (value){
-      if(value != editBackupPasswordViewModel.backupPassword) {
+    reaction((_) => backupPassword, (value) {
+      if (value != editBackupPasswordViewModel.backupPassword) {
         editBackupPasswordViewModel.backupPassword = value;
       }
     });

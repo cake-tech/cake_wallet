@@ -63,8 +63,7 @@ class PendingMoneroTransaction with PendingTransaction {
     } else {
       try {
         await monero_transaction_history.commitTransactionFromPointerAddress(
-            address: pendingTransactionDescription.pointerAddress,
-            useUR: false);
+            address: pendingTransactionDescription.pointerAddress, useUR: false);
       } catch (e) {
         final message = e.toString();
 
@@ -86,8 +85,7 @@ class PendingMoneroTransaction with PendingTransaction {
   Future<Map<String, String>> commitUR() async {
     try {
       final ret = await monero_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress,
-          useUR: true);
+          address: pendingTransactionDescription.pointerAddress, useUR: true);
       storeSync(force: true);
       unawaited(() async {
         await Future.delayed(const Duration(milliseconds: 250));
