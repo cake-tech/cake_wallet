@@ -158,7 +158,8 @@ class CWTron extends Tron {
     String? from,
     required bool isPending,
   }) =>
-      TronTransactionInfo(id: id,
+      TronTransactionInfo(
+          id: id,
           amount: amount,
           fee: fee,
           direction: direction,

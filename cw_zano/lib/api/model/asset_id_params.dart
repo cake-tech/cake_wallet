@@ -4,6 +4,6 @@ class AssetIdParams {
   AssetIdParams({required this.assetId});
 
   Map<String, dynamic> toJson() => {
-    'asset_id': assetId,
-  };
+        'asset_id': assetId,
+      };
 }

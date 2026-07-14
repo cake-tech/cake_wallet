@@ -70,8 +70,7 @@ abstract class WalletListViewModelBase with Store {
   WalletType get currentWalletType => _appStore.wallet!.type;
 
   Future<bool> requireHardwareWalletConnection(WalletListItem walletItem) async =>
-      _walletLoadingService.requireHardwareWalletConnection(
-          walletItem.type, walletItem.name);
+      _walletLoadingService.requireHardwareWalletConnection(walletItem.type, walletItem.name);
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
@@ -89,8 +88,8 @@ abstract class WalletListViewModelBase with Store {
 
   bool get ascending => _appStore.settingsStore.walletListAscending;
 
-  /// Serializes updateList() calls: each caller waits for the previous one to finish, then runs. 
-  /// 
+  /// Serializes updateList() calls: each caller waits for the previous one to finish, then runs.
+  ///
   /// This basically ensures that all calls to updateList() are executed.
   Future<void> _lastUpdate = Future.value();
 

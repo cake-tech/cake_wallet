@@ -75,14 +75,16 @@ class DevNetworkRequests extends BasePage {
                   RequestMethod.delete => Text("DELETE"),
                   RequestMethod.newHttpClient ||
                   RequestMethod.newHttpIOClient ||
-                  RequestMethod.newProxySocket => null,
+                  RequestMethod.newProxySocket =>
+                    null,
                 },
                 title: Text(item.time.toIso8601String()),
                 subtitle: switch (item.method) {
                   RequestMethod.get ||
                   RequestMethod.post ||
                   RequestMethod.put ||
-                  RequestMethod.delete => Text("${item.uri}"),
+                  RequestMethod.delete =>
+                    Text("${item.uri}"),
                   RequestMethod.newHttpClient => Text("newHttpClient"),
                   RequestMethod.newHttpIOClient => Text("newHttpIOClient"),
                   RequestMethod.newProxySocket => Text("newProxySocket"),
@@ -115,35 +117,26 @@ class DevRequestDetails extends BasePage {
       children: [
         _sectionTitle("Time"),
         SelectableText(req.time.toString()),
-
         _sectionTitle("Method"),
         SelectableText(req.method.toString()),
-
         _sectionTitle("URI"),
         SelectableText(req.uri?.toString() ?? "null"),
-
         _sectionTitle("Network"),
         SelectableText(req.network.toString()),
-
-        if (req.network == RequestNetwork.tor)
-          ...[
-            _sectionTitle("Tor socks server"),
-            SelectableText(CakeTor.instance.runtimeType.toString()),
-            _sectionTitle("Tor socks details"),
-            SelectableText(CakeTor.instance.toString()),
-          ],
-
+        if (req.network == RequestNetwork.tor) ...[
+          _sectionTitle("Tor socks server"),
+          SelectableText(CakeTor.instance.runtimeType.toString()),
+          _sectionTitle("Tor socks details"),
+          SelectableText(CakeTor.instance.toString()),
+        ],
         _sectionTitle("Body (as UTF-8)"),
         SelectableText(_tryDecodeBody(req.body)),
         _buildJsonExplorer(context, _tryDecodeBody(req.body)),
-
         _sectionTitle("Response"),
         SelectableText(req.response?.body ?? "null"),
         _buildJsonExplorer(context, req.response?.body ?? "{}"),
-
         _sectionTitle("Error"),
         SelectableText(req.error ?? "No error"),
-
         _sectionTitle("Stack Trace"),
         SelectableText(req.trace.toString()),
       ],
@@ -152,22 +145,21 @@ class DevRequestDetails extends BasePage {
 
   Widget _buildJsonExplorer(BuildContext context, String body) {
     try {
-    final jsonData = json.decode(body);
-    return PrimaryButton(
-      text: "View JSON",
-      color: Colors.blue,
-      textColor: Colors.white,
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return JsonExplorerPage(data: jsonData, title: "body");
-            },
-          ),
-        );
-      },
-    );
-
+      final jsonData = json.decode(body);
+      return PrimaryButton(
+        text: "View JSON",
+        color: Colors.blue,
+        textColor: Colors.white,
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return JsonExplorerPage(data: jsonData, title: "body");
+              },
+            ),
+          );
+        },
+      );
     } catch (e) {
       return SelectableText("Invalid JSON: $e");
     }

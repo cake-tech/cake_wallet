@@ -258,11 +258,13 @@ class _NewSendPageState extends State<NewSendPage> {
           if (mounted) {
             final paymentRequest = widget.initialPaymentRequest!;
             final prefix = paymentRequest.scheme.isNotEmpty ? "${paymentRequest.scheme}:" : "";
-            final chainSuffix =
-                (paymentRequest.scheme == 'ethereum' && paymentRequest.chainId != null && paymentRequest.chainId != 1)
-                    ? "@${paymentRequest.chainId}"
-                    : "";
-            final amount = paymentRequest.amount.isNotEmpty ? "?amount=${paymentRequest.amount}" : "";
+            final chainSuffix = (paymentRequest.scheme == 'ethereum' &&
+                    paymentRequest.chainId != null &&
+                    paymentRequest.chainId != 1)
+                ? "@${paymentRequest.chainId}"
+                : "";
+            final amount =
+                paymentRequest.amount.isNotEmpty ? "?amount=${paymentRequest.amount}" : "";
             final uri = prefix + paymentRequest.address + chainSuffix + amount;
             _handlePaymentFlow(uri, paymentRequest);
           }

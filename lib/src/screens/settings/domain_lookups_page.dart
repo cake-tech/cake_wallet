@@ -25,11 +25,13 @@ class DomainLookupsPage extends BasePage {
                 .map(
                   (source) => SettingsSwitcherCell(
                     title: source.label,
-                    leading: source.iconPath.isNotEmpty ? CakeImageWidget(
-                      imageUrl: source.iconPath,
-                      width: 24,
-                      height: 24,
-                    ) : SizedBox(width: 24, height: 24),
+                    leading: source.iconPath.isNotEmpty
+                        ? CakeImageWidget(
+                            imageUrl: source.iconPath,
+                            width: 24,
+                            height: 24,
+                          )
+                        : SizedBox(width: 24, height: 24),
                     value: _connectionsSyncViewModel.lookupValue(source),
                     onValueChange: (_, bool value) =>
                         _connectionsSyncViewModel.setLookupValue(source, value),

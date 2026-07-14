@@ -15,13 +15,13 @@ class SavingsGateway extends _i1.GeneratedContract {
     required _i1.Web3Client client,
     int? chainId,
   }) : super(
-    _i1.DeployedContract(
-      _contractAbi,
-      address,
-    ),
-    client,
-    chainId,
-  );
+          _i1.DeployedContract(
+            _contractAbi,
+            address,
+          ),
+          client,
+          chainId,
+        );
 
   /// The optional [atBlock] parameter can be used to view historical data. When
   /// set, the function will be evaluated in the specified block. By default, the
@@ -42,9 +42,9 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> accruedInterest({
-        required _i1.EthereumAddress accountOwner,
-        _i1.BlockNum? atBlock,
-      }) async {
+    required _i1.EthereumAddress accountOwner,
+    _i1.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[2];
     assert(checkSignature(function, '77267ec3'));
     final params = [accountOwner];
@@ -60,9 +60,9 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> accruedInterest$2(
-      ({_i1.EthereumAddress accountOwner, BigInt timestamp}) args, {
-        _i1.BlockNum? atBlock,
-      }) async {
+    ({_i1.EthereumAddress accountOwner, BigInt timestamp}) args, {
+    _i1.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[3];
     assert(checkSignature(function, 'a696399d'));
     final params = [
@@ -81,10 +81,10 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<String> adjust(
-      ({BigInt targetAmount, _i2.Uint8List frontendCode}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
+    ({BigInt targetAmount, _i2.Uint8List frontendCode}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[4];
     assert(checkSignature(function, '753ef93c'));
     final params = [
@@ -103,9 +103,9 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> calculateInterest(
-      ({dynamic account, BigInt ticks}) args, {
-        _i1.BlockNum? atBlock,
-      }) async {
+    ({dynamic account, BigInt ticks}) args, {
+    _i1.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[7];
     assert(checkSignature(function, '7915ce20'));
     final params = [
@@ -214,10 +214,10 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<_i2.Uint8List> refreshBalance(
-      ({_i1.EthereumAddress owner}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
+    ({_i1.EthereumAddress owner}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[15];
     assert(checkSignature(function, 'b77cd1c7'));
     final params = [args.owner];
@@ -251,10 +251,10 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<_i2.Uint8List> save(
-      ({BigInt amount, _i2.Uint8List frontendCode}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
+    ({BigInt amount, _i2.Uint8List frontendCode}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[17];
     assert(checkSignature(function, '9e2363dc'));
     final params = [
@@ -273,14 +273,10 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<_i2.Uint8List> saveTo(
-      ({
-      _i1.EthereumAddress owner,
-      BigInt amount,
-      _i2.Uint8List frontendCode
-      }) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
+    ({_i1.EthereumAddress owner, BigInt amount, _i2.Uint8List frontendCode}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[19];
     assert(checkSignature(function, 'cbcf9676'));
     final params = [
@@ -300,9 +296,9 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<Savings> savings({
-        required _i1.EthereumAddress accountOwner,
-        _i1.BlockNum? atBlock,
-      }) async {
+    required _i1.EthereumAddress accountOwner,
+    _i1.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[21];
     assert(checkSignature(function, '1f7cdd5f'));
     final params = [accountOwner];
@@ -318,11 +314,7 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<_i2.Uint8List> withdraw(
-    ({
-      _i1.EthereumAddress target,
-      BigInt amount,
-      _i2.Uint8List frontendCode
-    }) args, {
+    ({_i1.EthereumAddress target, BigInt amount, _i2.Uint8List frontendCode}) args, {
     required _i1.Credentials credentials,
     _i1.Transaction? transaction,
   }) async {
@@ -474,9 +466,9 @@ class Savings {
 
 class InterestCollected {
   InterestCollected(
-      List<dynamic> response,
-      this.event,
-      )   : account = (response[0] as _i1.EthereumAddress),
+    List<dynamic> response,
+    this.event,
+  )   : account = (response[0] as _i1.EthereumAddress),
         interest = (response[1] as BigInt);
 
   final _i1.EthereumAddress account;
@@ -488,9 +480,9 @@ class InterestCollected {
 
 class RateChanged {
   RateChanged(
-      List<dynamic> response,
-      this.event,
-      ) : newRate = (response[0] as BigInt);
+    List<dynamic> response,
+    this.event,
+  ) : newRate = (response[0] as BigInt);
 
   final BigInt newRate;
 
@@ -499,9 +491,9 @@ class RateChanged {
 
 class RateProposed {
   RateProposed(
-      List<dynamic> response,
-      this.event,
-      )   : who = (response[0] as _i1.EthereumAddress),
+    List<dynamic> response,
+    this.event,
+  )   : who = (response[0] as _i1.EthereumAddress),
         nextRate = (response[1] as BigInt),
         nextChange = (response[2] as BigInt);
 
@@ -516,9 +508,9 @@ class RateProposed {
 
 class Saved {
   Saved(
-      List<dynamic> response,
-      this.event,
-      )   : account = (response[0] as _i1.EthereumAddress),
+    List<dynamic> response,
+    this.event,
+  )   : account = (response[0] as _i1.EthereumAddress),
         amount = (response[1] as BigInt);
 
   final _i1.EthereumAddress account;
@@ -530,9 +522,9 @@ class Saved {
 
 class Withdrawn {
   Withdrawn(
-      List<dynamic> response,
-      this.event,
-      )   : account = (response[0] as _i1.EthereumAddress),
+    List<dynamic> response,
+    this.event,
+  )   : account = (response[0] as _i1.EthereumAddress),
         amount = (response[1] as BigInt);
 
   final _i1.EthereumAddress account;

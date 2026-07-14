@@ -8,8 +8,7 @@ part 'send_template_store.g.dart';
 class SendTemplateStore = SendTemplateBase with _$SendTemplateStore;
 
 abstract class SendTemplateBase with Store {
-  SendTemplateBase({required this.templateSource})
-  : templates = ObservableList<Template>() {
+  SendTemplateBase({required this.templateSource}) : templates = ObservableList<Template>() {
     update();
   }
 
@@ -19,8 +18,7 @@ abstract class SendTemplateBase with Store {
   Box<Template> templateSource;
 
   @action
-  void update() =>
-      templates.replaceRange(0, templates.length, templateSource.values.toList());
+  void update() => templates.replaceRange(0, templates.length, templateSource.values.toList());
 
   @action
   Future<void> addTemplate(

@@ -103,8 +103,10 @@ class TransactionDetailsPage extends BasePage {
                 child: SelectButton(
                   text: S.of(context).bump_fee,
                   onTap: () async {
-                    Navigator.of(context).pushNamed(Routes.bumpFeePage,
-                        arguments: [transactionDetailsViewModel.transactionInfo, transactionDetailsViewModel.rawTransaction]);
+                    Navigator.of(context).pushNamed(Routes.bumpFeePage, arguments: [
+                      transactionDetailsViewModel.transactionInfo,
+                      transactionDetailsViewModel.rawTransaction
+                    ]);
                   },
                 ),
               );
@@ -123,25 +125,17 @@ class TransactionDetailsPage extends BasePage {
     required WalletType walletType,
   }) {
     final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      color: Theme.of(context).colorScheme.onSurface,
-    );
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Theme.of(context).colorScheme.onSurface,
+        );
     final List<Widget> children = [];
     final bool hasDoubleNewline = value.contains('\n\n');
 
     if (hasDoubleNewline) {
-      final blocks = value
-          .split('\n\n')
-          .map((b) => b.trim())
-          .where((b) => b.isNotEmpty)
-          .toList();
+      final blocks = value.split('\n\n').map((b) => b.trim()).where((b) => b.isNotEmpty).toList();
       for (final block in blocks) {
-        final lines = block
-            .split('\n')
-            .map((l) => l.trim())
-            .where((l) => l.isNotEmpty)
-            .toList();
+        final lines = block.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
         if (lines.length > 1) {
           children.add(Text(lines.first, style: textStyle));
           for (int i = 1; i < lines.length; i++) {
@@ -165,11 +159,7 @@ class TransactionDetailsPage extends BasePage {
         children.add(SizedBox(height: 8));
       }
     } else {
-      final lines = value
-          .split('\n')
-          .map((l) => l.trim())
-          .where((l) => l.isNotEmpty)
-          .toList();
+      final lines = value.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
       bool firstLineIsContactName = (lines.length > 1 && lines.first.length < 20);
       int startIndex = 0;
       if (firstLineIsContactName) {
