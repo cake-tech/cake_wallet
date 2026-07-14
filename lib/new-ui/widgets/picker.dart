@@ -67,7 +67,7 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_)=>Container(
+      builder: (_) => Container(
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
@@ -86,11 +86,18 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.description != null && widget.description!.isNotEmpty)
-                      Text(widget.description!,textAlign: TextAlign.center,style: TextStyle(fontSize:14,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.onSurfaceVariant),),
-                    SizedBox(height:16),
+                      Text(
+                        widget.description!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                    SizedBox(height: 16),
                     ...widget.items.map((item) {
                       final isSelected = widget.items.indexOf(item) == widget.selectedIndex;
-                      return Column( children: [
+                      return Column(children: [
                         if (item.isSliderItem)
                           PickerSliderButton(
                             key: ValueKey(isSelected),
@@ -99,22 +106,23 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
                             onSelected: (item) {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => Material(
-                                    child: PickerSliderPage(
-                                        title: widget.sliderPageTitle,
-                                        sliderInitialValue: sliderCurrentValue!,
-                                        valueDescription: widget.sliderValueDescription ?? "",
-                                        sliderMaxValue: widget.sliderMaxValue!,
-                                        onSubmitted: (value) {
-                                          setState(() {
-                                            sliderCurrentValue = value;
-                                          });
-                                          widget.onSliderChanged?.call(value);
-                                          widget.onItemSelected(item);
-                                        }),
-                                  )));
+                                        child: PickerSliderPage(
+                                            title: widget.sliderPageTitle,
+                                            sliderInitialValue: sliderCurrentValue!,
+                                            valueDescription: widget.sliderValueDescription ?? "",
+                                            sliderMaxValue: widget.sliderMaxValue!,
+                                            onSubmitted: (value) {
+                                              setState(() {
+                                                sliderCurrentValue = value;
+                                              });
+                                              widget.onSliderChanged?.call(value);
+                                              widget.onItemSelected(item);
+                                            }),
+                                      )));
                             },
                             isFirst: widget.items.indexOf(item) == 0,
-                            customSubtitle: "${sliderCurrentValue?.toInt()} ${widget.sliderValueDescription}",
+                            customSubtitle:
+                                "${sliderCurrentValue?.toInt()} ${widget.sliderValueDescription}",
                             isLast: widget.items.indexOf(item) == widget.items.length - 1,
                           )
                         else
@@ -169,7 +177,8 @@ class PickerSliderButton<Item> extends StatelessWidget {
       required this.isSelected,
       required this.onSelected,
       required this.isFirst,
-      required this.isLast, this.customSubtitle});
+      required this.isLast,
+      this.customSubtitle});
 
   final PickerItem<Item> item;
   final bool isSelected;
@@ -186,7 +195,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
       },
       child: Container(
         height: 64,
-        width: MediaQuery.of(context).size.height*0.9,
+        width: MediaQuery.of(context).size.height * 0.9,
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.vertical(
@@ -217,24 +226,29 @@ class PickerSliderButton<Item> extends StatelessWidget {
                                 fontSize: 14,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w400)),
-                      if(isSelected)  CakeImageWidget(imageUrl:
-                        "assets/new-ui/arrow_right.svg",
-                        colorFilter:
-                        ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),)
+                      if (isSelected)
+                        CakeImageWidget(
+                          imageUrl: "assets/new-ui/arrow_right.svg",
+                          colorFilter: ColorFilter.mode(
+                              Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                        )
                     ],
                   ),
-                  if (customSubtitle != null || item.subtitle != null)  Text(customSubtitle ?? item.subtitle!,style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w400))
+                  if (customSubtitle != null || item.subtitle != null)
+                    Text(customSubtitle ?? item.subtitle!,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w400))
                 ],
               ),
-              isSelected? NewSimpleCheckbox(value: true, onChanged: (val){}):
-              CakeImageWidget(imageUrl:
-                "assets/new-ui/arrow_right.svg",
-                colorFilter:
-                    ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-              )
+              isSelected
+                  ? NewSimpleCheckbox(value: true, onChanged: (val) {})
+                  : CakeImageWidget(
+                      imageUrl: "assets/new-ui/arrow_right.svg",
+                      colorFilter:
+                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                    )
             ],
           ),
         ),
@@ -266,7 +280,7 @@ class PickerRow<Item> extends StatelessWidget {
       },
       child: Container(
         height: 64,
-        width: MediaQuery.of(context).size.height*0.9,
+        width: MediaQuery.of(context).size.height * 0.9,
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.vertical(
@@ -299,19 +313,30 @@ class PickerRow<Item> extends StatelessWidget {
                                 fontWeight: FontWeight.w400))
                     ],
                   ),
-                  item.subtitle != null ? Text(item.subtitle!,style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w400)) : SizedBox.shrink()
+                  item.subtitle != null
+                      ? Text(item.subtitle!,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w400))
+                      : SizedBox.shrink()
                 ],
               ),
               AnimatedSwitcher(
-                duration: Duration(milliseconds: 100),
-
+                  duration: Duration(milliseconds: 100),
                   child: isSelected
-                      ? NewSimpleCheckbox(key: ValueKey(1), value: true, onChanged: (val){onSelected(item.value);})
-                      : NewSimpleCheckbox(key: ValueKey(0), value: false, onChanged: (val){onSelected(item.value);})
-              )
+                      ? NewSimpleCheckbox(
+                          key: ValueKey(1),
+                          value: true,
+                          onChanged: (val) {
+                            onSelected(item.value);
+                          })
+                      : NewSimpleCheckbox(
+                          key: ValueKey(0),
+                          value: false,
+                          onChanged: (val) {
+                            onSelected(item.value);
+                          }))
             ],
           ),
         ),
@@ -369,10 +394,24 @@ class _PickerSliderPageState<Item> extends State<PickerSliderPage<Item>> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Row(mainAxisAlignment:MainAxisAlignment.center,spacing:4,children: [
-                    Text(sliderValue.toStringAsFixed(0), style: TextStyle(fontSize:18,fontWeight: FontWeight.w600,color: Theme.of(context).colorScheme.primary),),
-                    Text(widget.valueDescription, style: TextStyle(fontSize:18,fontWeight: FontWeight.w600,color: Theme.of(context).colorScheme.onSurface)),
-                  ],),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 4,
+                    children: [
+                      Text(
+                        sliderValue.toStringAsFixed(0),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                      Text(widget.valueDescription,
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface)),
+                    ],
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Slider(
@@ -394,10 +433,14 @@ class _PickerSliderPageState<Item> extends State<PickerSliderPage<Item>> {
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: NewPrimaryButton(onPressed: (){
-                widget.onSubmitted(sliderValue);
-                Navigator.of(context).pop();
-              }, text: "Continue", color: Theme.of(context).colorScheme.primary, textColor: Theme.of(context).colorScheme.onPrimary),
+              child: NewPrimaryButton(
+                  onPressed: () {
+                    widget.onSubmitted(sliderValue);
+                    Navigator.of(context).pop();
+                  },
+                  text: "Continue",
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary),
             )
           ],
         ),

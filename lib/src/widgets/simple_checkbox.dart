@@ -26,8 +26,8 @@ class _SimpleCheckboxState extends State<SimpleCheckbox> {
         checkColor: Theme.of(context).textTheme.titleLarge!.color,
         activeColor: Colors.transparent,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
-            color: Theme.of(context).textTheme.titleLarge!.color!, width: 1.0)),
+        side: WidgetStateBorderSide.resolveWith((states) =>
+            BorderSide(color: Theme.of(context).textTheme.titleLarge!.color!, width: 1.0)),
       ),
     );
   }

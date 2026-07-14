@@ -14,7 +14,7 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.wallet_group;
@@ -34,9 +34,10 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
       child: Column(
         children: [
           CakeImageWidget(
-            imageUrl: currentTheme.isDark ? walletGroupConfirmedImageDark : walletGroupConfirmedImageLight,
-            height: 200
-          ),
+              imageUrl: currentTheme.isDark
+                  ? walletGroupConfirmedImageDark
+                  : walletGroupConfirmedImageLight,
+              height: 200),
           SizedBox(height: 32),
           Expanded(
             child: SingleChildScrollView(
@@ -55,10 +56,10 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
                     TextSpan(
                       text: S.current.seed_display_path,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                   ],
                 ),

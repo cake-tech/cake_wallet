@@ -160,7 +160,8 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                             ReceiveAddressTypeSelector.otherOptionsExpandDuration,
                                         turns: _otherOptionsExpanded ? 0.0 : 0.5,
                                         curve: Curves.easeOut,
-                                        child: CakeImageWidget(imageUrl:"assets/new-ui/dropdown_arrow.svg"))
+                                        child: CakeImageWidget(
+                                            imageUrl: "assets/new-ui/dropdown_arrow.svg"))
                                   ],
                                 ),
                               ),
@@ -280,7 +281,13 @@ class ReceiveAddressTypeRow extends StatelessWidget {
                 Row(
                   children: [
                     if (iconPath != null)
-                      CakeImageWidget(imageUrl:iconPath!, width: iconSize, height: iconSize,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),)
+                      CakeImageWidget(
+                        imageUrl: iconPath!,
+                        width: iconSize,
+                        height: iconSize,
+                        colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                      )
                     else
                       Container(width: iconSize, height: iconSize),
                     Padding(

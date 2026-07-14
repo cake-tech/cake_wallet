@@ -58,7 +58,5 @@ class SPLTokenAdapter extends TypeAdapter<SPLToken> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SPLTokenAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is SPLTokenAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

@@ -43,4 +43,3 @@ class BaseClient extends EVMChainClient {
   @override
   int get chainId => 8453;
 }
-

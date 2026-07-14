@@ -7,6 +7,6 @@ class StandardExpandableListItem<T> extends TransactionDetailsListItem {
     required this.expandableItems,
     Key? key,
   }) : super(title: title, value: '', key: key);
-  
+
   final List<T> expandableItems;
 }

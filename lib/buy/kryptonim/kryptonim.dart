@@ -18,13 +18,13 @@ import 'package:url_launcher/url_launcher.dart';
 class KryptonimBuyProvider extends BuyProvider {
   KryptonimBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
       : super(
-      wallet: wallet,
-      isTestEnvironment: isTestEnvironment,
-      hardwareWalletVM: null,
-      supportedCryptoList: supportedCryptoToFiatPairs(
-          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-      supportedFiatList: supportedFiatToCryptoPairs(
-          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
+            wallet: wallet,
+            isTestEnvironment: isTestEnvironment,
+            hardwareWalletVM: null,
+            supportedCryptoList: supportedCryptoToFiatPairs(
+                notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+            supportedFiatList: supportedFiatToCryptoPairs(
+                notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _isProduction = true;
 
@@ -81,7 +81,6 @@ class KryptonimBuyProvider extends BuyProvider {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 401) {
-        
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         return {};
@@ -94,7 +93,6 @@ class KryptonimBuyProvider extends BuyProvider {
   @override
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
-
     final data = await getExchangeRates(
       cryptoCurrency: cryptoCurrency,
       fiatCurrency: fiatCurrency,
@@ -155,7 +153,8 @@ class KryptonimBuyProvider extends BuyProvider {
 
     final selectedPaymentType =
         PaymentMethod.getPaymentTypeId(selectedPaymentMethod['payment_method'] as String?);
-    final quote = Quote.fromKryptonimJson(selectedPaymentMethod, isBuyAction, selectedPaymentType ?? PaymentType.unknown);
+    final quote = Quote.fromKryptonimJson(
+        selectedPaymentMethod, isBuyAction, selectedPaymentType ?? PaymentType.unknown);
 
     quote.setFiatCurrency = fiatCurrency;
     quote.setCryptoCurrency = cryptoCurrency;

@@ -34,7 +34,7 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
           ),
           child: SingleChildScrollView(
             child: Column(
-          children: [
+              children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 28.0),
                   child: Column(
@@ -96,18 +96,18 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
                             ))
                         .toList(),
                   ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: PrimaryButton(
-                text: S.of(context).close,
-                color: context.currentTheme.colorScheme.primary,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: PrimaryButton(
+                    text: S.of(context).close,
+                    color: context.currentTheme.colorScheme.primary,
                     textColor: context.currentTheme.colorScheme.onPrimary,
                     onPressed: () => Navigator.of(context).pop(),
-              ),
-            )
-          ],
-        ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       );

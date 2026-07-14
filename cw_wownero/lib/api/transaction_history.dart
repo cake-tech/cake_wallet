@@ -43,33 +43,36 @@ Future<List<Transaction>> getAllTransactions() async {
   await txHistoryMutex.acquire();
   txhistory ??= wownero.Wallet_history(wptr!);
   int size = countOfTransactions();
-  final list = List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)));
+  final list = List.generate(
+      size,
+      (index) =>
+          Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)));
   txHistoryMutex.release();
-  
+
   final accts = wownero.Wallet_numSubaddressAccounts(wptr!);
-  for (var i = 0; i < accts; i++) {  
+  for (var i = 0; i < accts; i++) {
     final fullBalance = wownero.Wallet_balance(wptr!, accountIndex: i);
     final availBalance = wownero.Wallet_unlockedBalance(wptr!, accountIndex: i);
     if (fullBalance > availBalance) {
-      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isEmpty) {
-        dummyTxs.add(
-          Transaction.dummy(
-            displayLabel: "",
-            description: "",
-            fee: 0,
-            confirmations: 0,
-            blockheight: 0,
-            accountIndex: i,
-            addressIndex: 0,
-            addressIndexList: [0],
-            paymentId: "",
-            amount: fullBalance - availBalance,
-            isSpend: false,
-            hash: "pending",
-            key: "pending",
-            txInfo: Pointer.fromAddress(0),
-          )..timeStamp = DateTime.now()
-        );
+      if (list
+          .where((element) => element.accountIndex == i && element.isConfirmed == false)
+          .isEmpty) {
+        dummyTxs.add(Transaction.dummy(
+          displayLabel: "",
+          description: "",
+          fee: 0,
+          confirmations: 0,
+          blockheight: 0,
+          accountIndex: i,
+          addressIndex: 0,
+          addressIndexList: [0],
+          paymentId: "",
+          amount: fullBalance - availBalance,
+          isSpend: false,
+          hash: "pending",
+          key: "pending",
+          txInfo: Pointer.fromAddress(0),
+        )..timeStamp = DateTime.now());
       }
     }
   }
@@ -89,13 +92,13 @@ Future<PendingTransactionDescription> createTransactionSync(
     String? amount,
     int accountIndex = 0,
     List<String> preferredInputs = const []}) async {
-
   final amt = amount == null ? 0 : wownero.Wallet_amountFromString(amount);
-  
-  final address_ = address.toNativeUtf8(); 
+
+  final address_ = address.toNativeUtf8();
   final paymentId_ = paymentId.toNativeUtf8();
   if (preferredInputs.isEmpty) {
-    throw WowneroTransactionCreationException("No inputs provided, transaction cannot be constructed");
+    throw WowneroTransactionCreationException(
+        "No inputs provided, transaction cannot be constructed");
   }
   final preferredInputs_ = preferredInputs.join(wownero.defaultSeparatorStr).toNativeUtf8();
 
@@ -105,7 +108,8 @@ Future<PendingTransactionDescription> createTransactionSync(
   final preferredInputsAddr = preferredInputs_.address;
   final spaddr = wownero.defaultSeparator.address;
   final pendingTx = Pointer<Void>.fromAddress(await Isolate.run(() {
-    final tx = wownero_gen.WowneroC(DynamicLibrary.open(wownero.libPath)).WOWNERO_Wallet_createTransaction(
+    final tx =
+        wownero_gen.WowneroC(DynamicLibrary.open(wownero.libPath)).WOWNERO_Wallet_createTransaction(
       Pointer.fromAddress(waddr),
       Pointer.fromAddress(addraddr).cast(),
       Pointer.fromAddress(paymentIdAddr).cast(),
@@ -140,13 +144,13 @@ Future<PendingTransactionDescription> createTransactionSync(
   final rTxKey = rHash;
 
   return PendingTransactionDescription(
-      amount: rAmt,
-      fee: rFee,
-      hash: rHash,
-      hex: '',
-      txKey: rTxKey,
-      pointerAddress: pendingTx.address,
-    );
+    amount: rAmt,
+    fee: rFee,
+    hash: rHash,
+    hex: '',
+    txKey: rTxKey,
+    pointerAddress: pendingTx.address,
+  );
 }
 
 PendingTransactionDescription createTransactionMultDestSync(
@@ -155,7 +159,6 @@ PendingTransactionDescription createTransactionMultDestSync(
     required int priorityRaw,
     int accountIndex = 0,
     List<String> preferredInputs = const []}) {
-  
   final txptr = wownero.Wallet_createTransactionMultDest(
     wptr!,
     dstAddr: outputs.map((e) => e.address).toList(),
@@ -182,8 +185,8 @@ void commitTransactionFromPointerAddress({required int address}) =>
     commitTransaction(transactionPointer: wownero.PendingTransaction.fromAddress(address));
 
 void commitTransaction({required wownero.PendingTransaction transactionPointer}) {
-  
-  final txCommit = wownero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
+  final txCommit =
+      wownero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
   String? error = (() {
     final status = wownero.PendingTransaction_status(transactionPointer.cast());
@@ -200,9 +203,8 @@ void commitTransaction({required wownero.PendingTransaction transactionPointer})
       }
       return wownero.Wallet_errorString(wptr!);
     })();
-
   }
-  
+
   if (error != null) {
     throw CreationTransactionException(message: error);
   }
@@ -270,19 +272,20 @@ Future<PendingTransactionDescription> createTransactionMultDest(
       'preferredInputs': preferredInputs
     });
 
-
 class Transaction {
   final String displayLabel;
-  late final String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+  late final String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!,
+      accountIndex: accountIndex, addressIndex: addressIndex);
   late final String address = getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  late final List<String> addressList = List.generate(addressIndexList.length, (index) =>
-    getAddress(
-      accountIndex: accountIndex,
-      addressIndex: addressIndexList[index],
-    ));
+  late final List<String> addressList = List.generate(
+      addressIndexList.length,
+      (index) => getAddress(
+            accountIndex: accountIndex,
+            addressIndex: addressIndexList[index],
+          ));
   final String description;
   final int fee;
   final int confirmations;
@@ -331,33 +334,36 @@ class Transaction {
         timeStamp = DateTime.fromMillisecondsSinceEpoch(
           wownero.TransactionInfo_timestamp(txInfo) * 1000,
         ),
-        isSpend = wownero.TransactionInfo_direction(txInfo) ==
-            wownero.TransactionInfo_Direction.Out,
+        isSpend =
+            wownero.TransactionInfo_direction(txInfo) == wownero.TransactionInfo_Direction.Out,
         amount = wownero.TransactionInfo_amount(txInfo),
         paymentId = wownero.TransactionInfo_paymentId(txInfo),
         accountIndex = wownero.TransactionInfo_subaddrAccount(txInfo),
-        addressIndex = int.tryParse(wownero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
-        addressIndexList = wownero.TransactionInfo_subaddrIndex(txInfo).split(", ").map((e) => int.tryParse(e) ?? 0).toList(),
+        addressIndex =
+            int.tryParse(wownero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
+        addressIndexList = wownero.TransactionInfo_subaddrIndex(txInfo)
+            .split(", ")
+            .map((e) => int.tryParse(e) ?? 0)
+            .toList(),
         blockheight = wownero.TransactionInfo_blockHeight(txInfo),
         confirmations = wownero.TransactionInfo_confirmations(txInfo),
         fee = wownero.TransactionInfo_fee(txInfo),
         description = wownero.TransactionInfo_description(txInfo),
         key = wownero.Wallet_getTxKey(wptr!, txid: wownero.TransactionInfo_hash(txInfo));
 
-  Transaction.dummy({
-    required this.displayLabel,
-    required this.description,
-    required this.fee,
-    required this.confirmations,
-    required this.blockheight,
-    required this.accountIndex,
-    required this.addressIndex,
-    required this.addressIndexList,
-    required this.paymentId,
-    required this.amount,
-    required this.isSpend,
-    required this.hash,
-    required this.key,
-    required this.txInfo
-  });
+  Transaction.dummy(
+      {required this.displayLabel,
+      required this.description,
+      required this.fee,
+      required this.confirmations,
+      required this.blockheight,
+      required this.accountIndex,
+      required this.addressIndex,
+      required this.addressIndexList,
+      required this.paymentId,
+      required this.amount,
+      required this.isSpend,
+      required this.hash,
+      required this.key,
+      required this.txInfo});
 }

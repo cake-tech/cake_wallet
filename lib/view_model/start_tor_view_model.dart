@@ -40,7 +40,7 @@ abstract class StartTorViewModelBase with Store {
     remainingSeconds = waitTimeInSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       remainingSeconds -= 1;
-      
+
       if (remainingSeconds <= 0) {
         timer.cancel();
         timeoutReached = true;
@@ -66,7 +66,8 @@ abstract class StartTorViewModelBase with Store {
     didStartTor = true;
     final appStore = getIt.get<AppStore>();
     bootstrapOnline(navigatorKey, loadWallet: true);
-    appStore.wallet?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
+    appStore.wallet
+        ?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 
@@ -76,7 +77,8 @@ abstract class StartTorViewModelBase with Store {
     settingsStore.currentBuiltinTor = false;
     bootstrapOnline(navigatorKey, loadWallet: true);
     final appStore = getIt.get<AppStore>();
-    appStore.wallet?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
+    appStore.wallet
+        ?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 
@@ -84,7 +86,8 @@ abstract class StartTorViewModelBase with Store {
   void ignoreAndLaunchApp(BuildContext context) {
     bootstrapOnline(navigatorKey, loadWallet: true);
     final appStore = getIt.get<AppStore>();
-    appStore.wallet?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
+    appStore.wallet
+        ?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 
@@ -92,4 +95,4 @@ abstract class StartTorViewModelBase with Store {
     _timer?.cancel();
     _timer = null;
   }
-} 
+}

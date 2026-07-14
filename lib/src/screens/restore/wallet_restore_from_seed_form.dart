@@ -161,7 +161,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                   onPressed: () async {
                     final rName = await generateName();
                     FocusManager.instance.primaryFocus?.unfocus();
-              
+
                     setState(() {
                       nameTextEditingController.text = rName;
                       nameTextEditingController.selection = TextSelection.fromPosition(
