@@ -150,13 +150,12 @@ class CWNano extends Nano {
       outputs
           .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
+                cryptoAmount: out.cryptoAmountMoney,
                 address: out.address,
                 note: out.note,
                 sendAll: out.sendAll,
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
               ))
           .toList(),
     );
@@ -173,11 +172,6 @@ class CWNano extends Nano {
   @override
   Future<bool> updateTransactions(Object wallet) async {
     return (wallet as NanoWallet).updateTransactions();
-  }
-
-  @override
-  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    return (transactionInfo as NanoTransactionInfo).amountRaw;
   }
 
   @override

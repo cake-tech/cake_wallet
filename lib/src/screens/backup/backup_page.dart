@@ -154,8 +154,12 @@ class BackupPage extends BasePage {
               leftButtonText: S.of(context).share,
               actionRightButton: () async {
                 await backupViewModelBase.saveToDownload(backup.name, backup.file);
-                Navigator.of(dialogContext).pop();
-                await showBar<void>(context, S.of(context).file_saved);
+                if (dialogContext.mounted && Navigator.canPop(dialogContext)) {
+                  Navigator.of(dialogContext).pop();
+                }
+                if (context.mounted && Navigator.canPop(context)) {
+                  await showBar<void>(context, S.of(context).file_saved);
+                }
               },
               actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();
@@ -172,10 +176,15 @@ class BackupPage extends BasePage {
 
   Future<void> _saveFile(BackupExportFile backup) async {
     String? outputFile = await FilePicker.platform
-        .saveFile(dialogTitle: 'Save Your File to desired location', fileName: backup.name);
+        .saveFile(
+            dialogTitle: 'Save Your File to desired location',
+            fileName: backup.name,
+            lockParentWindow: true);
+
+    if (outputFile == null) return;
 
     try {
-      await backup.file.copy(outputFile!);
+      await backup.file.copy(outputFile);
     } catch (exception, stackTrace) {
       await ExceptionHandler.onError(FlutterErrorDetails(
         exception: exception,

@@ -92,7 +92,7 @@ class WalletListBodyState extends State<WalletListBody> {
   Flushbar<void>? _progressBar;
 
   bool _loadingWallet = false;
-  
+
   Widget trailing(BuildContext context){
     return Stack(
       children: [

@@ -1,6 +1,10 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
@@ -106,7 +110,6 @@ class EvmChainServiceImpl {
 
     if (isApproved) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -155,7 +158,6 @@ class EvmChainServiceImpl {
 
     if (isApproved) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -297,7 +299,6 @@ class EvmChainServiceImpl {
 
     if (transaction is Transaction) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -309,7 +310,6 @@ class EvmChainServiceImpl {
           chainId: int.parse(chainId),
         );
 
-        // Sign the transaction
         final signedTx = bytesToHex(signature, include0x: true);
         response = response.copyWith(result: signedTx);
       } on RPCError catch (e) {
@@ -349,7 +349,6 @@ class EvmChainServiceImpl {
     );
     if (transaction is Transaction) {
       try {
-        // Load the private key
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
         final chainId = getChainId().split(':').last;
@@ -440,35 +439,91 @@ class EvmChainServiceImpl {
 
     transaction = await _applyWCBufferedFees(transaction);
 
-    final gweiGasPrice =
-        (transaction.gasPrice?.getInWei ?? transaction.maxFeePerGas?.getInWei ?? BigInt.zero) /
-            BigInt.from(1000000000);
+    final nativeCurrency = evm?.getChainInfoByChainId(reference.chainId ?? 1)?.currency;
+    final nativeSymbol = nativeCurrency?.title ?? 'ETH';
 
     final amount = (transaction.value?.getInWei ?? BigInt.zero) / BigInt.from(1e18);
 
-    final txMessageText = '${S.current.value}: ${amount.toStringAsFixed(9)} ETH\n'
+    final txMessageText = '${S.current.value}: ${amount.toStringAsFixed(9)} $nativeSymbol\n'
         '${S.current.from}: ${transaction.from?.hex}\n'
         '${S.current.to}: ${transaction.to?.hex}';
+
+    final feeRows = _buildFeeExtraModels(transaction, nativeCurrency, nativeSymbol);
 
     if (await MethodsUtils.requestApproval(
       txMessageText,
       title: title,
       method: method,
       chainId: chainId,
-      address: address,
+      address: address ?? transaction.from?.hex ?? '',
       transportType: transportType,
       verifyContext: verifyContext,
-      extraModels: [
-        WCConnectionModel(
-          title: S.current.gas_price,
-          elements: ['${gweiGasPrice.toStringAsFixed(2)} GWEI'],
-        ),
-      ],
+      extraModels: feeRows,
     )) {
       return transaction;
     }
 
     return JsonRpcError(code: 5002, message: S.current.user_rejected_method);
+  }
+
+  List<WCConnectionModel> _buildFeeExtraModels(
+    Transaction transaction,
+    CryptoCurrency? nativeCurrency,
+    String nativeSymbol,
+  ) {
+    final gasLimit = transaction.maxGas;
+    if (gasLimit == null || gasLimit <= 0) return const [];
+
+    final gasLimitBig = BigInt.from(gasLimit);
+    final isEip1559 = transaction.isEIP1559;
+    final perGasWei =
+        isEip1559 ? transaction.maxFeePerGas?.getInWei : transaction.gasPrice?.getInWei;
+    if (perGasWei == null || perGasWei <= BigInt.zero) return const [];
+
+    final feeWei = gasLimitBig * perGasWei;
+    final feeNative = feeWei.toDouble() / 1e18;
+
+    final label = isEip1559 ? S.current.wc_max_network_fee : S.current.wc_network_fee;
+
+    return [
+      WCConnectionModel(
+        title: label,
+        elements: [_formatFeeLine(feeNative, nativeSymbol, nativeCurrency)],
+      ),
+    ];
+  }
+
+  String _formatFeeLine(
+    double feeNative,
+    String nativeSymbol,
+    CryptoCurrency? nativeCurrency,
+  ) {
+    final cryptoPart = '${_formatNativeAmount(feeNative)} $nativeSymbol';
+
+    if (nativeCurrency == null) return cryptoPart;
+
+    try {
+      final fiatStore = getIt.get<FiatConversionStore>();
+      final price = fiatStore.prices[nativeCurrency];
+      if (price == null || price <= 0) return cryptoPart;
+
+      final fiatSymbol = appStore.settingsStore.fiatCurrency.title;
+      final fiatValue = calculateFiatAmount(
+        price: price,
+        cryptoAmount: feeNative.toString(),
+      );
+      if (fiatValue.isEmpty || fiatValue == '0.00') return cryptoPart;
+
+      return '$cryptoPart (~ $fiatValue $fiatSymbol)';
+    } catch (_) {
+      return cryptoPart;
+    }
+  }
+
+  String _formatNativeAmount(double value) {
+    if (value == 0) return '0';
+    if (value >= 0.0001) return value.toStringAsFixed(6);
+    return value.toStringAsExponential(4);
   }
 
   Future<Transaction> _ensureWCTransactionHasGasLimit(Transaction transaction) async {
@@ -637,7 +692,6 @@ $messageDetails''';
       if (value == null) continue;
 
       if (types.containsKey(fieldType)) {
-        // Handle nested types
         final nestedFields = types[fieldType] as List<dynamic>;
         if (fieldType == 'Person') {
           // Special formatting for Person type

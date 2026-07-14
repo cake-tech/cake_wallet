@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +19,8 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
   @override
   String get title => S.current.wallet_group;
 
-  final walletGroupConfirmedImageLight = 'assets/images/wallet_group_confirmed_light.png';
-  final walletGroupConfirmedImageDark = 'assets/images/wallet_group_confirmed_dark.png';
+  final walletGroupConfirmedImageLight = 'assets/new-ui/hero/wallet_group_confirmed_light.svg';
+  final walletGroupConfirmedImageDark = 'assets/new-ui/hero/wallet_group_confirmed_dark.svg';
 
   @override
   Widget body(BuildContext context) {
@@ -32,8 +33,8 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
       padding: EdgeInsets.all(24),
       child: Column(
         children: [
-          Image.asset(
-            currentTheme.isDark ? walletGroupConfirmedImageDark : walletGroupConfirmedImageLight,
+          CakeImageWidget(
+            imageUrl: currentTheme.isDark ? walletGroupConfirmedImageDark : walletGroupConfirmedImageLight,
             height: 200
           ),
           SizedBox(height: 32),

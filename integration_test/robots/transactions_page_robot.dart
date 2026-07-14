@@ -385,8 +385,8 @@ class TransactionsPageRobot {
 
   Future<void> _verifyTradeListItemDisplay(TradeListItem item) async {
     final keyId = 'trade_list_item_${item.trade.id}_key';
-    final from = item.trade.from?.toString() ?? item.trade.userCurrencyFrom.toString();
-    final to = item.trade.to?.toString() ?? item.trade.userCurrencyTo.toString();
+    final from = item.trade.from?.toString() ?? '';
+    final to = item.trade.to?.toString() ?? '';
 
     //* ==============Confirm it has the right key for this item ========
     commonTestCases.hasValueKey(keyId);

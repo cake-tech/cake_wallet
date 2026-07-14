@@ -208,6 +208,12 @@ class ConnectionSyncPage extends BasePage {
                               label: S.of(context).domain_looks_up,
                               onTap: () => Navigator.of(context).pushNamed(Routes.domainLookupsPage)
                           ),
+                          if(_connectionSyncViewModel.hasRescan)
+                          ListItemRegularRow(
+                            keyValue: "rescan",
+                            label: S.of(context).rescan,
+                            onTap: ()=>Navigator.of(context).pushNamed(Routes.rescan)
+                          )
                         ],
                       }
                   )

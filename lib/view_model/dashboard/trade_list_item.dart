@@ -15,15 +15,24 @@ class TradeListItem extends ActionListItem {
 
   BalanceDisplayMode get displayMode => appStore.settingsStore.balanceDisplayMode;
 
-  String get tradeFormattedAmount => displayMode == BalanceDisplayMode.hiddenBalance
-      ? "---"
-      : appStore.amountParsingProxy.getDisplayCryptoAmount(trade.amountFormatted(), trade.from!);
+  String get tradeFormattedAmount {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return '---';
+    }
+    final from = trade.from;
+    if (from == null) return trade.amountFormatted();
+    return appStore.amountParsingProxy.getDisplayCryptoAmount(trade.amountFormatted(), from);
+  }
 
-  String get tradeFormattedReceiveAmount => displayMode == BalanceDisplayMode.hiddenBalance
-      ? "---"
-      : appStore.amountParsingProxy
-          .getDisplayCryptoAmount(trade.receiveAmountFormatted(), trade.to!);
+  String get tradeFormattedReceiveAmount {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return '---';
+    }
+    final to = trade.to;
+    if (to == null) return trade.receiveAmountFormatted();
+    return appStore.amountParsingProxy.getDisplayCryptoAmount(trade.receiveAmountFormatted(), to);
+  }
 
   @override
-  DateTime get date => trade.createdAt!;
+  DateTime get date => trade.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 }

@@ -29,7 +29,7 @@ enum DeviceConnectionType {
         break;
       case HardwareWalletType.trezor:
         isSupported = [
-          // WalletType.monero,
+          WalletType.monero,
           WalletType.bitcoin,
           WalletType.litecoin,
           WalletType.ethereum,
