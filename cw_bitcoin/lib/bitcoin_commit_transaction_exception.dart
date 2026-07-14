@@ -5,4 +5,3 @@ class BitcoinCommitTransactionException implements Exception {
   @override
   String toString() => errorMessage;
 }
-

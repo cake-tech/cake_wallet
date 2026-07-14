@@ -35,9 +35,7 @@ abstract class SendTemplateViewModelBase with Store {
   @action
   void addRecipient() {
     recipients.add(TemplateViewModel(
-        wallet: _wallet,
-        appStore: _appStore,
-        fiatConversationStore: _fiatConversationStore));
+        wallet: _wallet, appStore: _appStore, fiatConversationStore: _fiatConversationStore));
   }
 
   @action

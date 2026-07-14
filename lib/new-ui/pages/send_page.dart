@@ -89,11 +89,11 @@ class SendPageModes {
 
   const SendPageModes(
       {required this.title,
-        this.description,
-        required this.showAddressField,
-        this.confirmSheetIconPath,
-        this.helpContent,
-        this.popOnConfirmation = true});
+      this.description,
+      required this.showAddressField,
+      this.confirmSheetIconPath,
+      this.helpContent,
+      this.popOnConfirmation = true});
 
   static final SendPageModes normal = SendPageModes(title: S.current.send, showAddressField: true);
 
@@ -161,12 +161,12 @@ class SendPageParams {
 class NewSendPage extends StatefulWidget {
   NewSendPage(
       {super.key,
-        required this.sendViewModel,
-        required this.paymentViewModel,
-        required this.walletSwitcherViewModel,
-        required this.contactListViewModel,
-        required this.authService,
-        required SendPageParams params})
+      required this.sendViewModel,
+      required this.paymentViewModel,
+      required this.walletSwitcherViewModel,
+      required this.contactListViewModel,
+      required this.authService,
+      required SendPageParams params})
       : initialPaymentRequest = params.initialPaymentRequest,
         mode = params.mode {
     if (params.initialCurrency != null) {
@@ -187,7 +187,6 @@ class NewSendPage extends StatefulWidget {
 }
 
 class _NewSendPageState extends State<NewSendPage> {
-
   int _selectedOutput = 0;
 
   final _amountControllers = <TextEditingController>[];
@@ -246,7 +245,7 @@ class _NewSendPageState extends State<NewSendPage> {
         widget.sendViewModel.walletCurrencyName !=
             widget.initialPaymentRequest!.scheme.toLowerCase()) {
       WidgetsBinding.instance.addPostFrameCallback(
-            (timeStamp) {
+        (timeStamp) {
           if (mounted) {
             final prefix = widget.initialPaymentRequest!.scheme.isNotEmpty
                 ? "${widget.initialPaymentRequest!.scheme}:"
@@ -291,7 +290,6 @@ class _NewSendPageState extends State<NewSendPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
@@ -321,8 +319,8 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.sendViewModel.outputs.length > 1)
                             ModernButton(
                                 size: 36,
-                                icon: CakeImageWidget(imageUrl:
-                                "assets/new-ui/remove_recipient.svg",
+                                icon: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/remove_recipient.svg",
                                   colorFilter: ColorFilter.mode(
                                     Theme.of(context).colorScheme.primary,
                                     BlendMode.srcIn,
@@ -352,8 +350,8 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.mode.helpContent != null)
                             ModernButton(
                                 size: 36,
-                                icon: CakeImageWidget(imageUrl:
-                                "assets/new-ui/help.svg",
+                                icon: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/help.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                                 ),
@@ -420,7 +418,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             output.loadContact(contact);
                                           },
                                           onPushPasteButton: (context) async {
-                                            if(_justHandledPasteButton) return;
+                                            if (_justHandledPasteButton) return;
                                             _justHandledPasteButton = true;
                                             try {
                                               output.resetParsedAddress();
@@ -447,7 +445,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             _handleLightningInvoicePaste();
                                           },
                                           selectedCurrency:
-                                          widget.sendViewModel.selectedCryptoCurrency,
+                                              widget.sendViewModel.selectedCryptoCurrency,
                                         ),
                                       ],
                                     ),
@@ -467,17 +465,17 @@ class _NewSendPageState extends State<NewSendPage> {
                                         currencyIconPath: output.isFiatEntry
                                             ? ""
                                             : widget.sendViewModel.selectedCryptoCurrency
-                                            .iconPath ??
-                                            "",
+                                                    .iconPath ??
+                                                "",
                                         hasPicker: (output.isFiatEntry ||
                                             widget.sendViewModel.hasMultipleTokens),
                                         onPickerClicked: () => _presentCurrencyPicker(context),
                                         maxDecimals: output.isFiatEntry
                                             ? widget.sendViewModel.fiatCurrency.decimals
                                             : widget.sendViewModel.useBaseUnits
-                                            ? 0
-                                            : widget
-                                            .sendViewModel.selectedCryptoCurrency.decimals,
+                                                ? 0
+                                                : widget
+                                                    .sendViewModel.selectedCryptoCurrency.decimals,
                                       ),
                                       FiatAmountBar(
                                         fiatInputMode: output.isFiatEntry,
@@ -485,18 +483,18 @@ class _NewSendPageState extends State<NewSendPage> {
                                           widget.sendViewModel.outputs[_selectedOutput]
                                               .isFiatEntry = !output.isFiatEntry;
                                           _amountControllers[_selectedOutput].text =
-                                          output.isFiatEntry
-                                              ? output.fiatAmount
-                                              : output.displayCryptoAmount;
+                                              output.isFiatEntry
+                                                  ? output.fiatAmount
+                                                  : output.displayCryptoAmount;
                                         },
                                         fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
                                         cryptoAmount:
-                                        _wrapAmount(output.roundedCryptoAmount(6), 20),
+                                            _wrapAmount(output.roundedCryptoAmount(6), 20),
                                         allAmount: widget.sendViewModel.balance,
                                         cryptoCurrencySymbol:
-                                        widget.sendViewModel.selectedCryptoCurrencySymbol,
+                                            widget.sendViewModel.selectedCryptoCurrencySymbol,
                                         fiatCurrencySymbol:
-                                        widget.sendViewModel.fiatCurrency.symbol,
+                                            widget.sendViewModel.fiatCurrency.symbol,
                                         onAllButtonPressed: () async {
                                           output.setSendAll(
                                               await widget.sendViewModel.sendingBalance);
@@ -505,7 +503,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                       ),
                                     ],
                                   ),
-                                  if (widget.sendViewModel.isMwebAvailable && widget.mode == SendPageModes.normal)
+                                  if (widget.sendViewModel.isMwebAvailable &&
+                                      widget.mode == SendPageModes.normal)
                                     StandardCheckbox(
                                       caption: S.of(context).litecoin_mweb_allow_coins,
                                       captionColor: Theme.of(context).colorScheme.onSurface,
@@ -516,13 +515,13 @@ class _NewSendPageState extends State<NewSendPage> {
                                       onChanged: (value) =>
                                           widget.sendViewModel.setAllowMwebCoins(value),
                                     ),
-                                  if(widget.sendViewModel.hasMemos)
+                                  if (widget.sendViewModel.hasMemos)
                                     Observer(
                                         builder: (_) => NewSendMemoInput(
-                                          memoController: _memoControllers[_selectedOutput],
-                                          maxMemoLength: widget.sendViewModel.maxMemoLength,
-                                          memoLength: output.memo.length,
-                                        )),
+                                              memoController: _memoControllers[_selectedOutput],
+                                              maxMemoLength: widget.sendViewModel.maxMemoLength,
+                                              memoLength: output.memo.length,
+                                            )),
                                   if (widget.sendViewModel.hasCoinControl ||
                                       widget.sendViewModel.hasFees)
                                     AnimatedDropdown(
@@ -533,7 +532,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             keyValue: "",
                                             label: S.of(context).fees,
                                             subtitle:
-                                            "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
+                                                "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
                                             onTap: () {
                                               if (widget
                                                   .sendViewModel.feesViewModel.hasFeesPriority)
@@ -545,11 +544,19 @@ class _NewSendPageState extends State<NewSendPage> {
                                               keyValue: "",
                                               label: "Coin Control",
                                               onTap: () {
-                                                showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,canEdit: true);
-                                                });
-                                              }
-                                          ),
+                                                showCupertinoModalBottomSheet(
+                                                    enableDrag: false,
+                                                    useRootNavigator: true,
+                                                    isDismissible: false,
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return NewCoinControlPage(
+                                                          unspentCoinsListViewModel: widget
+                                                              .sendViewModel
+                                                              .unspentCoinsListViewModel,
+                                                          canEdit: true);
+                                                    });
+                                              }),
                                       ]),
                                     )
                                 ],
@@ -585,29 +592,29 @@ class _NewSendPageState extends State<NewSendPage> {
                                             widget.mode == SendPageModes.mwebDeposit) {
                                           Navigator.of(context).push(CupertinoPageRoute(
                                               builder: (context) => Material(
-                                                  child: L2ActionWalletSelector(
+                                                      child: L2ActionWalletSelector(
                                                     showOtherWallets: false,
                                                     action: l2actions.deposit,
                                                     sendViewModel: widget.sendViewModel,
                                                     contactListViewModel:
-                                                    widget.contactListViewModel,
+                                                        widget.contactListViewModel,
                                                     walletSwitcherViewModel:
-                                                    widget.walletSwitcherViewModel,
+                                                        widget.walletSwitcherViewModel,
                                                     onSendInitiated: _handleSend,
                                                   ))));
                                         } else if (widget.mode ==
-                                            SendPageModes.lightningWithdrawal ||
+                                                SendPageModes.lightningWithdrawal ||
                                             widget.mode == SendPageModes.mwebWithdrawal) {
                                           Navigator.of(context).push(CupertinoPageRoute(
                                               builder: (context) => Material(
-                                                  child: L2ActionWalletSelector(
+                                                      child: L2ActionWalletSelector(
                                                     showOtherWallets: false,
                                                     action: l2actions.withdraw,
                                                     sendViewModel: widget.sendViewModel,
                                                     contactListViewModel:
-                                                    widget.contactListViewModel,
+                                                        widget.contactListViewModel,
                                                     walletSwitcherViewModel:
-                                                    widget.walletSwitcherViewModel,
+                                                        widget.walletSwitcherViewModel,
                                                     onSendInitiated: _handleSend,
                                                   ))));
                                         }
@@ -618,9 +625,9 @@ class _NewSendPageState extends State<NewSendPage> {
                                       isLoading: widget.sendViewModel.state is IsExecutingState ||
                                           widget.sendViewModel.state is TransactionCommitting ||
                                           widget.sendViewModel.state
-                                          is IsAwaitingDeviceResponseState ||
+                                              is IsAwaitingDeviceResponseState ||
                                           widget.sendViewModel.state
-                                          is LoadingTemplateExecutingState,
+                                              is LoadingTemplateExecutingState,
                                       isDisabled: !widget.sendViewModel.isReadyForSend ||
                                           widget.sendViewModel.state is ExecutedSuccessfullyState,
                                     );
@@ -718,7 +725,6 @@ class _NewSendPageState extends State<NewSendPage> {
       if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLength) {
         output.memo = memo;
       }
-
     });
   }
 
@@ -731,8 +737,7 @@ class _NewSendPageState extends State<NewSendPage> {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
-              _amountControllers[i].text.sanitized(),
-              widget.sendViewModel.selectedCryptoCurrency);
+              _amountControllers[i].text.sanitized(), widget.sendViewModel.selectedCryptoCurrency);
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
       }
@@ -856,9 +861,7 @@ class _NewSendPageState extends State<NewSendPage> {
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
           amount: '${r.availableBalance} ${r.asset.title}',
-          fiat: isFiatDisabled
-              ? null
-              : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}',
+          fiat: isFiatDisabled ? null : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}',
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
     };
@@ -963,11 +966,11 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _showPaymentConfirmation(
-      PaymentViewModel paymentViewModel,
-      WalletSwitcherViewModel walletSwitcherViewModel,
-      PaymentRequest paymentRequest,
-      PaymentFlowResult result,
-      ) async {
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+    PaymentFlowResult result,
+  ) async {
     if (!context.mounted) {
       return;
     }
@@ -1008,11 +1011,11 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _showTokenSelectionFlow(
-      PaymentViewModel paymentViewModel,
-      WalletSwitcherViewModel walletSwitcherViewModel,
-      PaymentRequest paymentRequest, {
-        WalletType? fixedNetwork,
-      }) async {
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest, {
+    WalletType? fixedNetwork,
+  }) async {
     if (!context.mounted) {
       return;
     }
@@ -1051,11 +1054,11 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _handleSelectWallet(
-      PaymentViewModel paymentViewModel,
-      WalletSwitcherViewModel walletSwitcherViewModel,
-      PaymentRequest paymentRequest,
-      PaymentFlowResult result,
-      ) async {
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+    PaymentFlowResult result,
+  ) async {
     Navigator.of(context).pop();
 
     await showModalBottomSheet<WalletInfo>(
@@ -1094,11 +1097,11 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _handleChangeWallet(
-      PaymentViewModel paymentViewModel,
-      WalletSwitcherViewModel walletSwitcherViewModel,
-      PaymentRequest paymentRequest,
-      PaymentFlowResult result,
-      ) async {
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+    PaymentFlowResult result,
+  ) async {
     if (mounted && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
@@ -1187,11 +1190,11 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _handleSwitchNetwork(
-      PaymentViewModel paymentViewModel,
-      WalletSwitcherViewModel walletSwitcherViewModel,
-      PaymentRequest paymentRequest,
-      PaymentFlowResult result,
-      ) async {
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+    PaymentFlowResult result,
+  ) async {
     if (result.type != PaymentFlowType.evmNetworkSelection || result.wallet == null) return;
 
     if (context.mounted && Navigator.of(context).canPop()) {
@@ -1242,22 +1245,20 @@ class _NewSendPageState extends State<NewSendPage> {
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
-      try{
+      try {
         _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(
-            paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
-      } catch(e) {
-
-      }
+                paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
+      } catch (e) {}
     }
     _memoControllers[_selectedOutput].text = paymentRequest.note;
   }
 
   Future<void> _handleSwapFlow(
-      PaymentViewModel paymentViewModel,
-      PaymentFlowResult result,
-      BuildContext bottomSheetContext,
-      ) async {
+    PaymentViewModel paymentViewModel,
+    PaymentFlowResult result,
+    BuildContext bottomSheetContext,
+  ) async {
     Navigator.of(bottomSheetContext).pop();
 
     await Future.delayed(const Duration(milliseconds: 100));
@@ -1363,12 +1364,12 @@ class _NewSendPageState extends State<NewSendPage> {
                           sliderValueDescription: "sat/byte",
                           items: items
                               .map((item) => PickerItem<TransactionPriority>(
-                            title: item.title,
-                            subtitle: item.description,
-                            hint: item.hint,
-                            value: item,
-                            isSliderItem: items.indexOf(item) == customItemIndex,
-                          ))
+                                    title: item.title,
+                                    subtitle: item.description,
+                                    hint: item.hint,
+                                    value: item,
+                                    isSliderItem: items.indexOf(item) == customItemIndex,
+                                  ))
                               .toList(),
                           onItemSelected: (TransactionPriority priority) async {
                             widget.sendViewModel.feesViewModel.setTransactionPriority(priority);
@@ -1417,7 +1418,7 @@ class SendHelpPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CakeImageWidget(imageUrl:content.imagePath),
+                CakeImageWidget(imageUrl: content.imagePath),
                 Text(
                   content.description,
                   textAlign: TextAlign.center,
@@ -1453,9 +1454,9 @@ class SendHelpPage extends StatelessWidget {
 }
 
 Future<bool> showParsedAddressConfirmationAlert(
-    BuildContext context,
-    ParsedAddress parsedAddress,
-    ) async {
+  BuildContext context,
+  ParsedAddress parsedAddress,
+) async {
   final confirmed = await showPopUp<bool>(
     context: context,
     builder: (BuildContext context) {
@@ -1466,8 +1467,8 @@ Future<bool> showParsedAddressConfirmationAlert(
             ? parsedAddress.addressSource.iconPath
             : parsedAddress.profileImageUrl,
         alertContent: S.of(context).extracted_address_content(
-          '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
-        ),
+              '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
+            ),
         buttonText: S.of(context).ok,
         buttonAction: () => Navigator.of(context).pop(true),
       );

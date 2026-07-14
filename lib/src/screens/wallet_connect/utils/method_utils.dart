@@ -13,7 +13,7 @@ import 'package:reown_walletkit/reown_walletkit.dart';
 class MethodsUtils {
   static final walletKit = getIt.get<WalletKitService>().walletKit;
   static final bottomSheetService = getIt.get<BottomSheetService>();
-  
+
   static const _transactionMethods = {
     'eth_sendTransaction',
     'eth_signTransaction',
@@ -34,18 +34,13 @@ class MethodsUtils {
   }) async {
     final appStore = getIt.get<AppStore>();
     final pending = walletKit.pendingRequests.getAll();
-    final session = pending.isNotEmpty
-        ? walletKit.sessions.get(pending.last.topic)
-        : null;
+    final session = pending.isNotEmpty ? walletKit.sessions.get(pending.last.topic) : null;
     final dAppMetadata = session?.peer.metadata;
 
     final isTransaction = method != null && _transactionMethods.contains(method);
     final resolvedTitle = title ??
-        (isTransaction
-            ? S.current.wc_approve_request_title
-            : S.current.wc_signing_request_title);
-    final swipeLabel =
-        isTransaction ? S.current.wc_swipe_to_approve : S.current.wc_swipe_to_sign;
+        (isTransaction ? S.current.wc_approve_request_title : S.current.wc_signing_request_title);
+    final swipeLabel = isTransaction ? S.current.wc_swipe_to_approve : S.current.wc_swipe_to_sign;
 
     final extraRows = <WCMessageRow>[];
     if (method != null && method.isNotEmpty) {

@@ -39,8 +39,7 @@ class TrocadorProvidersSettings extends StatelessWidget {
                       ModalHeader(
                           title: "${S.of(context).about} Trocador",
                           iconPath: "assets/new-ui/trade_providers/trocador.svg",
-                          message:
-                              "Trocador ${S.of(context).trocador_desc}"),
+                          message: "Trocador ${S.of(context).trocador_desc}"),
                       SizedBox(),
                       Text(S.of(context).providers),
                       Text(

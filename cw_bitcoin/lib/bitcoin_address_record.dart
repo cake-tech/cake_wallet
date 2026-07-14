@@ -72,17 +72,16 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.type,
     String? scriptHash,
     required super.network,
-  })  {
+  }) {
     try {
       this.scriptHash = scriptHash ??
-        (network != null ? BitcoinAddressUtils.scriptHash(address, network: network!) : null);
+          (network != null ? BitcoinAddressUtils.scriptHash(address, network: network!) : null);
     } catch (e) {
       printV(e);
     }
-}
+  }
 
   static bool _legacyDefaultForType(BitcoinAddressType type) {
-
     // Some address types (p2wpkh, p2wsh) were historically derived from the same account/path as our new standard
     // but using legacy formats. For these, we default to legacy = false.
     if (type == SegwitAddresType.p2wpkh || type == SegwitAddresType.p2wsh) return false;
@@ -154,6 +153,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     }
     return scriptHash!;
   }
+
   @override
   String get derivationPath {
     if (type == SegwitAddresType.mweb) {
@@ -162,9 +162,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
     final coinType = _coinTypeForNetwork();
     final purpose = _purposeForType(type);
-    final accountPath = isLegacyDerivation
-        ? electrum_path
-        : "m/$purpose'/$coinType'/0'";
+    final accountPath = isLegacyDerivation ? electrum_path : "m/$purpose'/$coinType'/0'";
 
     final chain = isHidden ? 1 : 0;
     return "$accountPath/$chain/$index";

@@ -52,7 +52,8 @@ BigInt parseFixed(String value, int decimals) {
   var fraction = (comps.length == 2 ? comps[1] : "0").padRight(decimals, "0");
 
   if (fraction.length > multiplier.length - 1) {
-    throw FormatException("fractional component(${fraction.length}) exceeds decimals(${decimals}), underflow, parseFixed");
+    throw FormatException(
+        "fractional component(${fraction.length}) exceeds decimals(${decimals}), underflow, parseFixed");
   }
 
   final wholeValue = BigInt.parse(whole);

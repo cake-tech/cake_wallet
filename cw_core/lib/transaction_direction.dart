@@ -7,7 +7,8 @@ TransactionDirection parseTransactionDirectionFromInt(int raw) {
     case 1:
       return TransactionDirection.outgoing;
     default:
-      throw Exception('Unexpected token: raw for TransactionDirection parseTransactionDirectionFromInt');
+      throw Exception(
+          'Unexpected token: raw for TransactionDirection parseTransactionDirectionFromInt');
   }
 }
 
@@ -18,6 +19,7 @@ TransactionDirection parseTransactionDirectionFromNumber(String raw) {
     case "1":
       return TransactionDirection.outgoing;
     default:
-      throw Exception('Unexpected token: raw for TransactionDirection parseTransactionDirectionFromNumber');
+      throw Exception(
+          'Unexpected token: raw for TransactionDirection parseTransactionDirectionFromNumber');
   }
 }

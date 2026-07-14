@@ -195,7 +195,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           height = decred!.heightByDate(date);
         } else if (widget.walletType == WalletType.monero) {
           height = monero!.getHeightByDate(date: date);
-        } else if (widget.walletType == WalletType.wownero){
+        } else if (widget.walletType == WalletType.wownero) {
           height = wownero!.getHeightByDate(date: date);
         } else if (widget.walletType == WalletType.zcash) {
           height = await zcash!.getHeightByDate(date);

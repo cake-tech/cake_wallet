@@ -41,7 +41,7 @@ class PendingZanoTransaction with PendingTransaction {
     transferResult = await zanoWallet.transfer(destinations, fee.amount, comment);
     zanoWallet.fetchTransactions();
   }
-  
+
   @override
   Future<Map<String, String>> commitUR() => throw UnimplementedError();
 }

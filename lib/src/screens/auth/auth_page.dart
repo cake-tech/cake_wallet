@@ -97,7 +97,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   @override
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
-    _progressBar = createBar<void>(text,context, duration: null)..show(_key.currentContext!);
+    _progressBar = createBar<void>(text, context, duration: null)..show(_key.currentContext!);
   }
 
   @override
@@ -137,7 +137,11 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
             key: _key,
             appBar: CupertinoNavigationBar(
                 leading: widget.closable
-                    ? ModernButton(size: 36, icon: Icon(Icons.close), onPressed: Navigator.of(context).pop, iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
+                    ? ModernButton(
+                        size: 36,
+                        icon: Icon(Icons.close),
+                        onPressed: Navigator.of(context).pop,
+                        iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
                     : Container(),
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 border: null),

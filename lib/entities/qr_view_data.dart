@@ -5,7 +5,7 @@ class QrViewData {
     required this.data,
     this.embeddedImagePath,
   });
-  
+
   final int? version;
   final String? heroTag;
   final String data;
