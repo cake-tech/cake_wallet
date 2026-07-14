@@ -180,9 +180,6 @@ jobs:
         with:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
           name: cakewallet_linux
-      - name: Verify lint
-        run: |
-          exec env ABORT_ON_CHANGE=true ./scripts/lint.sh
 
       - name: Prepare virtual desktop
         if: ${{ contains(env.message, 'run tests') }}

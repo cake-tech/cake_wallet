@@ -51,7 +51,7 @@ class TransactionListItem extends ActionListItem with Keyable {
           .withLocalSeperator(_appStore.settingsStore.languageCode);
     }
 
-    return transaction.amount.toStringWithSymbol();
+    return transaction.amount.toStringWithSymbol(fractionalDigits: 8);
   }
 
   String get formattedTitle {

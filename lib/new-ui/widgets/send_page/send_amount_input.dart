@@ -71,6 +71,8 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 signed: false,
                                 decimal: widget.maxDecimals > 0,
                               ),
+                              autocorrect: false,
+                              enableSuggestions: false,
                               inputFormatters: <TextInputFormatter>[
                                 DecimalInputFormatter(maxDecimals: widget.maxDecimals),
                               ],
@@ -87,7 +89,11 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                               onPressed: () async {
                                 final data = await Clipboard.getData(Clipboard.kTextPlain);
                                 if (data != null && data.text != null) {
-                                  widget.amountController.text = data.text!;
+                                  final text = data.text!;
+                                  widget.amountController.value = TextEditingValue(
+                                    text: text,
+                                    selection: TextSelection.collapsed(offset: text.length),
+                                  );
                                 }
                               }),
                         ],

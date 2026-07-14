@@ -18,6 +18,7 @@ class SecretKey {
     SecretKey('wyreApiKey', () => ''),
     SecretKey('wyreAccountId', () => ''),
     SecretKey('moonPayApiKey', () => ''),
+    SecretKey('moonPaySandboxApiKey', () => ''),
     SecretKey('moonPaySecretKey', () => ''),
     SecretKey('sideShiftAffiliateId', () => ''),
     SecretKey('simpleSwapApiKey', () => ''),

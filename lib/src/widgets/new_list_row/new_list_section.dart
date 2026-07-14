@@ -133,6 +133,7 @@ class NewListSections extends StatelessWidget {
         label: item.label,
         subtitle: item.subtitle,
         iconPath: item.iconPath,
+        subtitleColor: item.subtitleColor,
         showArrow: item.showArrow,
         onTap: item.onTap,
         value: item.value,
