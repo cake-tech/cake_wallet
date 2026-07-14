@@ -1751,6 +1751,7 @@ abstract class Zcash {
   String formatterZcashAmountToString({required int amount});
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
+  Future<String> generateNewTransparentAddress(Object wallet);
 
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getZcashTransactionPriorityAutomatic();

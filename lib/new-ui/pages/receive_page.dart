@@ -213,15 +213,25 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       icon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.isRotatingAddress
                           ? CupertinoActivityIndicator()
                           : Icon(Icons.refresh),
-                      onPressed: () {
+                      onPressed: () async {
                         if(_largeQrMode) {
-                              ShareUtil.share(
-                                text: widget.addressListViewModel.uri.toString(),
-                                context: context,
+                          ShareUtil.share(
+                            text: widget.addressListViewModel.uri.toString(),
+                            context: context,
+                          );
+                        } else if(widget.addressListViewModel.hasAddressRotation) {
+                          try {
+                            await widget.addressListViewModel.rotateAddress();
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    e.toString().replaceFirst("Bad state: ", ""),
+                                  ),
+                                ),
                               );
-                        } else {
-                          if(widget.addressListViewModel.hasAddressRotation) {
-                            widget.addressListViewModel.rotateAddress();
+                            }
                           }
                         }
                       }):SizedBox.shrink(),

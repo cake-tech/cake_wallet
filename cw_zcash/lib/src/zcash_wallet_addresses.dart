@@ -131,7 +131,11 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   bool containsAddress(final String address) {
-    return this.address == address || addressesMap.values.contains(address);
+    return this.address == address ||
+        addressesMap.values.contains(address) ||
+        addressInfos.values.any((final infos) {
+          return infos.any((final info) => info.address == address);
+        });
   }
 
   static int get coin => ZcashWalletBase.coin;
@@ -149,25 +153,42 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     address = latestAddress;
   }
 
+  Map<String, String> _labelsByAddress() {
+    final labels = <String, String>{};
+    for (final infos in addressInfos.values) {
+      for (final info in infos) {
+        labels[info.address] = info.label;
+      }
+    }
+    return labels;
+  }
+
+  Map<int, List<WalletInfoAddressInfo>> _buildTransparentAddressInfos(
+    final Map<String, String> labels,
+  ) {
+    int mapKey = 0;
+    final infos = ZcashTaddressRotation.accountsForAccount(accountId).map((final account) {
+      final address = WarpApi.getTAddr(coin, account.id);
+      ZcashTaddressRotation.refreshAddressMetadata(account);
+      return WalletInfoAddressInfo(
+        walletInfoId: walletInfo.internalId,
+        mapKey: ++mapKey,
+        accountIndex: account.id,
+        address: address,
+        label: labels[address] ?? "",
+        txCount: ZcashTaddressRotation.txCountForAddress(address),
+        balance: ZcashTaddressRotation.balanceForAddress(address),
+      );
+    }).toList();
+    return {0: infos};
+  }
+
   @override
   Future<void> init() async {
     await _initAddresses();
 
     await ZcashTaddressRotation.init();
-    int accountIndex = 0;
-    addressInfos = {
-      0:
-          ZcashTaddressRotation.allAddressesForAccount(accountId)?.map((final v) {
-            return WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: ++accountIndex,
-              accountIndex: 0,
-              address: v,
-              label: "",
-            );
-          }).toList() ??
-          [],
-    };
+    addressInfos = _buildTransparentAddressInfos(_labelsByAddress());
     hiddenAddresses.addAll(
       ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {},
     );
@@ -227,11 +248,36 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     if (addressPageType != ZcashAddressType.transparentRotated) {
       return [];
     }
+    final knownAddresses = addressInfos.values
+        .expand((final infos) => infos)
+        .map((final info) => info.address)
+        .toSet();
+    final currentAddresses = ZcashTaddressRotation.accountsForAccount(accountId)
+        .map((final account) => WarpApi.getTAddr(coin, account.id))
+        .toSet();
+    if (knownAddresses.length != currentAddresses.length ||
+        !knownAddresses.containsAll(currentAddresses)) {
+      addressInfos = _buildTransparentAddressInfos(_labelsByAddress());
+    }
+
     final List<WalletInfoAddressInfo> allInfos = [];
     for (final entry in addressInfos.entries) {
+      for (final info in entry.value) {
+        info.txCount = ZcashTaddressRotation.txCountForAddress(info.address);
+        info.balance = ZcashTaddressRotation.balanceForAddress(info.address);
+      }
       allInfos.addAll(entry.value);
     }
     return allInfos;
+  }
+
+  Future<String> generateNewTransparentAddress() async {
+    final labels = _labelsByAddress();
+    final newAddress = await ZcashTaddressRotation.generateAddressForAccount(accountId);
+    addressInfos = _buildTransparentAddressInfos(labels);
+    await saveAddressesInBox();
+    address = newAddress;
+    return newAddress;
   }
 
   @override

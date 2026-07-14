@@ -368,8 +368,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.zcash) {
       final addrInfos = zcash!.getAddressInfos(wallet);
       addrInfos.forEach((info) {
-        addressList.add(
-            new WalletAddressListItem(isPrimary: false, address: info.address, name: info.label));
+        addressList.add(WalletAddressListItem(
+          id: info.mapKey,
+          isPrimary: false,
+          address: info.address,
+          name: info.label,
+          txCount: info.txCount,
+          balance: info.balance == null
+              ? null
+              : _appStore.amountParsingProxy
+                  .getDisplayCryptoString(info.balance!, walletTypeToCryptoCurrency(type)),
+        ));
       });
     }
 
@@ -474,7 +483,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       ].contains(wallet.type) && !isLightning && isZCashTransparent;
 
   @computed
-  bool get hasAddressRotation => hasAddressList && wallet.type != WalletType.zcash;
+  bool get hasAddressRotation => hasAddressList;
 
   @computed
   bool get isElectrumWallet => [
@@ -566,7 +575,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   String get monoImage => getChainMonoImage(type);
 
   @computed
-  bool get isBalanceAvailable => isElectrumWallet;
+  bool get isBalanceAvailable =>
+      isElectrumWallet || (wallet.type == WalletType.zcash && isZCashTransparent);
 
   @computed
   bool get isReceivedAvailable => [WalletType.monero, WalletType.wownero].contains(wallet.type);
@@ -624,8 +634,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
     try {
       isRotatingAddress = true;
-      await createNewAddress(wallet, "");
-      wallet.walletAddresses.address = addressList.whereType<WalletAddressListItem>().last.address;
+      if (wallet.type == WalletType.zcash) {
+        if (!isZCashTransparent) {
+          throw StateError("A disposable transparent address type must be selected");
+        }
+        wallet.walletAddresses.address = await zcash!.generateNewTransparentAddress(wallet);
+      } else {
+        await createNewAddress(wallet, "");
+        wallet.walletAddresses.address =
+            addressList.whereType<WalletAddressListItem>().last.address;
+      }
     } finally {
       isRotatingAddress = false;
     }
