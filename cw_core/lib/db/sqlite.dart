@@ -98,34 +98,36 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         definition: 'BOOLEAN DEFAULT FALSE',
       );
 
-        await _addColumnIfNotExists(
-          db,
-          table: 'BalanceCardStyleSettings',
-          column: 'cardOrder',
-          definition: 'INTEGER DEFAULT 0',
-        );
-      }
-      if (oldVersion <= 3) {
-        await _addColumnIfNotExists(db, table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
-        // null - primary token (eth, sol etc)
-        // not null - address of fav token
-        // if address doesn't correspond to a valid token, fallback to primary token
-        await _addColumnIfNotExists(db, table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
-      }
-      if (oldVersion <= 4) {
-        await _createBridgeTransferTable(db);
-      }
-      if (oldVersion <= 5) {
-        await _createTradeTable(db);
-      }
-      if (oldVersion <= 6) {
-        await _addColumnIfNotExists(
-          db,
-          table: 'Trade',
-          column: 'toAddressExtraId',
-          definition: 'TEXT',
-        );
-      }
+      await _addColumnIfNotExists(
+        db,
+        table: 'BalanceCardStyleSettings',
+        column: 'cardOrder',
+        definition: 'INTEGER DEFAULT 0',
+      );
+    }
+    if (oldVersion <= 3) {
+      await _addColumnIfNotExists(db,
+          table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
+      // null - primary token (eth, sol etc)
+      // not null - address of fav token
+      // if address doesn't correspond to a valid token, fallback to primary token
+      await _addColumnIfNotExists(db,
+          table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
+    }
+    if (oldVersion <= 4) {
+      await _createBridgeTransferTable(db);
+    }
+    if (oldVersion <= 5) {
+      await _createTradeTable(db);
+    }
+    if (oldVersion <= 6) {
+      await _addColumnIfNotExists(
+        db,
+        table: 'Trade',
+        column: 'toAddressExtraId',
+        definition: 'TEXT',
+      );
+    }
     if (oldVersion <= 7) {
       await _createNodeTable(db);
     }
@@ -143,13 +145,11 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         definition: 'BOOLEAN DEFAULT FALSE',
       );
     }
-    if(oldVersion <= 9) {
+    if (oldVersion <= 9) {
       _createChartsTables(db);
     }
-    },
-    onCreate: (Database db, int version) async {
-      await db.execute(
-        '''
+  }, onCreate: (Database db, int version) async {
+    await db.execute('''
 CREATE TABLE WalletInfo (
 	walletInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	id TEXT NOT NULL,
@@ -243,9 +243,8 @@ CREATE TABLE BalanceCardStyleSettings (
     await _createBridgeTransferTable(db);
     await _createNodeTable(db);
     await _createTradeTable(db);
-     await _createChartsTables(db);
-    }
-  );
+    await _createChartsTables(db);
+  });
 }
 
 Future<void> _createChartsTables(Database db) async {
@@ -328,7 +327,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
 ON Trade (id);
 ''');
 }
-
 
 Future<Map<String, dynamic>> dumpDb() async {
   try {

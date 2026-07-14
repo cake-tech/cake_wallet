@@ -21,7 +21,7 @@ class FlipCard extends StatefulWidget {
 
 class FlipCardState extends State<FlipCard> with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl =
-  AnimationController(vsync: this, duration: widget.duration);
+      AnimationController(vsync: this, duration: widget.duration);
   bool _isFront = true;
 
   void toggleCard() {
@@ -45,18 +45,17 @@ class FlipCardState extends State<FlipCard> with SingleTickerProviderStateMixin 
           transform: Matrix4.identity()
             ..setEntry(3, 2, 0.001)
             ..rotateY(angle),
-          child: isFront ? widget.front
+          child: isFront
+              ? widget.front
               : Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.rotationY(math.pi),
-            child: widget.back,
-          ),
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(math.pi),
+                  child: widget.back,
+                ),
         );
       },
     );
 
-    return widget.flipOnTouch
-        ? GestureDetector(onTap: toggleCard, child: content)
-        : content;
+    return widget.flipOnTouch ? GestureDetector(onTap: toggleCard, child: content) : content;
   }
 }

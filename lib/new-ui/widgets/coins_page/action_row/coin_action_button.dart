@@ -33,10 +33,11 @@ class CoinActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: gradientColors ?? [
-                context.customColors.cardGradientColorPrimary,
-                context.customColors.cardGradientColorSecondary
-              ],
+              colors: gradientColors ??
+                  [
+                    context.customColors.cardGradientColorPrimary,
+                    context.customColors.cardGradientColorSecondary
+                  ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),

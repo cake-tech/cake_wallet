@@ -5,7 +5,12 @@ import 'package:flutter/material.dart';
 
 class LongPressPopupBuilder extends StatelessWidget {
   const LongPressPopupBuilder(
-      {super.key, required this.child, required this.popup, this.spacing = 8, this.showOnTap = false, this.footer});
+      {super.key,
+      required this.child,
+      required this.popup,
+      this.spacing = 8,
+      this.showOnTap = false,
+      this.footer});
 
   final Widget child;
   final Widget popup;
@@ -17,21 +22,21 @@ class LongPressPopupBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onLongPress: ()=>_showMenu(context),
-      onTap: showOnTap ? ()=>_showMenu(context) : null,
+      onLongPress: () => _showMenu(context),
+      onTap: showOnTap ? () => _showMenu(context) : null,
       child: IgnorePointer(ignoring: showOnTap, child: child),
     );
   }
 
   void _showMenu(BuildContext context) {
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
-      final offset = renderBox.localToGlobal(Offset.zero);
-      final size = renderBox.size;
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
 
-      showPopUp(
-        context: context,
-        builder: (context) => _buildPopup(context, offset, size),
-      );
+    showPopUp(
+      context: context,
+      builder: (context) => _buildPopup(context, offset, size),
+    );
   }
 
   Widget _buildPopup(BuildContext context, Offset offset, Size size) {
@@ -62,8 +67,13 @@ class LongPressPopupBuilder extends StatelessWidget {
               child: popup,
             ),
           ),
-          if(footer != null)
-          Positioned(left:0,right:0,bottom: MediaQuery.of(context).viewPadding.bottom, child: footer!,)
+          if (footer != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: MediaQuery.of(context).viewPadding.bottom,
+              child: footer!,
+            )
         ],
       ),
     );

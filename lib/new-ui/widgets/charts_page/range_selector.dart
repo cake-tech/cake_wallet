@@ -37,13 +37,13 @@ class ChartRangeSelector extends StatelessWidget {
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
-                if(!selected) {
+                if (!selected) {
                   onRangeSelected(item);
                 }
               },
               child: Padding(
-                padding: EdgeInsets.only(right: optionPadding/2,
-                left: isFirst ? 0 : optionPadding/2),
+                padding: EdgeInsets.only(
+                    right: optionPadding / 2, left: isFirst ? 0 : optionPadding / 2),
                 child: Container(
                   width: optionSize,
                   height: optionSize,

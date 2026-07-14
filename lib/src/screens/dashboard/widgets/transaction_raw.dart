@@ -42,13 +42,14 @@ class TransactionRow extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
-              child: (isShield) ? Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SvgPicture.asset('assets/images/tx_shield.svg'),
-              ) : 
-                Image.asset(direction == TransactionDirection.incoming
-                  ? 'assets/images/down_arrow.png'
-                  : 'assets/images/up_arrow.png'),
+              child: (isShield)
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset('assets/images/tx_shield.svg'),
+                    )
+                  : Image.asset(direction == TransactionDirection.incoming
+                      ? 'assets/images/down_arrow.png'
+                      : 'assets/images/up_arrow.png'),
             ),
             SizedBox(width: 12),
             Expanded(
@@ -66,7 +67,7 @@ class TransactionRow extends StatelessWidget {
                                 title,
                                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       fontWeight: FontWeight.w600,
-                                  overflow: TextOverflow.fade,
+                                      overflow: TextOverflow.fade,
                                     ),
                               ),
                             ),

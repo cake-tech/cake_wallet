@@ -5,7 +5,6 @@ sealed class ChartsEvent {
   const ChartsEvent();
 }
 
-
 class RangeChanged extends ChartsEvent {
   final ChartRange newRange;
 

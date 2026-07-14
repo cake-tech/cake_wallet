@@ -3,12 +3,11 @@ import 'package:cake_wallet/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<DateTime?> getDate({
-  required BuildContext context,
-  required DateTime initialDate,
-  required DateTime firstDate,
-  required DateTime lastDate}) {
-
+Future<DateTime?> getDate(
+    {required BuildContext context,
+    required DateTime initialDate,
+    required DateTime firstDate,
+    required DateTime lastDate}) {
   if (Platform.isIOS) {
     return _buildCupertinoDataPicker(context, initialDate, firstDate, lastDate);
   }
@@ -17,10 +16,7 @@ Future<DateTime?> getDate({
 }
 
 Future<DateTime?> _buildMaterialDataPicker(
-  BuildContext context,
-  DateTime initialDate,
-  DateTime firstDate,
-  DateTime lastDate) async {
+    BuildContext context, DateTime initialDate, DateTime firstDate, DateTime lastDate) async {
   return await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -30,10 +26,7 @@ Future<DateTime?> _buildMaterialDataPicker(
 }
 
 Future<DateTime?> _buildCupertinoDataPicker(
-  BuildContext context,
-  DateTime initialDate,
-  DateTime firstDate,
-  DateTime lastDate) async {
+    BuildContext context, DateTime initialDate, DateTime firstDate, DateTime lastDate) async {
   DateTime? date;
   await showModalBottomSheet<void>(
       context: navigatorKey.currentState!.context,
@@ -48,7 +41,6 @@ Future<DateTime?> _buildCupertinoDataPicker(
             maximumDate: lastDate,
           ),
         );
-      }
-  );
+      });
   return date;
 }

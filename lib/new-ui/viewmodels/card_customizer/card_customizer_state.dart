@@ -61,7 +61,15 @@ sealed class CardCustomizerState {
 }
 
 final class CardCustomizerNotLoaded extends CardCustomizerState {
-  CardCustomizerNotLoaded(super.selectedDesignIndex, super.selectedColorIndex, super.availableDesigns, super.availableColors, super.accountName, super.accountIndex, super.displaySats, super.cardOrder);
+  CardCustomizerNotLoaded(
+      super.selectedDesignIndex,
+      super.selectedColorIndex,
+      super.availableDesigns,
+      super.availableColors,
+      super.accountName,
+      super.accountIndex,
+      super.displaySats,
+      super.cardOrder);
 
   @override
   CardCustomizerState copyWith(
@@ -91,10 +99,9 @@ final class CardCustomizerInitial extends CardCustomizerState {
     int cardOrder, {
     List<CardIconPath> availableIconPaths = const [],
     int selectedIconIndex = 0,
-  }) : super(selectedDesignIndex, selectedColorIndex, availableDesigns,
-            availableColors, accountName, accountIndex, displaySats, cardOrder,
-            availableIconPaths: availableIconPaths,
-            selectedIconIndex: selectedIconIndex);
+  }) : super(selectedDesignIndex, selectedColorIndex, availableDesigns, availableColors,
+            accountName, accountIndex, displaySats, cardOrder,
+            availableIconPaths: availableIconPaths, selectedIconIndex: selectedIconIndex);
 
   CardCustomizerInitial copyWith({
     int? selectedDesignIndex,
@@ -124,10 +131,17 @@ final class CardCustomizerInitial extends CardCustomizerState {
 }
 
 final class CardCustomizerSaved extends CardCustomizerState {
-  CardCustomizerSaved(super.selectedDesignIndex, super.selectedColorIndex,
-      super.availableDesigns, super.availableColors, super.accountName,
-      super.accountIndex, super.displaySats, super.cardOrder,
-      {super.availableIconPaths, super.selectedIconIndex});
+  CardCustomizerSaved(
+      super.selectedDesignIndex,
+      super.selectedColorIndex,
+      super.availableDesigns,
+      super.availableColors,
+      super.accountName,
+      super.accountIndex,
+      super.displaySats,
+      super.cardOrder,
+      {super.availableIconPaths,
+      super.selectedIconIndex});
 
   @override
   CardCustomizerState copyWith(

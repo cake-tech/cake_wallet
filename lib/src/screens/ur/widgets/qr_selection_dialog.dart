@@ -90,9 +90,7 @@ class QRFormatSelectionDialog extends BaseAlertDialog {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: isSelected
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer
+                                      ? Theme.of(context).colorScheme.onPrimaryContainer
                                       : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
@@ -105,10 +103,7 @@ class QRFormatSelectionDialog extends BaseAlertDialog {
                                           .colorScheme
                                           .onPrimaryContainer
                                           .withOpacity(0.6)
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withOpacity(0.6),
+                                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                 ),
                               ),
                             ],

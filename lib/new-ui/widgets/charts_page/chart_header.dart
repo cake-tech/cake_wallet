@@ -105,7 +105,9 @@ class _ChartHeaderState extends State<ChartHeader> {
 
                                 final newPrice =
                                     response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
-                                final newTime = DateFormat("M/d/y HH:mm").format(DateTime.fromMillisecondsSinceEpoch(response?.lineBarSpots?.firstOrNull?.x.toInt()??0));
+                                final newTime = DateFormat("M/d/y HH:mm").format(
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0));
                                 if (_viewedPrice != newPrice) {
                                   HapticFeedback.selectionClick();
                                   setState(() {

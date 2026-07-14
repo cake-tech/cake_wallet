@@ -353,11 +353,10 @@ class _ScanPageState extends State<ScanPage> {
             ),
           ),
           Positioned(
-bottom: 120, left:0,right:0,
+            bottom: 120,
+            left: 0,
+            right: 0,
             child: IgnorePointer(
-           
-             
-             
               child: AnimatedOpacity(
                 duration: Duration(milliseconds: 500),
                 opacity: isScanningURQR ? 1 : 0,
@@ -378,7 +377,8 @@ bottom: 120, left:0,right:0,
                     ),
                     Text(
                       "${decoder.expectedPartCount()}",
-                      style: TextStyle(fontSize: 45, color: Theme.of(context).colorScheme.onSurface),
+                      style:
+                          TextStyle(fontSize: 45, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ],
                 ),

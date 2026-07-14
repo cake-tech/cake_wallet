@@ -3,7 +3,6 @@ import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-
 class PriceChart extends StatelessWidget {
   const PriceChart(
       {super.key,
@@ -35,8 +34,7 @@ class PriceChart extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
               spots: chartPoints,
-              gradient:
-              LinearGradient(colors: [direction.color.withAlpha(25), direction.color]),
+              gradient: LinearGradient(colors: [direction.color.withAlpha(25), direction.color]),
               barWidth: 1.5,
               isStrokeCapRound: true,
               dotData: FlDotData(show: false),

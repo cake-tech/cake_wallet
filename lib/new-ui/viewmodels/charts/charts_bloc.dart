@@ -30,18 +30,18 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     on<PageLoadStarted>(_onPageLoadStarted, transformer: restartable());
     on<Init>(_init);
     add(Init());
-}
+  }
 
   Future<void> _init(Init event, Emitter<ChartsState> emit) async {
     final assets = await ChartsAsset.get();
 
-    if(assets.isEmpty) {
+    if (assets.isEmpty) {
       // generally this shouldn't happen, but i wanna make sure we can recover from a broken db
       assets.add(ChartsAsset(asset: CryptoCurrency.btc, isFavorite: true));
       assets.first.insert();
     }
-    
-    if(assets.firstWhereOrNull((item)=>item.isFavorite) == null) {
+
+    if (assets.firstWhereOrNull((item) => item.isFavorite) == null) {
       assets.first = ChartsAsset(asset: assets.first.asset, isFavorite: true);
       assets.first.insert();
     }
@@ -54,8 +54,6 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     add(PageLoadStarted());
   }
 
-
-
   Future<void> _onPageLoadStarted(PageLoadStarted event, Emitter<ChartsState> emit) async {
     if (state case ChartsStateWithData s) {
       final Map<CryptoCurrency, List<PriceData>> data = {};
@@ -64,7 +62,11 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       for (final curr in currencies) {
         data[curr] = await priceStore.getPrices(appStore.settingsStore.fiatCurrency, curr, range);
       }
-      emit(ChartsLoaded(pinnedCurrency: s.pinnedCurrency, prices: data, range: s.range, sortCriterium: s.sortCriterium));
+      emit(ChartsLoaded(
+          pinnedCurrency: s.pinnedCurrency,
+          prices: data,
+          range: s.range,
+          sortCriterium: s.sortCriterium));
     } else {
       throw Exception("attempted price load without currency data");
     }
@@ -74,7 +76,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     RangeChanged event,
     Emitter<ChartsState> emit,
   ) async {
-    if(state case ChartsStateWithData s) {
+    if (state case ChartsStateWithData s) {
       emit(s.toLoading().copyWith(range: event.newRange));
       add(PageLoadStarted());
     }
@@ -84,7 +86,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     SortingCriteriumChanged event,
     Emitter<ChartsState> emit,
   ) async {
-    if(state case ChartsStateWithData s) {
+    if (state case ChartsStateWithData s) {
       emit(s.copyWith(sortCriterium: event.newCriterium));
     }
   }
@@ -93,7 +95,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     CurrencyAdded event,
     Emitter<ChartsState> emit,
   ) async {
-    if(state case ChartsStateWithData s) {
+    if (state case ChartsStateWithData s) {
       final newCurrencies = s.currencies..add(event.currency);
       await ChartsAsset(asset: event.currency, isFavorite: false).insert();
       emit(s.toLoading().copyWith(currencies: newCurrencies));
@@ -105,25 +107,24 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     CurrencyRemoved event,
     Emitter<ChartsState> emit,
   ) async {
-    if(state case ChartsStateWithData s) {
+    if (state case ChartsStateWithData s) {
       final newCurrencies = s.currencies..remove(event.currency);
 
-      if(newCurrencies.isEmpty) {
-        throw Exception("removed the last currency ${(kDebugMode) ? "- your ui should block this! what did you do?" : ""}");
+      if (newCurrencies.isEmpty) {
+        throw Exception(
+            "removed the last currency ${(kDebugMode) ? "- your ui should block this! what did you do?" : ""}");
       }
 
-
       final CryptoCurrency newPin;
-      if(s.pinnedCurrency == event.currency) {
-          newPin = newCurrencies.first;
-          await ChartsAsset(asset: s.pinnedCurrency, isFavorite: false).insert();
-          await ChartsAsset(asset: newPin, isFavorite: true).insert();
+      if (s.pinnedCurrency == event.currency) {
+        newPin = newCurrencies.first;
+        await ChartsAsset(asset: s.pinnedCurrency, isFavorite: false).insert();
+        await ChartsAsset(asset: newPin, isFavorite: true).insert();
       } else {
         newPin = s.pinnedCurrency;
       }
 
       await ChartsAsset(asset: event.currency, isFavorite: false).remove();
-
 
       emit(s.toLoading().copyWith(currencies: newCurrencies, pinnedCurrency: newPin));
       add(PageLoadStarted());
@@ -134,8 +135,8 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     CurrencyPinned event,
     Emitter<ChartsState> emit,
   ) async {
-    if(state case ChartsStateWithData s) {
-      if(s.pinnedCurrency == event.currency) {
+    if (state case ChartsStateWithData s) {
+      if (s.pinnedCurrency == event.currency) {
         return;
       }
       await ChartsAsset(asset: s.pinnedCurrency, isFavorite: false).insert();
@@ -149,7 +150,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     PageRefreshed event,
     Emitter<ChartsState> emit,
   ) async {
-    if(state case ChartsStateWithData s) {
+    if (state case ChartsStateWithData s) {
       emit(s.toLoading());
       add(PageLoadStarted());
     }

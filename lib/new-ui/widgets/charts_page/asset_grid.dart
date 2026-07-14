@@ -24,7 +24,7 @@ class ChartsAssetGrid extends StatelessWidget {
         if (state is ChartsStateWithData) {
           final currencies = state.currencies;
           return GridView.builder(
-            shrinkWrap: true,
+              shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               itemCount: currencies.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

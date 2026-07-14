@@ -27,49 +27,49 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static List<FiatCurrency> get all => _all.values.toList();
 
   static List<FiatCurrency> get currenciesAvailableToBuyWith => [
-    amd,
-    aud,
-    bgn,
-    brl,
-    cad,
-    chf,
-    clp,
-    cop,
-    czk,
-    dkk,
-    egp,
-    eur,
-    gbp,
-    gtq,
-    hkd,
-    hrk,
-    huf,
-    idr,
-    ils,
-    inr,
-    isk,
-    jpy,
-    krw,
-    mad,
-    mxn,
-    myr,
-    ngn,
-    nok,
-    nzd,
-    php,
-    pkr,
-    pln,
-    ron,
-    sek,
-    sgd,
-    thb,
-    twd,
-    usd,
-    vnd,
-    zar,
-    tur,
-    kes,
-  ];
+        amd,
+        aud,
+        bgn,
+        brl,
+        cad,
+        chf,
+        clp,
+        cop,
+        czk,
+        dkk,
+        egp,
+        eur,
+        gbp,
+        gtq,
+        hkd,
+        hrk,
+        huf,
+        idr,
+        ils,
+        inr,
+        isk,
+        jpy,
+        krw,
+        mad,
+        mxn,
+        myr,
+        ngn,
+        nok,
+        nzd,
+        php,
+        pkr,
+        pln,
+        ron,
+        sek,
+        sgd,
+        thb,
+        twd,
+        usd,
+        vnd,
+        zar,
+        tur,
+        kes,
+      ];
 
   static const amd = FiatCurrency(symbol: 'AMD', countryCode: "arm", fullName: "Armenian Dram");
   static const ars = FiatCurrency(symbol: 'ARS', countryCode: "arg", fullName: "Argentine Peso");
@@ -88,15 +88,18 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static const eur = FiatCurrency(symbol: 'EUR', countryCode: "eur", fullName: "Euro");
   static const gbp = FiatCurrency(symbol: 'GBP', countryCode: "gbr", fullName: "Pound Sterling");
   static const ghs = FiatCurrency(symbol: 'GHS', countryCode: "gha", fullName: "Ghanaian Cedi");
-  static const gtq = FiatCurrency(symbol: 'GTQ', countryCode: "gtm", fullName: "Guatemalan Quetzal");
+  static const gtq =
+      FiatCurrency(symbol: 'GTQ', countryCode: "gtm", fullName: "Guatemalan Quetzal");
   static const hkd = FiatCurrency(symbol: 'HKD', countryCode: "hkg", fullName: "Hong Kong Dollar");
   static const hrk = FiatCurrency(symbol: 'HRK', countryCode: "hrv", fullName: "Croatian Kuna");
   static const huf = FiatCurrency(symbol: 'HUF', countryCode: "hun", fullName: "Hungarian Forint");
   static const idr = FiatCurrency(symbol: 'IDR', countryCode: "idn", fullName: "Indonesian Rupiah");
-  static const ils = FiatCurrency(symbol: 'ILS', countryCode: "isr", fullName: "Israeli New Shekel");
+  static const ils =
+      FiatCurrency(symbol: 'ILS', countryCode: "isr", fullName: "Israeli New Shekel");
   static const inr = FiatCurrency(symbol: 'INR', countryCode: "ind", fullName: "Indian Rupee");
   static const irr = FiatCurrency(symbol: 'IRR', countryCode: "irn", fullName: "Iranian Rial");
-  static const isk = FiatCurrency(symbol: 'ISK', countryCode: "isl", fullName: "Icelandic Krona Króna");
+  static const isk =
+      FiatCurrency(symbol: 'ISK', countryCode: "isl", fullName: "Icelandic Krona Króna");
   static const jpy = FiatCurrency(symbol: 'JPY', countryCode: "jpn", fullName: "Japanese Yen");
   static const krw = FiatCurrency(symbol: 'KRW', countryCode: "kor", fullName: "South Korean Won");
   static const mad = FiatCurrency(symbol: 'MAD', countryCode: "mar", fullName: "Moroccan Dirham");
@@ -104,22 +107,29 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static const myr = FiatCurrency(symbol: 'MYR', countryCode: "mys", fullName: "Malaysian Ringgit");
   static const ngn = FiatCurrency(symbol: 'NGN', countryCode: "nga", fullName: "Nigerian Naira");
   static const nok = FiatCurrency(symbol: 'NOK', countryCode: "nor", fullName: "Norwegian Krone");
-  static const nzd = FiatCurrency(symbol: 'NZD', countryCode: "nzl", fullName: "New Zealand Dollar");
+  static const nzd =
+      FiatCurrency(symbol: 'NZD', countryCode: "nzl", fullName: "New Zealand Dollar");
   static const php = FiatCurrency(symbol: 'PHP', countryCode: "phl", fullName: "Philippine Peso");
   static const pkr = FiatCurrency(symbol: 'PKR', countryCode: "pak", fullName: "Pakistani Rupee");
-  static const pln = FiatCurrency(symbol: 'PLN', countryCode: "pol", fullName: "Poland Zloty złoty");
+  static const pln =
+      FiatCurrency(symbol: 'PLN', countryCode: "pol", fullName: "Poland Zloty złoty");
   static const ron = FiatCurrency(symbol: 'RON', countryCode: "rou", fullName: "Romanian Leu");
   static const rub = FiatCurrency(symbol: 'RUB', countryCode: "rus", fullName: "Russian Ruble");
   static const sar = FiatCurrency(symbol: 'SAR', countryCode: "sau", fullName: "Saudi Riyal");
   static const sek = FiatCurrency(symbol: 'SEK', countryCode: "swe", fullName: "Swedish Krona");
   static const sgd = FiatCurrency(symbol: 'SGD', countryCode: "sgp", fullName: "Singapore Dollar");
-  static const thb = FiatCurrency(symbol: 'THB', countryCode: "tha", fullName: "New Thaiwan Dollar");
+  static const thb =
+      FiatCurrency(symbol: 'THB', countryCode: "tha", fullName: "New Thaiwan Dollar");
   static const twd = FiatCurrency(symbol: 'TWD', countryCode: "twn", fullName: "Thai Baht");
   static const uah = FiatCurrency(symbol: 'UAH', countryCode: "ukr", fullName: "Ukrainian Hryvnia");
-  static const usd = FiatCurrency(symbol: 'USD', countryCode: "usa", fullName: "United States Dollar");
-  static const vef = FiatCurrency(symbol: 'VEF', countryCode: "ven", fullName: "Venezuelan Bolivar Bolívar");
-  static const vnd = FiatCurrency(symbol: 'VND', countryCode: "vnm", fullName: "Vietnamese Dong đồng");
-  static const zar = FiatCurrency(symbol: 'ZAR', countryCode: "saf", fullName: "South African Rand");
+  static const usd =
+      FiatCurrency(symbol: 'USD', countryCode: "usa", fullName: "United States Dollar");
+  static const vef =
+      FiatCurrency(symbol: 'VEF', countryCode: "ven", fullName: "Venezuelan Bolivar Bolívar");
+  static const vnd =
+      FiatCurrency(symbol: 'VND', countryCode: "vnm", fullName: "Vietnamese Dong đồng");
+  static const zar =
+      FiatCurrency(symbol: 'ZAR', countryCode: "saf", fullName: "South African Rand");
   static const tur = FiatCurrency(symbol: 'TRY', countryCode: "tur", fullName: "Turkish Lira");
   static const kes = FiatCurrency(symbol: 'KES', countryCode: "ken", fullName: "Kenyan Shillings");
 

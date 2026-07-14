@@ -50,12 +50,13 @@ final class ChartsLoading extends ChartsStateWithData {
     List<CryptoCurrency>? currencies,
     ChartRange? range,
     PriceDataSortCriterium? sortCriterium,
-  }) => ChartsLoading(
-      pinnedCurrency: pinnedCurrency ?? this.pinnedCurrency,
-      currencies: currencies ?? this.currencies,
-      range: range ?? this.range,
-      sortCriterium: sortCriterium ?? this.sortCriterium,
-    );
+  }) =>
+      ChartsLoading(
+        pinnedCurrency: pinnedCurrency ?? this.pinnedCurrency,
+        currencies: currencies ?? this.currencies,
+        range: range ?? this.range,
+        sortCriterium: sortCriterium ?? this.sortCriterium,
+      );
 
   const ChartsLoading(
       {required super.pinnedCurrency,
@@ -102,12 +103,13 @@ final class ChartsLoaded extends ChartsStateWithData {
     Map<CryptoCurrency, List<PriceData>>? prices,
     ChartRange? range,
     PriceDataSortCriterium? sortCriterium,
-  }) => ChartsLoaded(
-      pinnedCurrency: pinnedCurrency ?? this.pinnedCurrency,
-      prices: prices ?? this._prices,
-      range: range ?? this.range,
-      sortCriterium: sortCriterium ?? this.sortCriterium,
-    );
+  }) =>
+      ChartsLoaded(
+        pinnedCurrency: pinnedCurrency ?? this.pinnedCurrency,
+        prices: prices ?? this._prices,
+        range: range ?? this.range,
+        sortCriterium: sortCriterium ?? this.sortCriterium,
+      );
 
   const ChartsLoaded(
       {required super.pinnedCurrency,

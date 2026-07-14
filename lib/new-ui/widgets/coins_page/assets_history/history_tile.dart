@@ -60,15 +60,14 @@ class HistoryTile extends StatelessWidget {
     }
   }
 
-  Color? _getPrimaryTextColor() {
-  }
+  Color? _getPrimaryTextColor() {}
 
   Widget _getLeadingIcon(BuildContext context) {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
-          CakeImageWidget(imageUrl:
-            "assets/new-ui/lightning-icon.svg",
+          CakeImageWidget(
+            imageUrl: "assets/new-ui/lightning-icon.svg",
             width: 34,
             height: 34,
           ),
@@ -96,36 +95,39 @@ class HistoryTile extends StatelessWidget {
       );
     }
 
-    if(hasTokens) {
-      return Stack(children: [
-        Opacity(
-          opacity: pending ? 0.5 : 1,
-          child: CakeImageWidget(
+    if (hasTokens) {
+      return Stack(
+        children: [
+          Opacity(
+            opacity: pending ? 0.5 : 1,
+            child: CakeImageWidget(
               imageUrl: asset?.iconPath ?? "",
               width: 34,
             ),
-        ),
-        Align(
-            alignment: Alignment.bottomRight,
-            child: Container(
-                decoration: ShapeDecoration(
-                    shape: RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.circular(5),side: BorderSide(color: Colors.black)),
-                    color: Colors.white),
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: CakeImageWidget(
-                    imageUrl: chainIconPath,
-                    width: 12,
-                    height: 12,
-                    colorFilter:
-                    ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                  ),
-                )))
-      ],);
+          ),
+          Align(
+              alignment: Alignment.bottomRight,
+              child: Container(
+                  decoration: ShapeDecoration(
+                      shape: RoundedSuperellipseBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: BorderSide(color: Colors.black)),
+                      color: Colors.white),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: CakeImageWidget(
+                      imageUrl: chainIconPath,
+                      width: 12,
+                      height: 12,
+                      colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    ),
+                  )))
+        ],
+      );
     }
 
-    return CakeImageWidget(imageUrl:_getDirectionIcon(),
+    return CakeImageWidget(
+        imageUrl: _getDirectionIcon(),
         colorFilter: ColorFilter.mode(
             direction == TransactionDirection.outgoing
                 ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
