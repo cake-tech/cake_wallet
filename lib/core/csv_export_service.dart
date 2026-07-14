@@ -73,12 +73,8 @@ class CsvExportService {
 
     // Prefer tx.to/tx.from; fall back to address lists for chains that don't populate them.
     final address = tx.direction == TransactionDirection.incoming
-        ? (tx.from?.isNotEmpty == true
-            ? tx.from!
-            : (tx.inputAddresses?.firstOrNull ?? ''))
-        : (tx.to?.isNotEmpty == true
-            ? tx.to!
-            : (tx.outputAddresses?.firstOrNull ?? ''));
+        ? (tx.from?.isNotEmpty == true ? tx.from! : (tx.inputAddresses?.firstOrNull ?? ''))
+        : (tx.to?.isNotEmpty == true ? tx.to! : (tx.outputAddresses?.firstOrNull ?? ''));
 
     final fee = tx.fee != null && !tx.fee!.isZero ? tx.fee.toString() : '';
 
@@ -213,7 +209,8 @@ class CsvExportService {
   String _isoDate(DateTime dt) => dt.toUtc().toIso8601String();
 
   Future<void> exportToCsv(List<ActionListItem> items, BuildContext context) async {
-    final dataItems = items.whereType<ActionListItem>().where((e) => e is! DateSectionItem).toList();
+    final dataItems =
+        items.whereType<ActionListItem>().where((e) => e is! DateSectionItem).toList();
 
     if (dataItems.isEmpty) {
       await showBar<void>(context, S.current.csv_nothing_to_export);

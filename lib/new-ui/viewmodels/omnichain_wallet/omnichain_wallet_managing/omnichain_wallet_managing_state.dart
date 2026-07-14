@@ -35,7 +35,8 @@ class OmniChainWalletManagingState {
       currentNetwork: currentNetwork ?? this.currentNetwork,
       wallets: wallets ?? this.wallets,
       filteredWallets: filteredWallets ?? this.filteredWallets,
-      selectedWallet: selectedWallet == _noChange ? this.selectedWallet : selectedWallet as WalletInfo?,
+      selectedWallet:
+          selectedWallet == _noChange ? this.selectedWallet : selectedWallet as WalletInfo?,
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
       error: error,

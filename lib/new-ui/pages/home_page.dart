@@ -45,7 +45,7 @@ class _NewHomePageState extends State<NewHomePage> {
   void initState() {
     super.initState();
     _setAccountViewModel();
-    reaction((_)=>widget.dashboardViewModel.wallet, (_) {
+    reaction((_) => widget.dashboardViewModel.wallet, (_) {
       _setAccountViewModel();
       setState(() {
         _lightningMode = false;
@@ -62,74 +62,74 @@ class _NewHomePageState extends State<NewHomePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-    height: MediaQuery.of(context).size.height,
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [
-          Theme.of(context).colorScheme.surface,
-          Theme.of(context).colorScheme.surfaceDim,
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
+      height: MediaQuery.of(context).size.height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).colorScheme.surfaceDim,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
       ),
-    ),
-    child: Stack(
-      children: [
-        CustomScrollView(
-          physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          slivers:[
-            SliverPadding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-              sliver: CupertinoSliverRefreshControl(
-                refreshTriggerPullDistance: 160,
-                refreshIndicatorExtent: 90,
-                onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
-              ),
-            ),
-            SliverToBoxAdapter(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              spacing: 24.0,
-              children: [
-                TopBar(
-                  dashboardViewModel: widget.dashboardViewModel,
-                  onSettingsButtonPress: () {
-                    CupertinoScaffold.showCupertinoModalBottomSheet(
-                      context: context,
-                      barrierColor: Colors.black.withAlpha(85),
-                      builder: (context) => FractionallySizedBox(
-                          child: Material(
-                                  child: NewSettingsPage(
-                            dashboardViewModel: widget.dashboardViewModel,
-                                    authService: getIt.get<AuthService>(),
-                          ))),
-                    );
-                  },
-                  openAccountCustomizer: openAccountCustomizer,
-                  openChainSelection: () {
-                    CupertinoScaffold.showCupertinoModalBottomSheet(
-                        context: context,
-                        barrierColor: Colors.black.withAlpha(85),
-                        builder: (context) => FractionallySizedBox(
-                            child: Material(
-                              child: OmniChainChangeNetworkPage(
-                                omniChainWalletCreationService: getIt.get<OmniChainWalletCreationService>(),
-                              ),
-                            )));
-                  },
-
-                  hasCustomize: accountListViewModel != null,
-                ),
-                if (widget.dashboardViewModel.hasLightning)
-                  LightningSwitcher(
-                    lightningMode: _lightningMode,
-                    onLightningSwitchPress: () {
-                      setState(() {
-                        _lightningMode = !_lightningMode;
-                      });
-                    },
+      child: Stack(
+        children: [
+          CustomScrollView(
+              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                  sliver: CupertinoSliverRefreshControl(
+                    refreshTriggerPullDistance: 160,
+                    refreshIndicatorExtent: 90,
+                    onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
                   ),
+                ),
+                SliverToBoxAdapter(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    spacing: 24.0,
+                    children: [
+                      TopBar(
+                        dashboardViewModel: widget.dashboardViewModel,
+                        onSettingsButtonPress: () {
+                          CupertinoScaffold.showCupertinoModalBottomSheet(
+                            context: context,
+                            barrierColor: Colors.black.withAlpha(85),
+                            builder: (context) => FractionallySizedBox(
+                                child: Material(
+                                    child: NewSettingsPage(
+                              dashboardViewModel: widget.dashboardViewModel,
+                              authService: getIt.get<AuthService>(),
+                            ))),
+                          );
+                        },
+                        openAccountCustomizer: openAccountCustomizer,
+                        openChainSelection: () {
+                          CupertinoScaffold.showCupertinoModalBottomSheet(
+                              context: context,
+                              barrierColor: Colors.black.withAlpha(85),
+                              builder: (context) => FractionallySizedBox(
+                                      child: Material(
+                                    child: OmniChainChangeNetworkPage(
+                                      omniChainWalletCreationService:
+                                          getIt.get<OmniChainWalletCreationService>(),
+                                    ),
+                                  )));
+                        },
+                        hasCustomize: accountListViewModel != null,
+                      ),
+                      if (widget.dashboardViewModel.hasLightning)
+                        LightningSwitcher(
+                          lightningMode: _lightningMode,
+                          onLightningSwitchPress: () {
+                            setState(() {
+                              _lightningMode = !_lightningMode;
+                            });
+                          },
+                        ),
                       Column(
                         children: [
                           Observer(
@@ -164,13 +164,15 @@ class _NewHomePageState extends State<NewHomePage> {
                                   : SizedBox(width: double.infinity),
                             );
                           }),
-                          UnconfirmedBalanceWidget(dashboardViewModel: widget.dashboardViewModel,),
-                  ],
-                ),
-                Observer(
-                  builder: (_) {
-                    return Column(
-                      children: [
+                          UnconfirmedBalanceWidget(
+                            dashboardViewModel: widget.dashboardViewModel,
+                          ),
+                        ],
+                      ),
+                      Observer(
+                        builder: (_) {
+                          return Column(
+                            children: [
                               CoinActionRow(
                                 lightningMode: _lightningMode,
                                 showSwap: widget.dashboardViewModel.isEnabledSwapAction,
@@ -180,13 +182,12 @@ class _NewHomePageState extends State<NewHomePage> {
                                 dashboardViewModel: widget.dashboardViewModel,
                               ),
                             ],
-                    );
-                  },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-
-                ],
-            ),
-          ),
                 Observer(
                   builder: (_) => AssetsHistorySection(
                     nftViewModel: widget.nftViewModel,
@@ -198,26 +199,26 @@ class _NewHomePageState extends State<NewHomePage> {
                 )
               ]),
           Container(
-          height: (MediaQuery.of(context).padding.top),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: <Color>[
-                Theme.of(context).colorScheme.surface.withAlpha(5),
-                Theme.of(context).colorScheme.surface.withAlpha(25),
-                Theme.of(context).colorScheme.surface.withAlpha(50),
-                Theme.of(context).colorScheme.surface.withAlpha(100),
-                Theme.of(context).colorScheme.surface.withAlpha(150),
-                Theme.of(context).colorScheme.surface.withAlpha(175),
-                Theme.of(context).colorScheme.surface.withAlpha(200),
-              ],
+            height: (MediaQuery.of(context).padding.top),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: <Color>[
+                  Theme.of(context).colorScheme.surface.withAlpha(5),
+                  Theme.of(context).colorScheme.surface.withAlpha(25),
+                  Theme.of(context).colorScheme.surface.withAlpha(50),
+                  Theme.of(context).colorScheme.surface.withAlpha(100),
+                  Theme.of(context).colorScheme.surface.withAlpha(150),
+                  Theme.of(context).colorScheme.surface.withAlpha(175),
+                  Theme.of(context).colorScheme.surface.withAlpha(200),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-        );
+        ],
+      ),
+    );
   }
 
   void openAccountCustomizer() async {

@@ -42,9 +42,11 @@ class HistorySwapProvidersPage extends StatelessWidget {
                             title: S.of(context).swap_providers,
                             onSelected: (val) {
                               if ((val &&
-                                      dashboardViewModel.tradeFilterStore.enabledProvidersCount == 0) ||
+                                      dashboardViewModel.tradeFilterStore.enabledProvidersCount ==
+                                          0) ||
                                   (!val &&
-                                      dashboardViewModel.tradeFilterStore.enabledProvidersCount > 0)) {
+                                      dashboardViewModel.tradeFilterStore.enabledProvidersCount >
+                                          0)) {
                                 dashboardViewModel.tradeFilterStore
                                     .toggleDisplayExchange(ExchangeProviderDescription.all);
                               }

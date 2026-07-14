@@ -47,7 +47,8 @@ class BaseTextFormField extends StatelessWidget {
     this.suffixIconConstraints,
     super.key,
     this.suffixText,
-    this.borderRadius = const BorderRadius.all(Radius.circular(18)), this.onEditingComplete,
+    this.borderRadius = const BorderRadius.all(Radius.circular(18)),
+    this.onEditingComplete,
   });
 
   final TextEditingController? controller;

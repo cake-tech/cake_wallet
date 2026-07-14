@@ -104,9 +104,12 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                 child: ModalHeader(
                                     iconPath: "assets/new-ui/settings_row_icons/coin-control.svg",
                                     title: "Coin Control",
-                                    message: widget.canEdit ? S.of(context).coin_control_desc : S.of(context).coin_control_desc_no_edit),
+                                    message: widget.canEdit
+                                        ? S.of(context).coin_control_desc
+                                        : S.of(context).coin_control_desc_no_edit),
                               ),
-                              if (widget.unspentCoinsListViewModel.items.isNotEmpty && widget.canEdit)
+                              if (widget.unspentCoinsListViewModel.items.isNotEmpty &&
+                                  widget.canEdit)
                                 Padding(
                                   padding: const EdgeInsets.all(12.0),
                                   child: Row(
@@ -134,7 +137,11 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                       )
                                     ],
                                   ),
-                                ) else SizedBox(height: 24,),
+                                )
+                              else
+                                SizedBox(
+                                  height: 24,
+                                ),
                               if (widget.unspentCoinsListViewModel.nonFrozenItems.isEmpty &&
                                   widget.unspentCoinsListViewModel.frozenItems.isEmpty) ...[
                                 SizedBox(height: 12),
@@ -154,7 +161,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                     : Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                         child: CoinControlListSection(
-                                          canEdit: widget.canEdit,
+                                            canEdit: widget.canEdit,
                                             items: widget.unspentCoinsListViewModel.nonFrozenItems,
                                             unspentCoinsListViewModel:
                                                 widget.unspentCoinsListViewModel),
@@ -181,7 +188,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                                             .onSurfaceVariant),
                                                   ),
                                                   CoinControlListSection(
-                                                    canEdit: widget.canEdit,
+                                                      canEdit: widget.canEdit,
                                                       items: widget
                                                           .unspentCoinsListViewModel.frozenItems,
                                                       unspentCoinsListViewModel:
@@ -206,7 +213,10 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
 
 class CoinControlListSection extends StatelessWidget {
   const CoinControlListSection(
-      {super.key, required this.items, required this.unspentCoinsListViewModel, required this.canEdit});
+      {super.key,
+      required this.items,
+      required this.unspentCoinsListViewModel,
+      required this.canEdit});
 
   final List<UnspentCoinsItem> items;
   final bool canEdit;

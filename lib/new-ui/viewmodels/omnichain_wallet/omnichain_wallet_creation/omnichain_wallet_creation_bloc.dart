@@ -66,9 +66,8 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
       OmniChainWalletTypesSelected event, Emitter<OmniChainWalletState> emit) {
     emit(state.copyWith(
       selectedTypes: state.allWalletTypes.where((type) => isBIP39Wallet(type)).toSet(),
-      primaryType: state.primaryType != null && isBIP39Wallet(state.primaryType!)
-          ? state.primaryType
-          : null,
+      primaryType:
+          state.primaryType != null && isBIP39Wallet(state.primaryType!) ? state.primaryType : null,
     ));
   }
 

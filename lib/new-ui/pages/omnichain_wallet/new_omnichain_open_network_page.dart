@@ -144,16 +144,15 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                                 ),
                                 const SizedBox(width: 12),
                                 Flexible(
-                                  flex: 2,
-                                  fit: FlexFit.tight,
-                                  child: NewElevatedButton(
-                                    key: const ValueKey('new_wallet_manage_button_key'),
-                                    onPressed: () {
-                                      // TODO: manage networks action
-                                    },
-                                    buttonText: 'Manage',
-                                  )
-                                ),
+                                    flex: 2,
+                                    fit: FlexFit.tight,
+                                    child: NewElevatedButton(
+                                      key: const ValueKey('new_wallet_manage_button_key'),
+                                      onPressed: () {
+                                        // TODO: manage networks action
+                                      },
+                                      buttonText: 'Manage',
+                                    )),
                               ],
                             ),
                           ),

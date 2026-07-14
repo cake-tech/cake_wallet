@@ -350,8 +350,8 @@ class WalletInfo {
     this.receiveInfoboxDismissed,
     this.showCombinedBalance,
     this.favoriteTokenAddress,
-  ) : isReady = true,
-      _yatLastUsedAddressController = StreamController<String>.broadcast();
+  )   : isReady = true,
+        _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -570,31 +570,32 @@ class WalletInfo {
   StreamController<String> _yatLastUsedAddressController;
 
   Map<String, dynamic> toJson() => {
-    selfIdColumn: internalId,
-    "id": id,
-    "name": name,
-    "type": type.index,
-    "isRecovery": isRecovery ? 1 : 0,
-    "restoreHeight": restoreHeight,
-    "timestamp": timestamp,
-    "dirPath": dirPath,
-    "path": path,
-    "address": address,
-    "yatEid": yatEid,
-    "yatLastUsedAddressRaw": yatLastUsedAddressRaw,
-    "showIntroCakePayCard": showIntroCakePayCard == true ? 1 : 0, // SQL regression: null -> false
-    "walletInfoDerivationInfoId": derivationInfoId,
-    "hardwareWalletType": hardwareWalletType?.index,
-    "parentAddress": parentAddress,
-    "hashedWalletIdentifier": hashedWalletIdentifier,
-    "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
-    "sortOrder": sortOrder,
-    "addressPageType": addressPageType,
-    "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
-    "showCombinedBalance": showCombinedBalance ? 1 : 0,
-    "favoriteTokenAddress": favoriteTokenAddress,
-    "isReady": isReady ? 1 : 0,
-  };
+        selfIdColumn: internalId,
+        "id": id,
+        "name": name,
+        "type": type.index,
+        "isRecovery": isRecovery ? 1 : 0,
+        "restoreHeight": restoreHeight,
+        "timestamp": timestamp,
+        "dirPath": dirPath,
+        "path": path,
+        "address": address,
+        "yatEid": yatEid,
+        "yatLastUsedAddressRaw": yatLastUsedAddressRaw,
+        "showIntroCakePayCard":
+            showIntroCakePayCard == true ? 1 : 0, // SQL regression: null -> false
+        "walletInfoDerivationInfoId": derivationInfoId,
+        "hardwareWalletType": hardwareWalletType?.index,
+        "parentAddress": parentAddress,
+        "hashedWalletIdentifier": hashedWalletIdentifier,
+        "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
+        "sortOrder": sortOrder,
+        "addressPageType": addressPageType,
+        "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
+        "showCombinedBalance": showCombinedBalance ? 1 : 0,
+        "favoriteTokenAddress": favoriteTokenAddress,
+        "isReady": isReady ? 1 : 0,
+      };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
     final wi = WalletInfo(

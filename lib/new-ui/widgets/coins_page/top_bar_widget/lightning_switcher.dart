@@ -46,11 +46,10 @@ class LightningSwitcher extends StatelessWidget {
                   width: lightningMode ? lightningSegmentWidth : onChainSegmentWidth,
                   height: 32,
                   decoration: ShapeDecoration(
-                    shape: RoundedSuperellipseBorder(
-                      borderRadius: BorderRadiusGeometry.circular(900.0),
-                    ),
-                    color: Color.fromRGBO(215, 226, 247, 0.12)
-                  ),
+                      shape: RoundedSuperellipseBorder(
+                        borderRadius: BorderRadiusGeometry.circular(900.0),
+                      ),
+                      color: Color.fromRGBO(215, 226, 247, 0.12)),
                 ),
               ),
               Row(

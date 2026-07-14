@@ -38,7 +38,8 @@ class MwebLogsPage extends BasePage {
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     snapshot.data!,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontFamily: 'Monospace'),
+                    style:
+                        Theme.of(context).textTheme.bodyMedium!.copyWith(fontFamily: 'Monospace'),
                   ),
                 ),
               );
@@ -103,11 +104,10 @@ class MwebLogsPage extends BasePage {
   }
 
   Future<void> _saveFile() async {
-    String? outputFile = await FilePicker.platform
-        .saveFile(
-            dialogTitle: 'Save Your File to desired location',
-            fileName: "debug.log",
-            lockParentWindow: true);
+    String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Your File to desired location',
+        fileName: "debug.log",
+        lockParentWindow: true);
 
     if (outputFile == null) return;
 

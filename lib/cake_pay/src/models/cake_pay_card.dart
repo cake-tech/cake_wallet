@@ -45,7 +45,11 @@ class CakePayCard {
     final parsedMinValueLocal = _toDouble(json['min_value']);
     final parsedMinValueUsd = _toDouble(json['min_value_usd']);
 
-    if (parsedMinValueLocal != null && parsedMinValueLocal > 0 && parsedMinValueUsd != null && parsedMinValueUsd > 0 && parsedMinValueUsd < 10.0) {
+    if (parsedMinValueLocal != null &&
+        parsedMinValueLocal > 0 &&
+        parsedMinValueUsd != null &&
+        parsedMinValueUsd > 0 &&
+        parsedMinValueUsd < 10.0) {
       final rate = parsedMinValueLocal / parsedMinValueUsd;
       final minLocalValueLimit = 10.0 * rate;
       minValue = minLocalValueLimit.toStringAsFixed(2);
@@ -80,6 +84,7 @@ class CakePayCard {
   static String stripHtmlIfNeeded(String text) {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
   }
+
   static double? _toDouble(dynamic v) {
     if (v == null) return null;
     if (v is num) return v.toDouble();

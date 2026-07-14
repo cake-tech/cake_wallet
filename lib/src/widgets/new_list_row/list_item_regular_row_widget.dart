@@ -14,8 +14,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.trailingText,
       this.iconPath,
       this.badgeIconPath,
-        this.trailingTextPadding,
-        this.mainPadding,
+      this.trailingTextPadding,
+      this.mainPadding,
       this.onTap,
       this.isFirstInSection = false,
       this.isLastInSection = false,
@@ -89,7 +89,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
 
               final imageWidget = badgeIconPath != null
                   ? Stack(
-                    clipBehavior: Clip.none,
+                      clipBehavior: Clip.none,
                       children: [
                         leadingIcon!,
                         Positioned(
@@ -122,32 +122,35 @@ class ListItemRegularRowWidget extends StatelessWidget {
                             children: [
                               if (iconPath != null)
                                 Padding(
-                                    padding: const EdgeInsets.only(right: 12.0,),
-                                    child: imageWidget ?? SizedBox(),
-                              Flexible(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (copied)
-                                      Text(
-                                        S.of(context).copied,
-                                        style: textStyle.copyWith(
-                                            color: Theme.of(context).colorScheme.primary),
-                                      )
-                                    else
-                                      Text(label,
-                                          style: foregroundColor == null
-                                              ? textStyle
-                                              : textStyle.copyWith(color: foregroundColor)),
-                                    if (subtitle != null)
-                                      Text(
-                                        subtitle!,
-                                        style: labelStyle.copyWith(fontSize: 12),
-                                      ),
-                                  ],
+                                  padding: const EdgeInsets.only(
+                                    right: 12.0,
+                                  ),
+                                  child: imageWidget ?? SizedBox(),
+                                  Flexible(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (copied)
+                                          Text(
+                                            S.of(context).copied,
+                                            style: textStyle.copyWith(
+                                                color: Theme.of(context).colorScheme.primary),
+                                          )
+                                        else
+                                          Text(label,
+                                              style: foregroundColor == null
+                                                  ? textStyle
+                                                  : textStyle.copyWith(color: foregroundColor)),
+                                        if (subtitle != null)
+                                          Text(
+                                            subtitle!,
+                                            style: labelStyle.copyWith(fontSize: 12),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),),
                             ],
                           ),
                         ),
@@ -169,18 +172,18 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                 height: trailingIconSize ?? 18,
                                 width: trailingIconSize ?? 18,
                                 colorFilter: ColorFilter.mode(
-                                    foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
+                                    foregroundColor ??
+                                        Theme.of(context).colorScheme.onSurfaceVariant,
                                     BlendMode.srcIn),
                               )
                             else if (showArrow)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 7.0),
-                                  child: CakeImageWidget(imageUrl:
-                                  "assets/new-ui/arrow_forward.svg",
-                                      height: 14,
-                                      color: theme.colorScheme.onSurfaceVariant
-                                  ),
-                                )
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 7.0),
+                                child: CakeImageWidget(
+                                    imageUrl: "assets/new-ui/arrow_forward.svg",
+                                    height: 14,
+                                    color: theme.colorScheme.onSurfaceVariant),
+                              )
                           ],
                         ),
                       ],

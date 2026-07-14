@@ -165,11 +165,11 @@ class WalletManager {
 
   String? getGroupName(WalletInfo walletInfo) {
     try {
-        final groupKey = resolveGroupKey(walletInfo);
-        final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
-        return group.groupName;
+      final groupKey = resolveGroupKey(walletInfo);
+      final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
+      return group.groupName;
     } catch (_) {
-        return null;
+      return null;
     }
   }
 }

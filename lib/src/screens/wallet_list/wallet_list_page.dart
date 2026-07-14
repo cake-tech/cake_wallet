@@ -143,7 +143,7 @@ class WalletListBodyState extends State<WalletListBody> {
   @override
   Widget build(BuildContext context) {
     return GradientBackground(
-        scaffold: Container(
+      scaffold: Container(
         height: double.infinity,
         padding: EdgeInsets.only(top: 16),
         child: Stack(
@@ -341,45 +341,45 @@ class WalletListBodyState extends State<WalletListBody> {
             Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                 !FeatureFlag.hasNewUi
-                ? IgnorePointer(
-                  child: Container(
-                  alignment: Alignment.bottomCenter,
-                    height: 185,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: <Color>[
-                          Theme.of(context).colorScheme.surface.withAlpha(10),
-                          Theme.of(context).colorScheme.surface,
-                          Theme.of(context).colorScheme.surface,
-                          Theme.of(context).colorScheme.surface
-                        ],
+                !FeatureFlag.hasNewUi
+                    ? IgnorePointer(
+                        child: Container(
+                          alignment: Alignment.bottomCenter,
+                          height: 185,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: <Color>[
+                                Theme.of(context).colorScheme.surface.withAlpha(10),
+                                Theme.of(context).colorScheme.surface,
+                                Theme.of(context).colorScheme.surface,
+                                Theme.of(context).colorScheme.surface
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    : IgnorePointer(
+                        child: Container(
+                          height: 275,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: <Color>[
+                                Theme.of(context).colorScheme.surfaceDim.withAlpha(10),
+                                Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255)
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                )
-                : IgnorePointer(
-                  child: Container(
-                    height: 275,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: <Color>[
-                          Theme.of(context).colorScheme.surfaceDim.withAlpha(10),
-                          Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255)
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
                 Container(
                   height: 240,
                   width: MediaQuery.of(context).size.width,
@@ -466,8 +466,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
-                      if(FeatureFlag.hasNewUi)
-                        SizedBox(height:52.0)
+                      if (FeatureFlag.hasNewUi) SizedBox(height: 52.0)
                     ],
                   ),
                 ),
@@ -580,9 +579,8 @@ class WalletListBodyState extends State<WalletListBody> {
       if (_progressBar != null) {
         _progressBar!.dismiss();
       }
-      _progressBar = createBar<void>(text, context, duration: null)
-        ..show(context);
-    }catch(e){}
+      _progressBar = createBar<void>(text, context, duration: null)..show(context);
+    } catch (e) {}
   }
 
   Future<void> hideProgressText() async {

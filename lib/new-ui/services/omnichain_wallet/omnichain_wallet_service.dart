@@ -127,7 +127,6 @@ class OmniChainWalletCreationService {
   }
 
   Future<void> activatePlaceholderWallet(WalletInfo walletInfo) async {
-
     if (walletInfo.isReady) {
       final wallet = await walletLoadingService.load(
         walletInfo.type,

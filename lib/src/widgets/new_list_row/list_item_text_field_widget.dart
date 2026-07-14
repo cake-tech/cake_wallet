@@ -40,8 +40,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final BoxConstraints? suffixIconConstraints;
 
   @override
-  State<ListItemTextFieldWidget> createState() =>
-      _ListItemTextFieldWidgetState();
+  State<ListItemTextFieldWidget> createState() => _ListItemTextFieldWidgetState();
 }
 
 class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {

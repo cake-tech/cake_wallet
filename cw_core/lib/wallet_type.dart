@@ -240,11 +240,8 @@ String walletTypeToString(WalletType type) {
 }
 
 String walletTypeToDescription(WalletType type) {
-  return switch (type) {
-    WalletType.bitcoin => 'Mainnet + Lightning',
-    _=> '' };
+  return switch (type) { WalletType.bitcoin => 'Mainnet + Lightning', _ => '' };
 }
-
 
 String walletTypeToDisplayName(WalletType type) => switch (type) {
       WalletType.monero => 'Monero',
@@ -341,17 +338,18 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
   try {
-  if(type.tag == CryptoCurrency.bnb.tag) {
-    return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
-  }
+    if (type.tag == CryptoCurrency.bnb.tag) {
+      return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
+    }
 
-  if(type.tag != null && ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
-    return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
-  } else {
-    return _cryptoCurrencyToWalletType(type);
+    if (type.tag != null &&
+        ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
+      return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
+    } else {
+      return _cryptoCurrencyToWalletType(type);
+    }
+  } catch (e) {
+    printV(e);
+    return null;
   }
-} catch (e) {
-  printV(e);
-  return null;
-}
 }

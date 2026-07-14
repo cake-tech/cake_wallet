@@ -74,9 +74,9 @@ class OmniChainWalletManagingBloc
   }
 
   Future<void> _onActivateSelectedWallet(
-      OmniChainWalletManagingActivateSelectedWallet event,
-      Emitter<OmniChainWalletManagingState> emit,
-      ) async {
+    OmniChainWalletManagingActivateSelectedWallet event,
+    Emitter<OmniChainWalletManagingState> emit,
+  ) async {
     if (event.walletInfo.type == state.currentNetwork) {
       return;
     }

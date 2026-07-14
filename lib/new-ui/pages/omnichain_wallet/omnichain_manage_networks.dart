@@ -142,9 +142,7 @@ class _OmniChainManageNetworksMainPageState extends State<OmniChainManageNetwork
       if (typeSuffix.isNotEmpty) typeSuffix,
     ];
 
-    final subtitle = subtitleParts.isEmpty
-        ? null
-        : subtitleParts.join(' · ');
+    final subtitle = subtitleParts.isEmpty ? null : subtitleParts.join(' · ');
 
     return ListItemCheckbox(
       keyValue: '${keyPrefix}_${type.name}_button_key',

@@ -4,15 +4,13 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/keyable.dart';
 
 void connectMapToListWithTransform<T extends Keyable, Y extends Keyable>(
-    ObservableMap<dynamic, T> source,
-    ObservableList<Y> dest,
-    Y Function(T?) transform,
+    ObservableMap<dynamic, T> source, ObservableList<Y> dest, Y Function(T?) transform,
     {bool Function(T?)? filter}) {
   source.observe((MapChange<dynamic, T> change) {
     if (change.type == null) {
       return;
     }
-    
+
     switch (change.type) {
       case OperationType.add:
         if (filter?.call(change.newValue) ?? true) {
@@ -21,8 +19,7 @@ void connectMapToListWithTransform<T extends Keyable, Y extends Keyable>(
         break;
       case OperationType.remove:
         // Hive could has equal index and key
-        dest.removeWhere((elem) =>
-            elem.keyIndex == (change.key ?? change.newValue?.keyIndex));
+        dest.removeWhere((elem) => elem.keyIndex == (change.key ?? change.newValue?.keyIndex));
         break;
       case OperationType.update:
         for (var i = 0; i < dest.length; i++) {
@@ -88,8 +85,7 @@ extension MobxBindable<T extends Keyable> on Box<T> {
         return;
       }
 
-      dest.acceptBoxChange(event,
-          transformed: event.deleted ? null : transform(event.value as T));
+      dest.acceptBoxChange(event, transformed: event.deleted ? null : transform(event.value as T));
     });
   }
 }

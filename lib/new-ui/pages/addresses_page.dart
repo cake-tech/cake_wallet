@@ -182,8 +182,8 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                 SafeArea(
                   child: Padding(
                       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                      child: FloatingBlurWrapper(child:
-                      NewSearchBar(controller: _searchController))),
+                      child:
+                          FloatingBlurWrapper(child: NewSearchBar(controller: _searchController))),
                 ),
               ],
             ),
@@ -385,7 +385,8 @@ class AddressRow extends StatelessWidget {
                                   fontSize: 12,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                            Text("${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
+                            Text(
+                                "${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),

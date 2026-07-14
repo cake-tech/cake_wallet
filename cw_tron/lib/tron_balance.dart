@@ -9,7 +9,7 @@ class TronBalance extends Balance {
 
   final Money balance;
 
-  String toJSON() => json.encode({ 'balance': balance.amount.toString() });
+  String toJSON() => json.encode({'balance': balance.amount.toString()});
 
   static TronBalance? fromJSON(String? jsonSource, Currency currency) {
     if (jsonSource == null) return null;
