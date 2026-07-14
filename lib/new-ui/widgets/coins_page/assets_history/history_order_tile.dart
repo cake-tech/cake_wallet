@@ -4,15 +4,15 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
 class HistoryOrderTile extends StatelessWidget {
-  const HistoryOrderTile(
-      {super.key,
-        required this.date,
-        required this.amount,
-        required this.amountFiat,
-        required this.roundedTop,
-        required this.roundedBottom,
-        required this.bottomSeparator,
-      });
+  const HistoryOrderTile({
+    super.key,
+    required this.date,
+    required this.amount,
+    required this.amountFiat,
+    required this.roundedTop,
+    required this.roundedBottom,
+    required this.bottomSeparator,
+  });
 
   final String date;
   final String amount;
@@ -21,23 +21,17 @@ class HistoryOrderTile extends StatelessWidget {
   final bool roundedBottom;
   final bool bottomSeparator;
 
-
-
-
   @override
   Widget build(BuildContext context) {
-
     return HistoryTileBase(
       title: "Order",
       date: date,
       amount: amount,
       amountFiat: amountFiat,
-      leadingIcon:Image.asset("assets/images/cakepay.png"),
+      leadingIcon: Image.asset("assets/images/cakepay.png"),
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,
       bottomSeparator: bottomSeparator,
     );
-
   }
-
 }

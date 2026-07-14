@@ -17,9 +17,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 class SignPage extends StatefulWidget {
   SignPage(this.signViewModel);
 
-
   final SignViewModel signViewModel;
-
 
   @override
   State<SignPage> createState() => _SignPageState();
@@ -29,7 +27,7 @@ class _SignPageState extends State<SignPage> {
   List<Widget> _pages = [];
   final signFormKey = GlobalKey<SignFormState>();
   final verifyFormKey = GlobalKey<VerifyFormState>();
-  final PageController _controller = PageController(initialPage: 0) ;
+  final PageController _controller = PageController(initialPage: 0);
 
   bool _isEffectsInstalled = false;
 
@@ -55,14 +53,14 @@ class _SignPageState extends State<SignPage> {
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
-        top:false,
+        top: false,
         child: Column(
           children: [
-            ModalTopBar(title: S.current.sign_verify_title,
+            ModalTopBar(
+              title: S.current.sign_verify_title,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
-              onLeadingPressed: Navigator
-                  .of(context)
-                  .pop,),
+              onLeadingPressed: Navigator.of(context).pop,
+            ),
             Expanded(
               child: KeyboardHideOverlay(
                 child: Container(

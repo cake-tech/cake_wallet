@@ -195,7 +195,7 @@ class CakeFeaturesPage extends StatelessWidget {
                   route: Routes.moonPayVAOnboardingPage),
               title: "Virtual Account (Iron)",
               subTitle:
-              "Create a virtual bank account with Iron (by Moonpay) and receive funds directly in your wallet",
+                  "Create a virtual bank account with Iron (by Moonpay) and receive funds directly in your wallet",
               image: 'assets/images/iron_icon.svg',
             );
           }

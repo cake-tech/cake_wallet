@@ -8,7 +8,7 @@ class NodeListRow extends StatelessWidget {
   NodeListRow(
       {required this.node,
       required this.onTap,
-        required this.onEditComplete,
+      required this.onEditComplete,
       required this.isSelected,
       required this.isPow,
       this.speed,
@@ -42,20 +42,36 @@ class NodeListRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               leading,
-             Expanded(
-               child: Column(crossAxisAlignment:CrossAxisAlignment.start,spacing:4,children: [
-                 Row(
-                   spacing: 4,
-                   mainAxisAlignment: MainAxisAlignment.start,
-                   children: [
-                     Text(hasLabel ? node.label! : uriText, style: TextStyle(fontSize: 12),),
-                     if(badgePath != null)
-                       CakeImageWidget(imageUrl: badgePath, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),)
-                   ],
-                 ),
-                 if(hasLabel) Text(uriText, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),),
-               ],),
-             ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Row(
+                      spacing: 4,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          hasLabel ? node.label! : uriText,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        if (badgePath != null)
+                          CakeImageWidget(
+                            imageUrl: badgePath,
+                            colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                          )
+                      ],
+                    ),
+                    if (hasLabel)
+                      Text(
+                        uriText,
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                  ],
+                ),
+              ),
               trailing,
             ],
           ),
@@ -89,7 +105,8 @@ class NodeListRow extends StatelessWidget {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () async {
-            final res = await Navigator.of(context).pushNamed(isPow ? Routes.newPowNode : Routes.newNode,
+            final res = await Navigator.of(context).pushNamed(
+                isPow ? Routes.newPowNode : Routes.newNode,
                 arguments: {'editingNode': node, 'isSelected': isSelected});
             await onEditComplete(res);
           },
@@ -107,8 +124,8 @@ class NodeListRow extends StatelessWidget {
   }
 
   String? get badgePath {
-    if(node.isOfficial) return "assets/new-ui/official_node.svg";
-    if(node.isBuiltin) return "assets/new-ui/default_node.svg";
+    if (node.isOfficial) return "assets/new-ui/official_node.svg";
+    if (node.isBuiltin) return "assets/new-ui/default_node.svg";
     return null;
   }
 }

@@ -69,8 +69,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final normalized = _normalizeCurrency(from);
       final coin = coinsInfo.cast<Map<String, dynamic>>().firstWhere(
             (c) => (c['id']?.toString().toUpperCase() ?? '') == normalized,
-        orElse: () => <String, dynamic>{},
-      );
+            orElse: () => <String, dynamic>{},
+          );
 
       if (coin.isEmpty) {
         // Currency not supported by SwapTrade (e.g. USDC, DOGE).
@@ -88,19 +88,18 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
       if (isFixedRateMode && !supportsFixedRate) {
         return 0.0;
       }
-      if(from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
+      if (from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
 
       final params = <String, dynamic>{};
       final body = <String, String>{
@@ -116,7 +115,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         body: json.encode(body),
         headers: _headers,
       );
-      
+
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200) {
@@ -140,7 +139,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final data = responseBody['data'] as Map<String, dynamic>;
       double rate = double.parse(data['price'].toString());
-      final calculatedRate = rate > 0 ? isFixedRateMode ? amount / rate : rate / amount : 0.0;
+      final calculatedRate = rate > 0
+          ? isFixedRateMode
+              ? amount / rate
+              : rate / amount
+          : 0.0;
 
       ExchangeProviderLogger.logSuccess(
         provider: description,
@@ -208,7 +211,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         body: json.encode(body),
         headers: _headers,
       );
-      
+
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 400 || responseBody["success"] == false) {
@@ -235,7 +238,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        
+
         throw TradeNotCreatedException(description, description: error);
       }
 
@@ -337,7 +340,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         body: json.encode(body),
         headers: _headers,
       );
-      
+
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 400 || responseBody["success"] == false) {

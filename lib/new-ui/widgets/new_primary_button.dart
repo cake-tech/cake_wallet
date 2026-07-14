@@ -26,7 +26,6 @@ class NewPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return SizedBox(
       height: 52.0,
       child: TextButton(
@@ -42,21 +41,23 @@ class NewPrimaryButton extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: isLoading ? CupertinoActivityIndicator() : Row(
-            spacing: 10,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if(image != null) image!,
-              Text(
-                text,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
+          child: isLoading
+              ? CupertinoActivityIndicator()
+              : Row(
+                  spacing: 10,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    if (image != null) image!,
+                    Text(
+                      text,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
         ),
       ),
     );

@@ -16,8 +16,7 @@ class MoonpayVirtualAccountApi {
   String get _publishableTestApiKey => 'pk_test_dubGBa4ePnmQ2zcsODzuTf0KTE9pUM';
   String get _testSecretKey => 'pk_test_dubGBa4ePnmQ2zcsODzuTf0KTE9pUM';
 
-  String get _secretPrivateKey =>
-      '''-----BEGIN RSA PRIVATE KEY-----
+  String get _secretPrivateKey => '''-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEApWbkw7mA/8JuuFWh6cWwLLqa8OonyrU1BoSjwKG+hDk2kj83
 YMm/KpVDp072qMLsBbkvlO2pWf4TcllX/3FPOxMnTSPiRVTEvJNzTfhxSS6BOWRe
 /iafC2frch4zdY2jduShLi4zjq5YGU9rzTOTpAsoYCKeiIy94Miby7A4Ek9fxpeG
@@ -45,11 +44,9 @@ TaExawKBgBoJlcKi87ynXPSquD2SNFvBX6JlMOYX4KN8PWw1or7cnKWMccZCScAD
 Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
 -----END RSA PRIVATE KEY-----''';
 
-  String get _currentPublishableApiKey =>
-      isTestMode ? _publishableTestApiKey : _publishableApiKey;
+  String get _currentPublishableApiKey => isTestMode ? _publishableTestApiKey : _publishableApiKey;
 
-  String get _currentSecretKey =>
-      isTestMode ? _testSecretKey : _secretKey;
+  String get _currentSecretKey => isTestMode ? _testSecretKey : _secretKey;
 
   static const _baseProdUrl = 'https://buy.moonpay.com';
   static const _baseTestUrl = 'https://buy-sandbox.moonpay.com';
@@ -74,8 +71,7 @@ Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
       'apiKey': _currentPublishableApiKey,
       'theme': theme ?? 'dark',
       'walletAddress': walletAddress,
-      'walletAddressIsPartnerGenerated':
-      walletAddressIsPartnerGenerated.toString(),
+      'walletAddressIsPartnerGenerated': walletAddressIsPartnerGenerated.toString(),
       'externalCustomerId': externalCustomerId,
     };
 
@@ -131,7 +127,6 @@ Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
     if (walletAddress != null && walletAddress.isNotEmpty) {
       params['walletAddress'] = walletAddress;
     }
-
 
     final query = _encodeQuery(params);
     const path = '/v1/virtual-accounts';
@@ -238,10 +233,8 @@ Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
   Uint8List _decodePem(String pem) {
     final lines = pem
         .split('\n')
-        .where((l) =>
-    !l.startsWith('-----BEGIN') &&
-        !l.startsWith('-----END') &&
-        l.trim().isNotEmpty)
+        .where(
+            (l) => !l.startsWith('-----BEGIN') && !l.startsWith('-----END') && l.trim().isNotEmpty)
         .toList();
 
     return Uint8List.fromList(base64.decode(lines.join()));
@@ -250,8 +243,7 @@ Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
   /// =========================
   /// HTTP
   /// =========================
-  Future<String> _httpGet(Uri uri,
-      {Map<String, String>? headers}) async {
+  Future<String> _httpGet(Uri uri, {Map<String, String>? headers}) async {
     final client = HttpClient();
     try {
       final request = await client.getUrl(uri);
@@ -274,12 +266,10 @@ Iz1tGdf3t8TiwT+Kjvxn6S5tPES26F/8AWWN2S5qGHDrC5aFWqsj
   /// UTILS
   /// =========================
   String _encodeQuery(Map<String, String> params) {
-    final entries = params.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+    final entries = params.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
 
     return entries
-        .map((e) =>
-    '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}')
+        .map((e) => '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}')
         .join('&');
   }
 

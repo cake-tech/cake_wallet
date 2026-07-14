@@ -5,10 +5,7 @@ typedef AuthPasswordHandler = Future<void> Function(String);
 
 class WalletUnlockArguments {
   WalletUnlockArguments(
-      {required this.callback,
-      this.walletName,
-      this.walletType,
-      this.authPasswordHandler});
+      {required this.callback, this.walletName, this.walletType, this.authPasswordHandler});
 
   final OnAuthenticationFinished callback;
   final AuthPasswordHandler? authPasswordHandler;

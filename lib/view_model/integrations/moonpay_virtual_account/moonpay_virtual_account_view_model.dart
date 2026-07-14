@@ -65,9 +65,7 @@ abstract class MoonPayVirtualAccountViewModelBase with Store {
   WalletType? selectedWalletType;
 
   List<CryptoCurrency> get allAvailableStablecoins =>
-      availableStablecoinsByGroup.values
-          .map((group) => group.values.first)
-          .toList();
+      availableStablecoinsByGroup.values.map((group) => group.values.first).toList();
 
   CryptoCurrency? get selectedStablecoinForKeyAndWalletType {
     if (selectedStablecoinKey == null || selectedWalletType == null) {
@@ -106,7 +104,6 @@ abstract class MoonPayVirtualAccountViewModelBase with Store {
   void selectNetwork(WalletType walletType) => selectedWalletType = walletType;
 
   void selectWallet(WalletInfo walletInfo) => selectedWalletInfo = walletInfo;
-
 
   String createAccountUrl({
     String? theme,

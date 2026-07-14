@@ -5,7 +5,6 @@ abstract class SelectableItem {
 
 class OptionTitle extends SelectableItem {
   OptionTitle({required String title}) : super(title: title);
-
 }
 
 abstract class SelectableOption extends SelectableItem {
@@ -43,5 +42,3 @@ abstract class SelectableOption extends SelectableItem {
 
   set isOptionSelected(bool isSelected) => false;
 }
-
-

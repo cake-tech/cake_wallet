@@ -98,8 +98,8 @@ abstract class BridgeDetailsViewModelBase with Store {
 
     final sourceName =
         evm?.getChainInfoByChainId(transfer.sourceChainId)?.name ?? '${transfer.sourceChainId}';
-    final destName =
-        evm?.getChainInfoByChainId(transfer.destinationChainId)?.name ?? '${transfer.destinationChainId}';
+    final destName = evm?.getChainInfoByChainId(transfer.destinationChainId)?.name ??
+        '${transfer.destinationChainId}';
 
     items.add(
       StandartListItem(
