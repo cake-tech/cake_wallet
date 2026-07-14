@@ -214,10 +214,10 @@ abstract class ExchangeTradeViewModelBase with Store {
     final canSendError = checkIfCanSend(trade, wallet);
 
     if (canSendError != null) {
+      _logCanSendError(trade, wallet, canSendError);
       sendViewModel.state = FailureState(canSendError);
       return;
     }
-
 
     final selected = trade.from;
     if (selected == null) {
@@ -354,62 +354,55 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   String? checkIfCanSend(Trade? trade, WalletBase wallet) {
-    try {
+    if (trade == null) return 'Trade is null';
 
-      if (trade == null) throw Exception('Trade is null');
+    final tradeFrom = trade.from;
+    if (tradeFrom == null) return 'Trade from currency is null';
 
-      final tradeFrom = trade.from;
-      if (tradeFrom == null) throw Exception('Trade from currency is null');
+    bool _sameCurrency(CryptoCurrency a, CryptoCurrency b) => a.titleAndTagEqual(b);
 
-      bool _sameCurrency(CryptoCurrency a, CryptoCurrency b) => a.titleAndTagEqual(b);
-
-      bool _isTokenBelongingToWallet(CryptoCurrency cur) {
-        final chainTag = cur.tag ?? cur.title;
-       return  wallet.currency == cur &&
-           tradeFrom.tag?.toUpperCase() == chainTag.toUpperCase();
-      }
-
-      final canSend = _sameCurrency(tradeFrom, wallet.currency) ||
-          (_sameCurrency(tradeFrom, CryptoCurrency.btcln) &&
-              wallet.currency == CryptoCurrency.btc) ||
-          trade.provider == ExchangeProviderDescription.xmrto ||
-          _isTokenBelongingToWallet(CryptoCurrency.eth) ||
-          _isTokenBelongingToWallet(CryptoCurrency.maticpoly) ||
-          _isTokenBelongingToWallet(CryptoCurrency.baseEth) ||
-          _isTokenBelongingToWallet(CryptoCurrency.arbEth) ||
-          _isTokenBelongingToWallet(CryptoCurrency.trx) ||
-          _isTokenBelongingToWallet(CryptoCurrency.sol) ||
-          _isTokenBelongingToWallet(CryptoCurrency.bnb);
-
-      if (!canSend) {
-        throw Exception(
-          'Wallet currency ${wallet.currency.title} does not match trade from currency ${tradeFrom.title} or is not a supported token for this wallet.',
-        );
-      }
-
-      return null;
-    } catch (e, s) {
-      final trade = tradesStore.trade;
-
-      ExchangeProviderLogger.logError(
-        provider: trade?.provider,
-        function: '_checkIfCanSend',
-        error: e,
-        stackTrace: s,
-        requestData: {
-          'tradeId': trade?.id,
-          'tradeFrom': trade?.from?.title,
-          'tradeFromTag': trade?.from?.tag,
-          'tradeTo': trade?.to?.title,
-          'tradeToTag': trade?.to?.tag,
-          'walletName': wallet.name,
-          'walletCurrency': wallet.currency.title,
-          'walletCurrencyTag': wallet.currency.tag,
-        },
-      );
-
-      return e.toString();
+    bool _isTokenBelongingToWallet(CryptoCurrency cur) {
+      final chainTag = cur.tag ?? cur.title;
+      return wallet.currency == cur &&
+          (tradeFrom.tag?.toUpperCase() == chainTag.toUpperCase() ||
+              tradeFrom.title.toUpperCase() == chainTag.toUpperCase());
     }
+
+    final canSend = _sameCurrency(tradeFrom, wallet.currency) ||
+        (_sameCurrency(tradeFrom, CryptoCurrency.btcln) &&
+            wallet.currency == CryptoCurrency.btc) ||
+        trade.provider == ExchangeProviderDescription.xmrto ||
+        _isTokenBelongingToWallet(CryptoCurrency.eth) ||
+        _isTokenBelongingToWallet(CryptoCurrency.maticpoly) ||
+        _isTokenBelongingToWallet(CryptoCurrency.baseEth) ||
+        _isTokenBelongingToWallet(CryptoCurrency.arbEth) ||
+        _isTokenBelongingToWallet(CryptoCurrency.trx) ||
+        _isTokenBelongingToWallet(CryptoCurrency.sol) ||
+        _isTokenBelongingToWallet(CryptoCurrency.bnb);
+
+    if (!canSend) {
+      return 'Wallet currency ${wallet.currency.title} does not match trade from currency ${tradeFrom.title} or is not a supported token for this wallet.';
+    }
+
+    return null;
+  }
+
+  void _logCanSendError(Trade? trade, WalletBase wallet, String error) {
+    ExchangeProviderLogger.logError(
+      provider: trade?.provider,
+      function: '_checkIfCanSend',
+      error: error,
+      requestData: {
+        'tradeId': trade?.id,
+        'tradeFrom': trade?.from?.title,
+        'tradeFromTag': trade?.from?.tag,
+        'tradeTo': trade?.to?.title,
+        'tradeToTag': trade?.to?.tag,
+        'walletName': wallet.name,
+        'walletCurrency': wallet.currency.title,
+        'walletCurrencyTag': wallet.currency.tag,
+      },
+    );
   }
 
   static bool _checkIfSwapsXYZCanSendFromExternal(Trade trade, WalletBase wallet) {
