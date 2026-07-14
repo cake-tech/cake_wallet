@@ -75,6 +75,9 @@ class ModernButton extends StatelessWidget {
         if (label != null && label!.isNotEmpty)
           Text(
             label!,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w400,

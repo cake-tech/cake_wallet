@@ -56,69 +56,86 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
           duration: const Duration(milliseconds: 300),
           opacity: targetOpacity,
           curve: Curves.easeOut,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 16,
-              children: [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxWidth < 400;
+              final buttonSize = isCompact ? 52.0 : 60.0;
+              final iconSize = isCompact ? 28.0 : 32.0;
+              final horizontalPadding = isCompact ? 12.0 : 32.0;
+              final spacing = isCompact ? 4.0 : 16.0;
+
+              final buttons = <Widget>[
                 AnimatedSwitcher(
-                  duration: Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 200),
                   child: ModernButton.svg(
                     key: ValueKey(copied),
-                    size: 60,
-                    iconSize: 32,
+                    size: buttonSize,
+                    iconSize: iconSize,
                     svgPath: "assets/new-ui/copy.svg",
                     onPressed: handleCopy,
                     label: copied ? S.of(context).copied : S.of(context).copy,
-                    iconColor: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer,
-                    backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.primary,
+                    iconColor: copied
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.surfaceContainer,
+                    backgroundColor: copied
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
+                        : Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 ModernButton.svg(
-                    size: 60,
-                    iconSize: 32,
-                    svgPath: "assets/new-ui/set-amount.svg",
-                    onPressed: widget.onAmountButtonPressed,
-                    label: S.of(context).set_amount),
+                  size: buttonSize,
+                  iconSize: iconSize,
+                  svgPath: "assets/new-ui/set-amount.svg",
+                  onPressed: widget.onAmountButtonPressed,
+                  label: S.of(context).set_amount,
+                ),
                 if (widget.showLabelButton)
                   ModernButton.svg(
-                      size: 60,
-                      iconSize: 32,
-                      svgPath: "assets/new-ui/add-label.svg",
-                      onPressed: widget.onLabelButtonPressed,
-                      label: S.of(context).label),
+                    size: buttonSize,
+                    iconSize: iconSize,
+                    svgPath: "assets/new-ui/add-label.svg",
+                    onPressed: widget.onLabelButtonPressed,
+                    label: S.of(context).label,
+                  ),
                 if (widget.showAccountsButton)
                   ModernButton.svg(
-                      size: 60,
-                      iconSize: 32,
-                      svgPath: "assets/new-ui/addr-book.svg",
-                      onPressed: widget.onAccountsButtonPressed,
-                      label: S.of(context).addresses),
-              ],
-            ),
+                    size: buttonSize,
+                    iconSize: iconSize,
+                    svgPath: "assets/new-ui/addr-book.svg",
+                    onPressed: widget.onAccountsButtonPressed,
+                    label: S.of(context).addresses,
+                  ),
+              ];
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  spacing: spacing,
+                  children: buttons
+                      .map((button) => Expanded(child: button))
+                      .toList(),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
-
-
-
   // android 13 (sdk 33) added a built-in "text was copied to clipboard" ui element
   // older android and iphone still needs an indicator though
   Future<bool> shouldShowCopied() async {
     if (!Platform.isAndroid) return true;
 
     try {
-        final deviceInfo = DeviceInfoPlugin();
-        final androidInfo = await deviceInfo.androidInfo;
-        final sdk = androidInfo.version.sdkInt;
-    
-        return sdk < 33;
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      final sdk = androidInfo.version.sdkInt;
+
+      return sdk < 33;
     } catch (_) {
-        return true;
+      return true;
     }
   }
 }
