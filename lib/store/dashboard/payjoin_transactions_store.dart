@@ -27,12 +27,23 @@ abstract class PayjoinTransactionsStoreBase with Store {
   Future<void> updateTransactionList() async {
     final updatedTransactions = <PayjoinTransactionListItem>[];
     payjoinSessionSource.toMap().forEach((dynamic key, PayjoinSession session) {
-      if ([
+      // Hide ghost rows: sessions marked success but with no txId (failed
+      // without producing a transaction). Also hide sessions that fell back to
+      // the fallback tx so the underlying regular transaction is displayed
+      // instead of a payjoin row.
+      final isSuccess = session.status == PayjoinSessionStatus.success.name;
+      final hasTxId = session.txId != null && session.txId!.isNotEmpty;
+      final isHidden =
+          session.status == PayjoinSessionStatus.unrecoverable.name ||
+          session.usedFallback ||
+          (isSuccess && !hasTxId);
+
+      if (!isHidden &&
+          session.inProgressSince != null &&
+          [
             PayjoinSessionStatus.inProgress.name,
             PayjoinSessionStatus.success.name,
-            PayjoinSessionStatus.unrecoverable.name
-          ].contains(session.status) &&
-          session.inProgressSince != null) {
+          ].contains(session.status)) {
         updatedTransactions.add(PayjoinTransactionListItem(
           sessionId: key as String,
           session: session,

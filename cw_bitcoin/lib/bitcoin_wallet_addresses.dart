@@ -43,6 +43,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @observable
   String? payjoinEndpoint = null;
 
+  @observable
+  String? payjoinAddress = null;
+
   @override
   String getAddress(
       {required int index,
@@ -83,7 +86,17 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @action
-  Future<void> newPayjoinReceiver() async {
+  Future<void> newPayjoinReceiver({bool shouldSaveRecipientAddress = false}) async {
+    // BIP78 requires the address the sender pays (the one shown in the BIP21
+    // URI) to match the script the receiver session is bound to, so bind the
+    // currently displayed address. Silent Payments and Lightning page types
+    // expose non-script addresses that cannot be bound.
+    if (addressPageType == SilentPaymentsAddresType.p2sp ||
+        addressPageType == LightningAddressType.p2l) {
+      payjoinEndpoint = null;
+      payjoinAddress = null;
+      return;
+    }
     // Soft guard: skip silently when the wallet has no spendable UTXOs, so the
     // receive page can render without surfacing a receiver-creation error.
     // PayjoinManager.initReceiver also enforces this as a hard guard.
@@ -92,12 +105,15 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       return;
     }
     try {
-      final endpoint = await payjoinManager.initReceiver(payjoinCompatibleAddress);
+      final address = this.address;
+      final endpoint = await payjoinManager.initReceiver(
+          address, false, 0, shouldSaveRecipientAddress);
       if (endpoint.isNotEmpty) {
         payjoinEndpoint = endpoint;
+        payjoinAddress = address;
         await payjoinManager.spawnReceiver(
           pjEndpoint: endpoint,
-          address: payjoinCompatibleAddress,
+          address: address,
         );
       }
     } catch (e) {
@@ -127,7 +143,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       final lnUrl = getLnurlOfLightningAddress(address);
       return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
     }
-    return BitcoinURI(address: address, amount: amount, pjUri: payjoinEndpoint ?? '');
+    final pjUri = payjoinAddress == address ? (payjoinEndpoint ?? '') : '';
+    return BitcoinURI(address: address, amount: amount, pjUri: pjUri);
   }
 
   Future<PaymentURI> getPaymentRequestUri(String amount) async {

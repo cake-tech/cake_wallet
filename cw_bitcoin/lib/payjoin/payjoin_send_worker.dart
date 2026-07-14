@@ -3,10 +3,19 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
+import 'package:cw_bitcoin/payjoin/relay_response.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:http/http.dart' as http;
 import 'package:payjoin/payjoin.dart' as pj;
+
+/// Maximum wall-clock duration a sender worker will keep polling for a
+/// proposal before giving up. Mirrors the v2 protocol's typical session
+/// expiry window; the FFI also surfaces explicit terminal states which we
+/// handle separately.
+const _maxSenderSessionDuration = Duration(hours: 24);
+const _initialBackoff = Duration(seconds: 2);
+const _maxBackoff = Duration(seconds: 30);
 
 /// Drives the v2 Payjoin sender state machine.
 ///
@@ -116,8 +125,13 @@ class PayjoinSenderWorker {
     pj.PollingForProposal polling,
     pj.JsonSenderSessionPersister persister,
   ) async {
+    final startedAt = DateTime.now();
+    var consecutiveFailures = 0;
     while (true) {
       if (_cancelled) throw PayjoinSenderCancelledException();
+      if (DateTime.now().difference(startedAt) > _maxSenderSessionDuration) {
+        throw Exception('Payjoin sender session expired before a proposal arrived');
+      }
       printV('Polling Payjoin Sender Proposal');
       try {
         final relayResponse = await _postViaRelay(
@@ -128,6 +142,7 @@ class PayjoinSenderWorker {
           ohttpCtx: relayResponse.ohttpCtx,
         );
         final outcome = pollTransition.save(persister: persister);
+        consecutiveFailures = 0;
         printV('[pjSender] poll outcome=${outcome.runtimeType}');
 
         if (outcome is pj.ProgressPollingForProposalTransitionOutcome) {
@@ -148,13 +163,14 @@ class PayjoinSenderWorker {
           rethrow;
         }
       }
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
   }
 
-  Future<_RelayResponse> _postViaRelay(
+  Future<PayjoinRelayResponse> _postViaRelay(
     pj.RequestOhttpContext Function(String relay) buildRequest,
   ) async {
+    var consecutiveFailures = 0;
     while (true) {
       final relay = _mailroomManager.chooseRelay();
       final reqCtx = buildRequest(relay);
@@ -165,7 +181,7 @@ class PayjoinSenderWorker {
           body: reqCtx.request.body,
         );
         if (response.statusCode >= 200 && response.statusCode < 300) {
-          return _RelayResponse(
+          return PayjoinRelayResponse(
             bodyBytes: response.bodyBytes,
             ohttpCtx: reqCtx.ohttpCtx,
             requestUrl: reqCtx.request.url,
@@ -176,20 +192,16 @@ class PayjoinSenderWorker {
         printV('[pjSender] relay $relay failed: $e');
         _mailroomManager.addFailedRelay(relay);
       }
+      await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
   }
 }
 
-class _RelayResponse {
-  final Uint8List bodyBytes;
-  final pj.ClientResponse ohttpCtx;
-  final String requestUrl;
-
-  _RelayResponse({
-    required this.bodyBytes,
-    required this.ohttpCtx,
-    required this.requestUrl,
-  });
+Duration _nextBackoff(int consecutiveFailures) {
+  if (consecutiveFailures == 0) return _initialBackoff;
+  final seconds = (_initialBackoff.inSeconds * (1 << consecutiveFailures))
+      .clamp(_initialBackoff.inSeconds, _maxBackoff.inSeconds);
+  return Duration(seconds: seconds);
 }
 
 class PayjoinSenderCancelledException implements Exception {
