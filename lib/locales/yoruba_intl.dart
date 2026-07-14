@@ -794,11 +794,11 @@ class YoMaterialLocalizations extends GlobalMaterialLocalizations {
   @override
   // TODO: implement shareButtonLabel
   String get shareButtonLabel => "shareButtonLabel";
-  
+
   @override
   // TODO: implement clearButtonTooltip
   String get clearButtonTooltip => "clearButtonTooltip";
-  
+
   @override
   // TODO: implement selectedDateLabel
   String get selectedDateLabel => "selectedDateLabel";
@@ -1028,7 +1028,7 @@ class YoCupertinoLocalizations extends GlobalCupertinoLocalizations {
   @override
   // TODO: implement shareButtonLabel
   String get shareButtonLabel => "shareButtonLabel";
-  
+
   @override
   // TODO: implement backButtonLabel
   String get backButtonLabel => "backButtonLabel";
@@ -1054,5 +1054,4 @@ class YoCupertinoLocalizations extends GlobalCupertinoLocalizations {
 
   @override
   String get expansionTileExpandedTapHint => "expansionTileExpandedTapHint";
-
 }

@@ -38,10 +38,14 @@ class DevSecurePreferencesPage extends BasePage {
                 Clipboard.setData(ClipboardData(text: key + ": " + values[key].toString()));
               },
               title: switch (type) {
-                PreferenceType.bool => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue)),
-                PreferenceType.int => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.green)),
-                PreferenceType.double => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.yellow)),
-                PreferenceType.listString => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.purple)),
+                PreferenceType.bool => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue)),
+                PreferenceType.int => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.green)),
+                PreferenceType.double => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.yellow)),
+                PreferenceType.listString => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.purple)),
                 PreferenceType.string => Text(key),
                 PreferenceType.unknown => Text(key),
               },
@@ -49,9 +53,12 @@ class DevSecurePreferencesPage extends BasePage {
                 PreferenceType.bool => Text("bool: ${values[key]}"),
                 PreferenceType.int => Text("int: ${values[key]}"),
                 PreferenceType.double => Text("double: ${values[key]}"),
-                PreferenceType.listString => values[key].isEmpty as bool ? Text("listString: []") : Text("listString:\n- ${values[key].join("\n- ")}"),
+                PreferenceType.listString => values[key].isEmpty as bool
+                    ? Text("listString: []")
+                    : Text("listString:\n- ${values[key].join("\n- ")}"),
                 PreferenceType.string => Text("string: ${values[key]}"),
-                PreferenceType.unknown => Text("UNKNOWN(${values[key].runtimeType}): ${values[key]}"),
+                PreferenceType.unknown =>
+                  Text("UNKNOWN(${values[key].runtimeType}): ${values[key]}"),
               },
             );
           },
@@ -59,5 +66,4 @@ class DevSecurePreferencesPage extends BasePage {
       },
     );
   }
-
 }

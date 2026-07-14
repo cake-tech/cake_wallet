@@ -9,9 +9,12 @@ class EditBackupPasswordViewModel = EditBackupPasswordViewModelBase
     with _$EditBackupPasswordViewModel;
 
 abstract class EditBackupPasswordViewModelBase with Store {
-  EditBackupPasswordViewModelBase(this.secureStorage,)
-  : backupPassword = "",
-    _originalPassword = ''{init();}
+  EditBackupPasswordViewModelBase(
+    this.secureStorage,
+  )   : backupPassword = "",
+        _originalPassword = '' {
+    init();
+  }
 
   final SecureStorage secureStorage;
 

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -25,31 +24,14 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
     await monero!
         .getSubaddressList(wallet)
         .addSubaddress(wallet, accountIndex: monero!.getCurrentAccount(wallet).id, label: label);
-    final subaddressList = await monero!
-        .getSubaddressList(wallet)
-        .subaddresses;
-    if(subaddressList.isEmpty) {
+    final subaddressList = await monero!.getSubaddressList(wallet).subaddresses;
+    if (subaddressList.isEmpty) {
       // this shouldn't happen, we just added an addr.
       // somehow, it happened once in prod regardless.
       // we just return instead of crashing, user can press the button again ig
       return;
     }
-    final addr = subaddressList
-        .first
-        .address; // first because the order is reversed
-    wallet.walletAddresses.manualAddresses.add(addr);
-    await wallet.save();
-  }
-
-  if (wallet.type == WalletType.wownero) {
-    await wownero!
-        .getSubaddressList(wallet)
-        .addSubaddress(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id, label: label);
-    final addr = await wownero!
-        .getSubaddressList(wallet)
-        .subaddresses
-        .first
-        .address; // first because the order is reversed
+    final addr = subaddressList.first.address; // first because the order is reversed
     wallet.walletAddresses.manualAddresses.add(addr);
     await wallet.save();
   }

@@ -16,7 +16,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/wownero/cw_wownero.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -271,9 +271,7 @@ class AccountPreviewHeader extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      monero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          wownero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          "",
+                      monero?.getCurrentAccount(dashboardViewModel.wallet).label ?? "",
                       style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
                     ),
                     Text(
@@ -431,7 +429,8 @@ class AddressRow extends StatelessWidget {
                                   fontSize: 12,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                            Text("${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
+                            Text(
+                                "${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),

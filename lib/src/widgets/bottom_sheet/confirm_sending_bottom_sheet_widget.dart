@@ -168,7 +168,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     final batchContactTitle =
                         '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
                     final _address = item.isParsedAddress ? item.extractedAddress : item.address;
-                    final _amount = '${item.cryptoAmount.sanitized()} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}';
+                    final _amount =
+                        '${item.cryptoAmount.sanitized()} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}';
                     return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
                         ? ExpansionAddressTile(
                             contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,

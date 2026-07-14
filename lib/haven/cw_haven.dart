@@ -12,7 +12,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 class HavenWalletService extends WalletService {
-
   HavenWalletService();
 
   @override

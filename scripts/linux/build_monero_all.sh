@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero;
+for COIN in monero;
 do
     pushd ../monero_c
         # Determine target architecture based on system architecture

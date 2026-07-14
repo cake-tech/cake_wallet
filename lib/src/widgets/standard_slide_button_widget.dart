@@ -113,7 +113,9 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                           child: Icon(
                             key: ValueKey('standard_slide_button_widget_slider_icon_key'),
                             Icons.arrow_forward,
-                            color: widget.isDisabled ? Theme.of(context).colorScheme.onSurface.withOpacity(0.2) : Theme.of(context).colorScheme.onSurface,
+                            color: widget.isDisabled
+                                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.2)
+                                : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),

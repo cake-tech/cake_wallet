@@ -6,7 +6,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/wownero/cw_wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +23,6 @@ class DevMoneroCallProfilerPage extends BasePage {
     return PerformanceDebug();
   }
 }
-
-
 
 class PerformanceDebug extends StatefulWidget {
   const PerformanceDebug({super.key});
@@ -46,7 +44,6 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
 
   late ProfilableWallet wallet = switch (dashboardViewModel.wallet.type) {
     WalletType.monero => ProfilableWallet.monero,
-    WalletType.wownero => ProfilableWallet.wownero,
     WalletType.zano => ProfilableWallet.zano,
     _ => throw Exception("Unknown wallet type"),
   };
@@ -54,8 +51,8 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
 
   late Map<String, List<int>> debugCallLength = switch (wallet) {
     ProfilableWallet.monero => monero!.debugCallLength(),
-    ProfilableWallet.wownero => wownero!.debugCallLength(),
     ProfilableWallet.zano => zano!.debugCallLength(),
+    _ => throw Exception("Unknown wallet type"),
   };
 
   int getOpenWalletTime() {
@@ -68,7 +65,7 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
     return debugCallLength["MONERO_Wallet_init"]!.last;
   }
 
-late final String perfInfo = """
+  late final String perfInfo = """
 ---- Performance tuning
 This page lists all calls that take place during the app runtime.-
 As per Flutter docs we can read:
@@ -93,8 +90,8 @@ min: fastest execution (% of frame)
 max: slowest execution (% of frame)
 95th: 95% of the time, the function is faster than this amount of time (% of frame)
 """
-    .split("-\n")
-    .join(" ");
+      .split("-\n")
+      .join(" ");
 
   late final frameTime = 8333;
   late final frameGreenTier = frameTime ~/ 100;
@@ -112,7 +109,6 @@ max: slowest execution (% of frame)
     if (frame < frameOrangeTier) return Colors.orange;
     return Colors.red;
   }
-
 
   @override
   void initState() {
@@ -144,9 +140,7 @@ max: slowest execution (% of frame)
       ],
     ));
     final keys = debugCallLength.keys.toList();
-    keys.sort((s1, s2) =>
-        _n95th(debugCallLength[s2]!) -
-        _n95th(debugCallLength[s1]!));
+    keys.sort((s1, s2) => _n95th(debugCallLength[s2]!) - _n95th(debugCallLength[s1]!));
     for (var key in keys) {
       final value = debugCallLength[key];
       if (value == null) continue;
@@ -172,14 +166,10 @@ max: slowest execution (% of frame)
                   const Spacer(),
                   cw("${_str(total / 1000)}ms", perfc(total)),
                 ]),
-                cw("average: ${_str(avg)}µs (~${_str(avg / (frameTime))}f)",
-                    perfc(avg)),
-                cw("min: $minµs (~${_str(min / (frameTime) * 100)})",
-                    perfc(min)),
-                cw("max: $maxµs (~${_str(max / (frameTime) * 100)}%)",
-                    perfc(max)),
-                cw("95th: $npµs (~${_str(np / (frameTime) * 100)}%)",
-                    perfc(np)),
+                cw("average: ${_str(avg)}µs (~${_str(avg / (frameTime))}f)", perfc(avg)),
+                cw("min: $minµs (~${_str(min / (frameTime) * 100)})", perfc(min)),
+                cw("max: $maxµs (~${_str(max / (frameTime) * 100)}%)", perfc(max)),
+                cw("95th: $npµs (~${_str(np / (frameTime) * 100)}%)", perfc(np)),
               ],
             ),
           ),

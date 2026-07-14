@@ -14,7 +14,7 @@ import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/wownero/cw_wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
@@ -283,7 +283,7 @@ Future<void> defaultSettingsMigration(
           // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
           break;
         case 27:
-          await addWalletNodeList( type: WalletType.solana);
+          await addWalletNodeList(type: WalletType.solana);
           await _changeDefaultNode(
             sharedPreferences: sharedPreferences,
             type: WalletType.solana,
@@ -516,7 +516,7 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
           );
           break;
-         case 53:
+        case 53:
           await addWalletNodeList(type: WalletType.arbitrum);
           await _changeDefaultNode(
             sharedPreferences: sharedPreferences,
@@ -662,13 +662,13 @@ Future<void> _changeDefaultNode({
     shouldReplace = true;
   } else {
     final currentNode = nodes.firstWhereOrNull((node) => node.id == currentNodeId);
-    shouldReplace = currentNode == null || (oldUri?.any((e) => currentNode!.uriRaw.contains(e)) ?? true);
+    shouldReplace =
+        currentNode == null || (oldUri?.any((e) => currentNode!.uriRaw.contains(e)) ?? true);
   }
 
   if (shouldReplace) {
     newDefaultUri ??= (await getDefaultNodeFromFiles(type)).uriRaw;
-    var newNodeId =
-        nodes.firstWhereOrNull((element) => element.uriRaw == newDefaultUri)?.id;
+    var newNodeId = nodes.firstWhereOrNull((element) => element.uriRaw == newDefaultUri)?.id;
 
     // new node doesn't exist, then add it
     if (newNodeId == null) {
@@ -734,8 +734,7 @@ Future<void> updateNanoNodeList() async {
   }
 
   // update the nautilus node:
-  final nautilusNode =
-      nodes.firstWhereOrNull((element) => element.uriRaw == "node.perish.co");
+  final nautilusNode = nodes.firstWhereOrNull((element) => element.uriRaw == "node.perish.co");
   if (nautilusNode != null) {
     nautilusNode.uriRaw = "node.nautilus.io";
     nautilusNode.path = "/api";
@@ -755,11 +754,7 @@ Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreference
   }
 }
 
-Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {
-  final future = wownero?.backupSeeds(havenSeedStore);
-  if (future != null) await future;
-  return;
-}
+Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {/* dummy */}
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
   final currentPriority =
@@ -855,9 +850,9 @@ Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPre
 Future<void> replaceNodesMigration() async {
   final replaceNodes = <String, Node>{
     'eu-node.cakewallet.io:18081':
-    Node(uri: 'xmr-node-eu.cakewallet.com:18081', type: WalletType.monero),
+        Node(uri: 'xmr-node-eu.cakewallet.com:18081', type: WalletType.monero),
     'node.cakewallet.io:18081':
-    Node(uri: 'xmr-node-usa-east.cakewallet.com:18081', type: WalletType.monero),
+        Node(uri: 'xmr-node-usa-east.cakewallet.com:18081', type: WalletType.monero),
     'node.xmr.ru:13666': Node(uri: 'node.monero.net:18081', type: WalletType.monero)
   };
 
@@ -874,11 +869,10 @@ Future<void> replaceNodesMigration() async {
   });
 }
 
-Future<Node?> getBitcoinTestnetDefaultElectrumServer()async {
+Future<Node?> getBitcoinTestnetDefaultElectrumServer() async {
   final nodes = await Node.getAll();
 
-  return nodes
-          .firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
+  return nodes.firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
       nodes.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
 }
 
@@ -1086,8 +1080,8 @@ Future<void> resetBitcoinElectrumServer(SharedPreferences sharedPreferences) asy
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
   final oldElectrumServer = nodeSource
       .firstWhereOrNull((node) => node.uri.toString().contains('electrumx.cakewallet.com'));
-  var cakeWalletNode = nodeSource
-      .firstWhereOrNull((node) => node.uriRaw.toString() == cakeWalletBitcoinElectrumUri);
+  var cakeWalletNode =
+      nodeSource.firstWhereOrNull((node) => node.uriRaw.toString() == cakeWalletBitcoinElectrumUri);
 
   if (cakeWalletNode == null) {
     cakeWalletNode = Node(
@@ -1147,8 +1141,7 @@ Future<void> addWalletNodeList({required WalletType type}) async {
   }
 }
 
-Future<void> removeMoneroWorld(
-    {required SharedPreferences sharedPreferences}) async {
+Future<void> removeMoneroWorld({required SharedPreferences sharedPreferences}) async {
   final nodes = await Node.getAll();
   const cakeWalletMoneroNodeUriPattern = '.moneroworld.com';
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
@@ -1218,14 +1211,13 @@ Future<void> migrateExistingNodesToUseAutoSwitching() async {
 
   final powNodes = await Node.getAllPow();
 
-  for(var node in powNodes) {
+  for (var node in powNodes) {
     if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
       node.isEnabledForAutoSwitching = true;
       node.isPow = true;
       await node.save();
     }
   }
-
 }
 
 Future<void> _addXautTokenToExistingEthereumWallets() async {
@@ -1264,6 +1256,7 @@ Future<void> _addXautTokenToExistingEthereumWallets() async {
     printV('Error in XAUT migration: $e');
   }
 }
+
 Future<void> _addXaut0TokenToExistingSolanaWallets() async {
   try {
     final xaut0Token = SPLToken(

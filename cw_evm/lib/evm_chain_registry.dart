@@ -233,6 +233,5 @@ class EvmChainRegistry {
 
   List<ChainConfig> getAllChains() => _chains.values.toList();
 
-  List<WalletType> getRegisteredWalletTypes() =>
-      _walletTypeToChainId.keys.toList();
+  List<WalletType> getRegisteredWalletTypes() => _walletTypeToChainId.keys.toList();
 }

@@ -6,7 +6,6 @@ const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
 const tronOutputPath = 'lib/tron/tron.dart';
-const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
@@ -28,7 +27,6 @@ Future<void> main(List<String> args) async {
   final hasPolygon = args.contains('${prefix}polygon');
   final hasSolana = args.contains('${prefix}solana');
   final hasTron = args.contains('${prefix}tron');
-  final hasWownero = args.contains('${prefix}wownero');
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
@@ -45,7 +43,6 @@ Future<void> main(List<String> args) async {
   await generateNano(hasNano);
   await generateSolana(hasSolana);
   await generateTron(hasTron);
-  await generateWownero(hasWownero);
   await generateZano(hasZano);
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
@@ -64,7 +61,6 @@ Future<void> main(List<String> args) async {
     hasPolygon: hasPolygon,
     hasSolana: hasSolana,
     hasTron: hasTron,
-    hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
@@ -83,7 +79,6 @@ Future<void> main(List<String> args) async {
     hasPolygon: hasPolygon,
     hasSolana: hasSolana,
     hasTron: hasTron,
-    hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
@@ -513,189 +508,6 @@ abstract class MoneroAccountList {
       (hasImplementation ? moneroCWDefinition : moneroEmptyDefinition) +
       '\n' +
       moneroContent;
-
-  if (outputFile.existsSync()) {
-    await outputFile.delete();
-  }
-
-  await outputFile.writeAsString(output);
-}
-
-Future<void> generateWownero(bool hasImplementation) async {
-  final outputFile = File(wowneroOutputPath);
-  const wowneroCommonHeaders = """
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/unspent_transaction_output.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/output_info.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:cake_wallet/entities/haven_seed_store.dart';
-import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:hive/hive.dart';
-import 'package:polyseed/polyseed.dart';""";
-  const wowneroCWHeaders = """
-import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/wownero_amount_format.dart';
-import 'package:cw_core/monero_transaction_priority.dart';
-import 'package:cw_wownero/wownero_unspent.dart';
-import 'package:cw_wownero/wownero_wallet_service.dart';
-import 'package:cw_wownero/wownero_wallet.dart';
-import 'package:cw_wownero/wownero_transaction_info.dart';
-import 'package:cw_wownero/wownero_transaction_creation_credentials.dart';
-import 'package:cw_core/account.dart' as wownero_account;
-import 'package:cw_wownero/api/wallet.dart' as wownero_wallet_api;
-import 'package:cw_wownero/api/wallet_manager.dart';
-import 'package:cw_wownero/mnemonics/english.dart';
-import 'package:cw_wownero/mnemonics/chinese_simplified.dart';
-import 'package:cw_wownero/mnemonics/dutch.dart';
-import 'package:cw_wownero/mnemonics/german.dart';
-import 'package:cw_wownero/mnemonics/japanese.dart';
-import 'package:cw_wownero/mnemonics/russian.dart';
-import 'package:cw_wownero/mnemonics/spanish.dart';
-import 'package:cw_wownero/mnemonics/portuguese.dart';
-import 'package:cw_wownero/mnemonics/french.dart';
-import 'package:cw_wownero/mnemonics/italian.dart';
-import 'package:cw_wownero/pending_wownero_transaction.dart';
-""";
-  const wowneroCwPart = "part 'cw_wownero.dart';";
-  const wowneroContent = """
-class Account {
-  Account({required this.id, required this.label, this.balance});
-  final int id;
-  final String label;
-  final String? balance;
-}
-
-class Subaddress {
-  Subaddress({
-    required this.id,
-    required this.label,
-    required this.address});
-  final int id;
-  final String label;
-  final String address;
-}
-
-class WowneroBalance extends Balance {
-  WowneroBalance({
-    required this.fullBalance,
-    required Money unlockedBalance,
-    Money? frozen,
-  }) : super(
-          unlockedBalance,
-          fullBalance - unlockedBalance,
-          frozen: frozen ?? Money.zero(CryptoCurrency.wow),
-        );
-
-  final Money fullBalance;
-}
-
-abstract class WowneroWalletDetails {
-  @observable
-  late Account account;
-
-  @observable
-  late WowneroBalance balance;
-}
-
-abstract class Wownero {
-  WowneroAccountList getAccountList(Object wallet);
-
-  WowneroSubaddressList getSubaddressList(Object wallet);
-
-  TransactionHistoryBase getTransactionHistory(Object wallet);
-
-  WowneroWalletDetails getWowneroWalletDetails(Object wallet);
-
-  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
-
-  String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
-
-  int getHeightByDate({required DateTime date});
-  TransactionPriority getDefaultTransactionPriority();
-  TransactionPriority getWowneroTransactionPrioritySlow();
-  TransactionPriority getWowneroTransactionPriorityAutomatic();
-  TransactionPriority deserializeWowneroTransactionPriority({required int raw});
-  List<TransactionPriority> getTransactionPriorities();
-  List<String> getWowneroWordList(String language);
-
-  List<Unspent> getUnspents(Object wallet);
-  Future<void> updateUnspents(Object wallet);
-
-  Future<int> getCurrentHeight();
-  void wownerocCheck();
-
-  WalletCredentials createWowneroRestoreWalletFromKeysCredentials({
-    required String name,
-    required String spendKey,
-    required String viewKey,
-    required String address,
-    required String password,
-    required String language,
-    required int height});
-  WalletCredentials createWowneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
-  WalletCredentials createWowneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String? password, String? passphrase});
-  int? getRestoreHeight(Object wallet);
-  Map<String, String> getKeys(Object wallet);
-  Object createWowneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
-  Object createWowneroTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
-  String formatterWowneroAmountToString({required int amount});
-  double formatterWowneroAmountToDouble({required int amount});
-  int formatterWowneroParseAmount({required String amount});
-  Account getCurrentAccount(Object wallet);
-  void setCurrentAccount(Object wallet, int id, String label, String? balance);
-  void onStartup();
-  int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
-  Map<String, String> pendingTransactionInfo(Object transaction);
-  String getLegacySeed(Object wallet, String langName);
-  Map<String, List<int>> debugCallLength();
-  Future<void> backupSeeds(Box<HavenSeedStore> havenSeedStore);
-}
-
-abstract class WowneroSubaddressList {
-  ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {required int accountIndex});
-  void refresh(Object wallet, {required int accountIndex});
-  List<Subaddress> getAll(Object wallet);
-  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
-  Future<void> setLabelSubaddress(Object wallet,
-      {required int accountIndex, required int addressIndex, required String label});
-}
-
-abstract class WowneroAccountList {
-  ObservableList<Account> get accounts;
-  void update(Object wallet);
-  void refresh(Object wallet);
-  List<Account> getAll(Object wallet);
-  Future<void> addAccount(Object wallet, {required String label});
-  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
-}
-  """;
-
-  const wowneroEmptyDefinition = 'Wownero? wownero;\n';
-  const wowneroCWDefinition = 'Wownero? wownero = CWWownero();\n';
-
-  final output = '$wowneroCommonHeaders\n' +
-      (hasImplementation ? '$wowneroCWHeaders\n' : '\n') +
-      (hasImplementation ? '$wowneroCwPart\n\n' : '\n') +
-      (hasImplementation ? wowneroCWDefinition : wowneroEmptyDefinition) +
-      '\n' +
-      wowneroContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -1796,7 +1608,6 @@ Future<void> generatePubspec({
   required bool hasPolygon,
   required bool hasSolana,
   required bool hasTron,
-  required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
@@ -1847,10 +1658,6 @@ Future<void> generatePubspec({
   const cwTron = """
   cw_tron:
     path: ./cw_tron
-    """;
-  const cwWownero = """
-  cw_wownero:
-    path: ./cw_wownero
     """;
   const cwZano = """
   cw_zano:
@@ -1918,10 +1725,6 @@ Future<void> generatePubspec({
     output += '\n$cwEVM';
   }
 
-  if (hasWownero) {
-    output += '\n$cwWownero';
-  }
-
   if (hasZano) {
     output += '\n$cwZano';
   }
@@ -1956,7 +1759,6 @@ Future<void> generateWalletTypes({
   required bool hasPolygon,
   required bool hasSolana,
   required bool hasTron,
-  required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
@@ -2042,10 +1844,6 @@ Future<void> generateWalletTypes({
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';
   }
-
-  // if (hasWownero) {
-  //   outputContent += '\tWalletType.wownero,\n';
-  // }
 
   outputContent += '];\n';
   await walletTypesFile.writeAsString(outputContent);

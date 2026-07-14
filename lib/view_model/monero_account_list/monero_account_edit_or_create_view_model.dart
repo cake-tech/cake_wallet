@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -17,11 +16,11 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
     with _$MoneroAccountEditOrCreateViewModel;
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
-  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._wowneroAccountList,
+  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList,
       {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
-        label = accountListItem?.label??'',
+        label = accountListItem?.label ?? '',
         _accountListItem = accountListItem,
         _wallet = wallet;
 
@@ -34,7 +33,6 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   String label;
 
   final MoneroAccountList _moneroAccountList;
-  final WowneroAccountList? _wowneroAccountList;
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
@@ -65,10 +63,6 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
     if (_wallet.type == WalletType.monero) {
       await saveMonero();
     }
-
-    if (_wallet.type == WalletType.wownero) {
-      await saveWownero();
-    }
   }
 
   Future<void> saveMonero() async {
@@ -76,14 +70,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = IsExecutingState();
 
       if (_accountListItem != null) {
-        await _moneroAccountList.setLabelAccount(
-            _wallet,
-            accountIndex: _accountListItem.id,
-            label: label);
+        await _moneroAccountList.setLabelAccount(_wallet,
+            accountIndex: _accountListItem.id, label: label);
       } else {
-        await _moneroAccountList.addAccount(
-          _wallet,
-          label: label);
+        await _moneroAccountList.addAccount(_wallet, label: label);
       }
 
       await _wallet.save();
@@ -92,27 +82,4 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = FailureState(e.toString());
     }
   }
-
-  Future<void> saveWownero() async {
-    try {
-      state = IsExecutingState();
-
-      if (_accountListItem != null) {
-        await _wowneroAccountList?.setLabelAccount(
-            _wallet,
-            accountIndex: _accountListItem.id,
-            label: label);
-      } else {
-        await _wowneroAccountList?.addAccount(
-          _wallet,
-          label: label);
-      }
-
-      await _wallet.save();
-      state = ExecutedSuccessfullyState();
-    } catch (e) {
-      state = FailureState(e.toString());
-    }
-  }
-
 }

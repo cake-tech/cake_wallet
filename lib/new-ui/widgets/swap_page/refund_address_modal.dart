@@ -53,7 +53,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                 spacing: 24,
                 children: [
                   CakeImageWidget(
-                    imageUrl:"assets/new-ui/refund_address.svg",
+                    imageUrl: "assets/new-ui/refund_address.svg",
                     colorFilter:
                         ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                   ),
@@ -72,7 +72,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                     spacing: 12,
                     children: [
                       NewSendAddressInput(
-                        bottomPadding: true,
+                          bottomPadding: true,
                           addressController: addressController,
                           selectedCurrency: widget.selectedCurrency,
                           onEditingComplete: () {}),
@@ -81,7 +81,9 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
                             onPressed: () {
                               Navigator.of(context).pop(addressController.text);
                             },
-                            text: !_textEntered ? S.of(context).skip_set_later : S.of(context).continue_text,
+                            text: !_textEntered
+                                ? S.of(context).skip_set_later
+                                : S.of(context).continue_text,
                             color: addressController.text.isEmpty
                                 ? Theme.of(context).colorScheme.surfaceContainer
                                 : Theme.of(context).colorScheme.primary,

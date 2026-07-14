@@ -1,6 +1,5 @@
 class AccountListItem {
-  AccountListItem(
-      {required this.label, required this.id, this.balance, this.isSelected = false});
+  AccountListItem({required this.label, required this.id, this.balance, this.isSelected = false});
 
   final String label;
   final int id;

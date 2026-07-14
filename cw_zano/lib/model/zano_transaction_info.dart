@@ -24,11 +24,11 @@ class ZanoTransactionInfo extends TransactionInfo {
 
   ZanoTransactionInfo.fromTransfer(Transfer transfer,
       {required int confirmations,
-        required bool isIncome,
-        required String assetId,
-        required Money amount,
-        this.tokenSymbol = 'ZANO',
-        this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
+      required bool isIncome,
+      required String assetId,
+      required Money amount,
+      this.tokenSymbol = 'ZANO',
+      this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
       : id = transfer.txHash,
         height = transfer.height,
         direction = isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
@@ -37,9 +37,8 @@ class ZanoTransactionInfo extends TransactionInfo {
         fee = Money.fromInt(transfer.fee, CryptoCurrency.zano),
         confirmations = confirmations,
         isPending = confirmations < 10,
-        recipientAddress = transfer.remoteAddresses.isNotEmpty
-            ? transfer.remoteAddresses.first
-            : '' {
+        recipientAddress =
+            transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '' {
     additionalInfo = <String, dynamic>{
       'comment': transfer.comment,
       'assetId': assetId,

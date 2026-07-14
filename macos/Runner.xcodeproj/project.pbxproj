@@ -29,7 +29,6 @@
 		83FF6BF911B29965D3589BE7 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD06F8F6E3797AC031038136 /* Pods_Runner.framework */; };
 		8438E2252FBBAEF1003EC0C4 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8438E2242FBBAEF1003EC0C4 /* AppIcon.icon */; };
 		9F565D5929954F53009A75FB /* secRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5729954F53009A75FB /* secRandom.swift */; };
-		CE5899C52F71669A008E754F /* libwownero_wallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE5899C32F71669A008E754F /* libwownero_wallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		CE5899C62F71669A008E754F /* libmonero_wallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE5899C42F71669A008E754F /* libmonero_wallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -60,7 +59,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				CE5899C52F71669A008E754F /* libwownero_wallet2_api_c.dylib in CopyFiles */,
 				CE5899C62F71669A008E754F /* libmonero_wallet2_api_c.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -92,7 +90,6 @@
 		9F1E7BFB2BF2D27500C28C9A /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		9F565D5729954F53009A75FB /* secRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = secRandom.swift; path = CakeWallet/secRandom.swift; sourceTree = "<group>"; };
 		BD06F8F6E3797AC031038136 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		CE5899C32F71669A008E754F /* libwownero_wallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwownero_wallet2_api_c.dylib; sourceTree = "<group>"; };
 		CE5899C42F71669A008E754F /* libmonero_wallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmonero_wallet2_api_c.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -123,7 +120,6 @@
 			isa = PBXGroup;
 			children = (
 				CE5899C42F71669A008E754F /* libmonero_wallet2_api_c.dylib */,
-				CE5899C32F71669A008E754F /* libwownero_wallet2_api_c.dylib */,
 				9F565D5729954F53009A75FB /* secRandom.swift */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
@@ -289,9 +285,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

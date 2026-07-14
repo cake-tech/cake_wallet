@@ -15,7 +15,7 @@ class CakePayTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Row(
@@ -27,16 +27,16 @@ class CakePayTile extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                      color: colorScheme.onSurfaceVariant,
+                    ),
               ),
               SizedBox(height: 8),
               Text(
                 subTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           )

@@ -22,17 +22,19 @@ class WelcomePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
 
   @override
   Widget trailing(BuildContext context) {
-    final Uri _url =
-        Uri.parse('https://docs.cakewallet.com/get-started/setup/');
+    final Uri _url = Uri.parse('https://docs.cakewallet.com/get-started/setup/');
     return IconButton(
-      icon: Icon(Icons.info_outline, size: 26,),
+      icon: Icon(
+        Icons.info_outline,
+        size: 26,
+      ),
       onPressed: () async {
         await launchUrl(_url);
       },
