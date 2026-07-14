@@ -1,41 +1,55 @@
-import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:on_chain/on_chain.dart' as onchain;
 import 'package:on_chain/tron/tron.dart';
 
 class TronTransactionInfo extends TransactionInfo {
   TronTransactionInfo({
     required this.id,
-    required this.tronAmount,
-    required this.txFee,
+    required this.amount,
+    required this.fee,
     required this.direction,
     required this.blockTime,
     required this.to,
     required this.from,
     required this.isPending,
-    this.tokenSymbol = 'TRX',
-  }) : amount = tronAmount.toInt();
+  });
 
+  @override
   final String id;
+
+  @override
   final String? to;
+
+  @override
   final String? from;
-  final int amount;
-  final BigInt tronAmount;
-  final String tokenSymbol;
-  final DateTime blockTime;
+
+  @override
+  final Money amount;
+
+  @override
+  final Money? fee;
+
+  @override
   final bool isPending;
-  final int? txFee;
+
+  @override
   final TransactionDirection direction;
 
+  final DateTime blockTime;
+
   factory TronTransactionInfo.fromJson(Map<String, dynamic> data) {
+    final tokenSymbol = data['tokenSymbol'] as String;
+    final decimals = data['decimals'] as int? ?? CryptoCurrency.trx.decimals;
+    final currency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
+
     return TronTransactionInfo(
       id: data['id'] as String,
-      tronAmount: BigInt.parse(data['tronAmount']),
-      txFee: data['txFee'],
+      amount: Money(BigInt.parse(data['tronAmount']), currency),
+      fee: Money.tryParse(data['txFee']?.toString() ?? '0', CryptoCurrency.trx, isBaseUnit: true),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       blockTime: DateTime.fromMillisecondsSinceEpoch(data['blockTime'] as int),
-      tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
       from: data['from'],
       isPending: data['isPending'],
@@ -44,40 +58,19 @@ class TronTransactionInfo extends TransactionInfo {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'tronAmount': tronAmount.toString(),
-        'txFee': txFee,
+        'tronAmount': amount.amount.toString(),
+        'txFee': fee?.amount.toString(),
         'direction': direction.index,
         'blockTime': blockTime.millisecondsSinceEpoch,
-        'tokenSymbol': tokenSymbol,
         'to': to,
         'from': from,
         'isPending': isPending,
+        'tokenSymbol': amount.currency.symbol,
+        'decimals': amount.currency.decimals
       };
 
   @override
   DateTime get date => blockTime;
-
-  String? _fiatAmount;
-
-  @override
-  String amountFormatted() {
-    String formattedAmount = _rawAmountAsString(tronAmount);
-
-    return '$formattedAmount $tokenSymbol';
-  }
-
-  @override
-  String fiatAmount() => _fiatAmount ?? '';
-
-  @override
-  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
-
-  @override
-  String feeFormatted() {
-    final formattedFee = onchain.TronHelper.fromSun(BigInt.from(txFee ?? 0));
-
-    return '$formattedFee TRX';
-  }
 
   String _rawAmountAsString(BigInt amount) {
     String formattedAmount = TronHelper.fromSun(amount);
@@ -89,5 +82,5 @@ class TronTransactionInfo extends TransactionInfo {
     return formattedAmount;
   }
 
-  String rawTronAmount() => _rawAmountAsString(tronAmount);
+  String rawTronAmount() => _rawAmountAsString(amount.amount);
 }

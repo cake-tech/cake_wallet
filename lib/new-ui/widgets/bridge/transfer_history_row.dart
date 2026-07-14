@@ -88,7 +88,7 @@ class TransferHistoryRow extends StatelessWidget {
               child: Stack(
                 children: [
                   CakeImageWidget(
-                    imageUrl: 'assets/images/crypto/${sourceChainName?.toLowerCase()}.webp',
+                    imageUrl: 'assets/new-ui/crypto_full_icons/${sourceChainName?.toLowerCase()}.svg',
                     width: 28,
                     height: 28,
                   ),
@@ -96,7 +96,7 @@ class TransferHistoryRow extends StatelessWidget {
                     top: 14,
                     left: 12,
                     child: CakeImageWidget(
-                      imageUrl: 'assets/images/crypto/${destChainName?.toLowerCase()}.webp',
+                      imageUrl: 'assets/new-ui/crypto_full_icons/${destChainName?.toLowerCase()}.svg',
                       width: 28,
                       height: 28,
                     ),

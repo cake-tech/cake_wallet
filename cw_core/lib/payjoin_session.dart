@@ -1,9 +1,9 @@
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'payjoin_session.g.dart';
+part 'payjoin_session.part.dart';
 
-@HiveType(typeId: PAYJOIN_SESSION_TYPE_ID)
+// @HiveType(typeId: PAYJOIN_SESSION_TYPE_ID)
 class PayjoinSession extends HiveObject {
   PayjoinSession({
     required this.walletId,
@@ -25,31 +25,31 @@ class PayjoinSession extends HiveObject {
   static const typeId = PAYJOIN_SESSION_TYPE_ID;
   static const boxName = 'PayjoinSessions';
 
-  @HiveField(0)
+  // @HiveField(0)
   final String walletId;
 
-  @HiveField(1)
+  // @HiveField(1)
   final String? sender;
 
-  @HiveField(2)
+  // @HiveField(2)
   final String? receiver;
 
-  @HiveField(3)
+  // @HiveField(3)
   final String? pjUri;
 
-  @HiveField(4)
+  // @HiveField(4)
   String status;
 
-  @HiveField(5)
+  // @HiveField(5)
   DateTime? inProgressSince;
 
-  @HiveField(6)
+  // @HiveField(6)
   String? txId;
 
-  @HiveField(7)
+  // @HiveField(7)
   String? rawAmount;
 
-  @HiveField(8)
+  // @HiveField(8)
   String? error;
 
   bool get isSenderSession => sender != null;

@@ -3,9 +3,9 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:hive/hive.dart';
 
-part 'contact.g.dart';
+part 'contact.part.dart';
 
-@HiveType(typeId: Contact.typeId)
+// @HiveType(typeId: Contact.typeId)
 class Contact extends HiveObject with Keyable {
   Contact({required this.name, required this.address, CryptoCurrency? type, DateTime? lastChange, this.displayName = ""})
       : lastChange = lastChange ?? DateTime.now() {
@@ -17,19 +17,19 @@ class Contact extends HiveObject with Keyable {
   static const typeId = CONTACT_TYPE_ID;
   static const boxName = 'Contacts';
 
-  @HiveField(0, defaultValue: '')
+  // @HiveField(0, defaultValue: '')
   String name;
 
-  @HiveField(1, defaultValue: '')
+  // @HiveField(1, defaultValue: '')
   String address;
 
-  @HiveField(2, defaultValue: 0)
+  // @HiveField(2, defaultValue: 0)
   late int raw;
 
-  @HiveField(3)
+  // @HiveField(3)
   DateTime lastChange;
 
-  @HiveField(4, defaultValue: "")
+  // @HiveField(4, defaultValue: "")
   String displayName;
 
   CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);

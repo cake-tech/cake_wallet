@@ -363,7 +363,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   arguments: [availableWalletTypes.first, hardwareWalletType]),
               isReconnect: false,
             ),
-            getIt.get<LedgerViewModel>(),
+            getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType),
           ),
         );
       }
@@ -371,7 +371,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
-              if (hardwareWalletType == HardwareWalletType.trezor) {
+              if (hardwareWalletType == HardwareWalletType.trezor && type != WalletType.monero) {
                 Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
                     arguments: [type, hardwareWalletType]);
                 return;
@@ -679,7 +679,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeConfirmPage>());
 
     case Routes.tradeDetails:
-      return MaterialPageRoute<void>(
+      return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
@@ -759,12 +759,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.unspentCoinsList:
-      final coinTypeToSpendFrom = settings.arguments as UnspentCoinType?;
-      return handleRouteWithPlatformAwareness(
-        (context) => FeatureFlag.hasNewUi
-            ? getIt.get<NewCoinControlPage>(param1: coinTypeToSpendFrom)
-            : getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom),
-      );
+      final args = settings.arguments as CoinControlPageArgs?;
+      return handleRouteWithPlatformAwareness((context) =>
+          getIt.get<NewCoinControlPage>(param1: args?.coinTypeToSpendFrom, param2: args?.canEdit));
 
     case Routes.unspentCoinsDetails:
       final args = settings.arguments as List;

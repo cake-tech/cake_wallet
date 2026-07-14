@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -147,10 +148,9 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                       return Padding(
                         padding: EdgeInsets.only(top: 10),
                         child: SelectButton(
-                          image: Image.asset(
-                            getCryptoCurrencyIconForWalletListItem(
-                                  _walletHardwareRestoreVM.type,
-                                ),
+                          image: CakeImageWidget(
+                            imageUrl: getCryptoCurrencyIconForWalletListItem(
+                                _walletHardwareRestoreVM.type),
                             height: 24,
                             width: 24,
                           ),

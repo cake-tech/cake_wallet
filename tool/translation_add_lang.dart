@@ -34,5 +34,5 @@ void main(List<String> args) async {
   }
 
   appendStringsToArbFile(targetFileName, translations);
-  printV("Success! Please add your Language Code to lib/entities/language_service.dart");
+  print("Success! Please add your Language Code to lib/entities/language_service.dart");
 }

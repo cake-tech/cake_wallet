@@ -19,9 +19,8 @@ class CWDecred extends Decred {
       DecredRestoreWalletFromPubkeyCredentials(name: name, pubkey: pubkey, password: password);
 
   @override
-  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource) {
-    return DecredWalletService(unspentCoinSource);
-  }
+  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
+      DecredWalletService(unspentCoinSource);
 
   @override
   List<TransactionPriority> getTransactionPriorities() => DecredTransactionPriority.all;
@@ -39,18 +38,19 @@ class CWDecred extends Decred {
   @override
   Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority) =>
       DecredTransactionCredentials(
-          outputs
-              .map((out) => OutputInfo(
+        outputs
+            .map((out) => OutputInfo(
                   fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
                   address: out.address,
                   note: out.note,
                   sendAll: out.sendAll,
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
-              .toList(),
-          priority: priority as DecredTransactionPriority);
+                ))
+            .toList(),
+        priority: priority as DecredTransactionPriority,
+      );
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet) {
     final decredWallet = wallet as DecredWallet;
@@ -68,17 +68,6 @@ class CWDecred extends Decred {
     final decredWallet = wallet as DecredWallet;
     await decredWallet.walletAddresses.generateNewAddress(label);
   }
-
-  @override
-  String formatterDecredAmountToString({required int amount}) =>
-      decredAmountToString(amount: amount);
-
-  @override
-  double formatterDecredAmountToDouble({required int amount}) =>
-      decredAmountToDouble(amount: amount);
-
-  @override
-  int formatterStringDoubleToDecredAmount(String amount) => stringDoubleToDecredAmount(amount);
 
   @override
   List<Unspent> getUnspents(Object wallet) {

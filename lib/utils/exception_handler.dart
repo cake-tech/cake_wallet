@@ -117,7 +117,7 @@ class ExceptionHandler {
     if (await onLedgerError(errorDetails)) return;
 
     if (kDebugMode || kProfileMode) {
-      if(_ignoreError(errorDetails.exception.toString()) ||
+      if (_ignoreError(errorDetails.exception.toString()) ||
           _ignoreError(errorDetails.stack.toString())) {
         printV("(BELOW ERROR IS IGNORED AND WILL NOT TRIGGER POPUP IN PROD)");
       }
@@ -127,7 +127,8 @@ class ExceptionHandler {
     }
 
     if (_ignoreError(errorDetails.exception.toString()) ||
-        _ignoreError(errorDetails.stack.toString())) {
+        _ignoreError(errorDetails.stack.toString()) ||
+        _flutterErrorIgnore(errorDetails)) {
       return;
     }
 
@@ -215,8 +216,7 @@ class ExceptionHandler {
         return S.current.ledger_error_tx_rejected_by_user;
       } else if (errorCode.contains("5515")) {
         return S.current.ledger_error_device_locked;
-      } else
-      if (["6e01", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+      } else if (["6e01", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
         return S.current.ledger_error_wrong_app;
       }
       return null;
@@ -229,9 +229,8 @@ class ExceptionHandler {
         context: navigatorKey.currentContext!,
         builder: (context) => AlertWithOneAction(
           alertTitle: "Ledger Error",
-          alertContent:
-              interpretErrorCode(errorDetails.exception.toString()) ??
-                  S.of(context).ledger_connection_error,
+          alertContent: interpretErrorCode(errorDetails.exception.toString()) ??
+              S.of(context).ledger_connection_error,
           buttonText: S.of(context).close,
           buttonAction: () => Navigator.of(context).pop(),
         ),
@@ -259,6 +258,7 @@ class ExceptionHandler {
     "Connection timed out",
     "Connection reset by peer",
     "Connection closed before full header was received",
+    "Connection closed while receiving data",
     "Connection terminated during handshake",
     "OS Error: Connection refused, errno = 61",
     "PERMISSION_NOT_GRANTED",
@@ -278,6 +278,7 @@ class ExceptionHandler {
     "invalid signature",
     "invalid password",
     "NetworkImage._loadAsync",
+    "Invalid image data",
     "SSLV3_ALERT_BAD_RECORD_MAC",
     "PlatformException(already_active, File picker is already active",
     // SVG-related errors
@@ -296,17 +297,23 @@ class ExceptionHandler {
     "Wallet is null",
     "Wrong Device Status: 0x5515 (UNKNOWN)",
     "Command handling failed. With error: hostUnreachable",
-    
+
+    // Android IME/Gboard occasionally reports a caret offset past the end of
+    // the text on the platform text-input channel while typing. Non-fatal
+    // framework<->platform desync; the app keeps working.
+    "invalid selection start",
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
+    "Pending Request Canceled | RequestQueue disposed",
     "reown_core/relay_client/websocket/websocket_handler.dart",
     "Image upload failed due to loss of GPU access",
     "transport error",
     "SdkError.sparkError(field0: Operator RPC error: Connection error: status: Unavailable, message: \"dns error\", details: []",
     "the timeout of the request was reached",
 
-    "support for coin removed, your seedphrase:"
+    "support for coin removed, your seedphrase:",
+    "Exception: Invalid image data",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
@@ -438,5 +445,36 @@ class ExceptionHandler {
     }
 
     _hasError = false;
+  }
+
+  static bool _flutterErrorIgnore(FlutterErrorDetails errorDetails) {
+    if (errorDetails.exception.toString().contains("Null check operator used on a null value")) {
+      // Most probably a flutter context error so just ignore it if there is no
+      // stack we can debug with.
+      if (errorDetails.stack == null) {
+        return true;
+      }
+
+      final stack = errorDetails.stack.toString();
+      if (stack.contains("handleFocusHighlightModeChange") ||
+          stack.contains("_HighlightModeManager")) {
+        return true;
+      }
+    }
+
+    if (errorDetails.exception.toString().contains("Cannot add event after closing")) {
+      // grpc-dart teardown race (e.g. the MWEB channel on litecoin): a buffered outgoing
+      // frame is delivered to the http2 stream's sink after the call/channel was
+      // terminated. The message alone is too generic to ignore, so require the exact
+      // shape of grpc's forwarding chain: .map().map().handleError().listen(sink.add).
+      final stack = errorDetails.stack.toString();
+      if (stack.contains("_StreamSinkWrapper.add") &&
+          stack.contains("_MapStream._handleData") &&
+          stack.contains("_HandleErrorStream._handleData")) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

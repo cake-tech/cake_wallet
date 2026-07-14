@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -56,7 +56,7 @@ abstract class TronWalletBase
         _client = TronClient(),
         walletAddresses = TronWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, TronBalance>.of(
-          {CryptoCurrency.trx: initialBalance ?? TronBalance(BigInt.zero)},
+          {CryptoCurrency.trx: initialBalance ?? TronBalance(Money.zero(CryptoCurrency.trx))},
         ),
         super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
@@ -93,10 +93,10 @@ abstract class TronWalletBase
   WalletAddresses walletAddresses;
 
   @observable
-  String? nativeTxEstimatedFee;
+  Money? nativeTxEstimatedFee;
 
   @observable
-  String? trc20EstimatedFee;
+  Money? trc20EstimatedFee;
 
   @override
   @observable
@@ -145,7 +145,8 @@ abstract class TronWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = TronBalance.fromJSON(data?['balance'] as String?) ?? TronBalance(BigInt.zero);
+    final balance = TronBalance.fromJSON(data?['balance'] as String?, CryptoCurrency.trx) ??
+        TronBalance(Money.zero(CryptoCurrency.trx));
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
@@ -253,10 +254,10 @@ abstract class TronWalletBase
 
   Future<void> _getEstimatedFees() async {
     final nativeFee = await _getNativeTxFee();
-    nativeTxEstimatedFee = TronHelper.fromSun(BigInt.from(nativeFee));
+    nativeTxEstimatedFee = Money.fromInt(nativeFee, currency);
 
     final trc20Fee = await _getTrc20TxFee();
-    trc20EstimatedFee = TronHelper.fromSun(BigInt.from(trc20Fee));
+    trc20EstimatedFee =  Money.fromInt(trc20Fee, currency);
 
     log('Native Estimated Fee: $nativeTxEstimatedFee');
     log('TRC20 Estimated Fee: $trc20EstimatedFee');
@@ -321,21 +322,11 @@ abstract class TronWalletBase
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
-    BigInt totalAmount = BigInt.zero;
-    bool shouldSendAll = false;
+    var totalAmount = Money.zero(transactionCurrency);
+    var shouldSendAll = false;
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        // Tron does not have multi Destination right now
         throw TronTransactionCreationException(transactionCurrency);
-      }
-
-      final totalAmountFromCredentials =
-          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
-
-      totalAmount = BigInt.from(totalAmountFromCredentials);
-
-      if (walletBalanceForCurrency < totalAmount) {
-        throw TronTransactionCreationException(transactionCurrency);
-      }
     } else {
       final output = outputs.first;
 
@@ -344,25 +335,23 @@ abstract class TronWalletBase
       if (shouldSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-        totalAmount = TronHelper.toSun(totalOriginalAmount.toString());
+        totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
-      if (walletBalanceForCurrency < totalAmount || totalAmount < BigInt.zero) {
+      if (walletBalanceForCurrency < totalAmount || totalAmount < Money.zero(transactionCurrency)) {
         throw TronTransactionCreationException(transactionCurrency);
       }
     }
 
-    final tronBalance = balance[CryptoCurrency.trx]?.balance ?? BigInt.zero;
+    final tronBalance = balance[CryptoCurrency.trx]?.balance ?? Money.zero(CryptoCurrency.trx);
 
     final pendingTransaction = await _client.signTransaction(
       ownerPrivKey: _tronPrivateKey,
       toAddress: tronCredentials.outputs.first.isParsedAddress
           ? tronCredentials.outputs.first.extractedAddress!
           : tronCredentials.outputs.first.address,
-      amount: TronHelper.fromSun(totalAmount),
-      currency: transactionCurrency,
-      tronBalance: tronBalance,
+      amount: totalAmount,
+      tronBalance: tronBalance.amount,
       sendAll: shouldSendAll,
     );
 
@@ -394,33 +383,41 @@ abstract class TronWalletBase
         continue;
       }
 
-      // Filter out spam transaactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
+      // Filter out spam transactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
       if (transactionModel.contracts?.first.type == "TransferAssetContract") {
         continue;
       }
 
-      String? tokenSymbol;
+      var txCurrency = currency;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);
 
-        tokenSymbol = (await _client.getTokenDetail(
+        final tokenSymbol = (await _client.getTokenDetail(
               contract,
               "symbol",
               ownerAddress,
               tokenAddress,
             ) as String?) ??
             '';
+
+        final decimals = (await _client.getTokenDetail(
+          contract,
+          "decimals",
+          ownerAddress,
+          tokenAddress,
+        ) as BigInt?)?.toInt() ?? txCurrency.decimals;
+
+        txCurrency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
       }
 
       result[transactionModel.hash] = TronTransactionInfo(
         id: transactionModel.hash,
-        tronAmount: transactionModel.amount ?? BigInt.zero,
+        amount: Money(transactionModel.amount ?? BigInt.zero, txCurrency),
         direction: TronAddress(transactionModel.from!, visible: false).toAddress() == address
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         blockTime: transactionModel.date,
-        txFee: transactionModel.fee,
-        tokenSymbol: tokenSymbol ?? "TRX",
+        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
         to: transactionModel.to,
         from: transactionModel.from,
         isPending: false,
@@ -441,20 +438,19 @@ abstract class TronWalletBase
 
     final Map<String, TronTransactionInfo> result = {};
 
-    for (var transactionModel in transactions) {
+    for (final transactionModel in transactions) {
       if (transactionHistory.transactions.containsKey(transactionModel.hash)) {
         continue;
       }
 
       result[transactionModel.hash] = TronTransactionInfo(
         id: transactionModel.hash,
-        tronAmount: transactionModel.amount ?? BigInt.zero,
+        amount: Money(transactionModel.amount ?? BigInt.zero, transactionModel.currency),
         direction: transactionModel.from! == address
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         blockTime: transactionModel.date,
-        txFee: transactionModel.fee,
-        tokenSymbol: transactionModel.tokenSymbol ?? "TRX",
+        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
         to: transactionModel.to,
         from: transactionModel.from,
         isPending: false,
@@ -514,7 +510,7 @@ abstract class TronWalletBase
 
   Future<TronBalance> _fetchTronBalance() async {
     final balance = await _client.getBalance(_tronPublicKey.toAddress());
-    return TronBalance(balance);
+    return TronBalance(Money(balance, CryptoCurrency.trx));
   }
 
   Future<void> _fetchTronTokenBalances() async {
@@ -524,6 +520,7 @@ abstract class TronWalletBase
           balance[token] = await _client.fetchTronTokenBalances(
             _tronAddress,
             token.contractAddress,
+            currency: token,
           );
         } else {
           balance.remove(token);
@@ -542,8 +539,9 @@ abstract class TronWalletBase
       await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
 
       // Check USDT token balance
-      const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-      await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress, throwOnError: true);
+      final usdtContractAddress = DefaultTronTokens().usdt.contractAddress;
+      await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress,
+          throwOnError: true, currency: CryptoCurrency.usdttrc20);
 
       return true;
     } catch (e) {
@@ -582,6 +580,7 @@ abstract class TronWalletBase
       balance[newToken] = await _client.fetchTronTokenBalances(
         _tronAddress,
         newToken.contractAddress,
+        currency: token
       );
     } else {
       balance.remove(newToken);
@@ -599,36 +598,13 @@ abstract class TronWalletBase
   }
 
   Future<void> _removeTokenTransactionsInHistory(TronToken token) async {
-    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    transactionHistory.transactions
+        .removeWhere((key, value) => value.amount.currency.symbol == token.title);
     await transactionHistory.save();
   }
 
   Future<TronToken?> getTronToken(String contractAddress) async =>
       await _client.getTronToken(contractAddress, _tronAddress);
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    const transactionHistoryFileNameForWallet = 'tron_transactions.json';
-
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
 
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {
@@ -649,10 +625,9 @@ abstract class TronWalletBase
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    if (address == null) {
-      return false;
-    }
-    TronPublicKey pubKey = TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
+    if (address == null) return false;
+
+    final pubKey = TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
     return pubKey.toAddress().toString() == address;
   }
 

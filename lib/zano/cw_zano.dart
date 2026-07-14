@@ -70,23 +70,25 @@ class CWZano extends Zano {
   }
 
   @override
-  Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency}) {
-    return ZanoTransactionCredentials(
-      outputs: outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount))
-          .toList(),
-      priority: priority as MoneroTransactionPriority,
-      currency: currency,
-    );
-  }
+  Object createZanoTransactionCredentials(
+          {required List<Output> outputs,
+          required TransactionPriority priority,
+          required CryptoCurrency currency}) =>
+      ZanoTransactionCredentials(
+        outputs: outputs
+            .map((out) => OutputInfo(
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                ))
+            .toList(),
+        priority: priority as MoneroTransactionPriority,
+        currency: currency,
+      );
 
   @override
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee}) {
