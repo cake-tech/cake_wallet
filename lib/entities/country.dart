@@ -11,7 +11,8 @@ class Country extends EnumerableItem<String> with Serializable<String> {
   static List<Country> get all => _all.values.toList();
 
   static List<Country> get allForCakePay => _all.values
-      .where((element) => element.countryCode != 'EU' && element.countryCode != 'AQ').toList();
+      .where((element) => element.countryCode != 'EU' && element.countryCode != 'AQ')
+      .toList();
 
   static const afghanistan = Country(code: 'afg', countryCode: 'AF', fullName: "Afghanistan");
   static const andorra = Country(code: 'and', countryCode: 'AD', fullName: "Andorra");
@@ -366,9 +367,9 @@ class Country extends EnumerableItem<String> with Serializable<String> {
     return _all.values.firstWhereOrNull((element) => element.raw == countryCode.toLowerCase());
   }
 
-
   static Country? fromCountryCode(String countryCode) {
-    return _all.values.firstWhereOrNull((element) => element.countryCode == countryCode.toUpperCase());
+    return _all.values
+        .firstWhereOrNull((element) => element.countryCode == countryCode.toUpperCase());
   }
 
   @override

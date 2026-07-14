@@ -10,7 +10,6 @@ String _smartAmountSanitizer(String amount) {
   return amount.replaceAll(",", ".");
 }
 
-
 extension SanitizerUserAmounts on String {
   String sanitized() => _smartAmountSanitizer(this);
 }

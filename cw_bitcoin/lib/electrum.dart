@@ -304,9 +304,9 @@ class ElectrumClient {
       });
 
   Future<Map<String, List<Map<String, dynamic>>>> getBatchHistory(
-      List<String> scriptHashes, {
-        int timeout = 10000,
-      }) async {
+    List<String> scriptHashes, {
+    int timeout = 10000,
+  }) async {
     final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
 
     final batchResults = await callBatchWithTimeout(
@@ -342,9 +342,9 @@ class ElectrumClient {
   }
 
   Future<Map<String, List<Map<String, dynamic>>>> getBatchUnspent(
-      List<String> scriptHashes, {
-        int timeout = 10000,
-      }) async {
+    List<String> scriptHashes, {
+    int timeout = 10000,
+  }) async {
     final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
 
     final batchResults = await callBatchWithTimeout(
@@ -380,9 +380,9 @@ class ElectrumClient {
   }
 
   Future<Map<String, Map<String, dynamic>>> getBatchBalance(
-      List<String> scriptHashes, {
-        int timeout = 10000,
-      }) async {
+    List<String> scriptHashes, {
+    int timeout = 10000,
+  }) async {
     final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
 
     final batchResults = await callBatchWithTimeout(
@@ -416,9 +416,9 @@ class ElectrumClient {
   }
 
   Future<Map<String, Map<String, dynamic>>> getBatchTransactionVerbose(
-      List<String> hashes, {
-        int timeout = 10000,
-      }) async {
+    List<String> hashes, {
+    int timeout = 10000,
+  }) async {
     final result = <String, Map<String, dynamic>>{};
     if (hashes.isEmpty) return result;
 
@@ -443,9 +443,9 @@ class ElectrumClient {
   }
 
   Future<Map<String, String?>> getBatchTransactionHex(
-      List<String> hashes, {
-        int timeout = 10000,
-      }) async {
+    List<String> hashes, {
+    int timeout = 10000,
+  }) async {
     final result = <String, String?>{};
     if (hashes.isEmpty) return result;
 
@@ -483,12 +483,8 @@ class ElectrumClient {
     // Build the Batch Array
     final List<Map<String, dynamic>> batchPayload = [];
     for (int i = 0; i < paramsList.length; i++) {
-      batchPayload.add({
-        "jsonrpc": "2.0",
-        "method": method,
-        "params": paramsList[i],
-        "id": "$batchBaseId-$i"
-      });
+      batchPayload.add(
+          {"jsonrpc": "2.0", "method": method, "params": paramsList[i], "id": "$batchBaseId-$i"});
     }
 
     // Register the task
@@ -775,7 +771,6 @@ class ElectrumClient {
   }
 
   void _handleResponse(dynamic response) {
-
     // Handle batch response
     if (response is List) {
       if (response.isEmpty) return;

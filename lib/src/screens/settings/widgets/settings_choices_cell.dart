@@ -44,9 +44,8 @@ class SettingsChoicesCell extends StatelessWidget {
                         color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         width: 1.5,
                       ),
-                color: useGenericColor
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
-                    : null,
+                color:
+                    useGenericColor ? Theme.of(context).colorScheme.surfaceContainerHighest : null,
               ),
               child: LayoutBuilder(
                 builder: (context, constraints) {

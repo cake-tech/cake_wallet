@@ -25,8 +25,7 @@ import 'package:rxdart/subjects.dart';
 ReactionDisposer? _onAuthenticationStateChange;
 
 dynamic loginError;
-StreamController<dynamic> authenticatedErrorStreamController =
-    BehaviorSubject<dynamic>();
+StreamController<dynamic> authenticatedErrorStreamController = BehaviorSubject<dynamic>();
 
 void startAuthenticationStateChange(
   AuthenticationStore authenticationStore,

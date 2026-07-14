@@ -41,7 +41,7 @@ class MwebSettingsPage extends BasePage {
                 title: S.current.litecoin_mweb_scanning,
                 handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.rescan),
               ),
-            SettingsCellWithArrow(
+              SettingsCellWithArrow(
                 title: S.current.litecoin_mweb_logs,
                 handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.mwebLogs),
               ),

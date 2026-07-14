@@ -251,7 +251,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                           ),
                                                           child: Padding(
                                                             padding: const EdgeInsets.all(10.0),
-                                                            child: CakeImageWidget(imageUrl: icon.path),
+                                                            child: CakeImageWidget(
+                                                                imageUrl: icon.path),
                                                           ),
                                                         ),
                                                       );

@@ -27,7 +27,6 @@ class ListItemToggleWidget extends StatefulWidget {
 }
 
 class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -52,7 +51,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                     Flexible(
                       child: Text(widget.label, style: textStyle, softWrap: true),
                     ),
-                    if(widget.leadingEndWidget != null) widget.leadingEndWidget!
+                    if (widget.leadingEndWidget != null) widget.leadingEndWidget!
                   ],
                 ),
               ),
