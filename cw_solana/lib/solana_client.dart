@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/amount/money_double.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/node.dart';
@@ -654,7 +655,7 @@ class SolanaWalletClient {
         from: outgoingFrom,
         to: outgoingTo,
         id: outgoingId,
-        amount: Money.parse(outgoingAmount.toStringAsFixed(outgoingToken.decimals), outgoingToken),
+        amount: outgoingAmount.toMoney(outgoingToken),
         programId: outgoingMintAddress == null
             ? SystemProgramConst.programId.address
             : SPLTokenProgramConst.tokenProgramId.address,
@@ -672,7 +673,7 @@ class SolanaWalletClient {
         from: incomingFrom,
         to: incomingTo,
         id: incomingId,
-        amount: Money.parse(incomingAmount.toStringAsFixed(incomingToken.decimals), incomingToken),
+        amount: incomingAmount.toMoney(incomingToken),
         programId: incomingMintAddress == null
             ? SystemProgramConst.programId.address
             : SPLTokenProgramConst.tokenProgramId.address,
@@ -869,8 +870,7 @@ class SolanaWalletClient {
       from: sender,
       to: receiver,
       id: signature,
-      amount: Money.parse(amount.toStringAsFixed((splToken ?? CryptoCurrency.sol).decimals),
-          splToken ?? CryptoCurrency.sol),
+      amount: amount.toMoney(splToken ?? CryptoCurrency.sol),
       programId: SPLTokenProgramConst.tokenProgramId.address,
       blockTimeInInt: blockTime?.toInt() ?? 0,
       fee: Money.fromInt(fee, CryptoCurrency.sol),
