@@ -126,31 +126,31 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                     right: 12.0,
                                   ),
                                   child: imageWidget ?? SizedBox(),
-                                  Flexible(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        if (copied)
-                                          Text(
-                                            S.of(context).copied,
-                                            style: textStyle.copyWith(
-                                                color: Theme.of(context).colorScheme.primary),
-                                          )
-                                        else
-                                          Text(label,
-                                              style: foregroundColor == null
-                                                  ? textStyle
-                                                  : textStyle.copyWith(color: foregroundColor)),
-                                        if (subtitle != null)
-                                          Text(
-                                            subtitle!,
-                                            style: labelStyle.copyWith(fontSize: 12),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
                                 ),
+                              Flexible(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (copied)
+                                      Text(
+                                        S.of(context).copied,
+                                        style: textStyle.copyWith(
+                                            color: Theme.of(context).colorScheme.primary),
+                                      )
+                                    else
+                                      Text(label,
+                                          style: foregroundColor == null
+                                              ? textStyle
+                                              : textStyle.copyWith(color: foregroundColor)),
+                                    if (subtitle != null)
+                                      Text(
+                                        subtitle!,
+                                        style: labelStyle.copyWith(fontSize: 12),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
