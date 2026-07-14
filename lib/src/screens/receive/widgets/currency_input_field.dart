@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +15,6 @@ class CurrencyAmountTextField extends StatelessWidget {
     this.allAmountButton = false,
     this.isPickerEnable = false,
     this.isSelected = false,
-    this.currentThemeType = ThemeType.dark,
     this.onTapPicker,
     this.padding,
     this.imageArrow,
@@ -54,7 +53,6 @@ class CurrencyAmountTextField extends StatelessWidget {
   final bool isAmountEditable;
   final FormFieldValidator<String>? currencyValueValidator;
   final bool isPickerEnable;
-  final ThemeType currentThemeType;
   final bool isSelected;
   final bool allAmountButton;
   final VoidCallback? allAmountCallback;
@@ -84,7 +82,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                         child: imageArrow ??
                             Image.asset(
                               'assets/images/arrow_bottom_purple_icon.png',
-                              color: textColor,
+                              color: Theme.of(context).colorScheme.primary,
                               height: 8,
                             ),
                       ),
@@ -187,7 +185,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
                       ],
-                      hintText: hintText ?? '0.0000',
+                      hintText: hintText ?? (selectedCurrencyDecimals == 0 ? '0' : '0.0000'),
                       fillColor: fillColor,
                       textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 16,
@@ -200,8 +198,22 @@ class CurrencyAmountTextField extends StatelessWidget {
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       validator: isAmountEditable ? currencyValueValidator : null,
-                      onChanged: (value) => amountController.text =
-                          value.replaceAll(',', '.').withMaxDecimals(selectedCurrencyDecimals),
+                      onChanged: (value) {
+                        var sanitized = value.sanitized().withMaxDecimals(selectedCurrencyDecimals);
+
+                        if (selectedCurrencyDecimals == 0) {
+                          sanitized = sanitized.replaceAll('.', '');
+                        }
+
+                        if (sanitized != amountController.text) {
+                          // Update text while preserving a sane cursor position to avoid auto-selection
+                          amountController.value = amountController.value.copyWith(
+                            text: sanitized,
+                            selection: TextSelection.collapsed(offset: sanitized.length),
+                            composing: TextRange.empty,
+                          );
+                        }
+                      },
                     ),
                   ),
                 ),

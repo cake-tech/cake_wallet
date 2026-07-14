@@ -3,9 +3,11 @@
 import 'dart:math';
 
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
@@ -18,7 +20,9 @@ class Picker<Item> extends StatefulWidget {
     required this.onItemSelected,
     this.title,
     this.displayItem,
-    this.images = const <Image>[],
+    this.displayItemColor,
+    this.displayItemFontSize,
+    this.images = const <Widget>[],
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.isGridView = false,
@@ -34,6 +38,7 @@ class Picker<Item> extends StatefulWidget {
     this.borderColor,
     this.onSliderChanged,
     this.matchingCriteria,
+    this.hasTitleSpacing = false,
   }) : assert(hintText == null || matchingCriteria != null) {
     // make sure that if the search field is enabled then there is a searching criteria provided
     if (sliderValue != null && maxValue != null) {
@@ -45,12 +50,14 @@ class Picker<Item> extends StatefulWidget {
 
   final int selectedAtIndex;
   final List<Item> items;
-  final List<Image> images;
+  final List<Widget> images;
   final String? title;
   final String? description;
   final Function(Item) onItemSelected;
   final MainAxisAlignment mainAxisAlignment;
   final String Function(Item)? displayItem;
+  final Color? displayItemColor;
+  final double? displayItemFontSize;
   final bool isGridView;
   final bool isSeparated;
   final String? hintText;
@@ -64,7 +71,7 @@ class Picker<Item> extends StatefulWidget {
   final Function(double)? onSliderChanged;
   final bool Function(Item, String)? matchingCriteria;
   final double? maxValue;
-
+  final bool hasTitleSpacing;
   @override
   _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
 }
@@ -74,10 +81,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   final Function(Item) onItemSelected;
   List<Item> items;
-  List<Image> images;
+  List<Widget> images;
   List<Item> filteredItems = [];
-  List<Image> filteredImages = [];
-
+  List<Widget> filteredImages = [];
   final TextEditingController searchController = TextEditingController();
 
   ScrollController controller = ScrollController();
@@ -164,6 +170,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                   ),
             ),
           ),
+        widget.hasTitleSpacing ? const SizedBox(height: 24) : const SizedBox.shrink(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: Container(
@@ -338,15 +345,16 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 Flexible(
                   child: Text(
                     key: ValueKey('picker_items_index_${itemName}_text_key'),
-                    widget.displayItem?.call(item) ?? item.toString(),
+                    widget.displayItem?.call(item) ?? (item == CryptoCurrency.btcln ? "BTC (LN)" : item.toString()),
                     softWrap: true,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.w600,
                           decoration: TextDecoration.none,
+                          color: widget.displayItemColor,
                         ),
                   ),
                 ),
-                if (tag != null)
+                if (tag != null && item != CryptoCurrency.btcln)
                   Align(
                     alignment: Alignment.topCenter,
                     child: Container(
@@ -490,10 +498,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
   Widget? _getItemIcon(Item item) {
     if (item is Currency) {
       if (item.iconPath != null) {
-        return Image.asset(
-          item.iconPath!,
-          height: 20.0,
-          width: 20.0,
+        return TokenImageWidget(
+          imageUrl: item.iconPath!,
+          size: 20.0,
         );
       } else {
         return Container(
@@ -519,16 +526,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
   }
 
   Widget buildSlider({required int index, required bool isActivated}) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: <Widget>[
         Expanded(
           child: Slider(
             activeColor: Theme.of(context).colorScheme.primary,
-            inactiveColor: isDarkMode
-                ? CustomThemeColors.toggleColorOffStateDark
-                : CustomThemeColors.toggleColorOffStateLight,
-            thumbColor: CustomThemeColors.toggleKnobStateColorLight,
+            inactiveColor: context.customColors.toggleColorOffState,
+            thumbColor: context.customColors.toggleKnobStateColor,
             value: widget.sliderValue == null || widget.sliderValue! < 1 ? 1 : widget.sliderValue!,
             onChanged: isActivated ? widget.onSliderChanged : null,
             min: widget.minValue ?? 1,

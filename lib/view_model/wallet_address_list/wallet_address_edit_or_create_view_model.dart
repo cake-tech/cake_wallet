@@ -48,7 +48,11 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   bool get isElectrum =>
       _wallet.type == WalletType.bitcoin ||
       _wallet.type == WalletType.bitcoinCash ||
-      _wallet.type == WalletType.litecoin;
+      _wallet.type == WalletType.litecoin ||
+      _wallet.type == WalletType.dogecoin;
+
+  String get derivationPath => _item?.derivationPath ?? '';
+  String get index => _item?.id.toString() ?? '';
 
   Future<void> save() async {
     try {

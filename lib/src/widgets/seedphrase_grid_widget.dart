@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SeedPhraseGridWidget extends StatelessWidget {
   const SeedPhraseGridWidget({
@@ -8,13 +9,30 @@ class SeedPhraseGridWidget extends StatelessWidget {
 
   final List<String> list;
 
+
+
   @override
   Widget build(BuildContext context) {
+    int minTiles = 1;
+    int maxTiles = 4;
+    double desiredTileWidth = 120;
+    double spacing = 4;
+    double padding = 4;
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    int crossAxisCount =
+        ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing)).floor();
+
+
+    if (crossAxisCount > maxTiles) crossAxisCount = maxTiles;
+    if (crossAxisCount < minTiles) crossAxisCount = minTiles;
+
     return GridView.builder(
       itemCount: list.length,
+      controller: ModalScrollController.of(context),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 2.8,
+        crossAxisCount: crossAxisCount,
+        childAspectRatio: 2.6,
         mainAxisSpacing: 8.0,
         crossAxisSpacing: 8.0,
       ),
@@ -27,7 +45,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -41,6 +59,8 @@ class SeedPhraseGridWidget extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                       ),
+                  softWrap: true,
+                  maxLines: null,
                 ),
               ),
               const SizedBox(width: 6),
@@ -48,7 +68,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
                 child: Text(
                   '${item[0].toLowerCase()}${item.substring(1)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        height: 1.9,
+                        height: 1,
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),

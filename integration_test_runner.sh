@@ -14,6 +14,7 @@ RETRY_COUNT=${RETRY_COUNT:-1}
 DATA_DIRS=(
     "$HOME/.local/share/com.example.cake_wallet"
     "$HOME/Documents/cake_wallet"
+    "$HOME/.config/cake_wallet"
 )
 
 # Global state
@@ -46,7 +47,7 @@ format_duration() {
     local hours=$((seconds / 3600))
     local minutes=$(((seconds % 3600) / 60))
     local secs=$((seconds % 60))
-    
+
     if (( hours > 0 )); then
         echo "${hours}h ${minutes}m ${secs}s"
     elif (( minutes > 0 )); then
@@ -92,7 +93,7 @@ run_test() {
             local end_time=$(date +%s)
             local duration=$((end_time - start_time))
             test_durations+=("$duration")
-            
+
             log "✅ Test passed: $test_name ($(format_duration $duration))"
             passed_tests+=("$test_name")
             return 0
@@ -101,9 +102,9 @@ run_test() {
             local end_time=$(date +%s)
             local duration=$((end_time - start_time))
             test_durations+=("$duration")
-            
+
             log "❌ Test failed: $test_name ($(format_duration $duration))"
-            
+
             if (( retry_count < RETRY_COUNT )); then
                 log "Retrying test: $test_name"
                 retry_count=$((retry_count + 1))
@@ -125,7 +126,7 @@ main() {
     while IFS= read -r -d $'\0' file; do
         targets+=("$file")
     done < <(find integration_test/test_suites -name "*.dart" -type f -print0)
-    
+
     if [[ $? -ne 0 ]]; then
         error "Failed to find test files"
         exit 1
@@ -140,7 +141,7 @@ main() {
 
     # Record overall start time
     local overall_start_time=$(date +%s)
-    
+
     # Run tests sequentially
     for target in "${targets[@]}"; do
         run_test "$target"
@@ -156,7 +157,7 @@ main() {
     echo "Passed: ${#passed_tests[@]}"
     echo "Failed: ${#failed_tests[@]}"
     echo "Total duration: $(format_duration $total_duration)"
-    
+
     if (( ${#passed_tests[@]} > 0 )); then
         echo -e "\n✅ Passed Tests:"
         for i in $(seq 0 $((${#passed_tests[@]} - 1))); do

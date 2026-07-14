@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -15,18 +14,16 @@ import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
-import 'package:hive/hive.dart';
 
 class TronWalletService extends WalletService<
     TronNewWalletCredentials,
     TronRestoreWalletFromSeedCredentials,
     TronRestoreWalletFromPrivateKey,
     TronNewWalletCredentials> {
-  TronWalletService(this.walletInfoSource, {required this.client, required this.isDirect});
+  TronWalletService({required this.client, required this.isDirect});
 
   late TronClient client;
 
-  final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
 
   @override
@@ -40,6 +37,7 @@ class TronWalletService extends WalletService<
 
     final wallet = TronWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -55,8 +53,10 @@ class TronWalletService extends WalletService<
 
   @override
   Future<TronWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await TronWalletBase.open(
@@ -67,6 +67,7 @@ class TronWalletService extends WalletService<
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -81,6 +82,7 @@ class TronWalletService extends WalletService<
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }
@@ -95,6 +97,7 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -118,6 +121,7 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -130,36 +134,17 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = await TronWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
-  }
-
-  @override
   Future<bool> isWalletExit(String name) async =>
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override

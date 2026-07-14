@@ -31,42 +31,40 @@ class _NFTListingPageState extends State<NFTListingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (context) {
-        return Column(
-          children: [
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: PrimaryButton(
-                text: S.current.import,
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                onPressed: () => Navigator.pushNamed(
-                  context,
-                  Routes.importNFTPage,
-                  arguments: widget.nftViewModel,
+    return SliverToBoxAdapter(
+      child: Observer(
+        builder: (context) {
+          return Column(
+            children: [
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                child: PrimaryButton(
+                  text: S.current.import,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    Routes.importNFTPage,
+                    arguments: widget.nftViewModel,
+                  ),
                 ),
               ),
-            ),
-            if (widget.nftViewModel.isLoading)
-              Expanded(
-                child: Center(
+              if (widget.nftViewModel.isLoading)
+                Center(
                   child: CircularProgressIndicator(
                     backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                ),
-              )
-            else
-              Expanded(
-                child: NFTListWidget(nftViewModel: widget.nftViewModel),
-              ),
-          ],
-        );
-      },
+                )
+              else
+                NFTListWidget(nftViewModel: widget.nftViewModel)
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -95,26 +93,38 @@ class NFTListWidget extends StatelessWidget {
         if (isSolana) {
           if (nftViewModel.solanaNftAssetModels.isEmpty) return emptyMessage;
 
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
-            itemCount: nftViewModel.solanaNftAssetModels.length,
-            itemBuilder: (context, index) {
-              final nftAsset = nftViewModel.solanaNftAssetModels[index];
-              return SolanaNFTTileWidget(nftAsset: nftAsset);
-            },
+          return Padding(
+            padding: EdgeInsets.only(
+                bottom:  64),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              itemCount: nftViewModel.solanaNftAssetModels.length,
+              itemBuilder: (context, index) {
+                final nftAsset = nftViewModel.solanaNftAssetModels[index];
+                return SolanaNFTTileWidget(nftAsset: nftAsset);
+              },
+            ),
           );
         } else {
           if (nftViewModel.nftAssetByWalletModels.isEmpty) return emptyMessage;
 
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
-            itemCount: nftViewModel.nftAssetByWalletModels.length,
-            itemBuilder: (context, index) {
-              final nftAsset = nftViewModel.nftAssetByWalletModels[index];
-              return NFTTileWidget(nftAsset: nftAsset);
-            },
+          return Padding(
+            padding: EdgeInsets.only(
+               bottom:  64),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              itemCount: nftViewModel.nftAssetByWalletModels.length,
+              itemBuilder: (context, index) {
+                final nftAsset = nftViewModel.nftAssetByWalletModels[index];
+                return NFTTileWidget(nftAsset: nftAsset);
+              },
+            ),
           );
         }
       },

@@ -37,7 +37,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
             ),
             padding: EdgeInsets.fromLTRB(24, 105, 24, 24),
             child: Column(
@@ -86,6 +86,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
           Expanded(
             flex: 5,
             child: SelectButton(
+              center:true,
               height: 44,
               text: S.of(context).buy,
               isSelected: isBuySelected,
@@ -107,6 +108,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
           Expanded(
             flex: 5,
             child: SelectButton(
+              center:true,
               height: 44,
               text: S.of(context).sell,
               isSelected: !isBuySelected,

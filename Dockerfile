@@ -1,4 +1,4 @@
-# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
+# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
 
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
@@ -6,7 +6,7 @@
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/34-ndk/Dockerfile
 # https://github.com/cirruslabs/docker-images-flutter/blob/master/sdk/Dockerfile
 
-FROM docker.io/debian:12
+FROM docker.io/debian:13
 
 LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 
@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 ENV GOLANG_VERSION=1.24.1
 
 # Pin Flutter version to latest known-working version
-ENV FLUTTER_VERSION=3.27.4
+ENV FLUTTER_VERSION=3.41.9
 
 # Pin Android Studio, platform, and build tools versions to latest known-working version
 # Comes from https://developer.android.com/studio/#command-tools
@@ -45,24 +45,32 @@ RUN apt-get update \
 RUN set -o xtrace \
     && cd /opt \
     && apt-get install -y --no-install-recommends --no-install-suggests \
+    # protobuf
+    protobuf-compiler libprotobuf-dev \
     # Core dependencies
-    bc build-essential curl default-jdk git jq lcov libglu1-mesa libpulse0 libsqlite3-dev libstdc++6 locales openssh-client ruby-bundler ruby-full software-properties-common sudo unzip wget zip \
+    bc build-essential curl default-jdk git jq lcov libglu1-mesa libpulse0 libsqlite3-dev libstdc++6 locales openssh-client ruby-bundler ruby-full sudo unzip wget zip \
     # for x86 emulators
-    libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
+    libatk-bridge2.0-0 libgdk-pixbuf-xlib-2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
     # Linux desktop dependencies
-    clang cmake libgtk-3-dev ninja-build pkg-config \
+    clang lld cmake libgtk-3-dev ninja-build pkg-config libsecret-1-0 libsecret-1-dev gir1.2-secret-1 \
     # monero_c dependencies
     autoconf automake build-essential ccache gperf libtool llvm \
     # extra stuff for KVM
     bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
     # Linux test dependencies
     ffmpeg network-manager x11-utils xvfb psmisc \
+    # extra linux dependencies so flutter doesn't complain
+    mesa-utils \
+    # database
+    libsqlite3-0 libsqlite3-dev \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     # x86_64-linux-gnu dependencies
     g++-x86-64-linux-gnu gcc-x86-64-linux-gnu \
     # flatpak dependencies
     flatpak flatpak-builder binutils elfutils patch unzip xz-utils zstd \
+    # docker dependencies
+    docker-cli rsync \
     && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && sh -c 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen' \
     && locale-gen \
@@ -74,7 +82,7 @@ RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.
     && flatpak install -y flathub org.freedesktop.Sdk//${FLATPAK_RUNTIME_VERSION}
 
 # Install nodejs for Github Actions
-RUN curl -fsSL https://deb.nodesource.com/setup_23.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -84,11 +92,11 @@ ENV GOROOT=/usr/local/go
 ENV GOPATH=${HOME}/go
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
-      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -O go.tar.gz; \
+    wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -O go.tar.gz; \
     elif [ "$ARCH" = "aarch64" ]; then \
-      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz -O go.tar.gz; \
+    wget https://go.dev/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz -O go.tar.gz; \
     else \
-      echo "Unsupported architecture: $ARCH"; exit 1; \
+    echo "Unsupported architecture: $ARCH"; exit 1; \
     fi && \
     rm -rf /usr/local/go && \
     tar -C /usr/local -xzf go.tar.gz && \
@@ -97,8 +105,8 @@ RUN ARCH=$(uname -m) && \
     gomobile init
 
 RUN git config --global user.email "czarek@cakewallet.com" \
-    && git config --global user.name "CakeWallet CI"
-
+    && git config --global user.name "CakeWallet CI" \
+    && git config --global --add safe.directory '*'
 
 # Install Android SDK commandline tools and emulator
 RUN ARCH=$(uname -m) && \
@@ -115,7 +123,7 @@ RUN ARCH=$(uname -m) && \
     && chmod +x /usr/bin/android-wait-for-emulator \
     && sdkmanager platform-tools \
     && mkdir -p ${HOME}/.android \
-    && touch ${HOME}/.android/repositories.cfg \
+    && touch ${HOME}/.android/repositories.cfg
 
 
 # Handle emulator not being available on linux/arm64 (https://issuetracker.google.com/issues/227219818)
@@ -132,18 +140,22 @@ RUN ARCH=$(uname -m) && \
     "platforms;android-33" \
     "platforms;android-34" \
     "platforms;android-35" \
+    "platforms;android-36" \
     "build-tools;33.0.2" \
     "build-tools;33.0.1" \
     "build-tools;33.0.0" \
-    "build-tools;35.0.0"
+    "build-tools;35.0.0" \
+    "cmake;3.22.1"
 
 # Install extra NDK dependency for sp_scanner
 ENV ANDROID_NDK_VERSION=28.2.13676358
+
+ENV ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION
+ENV ANDROID_NDK=$ANDROID_NDK_HOME
+
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
-    && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
-    "ndk;27.0.12077973" \
-    "ndk;27.2.12479018"
+    && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION"
 
 # Install dependencies for tests
 # Comes from https://github.com/ReactiveCircus/android-emulator-runner
@@ -169,7 +181,7 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     do \
     for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu aarch64-unknown-linux-gnu; \
     do \
-        rustup target add --toolchain $toolchain $target; \
+    rustup target add --toolchain $toolchain $target; \
     done \
     done
 

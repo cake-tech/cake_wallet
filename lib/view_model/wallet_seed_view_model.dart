@@ -15,11 +15,12 @@ abstract class WalletSeedViewModelBase with Store {
   WalletSeedViewModelBase(WalletBase wallet)
       : name = wallet.name,
         seed = wallet.seed!,
-        walletType = walletTypeToString(wallet.type),
+        walletType = wallet.type,
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
     setupSeedVerification();
   }
+
 
   @observable
   String name;
@@ -28,7 +29,7 @@ abstract class WalletSeedViewModelBase with Store {
   String seed;
 
   @observable
-  String walletType;
+  WalletType walletType;
 
   /// The Regex split the words based on any whitespace character.
   ///
@@ -73,7 +74,7 @@ abstract class WalletSeedViewModelBase with Store {
 
   bool shouldPerformVerification() {
     bool isCI = bool.fromEnvironment('CI_BUILD', defaultValue: false);
-    bool isDebug = kDebugMode;
+    bool isDebug = kDebugMode || kProfileMode;
 
     if (isDebug && !isCI) {
       printV("Skipping verification in debug mode - $isDebug (and when it's not in CI - $isCI).");

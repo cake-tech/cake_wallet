@@ -9,18 +9,14 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SimpleSwapExchangeProvider extends ExchangeProvider {
-  SimpleSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  SimpleSwapExchangeProvider();
 
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.zaddr,
-    CryptoCurrency.xhv,
-  ];
 
   static final apiKey =
       DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
@@ -54,7 +50,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -88,12 +84,13 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -108,11 +105,63 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final response = await ProxyWrapper().get(clearnetUri: uri);
       
 
-      if (response.body == "null") return 0.00;
+      if (response.body == "null") {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('Null response body'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'params': params,
+            'url': uri.toString(),
+          },
+        );
+        return 0.00;
+      }
+      
       final data = json.decode(response.body) as String;
+      final rate = double.parse(data) / amount;
 
-      return double.parse(data) / amount;
-    } catch (_) {
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'params': params,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'data': data,
+          'rate': rate,
+          'statusCode': response.statusCode,
+          'responseBody': response.body,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       return 0.00;
     }
   }
@@ -131,7 +180,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "amount": request.fromAmount,
       "fixed": isFixedRateMode,
       "user_refund_address": _normalizeAddress(request.refundAddress),
-      "address_to": _normalizeAddress(request.toAddress)
+      "address_to": _normalizeAddress(request.toAddress),
+      if (request.toAddressExtraId.isNotEmpty) "extra_id_to": request.toAddressExtraId,
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
@@ -147,8 +197,46 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['message'] as String;
 
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description, description: error),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'body': body,
+            'url': uri.toString(),
+          },
+        );
+
         throw TradeNotCreatedException(description, description: error);
       }
+
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: TradeNotCreatedException(description),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'body': body,
+          'url': uri.toString(),
+        },
+      );
 
       throw TradeNotCreatedException(description);
     }
@@ -160,6 +248,33 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final settleAddress = responseJSON['user_refund_address'] as String;
     final extraId = responseJSON['extra_id_from'] as String?;
     final receiveAmount = responseJSON['amount_to'] as String?;
+
+    ExchangeProviderLogger.logSuccess(
+      provider: description,
+      function: 'createTrade',
+      requestData: {
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
+        'fromAmount': request.fromAmount,
+        'toAmount': request.toAmount,
+        'toAddress': request.toAddress,
+        'refundAddress': request.refundAddress,
+        'isFixedRateMode': isFixedRateMode,
+        'isSendAll': isSendAll,
+        'body': body,
+        'url': uri.toString(),
+      },
+      responseData: {
+        'id': id,
+        'inputAddress': inputAddress,
+        'payoutAddress': payoutAddress,
+        'settleAddress': settleAddress,
+        'extraId': extraId,
+        'receiveAmount': receiveAmount,
+        'statusCode': response.statusCode,
+        'responseJSON': responseJSON,
+      },
+    );
 
     return Trade(
       id: id,
@@ -175,6 +290,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
@@ -209,10 +325,13 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final status = responseJSON['status'] as String;
     final payoutAddress = responseJSON['address_to'] as String;
 
+    final fromParsed =
+        CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
+    final toParsed = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     return Trade(
       id: id,
-      from: CryptoCurrency.fromString(fromCurrency),
-      to: CryptoCurrency.fromString(toCurrency),
+      from: fromParsed,
+      to: toParsed,
       extraId: extraId,
       provider: description,
       inputAddress: inputAddress,
@@ -224,8 +343,6 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
   static String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.zaddr:
-        return 'zec';
       case CryptoCurrency.zec:
         return 'zec';
       case CryptoCurrency.bnb:

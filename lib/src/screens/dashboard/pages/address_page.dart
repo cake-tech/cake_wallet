@@ -4,6 +4,9 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -12,6 +15,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -58,11 +62,10 @@ class AddressPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor(context),
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
-    final _closeButton =
-        currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -113,7 +116,7 @@ class AddressPage extends BasePage {
               context: context,
             );
           },
-          icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+          icon: Icon(Icons.share, size: 20, color: Theme.of(context).colorScheme.primary),
         ),
       ),
     );
@@ -143,14 +146,11 @@ class AddressPage extends BasePage {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: Observer(
-                builder: (_) => QRWidget(
-                  formKey: _formKey,
-                  addressListViewModel: addressListViewModel,
-                  amountTextFieldFocusNode: _cryptoAmountFocus,
-                  amountController: _amountController,
-                  currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
-                ),
+              child: QRWidget(
+                formKey: _formKey,
+                addressListViewModel: addressListViewModel,
+                amountTextFieldFocusNode: _cryptoAmountFocus,
+                amountController: _amountController,
               ),
             ),
             SizedBox(height: 16),
@@ -171,6 +171,89 @@ class AddressPage extends BasePage {
                 }
               },
             ),
+            if (addressListViewModel.hasTokensList) ...[
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CakeImageWidget(
+                          imageUrl: addressListViewModel.monoImage,
+                          height: 16,
+                          width: 16,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${S.current.your} ${addressListViewModel.walletTypeName} ${S.current.address}',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      '${S.current.qr_instruction} ${addressListViewModel.walletTypeName}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    SizedBox(height: 20),
+                    Observer(
+                      builder: (_) {
+                        final walletImages = addressListViewModel
+                            .getWalletImages(addressListViewModel.selectedChainId);
+                        return Center(
+                          child: SizedBox(
+                            height: 40,
+                            width: walletImages.length * 32.0,
+                            child: Stack(
+                              children: [
+                                for (int i = walletImages.length - 1; i >= 0; i--)
+                                  Positioned(
+                                    left: i * 25.0,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.surfaceContainer,
+                                          width: 3,
+                                        ),
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        borderRadius: BorderRadius.circular(24),
+                                      ),
+                                      child: ClipOval(
+                                        child: CakeImageWidget(
+                                          height: 35,
+                                          width: 35,
+                                          imageUrl: walletImages[i],
+                                          color: walletImages.last == walletImages[i]
+                                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                                              : null,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 48),
+            ],
           ],
         ),
       ),
@@ -186,6 +269,10 @@ class AddressPage extends BasePage {
       if (dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {
         addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
+        return;
+      }
+      if (dashboardViewModel.type == WalletType.zcash) {
+        addressListViewModel.setAddressType(zcash!.getOptionToType(option));
         return;
       }
 
@@ -210,10 +297,13 @@ class AddressPage extends BasePage {
             Navigator.pushNamed(
               context,
               Routes.anonPayReceivePage,
-              arguments: AnonpayDonationLinkInfo(
-                clearnetUrl: clearnetUrl,
-                onionUrl: onionUrl,
-                address: addressListViewModel.address.address,
+              arguments: AnonPayReceivePageArgs(
+                invoiceInfo: AnonpayDonationLinkInfo(
+                  clearnetUrl: clearnetUrl,
+                  onionUrl: onionUrl,
+                  address: addressListViewModel.address.address,
+                ),
+                qrImage: addressListViewModel.qrImage,
               ),
             );
           } else {
@@ -225,9 +315,12 @@ class AddressPage extends BasePage {
           }
           break;
         default:
-          if (addressListViewModel.type == WalletType.bitcoin ||
-              addressListViewModel.type == WalletType.litecoin) {
+          if ([WalletType.bitcoin, WalletType.litecoin].contains(addressListViewModel.type)) {
             addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+          }
+          if (addressListViewModel.type == WalletType.zcash) {
+            printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
+            addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
           }
       }
     });

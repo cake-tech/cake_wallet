@@ -1,10 +1,26 @@
+import 'package:cw_core/amount/amount_sanitizer.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/lnurl.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cw_core/format_fixed.dart';
 
 class PaymentRequest {
   PaymentRequest(this.address, this.amount, this.note, this.scheme, this.pjUri,
-      {this.callbackUrl, this.callbackMessage});
+      {this.callbackUrl, this.callbackMessage, this.contractAddress});
+
+  factory PaymentRequest.fromString(String input) {
+    try {
+      return PaymentRequest.fromBolt11(input);
+    } catch (_) {
+      return PaymentRequest.fromUri(Uri.parse(input));
+    }
+  }
+
+  factory PaymentRequest.fromBolt11(String invoice) {
+    final amount = getBolt11Amount(invoice) ?? Money.zero(CryptoCurrency.btcln);
+    return PaymentRequest(invoice, amount.toString(), '', 'lightning', null);
+  }
 
   factory PaymentRequest.fromUri(Uri? uri) {
     var address = "";
@@ -15,6 +31,7 @@ class PaymentRequest {
     String? callbackUrl;
     String? callbackMessage;
     String? pjUri;
+    String? contractAddress;
 
     if (uri != null) {
       if (uri.queryParameters['pj'] != null) {
@@ -22,7 +39,16 @@ class PaymentRequest {
       }
 
       address = uri.queryParameters['address'] ?? uri.path;
-      amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
+      try {
+        final lnAmount = getBolt11Amount(uri.path) ?? Money.zero(CryptoCurrency.btcln);
+
+        if (lnAmount != 0) {
+          amount = lnAmount.toString();
+        }
+      } catch (_) {}
+      if (amount.isEmpty) {
+        amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
+      }
       note = uri.queryParameters['tx_description'] ?? uri.queryParameters['message'] ?? "";
       scheme = uri.scheme;
       callbackUrl = uri.queryParameters['callback'];
@@ -34,6 +60,17 @@ class PaymentRequest {
 
         address = paymentUri.address;
         amount = paymentUri.amount;
+        contractAddress = paymentUri.contractAddress;
+      } else if (scheme == "tron") {
+        final token = uri.queryParameters['token'];
+        if (token != null && token.isNotEmpty) {
+          contractAddress = token;
+        }
+      } else if (scheme == "solana") {
+        final splToken = uri.queryParameters['spl-token'];
+        if (splToken != null && splToken.isNotEmpty) {
+          contractAddress = splToken;
+        }
       }
     }
 
@@ -41,14 +78,14 @@ class PaymentRequest {
       scheme = walletType ?? "nano";
     }
 
-
-
     if (nano != null) {
       if (amount.isNotEmpty) {
-        if (address.contains("nano")) {
-          amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
-        } else if (address.contains("ban")) {
-          amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
+        if (!_isAlreadyUsableAmount(amount)) {
+          if (address.contains("nano")) {
+            amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
+          } else if (address.contains("ban")) {
+            amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
+          }
         }
       }
     }
@@ -61,6 +98,7 @@ class PaymentRequest {
       pjUri,
       callbackUrl: callbackUrl,
       callbackMessage: callbackMessage,
+      contractAddress: contractAddress,
     );
   }
 
@@ -71,55 +109,25 @@ class PaymentRequest {
   final String? pjUri;
   final String? callbackUrl;
   final String? callbackMessage;
-}
-
-class ERC681URI extends PaymentURI {
-  final int chainId;
   final String? contractAddress;
 
-  ERC681URI({
-    required this.chainId,
-    required super.address,
-    required super.amount,
-    required this.contractAddress,
-  });
+  /// Checks if the amount string is already in a usable format (e.g., "123.45") and doesn't need to be converted from raw format.
+  ///
+  /// This was causing an error for us when we scan Nano QRs with amounts in them, the amounts are already in usable format so when the parsing was done, it returns 0 wrongly.
+  static bool _isAlreadyUsableAmount(String amount) {
+    if (amount.isEmpty) return false;
 
-  factory ERC681URI.fromUri(Uri uri) {
-    final (isContract, targetAddress) = _getTargetAddress(uri.path);
-    final chainId = _getChainID(uri.path);
+    final parsed = double.tryParse(amount.sanitized());
+    if (parsed == null) return false;
 
-    final address = isContract ? uri.queryParameters["address"] ?? '' : targetAddress;
-    final amount = isContract
-        ? uri.queryParameters["uint256"]
-        : uri.queryParameters["value"];
+    // Check if the amount contains a decimal point and is a reasonable number,
+    // it's likely already in usable format rather than raw format
+    // Raw amounts are typically very large integers without decimal points
+    if (amount.contains('.') && parsed > 0 && parsed < 1000000000) return true;
 
-    var formatedAmount = "";
+    // If it's a small integer (less than 1 billion), it's likely already usable
+    if (parsed == parsed.toInt() && parsed < 1000000000) return true;
 
-    if (amount != null) {
-      formatedAmount = formatFixed(BigInt.parse(amount), 18);
-    } else {
-      formatedAmount = uri.queryParameters["amount"] ?? "";
-    }
-
-    return ERC681URI(
-      chainId: chainId,
-      address: address,
-      amount: formatedAmount,
-      contractAddress: isContract ? targetAddress : null,
-    );
-  }
-
-  static int _getChainID(String path) {
-    return int.parse(RegExp(
-      r'@\d*',
-    ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
-        "1");
-  }
-
-  static (bool, String) _getTargetAddress(String path) {
-    final targetAddress = RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false)
-        .firstMatch(path)!
-        .group(0)!;
-    return (path.contains("/"), targetAddress);
+    return false;
   }
 }

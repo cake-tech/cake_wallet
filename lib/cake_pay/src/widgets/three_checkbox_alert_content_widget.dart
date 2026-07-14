@@ -174,7 +174,7 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
                   fontSize: 16,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
-                  color: Theme.of(context).primaryColor,
+                  color: Colors.blueAccent,
                   decoration: TextDecoration.none,
                   height: 1,
                 ),

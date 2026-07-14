@@ -25,7 +25,7 @@ class PSBTTransactionBuild {
 
       psbt.setInputPreviousTxId(i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
       psbt.setInputOutputIndex(i, input.utxo.vout);
-      psbt.setInputSequence(i, enableRBF ? 0x1 : 0xffffffff);
+      psbt.setInputSequence(i, enableRBF ? 0xfffffffd : 0xffffffff);
       
 
       if (input.utxo.isSegwit()) {
@@ -52,7 +52,9 @@ class PSBTTransactionBuild {
               .map((e) => e?.toLowerCase())
               .contains(output.address.toAddress().toLowerCase()))
             .firstOrNull;
-            if (cwOutput != null) {
+            if (cwOutput != null &&
+                cwOutput.extra.containsKey('bip353_name') &&
+                cwOutput.extra.containsKey('bip353_proof')) {
               final bip353Name = utf8.encode(cwOutput.extra['bip353_name'] as String);
               final bip353Proof = base64.decode(cwOutput.extra['bip353_proof'] as String);
 

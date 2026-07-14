@@ -9,14 +9,12 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class StealthExExchangeProvider extends ExchangeProvider {
-  StealthExExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [];
+  StealthExExchangeProvider();
 
   static final apiKey = secrets.stealthExBearerToken;
   static final _additionalFeePercent = double.tryParse(secrets.stealthExAdditionalFeePercent);
@@ -44,7 +42,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -68,13 +66,13 @@ class StealthExExchangeProvider extends ExchangeProvider {
         headers: headers,
         body: json.encode(body),
       );
-      
+
       if (response.statusCode != 200) {
         throw Exception('StealthEx fetch limits failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final min = toDouble(responseJSON['min_amount']);
-      final max = responseJSON['max_amount'] as double?;
+      final min = _toDouble(responseJSON['min_amount']);
+      final max = _toDouble(responseJSON['max_amount']);
       return Limits(min: min, max: max);
     } catch (e) {
       log(e.toString());
@@ -89,14 +87,68 @@ class StealthExExchangeProvider extends ExchangeProvider {
       required double amount,
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
-    final response = await getEstimatedExchangeAmount(
-        from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode);
-    final estimatedAmount = response['estimated_amount'] as double? ?? 0.0;
-    return estimatedAmount > 0.0
-        ? isFixedRateMode
-            ? amount / estimatedAmount
-            : estimatedAmount / amount
-        : 0.0;
+    try {
+      final response = await getEstimatedExchangeAmount(
+        from: from,
+        to: to,
+        amount: amount,
+        isFixedRateMode: isFixedRateMode,
+      );
+      final estimatedAmount = response['estimated_amount'] as double? ?? 0.0;
+
+      if (estimatedAmount <= 0.0) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('Invalid estimated amount: $estimatedAmount'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+          },
+        );
+        return 0.0;
+      }
+
+      final rate = isFixedRateMode ? amount / estimatedAmount : estimatedAmount / amount;
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+        responseData: {
+          'estimatedAmount': estimatedAmount,
+          'rate': rate,
+          'response': response,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
+      return 0.0;
+    }
   }
 
   @override
@@ -134,6 +186,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         'amount':
             isFixedRateMode ? double.parse(request.toAmount) : double.parse(request.fromAmount),
         'address': _normalizeAddress(request.toAddress),
+        if (request.toAddressExtraId.isNotEmpty) 'extra_id': request.toAddressExtraId,
         'refund_address': _normalizeAddress(request.refundAddress),
         'additional_fee_percent': _additionalFeePercent,
       };
@@ -143,9 +196,26 @@ class StealthExExchangeProvider extends ExchangeProvider {
         headers: headers,
         body: json.encode(body),
       );
-      
 
       if (response.statusCode != 201) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: Exception('StealthEx create trade failed: ${response.body}'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'body': body,
+            'rateId': rateId,
+          },
+        );
         throw Exception('StealthEx create trade failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -158,8 +228,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final payoutAddress = withdrawal['address'] as String;
       final depositAddress = deposit['address'] as String;
       final refundAddress = responseJSON['refund_address'] as String;
-      final depositAmount = toDouble(deposit['amount']);
-      final receiveAmount = toDouble(withdrawal['amount']);
+      final depositAmount = _toDouble(deposit['amount']);
+      final receiveAmount = _toDouble(withdrawal['amount']);
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['created_at'] as String;
       final extraId = deposit['extra_id'] as String?;
@@ -169,20 +239,51 @@ class StealthExExchangeProvider extends ExchangeProvider {
           ? DateTime.parse(validUntil).toLocal()
           : DateTime.now().add(Duration(minutes: 5));
 
-
       CryptoCurrency fromCurrency;
       if (request.fromCurrency.tag != null && request.fromCurrency.title.toLowerCase() == from) {
-          fromCurrency = request.fromCurrency;
-        } else {
-          fromCurrency = CryptoCurrency.fromString(from);
-        }
+        fromCurrency = request.fromCurrency;
+      } else {
+        fromCurrency = CryptoCurrency.fromString(from);
+      }
 
       CryptoCurrency toCurrency;
       if (request.toCurrency.tag != null && request.toCurrency.title.toLowerCase() == to) {
-          toCurrency = request.toCurrency;
-        } else {
-          toCurrency = CryptoCurrency.fromString(to);
-        }
+        toCurrency = request.toCurrency;
+      } else {
+        toCurrency = CryptoCurrency.fromString(to);
+      }
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'createTrade',
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'body': body,
+          'rateId': rateId,
+        },
+        responseData: {
+          'id': id,
+          'from': from,
+          'to': to,
+          'depositAddress': depositAddress,
+          'payoutAddress': payoutAddress,
+          'refundAddress': refundAddress,
+          'depositAmount': depositAmount,
+          'receiveAmount': receiveAmount,
+          'status': status,
+          'createdAt': createdAtString,
+          'extraId': extraId,
+          'statusCode': response.statusCode,
+          'responseJSON': responseJSON,
+        },
+      );
 
       return Trade(
         id: id,
@@ -198,8 +299,26 @@ class StealthExExchangeProvider extends ExchangeProvider {
         createdAt: createdAt,
         expiredAt: expiredAt,
         extraId: extraId,
+        isSendAll: isSendAll,
+        toAddressExtraId: request.toAddressExtraId,
       );
-    } catch (e) {
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+        },
+      );
       log(e.toString());
       throw TradeNotCreatedException(description);
     }
@@ -211,8 +330,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     final uri = Uri.parse('$_baseUrl$_exchangesPath/$id');
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    
-    
+
     if (response.statusCode != 200) {
       throw Exception('StealthEx fetch trade failed: ${response.body}');
     }
@@ -221,13 +339,24 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final withdrawal = responseJSON['withdrawal'] as Map<String, dynamic>;
 
     final respId = responseJSON['id'] as String;
-    final from = deposit['symbol'] as String;
-    final to = withdrawal['symbol'] as String;
+
+    // Parsing 'from' currency with network tag
+    final fromCurrency = deposit['symbol'] as String;
+    final fromNetwork = deposit['network'] as String?;
+    final fromTag = fromNetwork == 'mainnet' ? null : fromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
+
+    // Parsing 'to' currency with network tag
+    final toCurrency = withdrawal['symbol'] as String;
+    final toNetwork = withdrawal['network'] as String?;
+    final toTag = toNetwork == 'mainnet' ? null : toNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
+
     final payoutAddress = withdrawal['address'] as String;
     final depositAddress = deposit['address'] as String;
     final refundAddress = responseJSON['refund_address'] as String;
-    final depositAmount = toDouble(deposit['amount']);
-    final receiveAmount = toDouble(withdrawal['amount']);
+    final depositAmount = _toDouble(deposit['amount']);
+    final receiveAmount = _toDouble(withdrawal['amount']);
     final status = responseJSON['status'] as String;
     final createdAtString = responseJSON['created_at'] as String;
     final createdAt = DateTime.parse(createdAtString).toLocal();
@@ -235,8 +364,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: respId,
-      from: CryptoCurrency.fromString(from),
-      to: CryptoCurrency.fromString(to),
+      from: from,
+      to: to,
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -265,7 +394,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       'estimation': isFixedRateMode ? 'reversed' : 'direct',
       'rate': isFixedRateMode ? 'fixed' : 'floating',
       'amount': amount,
-     'additional_fee_percent': _additionalFeePercent,
+      'additional_fee_percent': _additionalFeePercent,
     };
 
     try {
@@ -274,7 +403,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         headers: headers,
         body: json.encode(body),
       );
-      
+
       if (response.statusCode != 200) return {};
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final rate = responseJSON['rate'] as Map<String, dynamic>?;
@@ -289,14 +418,15 @@ class StealthExExchangeProvider extends ExchangeProvider {
     }
   }
 
-  double toDouble(dynamic value) {
+  static double? _toDouble(dynamic value) {
     if (value is int) {
       return value.toDouble();
     } else if (value is double) {
       return value;
-    } else {
-      return 0.0;
+    } else if (value is String) {
+      return double.tryParse(value);
     }
+    return null;
   }
 
   String _getName(CryptoCurrency currency) {
@@ -305,6 +435,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
   }
 
   String _getNetwork(CryptoCurrency currency) {
+    if (currency == CryptoCurrency.arb || currency.tag == 'ARB') return 'arbitrum';
     if (currency.tag == null) return 'mainnet';
 
     if (currency == CryptoCurrency.maticpoly) return 'mainnet';

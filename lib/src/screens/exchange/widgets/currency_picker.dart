@@ -11,7 +11,6 @@ class CurrencyPicker extends StatefulWidget {
       required this.onItemSelected,
       this.title,
       this.hintText,
-      this.isMoneroWallet = false,
       this.isConvertFrom = false,
       super.key});
 
@@ -19,7 +18,6 @@ class CurrencyPicker extends StatefulWidget {
   final List<Currency> items;
   final String? title;
   final Function(Currency) onItemSelected;
-  final bool isMoneroWallet;
   final bool isConvertFrom;
   final String? hintText;
 
@@ -39,13 +37,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   String textFieldValue;
 
   bool currencySearchBySubstring(Currency currency, String subString) {
-    return currency.name.toLowerCase().contains(subString.toLowerCase()) ||
-        (currency.tag != null
-            ? currency.tag!.toLowerCase().contains(subString.toLowerCase())
-            : false) ||
-        (currency.fullName != null
-            ? currency.fullName!.toLowerCase().contains(subString.toLowerCase())
-            : false);
+    final query = subString.toLowerCase();
+    return currency.name.toLowerCase().contains(query) ||
+        currency.toString().toLowerCase().contains(query) ||
+        (currency.tag != null ? currency.tag!.toLowerCase().contains(query) : false) ||
+        (currency.fullName != null ? currency.fullName!.toLowerCase().contains(query) : false);
   }
 
   @override

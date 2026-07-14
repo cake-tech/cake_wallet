@@ -1,20 +1,18 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupportPage extends BasePage {
   SupportPage(this.supportViewModel);
 
   final SupportViewModel supportViewModel;
-
-  final imageLiveSupport = Image.asset('assets/images/cake_icon.png');
-  final imageWalletGuides = Image.asset('assets/images/wallet_guides.png');
-  final imageMoreLinks = Image.asset('assets/images/more_links.png');
 
   @override
   String get title => S.current.settings_support;
@@ -22,66 +20,54 @@ class SupportPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
-  @override
-  Widget body(BuildContext context) {
-    final iconColor = Theme.of(context).colorScheme.primary;
+  String get _imageSupportChat => currentTheme.isDark
+      ? 'assets/new-ui/icons/support_chat_dark.svg'
+      : 'assets/new-ui/icons/support_chat.svg';
 
-    return Container(
-      child: Center(
+  String get _imageSupportDocs => currentTheme.isDark
+      ? 'assets/new-ui/icons/support_docs_dark.svg'
+      : 'assets/new-ui/icons/support_docs.svg';
+
+  String get _imageSupportLinks => currentTheme.isDark
+      ? 'assets/new-ui/icons/support_links_dark.svg'
+      : 'assets/new-ui/icons/support_links.svg';
+
+  @override
+  Widget body(BuildContext context) => Center(
         child: Container(
-          padding: EdgeInsets.only(left: 24, right: 24),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
           child: Column(
+            spacing: 16,
             children: [
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  icon: Icon(
-                    Icons.support_agent,
-                    color: iconColor,
-                    size: 50,
-                  ),
-                  title: S.of(context).support_title_live_chat,
-                  description: S.of(context).support_description_live_chat,
-                  onPressed: () {
-                    if (DeviceInfo.instance.isDesktop) {
-                      _launchUrl(supportViewModel.fetchUrl());
-                    } else {
-                      Navigator.pushNamed(context, Routes.supportLiveChat);
-                    }
-                  },
-                ),
+              OptionTile(
+                image: CakeImageWidget(imageUrl: _imageSupportChat, width: 55, height: 55),
+                title: S.of(context).support_title_live_chat,
+                description: S.of(context).support_description_live_chat,
+                onPressed: () => _onPressedSupportChat(context),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  icon: Icon(
-                    Icons.find_in_page,
-                    color: iconColor,
-                    size: 50,
-                  ),
-                  title: S.of(context).support_title_guides,
-                  description: S.of(context).support_description_guides,
-                  onPressed: () => _launchUrl(supportViewModel.docsUrl),
-                ),
+              OptionTile(
+                image: CakeImageWidget(imageUrl: _imageSupportDocs, width: 55, height: 55),
+                title: S.of(context).support_title_guides,
+                description: S.of(context).support_description_guides,
+                onPressed: () => _launchUrl(supportViewModel.docsUrl),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  icon: Icon(
-                    Icons.contact_support,
-                    color: iconColor,
-                    size: 50,
-                  ),
-                  title: S.of(context).support_title_other_links,
-                  description: S.of(context).support_description_other_links,
-                  onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
-                ),
+              OptionTile(
+                image: CakeImageWidget(imageUrl: _imageSupportLinks, width: 55, height: 55),
+                title: S.of(context).support_title_other_links,
+                description: S.of(context).support_description_other_links,
+                onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
               ),
             ],
           ),
         ),
-      ),
-    );
+      );
+
+  void _onPressedSupportChat(BuildContext context) {
+    if (DeviceInfo.instance.isDesktop) {
+      _launchUrl(supportViewModel.fetchUrl());
+    } else {
+      Navigator.of(context, rootNavigator: true).pushNamed(Routes.supportLiveChat);
+    }
   }
 
   void _launchUrl(String url) async {

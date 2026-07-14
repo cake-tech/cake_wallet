@@ -1,20 +1,18 @@
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/keyable.dart';
 
 abstract class TransactionInfo extends Object with Keyable {
   late String id;
   late String txHash = id;
-  late int amount;
-  int? fee;
+  late Money amount;
+  Money? fee;
   late TransactionDirection direction;
   late bool isPending;
   late DateTime date;
   int? height;
-  late int confirmations;
-  String amountFormatted();
-  String fiatAmount();
-  String? feeFormatted();
-  void changeFiatAmount(String amount);
+  int confirmations = 0;
   String? to;
   String? from;
   String? evmSignatureName;
@@ -26,4 +24,8 @@ abstract class TransactionInfo extends Object with Keyable {
   dynamic get keyIndex => id;
 
   Map<String, dynamic> additionalInfo = {};
+
+  String? _fiatAmount;
+  String fiatAmount() => _fiatAmount ?? '';
+  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }

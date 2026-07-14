@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SupportOtherLinksPage extends BasePage {
   SupportOtherLinksPage(this.supportViewModel);
@@ -29,6 +30,8 @@ class SupportOtherLinksPage extends BasePage {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 500),
           child: SectionStandardList(
+              scrollController: ModalScrollController.of(context),
+              physics: ClampingScrollPhysics(),
               sectionCount: 1,
               itemCounter: (int _) => supportViewModel.items.length,
               itemBuilder: (_, index) {

@@ -1,9 +1,12 @@
 -
   uri: 37.27.100.59:10500
+  isDefault: true
   useSSL: false
   isEnabledForAutoSwitching: true
+  label: "Zano"
 -
   uri: zano.cakewallet.com:11211
-  is_default: true
   useSSL: false
+  isOfficial: true
   isEnabledForAutoSwitching: true
+  label: "Cake Wallet"

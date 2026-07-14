@@ -83,9 +83,9 @@ class SeedWidgetState extends State<SeedWidget> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: ShapeDecoration(
+              shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
               color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(12),
             ),
             child: Stack(
               children: [
@@ -155,11 +155,9 @@ class SeedWidgetState extends State<SeedWidget> {
                           onTap: () async => _pasteText(),
                           child: Container(
                             padding: EdgeInsets.all(6),
-                            decoration: BoxDecoration(
+                            decoration: ShapeDecoration(
                               color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(6),
-                              ),
+                              shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
                             ),
                             child: Image.asset(
                               'assets/images/paste_ios.png',

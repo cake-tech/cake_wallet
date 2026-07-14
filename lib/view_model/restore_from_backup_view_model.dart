@@ -32,7 +32,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
   void reset() => filePath = '';
 
   @action
-  Future<void> import(String password) async {
+  Future<void> import(String password,{bool checkBackupApp = true}) async {
     try {
       state = IsExecutingState();
 
@@ -44,12 +44,14 @@ abstract class RestoreFromBackupViewModelBase with Store {
       final file = File(filePath);
 
       try {
-        await backupService.importBackupFile(file, password);
-      } catch (e) {
+        await backupService.importBackupFile(file, password, checkBackupApp: checkBackupApp);
+      } on IncompatibleBackupAppException {
+        rethrow;
+      } catch (e, s) {
         if (e.toString().contains("unknown_backup_version")) {
           state = FailureState('This is not a valid backup file, please make sure you have selected the correct one');
         } else {
-          state = FailureState(e.toString());
+          state = FailureState(e.toString() + "\n" + s.toString());
         }
       }
 
@@ -62,7 +64,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       final store = getIt.get<AppStore>();
       ReactionDisposer? reaction;
-      await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
+      await store.settingsStore.reload();
       await store.themeStore.loadSavedTheme(isFromBackup: true);
       reaction = autorun((_) {
         final wallet = store.wallet;
@@ -74,6 +76,9 @@ abstract class RestoreFromBackupViewModelBase with Store {
       });
 
       state = ExecutedSuccessfullyState();
+    } on IncompatibleBackupAppException {
+      state = InitialExecutionState();
+      rethrow;
     } catch (e, s) {
       var msg = e.toString().toLowerCase();
 

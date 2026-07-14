@@ -38,8 +38,7 @@ Future<int?> getCoinByKeyImage(String keyImage) async {
   final count = await countOfCoins();
   for (int i = 0; i < count; i++) {
     final coin = await getCoin(i);
-    final coinAddress = coin.keyImage;
-    if (keyImage == coinAddress) {
+    if (keyImage == coin.keyImage()) {
       return i;
     }
   }

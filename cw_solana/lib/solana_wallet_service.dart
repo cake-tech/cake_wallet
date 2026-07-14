@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:collection/collection.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -14,13 +13,11 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/solana_mnemonics.dart';
 import 'package:cw_solana/solana_wallet.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
-import 'package:hive/hive.dart';
 
 class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     SolanaRestoreWalletFromSeedCredentials, SolanaRestoreWalletFromPrivateKey, SolanaNewWalletCredentials> {
-  SolanaWalletService(this.walletInfoSource, this.isDirect);
+  SolanaWalletService(this.isDirect);
 
-  final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
 
   @override
@@ -31,6 +28,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
 
     final wallet = SolanaWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -52,8 +50,10 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
 
   @override
   Future<SolanaWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await SolanaWalletBase.open(
@@ -64,6 +64,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -78,6 +79,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }
@@ -86,9 +88,11 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override
@@ -98,6 +102,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -119,6 +124,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -128,27 +134,6 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     await wallet.save();
 
     return wallet;
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = await SolanaWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
   @override

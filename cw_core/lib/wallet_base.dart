@@ -12,19 +12,27 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/pathForWallet.dart';
 
 abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
     TransactionType extends TransactionInfo> {
-  WalletBase(this.walletInfo);
+  WalletBase(this.walletInfo, this.derivationInfo);
 
   static String idFor(String name, WalletType type) =>
       walletTypeToString(type).toLowerCase() + '_' + name;
 
   WalletInfo walletInfo;
+  DerivationInfo derivationInfo;
 
   WalletType get type => walletInfo.type;
 
-  CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
+  int? get chainId => null;
+
+  CryptoCurrency get currency => walletTypeToCryptoCurrency(
+        type,
+        chainId: chainId,
+        isTestnet: isTestnet,
+      );
 
   String get id => walletInfo.id;
 
@@ -35,8 +43,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   //set address(String address);
 
   ObservableMap<CryptoCurrency, BalanceType> get balance;
-
-  String formatCryptoAmount(String amount) => amount;
 
   SyncStatus get syncStatus;
 
@@ -62,6 +68,10 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  bool get isSoftwareWallet => walletInfo.hardwareWalletType == null;
+
+  HardwareWalletType? get hardwareWalletType => walletInfo.hardwareWalletType;
+
   bool get hasRescan => false;
 
   Future<void> connectToNode({required Node node});
@@ -83,6 +93,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
 
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {}
+
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
   //     {void Function() onFinished});
@@ -100,10 +112,12 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   String get password;
 
   Future<void>? updateBalance();
+  Future<void> updateTransactionsHistory() async {}
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
-  Future<void> renameWalletFiles(String newWalletName);
+  Future<void> renameWalletFiles(String newWalletName) =>
+      copyWalletFilesTo(fromName: walletInfo.name, toName: newWalletName, type: type);
 
   Future<String> signMessage(String message, {String? address = null});
 
@@ -117,7 +131,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   /// Returns true if the connection is alive, false otherwise.
   /// Default implementation returns true (no-op for wallets without socket connections).
   Future<bool> checkSocketHealth() async => true;
-  
+
   /// This is used to check if the current node is healthy by making a lightweight RPC call
   /// Each wallet implementation should override this to make a single, efficient call
   /// Returns true if the node is healthy, false otherwise

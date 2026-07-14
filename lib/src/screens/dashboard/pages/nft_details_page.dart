@@ -36,23 +36,24 @@ class NFTDetailsPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final menuButton = Image.asset(
-      'assets/images/menu.png',
-      color: Theme.of(context).colorScheme.onSurface,
-    );
-
-    return Container(
-      alignment: Alignment.centerRight,
-      width: 40,
-      child: TextButton(
-        // FIX-ME: Style
-        //highlightColor: Colors.transparent,
-        //splashColor: Colors.transparent,
-        //padding: EdgeInsets.all(0),
-        onPressed: () => onOpenEndDrawer(),
-        child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
-      ),
-    );
+    return SizedBox.shrink();
+    // final menuButton = Image.asset(
+    //   'assets/images/menu.png',
+    //   color: Theme.of(context).colorScheme.onSurface,
+    // );
+    //
+    // return Container(
+    //   alignment: Alignment.centerRight,
+    //   width: 40,
+    //   child: TextButton(
+    //     // FIX-ME: Style
+    //     //highlightColor: Colors.transparent,
+    //     //splashColor: Colors.transparent,
+    //     //padding: EdgeInsets.all(0),
+    //     onPressed: () => onOpenEndDrawer(),
+    //     child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
+    //   ),
+    // );
   }
 
   @override
@@ -232,19 +233,19 @@ class _NFTSingleInfoTile extends StatelessWidget {
           Text(
             infoType,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-              height: 1,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                  height: 1,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             infoValue,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-              height: 1,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  height: 1,
+                ),
           ),
         ],
       ),

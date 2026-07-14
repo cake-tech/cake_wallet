@@ -1,67 +1,80 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
-import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
+import 'package:cake_wallet/core/reset_service.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/node_check.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/test_asset_bundles.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/db/sqlite.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
 import 'package:cw_core/payjoin_session.dart';
+import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/window_size.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_core/root_dir.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cw_core/window_size.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:logging/logging.dart';
-import 'package:cake_wallet/core/trade_monitor.dart';
-import 'package:cake_wallet/core/reset_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trezor_connect/trezor_connect.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
+final quickActionsStream = StreamController<Uri?>.broadcast();
 
 Future<void> main({Key? topLevelKey}) async {
   await runAppWithZone(topLevelKey: topLevelKey);
@@ -72,6 +85,45 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    final Completer<String?> initialShortcutCompleter = Completer<String?>();
+
+    // Quick Actions plugin supports only iOS/Android platforms
+    if (Platform.isIOS || Platform.isAndroid) {
+      const QuickActions quickActions = QuickActions();
+
+      quickActions.initialize((String shortcutType) {
+        // Complete the completer only once (for cold starts)
+        if (!initialShortcutCompleter.isCompleted) {
+          initialShortcutCompleter.complete(shortcutType);
+        }
+
+        // Convert the shortcut type to a URI and add it to the stream
+        final uri = Uri.parse('cakewallet://quickaction/$shortcutType');
+        quickActionsStream.sink.add(uri);
+      });
+
+      quickActions.setShortcutItems(<ShortcutItem>[
+        const ShortcutItem(
+            type: 'send', icon: 'send', localizedTitle: 'Send', localizedSubtitle: 'Send funds'),
+        const ShortcutItem(
+            type: 'receive',
+            icon: 'receive',
+            localizedTitle: 'Receive',
+            localizedSubtitle: 'Receive funds')
+      ]);
+
+      // Fallback in case the initial shortcut is not received (normal cold start)
+      Future<void>.delayed(const Duration(milliseconds: 500), () {
+        if (!initialShortcutCompleter.isCompleted) {
+          initialShortcutCompleter.complete(null);
+        }
+      });
+    } else {
+      initialShortcutCompleter.complete(null);
+    }
+
+    final initialQuickAction = await initialShortcutCompleter.future;
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -81,7 +133,22 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
       return true;
     };
+
     await FlutterDaemon().unmarkBackgroundSync();
+    await initDb();
+
+    try {
+      CakeTor.instance = await CakeTorInstance.getInstance();
+    } catch (e) {
+      printV("Failed to initialize tor: $e");
+    }
+
+    try {
+      await linuxSymlinkSharedPreferences();
+    } catch (e) {
+      printV("Failed to symlink linux preferences: $e");
+    }
+
     await initializeAppAtRoot();
 
     if (kDebugMode) {
@@ -99,16 +166,33 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       ProxyWrapper.logger = MemoryProxyLogger();
     }
 
+    if (!Platform.isWindows) {
+      var zcashPassword = await secureStorageShared.read(
+          key: "com.cakewallet.cw_zcash/zec.db");
+      if (zcashPassword == null || zcashPassword.isEmpty) {
+        zcashPassword = generateKey().substring(0, 32);
+        secureStorageShared.write(
+            key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+      }
+      zcash?.unlockDatabase(zcashPassword);
+    }
+
     // Basically when we're running a test
     if (topLevelKey != null) {
       runApp(
         DefaultAssetBundle(
           bundle: TestAssetBundle(),
-          child: App(key: topLevelKey),
+          child: App(
+              key: topLevelKey,
+              initialQuickAction: initialQuickAction,
+              quickActionsStream: quickActionsStream.stream),
         ),
       );
     } else {
-      runApp(App(key: topLevelKey));
+      runApp(App(
+          key: topLevelKey,
+          initialQuickAction: initialQuickAction,
+          quickActionsStream: quickActionsStream.stream));
     }
 
     isAppRunning = true;
@@ -138,36 +222,13 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(ContactAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
-    CakeHive.registerAdapter(NodeAdapter());
-  }
 
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
-    CakeHive.registerAdapter(TradeAdapter());
-  }
-
   if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
     CakeHive.registerAdapter(AddressInfoAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
-    CakeHive.registerAdapter(WalletInfoAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
-    CakeHive.registerAdapter(DerivationTypeAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
-    CakeHive.registerAdapter(DerivationInfoAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(HARDWARE_WALLET_TYPE_TYPE_ID)) {
-    CakeHive.registerAdapter(HardwareWalletTypeAdapter());
   }
 
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
@@ -206,21 +267,32 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(PayjoinSessionAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
+    CakeHive.registerAdapter(Erc20TokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
+    CakeHive.registerAdapter(SPLTokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
+    CakeHive.registerAdapter(TronTokenAdapter());
+  }
+  await performHiveMigration();
+
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
-  final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes =
-      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
-  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  await performTradeHiveMigration(secureStorage);
+  await performNodeHiveMigration();
+  await validateBuiltinNodes();
+
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
@@ -235,11 +307,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await initialSetup(
     loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
-    nodes: nodes,
-    powNodes: powNodes,
-    walletInfoSource: walletInfoSource,
     contactSource: contacts,
-    tradesSource: trades,
     ordersSource: orders,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     // fiatConvertationService: fiatConvertationService,
@@ -250,18 +318,14 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 50,
+    initialMigrationVersion: 67,
   );
 }
 
 Future<void> initialSetup({
   required bool loadWallet,
   required SharedPreferences sharedPreferences,
-  required Box<Node> nodes,
-  required Box<Node> powNodes,
-  required Box<WalletInfo> walletInfoSource,
   required Box<Contact> contactSource,
-  required Box<Trade> tradesSource,
   required Box<Order> ordersSource,
   // required FiatConvertationService fiatConvertationService,
   required Box<Template> templates,
@@ -272,49 +336,45 @@ Future<void> initialSetup({
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<PayjoinSession> payjoinSessionSource,
   required Box<HavenSeedStore> havenSeedStore,
-  int initialMigrationVersion = 15,
+  required int initialMigrationVersion,
 }) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
-      secureStorage: secureStorage,
-      version: initialMigrationVersion,
-      sharedPreferences: sharedPreferences,
-      walletInfoSource: walletInfoSource,
-      contactSource: contactSource,
-      tradeSource: tradesSource,
-      nodes: nodes,
-      powNodes: powNodes,
-      havenSeedStore: havenSeedStore);
-  await setup(
-    walletInfoSource: walletInfoSource,
-    nodeSource: nodes,
-    powNodeSource: powNodes,
+    secureStorage: secureStorage,
+    version: initialMigrationVersion,
+    sharedPreferences: sharedPreferences,
     contactSource: contactSource,
-    tradesSource: tradesSource,
+    havenSeedStore: havenSeedStore,
+  );
+  await setup(
+    contactSource: contactSource,
+    ordersSource: ordersSource,
     templates: templates,
     exchangeTemplates: exchangeTemplates,
     transactionDescriptionBox: transactionDescriptions,
-    ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     payjoinSessionSource: payjoinSessionSource,
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
+  final settingsStore = getIt<SettingsStore>();
+  await checkCurrentNodes(sharedPreferences, settingsStore);
 
   await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
 
   await bootstrapOffline();
-  final settingsStore = getIt<SettingsStore>();
   if (!settingsStore.currentBuiltinTor) {
     bootstrapOnline(navigatorKey, loadWallet: loadWallet);
   }
 }
 
 class App extends StatefulWidget {
-  App({this.key});
+  App({this.key, this.initialQuickAction, required this.quickActionsStream});
 
   final Key? key;
+  final String? initialQuickAction;
+  final Stream<Uri?> quickActionsStream;
   @override
   AppState createState() => AppState();
 }
@@ -334,7 +394,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
             ? Routes.welcome
-            : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
+            : settingsStore.currentBuiltinTor
+                ? Routes.startTor
+                : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
         final statusBarBrightness =
             currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
@@ -345,21 +407,29 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             statusBarBrightness: statusBarBrightness,
             statusBarIconBrightness: statusBarIconBrightness));
 
+        final appRouteObserver = AppRouteObserver();
+
         return Root(
           key: widget.key ?? rootKey,
           appStore: appStore,
+          initialQuickAction: widget.initialQuickAction,
+          quickActionsStream: widget.quickActionsStream,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
           linkViewModel: linkViewModel,
           tradeMonitor: tradeMonitor,
           nodeSwitchingService: nodeSwitchingService,
+          trezorConnect: getIt<TrezorConnect>(),
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
-              navigatorObservers: [routeObserver],
+              navigatorObservers: [routeObserver, appRouteObserver],
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
+              builder: (context, child) => MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+                  child: child!),
               theme: theme,
               darkTheme: darkTheme,
               themeMode: themeMode,
@@ -480,6 +550,26 @@ Future<void> backgroundSync() async {
       await FlutterDaemon().unmarkBackgroundSync();
     } else {
       printV("Not unmarking background sync");
+    }
+  }
+}
+
+class AppRouteObserver extends RouteObserver<PageRoute<dynamic>> {
+  final AppStore appStore = getIt.get<AppStore>();
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    if (route is PageRoute) {
+      appStore.currentRouteName = route.settings.name;
+    }
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    if (previousRoute is PageRoute) {
+      appStore.currentRouteName = previousRoute.settings.name;
     }
   }
 }

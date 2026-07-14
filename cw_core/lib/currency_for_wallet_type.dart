@@ -1,21 +1,31 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 
-CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false, int? chainId}) {
+  if (chainId != null) {
+    return getCryptoCurrencyByChainId(chainId);
+  }
+
   switch (type) {
+    case WalletType.monero:
+      return CryptoCurrency.xmr;
     case WalletType.bitcoin:
-      if (isTestnet == true) {
+      if (isTestnet) {
         return CryptoCurrency.tbtc;
       }
       return CryptoCurrency.btc;
-    case WalletType.monero:
-      return CryptoCurrency.xmr;
     case WalletType.litecoin:
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.base:
+      return CryptoCurrency.baseEth;
+    case WalletType.arbitrum:
+      return CryptoCurrency.arbEth;
+    case WalletType.bsc:
+      return CryptoCurrency.bnb;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
@@ -34,43 +44,69 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.zano;
     case WalletType.decred:
       return CryptoCurrency.dcr;
+    case WalletType.dogecoin:
+      return CryptoCurrency.doge;
+    case WalletType.zcash:
+      return CryptoCurrency.zec;
     case WalletType.none:
       throw Exception(
-          'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
 }
 
-WalletType? walletTypeForCurrency(CryptoCurrency currency) {
+CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
+  switch (chainId) {
+    case 1:
+      return CryptoCurrency.eth;
+    case 137:
+      return CryptoCurrency.maticpoly;
+    case 8453:
+      return CryptoCurrency.baseEth;
+    case 42161:
+      return CryptoCurrency.arbEth;
+    case 56:
+      return CryptoCurrency.bnb;
+    default:
+      return CryptoCurrency.eth;
+  }
+}
+
+/// Get chainId from CryptoCurrency for EVM chains
+/// Returns null if currency is not an EVM chain
+int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
   switch (currency) {
-    case CryptoCurrency.btc:
-      return WalletType.bitcoin;
-    case CryptoCurrency.xmr:
-      return WalletType.monero;
-    case CryptoCurrency.ltc:
-      return WalletType.litecoin;
-    case CryptoCurrency.xhv:
-      return WalletType.haven;
     case CryptoCurrency.eth:
-      return WalletType.ethereum;
-    case CryptoCurrency.bch:
-      return WalletType.bitcoinCash;
-    case CryptoCurrency.nano:
-      return WalletType.nano;
-    case CryptoCurrency.banano:
-      return WalletType.banano;
+      return 1;
     case CryptoCurrency.maticpoly:
-      return WalletType.polygon;
-    case CryptoCurrency.sol:
-      return WalletType.solana;
-    case CryptoCurrency.trx:
-      return WalletType.tron;
-    case CryptoCurrency.wow:
-      return WalletType.wownero;
-    case CryptoCurrency.zano:
-      return WalletType.zano;
-    case CryptoCurrency.dcr:
-      return WalletType.decred;
+      return 137;
+    case CryptoCurrency.baseEth:
+      return 8453;
+    case CryptoCurrency.arbEth:
+      return 42161;
+    case CryptoCurrency.bnb:
+      return 56;
     default:
       return null;
   }
+}
+
+CryptoCurrency getCryptoCurrencyForWalletListItem(WalletType type, {bool isTestnet = false, int? chainId}) {
+  if (type == WalletType.arbitrum) {
+    return CryptoCurrency.arb;
+  }
+
+  return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId);
+}
+
+String getCryptoCurrencyIconForWalletListItem(WalletType type,
+    {bool isTestnet = false, int? chainId}) {
+  if (type == WalletType.arbitrum) {
+    return CryptoCurrency.arb.iconPath!;
+  }
+
+  if (type == WalletType.base) {
+    return "assets/new-ui/crypto_full_icons/base.svg";
+  }
+
+  return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
 }

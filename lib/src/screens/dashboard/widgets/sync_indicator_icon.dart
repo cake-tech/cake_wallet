@@ -1,10 +1,14 @@
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SyncIndicatorIcon extends StatelessWidget {
   SyncIndicatorIcon(
-      {this.boolMode = true, this.isSynced = false, this.value = waiting, this.size = 6.0, this.showTorIcon = false});
+      {this.boolMode = true,
+      this.isSynced = false,
+      this.value = waiting,
+      this.size = 6.0,
+      this.showTorIcon = false});
 
   final bool boolMode;
   final bool isSynced;
@@ -19,15 +23,14 @@ class SyncIndicatorIcon extends StatelessWidget {
   static const String finished = 'finished';
   static const String success = 'success';
   static const String complete = 'complete';
+  static const String completed = 'completed';
 
   @override
   Widget build(BuildContext context) {
     Color indicatorColor;
 
     if (boolMode) {
-      indicatorColor = isSynced
-          ? CustomThemeColors.syncGreen
-          : CustomThemeColors.syncYellow;
+      indicatorColor = isSynced ? CustomThemeColors.syncGreen : CustomThemeColors.syncYellow;
     } else {
       switch (value.toLowerCase()) {
         case actionRequired:
@@ -37,6 +40,7 @@ class SyncIndicatorIcon extends StatelessWidget {
         case finished:
         case success:
         case complete:
+        case completed:
           indicatorColor = CustomThemeColors.syncGreen;
           break;
         case waiting:
@@ -48,14 +52,18 @@ class SyncIndicatorIcon extends StatelessWidget {
     return Container(
       height: size,
       width: size,
-      decoration: showTorIcon ? null : BoxDecoration(
-        shape: BoxShape.circle,
-        color: indicatorColor,
-      ),
-      child: showTorIcon ? SvgPicture.asset(
-        "assets/images/tor.svg",
-        color: indicatorColor,
-      ) : null, 
+      decoration: showTorIcon
+          ? null
+          : BoxDecoration(
+              shape: BoxShape.circle,
+              color: indicatorColor,
+            ),
+      child: showTorIcon
+          ? SvgPicture.asset(
+              "assets/images/tor.svg",
+              color: indicatorColor,
+            )
+          : null,
     );
   }
 }

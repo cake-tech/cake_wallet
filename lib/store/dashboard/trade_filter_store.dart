@@ -21,7 +21,9 @@ abstract class TradeFilterStoreBase with Store {
         displayLetsExchange = true,
         displayStealthEx = true,
         displayXOSwap = true,
-        displaySwapTrade = true;
+        displaySwapTrade = true,
+        displaySwapXyz = true,
+        displayNearIntents = true;
 
   @observable
   bool displayXMRTO;
@@ -62,6 +64,28 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displaySwapTrade;
 
+  @observable
+  bool displaySwapXyz;
+  @observable
+  bool displayNearIntents;
+
+  @computed
+  int get enabledProvidersCount => [
+    displayChangeNow,
+    displaySideShift,
+    displaySimpleSwap,
+    displayTrocador,
+    displayExolix,
+    displayChainflip,
+    displayThorChain,
+    displayLetsExchange,
+    displayStealthEx,
+    displayXOSwap,
+    displaySwapTrade,
+    displaySwapXyz,
+    displayNearIntents
+  ].where((item) => item).length;
+
   @computed
   bool get displayAllTrades =>
       displayChangeNow &&
@@ -74,7 +98,9 @@ abstract class TradeFilterStoreBase with Store {
       displayLetsExchange &&
       displayStealthEx &&
       displayXOSwap &&
-      displaySwapTrade;
+      displaySwapTrade &&
+      displaySwapXyz &&
+      displayNearIntents;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -118,6 +144,12 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.swapTrade:
         displaySwapTrade = !displaySwapTrade;
         break;
+      case ExchangeProviderDescription.swapsXyz:
+        displaySwapXyz = !displaySwapXyz;
+        break;
+      case ExchangeProviderDescription.nearIntents:
+        displayNearIntents = !displayNearIntents;
+        break;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -133,6 +165,8 @@ abstract class TradeFilterStoreBase with Store {
           displayStealthEx = false;
           displayXOSwap = false;
           displaySwapTrade = false;
+          displaySwapXyz = false;
+          displayNearIntents = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -147,6 +181,8 @@ abstract class TradeFilterStoreBase with Store {
           displayStealthEx = true;
           displayXOSwap = true;
           displaySwapTrade = true;
+          displaySwapXyz = true;
+          displayNearIntents = true;
         }
         break;
     }
@@ -154,7 +190,10 @@ abstract class TradeFilterStoreBase with Store {
 
   List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
     final _trades = trades
-        .where((item) => item.trade.walletId == wallet.id && isTradeInAccount(item, wallet))
+        .where((item) {
+          final isSameChain = item.trade.chainId != null ? item.trade.chainId == wallet.chainId : true; // returning default as true here so it falls back to the default checks if there's no chainId
+          return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet) && isSameChain;
+        })
         .toList();
     final needToFilter = !displayAllTrades;
 
@@ -180,7 +219,10 @@ abstract class TradeFilterStoreBase with Store {
                     item.trade.provider == ExchangeProviderDescription.letsExchange) ||
                 (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx) ||
                 (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap) ||
-                (displaySwapTrade && item.trade.provider == ExchangeProviderDescription.swapTrade))
+                (displaySwapTrade && item.trade.provider == ExchangeProviderDescription.swapTrade) ||
+                  (displaySwapXyz &&
+                    item.trade.provider == ExchangeProviderDescription.swapsXyz) ||
+                    (displayNearIntents && item.trade.provider == ExchangeProviderDescription.nearIntents))
             .toList()
         : _trades;
   }

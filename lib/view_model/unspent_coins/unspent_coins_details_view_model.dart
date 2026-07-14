@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
@@ -42,14 +41,12 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
           onSwitchValueChange: (value) async {
             isFrozen = value;
             unspentCoinsItem.isFrozen = value;
-            if (value) {
-              unspentCoinsItem.isSending = !value;
-            }
+            if (value) unspentCoinsItem.isSending = !value;
             await unspentCoinsListViewModel.saveUnspentCoinInfo(unspentCoinsItem);
           })
     ];
 
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(_type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(_type)) {
       items.add(BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
         value: _explorerDescription(_type),
@@ -71,6 +68,8 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
         return 'https://litecoin.earlyordies.com/tx/${txId}';
       case WalletType.bitcoinCash:
         return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
+      case WalletType.dogecoin:
+        return 'https://dogechain.info/tx/${txId}';
       default:
         return '';
     }
@@ -79,11 +78,13 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
   String _explorerDescription(WalletType type) {
     switch (type) {
       case WalletType.bitcoin:
-        return S.current.view_transaction_on + 'Ordinals.com';
+        return '${S.current.view_transaction_on}Ordinals.com';
       case WalletType.litecoin:
-        return S.current.view_transaction_on + 'Earlyordies.com';
+        return '${S.current.view_transaction_on}Earlyordies.com';
       case WalletType.bitcoinCash:
-        return S.current.view_transaction_on + 'Blockchair.com';
+        return '${S.current.view_transaction_on}Blockchair.com';
+      case WalletType.dogecoin:
+        return '${S.current.view_transaction_on}Dogechain.info';
       default:
         return '';
     }

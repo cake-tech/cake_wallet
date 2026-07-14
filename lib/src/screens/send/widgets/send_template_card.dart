@@ -14,11 +14,12 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:mobx/mobx.dart';
 
 class SendTemplateCard extends StatelessWidget {
-  SendTemplateCard(
-      {super.key,
-      required this.template,
-      required this.index,
-      required this.sendTemplateViewModel});
+  SendTemplateCard({
+    super.key,
+    required this.template,
+    required this.index,
+    required this.sendTemplateViewModel,
+  });
 
   final TemplateViewModel template;
   final int index;
@@ -91,11 +92,9 @@ class SendTemplateCard extends StatelessWidget {
                         ],
                         onPushPasteButton: (context) async {
                           template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context);
                         },
                         onPushAddressBookButton: (context) async {
                           template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context);
                         },
                         buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(

@@ -45,7 +45,9 @@ class BaseTextFormField extends StatelessWidget {
     this.borderWidth = 1.0,
     this.prefixIconConstraints,
     this.suffixIconConstraints,
-    super.key, this.suffixText,
+    super.key,
+    this.suffixText,
+    this.borderRadius = const BorderRadius.all(Radius.circular(18)), this.onEditingComplete,
   });
 
   final TextEditingController? controller;
@@ -81,6 +83,7 @@ class BaseTextFormField extends StatelessWidget {
   final bool? autocorrect;
   final bool? enableSuggestions;
   final void Function(String)? onChanged;
+  final VoidCallback? onEditingComplete;
   final EdgeInsetsGeometry? contentPadding;
   final bool? alignLabelWithHint;
   final FloatingLabelBehavior? floatingLabelBehavior;
@@ -91,6 +94,7 @@ class BaseTextFormField extends StatelessWidget {
   final void Function(String)? onFieldSubmitted;
   final bool hasUnderlineBorder;
   final double borderWidth;
+  final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +113,7 @@ class BaseTextFormField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
+      onEditingComplete: onEditingComplete,
       textAlign: textAlign,
       autovalidateMode: autovalidateMode,
       obscureText: obscureText,
@@ -116,7 +121,7 @@ class BaseTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       enabled: enabled,
       maxLength: maxLength,
-      onFieldSubmitted: onSubmit,
+      onFieldSubmitted: onFieldSubmitted ?? onSubmit,
       style: textStyle ??
           Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurface),
@@ -124,13 +129,13 @@ class BaseTextFormField extends StatelessWidget {
         isDense: isDense,
         alignLabelWithHint: alignLabelWithHint,
         contentPadding: contentPadding,
-        floatingLabelBehavior: FloatingLabelBehavior.never,
-        prefixIconConstraints: prefixIconConstraints ??
-            const BoxConstraints(minWidth: 0, minHeight: 0),
+        floatingLabelBehavior: floatingLabelBehavior ?? FloatingLabelBehavior.never,
+        prefixIconConstraints:
+            prefixIconConstraints ?? const BoxConstraints(minWidth: 40, minHeight: 0),
         prefix: prefix,
         prefixIcon: prefixIcon,
-        suffixIconConstraints: suffixIconConstraints ??
-            const BoxConstraints(minWidth: 0, minHeight: 0),
+        suffixIconConstraints:
+            suffixIconConstraints ?? const BoxConstraints(minWidth: 0, minHeight: 0),
         suffix: suffix,
         suffixIcon: suffixIcon,
         filled: !hasUnderlineBorder,
@@ -146,44 +151,49 @@ class BaseTextFormField extends StatelessWidget {
         labelStyle: !hasUnderlineBorder ? placeholderTextStyle : null,
         border: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         focusedBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         disabledBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         enabledBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
                   style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
         errorBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
+                borderRadius: borderRadius,
                 borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
               )
-            : null,
+            : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
       ),
       validator: validator,
     );

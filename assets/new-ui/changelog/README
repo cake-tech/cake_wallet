@@ -1,0 +1,14 @@
+to change the changelog, write text/changelog_en.json in following format:
+
+[
+    {
+    "icon": "the name of icon for the changelog item, must be present in icons/, do NOT include .svg",
+    "title": "title of item",
+    "description": "description of item"
+    }
+
+]
+
+all 3 elements are optional, ui will just omit them if you don't provide them.
+
+after you write it, run "dart run tool/translate_changelog.dart" to fill in the rest of the languages

@@ -1,16 +1,16 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/utils/language_list.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class SeedValidator extends Validator<MnemonicItem> {
@@ -29,17 +29,21 @@ class SeedValidator extends Validator<MnemonicItem> {
         return getBitcoinWordList(language);
       case WalletType.litecoin:
         return getBitcoinWordList(language);
+      case WalletType.dogecoin:
+        return getBitcoinWordList(language);
       case WalletType.monero:
         return monero!.getMoneroWordList(language);
       case WalletType.ethereum:
-        return ethereum!.getEthereumWordList(language);
+      case WalletType.polygon:
+      case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
+        return evm!.getEVMWordList(language);
       case WalletType.bitcoinCash:
         return getBitcoinWordList(language);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.getNanoWordList(language);
-      case WalletType.polygon:
-        return polygon!.getPolygonWordList(language);
       case WalletType.solana:
         return solana!.getSolanaWordList(language);
       case WalletType.tron:
@@ -50,6 +54,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return zano!.getWordList(language);
       case WalletType.decred:
         return decred!.getDecredWordList();
+      case WalletType.zcash:
+        return zcash!.getZcashWordList(language);
       case WalletType.none:
       case WalletType.haven:
         return [];

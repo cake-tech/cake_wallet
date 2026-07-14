@@ -15,55 +15,58 @@ class PresentProviderPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrowBottom = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
-      color: Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).colorScheme.primary,
       height: 6,
     );
 
-    return TextButton(
-      onPressed: () => presentProviderPicker(context),
-      style: ButtonStyle(
-        padding: WidgetStateProperty.all(EdgeInsets.zero),
-        splashFactory: NoSplash.splashFactory,
-        foregroundColor: WidgetStateProperty.all(Colors.transparent),
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                S.of(context).swap,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              Observer(
-                builder: (_) => Text(
-                  exchangeViewModel.selectedProviders.isEmpty
-                      ? S.of(context).choose_one
-                      : exchangeViewModel.selectedProviders.length > 1
-                          ? S.of(context).automatic
-                          : exchangeViewModel.selectedProviders.first.title,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: 10.0,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return Padding(
+      padding: EdgeInsets.only(left: 10),
+      child: TextButton(
+        onPressed: () => presentProviderPicker(context),
+        style: ButtonStyle(
+          padding: WidgetStateProperty.all(EdgeInsets.zero),
+          splashFactory: NoSplash.splashFactory,
+          foregroundColor: WidgetStateProperty.all(Colors.transparent),
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  S.of(context).swap,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
                       ),
                 ),
-              )
-            ],
-          ),
-          SizedBox(width: 5),
-          Padding(
-            padding: EdgeInsets.only(top: 12),
-            child: arrowBottom,
-          )
-        ],
+                Observer(
+                  builder: (_) => Text(
+                    exchangeViewModel.selectedProviders.isEmpty
+                        ? S.of(context).choose_one
+                        : exchangeViewModel.selectedProviders.length > 1
+                            ? S.of(context).automatic
+                            : exchangeViewModel.selectedProviders.first.title,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 10.0,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                )
+              ],
+            ),
+            SizedBox(width: 5),
+            Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: arrowBottom,
+            )
+          ],
+        ),
       ),
     );
   }
@@ -76,7 +79,7 @@ class PresentProviderPicker extends StatelessWidget {
               (e) => CheckBoxItem(
                 e.title,
                 exchangeViewModel.selectedProviders.contains(e),
-                isDisabled: !exchangeViewModel.providersForCurrentPair().contains(e),
+                isDisabled: !exchangeViewModel.providerList.contains(e),
               ),
             )
             .toList(),

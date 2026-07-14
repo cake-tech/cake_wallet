@@ -11,6 +11,7 @@ class Routes {
   static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
+  static const connectHardwareWallet = '/restore/hardware_wallet/devices';
   static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
@@ -85,6 +86,8 @@ class Routes {
   static const mwebNode = '/mweb_node';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
+  static const securityBackupDuressPin = '/security_and_backup_duress_pin';
+  static const setupDuressPin = '/setup_duress_pin';
   static const privacyPage = '/privacy_page';
   static const trocadorProvidersPage = '/trocador_providers_page';
   static const domainLookupsPage = '/domain_lookups_page';
@@ -113,15 +116,19 @@ class Routes {
   static const importNFTPage = '/import_nft_page';
   static const backgroundSync = '/background_sync';
   static const startTor = '/start_tor';
+  static const receiveAddresses = "/receive_addresses";
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+  static const devMoneroWalletCacheDebug = '/dev/monero_wallet_cache_debug';
 
   static const devSharedPreferences = '/dev/shared_preferences';
   static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
   static const devSocketHealthLogs = '/dev/socket_health_logs';
   static const devNetworkRequests = '/dev/network_requests';
+  static const devQRTools = '/dev/qr_tools';
+  static const devExchangeProviderLogs = '/dev/exchange_provider_logs';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
@@ -134,4 +141,11 @@ class Routes {
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 
   static const dEuroSavings = '/integration/dEuro/savings';
+
+  static const lightningUsernamePage = "/lightning_username_page";
+  static const aboutPage = "/about_page";
+
+  static const bridgeHistoryPage = '/bridge_history_page';
+  static const bridgeDestinationNetworkPage = '/bridge_destination_network_page';
+  static const bridgeReceivingWalletPage = '/bridge_receiving_wallet_page';
 }

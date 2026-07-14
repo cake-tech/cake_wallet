@@ -6,33 +6,13 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider({required this.tradesStore})
-      : super(pairList: supportedPairs(_notSupported));
-
-  static final List<CryptoCurrency> _notSupported = [
-    ...(CryptoCurrency.all
-        .where((element) => ![
-              CryptoCurrency.btc,
-              // CryptoCurrency.eth,
-              CryptoCurrency.ltc,
-              CryptoCurrency.bch,
-              CryptoCurrency.usdtbsc,
-              // CryptoCurrency.aave,
-              // CryptoCurrency.dai,
-              // CryptoCurrency.gusd,
-              // CryptoCurrency.usdc,
-              // CryptoCurrency.usdterc20,
-              // CryptoCurrency.wbtc, // TODO: temporarily commented until https://github.com/cake-tech/cake_wallet/pull/1436 is merged
-            ].contains(element))
-        .toList())
-  ];
+  ThorChainExchangeProvider();
 
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 
@@ -43,8 +23,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
   static const _nameLookUpPath = 'v2/thorname/lookup/';
-
-  final Box<Trade> tradesStore;
 
   @override
   String get title => 'THORChain';
@@ -59,18 +37,22 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.thorChain;
 
   @override
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -85,16 +67,48 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       final responseJSON = await _getSwapQuote(params);
 
       final expectedAmountOut = responseJSON['expected_amount_out'] as String? ?? '0.0';
+      final rate = _thorChainAmountToDouble(expectedAmountOut) / amount;
 
-      return _thorChainAmountToDouble(expectedAmountOut) / amount;
-    } catch (e) {
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'params': params,
+        },
+        responseData: {
+          'expectedAmountOut': expectedAmountOut,
+          'rate': rate,
+          'responseJSON': responseJSON,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0.0;
     }
   }
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -143,6 +157,29 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     if (directAmountOutResponse != null) {
       receiveAmount = _thorChainAmountToDouble(directAmountOutResponse).toString();
     }
+
+    ExchangeProviderLogger.logSuccess(
+      provider: description,
+      function: 'createTrade',
+      requestData: {
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
+        'fromAmount': request.fromAmount,
+        'toAmount': request.toAmount,
+        'toAddress': request.toAddress,
+        'refundAddress': request.refundAddress,
+        'isFixedRateMode': isFixedRateMode,
+        'isSendAll': isSendAll,
+        'params': params,
+      },
+      responseData: {
+        'inputAddress': inputAddress,
+        'memo': memo,
+        'directAmountOutResponse': directAmountOutResponse,
+        'receiveAmount': receiveAmount,
+        'responseJSON': responseJSON,
+      },
+    );
 
     return Trade(
       id: '',
@@ -197,8 +234,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         ? parts[1].split('.')[1].split('-')[0]
         : '';
 
-    final formattedToChain = CryptoCurrency.fromString(toChain);
-    final toAssetWithChain = CryptoCurrency.fromString(toAsset, walletCurrency: formattedToChain);
+    final formattedToChain = CryptoCurrency.safeParseCurrencyFromString(toChain);
+    final toAssetWithChain = CryptoCurrency.safeParseCurrencyFromString(toAsset, walletCurrency: formattedToChain);
 
     final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
     final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;
@@ -219,28 +256,33 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   static Future<Map<String, String>?>? lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
-    final response = await ProxyWrapper().get(clearnetUri: uri);
-    
-    if (response.statusCode != 200) {
-      return null;
-    }
-
-    final body = json.decode(response.body) as Map<String, dynamic>;
-    final entries = body['entries'] as List<dynamic>?;
-
-    if (entries == null || entries.isEmpty) {
-      return null;
-    }
-
-    Map<String, String> chainToAddressMap = {};
-
-    for (final entry in entries) {
-      final chain = entry['chain'] as String;
-      final address = entry['address'] as String;
-      chainToAddressMap[chain] = address;
-    }
-
-    return chainToAddressMap;
+    try {
+  final response = await ProxyWrapper().get(clearnetUri: uri);
+  
+  if (response.statusCode != 200) {
+    return null;
+  }
+  
+  final body = json.decode(response.body) as Map<String, dynamic>;
+  final entries = body['entries'] as List<dynamic>?;
+  
+  if (entries == null || entries.isEmpty) {
+    return null;
+  }
+  
+  Map<String, String> chainToAddressMap = {};
+  
+  for (final entry in entries) {
+    final chain = entry['chain'] as String;
+    final address = entry['address'] as String;
+    chainToAddressMap[chain] = address;
+  }
+  
+  return chainToAddressMap;
+}  catch (e) {
+  printV(e.toString());
+  return null;
+}
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
@@ -249,10 +291,30 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
     
     if (response.statusCode != 200) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: '_getSwapQuote',
+        error: Exception('Unexpected HTTP status: ${response.statusCode}'),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'params': params,
+          'url': uri.toString(),
+        },
+      );
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
 
     if (response.body.contains('error')) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: '_getSwapQuote',
+        error: Exception('Unexpected response: ${response.body}'),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'params': params,
+          'url': uri.toString(),
+        },
+      );
       throw Exception('Unexpected response: ${response.body}');
     }
 

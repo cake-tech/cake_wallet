@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 import 'dart:math';
 
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
+import 'package:cw_monero/api/get_all_unspent.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 import 'package:polyseed/polyseed.dart';
@@ -116,9 +120,7 @@ String getSeedLegacy(String? language) {
   return legacy;
 }
 
-String getPassphrase() {
-  return currentWallet?.getCacheAttribute(key: "cakewallet.passphrase") ?? "";
-}
+String getPassphrase() => currentWallet?.getCacheAttribute(key: "cakewallet.passphrase") ?? "";
 
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
@@ -144,11 +146,11 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   return addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex]!;
 }
 
-int getFullBalance({int accountIndex = 0}) =>
-    currentWallet?.balance(accountIndex: accountIndex) ?? 0;
+Money getFullBalance({int accountIndex = 0}) =>
+    Money.fromInt(currentWallet?.balance(accountIndex: accountIndex) ?? 0, CryptoCurrency.xmr);
 
-int getUnlockedBalance({int accountIndex = 0}) =>
-    currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0;
+Money getUnlockedBalance({int accountIndex = 0}) => Money.fromInt(
+    currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0, CryptoCurrency.xmr);
 
 int getCurrentHeight() => currentWallet?.blockChainHeight() ?? 0;
 
@@ -167,6 +169,7 @@ int getNodeHeightSync() {
         cachedNodeHeight = await Isolate.run(() async {
           return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
         });
+      } catch (_) {
       } finally {
         isHeightRefreshing = false;
       }
@@ -413,12 +416,23 @@ Future setTrustedDaemon(bool trusted) async =>
 
 Future<bool> trustedDaemon() async => currentWallet!.trustedDaemon();
 
-String signMessage(String message, {String address = ""}) {
-  return currentWallet!.signMessage(message: message, address: address);
-}
+String signMessage(String message, {String address = ""}) =>
+    currentWallet!.signMessage(message: message, address: address);
 
-bool verifyMessage(String message, String address, String signature) {
-  return currentWallet!.verifySignedMessage(message: message, address: address, signature: signature);
-}
+bool verifyMessage(String message, String address, String signature) =>
+    currentWallet!.verifySignedMessage(message: message, address: address, signature: signature);
 
 Map<String, List<int>> debugCallLength() => monero.debugCallLength;
+
+Map<String, dynamic> getWalletCacheDebug() {
+  try {
+    final jsonString = monero.MONERO_Wallet_serializeCacheToJson(Pointer.fromAddress(currentWallet!.ffiAddress()));
+    final blob = json.decode(jsonString);
+    blob['cake:unspent'] = getAllUnspent();
+    return blob;
+  } catch (e) {
+    return {
+      "error": e.toString(),
+    };
+  }
+}

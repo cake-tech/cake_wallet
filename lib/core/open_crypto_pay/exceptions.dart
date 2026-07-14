@@ -4,8 +4,7 @@ class OpenCryptoPayException implements Exception {
   OpenCryptoPayException([this.message = '']);
 
   @override
-  String toString() =>
-      'OpenCryptoPayException${message.isNotEmpty ? ': $message' : ''}';
+  String toString() => message.isNotEmpty ? message : 'OpenCryptoPayException';
 }
 
 class OpenCryptoPayNotSupportedException extends OpenCryptoPayException {

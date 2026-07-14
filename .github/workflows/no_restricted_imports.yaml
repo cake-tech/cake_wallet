@@ -20,6 +20,8 @@ jobs:
             "cw_mweb"
             "cw_nano"
             "cw_polygon"
+            "cw_base"
+            "cw_arbitrum"
             "cw_solana"
             "cw_tron"
             "cw_wownero"

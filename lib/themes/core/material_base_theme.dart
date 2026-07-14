@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 
 enum ThemeType { light, dark }
+
+abstract interface class ThemeAccentColor {
+  Color get color;
+  String get name;
+}
 
 /// Abstract base class for theme data in the app.
 /// This class defines the contract that all theme implementations must follow.
@@ -32,4 +38,17 @@ abstract class MaterialThemeBase {
   ThemeData get themeData;
 
   bool get isDark => brightness == Brightness.dark;
+
+  /// Custom colors provider for theme-specific colors
+  CustomThemeColors get customColors;
+
+  /// Theme family identifier for grouping themes with accent colors
+  String? get themeFamily;
+
+  String? get accentColorId;
+
+  String? get accentColorName;
+
+  /// Whether this theme has accent color variants
+  bool get hasAccentColors => themeFamily != null;
 }

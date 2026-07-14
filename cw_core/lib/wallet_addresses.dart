@@ -1,24 +1,31 @@
-import 'package:cw_core/address_info.dart';
+import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletAddresses {
-  WalletAddresses(this.walletInfo)
+  WalletAddresses(this.walletInfo, [this.isTestnet = false])
       : addressesMap = {},
         allAddressesMap = {},
         addressInfos = {},
         usedAddresses = {},
-        hiddenAddresses = walletInfo.hiddenAddresses?.toSet() ?? {},
-        manualAddresses = walletInfo.manualAddresses?.toSet() ?? {};
+        hiddenAddresses = {},
+        manualAddresses = {} {
+    walletInfo.getUsedAddresses().then((value) => usedAddresses = value);
+    walletInfo.getHiddenAddresses().then((value) => hiddenAddresses = value);
+    walletInfo.getManualAddresses().then((value) => manualAddresses = value);
+  }
 
   final WalletInfo walletInfo;
+
+  final bool isTestnet;
 
   String get address;
 
   String get latestAddress {
-    if (walletInfo.type == WalletType.monero || walletInfo.type == WalletType.wownero) {
-      if (addressesMap.keys.length == 0) return address;
+    if ([WalletType.monero, WalletType.wownero].contains(walletInfo.type)) {
+      if (addressesMap.keys.isEmpty) return address;
       return addressesMap[addressesMap.keys.last] ?? address;
     }
     return _localAddress ?? address;
@@ -31,6 +38,8 @@ abstract class WalletAddresses {
   set address(String address) => _localAddress = address;
 
   String get addressForExchange => address;
+
+  String get addressForBuy => address;
 
   Map<String, String> addressesMap;
   Map<String, String> allAddressesMap;
@@ -47,7 +56,7 @@ abstract class WalletAddresses {
     return tmp;
   }
 
-  Map<int, List<AddressInfo>> addressInfos;
+  Map<int, List<WalletInfoAddressInfo>> addressInfos;
 
   Set<String> usedAddresses;
 
@@ -62,15 +71,14 @@ abstract class WalletAddresses {
   Future<void> saveAddressesInBox() async {
     try {
       walletInfo.address = address;
-      walletInfo.addresses = addressesMap;
-      walletInfo.addressInfos = addressInfos;
-      walletInfo.usedAddresses = usedAddresses.toList();
-      walletInfo.hiddenAddresses = hiddenAddresses.toList();
-      walletInfo.manualAddresses = manualAddresses.toList();
+      // TODO: check if it will affect the performance of each wallet
+      await walletInfo.setAddresses(addressesMap);
+      await walletInfo.setAddressInfos(addressInfos);
+      await walletInfo.setUsedAddresses(usedAddresses.toList());
+      await walletInfo.setHiddenAddresses(hiddenAddresses.toList());
+      await walletInfo.setManualAddresses(manualAddresses.toList());
 
-      if (walletInfo.isInBox) {
-        await walletInfo.save();
-      }
+      await walletInfo.save();
     } catch (e) {
       printV(e.toString());
     }
@@ -78,4 +86,14 @@ abstract class WalletAddresses {
 
   bool containsAddress(String address) =>
       addressesMap.containsKey(address) || allAddressesMap.containsKey(address);
+
+  List<ReceivePageOption> get receivePageOptions => ReceivePageOptions;
+
+  /// Get a [PaymentURI] for the current [address]
+  /// e.g. ethereum:0x0
+  PaymentURI getPaymentUri(String amount);
+
+  /// Get a [PaymentURI] for the current [address] asynchronously
+  /// this can be used if a payment requires a api call beforehand
+  Future<PaymentURI> getPaymentRequestUri(String amount) async => getPaymentUri(amount);
 }

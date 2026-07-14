@@ -9,31 +9,13 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SwapTradeExchangeProvider extends ExchangeProvider {
-  SwapTradeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static final List<CryptoCurrency> _notSupported = [
-    ...(CryptoCurrency.all
-        .where((element) => ![
-              CryptoCurrency.btc,
-              CryptoCurrency.sol,
-              CryptoCurrency.eth,
-              CryptoCurrency.ltc,
-              CryptoCurrency.ada,
-              CryptoCurrency.bch,
-              CryptoCurrency.usdterc20,
-              CryptoCurrency.usdttrc20,
-              CryptoCurrency.bnb,
-              CryptoCurrency.xmr,
-              CryptoCurrency.zec,
-            ].contains(element))
-        .toList())
-  ];
+  SwapTradeExchangeProvider();
 
   static final markup = secrets.swapTradeExchangeMarkup;
 
@@ -56,6 +38,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
   static const _headers = <String, String>{'Content-Type': 'application/json'};
@@ -64,7 +49,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -72,29 +57,33 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
 
-      final coinsInfo = responseJSON['data'] as List<dynamic>;
+      final coinsInfoRaw = responseJSON['data'];
+      final coinsInfo = coinsInfoRaw is List<dynamic> ? coinsInfoRaw : <dynamic>[];
 
-      for (var coin in coinsInfo) {
-        if (coin['id'].toString().toUpperCase() == _normalizeCurrency(from)) {
-          return Limits(
-            min: double.parse(coin['min'].toString()),
-            max: double.parse(coin['max'].toString()),
-          );
-        }
+      final normalized = _normalizeCurrency(from);
+      final coin = coinsInfo.cast<Map<String, dynamic>>().firstWhere(
+            (c) => (c['id']?.toString().toUpperCase() ?? '') == normalized,
+        orElse: () => <String, dynamic>{},
+      );
+
+      if (coin.isEmpty) {
+        // Currency not supported by SwapTrade (e.g. USDC, DOGE).
+        return null;
       }
 
-      // coin not found:
-      return Limits(min: 0, max: 0);
+      final min = double.tryParse(coin['min']?.toString() ?? '') ?? 0.0;
+      final max = double.tryParse(coin['max']?.toString() ?? '') ?? 0.0;
+      if (max == 0) return null;
+      return Limits(min: min, max: max);
     } catch (e) {
       printV(e.toString());
-      return Limits(min: 0, max: 0);
+      return null;
     }
   }
 
@@ -104,10 +93,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
+    required bool isReceiveAmount
   }) async {
     try {
       if (amount == 0) return 0.0;
+      if (isFixedRateMode && !supportsFixedRate) {
+        return 0.0;
+      }
+      if(from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
 
       final params = <String, dynamic>{};
       final body = <String, String>{
@@ -126,13 +119,64 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode != 200)
+      if (response.statusCode != 200) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('Unexpected http status: ${response.statusCode}'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'body': body,
+            'url': uri.toString(),
+          },
+        );
         throw Exception('Unexpected http status: ${response.statusCode}');
+      }
 
       final data = responseBody['data'] as Map<String, dynamic>;
       double rate = double.parse(data['price'].toString());
-      return rate > 0 ? isFixedRateMode ? amount / rate : rate / amount : 0.0;
-    } catch (e) {
+      final calculatedRate = rate > 0 ? isFixedRateMode ? amount / rate : rate / amount : 0.0;
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'body': body,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'rate': rate,
+          'calculatedRate': calculatedRate,
+          'statusCode': response.statusCode,
+          'responseBody': responseBody,
+        },
+      );
+
+      return calculatedRate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV("error fetching rate: ${e.toString()}");
       return 0.0;
     }
@@ -154,7 +198,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
-        'markup': markup,
+        'markup': double.tryParse(markup.toString()) ?? 0,
         'refund_address': request.refundAddress,
       };
 
@@ -168,15 +212,81 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 400 || responseBody["success"] == false) {
-        final error = responseBody['errors'][0]['msg'] as String;
+        final List<dynamic> errorsList = responseBody['errors'] as List? ?? [];
+        final error = errorsList.isNotEmpty
+            ? (errorsList[0]['msg'] as String?) ?? responseBody.toString()
+            : responseBody.toString();
+
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description, description: error),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'body': body,
+            'url': uri.toString(),
+          },
+        );
+        
         throw TradeNotCreatedException(description, description: error);
       }
 
-      if (response.statusCode != 200)
+      if (response.statusCode != 200) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: Exception('Unexpected http status: ${response.statusCode}'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'body': body,
+            'url': uri.toString(),
+          },
+        );
         throw Exception('Unexpected http status: ${response.statusCode}');
+      }
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final receiveAmount = responseData["amount_receive"]?.toString();
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'createTrade',
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'body': body,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'id': responseData["order_id"] as String,
+          'inputAddress': responseData["server_address"] as String,
+          'receiveAmount': receiveAmount,
+          'statusCode': response.statusCode,
+          'responseBody': responseBody,
+        },
+      );
 
       return Trade(
         id: responseData["order_id"] as String,
@@ -191,7 +301,23 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
       );
-    } catch (e) {
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+        },
+      );
       printV("error creating trade: ${e.toString()}");
       throw TradeNotCreatedException(description, description: e.toString());
     }
@@ -224,9 +350,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final fromCurrency = responseData['coin_send'] as String;
-      final from = CryptoCurrency.fromString(fromCurrency);
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
       final toCurrency = responseData['coin_receive'] as String;
-      final to = CryptoCurrency.fromString(toCurrency);
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
       final inputAddress = responseData['server_address'] as String;
       final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
@@ -273,7 +399,15 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       CryptoCurrency.bnb => 'BNB_BSC',
       CryptoCurrency.usdterc20 => 'USDT_ERC20',
       CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
-      _ => '',
+      CryptoCurrency.usdtbsc => 'USDT_BSC',
+      CryptoCurrency.sol => 'SOL',
+      CryptoCurrency.btc => 'BTC',
+      CryptoCurrency.xmr => 'XMR',
+      CryptoCurrency.ltc => 'LTC',
+      CryptoCurrency.ada => 'ADA',
+      CryptoCurrency.bch => 'BCH',
+      CryptoCurrency.zec => 'ZEC',
+      _ => currency.title.toUpperCase(),
     };
     return network;
   }

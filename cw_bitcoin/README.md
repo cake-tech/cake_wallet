@@ -1,14 +1,40 @@
 # cw_bitcoin
 
-A new Flutter package project.
+Bitcoin-family Electrum wallet implementation used by Cake Wallet (BTC, LTC and derivatives).
 
-## Getting Started
+## Features
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+- Electrum client and wallet with address/UTXO management and snapshots.
+- Derivation via BIP‑39; receive/change chains with per-coin configs.
+- Create/sign/broadcast transactions; PSBT helpers and payjoin support.
+- Transaction history, priorities, and size-based fee calculations.
+- Hardware wallet support for BTC/LTC.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+## Getting started
+
+Use the module via app services (see `bitcoin_wallet_service.dart`, `litecoin_wallet_service.dart`). Ensure Electrum nodes are configured for the target coin.
+
+```dart
+final wallet = await BitcoinWallet.create(
+  mnemonic: '...',
+  password: 'secret',
+  walletInfo: walletInfo,
+  unspentCoinsInfo: unspentCoinsBox,
+  encryptionFileUtils: encryption,
+);
+```
+
+## Usage
+
+Send BTC with medium priority:
+
+```dart
+final feeRate = wallet.feeRate(BitcoinTransactionPriority.medium);
+final pending = await wallet.createTransaction(
+  outputs: [BitcoinTransactionOutput(address: 'bc1...', amount: 50000)],
+  feeRate: feeRate,
+);
+final txHash = await pending.commit();
+```
+
+See `lib/` for wallet/services, PSBT, and payjoin utilities.

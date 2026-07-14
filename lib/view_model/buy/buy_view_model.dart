@@ -1,5 +1,4 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -8,7 +7,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_item.dart';
 import 'package:hive/hive.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -19,12 +18,12 @@ part 'buy_view_model.g.dart';
 class BuyViewModel = BuyViewModelBase with _$BuyViewModel;
 
 abstract class BuyViewModelBase with Store {
-  BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore,
-      this.buyAmountViewModel, {required this.wallet})
-  : isRunning = false,
-    isDisabled = true,
-    isShowProviderButtons = false,
-    items = <BuyItem>[] {
+  BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore, this.buyAmountViewModel,
+      {required this.wallet})
+      : isRunning = false,
+        isDisabled = true,
+        isShowProviderButtons = false,
+        items = <BuyItem>[] {
     _fetchBuyItems();
   }
 
@@ -56,9 +55,9 @@ abstract class BuyViewModelBase with Store {
   @computed
   FiatCurrency get fiatCurrency => buyAmountViewModel.fiatCurrency;
 
-  CryptoCurrency get cryptoCurrency => walletTypeToCryptoCurrency(type);
+  CryptoCurrency get cryptoCurrency => wallet.currency;
 
-  Future <String> fetchUrl() async {
+  Future<String> fetchUrl() async {
     String _url = '';
 
     try {
@@ -94,8 +93,8 @@ abstract class BuyViewModelBase with Store {
       _providerList.add(WyreBuyProvider(wallet: wallet));
     }
 
-    items = _providerList.map((provider) =>
-        BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
+    items = _providerList
+        .map((provider) => BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
         .toList();
   }
 }

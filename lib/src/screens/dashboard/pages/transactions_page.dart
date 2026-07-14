@@ -1,4 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/csv_export_service.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/payjoin_transaction_row.dart';
@@ -47,7 +50,6 @@ class TransactionsPage extends StatelessWidget {
               final status = dashboardViewModel.status;
               if (status is SyncingSyncStatus) {
                 return DashBoardRoundedCardWidget(
-                  isDarkTheme: dashboardViewModel.isDarkTheme,
                   key: ValueKey('transactions_page_syncing_alert_card_key'),
                   onTap: () {
                     try {
@@ -64,6 +66,8 @@ class TransactionsPage extends StatelessWidget {
             }),
             HeaderRow(
               dashboardViewModel: dashboardViewModel,
+              onExportCsv: () =>
+                  CsvExportService().exportToCsv(dashboardViewModel.items, context),
               key: ValueKey('transactions_page_header_row_key'),
             ),
             Expanded(
@@ -103,12 +107,12 @@ class TransactionsPage extends StatelessWidget {
                                   tags.add("MWEB");
                                 }
                               }
-
                               return Observer(
                                 builder: (_) => TransactionRow(
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                  isShield: transaction.additionalInfo['autoShield'] == true,
                                   direction: transaction.direction,
                                   formattedDate: DateFormat('HH:mm').format(transaction.date),
                                   formattedAmount: item.formattedCryptoAmount,
@@ -154,8 +158,8 @@ class TransactionsPage extends StatelessWidget {
                                 ),
                                 currency: "BTC",
                                 state: item.status,
-                                amount: bitcoin!
-                                    .formatterBitcoinAmountToString(amount: session.amount.toInt()),
+                                amount: dashboardViewModel.appStore.amountParsingProxy
+                                    .getDisplayCryptoString(session.amount.toInt(), CryptoCurrency.btc),
                                 createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
                                 isSending: session.isSenderSession,
                               );
@@ -164,38 +168,62 @@ class TransactionsPage extends StatelessWidget {
                             if (item is TradeListItem) {
                               final trade = item.trade;
 
-                              return Observer(
-                                builder: (_) => TradeRow(
-                                  key: item.key,
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.tradeDetails, arguments: trade),
-                                    swapState: trade.state,
-                                    provider: trade.provider,
-                                  from: trade.from,
-                                  to: trade.to,
-                                  createdAtFormattedDate: trade.createdAt != null
-                                      ? DateFormat('HH:mm').format(trade.createdAt!)
-                                      : null,
-                                  formattedAmount: item.tradeFormattedAmount, 
-                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount
-                                ),
-                              );
+                              final tradeFrom =
+                                  trade.from;
+
+                              final tradeTo = trade.to;
+
+                              return tradeFrom != null && tradeTo != null
+                                  ? Observer(
+                                      builder: (_) => TradeRow(
+                                        key: item.key,
+                                        onTap: () => Navigator.of(context)
+                                            .pushNamed(Routes.tradeDetails, arguments: trade),
+                                        swapState: trade.state,
+                                        provider: trade.provider,
+                                        title: "$tradeFrom → $tradeTo",
+                                        fromSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeFrom),
+                                        toSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeTo),
+                                        createdAtFormattedDate: trade.createdAt != null
+                                            ? DateFormat("HH:mm").format(trade.createdAt!)
+                                            : null,
+                                        formattedAmount: item.tradeFormattedAmount,
+                                        formattedReceiveAmount: item.tradeFormattedReceiveAmount,
+                                      ),
+                                    )
+                                  : Container();
                             }
                             if (item is OrderListItem) {
                               final order = item.order;
-
                               return Observer(
-                                builder: (_) => OrderRow(
-                                  key: item.key,
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.orderDetails, arguments: order),
-                                  provider: order.provider,
-                                  from: order.from!,
-                                  to: order.to!,
-                                  createdAtFormattedDate:
-                                      DateFormat('HH:mm').format(order.createdAt),
-                                  formattedAmount: item.orderFormattedAmount,
-                                ),
+                                builder: (_) {
+                                  // TODO: Refactor Amount Hiding Logic it is not working properly for Orders and Trades
+                                  final hide = dashboardViewModel.balanceViewModel.displayMode ==
+                                      BalanceDisplayMode.hiddenBalance;
+
+                                  final formattedAmount = hide ? '---' : order.amountFormatted();
+                                  final formattedReceiveAmount = hide ? '---' : order.receiveAmount;
+
+                                  return OrderRow(
+                                    key: item.key,
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.orderDetails, arguments: order),
+                                    providerTitle: order.providerTitle,
+                                    providerIconPath: order.providerIcon,
+                                    from: order.from ?? '',
+                                    to: order.to ?? '',
+                                    createdAtFormattedDate:
+                                        DateFormat('HH:mm').format(order.createdAt),
+                                    formattedAmount: formattedAmount,
+                                    formattedReceiveAmount:
+                                        dashboardViewModel.balanceViewModel.isFiatDisabled &&
+                                                order.source == OrderSourceDescription.order
+                                            ? ''
+                                            : formattedReceiveAmount,
+                                  );
+                                },
                               );
                             }
                             return Container(color: Colors.transparent, height: 1);

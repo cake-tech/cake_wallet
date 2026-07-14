@@ -3,8 +3,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.19.0
-  url_launcher: 6.3.1
+  intl: any
+  url_launcher: 6.3.2
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
@@ -20,8 +20,13 @@ dependencies:
       ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
   http: ^1.1.0
   path_provider: ^2.0.11
-  mobx: ^2.1.4
-  flutter_mobx: 2.0.6+5
+  modal_bottom_sheet:
+    git:
+      url: https://github.com/cake-tech/modal_bottom_sheet
+      ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
+      path: modal_bottom_sheet
+  mobx: ^2.6.0
+  flutter_mobx: 2.3.0
   flutter_slidable: ^3.0.1
   share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
@@ -42,8 +47,8 @@ dependencies:
   flutter_spinkit: ^5.1.0
   uni_links:
     git:
-      url: https://github.com/MrCyjaneK/uni_links
-      ref: 8e9efa4d9beb19e4ac44009576337f1ce51c22e2
+      url: https://github.com/cake-tech/uni_links
+      ref: 1989db3f5d625e2fffbad7b85a3b1b8c78c6dfa1
       path: uni_links
   lottie: ^3.3.1
   animate_do: ^2.1.0
@@ -57,6 +62,7 @@ dependencies:
   connectivity_plus: ^6.1.3
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
+  progressive_blur: ^0.0.2
   archive: ^4.0.3
   cryptography: ^2.0.5
   file_picker:
@@ -65,17 +71,18 @@ dependencies:
       ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
   permission_handler: 11.4.0
   device_display_brightness:
-   git:
-     url: https://github.com/MrCyjaneK/device_display_brightness.git
-     ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
+    git:
+      url: https://github.com/MrCyjaneK/device_display_brightness.git
+      ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
   wakelock_plus: ^1.2.5
-  flutter_mailer:       
+  flutter_mailer:
     git:
       url: https://github.com/taljacobson/flutter_mailer
       ref: 9c4ed111a9151a2bbfb9afe2c18a37599c6f84f3
   device_info_plus: ^9.1.0
   base32: 2.1.3
   in_app_review: ^2.0.6
+  image_picker: ^1.2.2
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
@@ -86,41 +93,52 @@ dependencies:
   shared_preferences_android: ^2.4.8
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
+  bloc_concurrency: ^0.3.0
+  equatable: ^2.0.0
   sensitive_clipboard:
     git:
-      url: https://github.com/MrCyjaneK/sensitive_clipboard
+      url: https://github.com/cake-tech/sensitive_clipboard
       ref: 288c7ee2d63b459bc735f7dc89321b29a1f12fae
   eth_sig_util: ^0.0.9
   ens_dart:
     git:
-      url: https://github.com/MrCyjaneK/ens_dart.git
+      url: https://github.com/cake-tech/ens_dart.git
       ref: 9fa09b9db69b8645d5d50a844652aa570451d101
   fluttertoast: 8.2.12
-#  tor:
-#    git:
-#      url: https://github.com/cake-tech/tor.git
-#      ref: main
+  #  tor:
+  #    git:
+  #      url: https://github.com/cake-tech/tor.git
+  #      ref: main
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart
       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  flutter_svg: ^2.0.9
+  flutter_svg: ^2.2.0
   polyseed: ^0.0.7
   nostr_tools:
     git:
-      url: https://github.com/MrCyjaneK/nostr_tools.git
+      url: https://github.com/cake-tech/nostr_tools.git
       ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
   solana: ^0.31.0+1
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 60817d4b20144f9da9029f5034790272795b9d38
+      ref: 0ccfbe26298e8974dfd4e891f34719c8348562f9
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: d1242cea90f84b00200e7bcab914a5af750e23fb
+  bitbox_flutter:
+    path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
-      ref: cake-update-v2
-  reown_walletkit: ^1.1.5+1
+      ref: 096865a8c6b89c260beadfec04f7e184c40a3273
+  reown_walletkit:
+    path: ./scripts/reown_flutter/packages/reown_walletkit
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -137,11 +155,15 @@ dependencies:
   bbqrdart:
     git:
       url: https://github.com/mrcyjanek/bbqrdart
-      ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+      ref: e867e3d0156d0b29858100f30adc2625b9dae586
   dnssec_proof:
     git:
       url: https://github.com/MrCyjaneK/dnssec_proof.git
-      ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
+      ref: b48a9defddce036048bae02e2069ebcbd6824afc
+  torch_dart:
+    path: ./scripts/torch_dart
+  quick_actions: ^1.1.0
+  fl_chart: ^0.70.2
 
 dev_dependencies:
   flutter_test:
@@ -149,11 +171,10 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.4
-  build_runner: ^2.4.15
+  build_runner: ^2.15.0
   logging: ^1.2.0
-  mobx_codegen: ^2.1.1
-  build_resolvers: ^2.4.4
-  hive_generator: ^2.0.1
+  mobx_codegen: ^2.7.7
+#  hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
@@ -172,27 +193,45 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
-  flutter_secure_storage_platform_interface: 1.0.2
   protobuf: ^3.1.0
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v10
+      ref: cake-update-v11
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 60817d4b20144f9da9029f5034790272795b9d38
+      url: https://github.com/cake-tech/ledger-flutter-plus
+      ref: 7bcb00380783f8611f68f5cd63fec96261fea2c2
+  ledger_usb_plus:
+    git:
+      # url: https://github.com/konstantinullrich/ledger-usb-plus
+      # ref: dad482c847c0d0eedceabbb40d3478e64b65e630
+      url: https://github.com/cake-tech/ledger-usb-plus
+      ref: 734c3d6f8267ba52ad73b6e1e78e570c07298890
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart.git
       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  tor_binary:
-    git:
-      url: https://github.com/MrCyjaneK/flutter-tor_binary
-      ref: cb811c610871a9517d47134b87c2f590c15c96c5
   web_socket_channel: ^3.0.2
   freezed_annotation: 2.4.4
+  intl: 0.20.2
+  qr_flutter:
+    git:
+      url: https://github.com/cake-tech/qr.flutter.git
+      ref: cake-4.0.2
+      version: 4.0.2
+  file_picker:
+    git:
+      url: https://github.com/cake-tech/flutter_file_picker.git
+      ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
+  decimal: ^2.3.3
+  flutter_rust_bridge: 2.11.1
+  flutter_secure_storage_windows: 3.1.2
+  universal_ble:
+    git:
+      url: https://github.com/cake-tech/universal_ble.git
+      ref: f7044558ad111a156987614971e08c583c80175c
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -207,8 +246,12 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/evm_switcher_icons/
     - assets/images/flags/
     - assets/images/hardware_wallet/
+    - assets/images/stocks/
+    - assets/images/main_actions/
+    - assets/images/wallet_connect_step_icons/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
@@ -223,9 +266,38 @@ flutter:
     - assets/wownero_node_list.yml
     - assets/zano_node_list.yml
     - assets/decred_node_list.yml
+    - assets/dogecoin_electrum_server_list.yml
+    - assets/base_node_list.yml
+    - assets/arbitrum_node_list.yml
+    - assets/zcash_node_list.yml
+    - assets/bsc_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - scripts/zcash_lib/assets/sapling-spend.params
+    - scripts/zcash_lib/assets/sapling-output.params
+    - assets/new-ui/
+    - assets/new-ui/icons/
+    - assets/new-ui/hero/
+    - assets/new-ui/balance_card_icons/
+    - assets/new-ui/balance_card_backgrounds/
+    - assets/new-ui/settings_row_icons/
+    - assets/new-ui/chain_badges/
+    - assets/new-ui/address-type-picker-icons/
+    - assets/new-ui/address-type-picker-icons/zec/
+    - assets/new-ui/trade_providers/
+    - assets/new-ui/navbar/
+    - assets/new-ui/changelog/icons/
+    - assets/new-ui/changelog/text/
+    - assets/new-ui/card_icons/
+    - assets/new-ui/card_icons/chain_icons/
+    - assets/new-ui/card_icons/og_icons/
+    - assets/new-ui/card_icons/outline_icons/
+    - assets/new-ui/card_icons/symbol_icons/
+    - assets/new-ui/crypto_full_icons/
+    - assets/new-ui/hardware_wallets/
+    - assets/new-ui/node_speed_badges/
+    - assets/new-ui/address_sources/
 
   fonts:
     - family: Lato
@@ -234,6 +306,54 @@ flutter:
         - asset: assets/fonts/Lato-Medium.ttf
         - asset: assets/fonts/Lato-Semibold.ttf
         - asset: assets/fonts/Lato-Bold.ttf
+
+    - family: Wix Madefor Text
+      fonts:
+        - asset: assets/fonts/WixMadeforText-Regular.ttf
+        - asset: assets/fonts/WixMadeforText-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/WixMadeforText-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/WixMadeforText-Bold.ttf
+          weight: 700
+
+    - family: IBM Plex Mono
+      fonts:
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Light.ttf
+          weight: 300
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/IBM_Plex_Mono/IBMPlexMono-BoldItalic.ttf
+          weight: 700
+          style: italic
 
 msix_config:
   display_name: Cake Wallet

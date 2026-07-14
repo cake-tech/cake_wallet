@@ -1,39 +1,63 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## cw_solana
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+Solana wallet module for Cake Wallet. Provides native SOL and SPL token support built on `on_chain/solana` with high-throughput RPC usage and safe transaction parsing.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+### Features
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+- Connect to Solana RPC (Ankr/Chainstack/custom) via `SolanaRPC` over HTTP.
+- Fetch SOL balances and aggregate SPL token balances across accounts.
+- Parse and stream native and SPL token transactions (filters ATA-only and spam-like micro txs).
+- Estimate fees per compiled message and enforce rent-exemption checks.
+- Create/sign/broadcast SOL and SPL transfers; auto-create recipient ATA when necessary.
+- Manage SPL tokens; fetch on-chain metadata (symbol/name) for unknown mints.
+- Sign and verify messages.
+- Node health checks for SOL and a known SPL token (USDC).
 
-## Features
+### Getting started
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+If you use hosted RPC providers, add a secrets file for keys (optional unless using those hosts):
 
 ```dart
-const like = 'sample';
+// cw_solana/lib/.secrets.g.dart   (DO NOT COMMIT)
+const String ankrApiKey = 'YOUR_ANKR_KEY';
+const String chainStackApiKey = 'YOUR_CHAINSTACK_KEY';
 ```
 
-## Additional information
+Connect and sync:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+final service = SolanaWalletService(walletInfoBox, true);
+final wallet = await service.create(SolanaNewWalletCredentials(name: 'My SOL', password: 'secret'));
+await wallet.connectToNode(node: Node(uriRaw: 'api.mainnet-beta.solana.com', isSSL: true));
+await wallet.startSync();
+final sol = wallet.balance[CryptoCurrency.sol]?.balance;
+```
+
+### Usage
+
+Send SOL:
+
+```dart
+final pending = await wallet.createTransaction(
+  SolanaTransactionCredentials.single(
+    address: 'SoL...',
+    cryptoAmount: '0.05',
+    currency: CryptoCurrency.sol,
+  ),
+);
+final sig = await pending.commit();
+```
+
+Add an SPL token by mint:
+
+```dart
+final token = await wallet.getSPLToken('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'); // USDC
+if (token != null) {
+  await wallet.addSPLToken(token);
+}
+```
+
+### Additional information
+
+- When using `rpc.ankr.com` or `solana-mainnet.core.chainstack.com`, the client reads API keys from `.secrets.g.dart`.
+- See `lib/` for APIs: `SolanaWalletClient`, `SolanaWallet`, `SolanaWalletService`, and credential types.

@@ -9,29 +9,13 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
-  SideShiftExchangeProvider() : super(pairList: supportedPairs(_notSupported));
-
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.xhv,
-    CryptoCurrency.dcr,
-    CryptoCurrency.kmd,
-    CryptoCurrency.oxt,
-    CryptoCurrency.pivx,
-    CryptoCurrency.rune,
-    CryptoCurrency.rvn,
-    CryptoCurrency.scrt,
-    CryptoCurrency.stx,
-    CryptoCurrency.bttc,
-    CryptoCurrency.usdt,
-    CryptoCurrency.eos,
-    CryptoCurrency.xmr,
-  ];
+  SideShiftExchangeProvider();
 
   static const affiliateId = secrets.sideShiftAffiliateId;
   static const apiBaseUrl = 'https://sideshift.ai/api';
@@ -75,7 +59,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -119,12 +103,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount
+  }) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -145,15 +130,77 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error']['message'] as String;
 
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('SideShift Internal Server Error: $error'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'url': url,
+          },
+        );
+
         throw Exception('SideShift Internal Server Error: $error');
       }
 
       if (response.statusCode != 200) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('Unexpected http status: ${response.statusCode}'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+            'url': url,
+          },
+        );
+
         throw Exception('Unexpected http status: ${response.statusCode}');
       }
 
-      return double.parse(responseJSON['rate'] as String);
-    } catch (e) {
+      final rate = double.parse(responseJSON['rate'] as String);
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'url': url,
+        },
+        responseData: {
+          'rate': rate,
+          'statusCode': response.statusCode,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0.00;
     }
@@ -169,6 +216,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final body = {
       'affiliateId': affiliateId,
       'settleAddress': request.toAddress,
+      if (request.toAddressExtraId.isNotEmpty) 'settleMemo': request.toAddressExtraId,
       'refundAddress': request.refundAddress,
     };
 
@@ -199,8 +247,46 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error']['message'] as String;
 
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description, description: error),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'url': url,
+            'body': body,
+          },
+        );
+
         throw TradeNotCreatedException(description, description: error);
       }
+
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: TradeNotCreatedException(description),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'url': url,
+          'body': body,
+        },
+      );
 
       throw TradeNotCreatedException(description);
     }
@@ -211,6 +297,31 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final settleAddress = responseJSON['settleAddress'] as String;
     final depositAmount = responseJSON['depositAmount'] as String?;
     final depositMemo = responseJSON['depositMemo'] as String?;
+
+    ExchangeProviderLogger.logSuccess(
+      provider: description,
+      function: 'createTrade',
+      requestData: {
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
+        'fromAmount': request.fromAmount,
+        'toAmount': request.toAmount,
+        'toAddress': request.toAddress,
+        'refundAddress': request.refundAddress,
+        'isFixedRateMode': isFixedRateMode,
+        'isSendAll': isSendAll,
+        'url': url,
+        'body': body,
+      },
+      responseData: {
+        'id': id,
+        'inputAddress': inputAddress,
+        'settleAddress': settleAddress,
+        'depositAmount': depositAmount,
+        'depositMemo': depositMemo,
+        'statusCode': response.statusCode,
+      },
+    );
 
     return Trade(
       id: id,
@@ -225,7 +336,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
-      extraId: depositMemo
+      extraId: depositMemo,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
@@ -252,7 +364,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['depositCoin'] as String;
+    final fromNetwork = responseJSON['depositNetwork'] as String?;
     final toCurrency = responseJSON['settleCoin'] as String;
+    final toNetwork = responseJSON['settleNetwork'] as String?;
     final inputAddress = responseJSON['depositAddress'] as String;
     final expectedSendAmount = responseJSON['depositAmount'] as String?;
     final status = responseJSON['status'] as String?;
@@ -262,17 +376,26 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
     final depositMemo = responseJSON['depositMemo'] as String?;
 
+    final fromParsed = CryptoCurrency.safeParseCurrencyFromString(
+      fromCurrency,
+      tag: fromNetwork,
+    );
+    final toParsed = CryptoCurrency.safeParseCurrencyFromString(
+      toCurrency,
+      tag: toNetwork,
+    );
     return Trade(
-        id: id,
-        from: CryptoCurrency.fromString(fromCurrency),
-        to: CryptoCurrency.fromString(toCurrency),
-        provider: description,
-        inputAddress: inputAddress,
-        amount: expectedSendAmount ?? '',
-        state: TradeState.deserialize(raw: status ?? 'created'),
-        expiredAt: expiredAt,
-        payoutAddress: settleAddress,
-        extraId: depositMemo);
+      id: id,
+      from: fromParsed,
+      to: toParsed,
+      provider: description,
+      inputAddress: inputAddress,
+      amount: expectedSendAmount ?? '',
+      state: TradeState.deserialize(raw: status ?? 'created'),
+      expiredAt: expiredAt,
+      payoutAddress: settleAddress,
+      extraId: depositMemo,
+    );
   }
 
   Future<String> _createQuote(TradeRequest request) async {
@@ -330,8 +453,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'tron';
       case 'LN':
         return 'lightning';
-      case 'POLY':
+      case 'POL':
         return 'polygon';
+      case 'ARB':
+        return 'arbitrum';
       case 'ZEC':
         return 'zcash';
       case 'AVAXC':
@@ -339,5 +464,18 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       default:
         return tag.toLowerCase();
     }
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network) {
+      'ethereum' => 'ETH',
+      'tron' => 'TRX',
+      'lightning' => 'LN',
+      'polygon' => 'POL',
+      'arbitrum' => 'ARB',
+      'zcash' => 'ZEC',
+      'avax' => 'AVAXC',
+      _ => network,
+    };
   }
 }

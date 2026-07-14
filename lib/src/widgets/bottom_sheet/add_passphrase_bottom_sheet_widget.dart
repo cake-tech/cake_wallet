@@ -2,18 +2,16 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 class AddPassphraseBottomSheet extends StatefulWidget {
   AddPassphraseBottomSheet({
     required String titleText,
-    required this.currentTheme,
     required this.onRestoreButtonPressed,
   });
 
   final void Function(String) onRestoreButtonPressed;
-  final MaterialThemeBase currentTheme;
 
   @override
   State<AddPassphraseBottomSheet> createState() => _AddPassphraseBottomSheetState();
@@ -43,8 +41,8 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
   bool obscurePassphrase = true;
   @override
   Widget build(BuildContext context) {
-
-    final passphraseImage = widget.currentTheme.isDark ? passphraseImageDark : passphraseImageLight;
+    final passphraseImage =
+        context.currentTheme.isDark ? passphraseImageDark : passphraseImageLight;
 
     return Container(
       decoration: BoxDecoration(

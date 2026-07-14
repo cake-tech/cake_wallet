@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -8,35 +9,46 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ContactListPage extends BasePage {
-  ContactListPage(this.contactListViewModel, this.authService);
+  ContactListPage(this.contactListViewModel, this.authService, {this.showAddButton = false});
 
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
+  final bool showAddButton;
+
+  @override
+  bool get gradientBackground => true;
 
   @override
   String get title => S.current.address_book;
 
   @override
   Widget? trailing(BuildContext context) {
+    if(!showAddButton) return SizedBox.shrink();
     return MergeSemantics(
       child: Container(
-        width: 32.0,
-        height: 32.0,
+        width: 36.0,
+        height: 36.0,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.surfaceContainer,
         ),
         child: Semantics(
           label: S.of(context).add_contact,
@@ -46,7 +58,7 @@ class ContactListPage extends BasePage {
             children: <Widget>[
               Icon(
                 Icons.add,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.primary,
                 size: 22.0,
               ),
               ButtonTheme(
@@ -110,55 +122,59 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: TabBar(
+    return GradientBackground(
+      scaffold: Padding(
+        padding: const EdgeInsets.only(),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TabBar(
+                  controller: _tabController,
+                  splashFactory: NoSplash.splashFactory,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  isScrollable: true,
+                  labelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                  unselectedLabelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                  indicatorColor: Theme.of(context).colorScheme.primary,
+                  indicatorPadding: EdgeInsets.zero,
+                  labelPadding: EdgeInsets.only(right: 24),
+                  tabAlignment: TabAlignment.start,
+                  dividerColor: Colors.transparent,
+                  padding: EdgeInsets.zero,
+                  tabs: [
+                    Tab(text: S.of(context).wallets),
+                    Tab(text: S.of(context).contact_list_contacts),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
                 controller: _tabController,
-                splashFactory: NoSplash.splashFactory,
-                indicatorSize: TabBarIndicatorSize.label,
-                isScrollable: true,
-                labelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                unselectedLabelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                indicatorColor: Theme.of(context).colorScheme.primary,
-                indicatorPadding: EdgeInsets.zero,
-                labelPadding: EdgeInsets.only(right: 24),
-                tabAlignment: TabAlignment.start,
-                dividerColor: Colors.transparent,
-                padding: EdgeInsets.zero,
-                tabs: [
-                  Tab(text: S.of(context).wallets),
-                  Tab(text: S.of(context).contact_list_contacts),
+                children: [
+                  Observer(
+                    builder: (final BuildContext context) => _buildWalletContacts(context),
+                  ),
+                  ContactListBody(
+                    contactListViewModel: widget.contactListViewModel,
+                    tabController: _tabController,
+                  ),
                 ],
               ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildWalletContacts(context),
-                ContactListBody(
-                  contactListViewModel: widget.contactListViewModel,
-                  tabController: _tabController,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -173,6 +189,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
     }
 
     return ListView.builder(
+      padding: EdgeInsets.only(bottom: 128),
       itemCount: groupedContacts.length * 2,
       itemBuilder: (context, index) {
         if (index.isOdd) {
@@ -205,8 +222,8 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                 expandedAlignment: Alignment.topLeft,
                 backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 collapsedBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
               ),
             );
@@ -241,7 +258,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: BorderRadius.all(Radius.circular(18)),
           color: Theme.of(context).colorScheme.surfaceContainer,
         ),
         margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
@@ -267,9 +284,11 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   }
 
   Widget _buildCurrencyIcon(ContactBase contact) {
-    final image = contact.type.iconPath;
-    return image != null
-        ? Image.asset(image, height: 24, width: 24)
+    final image = (contact is WalletContact && contact.walletType != null)
+        ? getCryptoCurrencyIconForWalletListItem(contact.walletType!)
+        : contact.type.iconPath;
+    return (image != null && image.isNotEmpty)
+        ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);
   }
 }
@@ -314,13 +333,14 @@ class _ContactListBodyState extends State<ContactListBody> {
         ? widget.contactListViewModel.contacts
         : widget.contactListViewModel.contactsToShow;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.transparent,
       body: Container(
         child: FilteredList(
           list: contacts,
           updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
           canReorder: widget.contactListViewModel.isEditable,
           shrinkWrap: true,
+          padding: const EdgeInsets.only(bottom: 250),
           itemBuilder: (context, index) {
             final contact = contacts[index];
             final contactContent =
@@ -359,16 +379,18 @@ class _ContactListBodyState extends State<ContactListBody> {
   }
 
   Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
+    final image = contact.type == CryptoCurrency.baseEth
+        ? 'assets/new-ui/crypto_full_icons/base.svg'
+        : contact.type.iconPath;
+    final currencyIcon = (image != null && image.isNotEmpty)
+        ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);
     return Column(
       children: [
         Container(
           key: Key('${contact.name}'),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(8)),
+            borderRadius: BorderRadius.all(Radius.circular(18)),
             color: Theme.of(context).colorScheme.surfaceContainer,
           ),
           margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
@@ -428,40 +450,43 @@ class _ContactListBodyState extends State<ContactListBody> {
       'assets/images/filter_icon.png',
       color: Theme.of(context).colorScheme.onSurface,
     );
-    return MergeSemantics(
-      child: SizedBox(
-        height: 58,
-        width: 58,
-        child: ButtonTheme(
-          minWidth: double.minPositive,
-          child: Semantics(
-            container: true,
-            child: GestureDetector(
-              onTap: () async {
-                await showPopUp<void>(
-                  context: context,
-                  builder: (context) => FilterListWidget(
-                    initalType: contactListViewModel.orderType,
-                    initalAscending: contactListViewModel.ascending,
-                    onClose: (bool ascending, FilterListOrderType type) async {
-                      contactListViewModel.setAscending(ascending);
-                      await contactListViewModel.setOrderType(type);
-                    },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: FeatureFlag.hasNewUi ? 48 : 0),
+      child: MergeSemantics(
+        child: SizedBox(
+          height: 58,
+          width: 58,
+          child: ButtonTheme(
+            minWidth: double.minPositive,
+            child: Semantics(
+              container: true,
+              child: GestureDetector(
+                onTap: () async {
+                  await showPopUp<void>(
+                    context: context,
+                    builder: (context) => FilterListWidget(
+                      initalType: contactListViewModel.orderType,
+                      initalAscending: contactListViewModel.ascending,
+                      onClose: (bool ascending, FilterListOrderType type) async {
+                        contactListViewModel.setAscending(ascending);
+                        await contactListViewModel.setOrderType(type);
+                      },
+                    ),
+                  );
+                },
+                child: Semantics(
+                  label: 'Transaction Filter',
+                  button: true,
+                  enabled: true,
+                  child: Container(
+                    height: 36,
+                    width: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                    ),
+                    child: filterIcon,
                   ),
-                );
-              },
-              child: Semantics(
-                label: 'Transaction Filter',
-                button: true,
-                enabled: true,
-                child: Container(
-                  height: 36,
-                  width: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                  ),
-                  child: filterIcon,
                 ),
               ),
             ),
@@ -498,7 +523,7 @@ class DialogService {
                   alertContentTextWidget: AddressFormatter.buildSegmentedAddress(
                     address: contact.address,
                     textAlign: TextAlign.center,
-                    walletType: cryptoCurrencyToWalletType(contact.type),
+                    walletType: cryptoCurrencyOrTokenToWalletType(contact.type),
                     evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16,
                       decoration: TextDecoration.none,

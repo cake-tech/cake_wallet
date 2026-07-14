@@ -45,6 +45,36 @@ class S implements WidgetsLocalizations {
 
   @override
   String get reorderItemRight => "reorderItemRight";
+
+  @override
+  String get copyButtonLabel => "copyButtonLabel";
+  
+  @override
+  String get cutButtonLabel => "cutButtonLabel";
+  
+  @override
+  String get lookUpButtonLabel => "lookUpButtonLabel";
+  
+  @override
+  String get pasteButtonLabel => "pasteButtonLabel";
+  
+  @override
+  String get searchWebButtonLabel => "searchWebButtonLabel";
+  
+  @override
+  String get selectAllButtonLabel => "selectAllButtonLabel";
+
+  @override
+  String get shareButtonLabel => "shareButtonLabel";
+
+  @override
+  String get noResultsFound => "noResultsFound";
+
+  @override
+  String get radioButtonUnselectedLabel => "radioButtonUnselectedLabel";
+
+  @override
+  String get searchResultsFound => "searchResultsFound";
 """;
 
 const part2 = """

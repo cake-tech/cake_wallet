@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
@@ -13,7 +13,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -36,15 +36,15 @@ class NewWalletPage extends BasePage {
   final SeedSettingsViewModel _seedSettingsViewModel;
   final bool isChildWallet;
 
-  final welcomeImageLight = 'assets/images/wallet_type_wallet_light.png';
-  final welcomeImageDark = 'assets/images/wallet_type_wallet_dark.png';
+  final welcomeImageLight = 'assets/new-ui/hero/wallet_type_light.svg';
+  final welcomeImageDark = 'assets/new-ui/hero/wallet_type_dark.svg';
 
   @override
   bool get gradientBackground => true;
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.new_wallet;
@@ -203,7 +203,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               icon: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6.0),
+                                  borderRadius: BorderRadius.circular(12.0),
                                   color: Theme.of(context).colorScheme.surface,
                                 ),
                                 width: 34,
@@ -228,11 +228,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   color: Theme.of(context).colorScheme.onSurface,
                                 ),
                             placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1.4,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             hintText: S.of(context).password,
                           ),
                           BaseTextFormField(
@@ -247,11 +247,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   color: Theme.of(context).colorScheme.onSurface,
                                 ),
                             placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1.4,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             hintText: S.of(context).repeat_wallet_password,
                           ),
                         ],
@@ -267,7 +267,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         child: SelectButton(
                           key: ValueKey('new_wallet_page_monero_seed_type_button_key'),
                           text: widget._seedSettingsViewModel.moneroSeedType.title,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(18),
                           onTap: () async {
                             await showPopUp<void>(
                               context: context,
@@ -291,7 +291,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     builder: (BuildContext build) => Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: SeedLanguageSelector(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(18),
                         key: _languageSelectorKey,
                         buttonKey: ValueKey('new_wallet_page_seed_language_selector_button_key'),
                         initialSelected: defaultSeedLanguage,
@@ -351,7 +351,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
         _formProcessing = false;
         return;
       }
-      if (_walletNewVM.nameExists(_walletNewVM.name)) {
+      if (await _walletNewVM.nameExists(_walletNewVM.name)) {
         await showPopUp<void>(
             context: context,
             builder: (_) {
@@ -359,7 +359,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   alertTitle: '',
                   alertContent: S.of(context).wallet_name_exists,
                   buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
+                  buttonAction: () {
+                    if (mounted && Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  });
             });
       } else {
         await _walletNewVM.create(

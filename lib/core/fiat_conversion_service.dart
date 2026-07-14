@@ -1,11 +1,12 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
-const _fiatApiOnionAuthority = 'kfkyguqtz5vcnbvar5pjgddkaeawbo4j3r4fj3e22k3tzqageplosiid.onion';
+const _fiatApiClearNetAuthority = 'prices.cakewallet.com';
+const _fiatApiOnionAuthority = '46wisoe2uwipcj2j4og6smiq7hbmj34fkkrquwlzbbsqtgat7bf3erid.onion';
 const _fiatApiPath = '/v2/rates';
 
 Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
@@ -48,11 +49,19 @@ Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
   }
 }
 
+/// Override specific [CryptoCurrency] to fix its price to the price of another
+/// e.g. nDEPS should have the same price as DEPS, but only DEPS is tracked
+CryptoCurrency _overrideCryptoCurrency(CryptoCurrency crypto) {
+  if (crypto.title == CryptoCurrency.ndeps.title)
+      return CryptoCurrency.deps;
+    return crypto;
+}
+
 class FiatConversionService {
   static Future<double> fetchPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
   }) async =>
-      await _fetchPrice(crypto.toString(), fiat.toString(), torOnly);
+      await _fetchPrice(_overrideCryptoCurrency(crypto).toString(), fiat.toString(), torOnly);
 }

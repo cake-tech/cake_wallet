@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/info_chip.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
@@ -55,29 +57,32 @@ class DEuroSavingsPage extends BasePage {
                 children: <Widget>[
                   Observer(
                     builder: (_) => SavingsCard(
-                      isDarkTheme: currentTheme.isDark,
                       interestRate: "${_dEuroViewModel.interestRateFormated}%",
-                      savingsBalance: _dEuroViewModel.savingsBalanceFormated,
+                      savingsBalance:
+                          _dEuroViewModel.savingsBalance.toStringWithPrecision(fractionalDigits: 6),
                       fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalanceFormated,
                       currency: CryptoCurrency.deuro,
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
                       onAddSavingsPressed: () => _onSavingsAdd(context),
                       onRemoveSavingsPressed: () => _onSavingsRemove(context),
-                      onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
+                      onApproveSavingsPressed: () => _onApproval(context),
                       onTooltipPressed: () => _onSavingsTooltipPressed(context),
                       isEnabled: _dEuroViewModel.isEnabled,
                       isLoading: _dEuroViewModel.isLoading,
+                      onWithdrawV1Pressed: () => _onWithdrawV1(context),
+                      savingsBalanceV1: _dEuroViewModel.savingsBalanceV1
+                          ?.toStringWithPrecision(fractionalDigits: 6),
+                      fiatSavingsBalanceV1: _dEuroViewModel.fiatSavingsBalanceV1Formated,
                     ),
                   ),
                   Observer(
                     builder: (_) => InterestCardWidget(
-                      isDarkTheme: currentTheme.isDark,
                       title: S.of(context).deuro_savings_collect_interest,
                       fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterestFormated,
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
                       accruedInterest: _dEuroViewModel.accruedInterestFormated,
-                      onCollectInterest: _onCollectInterest,
-                      onReinvestInterest: _onReinvestInterest,
+                      onCollectInterest: () => _onCollectInterest(context),
+                      onReinvestInterest: () => _onReinvestInterest(context),
                       onTooltipPressed: () => _onInterestTooltipPressed(context),
                       isEnabled: _dEuroViewModel.isSavingsActionsEnabled,
                     ),
@@ -119,7 +124,20 @@ class DEuroSavingsPage extends BasePage {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: true);
-    if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, true);
+    if (amount != null) {
+      await _requireHardwareWallet(context);
+      _dEuroViewModel.prepareSavingsEdit(amount, true);
+    }
+    _editSheetIsOpen = false;
+  }
+
+  Future<void> _onWithdrawV1(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    try {
+      await _requireHardwareWallet(context);
+      await _dEuroViewModel.prepareSavingsV1Withdraw();
+    } catch (_) {}
     _editSheetIsOpen = false;
   }
 
@@ -127,22 +145,50 @@ class DEuroSavingsPage extends BasePage {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: false);
-    if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, false);
-    _editSheetIsOpen = false;
+    if (amount != null) {
+      await _requireHardwareWallet(context);
+      _dEuroViewModel.prepareSavingsEdit(amount, false);
+    }
+      _editSheetIsOpen = false;
   }
 
-  Future<void> _onReinvestInterest() async {
+  Future<void> _onReinvestInterest(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
+    await _requireHardwareWallet(context);
     await _dEuroViewModel.prepareReinvestInterest();
     _editSheetIsOpen = false;
   }
 
-  Future<void> _onCollectInterest() async {
+  Future<void> _onCollectInterest(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
+    await _requireHardwareWallet(context);
     await _dEuroViewModel.prepareCollectInterest();
     _editSheetIsOpen = false;
+  }
+
+  Future<void> _onApproval(BuildContext context) async {
+    await _requireHardwareWallet(context);
+    _dEuroViewModel.prepareApproval();
+  }
+
+  Future<void> _requireHardwareWallet(BuildContext context) async {
+    if (_dEuroViewModel.wallet.isHardwareWallet) {
+      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected(_dEuroViewModel.wallet.type)) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+              walletType: _dEuroViewModel.wallet.type,
+              hardwareWalletType: _dEuroViewModel.wallet.walletInfo.hardwareWalletType!,
+              onConnectDevice: (context, _) {
+                _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
+                Navigator.of(context).pop();
+              },
+            ));
+      } else {
+        _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
+      }
+    }
   }
 
   bool _isReactionsSet = false;
@@ -178,14 +224,13 @@ class DEuroSavingsPage extends BasePage {
           key: ValueKey('savings_page_confirm_sending_dialog_key'),
           footerType: FooterType.slideActionButton,
           titleText: title,
-          currentTheme: currentTheme,
           walletType: WalletType.ethereum,
           titleIconPath: CryptoCurrency.deuro.iconPath,
           currency: CryptoCurrency.deuro,
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
               ? _dEuroViewModel.accruedInterestFormated
-              : tx.amountFormatted,
+              : tx.amount.toStringWithSymbol(),
           fiatAmountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
               ? _dEuroViewModel.fiatAccruedInterestFormated
               : _dEuroViewModel.pendingTransactionFiatAmountFormatted,
@@ -214,7 +259,6 @@ class DEuroSavingsPage extends BasePage {
           key: ValueKey('savings_page_confirm_approval_dialog_key'),
           footerType: FooterType.slideActionButton,
           titleText: S.of(bottomSheetContext).approve_tokens,
-          currentTheme: currentTheme,
           walletType: WalletType.ethereum,
           titleIconPath: CryptoCurrency.deuro.iconPath,
           currency: CryptoCurrency.deuro,
@@ -222,7 +266,7 @@ class DEuroSavingsPage extends BasePage {
           amountValue: tx.amountFormatted,
           fiatAmountValue: "",
           fee: S.of(bottomSheetContext).send_estimated_fee,
-          feeValue: tx.feeFormatted,
+          feeValue: tx.fee.toStringWithSymbol(),
           feeFiatAmount: "",
           outputs: [],
           onSlideActionComplete: () {
@@ -247,7 +291,6 @@ class DEuroSavingsPage extends BasePage {
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
               footerType: FooterType.singleActionButton,
-              currentTheme: currentTheme,
               titleText: S.of(bottomSheetContext).transaction_sent,
               contentImage: 'assets/images/birthday_cake.png',
               content: S.of(bottomSheetContext).deuro_tx_commited_content,
@@ -311,7 +354,6 @@ class DEuroSavingsPage extends BasePage {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext bottomSheetContext) => TooltipSheet(
-        currentTheme: currentTheme,
         titleText: title,
         titleIconPath: CryptoCurrency.deuro.iconPath,
         tooltip: content,
@@ -333,7 +375,6 @@ class DEuroSavingsPage extends BasePage {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-        currentTheme: currentTheme,
         height: 350,
         titleText: "dEURO",
         titleIconPath: CryptoCurrency.deuro.iconPath,
@@ -360,7 +401,6 @@ class DEuroSavingsPage extends BasePage {
     return showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-        currentTheme: currentTheme,
         titleText: title,
         titleIconPath: CryptoCurrency.deuro.iconPath,
         contentImage: 'assets/images/deuro_not_enough_eth.png',
@@ -386,8 +426,8 @@ class DEuroSavingsPage extends BasePage {
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
         balance: isAdding
-            ? _dEuroViewModel.accountBalanceFormated
-            : _dEuroViewModel.savingsBalanceFormated,
+            ? _dEuroViewModel.accountBalance
+            : _dEuroViewModel.savingsBalance,
         footerType: FooterType.none,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),

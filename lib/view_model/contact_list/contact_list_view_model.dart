@@ -6,10 +6,14 @@ import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -21,27 +25,36 @@ class ContactListViewModel = ContactListViewModelBase with _$ContactListViewMode
 
 abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(
-      this.contactSource, this.walletInfoSource, this._currency, this.settingsStore)
+      this.contactSource, List<WalletInfo> wallets, this._currency, this.settingsStore)
       : contacts = ObservableList<ContactRecord>(),
-        walletContacts = [],
         isAutoGenerateEnabled =
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
-    walletInfoSource.values.forEach((info) {
+    unawaited(_init());
+  }
+
+  Future<void> _init() async {
+    final walletInfos = await WalletInfo.getAll();
+    for (final info in walletInfos) {
+      final addressInfos = await info.getAddressInfos();
+      final addresses = await info.getAddresses();
       if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
-          info.addressInfos != null) {
-        for (var key in info.addressInfos!.keys) {
-          final value = info.addressInfos![key];
+          addressInfos.isNotEmpty) {
+        for (var key in addressInfos.keys) {
+          final value = addressInfos[key];
           final address = value?.first;
           if (address != null) {
             final name = _createName(info.name, address.label, key: key);
             walletContacts.add(WalletContact(
               address.address,
               name,
-              walletTypeToCryptoCurrency(info.type),
+              getCryptoCurrencyForWalletListItem(
+                info.type,
+              ),
+              walletType: info.type,
             ));
           }
         }
-      } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
+      } else if (addresses.isNotEmpty == true && addresses.length > 1) {
         if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
             .contains(info.type)) {
           final address = info.address;
@@ -49,10 +62,13 @@ abstract class ContactListViewModelBase with Store {
           walletContacts.add(WalletContact(
             address,
             name,
-            walletTypeToCryptoCurrency(info.type),
+            getCryptoCurrencyForWalletListItem(
+              info.type,
+            ),
+            walletType: info.type,
           ));
         } else {
-          info.addresses!.forEach((address, label) {
+          addresses.forEach((address, label) {
             if (label.isEmpty) {
               return;
             }
@@ -60,10 +76,12 @@ abstract class ContactListViewModelBase with Store {
             walletContacts.add(WalletContact(
               address,
               name,
-              walletTypeToCryptoCurrency(info.type,
-                  isTestnet: info.network == null
-                      ? false
-                      : info.network!.toLowerCase().contains("testnet")),
+              getCryptoCurrencyForWalletListItem(
+                info.type,
+                isTestnet:
+                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
+              ),
+              walletType: info.type,
             ));
           });
         }
@@ -74,16 +92,20 @@ abstract class ContactListViewModelBase with Store {
               key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
                   ? 0
                   : null),
-          walletTypeToCryptoCurrency(info.type),
+          getCryptoCurrencyForWalletListItem(
+            info.type,
+          ),
+          walletType: info.type,
         ));
       }
-    });
+    }
 
     _subscription = contactSource.bindToListWithTransform(
         contacts, (Contact contact) => ContactRecord(contactSource, contact),
         initialFire: true);
 
     setOrderType(settingsStore.contactListOrder);
+    walletContacts = walletContacts.toList(); // rebuild
   }
 
   String _createName(String walletName, String label, {int? key = null}) {
@@ -96,9 +118,9 @@ abstract class ContactListViewModelBase with Store {
 
   final bool isAutoGenerateEnabled;
   final Box<Contact> contactSource;
-  final Box<WalletInfo> walletInfoSource;
   final ObservableList<ContactRecord> contacts;
-  final List<WalletContact> walletContacts;
+  @observable
+  List<WalletContact> walletContacts = [];
   final CryptoCurrency? _currency;
   StreamSubscription<BoxEvent>? _subscription;
   final SettingsStore settingsStore;
@@ -128,10 +150,29 @@ abstract class ContactListViewModelBase with Store {
         isWalletContact &&
         (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
 
-    return element.type == _currency ||
-        (element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag) ||
-        _currency.toString() == element.type.tag ||
-        _currency.tag == element.type.toString();
+    final currencyMatches = element.type == _currency;
+
+    final tagsMatch =
+        element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag;
+
+    final tagMatchesTitle = _currency.tag != null && _currency.tag == element.type.title;
+
+    final titleMatchesTag = _currency.title == element.type.tag;
+
+    var matches = currencyMatches || tagsMatch || tagMatchesTitle || titleMatchesTag;
+
+    if (matches && isWalletContact && element is WalletContact && element.walletType != null) {
+      final walletType = element.walletType!;
+
+      if (isEVMCompatibleChain(walletType)) {
+        final currencyChainId = TokenUtilities.getChainId(_currency);
+        final walletChainId = evm!.getChainIdByWalletType(walletType);
+
+        if (currencyChainId != walletChainId) matches = false;
+      }
+    }
+
+    return matches;
   }
 
   void dispose() => _subscription?.cancel();
@@ -195,7 +236,6 @@ abstract class ContactListViewModelBase with Store {
         await sortGroupByType();
         break;
       case FilterListOrderType.Custom:
-      default:
         reorderAccordingToContactList();
         break;
     }

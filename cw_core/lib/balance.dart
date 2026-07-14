@@ -1,17 +1,20 @@
+import 'package:cw_core/amount/money.dart';
+
+/// Balance Data class with all amounts in the lowest possible currency (e.g. satoshis or wei)
 abstract class Balance {
-  const Balance(this.available, this.additional, {this.secondAvailable, this.secondAdditional});
+  const Balance(
+    this.available,
+    this.unavailable, {
+    this.secondAvailable,
+    this.secondUnavailable,
+    this.frozen,
+  });
 
-  final int available;
+  final Money available;
+  final Money unavailable;
 
-  final int additional;
+  final Money? secondAvailable;
+  final Money? secondUnavailable;
 
-  final int? secondAvailable;
-  final int? secondAdditional;
-
-  String get formattedAvailableBalance;
-  String get formattedAdditionalBalance;
-  String get formattedUnAvailableBalance => '';
-  String get formattedSecondAvailableBalance => '';
-  String get formattedSecondAdditionalBalance => '';
-  String get formattedFullAvailableBalance => formattedAvailableBalance;
+  final Money? frozen;
 }

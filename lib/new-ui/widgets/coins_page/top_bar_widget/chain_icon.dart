@@ -1,0 +1,60 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
+
+class ChainIcon extends StatelessWidget {
+  const ChainIcon(
+      {super.key,
+        required this.iconPath,
+        required this.dashboardViewModel,
+        required this.isSyncHeavy});
+
+  final String iconPath;
+  final bool isSyncHeavy;
+  final DashboardViewModel dashboardViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(
+      builder: (_) {
+        final progress = dashboardViewModel.status.progress();
+        final done = !isSyncHeavy || progress >= 1;
+
+        return Stack(
+          children: [
+            AnimatedOpacity(
+              duration: Duration(milliseconds: 100),
+              opacity: done ? 0 : 1,
+              child: CircularProgressIndicator(
+                value: progress,
+                color: Color(0xFFFFB84E),
+                strokeWidth: 2,
+              ),
+            ),
+            AnimatedScale(
+              duration: Duration(milliseconds: 150),
+              scale: done ? 1 : 0.8,
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 150),
+                child: CakeImageWidget(
+                  imageUrl: iconPath,
+                  key: ValueKey(progress >= 1),
+                  width: 36,
+                  height: 36,
+                  colorFilter: ColorFilter.mode(
+                    done
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                        : Theme.of(context).colorScheme.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

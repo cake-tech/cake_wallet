@@ -7,14 +7,23 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
-  XOSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  XOSwapExchangeProvider() {
+    _addAppVersionHeader();
+  }
 
-  static const List<CryptoCurrency> _notSupported = [];
+  void _addAppVersionHeader() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+      _headers['App-Version'] = currentVersion;
+    } catch (_) {}
+  }
 
   static const _apiAuthority = 'exchange.exodus.io';
   static const _apiPath = '/v3';
@@ -23,7 +32,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   static const _orders = '/orders';
   static const _assets = '/assets';
 
-  static const _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
+  static final _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
 
   final _networks = <String, String>{
     'POL': 'matic',
@@ -42,8 +51,43 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'LTC': 'litecoin',
     'EOS': 'eosio',
     'XLM': 'stellar',
+    'BASE': 'basemainnet',
+    'ARB': 'arbitrum',
   };
+  
+  static const supportedTags = [
+    'POL',
+    'ETH',
+    'BTC',
+    'BSC',
+    'SOL',
+    'TRX',
+    'ZEC',
+    'ADA',
+    'DOGE',
+    'XMR',
+    'BCH',
+    'BSV',
+    'XRP',
+    'LTC',
+    'EOS',
+    'XLM',
+    'BASE',
+    'ARB',
+  ];
 
+
+  String _normalizeXOSwapsNetwork(String string) {
+    final lower = string.toLowerCase();
+
+    if (lower.endsWith('matic0a883d9b')) return string.replaceFirst(RegExp(r'matic0a883d9b$', caseSensitive: false), 'POL');
+    if (lower.endsWith('matic86e249c1')) return string.replaceFirst(RegExp(r'matic86e249c1$', caseSensitive: false), 'POL');
+    if (lower.endsWith('bscddedf0f8')) return string.replaceFirst(RegExp(r'bscddedf0f8$', caseSensitive: false), 'BSC');
+    if (lower.endsWith('basemainnetb5a52617')) return string.replaceFirst(RegExp(r'basemainnetb5a52617$', caseSensitive: false), 'BASE');
+
+    return string;
+  }
+  
   @override
   String get title => 'XOSwap';
 
@@ -76,21 +120,25 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
       }
-      final assets = json.decode(response.body) as List<dynamic>;
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! List) throw const FormatException('Unexpected response format');
+      final assets = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
 
       final asset = assets.firstWhere(
-        (asset) {
-          final assetSymbol = (asset['symbol'] as String).toUpperCase();
-          return assetSymbol == currency.title.toUpperCase();
-        },
-        orElse: () => null,
+        (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
+        orElse: () => const {},
       );
-      return asset != null ? asset['id'] as String : null;
+
+      return asset.isEmpty ? null : asset['id'] as String;
     } catch (e) {
       printV(e.toString());
       return null;
     }
   }
+
+  String removeNonAlphanumeric(String str) => str.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 
   Future<List<dynamic>> getRatesForPair({
     required CryptoCurrency from,
@@ -112,37 +160,59 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    final rates = await getRatesForPair(from: from, to: to);
-    if (rates.isEmpty) return Limits(min: 0, max: 0);
+    try {
+      final rates = await getRatesForPair(from: from, to: to);
+      if (rates.isEmpty) throw Exception('No rates found for $from to $to');
 
     double minLimit = double.infinity;
     double maxLimit = 0;
 
-    for (var rate in rates) {
-      final double currentMin = double.parse(rate['min']['value'].toString());
-      final double currentMax = double.parse(rate['max']['value'].toString());
-      if (currentMin < minLimit) minLimit = currentMin;
-      if (currentMax > maxLimit) maxLimit = currentMax;
+      for (var rate in rates) {
+        final double currentMin = double.parse(rate['min']['value'].toString());
+        final double currentMax = double.parse(rate['max']['value'].toString());
+        if (currentMin < minLimit) minLimit = currentMin;
+        if (currentMax > maxLimit) maxLimit = currentMax;
+      }
+      return Limits(min: minLimit, max: maxLimit);
+    } catch (e) {
+      printV(e.toString());
+      throw Exception('StealthEx failed to fetch limits');
     }
-    return Limits(min: minLimit, max: maxLimit);
   }
 
+  @override
   Future<double> fetchRate({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required double amount,
     required bool isFixedRateMode,
-    required bool isReceiveAmount,
+    required bool isReceiveAmount
   }) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);
-      if (rates.isEmpty) return 0;
+      if (rates.isEmpty) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'fetchRate',
+          error: Exception('No rates found for $from to $to'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': from.title,
+            'to': to.title,
+            'amount': amount,
+            'isFixedRateMode': isFixedRateMode,
+            'isReceiveAmount': isReceiveAmount,
+          },
+        );
+        return 0;
+      }
 
+      double result;
       if (!isFixedRateMode) {
         double bestOutput = 0.0;
         for (var rate in rates) {
@@ -157,7 +227,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             }
           }
         }
-        return bestOutput > 0 ? (bestOutput / amount) : 0;
+        result = bestOutput > 0 ? (bestOutput / amount) : 0;
       } else {
         double bestInput = double.infinity;
         for (var rate in rates) {
@@ -172,9 +242,41 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             }
           }
         }
-        return bestInput < double.infinity ? amount / bestInput : 0;
+        result = bestInput < double.infinity ? amount / bestInput : 0;
       }
-    } catch (e) {
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+        responseData: {
+          'result': result,
+          'ratesCount': rates.length,
+          'rates': rates,
+        },
+      );
+
+      return result;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0;
     }
@@ -193,6 +295,24 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final curTo = await _getAssets(request.toCurrency);
 
       if (curFrom == null || curTo == null) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: TradeNotCreatedException(description),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'curFrom': curFrom,
+            'curTo': curTo,
+          },
+        );
         throw TradeNotCreatedException(description);
       }
 
@@ -203,6 +323,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         'fromAddress': request.refundAddress,
         'toAmount': request.toAmount,
         'toAddress': request.toAddress,
+        if (request.toAddressExtraId.isNotEmpty) 'toAddressTag': request.toAddressExtraId,
         'pairId': pairId,
       };
 
@@ -216,6 +337,26 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error'] ?? 'Unknown error';
         final message = responseJSON['message'] ?? '';
+        
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: Exception('$error\n$message'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'payload': payload,
+            'url': uri.toString(),
+          },
+        );
+        
         throw Exception('$error\n$message');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -228,13 +369,49 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final payoutAddress = responseJSON['toAddress'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
       final refundAddress = responseJSON['fromAddress'] as String;
-      final depositAmount = _toDouble(amount['value']);
+      final depositAmountStr = amount['value'].toString();
+      final parsedAmount = double.tryParse(depositAmountStr);
+
+      if (parsedAmount == null || parsedAmount <= 0) {
+        throw Exception('Invalid deposit amount received from API');
+      }
+
       final receiveAmount = toAmount['value'] as String;
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['createdAt'] as String;
       final extraId = responseJSON['payInAddressTag'] as String?;
 
       final createdAt = DateTime.parse(createdAtString).toLocal();
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'createTrade',
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'payload': payload,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'orderId': orderId,
+          'depositAddress': depositAddress,
+          'payoutAddress': payoutAddress,
+          'refundAddress': refundAddress,
+          'depositAmount': depositAmountStr,
+          'receiveAmount': receiveAmount,
+          'status': status,
+          'createdAt': createdAtString,
+          'extraId': extraId,
+          'statusCode': response.statusCode,
+          'responseJSON': responseJSON,
+        },
+      );
 
       return Trade(
         id: orderId,
@@ -245,12 +422,30 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         refundAddress: refundAddress,
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
-        amount: depositAmount.toString(),
+        amount: depositAmountStr,
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
+        isSendAll: isSendAll,
+        toAddressExtraId: request.toAddressExtraId,
       );
-    } catch (e) {
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+        },
+      );
       printV(e.toString());
       throw TradeNotCreatedException(description);
     }
@@ -275,15 +470,58 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final pairId = responseJSON['pairId'] as String;
       final pairParts = pairId.split('_');
-      final CryptoCurrency fromCurrency =
-          CryptoCurrency.fromString(pairParts.isNotEmpty ? pairParts[0] : "");
-      final CryptoCurrency toCurrency =
-          CryptoCurrency.fromString(pairParts.length > 1 ? pairParts[1] : "");
+      final fromAsset = pairParts.isNotEmpty ? pairParts[0] : '';
+      final normalizedFromAsset = _normalizeXOSwapsNetwork(fromAsset);
+      String? fromAssetTag = _extractTagFromAsset(normalizedFromAsset);
+
+      String fromAssetBase = fromAssetTag != null
+          ? normalizedFromAsset.substring(0, normalizedFromAsset.length - fromAssetTag.length)
+          : normalizedFromAsset;
+
+      // Special case for USDT defaulting to ETH tag
+      if (fromAssetBase == 'USDT' && fromAssetTag == null) {
+        fromAssetTag = 'ETH';
+      }
+
+      // Special case for BASE defaulting to BASE tag
+      if (fromAssetBase == 'BASE' && fromAssetTag == null) {
+        fromAssetTag = 'BASE';
+        fromAssetBase = 'ETH';
+      }
+
+      final toAsset = pairParts.length > 1 ? pairParts[1] : '';
+      final normalizedToAsset = _normalizeXOSwapsNetwork(toAsset);
+      String? toAssetTag = _extractTagFromAsset(normalizedToAsset);
+
+      String toAssetBase = toAssetTag != null
+          ? normalizedToAsset.substring(0, normalizedToAsset.length - toAssetTag.length)
+          : normalizedToAsset;
+
+      // Special case for USDT defaulting to ETH tag
+      if (toAssetBase == 'USDT' && toAssetTag == null) {
+        toAssetTag = 'ETH';
+      }
+
+      // Special case for BASE defaulting to BASE tag
+      if (toAssetBase == 'BASE' && toAssetTag == null) {
+        toAssetTag = 'ETH';
+        toAssetBase = 'BASE';
+      }
+      
+      final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromAssetBase,tag: fromAssetTag);
+      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAssetBase,tag: toAssetTag);
+
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
       final orderId = responseJSON['id'] as String;
-      final depositAmount = amount['value'] as String;
+      final depositAmountStr = amount['value'].toString();
+      final parsedAmount = double.tryParse(depositAmountStr);
+
+      if (parsedAmount == null || parsedAmount <= 0) {
+        throw Exception('Invalid deposit amount received from API');
+      }
+
       final receiveAmount = toAmount['value'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
       final payoutAddress = responseJSON['toAddress'] as String;
@@ -302,7 +540,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         refundAddress: refundAddress,
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
-        amount: depositAmount,
+        amount: depositAmountStr,
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
@@ -313,13 +551,19 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  double _toDouble(dynamic value) {
-    if (value is int) {
-      return value.toDouble();
-    } else if (value is double) {
-      return value;
-    } else {
-      return 0.0;
+  // ensure something remains before tag (at least 2 chars)
+  String? _extractTagFromAsset(String asset) {
+
+
+
+    for (final tag in supportedTags) {
+      if (asset.endsWith(tag)) {
+        final prefixLength = asset.length - tag.length;
+        if (prefixLength >= 2) {
+          return tag;
+        }
+      }
     }
+    return null;
   }
 }

@@ -21,7 +21,7 @@ class WalletGroupDescriptionPage extends BasePage {
           (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
-  String get title => S.current.wallet_group;
+  String get title => S.current.wallet_list_create_new_wallet;
 
   @override
   Widget body(BuildContext context) {
@@ -33,8 +33,8 @@ class WalletGroupDescriptionPage extends BasePage {
           SizedBox(height: 48),
           CakeImageWidget(
             imageUrl: currentTheme.isDark
-                ? 'assets/images/wallet_group_options_dark.png'
-                : 'assets/images/wallet_group_options_light.png',
+                ? 'assets/new-ui/hero/wallet_group_options_dark.svg'
+                : 'assets/new-ui/hero/wallet_group_options_light.svg',
             height: 200,
           ),
           SizedBox(height: 40),

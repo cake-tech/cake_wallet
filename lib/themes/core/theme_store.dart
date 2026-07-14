@@ -7,6 +7,7 @@ import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'material_base_theme.dart';
+import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
 
 part 'theme_store.g.dart';
 
@@ -20,6 +21,9 @@ abstract class ThemeStoreBase with Store {
   @observable
   ThemeMode _themeMode = ThemeMode.system;
 
+  @observable
+  bool _isOled = false;
+
   @computed
   MaterialThemeBase get currentTheme => _currentTheme;
 
@@ -29,6 +33,38 @@ abstract class ThemeStoreBase with Store {
   @computed
   bool get isDarkMode => _currentTheme.isDark;
 
+  @computed
+  bool get isOled => _isOled;
+
+  @computed
+  bool get hasCustomTheme => sharedPreferences.getInt(PreferencesKey.currentTheme) != null;
+
+  @computed
+  MaterialThemeBase? get savedCustomTheme {
+    final raw = sharedPreferences.getInt(PreferencesKey.currentTheme);
+    return raw != null ? ThemeList.deserialize(raw: raw) : null;
+  }
+
+  @computed
+  MaterialThemeBase? get savedDarkTheme {
+    try {
+      final raw = sharedPreferences.getInt(PreferencesKey.savedDarkTheme);
+      return raw != null ? ThemeList.deserialize(raw: raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @computed
+  MaterialThemeBase? get savedLightTheme {
+    try {
+      final raw = sharedPreferences.getInt(PreferencesKey.savedLightTheme);
+      return raw != null ? ThemeList.deserialize(raw: raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   late SharedPreferences sharedPreferences;
 
   @action
@@ -37,6 +73,15 @@ abstract class ThemeStoreBase with Store {
 
     _currentTheme = theme;
     await sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw);
+    _isOled = theme is BlackTheme ? theme.isOled : false;
+    await sharedPreferences.setBool(PreferencesKey.blackThemeOled, _isOled);
+
+    // Save preferred themes for system mode
+    if (theme.isDark) {
+      await sharedPreferences.setInt(PreferencesKey.savedDarkTheme, theme.raw);
+    } else {
+      await sharedPreferences.setInt(PreferencesKey.savedLightTheme, theme.raw);
+    }
   }
 
   @action
@@ -44,11 +89,33 @@ abstract class ThemeStoreBase with Store {
     if (_themeMode == mode) return;
 
     _themeMode = mode;
-
     await _saveThemeModeToPrefs(mode);
 
     if (mode == ThemeMode.system) {
-      setTheme(getThemeFromSystem());
+      // We'll always use getThemeFromSystem() for system mode to respect saved themes
+      await setTheme(getThemeFromSystem());
+      return;
+    }
+
+    if (!hasCustomTheme) return;
+
+    final savedTheme = savedCustomTheme;
+    if (savedTheme == null) return;
+
+    if (_isThemeCompatibleWithMode(savedTheme, mode)) {
+      await setTheme(savedTheme);
+    }
+  }
+
+  @action
+  Future<void> setOledEnabled(bool value) async {
+    if (_isOled == value) return;
+    _isOled = value;
+    await sharedPreferences.setBool(PreferencesKey.blackThemeOled, value);
+
+    if (_currentTheme is BlackTheme) {
+      final current = _currentTheme as BlackTheme;
+      await setTheme(BlackTheme(current.accentColor, isOled: value));
     }
   }
 
@@ -109,13 +176,22 @@ abstract class ThemeStoreBase with Store {
   /// Loads the saved theme from SharedPreferences
   Future<void> loadSavedTheme({bool isFromBackup = false}) async {
     try {
-      final savedTheme = sharedPreferences.getInt(PreferencesKey.currentTheme);
-      if (savedTheme == null) {
+      _isOled = sharedPreferences.getBool(PreferencesKey.blackThemeOled) ?? false;
+      final theme = savedCustomTheme;
+
+      if (!hasCustomTheme || theme == null) {
         await _setSystemTheme();
         return;
       }
 
-      final theme = ThemeList.deserialize(raw: savedTheme);
+      if (theme is BlackTheme) {
+        final adjusted = BlackTheme(theme.accentColor, isOled: _isOled);
+        if (_currentTheme != adjusted) {
+          await setTheme(adjusted);
+        }
+      } else if (_currentTheme != theme) {
+        await setTheme(theme);
+      }
 
       final newThemeMode = _getThemeModeOnStartUp(theme, isFromBackup);
 
@@ -127,16 +203,14 @@ abstract class ThemeStoreBase with Store {
       if (_themeMode != newThemeMode) {
         await setThemeMode(newThemeMode);
       }
-
-      if (_currentTheme != theme) {
-        await setTheme(theme);
-      }
     } catch (e) {
       await _setSystemTheme();
     }
   }
 
   Future<void> _setSystemTheme({bool isNewInstall = false}) async {
+    if (!isNewInstall && hasCustomTheme) return;
+
     final systemTheme = getThemeFromSystem();
 
     if (_currentTheme != systemTheme) {
@@ -145,10 +219,9 @@ abstract class ThemeStoreBase with Store {
 
     if (isNewInstall) {
       await _saveThemeModeToPrefs(ThemeMode.system);
-    }
-
-    if (_themeMode != ThemeMode.system) {
-      await setThemeMode(ThemeMode.system);
+      if (_themeMode != ThemeMode.system) {
+        await setThemeMode(ThemeMode.system);
+      }
     }
   }
 
@@ -169,6 +242,47 @@ abstract class ThemeStoreBase with Store {
 
   MaterialThemeBase getThemeFromSystem() {
     final systemBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
-    return systemBrightness == Brightness.dark ? ThemeList.darkTheme : ThemeList.lightTheme;
+
+    if (systemBrightness == Brightness.dark) {
+      // Prefer saved dark theme when available
+      try {
+        final savedDark = savedDarkTheme;
+        if (savedDark != null) {
+          if (savedDark is BlackTheme) {
+            // We'll use the OLED flag from the saved theme itself, not from separate preference
+            return BlackTheme(savedDark.accentColor, isOled: savedDark.isOled);
+          }
+          return savedDark;
+        }
+      } catch (_) {}
+      
+      // If no saved dark theme, check if current theme is BlackTheme with accent colors
+      // and preserve it when switching to dark mode
+      if (_currentTheme is BlackTheme) {
+        final currentBlackTheme = _currentTheme as BlackTheme;
+        return BlackTheme(currentBlackTheme.accentColor, isOled: currentBlackTheme.isOled);
+      }
+      
+      return ThemeList.darkTheme;
+    }
+
+    // Light system preference: prefer saved light theme when available
+    try {
+      final savedLight = savedLightTheme;
+      if (savedLight != null) return savedLight;
+    } catch (_) {}
+    return ThemeList.lightTheme;
+  }
+
+  /// Checks if a theme is compatible with a theme mode
+  bool _isThemeCompatibleWithMode(MaterialThemeBase theme, ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return !theme.isDark;
+      case ThemeMode.dark:
+        return theme.isDark;
+      case ThemeMode.system:
+        return true; // All themes are compatible with system mode
+    }
   }
 }

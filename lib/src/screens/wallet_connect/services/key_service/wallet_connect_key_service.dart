@@ -1,5 +1,4 @@
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
@@ -7,12 +6,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletConnectKeyService {
-  /// Returns a list of all the keys.
   List<ChainKeyModel> getKeys(WalletBase wallet);
-
-  /// Returns a list of all the keys for a given chain id.
-  /// If the chain is not found, returns an empty list.
-  ///  - [chain]: The chain to get the keys for.
   List<ChainKeyModel> getKeysForChain(WalletBase wallet);
 }
 
@@ -20,9 +14,11 @@ class KeyServiceImpl implements WalletConnectKeyService {
   static String _getPrivateKeyForWallet(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.ethereum:
-        return ethereum!.getPrivateKey(wallet);
       case WalletType.polygon:
-        return polygon!.getPrivateKey(wallet);
+      case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
+        return evm!.getPrivateKey(wallet);
       case WalletType.solana:
         return solana!.getPrivateKey(wallet);
       default:
@@ -33,9 +29,11 @@ class KeyServiceImpl implements WalletConnectKeyService {
   static String _getPublicKeyForWallet(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.ethereum:
-        return ethereum!.getPublicKey(wallet);
       case WalletType.polygon:
-        return polygon!.getPublicKey(wallet);
+      case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
+        return evm!.getPublicKey(wallet);
       case WalletType.solana:
         return solana!.getPublicKey(wallet);
       default:
@@ -50,7 +48,9 @@ class KeyServiceImpl implements WalletConnectKeyService {
         chains: [
           'eip155:1',
           'eip155:5',
+          'eip155:56',
           'eip155:137',
+          'eip155:8453',
           'eip155:42161',
           'eip155:80001',
         ],
@@ -71,7 +71,12 @@ class KeyServiceImpl implements WalletConnectKeyService {
 
   @override
   List<ChainKeyModel> getKeysForChain(WalletBase wallet) {
-    final chain = getChainNameSpaceAndIdBasedOnWalletType(wallet.type);
+    int? chainId;
+    if (isEVMCompatibleChain(wallet.type)) {
+      final chainInfo = evm!.getCurrentChain(wallet);
+      chainId = chainInfo?.chainId;
+    }
+    final chain = getChainNameSpaceAndIdBasedOnWalletType(wallet.type, chainId: chainId);
 
     final keys = getKeys(wallet);
 

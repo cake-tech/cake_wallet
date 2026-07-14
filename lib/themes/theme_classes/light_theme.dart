@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/custom_theme_colors/light_theme_custom_colors.dart';
 
 class LightTheme extends MaterialThemeBase {
   @override
@@ -42,6 +44,7 @@ class LightTheme extends MaterialThemeBase {
         errorContainer: const Color(0xFFFFBDBD),
         onErrorContainer: const Color(0xFFE43D3D),
         surface: surfaceColor,
+        surfaceDim: const Color(0xFFE7E7FD),
         onSurface: const Color(0xFF312938),
         onSurfaceVariant: const Color(0xFF6C6772),
         surfaceContainerLowest: Color(0xFFE4E4E4),
@@ -49,8 +52,9 @@ class LightTheme extends MaterialThemeBase {
         surfaceContainer: Color(0xFFFBFBFD),
         surfaceContainerHigh: Color(0xFFFDFDFE),
         surfaceContainerHighest: Color(0xFFFFFFFF),
+        onInverseSurface: Color(0xFFFAFAFA),
         outline: const Color(0xFF7B757C),
-        outlineVariant: const Color(0xFFCBC4CB),
+        outlineVariant: const Color(0xFFEDEDF6),
       );
 
   @override
@@ -74,26 +78,26 @@ class LightTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w400,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
@@ -147,7 +151,7 @@ class LightTheme extends MaterialThemeBase {
         ),
       );
 
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'Wix Madefor Text';
   @override
   ThemeData get themeData => ThemeData(
         useMaterial3: true,
@@ -160,7 +164,7 @@ class LightTheme extends MaterialThemeBase {
           foregroundColor: colorScheme.onSurface,
           elevation: 0,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: colorScheme.surface,
           elevation: 1,
           shape: RoundedRectangleBorder(
@@ -173,7 +177,7 @@ class LightTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -182,7 +186,7 @@ class LightTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.primary,
             side: BorderSide(color: colorScheme.outline),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -190,7 +194,7 @@ class LightTheme extends MaterialThemeBase {
           style: TextButton.styleFrom(
             foregroundColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -198,23 +202,23 @@ class LightTheme extends MaterialThemeBase {
           filled: true,
           fillColor: colorScheme.surfaceContainer,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.primary),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.error),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.error),
           ),
         ),
@@ -228,4 +232,16 @@ class LightTheme extends MaterialThemeBase {
 
   @override
   int get raw => 0;
+
+  @override
+  CustomThemeColors get customColors => LightThemeCustomColors();
+
+  @override
+  String? get themeFamily => null;
+
+  @override
+  String? get accentColorId => null;
+
+  @override
+  String? get accentColorName => null;
 }

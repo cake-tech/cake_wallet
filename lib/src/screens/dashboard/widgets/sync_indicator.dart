@@ -20,7 +20,7 @@ class SyncIndicator extends StatelessWidget {
     return Observer(builder: (_) {
       final syncIndicatorWidth = 237.0;
       final status = dashboardViewModel.status;
-      final statusText = syncStatusTitle(status);
+      final statusText = syncStatusTitle(status, dashboardViewModel.settingsStore.syncStatusDisplayMode);
       final progress = status.progress();
       final indicatorOffset = progress * syncIndicatorWidth;
       final indicatorWidth = progress < 1
@@ -33,6 +33,7 @@ class SyncIndicator extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(15)),
           child: GestureDetector(
             onTap: onTap,
+            onLongPress: dashboardViewModel.toggleSwitchStatusDisplayMode,
             child: Container(
               height: 30,
               width: syncIndicatorWidth,

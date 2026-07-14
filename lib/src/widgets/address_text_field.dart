@@ -29,6 +29,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.onPushPasteButton,
     this.onPushAddressBookButton,
     this.onPushAddressPickerButton,
+    this.onEditingComplete,
     this.onSelectedContact,
     this.selectedCurrency,
     this.addressKey,
@@ -36,6 +37,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.hasUnderlineBorder = false,
     this.borderWidth = 1.0,
     this.contentPadding,
+    this.copyImagePath,
   });
 
   static const prefixIconWidth = 34.0;
@@ -48,6 +50,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final Function(Uri)? onURIScanned;
   final List<AddressTextFieldOption> options;
   final FormFieldValidator<String>? validator;
+  final VoidCallback? onEditingComplete;
 
   final Color? buttonColor;
   final Color? fillColor;
@@ -60,6 +63,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final FocusNode? focusNode;
   final T? selectedCurrency;
   final Key? addressKey;
+  final String? copyImagePath;
 
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
@@ -75,6 +79,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
           borderWidth: borderWidth,
           hasUnderlineBorder: hasUnderlineBorder,
           key: addressKey,
+          onEditingComplete: onEditingComplete,
           enableIMEPersonalizedLearning: false,
           keyboardType: TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
@@ -125,7 +130,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                             borderRadius: BorderRadius.all(Radius.circular(6)),
                           ),
                           child: Image.asset(
-                            'assets/images/paste_ios.png',
+                            copyImagePath ?? 'assets/images/paste_ios.png',
                             color: iconColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
@@ -240,7 +245,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
     final contact = await Navigator.of(context)
-        .pushNamed(Routes.pickerAddressBook, arguments: selectedCurrency);
+        .pushNamed(Routes.pickerAddressBook, arguments: [selectedCurrency, false]);
 
     if (contact is ContactBase) {
       controller?.text = contact.address;

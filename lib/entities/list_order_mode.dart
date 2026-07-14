@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/enumerable_item.dart';
+import 'package:flutter/foundation.dart';
 
 class ListOrderMode extends EnumerableItem<int> with Serializable<int> {
   const ListOrderMode({required String title, required int raw}) : super(title: title, raw: raw);
@@ -16,7 +17,10 @@ class ListOrderMode extends EnumerableItem<int> with Serializable<int> {
       case 1:
         return descending;
       default:
-        throw Exception('Unexpected token: $raw for ListOrderMode deserialize');
+        if (kDebugMode) {
+          throw Exception('Unexpected token: $raw for ListOrderMode deserialize');
+        }
+        return descending;
     }
   }
 

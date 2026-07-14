@@ -9,6 +9,7 @@ import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:payjoin_flutter/bitcoin_ffi.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
@@ -32,6 +33,7 @@ class PayjoinReceiverWorker {
   static final client = ProxyWrapper().getHttpIOClient();
   static Future<void> run(List<Object> args) async {
     await pj.core.init();
+    CakeTor.instance = await CakeTorInstance.getInstance();
 
     final sendPort = args[0] as SendPort;
     final receiverJson = args[1] as String;
@@ -113,6 +115,7 @@ class PayjoinReceiverWorker {
       final proposal = await session.processRes(
           body: httpRequest.bodyBytes, ctx: extractReq.$2);
       if (proposal != null) return proposal;
+      sleep(Duration(seconds: 2));
     }
   }
 
@@ -176,7 +179,17 @@ class PayjoinReceiverWorker {
       final unspent = listUnspent as List<UtxoWithPrivateKey>;
       if (unspent.isEmpty) throw RecoverableError('No unspent outputs available');
 
-      final selectedUtxo = await _inputPairFromUtxo(unspent[0]);
+      final candidateInputs =
+          await Future.wait(unspent.map(_inputPairFromUtxo));
+
+      // Prefer a UTXO that avoids the Unnecessary Input Heuristic (UIH2);
+      // fall back to the first candidate if none preserves privacy.
+      InputPair selectedUtxo = candidateInputs.first;
+      try {
+        selectedUtxo =
+            await pj5.tryPreservingPrivacy(candidateInputs: candidateInputs);
+      } catch (_) {}
+
       final pj6 = await pj5.contributeInputs(replacementInputs: [selectedUtxo]);
       final pj7 = await pj6.commitInputs();
 

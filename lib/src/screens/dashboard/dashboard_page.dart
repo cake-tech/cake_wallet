@@ -3,13 +3,17 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/page_indicator.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/widgets/evm_switcher.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -22,7 +26,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/navigation_dock.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -30,9 +33,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 
 class DashboardPage extends StatefulWidget {
   DashboardPage({
@@ -142,6 +145,36 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget leading(BuildContext context) {
+    if (FeatureFlag.isEVMChainSwitcherEnabled &&
+        dashboardViewModel.isEVMWallet &&
+        dashboardViewModel.availableChains.isNotEmpty) {
+      return TextButton(
+        style: TextButton.styleFrom(
+          minimumSize: Size(50, 30),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          alignment: Alignment.centerLeft,
+        ),
+        onPressed: () => showDialog(
+          context: context,
+          builder: (context) => EvmSwitcher(
+            chains: dashboardViewModel.availableChains,
+            currentChain: dashboardViewModel.currentChain,
+            onChainSelected: (chainId) => dashboardViewModel.selectChain(chainId),
+            hiddenChainIds: dashboardViewModel.settingsStore.evmHiddenChainIds,
+            onHiddenChanged: (hidden) =>
+                dashboardViewModel.settingsStore.setEvmHiddenChainIds(hidden),
+          ),
+        ),
+        child: Container(
+          child: SvgPicture.asset(
+            'assets/images/evm_switcher.svg',
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            height: 30,
+          ),
+        ),
+      );
+    }
+
     return Observer(
       builder: (context) {
         return ServicesUpdatesWidget(
@@ -174,7 +207,7 @@ class _DashboardPageView extends BasePage {
           label: S.of(context).wallet_menu,
           child: SvgPicture.asset(
             'assets/images/menu.svg',
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),
@@ -220,50 +253,64 @@ class _DashboardPageView extends BasePage {
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: <Widget>[
-              //new Expanded(
               Observer(
                 builder: (context) {
                   return PageView.builder(
-                    key: ValueKey('dashboard_page_view_key'),
+                    key: const ValueKey('dashboard_page_view_key'),
                     controller: controller,
+                    physics: const BouncingScrollPhysics(),
                     itemCount: pages.length,
                     itemBuilder: (context, index) => pages[index],
                   );
                 },
               ),
-              //),
-              Positioned(
-                child: Container(
-                  alignment: Alignment.bottomCenter,
-                  margin: EdgeInsets.only(bottom: 110),
-                  child: Observer(
-                    builder: (context) {
-                      return Semantics(
-                        button: false,
-                        label: 'Page Indicator',
-                        hint: 'Swipe to change page',
-                        excludeSemantics: true,
-                        child: SmoothPageIndicator(
-                          controller: controller,
-                          count: pages.length,
-                          effect: ColorTransitionEffect(
-                            spacing: 6.0,
-                            radius: 6.0,
-                            dotWidth: 6.0,
-                            dotHeight: 6.0,
-                            dotColor: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-                            activeDotColor: Theme.of(context).colorScheme.primary,
-                          ),
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: <Widget>[
+                  IgnorePointer(
+                    child: Container(
+                      alignment: Alignment.bottomCenter,
+                      height: 220,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: <Color>[
+                            context.customColors.backgroundGradientColor.withAlpha(5),
+                            context.customColors.backgroundGradientColor.withAlpha(50),
+                            context.customColors.backgroundGradientColor.withAlpha(125),
+                            context.customColors.backgroundGradientColor.withAlpha(150),
+                            context.customColors.backgroundGradientColor.withAlpha(200),
+                            context.customColors.backgroundGradientColor,
+                            context.customColors.backgroundGradientColor,
+                          ],
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 110),
+                    child: Semantics(
+                      container: true,
+                      label: 'Page indicator',
+                      hint:
+                          'Swipe left or right to change page, or double tap buttons below to navigate directly.',
+                      child: ExcludeSemantics(
+                        excluding: false,
+                        child: PageIndicator(
+                          controller: controller,
+                          dashboardViewModel: dashboardViewModel,
+                        ),
+                      ),
+                    ),
+                  ),
+                  NewMainNavBar(
+                    dashboardViewModel: dashboardViewModel,
+                    selectedIndex: 0,
+                    onItemTap: (index) {}
+                  ),
+                ],
               ),
-              NavigationDock(
-                dashboardViewModel: dashboardViewModel,
-                currentTheme: currentTheme,
-              )
             ],
           ),
         ),
@@ -278,7 +325,7 @@ class _DashboardPageView extends BasePage {
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(
         Semantics(
-          label: 'Cake ${S.of(context).features}',
+          label: S.of(context).apps,
           child: CakeFeaturesPage(
             dashboardViewModel: dashboardViewModel,
             cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>(),
@@ -289,7 +336,7 @@ class _DashboardPageView extends BasePage {
     pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
     pages.add(
       Semantics(
-        label: S.of(context).settings_transactions,
+        label: S.of(context).history,
         child: TransactionsPage(dashboardViewModel: dashboardViewModel),
       ),
     );

@@ -10,6 +10,7 @@ class FilteredList extends StatefulWidget {
     this.canReorder = true,
     this.shrinkWrap = false,
     this.physics,
+    this.padding,
   });
 
   final ObservableList<dynamic> list;
@@ -18,6 +19,7 @@ class FilteredList extends StatefulWidget {
   final bool canReorder;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
+  final EdgeInsets? padding;
 
   @override
   FilteredListState createState() => FilteredListState();
@@ -29,8 +31,26 @@ class FilteredListState extends State<FilteredList> {
     if (widget.canReorder) {
       return Observer(
         builder: (_) => ReorderableListView.builder(
+          proxyDecorator: (child, index, animation) => Material(
+            child: Container(
+              //margin: EdgeInsets.symmetric(vertical: 5),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 5,
+                      offset: const Offset(0, 6),
+                      spreadRadius: 1)
+                ],
+              ),
+              child: child,
+            ),
+          ),
           shrinkWrap: widget.shrinkWrap,
           physics: widget.physics ?? const BouncingScrollPhysics(),
+          padding: widget.padding,
           itemBuilder: widget.itemBuilder,
           itemCount: widget.list.length,
           onReorder: (int oldIndex, int newIndex) {

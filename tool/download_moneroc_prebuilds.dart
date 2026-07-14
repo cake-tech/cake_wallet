@@ -20,20 +20,18 @@ final List<String> triplets = [
   "x86_64-w64-mingw32",
   // "x86_64-apple-darwin11", // Intel macbooks (contrib) - not used by cake 
   // "aarch64-apple-darwin11", // apple silicon macbooks (contrib) - not used by cake
-  // "host-apple-darwin", // not available on CI (yet)
   // "x86_64-host-apple-darwin", // not available on CI (yet)
   "aarch64-apple-darwin", // apple silicon macbooks
   "x86_64-apple-darwin", // intel macbooks
-  "aarch64-host-apple-darwin", // apple silicon macbooks (local builds)
   "aarch64-apple-ios",
-  "aarch64-apple-iossimulator",
+  "aarch64-apple-ios-simulator",
 ];
 
 Future<void> main() async {
   final resp = await _dio.get("https://api.github.com/repos/mrcyjanek/monero_c/releases");
   final data = resp.data[0];
   final tagName = data['tag_name'];
-  printV("Downloading artifacts for: ${tagName}");
+  print("Downloading artifacts for: ${tagName}");
   final assets = data['assets'] as List<dynamic>;
   for (var i = 0; i < assets.length; i++) {
     for (var triplet in triplets) {
@@ -44,10 +42,10 @@ Future<void> main() async {
       String localFilename = filename.replaceAll("${coin}_${triplet}_", "");
       localFilename = "scripts/monero_c/release/${coin}/${triplet}_${localFilename}";
       final url = asset["browser_download_url"] as String;
-      printV("- downloading $localFilename");
+      print("- downloading $localFilename");
       await _dio.download(url, localFilename);
       if (localFilename.endsWith(".xz")) {
-        printV("  extracting $localFilename");
+        print("  extracting $localFilename");
         final inputStream = InputFileStream(localFilename);
         final archive = XZDecoder().decodeBytes(inputStream.toUint8List());
         final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
@@ -56,11 +54,11 @@ Future<void> main() async {
     }
   }
   if (Platform.isMacOS) {
-    printV("Generating ios framework");
+    print("Generating ios framework");
     final result = Process.runSync("bash", [
       "-c",
       "cd scripts/ios && ./gen_framework.sh && cd ../.."
     ]);
-    printV((result.stdout+result.stderr).toString().trim());
+    print((result.stdout+result.stderr).toString().trim());
   }
 }

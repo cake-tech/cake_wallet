@@ -2,7 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -17,7 +17,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -26,7 +25,7 @@ part 'wallet_creation_vm.g.dart';
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
+  WalletCreationVMBase(this._appStore, this.walletCreationService,
       this.seedSettingsViewModel,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
@@ -54,7 +53,6 @@ abstract class WalletCreationVMBase with Store {
   WalletType type;
   final bool isRecovery;
   final WalletCreationService walletCreationService;
-  final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
   final SeedSettingsViewModel seedSettingsViewModel;
 
@@ -62,13 +60,28 @@ abstract class WalletCreationVMBase with Store {
       [WalletType.monero, WalletType.wownero].contains(type) &&
       (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
-  bool nameExists(String name) => walletCreationService.exists(name);
+  Future<bool> nameExists(String name) => walletCreationService.exists(name);
 
-  bool typeExists(WalletType type) => walletCreationService.typeExists(type);
+  Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
+  bool _isCreating = false;
   Future<void> create({dynamic options}) async {
+    try {
+      if (_isCreating) {
+        printV("not creating because we don't feel like doing so");
+        return;
+      }
+      _isCreating = true;
+      await _create(options: options);
+    } finally {
+      _isCreating = false;
+    }
+  }
+
+  Future<void> _create({dynamic options}) async {
     final type = this.type;
     try {
+
       state = IsExecutingState();
       if (name.isEmpty) {
         name = await generateName();
@@ -82,13 +95,20 @@ abstract class WalletCreationVMBase with Store {
         throw Exception(S.current.repeated_password_is_incorrect);
       }
 
-      walletCreationService.checkIfExists(name);
+      await walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
 
       final credentials = getCredentials(options);
 
-      final walletInfo = WalletInfo.external(
+      final di = ((credentials.derivationInfo?.derivationPath??"") == "") 
+        ? getDefaultCreateDerivation()
+        : credentials.derivationInfo;
+
+      final diId = await di!.save();
+      credentials.derivationInfo = di;
+
+      credentials.walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
         name: name,
         type: type,
@@ -98,19 +118,20 @@ abstract class WalletCreationVMBase with Store {
         path: path,
         dirPath: dirPath,
         address: '',
-        showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
+        showIntroCakePayCard: (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
+        derivationInfoId: diId,
         hardwareWalletType: credentials.hardwareWalletType,
       );
 
-      credentials.walletInfo = walletInfo;
+      printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
-      walletInfo.isNonSeedWallet = isNonSeedWallet;
-      walletInfo.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
-      walletInfo.address = wallet.walletAddresses.address;
-      await _walletInfoSource.add(walletInfo);
+      credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
+      credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
+      credentials.walletInfo!.address = wallet.walletAddresses.address;
+      await credentials.walletInfo!.save();
+      await wallet.save();
       await _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
@@ -125,7 +146,7 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  DerivationInfo? getDefaultCreateDerivation() {
+  DerivationInfo getDefaultCreateDerivation() {
     final useBip39ForBitcoin = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
     final useBip39ForNano = seedSettingsViewModel.nanoSeedType.type == DerivationType.bip39;
     switch (type) {
@@ -155,7 +176,7 @@ abstract class WalletCreationVMBase with Store {
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:
-        return null;
+        return DerivationInfo(derivationType: DerivationType.unknown);
     }
   }
 

@@ -7,7 +7,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -94,8 +94,8 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                                 title: wallet.name,
                                 isSelected:
                                     walletGroupsDisplayViewModel.selectedSingleWallet == wallet,
-                                leadingWidget: Image.asset(
-                                  walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                leadingWidget: CakeImageWidget(
+                                  imageUrl: getCryptoCurrencyIconForWalletListItem(wallet.type),
                                   width: 32,
                                   height: 32,
                                 ),
@@ -146,14 +146,16 @@ class WalletGroupsDisplayBody extends StatelessWidget {
 
   Future<void> onTypeSelected(BuildContext context) async {
     final mnemonic = await walletGroupsDisplayViewModel.getSelectedWalletMnemonic();
-    Navigator.of(context).pushNamed(
-      Routes.newWallet,
-      arguments: NewWalletArguments(
-        type: walletGroupsDisplayViewModel.type,
-        mnemonic: mnemonic,
-        isChildWallet: true,
-      ),
-    );
+    if (context.mounted) {
+      Navigator.of(context).pushNamed(
+        Routes.newWallet,
+        arguments: NewWalletArguments(
+          type: walletGroupsDisplayViewModel.type,
+          mnemonic: mnemonic,
+          isChildWallet: true,
+        ),
+      );
+    }
   }
 }
 
@@ -168,8 +170,8 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
       children: [
         CakeImageWidget(
           imageUrl: currentTheme.isDark
-              ? 'assets/images/wallet_group_empty_dark.png'
-              : 'assets/images/wallet_group_empty_light.png',
+              ? 'assets/new-ui/hero/wallet_group_empty_dark.svg'
+              : 'assets/new-ui/hero/wallet_group_empty_light.svg',
           height: 200,
         ),
         SizedBox(height: 60),

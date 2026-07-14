@@ -1028,4 +1028,31 @@ class HaCupertinoLocalizations extends GlobalCupertinoLocalizations {
   @override
   // TODO: implement shareButtonLabel
   String get shareButtonLabel => "shareButtonLabel";
+  
+  @override
+  // TODO: implement backButtonLabel
+  String get backButtonLabel => "backButtonLabel";
+  
+  @override
+  // TODO: implement cancelButtonLabel
+  String get cancelButtonLabel => "cancelButtonLabel";
+
+  @override
+  String get collapsedHint => "collapsedHint";
+
+  @override
+  String get expandedHint => "expandedHint";
+
+  @override
+  String get expansionTileCollapsedHint => "expansionTileCollapsedHint";
+
+  @override
+  String get expansionTileCollapsedTapHint => "expansionTileCollapsedTapHint";
+
+  @override
+  String get expansionTileExpandedHint => "expansionTileExpandedHint";
+
+  @override
+  String get expansionTileExpandedTapHint => "expansionTileExpandedTapHint";
+
 }

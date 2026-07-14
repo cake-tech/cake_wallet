@@ -6,6 +6,9 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -23,11 +26,9 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:collection/collection.dart';
+import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,11 +39,9 @@ class TradeDetailsViewModel = TradeDetailsViewModelBase with _$TradeDetailsViewM
 abstract class TradeDetailsViewModelBase with Store {
   TradeDetailsViewModelBase({
     required Trade tradeForDetails,
-    required this.trades,
     required this.appStore,
   })  : items = ObservableList<StandartListItem>(),
-        trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
-            tradeForDetails {
+        trade = tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.changeNow:
         _provider = ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
@@ -60,7 +59,7 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = ExolixExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider(tradesStore: trades);
+        _provider = ThorChainExchangeProvider();
         break;
       case ExchangeProviderDescription.swapTrade:
         _provider = SwapTradeExchangeProvider();
@@ -71,10 +70,19 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = StealthExExchangeProvider();
         break;
       case ExchangeProviderDescription.chainflip:
-        _provider = ChainflipExchangeProvider(tradesStore: trades);
+        _provider = ChainflipExchangeProvider();
         break;
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.swapsXyz:
+        _provider = SwapsXyzExchangeProvider();
+        break;
+      case ExchangeProviderDescription.jupiter:
+        _provider = JupiterExchangeProvider();
+        break;
+      case ExchangeProviderDescription.nearIntents:
+        _provider = NearIntentsExchangeProvider();
         break;
     }
 
@@ -110,11 +118,15 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://scan.chainflip.io/channels/${trade.id}';
       case ExchangeProviderDescription.xoSwap:
         return  'https://orders.xoswap.com/${trade.id}';
+      case ExchangeProviderDescription.swapsXyz:
+        return  'https://scan.swaps.xyz/transactions/${trade.id}';
+      case ExchangeProviderDescription.jupiter:
+        return 'https://solscan.io/tx/${trade.txId}';
+      case ExchangeProviderDescription.nearIntents:
+        return  'https://explorer.near-intents.org/transactions/${trade.id}';
     }
     return null;
   }
-
-  final Box<Trade> trades;
 
   @observable
   Trade trade;
@@ -133,17 +145,8 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null)
-        updatedTrade.createdAt = trade.createdAt;
-
-      Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
-      if (foundElement != null) {
-        final editedTrade = trades.get(foundElement.key);
-        editedTrade?.stateRaw = updatedTrade.stateRaw;
-        editedTrade?.save();
-      }
-
-      trade = updatedTrade;
+      trade.mergeFindTradeByIdResult(updatedTrade);
+      await trade.save();
 
       _updateItems();
     } catch (e) {
@@ -163,17 +166,34 @@ abstract class TradeDetailsViewModelBase with Store {
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
-    items.add(TradeDetailsListCardItem.tradeDetails(
-      id: trade.id,
-      extraId: trade.extraId,
-      createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
-      from: trade.from,
-      to: trade.to,
-      onTap: (BuildContext context) {
-        Clipboard.setData(ClipboardData(text: '${trade.id}'));
-        showBar<void>(context, S.of(context).copied_to_clipboard);
-      },
-    ));
+    final tradeFrom = trade.from;
+    final tradeTo   = trade.to;
+
+    if (tradeFrom != null && tradeTo != null) {
+      items.add(TradeDetailsListCardItem.tradeDetails(
+        id: trade.id,
+        extraId: trade.extraId,
+        createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
+        from: tradeFrom,
+        to: tradeTo,
+        onTap: (context) {
+          Clipboard.setData(ClipboardData(text: trade.id));
+          showBar<void>(context, S.of(context).copied_to_clipboard);
+        },
+      ));
+    }
+
+    final destinationMemo = trade.toAddressExtraId;
+    final destinationCurrency = trade.to;
+    if (destinationMemo != null &&
+        destinationMemo.isNotEmpty &&
+        destinationCurrency != null) {
+      final isDestinationTag =
+          memoLabelTypeFor(destinationCurrency) == MemoLabelType.destinationTag;
+      items.add(StandartListItem(
+          title: isDestinationTag ? S.current.destination_tag : S.current.memo,
+          value: destinationMemo));
+    }
 
     items.add(StandartListItem(
         title: S.current.trade_details_provider, value: trade.provider.toString()));
@@ -199,6 +219,11 @@ abstract class TradeDetailsViewModelBase with Store {
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
       }
     }
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz && trade.txId != null && trade.txId!.isNotEmpty) {
+      items.add(StandartListItem(
+          title: 'Transaction ID', value: trade.txId!));
+    }
   }
 
   void _launchUrl(String url) {
@@ -207,4 +232,6 @@ abstract class TradeDetailsViewModelBase with Store {
       launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {}
   }
+
+
 }

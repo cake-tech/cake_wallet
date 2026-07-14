@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/custom_theme_colors/dark_theme_custom_colors.dart';
 
 class DarkTheme extends MaterialThemeBase {
   @override
@@ -43,16 +45,17 @@ class DarkTheme extends MaterialThemeBase {
         onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
         onSurface: const Color(0xFFD7E2F7),
+        surfaceDim: const Color(0xFF0F1A36),
         onSurfaceVariant: const Color(0xFF8C9FBB),
         surfaceContainerLowest: Color(0xFF171C30),
         surfaceContainerLow: Color(0xFF2D385C),
         surfaceContainer: Color(0xFF24335B),
-        surfaceContainerHigh: Color(0xFF212C47),
-        surfaceContainerHighest: Color(0xFF2A3B67),
+        surfaceContainerHigh: Color(0xFF2A3E73),
+        surfaceContainerHighest: Color(0xFF334C8C),
         outline: const Color(0xFF9EACC1),
-        outlineVariant: const Color(0xFF3E5579),
+        outlineVariant: const Color(0xFF2A3E73),
       );
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'Wix Madefor Text';
   @override
   TextTheme get textTheme => TextTheme(
         displayLarge: TextStyle(
@@ -74,26 +77,26 @@ class DarkTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w400,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
@@ -159,7 +162,7 @@ class DarkTheme extends MaterialThemeBase {
           foregroundColor: colorScheme.onSurface,
           elevation: 0,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: colorScheme.surface,
           elevation: 1,
           shape: RoundedRectangleBorder(
@@ -172,7 +175,7 @@ class DarkTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -181,7 +184,7 @@ class DarkTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.primary,
             side: BorderSide(color: colorScheme.outline),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -189,7 +192,7 @@ class DarkTheme extends MaterialThemeBase {
           style: TextButton.styleFrom(
             foregroundColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
         ),
@@ -197,27 +200,27 @@ class DarkTheme extends MaterialThemeBase {
           filled: true,
           fillColor: colorScheme.surfaceContainer,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.primary),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.error),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide(color: colorScheme.error),
           ),
           disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
         ),
@@ -231,4 +234,16 @@ class DarkTheme extends MaterialThemeBase {
 
   @override
   int get raw => 1;
+
+  @override
+  CustomThemeColors get customColors => DarkThemeCustomColors();
+
+  @override
+  String? get themeFamily => null;
+
+  @override
+  String? get accentColorId => null;
+
+  @override
+  String? get accentColorName => null;
 }

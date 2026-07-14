@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -39,6 +40,7 @@ abstract class NanoWalletBase
     with Store, WalletKeysFile {
   NanoWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required String mnemonic,
     required String password,
     NanoBalance? initialBalance,
@@ -47,16 +49,19 @@ abstract class NanoWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _derivationType = walletInfo.derivationInfo!.derivationType!,
+        _derivationType = derivationInfo.derivationType!,
         _isTransactionUpdating = false,
         _encryptionFileUtils = encryptionFileUtils,
         _client = NanoClient(),
         walletAddresses = NanoWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, NanoBalance>.of({
           CryptoCurrency.nano: initialBalance ??
-              NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero)
+              NanoBalance(
+                currentBalance: Money.zero(CryptoCurrency.nano),
+                receivableBalance: Money.zero(CryptoCurrency.nano),
+              )
         }),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = NanoTransactionHistory(
       walletInfo: walletInfo,
@@ -190,7 +195,7 @@ abstract class NanoWalletBase
 
     BigInt runningAmount = BigInt.zero;
     await _updateBalance();
-    BigInt runningBalance = balance[currency]?.currentBalance ?? BigInt.zero;
+    BigInt runningBalance = balance[currency]?.currentBalance.amount ?? BigInt.zero;
 
     final List<Map<String, String>> blocks = [];
     String? previousHash;
@@ -198,14 +203,12 @@ abstract class NanoWalletBase
     for (var txOut in credentials.outputs) {
       late BigInt amt;
       if (txOut.sendAll) {
-        amt = balance[currency]?.currentBalance ?? BigInt.zero;
+        amt = balance[currency]?.currentBalance.amount ?? BigInt.zero;
       } else {
-        amt = BigInt.tryParse(NanoAmounts.getAmountAsRaw(
-                txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoAmounts.rawPerNano)) ??
-            BigInt.zero;
+        amt = txOut.cryptoAmount.amount;
       }
 
-      if (balance[currency]?.currentBalance != null && amt > balance[currency]!.currentBalance) {
+      if (balance[currency]?.currentBalance != null && amt > balance[currency]!.currentBalance.amount) {
         throw Exception("Trying to send more than entire balance!");
       }
 
@@ -232,7 +235,7 @@ abstract class NanoWalletBase
     }
 
     try {
-      if (runningAmount > balance[currency]!.currentBalance || runningBalance < BigInt.zero) {
+      if (runningAmount > balance[currency]!.currentBalance.amount || runningBalance < BigInt.zero) {
         throw Exception(("Trying to send more than entire balance!"));
       }
     } catch (e) {
@@ -240,7 +243,7 @@ abstract class NanoWalletBase
     }
 
     return PendingNanoTransaction(
-      amount: runningAmount,
+      amount: Money(runningAmount, currency),
       id: "",
       nanoClient: _client,
       blocks: blocks,
@@ -260,6 +263,8 @@ abstract class NanoWalletBase
       updateTransactions();
     }
   }
+
+  Future<void> updateTransactionsHistory() async => await updateTransactions();
 
   Future<bool> updateTransactions() async {
     try {
@@ -291,7 +296,7 @@ abstract class NanoWalletBase
       final bool isSend = transactionModel.type == "send";
       result[transactionModel.hash] = NanoTransactionInfo(
         id: transactionModel.hash,
-        amountRaw: transactionModel.amount,
+        amountRaw: Money(transactionModel.amount, currency),
         height: transactionModel.height,
         direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
         confirmed: transactionModel.confirmed,
@@ -357,7 +362,7 @@ abstract class NanoWalletBase
         // get our balance:
         await _updateBalance();
         // if we have anything to receive, process it:
-        if (balance[currency]!.receivableBalance > BigInt.zero) {
+        if (balance[currency]!.receivableBalance.amount > BigInt.zero) {
           await _receiveAll();
         }
       });
@@ -431,11 +436,20 @@ abstract class NanoWalletBase
       derivationType = DerivationType.bip39;
     }
 
-    walletInfo.derivationInfo ??= DerivationInfo(derivationType: derivationType);
-    walletInfo.derivationInfo!.derivationType ??= derivationType;
+    final derivationInfo = await walletInfo.getDerivationInfo();
+    derivationInfo.derivationType ??= derivationType;
+    if (derivationInfo.derivationType == DerivationType.unknown) {
+      if (data?['derivationType'] != null) {
+        derivationInfo.derivationType = derivationType;
+      } else {
+        derivationInfo.derivationType = DerivationType.bip39;
+      }
+    }
+    derivationInfo.save();
 
     return NanoWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       mnemonic: keysData.mnemonic!,
       initialBalance: balance,
@@ -453,8 +467,8 @@ abstract class NanoWalletBase
       // if we don't have a balance, we should at least create one, since it's a late binding
       // otherwise, it's better to just leave it as whatever it was before:
       if (balance[currency] == null) {
-        balance[currency] =
-            NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero);
+        balance[currency] = NanoBalance(
+            currentBalance: Money.zero(currency), receivableBalance: Money.zero(currency));
       }
     }
     // don't save unnecessarily:
