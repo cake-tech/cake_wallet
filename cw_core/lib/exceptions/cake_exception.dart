@@ -48,6 +48,13 @@ class WalletNotFoundException extends WalletOpenException {
   const WalletNotFoundException() : super("Wallet not found");
 }
 
+class AccountNotFoundException extends CakeException {
+  const AccountNotFoundException(String name)
+      : name = name,
+        super("Account not found: $name");
+  final String name;
+}
+
 class WalletCreationException extends CakeException {
   const WalletCreationException(super.message);
 }
@@ -82,4 +89,16 @@ class NodeLookupException extends CakeException {
 
 class BadChainIdException extends CakeException {
   const BadChainIdException(super.message);
+}
+
+class MessageSignException extends CakeException {
+  const MessageSignException(super.message);
+}
+
+class HardwareWalletNotConnectedException extends CakeException {
+  const HardwareWalletNotConnectedException(super.message);
+}
+
+class HardwareWalletResponseException extends CakeException {
+  const HardwareWalletResponseException(super.message);
 }

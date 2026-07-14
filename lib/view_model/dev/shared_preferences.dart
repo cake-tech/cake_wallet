@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

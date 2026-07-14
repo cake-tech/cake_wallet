@@ -7,6 +7,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/nano_account_info_response.dart';
@@ -22,6 +23,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
+import "package:cw_nano/nano_exceptions.dart";
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
@@ -167,7 +169,7 @@ abstract class NanoWalletBase
       syncStatus = ConnectingSyncStatus();
       final isConnected = _client.connect(node);
       if (!isConnected) {
-        throw Exception("Nano Node connection failed");
+        throw ConnectionException("Nano Node connection failed");
       }
 
       try {
@@ -209,7 +211,7 @@ abstract class NanoWalletBase
       }
 
       if (balance[currency]?.currentBalance != null && amt > balance[currency]!.currentBalance.amount) {
-        throw Exception("Trying to send more than entire balance!");
+        throw TransactionGenerationException("Trying to send more than entire balance!");
       }
 
       runningBalance = runningBalance - amt;
@@ -236,7 +238,7 @@ abstract class NanoWalletBase
 
     try {
       if (runningAmount > balance[currency]!.currentBalance.amount || runningBalance < BigInt.zero) {
-        throw Exception(("Trying to send more than entire balance!"));
+        throw TransactionGenerationException(("Trying to send more than entire balance!"));
       }
     } catch (e) {
       rethrow;
@@ -488,7 +490,7 @@ abstract class NanoWalletBase
     } catch (e) {
       // account not found:
       _representativeAddress = await _client.getRepFromPrefs();
-      throw Exception("Failed to get representative address $e");
+      throw NanoChangeRepException("Failed to get representative address $e");
     }
 
     repScore = await _client.getRepScore(_representativeAddress!);
@@ -524,7 +526,7 @@ abstract class NanoWalletBase
         _representativeAddress = address;
       }
     } catch (e) {
-      throw Exception("Failed to change representative address $e");
+      throw NanoChangeRepException("Failed to change representative address $e");
     }
   }
 

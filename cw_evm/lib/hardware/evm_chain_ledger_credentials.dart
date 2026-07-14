@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/hardware/device_not_connected_exception.dart'
     as exception;
 import 'package:cw_core/utils/print_verbose.dart';
@@ -76,7 +77,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
     final sig = await ethereumLedgerApp!.signMessage(payload);
 
-    if (sig.isEmpty) throw Exception("No Signature received from device!");
+    if (sig.isEmpty) throw HardwareWalletResponseException("No Signature received from device!");
 
     final r = sig.sublist(1, 1 + 32);
     final s = sig.sublist(1 + 32, 1 + 32 + 32);

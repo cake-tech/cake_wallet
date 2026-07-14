@@ -176,8 +176,8 @@ abstract class ExchangeTradeViewModelBase with Store {
           cryptoAmount: receiveAmount,
         );
       }
-    } catch (_) {
-      printV('Error calculating receive amount fiat formatted: $_');
+    } catch (e) {
+      printV('Error calculating receive amount fiat formatted: $e');
     }
     return isFiatDisabled ? '' : '$amount ${fiat.title}';
   }
@@ -194,8 +194,8 @@ abstract class ExchangeTradeViewModelBase with Store {
           cryptoAmount: trade.amount,
         );
       }
-    } catch (_) {
-      printV('Error calculating send amount fiat formatted: $_');
+    } catch (e) {
+      printV('Error calculating send amount fiat formatted: $e');
     }
     return isFiatDisabled ? '' : '$amount ${fiat.title}';
   }

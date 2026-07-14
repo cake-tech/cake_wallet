@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_decred/api/libdcrwallet.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:cw_decred/wallet.dart';
@@ -114,7 +115,7 @@ class DecredWalletService extends WalletService<
   Future<DecredWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     final di = await walletInfo.getDerivationInfo();
     if (walletInfo.network == null || walletInfo.network == "") {
@@ -162,7 +163,7 @@ class DecredWalletService extends WalletService<
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -171,7 +172,7 @@ class DecredWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     final di = await currentWalletInfo.getDerivationInfo();
     final network = di.derivationPath == seedRestorePathTestnet ||

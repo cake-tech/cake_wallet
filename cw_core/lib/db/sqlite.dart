@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cw_core/db/sqlite_debug.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
@@ -31,6 +32,10 @@ Future<File> sqliteDebugMarkerFile() async {
   return File(dbDebugMarker);
 }
 
+class DebugMarkerException extends CakeException {
+  const DebugMarkerException() : super("Debug marker is present");
+}
+
 Future<void> initDb({String? pathOverride}) async {
   if (!kDebugMode && !kProfileMode) {
     await _initDb(pathOverride: pathOverride);
@@ -39,7 +44,7 @@ Future<void> initDb({String? pathOverride}) async {
   final dbDebugMarker = await sqliteDebugMarkerFile();
   try {
     if (dbDebugMarker.existsSync()) {
-      throw Exception("Debug marker is present");
+      throw const DebugMarkerException();
     }
     await _initDb(pathOverride: pathOverride);
   } catch (e, s) {

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -68,7 +69,7 @@ class NanoWalletService extends WalletService<
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -77,7 +78,7 @@ class NanoWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
 
     String randomWords =
@@ -104,10 +105,10 @@ class NanoWalletService extends WalletService<
   Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials,
       {bool? isTestnet}) async {
     if (credentials.seedKey.contains(' ')) {
-      throw Exception("Invalid key!");
+      throw BadKeysException("Invalid key!");
     } else {
       if (credentials.seedKey.length != 64 && credentials.seedKey.length != 128) {
-        throw Exception("Invalid key length!");
+        throw BadKeysException("Invalid key length!");
       }
     }
 
@@ -118,7 +119,7 @@ class NanoWalletService extends WalletService<
       try {
         mnemonic = NanoDerivations.standardSeedToMnemonic(credentials.seedKey);
       } catch (e) {
-        throw Exception("Wasn't a valid nano style seed!");
+        throw BadMnemonicException("Wasn't a valid nano style seed!");
       }
     }
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
@@ -158,7 +159,7 @@ class NanoWalletService extends WalletService<
       }
     } else {
       if (credentials.mnemonic.length != 64 && credentials.mnemonic.length != 128) {
-        throw Exception("Invalid seed length");
+        throw BadMnemonicException("invalid seed length");
       }
     }
 
@@ -189,7 +190,7 @@ class NanoWalletService extends WalletService<
   Future<NanoWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
 
     try {

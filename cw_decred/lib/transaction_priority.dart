@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 
@@ -21,7 +22,7 @@ class DecredTransactionPriority extends TransactionPriority {
         return fast;
       default:
         if (kDebugMode) {
-          throw Deserialize('Unexpected token: $raw for DecredTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for DecredTransactionPriority deserialize');
         }
         return medium;
     }

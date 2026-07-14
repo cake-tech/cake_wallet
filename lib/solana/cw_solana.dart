@@ -1,4 +1,4 @@
-part of 'solre.daana.dart';
+part of 'solana.dart';
 
 class CWSolana extends Solana {
   @override

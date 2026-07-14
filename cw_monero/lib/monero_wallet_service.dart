@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
@@ -185,7 +186,7 @@ class MoneroWalletService extends WalletService<
           .openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
-        throw Exception('Wallet not found');
+        throw WalletNotFoundException();
       }
       final wallet = MoneroWallet(
           walletInfo: walletInfo,
@@ -240,7 +241,7 @@ class MoneroWalletService extends WalletService<
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -249,7 +250,7 @@ class MoneroWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     final currentWallet = MoneroWallet(
       walletInfo: currentWalletInfo,
@@ -560,7 +561,7 @@ class MoneroWalletService extends WalletService<
           .openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
-        throw Exception('Wallet not found');
+        throw WalletNotFoundException();
       }
       final wallet = MoneroWallet(
         walletInfo: walletInfo,

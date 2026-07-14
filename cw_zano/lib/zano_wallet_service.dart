@@ -69,7 +69,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   Future<ZanoWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException('Wallet not found');
+      throw WalletNotFoundException();
     }
     try {
       final wallet = await ZanoWalletBase.open(name: name, password: password, walletInfo: walletInfo);

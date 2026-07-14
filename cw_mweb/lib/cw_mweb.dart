@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import "package:cw_mweb/mweb_exceptions.dart";
 import 'package:cw_mweb/mweb_ffi.dart';
 import 'package:cw_mweb/print_verbose.dart';
 import 'package:grpc/grpc.dart';
@@ -60,7 +61,7 @@ class CwMweb {
 
     _port = MWebFfi.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
     if (_port == null || _port == 0) {
-      throw Exception("Failed to start server");
+      throw ConnectionException("Failed to start server");
     }
     printV("Attempting to connect to server on port: $_port");
 
@@ -84,7 +85,7 @@ class CwMweb {
         final status = await _rpcClient!
             .status(StatusRequest(), options: CallOptions(timeout: TIMEOUT_DURATION));
         if (status.blockTime == 0) {
-          throw Exception("blockTime shouldn't be 0! (this connection is likely broken)");
+          throw ConnectionException("blockTime shouldn't be 0! (this connection is likely broken)");
         }
         return _rpcClient!;
       } on GrpcError catch (e) {
@@ -101,7 +102,7 @@ class CwMweb {
         await Future.delayed(const Duration(seconds: 3));
       }
     }
-    throw Exception("Failed to connect after $maxRetries attempts");
+    throw ConnectionException("Failed to connect after $maxRetries attempts");
   }
 
   static Future<void> stop() async {
