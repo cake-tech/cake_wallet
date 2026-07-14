@@ -9,6 +9,7 @@ class BitcoinTransactionCredentials {
     this.feeRate,
     this.coinTypeToSpendFrom = UnspentCoinType.any,
     this.payjoinUri,
+    this.shouldSaveRecipientAddress = false,
   });
 
   final List<OutputInfo> outputs;
@@ -16,4 +17,5 @@ class BitcoinTransactionCredentials {
   final int? feeRate;
   final UnspentCoinType coinTypeToSpendFrom;
   final String? payjoinUri;
+  final bool shouldSaveRecipientAddress;
 }

@@ -168,9 +168,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
   }
 
   void _ensurePayjoinSession() {
+    if (!widget.dashboardViewModel.settingsStore.usePayjoin) return;
     final wallet = widget.addressListViewModel.wallet;
     if (wallet.type == WalletType.bitcoin) {
-      bitcoin!.ensurePayjoinSession(wallet);
+      bitcoin!.ensurePayjoinSession(wallet, shouldSaveRecipientAddress:
+          widget.dashboardViewModel.settingsStore.shouldSaveRecipientAddress);
     }
   }
 

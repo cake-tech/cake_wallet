@@ -92,6 +92,7 @@ class HistorySection extends StatelessWidget {
                             final transaction = item.transaction;
                             final transactionType =
                                 dashboardViewModel.getTransactionType(transaction);
+                            final isPayjoin = transaction.additionalInfo['isPayjoin'] == true;
 
                             if (item.hasTokens && item.assetOfTransaction == null) {
                               return Container();
@@ -128,9 +129,10 @@ class HistorySection extends StatelessWidget {
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
-                                direction: item.transaction.direction,
+                                direction: item.displayDirection,
                                 pending: item.transaction.isPending,
                                 asset: asset,
+                                badgeIconPath: isPayjoin ? 'assets/new-ui/payjoin.svg' : null,
                               ),
                             );
                           } else if (item is TradeListItem) {
@@ -201,8 +203,8 @@ class HistorySection extends StatelessWidget {
                             return _historyRow(
                               onTap: () {
                                 if (isComplete && item.transaction != null) {
-                                  final page = getIt.get<TransactionDetailsModal>(
-                                      param1: item.transaction);
+                                  final page =
+                                      getIt.get<TransactionDetailsModal>(param1: item.transaction);
                                   if (detailsAsPage) {
                                     Navigator.of(context).push(CupertinoPageRoute(
                                         builder: (context) => Material(child: page)));
@@ -273,8 +275,7 @@ class HistorySection extends StatelessWidget {
   }
 
   String _computeFiatAmount(BigInt amount) {
-    final price =
-        dashboardViewModel.balanceViewModel.fiatConversionStore.prices[CryptoCurrency.btc];
+    final price = dashboardViewModel.balanceViewModel.price;
     final cryptoAmount = double.parse(Money(amount, CryptoCurrency.btc).toString());
     final raw = calculateFiatAmountRaw(cryptoAmount: cryptoAmount, price: price)
         .withLocalSeperator(dashboardViewModel.appStore.settingsStore.languageCode);

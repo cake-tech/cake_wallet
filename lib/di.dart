@@ -65,6 +65,7 @@ import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
@@ -118,7 +119,6 @@ import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
-import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -1662,10 +1662,10 @@ Future<void> setup({
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(
           anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
 
-  getIt.registerFactoryParam<PayjoinDetailsPage, String, TransactionInfo?>(
-      (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsPage(
-          payjoinDetailsViewModel:
-              getIt.get<PayjoinDetailsViewModel>(param1: sessionId, param2: transactionInfo)));
+  getIt.registerFactoryParam<PayjoinDetailsModal, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsModal(
+          payjoinDetailsViewModel: getIt.get<PayjoinDetailsViewModel>(
+              param1: sessionId, param2: transactionInfo)));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));

@@ -1266,6 +1266,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
           payjoinUri: _settingsStore.usePayjoin ? payjoinUri : null,
+          shouldSaveRecipientAddress: _settingsStore.shouldSaveRecipientAddress,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
