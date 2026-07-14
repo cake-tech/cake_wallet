@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
+import 'package:cw_bitcoin/payjoin/relay_response.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:http/http.dart' as http;
@@ -175,6 +177,7 @@ class PayjoinSenderWorker {
           ohttpCtx: relayResponse.ohttpCtx,
         );
         final outcome = pollTransition.save(persister: persister);
+        consecutiveFailures = 0;
         printV('[pjSender] poll outcome=${outcome.runtimeType}');
 
         if (outcome is pj.ProgressPollingForProposalTransitionOutcome) {
@@ -195,7 +198,7 @@ class PayjoinSenderWorker {
           rethrow;
         }
       }
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
   }
 
@@ -229,7 +232,7 @@ class PayjoinSenderWorker {
                 onTimeout: () => throw SocketException(
                     'relay $relay request timed out'));
         if (response.statusCode >= 200 && response.statusCode < 300) {
-          return _RelayResponse(
+          return PayjoinRelayResponse(
             bodyBytes: response.bodyBytes,
             ohttpCtx: reqCtx.ohttpCtx,
             requestUrl: reqCtx.request.url,
@@ -249,37 +252,30 @@ class PayjoinSenderWorker {
         if (_cancelled) throw PayjoinSenderCancelledException();
         printV('[pjSender] relay $relay transport error: $e');
       }
+      await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
   }
 }
 
-class _RelayResponse {
-  final Uint8List bodyBytes;
-  final pj.ClientResponse ohttpCtx;
-  final String requestUrl;
-
-  _RelayResponse({
-    required this.bodyBytes,
-    required this.ohttpCtx,
-    required this.requestUrl,
-  });
+Duration _nextBackoff(int consecutiveFailures) {
+  if (consecutiveFailures == 0) return _initialBackoff;
+  final seconds = (_initialBackoff.inSeconds * (1 << consecutiveFailures))
+      .clamp(_initialBackoff.inSeconds, _maxBackoff.inSeconds);
+  return Duration(seconds: seconds);
 }
 
-class PayjoinSenderCancelledException implements Exception {
-  @override
-  String toString() => 'PayjoinSenderCancelledException';
+class PayjoinSenderCancelledException extends PayjoinSessionError {
+  const PayjoinSenderCancelledException()
+      : super('Payjoin sender session cancelled');
 }
 
 /// Thrown when a replayed sender session is already in the
 /// `SenderPendingFallback` state, meaning the user must broadcast the
 /// enclosed fallback transaction to settle the original payment.
-class PayjoinSenderFallbackAvailableException implements Exception {
-  PayjoinSenderFallbackAvailableException(this.fallbackTx);
+class PayjoinSenderFallbackAvailableException extends PayjoinSessionError {
+  PayjoinSenderFallbackAvailableException(this.fallbackTx)
+      : super('Fallback transaction ready to broadcast');
   final Uint8List fallbackTx;
-
-  @override
-  String toString() =>
-      'PayjoinSenderFallbackAvailableException(fallbackTxLen=${fallbackTx.length})';
 }
 
 class _InMemorySenderPersister extends pj.JsonSenderSessionPersister {

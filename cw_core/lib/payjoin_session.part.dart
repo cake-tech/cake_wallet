@@ -27,13 +27,15 @@ class PayjoinSessionAdapter extends TypeAdapter<PayjoinSession> {
     )
       ..txId = fields[6] as String?
       ..error = fields[8] as String?
-      ..originalPsbt = fields[9] as String?;
+      ..originalPsbt = fields[9] as String?
+      ..usedFallback = fields[10] as bool? ?? false
+      ..recipientAddress = fields[11] as String?;
   }
 
   @override
   void write(BinaryWriter writer, PayjoinSession obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.walletId)
       ..writeByte(1)
@@ -53,7 +55,11 @@ class PayjoinSessionAdapter extends TypeAdapter<PayjoinSession> {
       ..writeByte(8)
       ..write(obj.error)
       ..writeByte(9)
-      ..write(obj.originalPsbt);
+      ..write(obj.originalPsbt)
+      ..writeByte(10)
+      ..write(obj.usedFallback)
+      ..writeByte(11)
+      ..write(obj.recipientAddress);
   }
 
   @override
