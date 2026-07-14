@@ -25,12 +25,6 @@ class PendingLightningTransaction with PendingTransaction {
   final Money fee;
 
   @override
-  final Money amount;
-
-  @override
-  final Money fee;
-
-  @override
   String get hex => "";
 
   @override

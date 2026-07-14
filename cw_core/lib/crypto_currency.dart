@@ -45,24 +45,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   @override
   String get symbol => title;
 
-  @override
-  final String name;
-
-  @override
-  final String? fullName;
-
-  @override
-  final String? tag;
-
-  @override
-  final String? iconPath;
-
-  @override
-  final int decimals;
-
-  @override
-  String get symbol => title;
-
   set enabled(bool value) => this.enabled = value;
 
   static const all = [
