@@ -70,6 +70,23 @@ abstract class TradeFilterStoreBase with Store {
   bool displayNearIntents;
 
   @computed
+  int get enabledProvidersCount => [
+    displayChangeNow,
+    displaySideShift,
+    displaySimpleSwap,
+    displayTrocador,
+    displayExolix,
+    displayChainflip,
+    displayThorChain,
+    displayLetsExchange,
+    displayStealthEx,
+    displayXOSwap,
+    displaySwapTrade,
+    displaySwapXyz,
+    displayNearIntents
+  ].where((item) => item).length;
+
+  @computed
   bool get displayAllTrades =>
       displayChangeNow &&
       displaySideShift &&

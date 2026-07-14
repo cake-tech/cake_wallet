@@ -271,7 +271,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
           widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
         } else {
           printV("bestrate");
-          if (depositAmountController.text == S.current.all)
+          if ((depositKey.currentState?._fiatInputMode ?? false) ||
+              depositAmountController.text.isEmpty ||
+              depositAmountController.text == S.current.all)
             widget.exchangeViewModel
                 .changeDepositAmount(amount: widget.exchangeViewModel.depositAmount);
           else
@@ -1063,9 +1065,16 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         setState(() => _fiatInputMode = !_fiatInputMode);
                         if (_fiatInputMode) {
                           updateFiatAmount();
+                        } else {
+                          amountController.text = widget.exchangeViewModel.depositAmount;
                         }
                       },
-                      onAllButtonPressed: widget.allAmount,
+                      onAllButtonPressed: (){
+                        setState(() {
+                          _fiatInputMode = false;
+                        });
+                        widget.allAmount?.call();
+                      },
                       cryptoAmount: widget.isReceiverCard
                           ? widget.exchangeViewModel.roundedReceiveAmount(6)
                           : widget.exchangeViewModel.roundedDepositAmount(6),

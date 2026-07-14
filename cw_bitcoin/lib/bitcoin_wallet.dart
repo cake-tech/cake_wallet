@@ -345,12 +345,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return balance;
     }
 
+    try {
     final lBalance = await lightningWallet!.getBalance();
 
     this.balance[CryptoCurrency.btcln] = ElectrumBalance(
         confirmed: lBalance,
         unconfirmed: Money.zero(CryptoCurrency.btcln),
         frozen: Money.zero(CryptoCurrency.btcln));
+    } catch (e) {
+      printV("Error fetching lightning balance: $e");
+    }
 
     return ElectrumBalance(
       confirmed: balance.confirmed,
@@ -551,8 +555,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return tx;
   }
 
-  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys() => unspentCoins
-      .where((e) => (e.isSending && !e.isFrozen))
+  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) => unspentCoins
+      .where((e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
       .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
       .toList();
 
