@@ -258,6 +258,7 @@ class ExceptionHandler {
     "Connection timed out",
     "Connection reset by peer",
     "Connection closed before full header was received",
+    "Connection closed while receiving data",
     "Connection terminated during handshake",
     "OS Error: Connection refused, errno = 61",
     "PERMISSION_NOT_GRANTED",
