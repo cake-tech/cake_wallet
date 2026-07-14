@@ -105,11 +105,10 @@ class SilentPaymentsLogPage extends BasePage {
   }
 
   Future<void> _saveFile() async {
-    String? outputFile = await FilePicker.platform
-        .saveFile(
-            dialogTitle: 'Save Your File to desired location',
-            fileName: "debug.log",
-            lockParentWindow: true);
+    String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Your File to desired location',
+        fileName: "debug.log",
+        lockParentWindow: true);
 
     if (outputFile == null) return;
 

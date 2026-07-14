@@ -44,18 +44,18 @@ class OrderRow extends StatelessWidget {
               children: [
                 _ProviderIcon(path: providerIconPath, title: providerTitle),
                 if (state != null)
-                Positioned(
-                  right: 0,
-                  bottom: 2,
-                  child: Container(
-                    height: 8,
-                    width: 8,
-                    decoration: BoxDecoration(
-                      color: _statusColor(context, state!),
-                      borderRadius: BorderRadius.circular(12),
+                  Positioned(
+                    right: 0,
+                    bottom: 2,
+                    child: Container(
+                      height: 8,
+                      width: 8,
+                      decoration: BoxDecoration(
+                        color: _statusColor(context, state!),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
             const SizedBox(width: 12),

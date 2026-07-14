@@ -24,7 +24,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     this._walletManager,
     this.walletListViewModel, {
     required this.type,
-  })  : isFetchingMnemonic = false {
+  }) : isFetchingMnemonic = false {
     reaction((_) => _appStore.wallet, (_) => unawaited(updateWalletInfoSourceList()));
     unawaited(updateWalletInfoSourceList());
   }
@@ -46,7 +46,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
   @observable
   WalletInfo? selectedSingleWallet;
-
 
   @observable
   bool isFetchingMnemonic;
@@ -116,8 +115,8 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
         // Check for nano derivation type
         final di = await wallet.getDerivationInfo();
-        bool isNanoDerivationType = wallet.type == WalletType.nano &&
-            di.derivationType == DerivationType.nano;
+        bool isNanoDerivationType =
+            wallet.type == WalletType.nano && di.derivationType == DerivationType.nano;
 
         // Check for electrum derivation type
         bool isElectrumDerivationType =
@@ -129,17 +128,17 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
         bool isNonSeedWallet = wallet.isNonSeedWallet;
 
-        bool isNotMoneroBip39Wallet = wallet.type == WalletType.monero &&
-            di.derivationType != DerivationType.bip39;
+        bool isNotMoneroBip39Wallet =
+            wallet.type == WalletType.monero && di.derivationType != DerivationType.bip39;
 
         // Exclude if any of these conditions are true
         shouldExcludeGroup = shouldExcludeGroup ||
-          isNonBIP39Wallet ||
-          isNanoDerivationType ||
-          isElectrumDerivationType ||
-          isSameTypeAsSelectedWallet ||
-          isNonSeedWallet ||
-          isNotMoneroBip39Wallet;
+            isNonBIP39Wallet ||
+            isNanoDerivationType ||
+            isElectrumDerivationType ||
+            isSameTypeAsSelectedWallet ||
+            isNonSeedWallet ||
+            isNotMoneroBip39Wallet;
       }
 
       if (shouldExcludeGroup) continue;

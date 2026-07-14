@@ -22,8 +22,7 @@ class SeedValidator extends Validator<MnemonicItem> {
   final String language;
   final List<String> _words;
 
-  static List<String> getWordList(
-      {required WalletType type, required String language}) {
+  static List<String> getWordList({required WalletType type, required String language}) {
     switch (type) {
       case WalletType.bitcoin:
         return getBitcoinWordList(language);

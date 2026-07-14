@@ -38,8 +38,7 @@ class DropdownRow extends StatelessWidget {
                     turns: expanded ? 0.0 : 0.5,
                     curve: Curves.easeOut,
                     child: CakeImageWidget(
-                      imageUrl:
-                      "assets/new-ui/dropdown_arrow.svg",
+                      imageUrl: "assets/new-ui/dropdown_arrow.svg",
                       colorFilter:
                           ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                     ))

@@ -78,17 +78,18 @@ abstract class WalletListViewModelBase with Store {
   WalletType get currentWalletType => _appStore.wallet!.type;
 
   Future<bool> requireHardwareWalletConnection(WalletListItem walletItem) async =>
-      _walletLoadingService.requireHardwareWalletConnection(
-          walletItem.type, walletItem.name);
+      _walletLoadingService.requireHardwareWalletConnection(walletItem.type, walletItem.name);
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
     if ([WalletType.haven, WalletType.wownero].contains(walletItem.type)) {
-      final havenSeedStoreBoxKey = await getEncryptionKey(secureStorage: secureStorageShared, forKey: HavenSeedStore.boxKey);
-      final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(HavenSeedStore.boxName, encryptionKey: havenSeedStoreBoxKey);
+      final havenSeedStoreBoxKey =
+          await getEncryptionKey(secureStorage: secureStorageShared, forKey: HavenSeedStore.boxKey);
+      final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(HavenSeedStore.boxName,
+          encryptionKey: havenSeedStoreBoxKey);
       final backedUpSeed = havenSeedStore.get(walletItem.key);
       printV("seed: $backedUpSeed");
-      throw Exception(backedUpSeed?.seed??"Unknown seed");
+      throw Exception(backedUpSeed?.seed ?? "Unknown seed");
     }
 
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
@@ -101,8 +102,8 @@ abstract class WalletListViewModelBase with Store {
 
   bool get ascending => _appStore.settingsStore.walletListAscending;
 
-  /// Serializes updateList() calls: each caller waits for the previous one to finish, then runs. 
-  /// 
+  /// Serializes updateList() calls: each caller waits for the previous one to finish, then runs.
+  ///
   /// This basically ensures that all calls to updateList() are executed.
   Future<void> _lastUpdate = Future.value();
 

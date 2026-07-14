@@ -47,20 +47,20 @@ extension ProviderTypeName on ProviderType {
 
 class ProvidersHelper {
   static List<ProviderType> getAvailableBuyProviderTypes() => [
-    ProviderType.robinhood,
-    ProviderType.dfx,
-    ProviderType.onramper,
-    ProviderType.moonpay,
-    ProviderType.kriptonim
-  ];
+        ProviderType.robinhood,
+        ProviderType.dfx,
+        ProviderType.onramper,
+        ProviderType.moonpay,
+        ProviderType.kriptonim
+      ];
 
   static List<ProviderType> getAvailableSellProviderTypes() => [
-    // ProviderType.robinhood, // ToDo: (Konsti) Enable once fixed in Exchange Helper, but still waiting for new Docs
-    ProviderType.dfx,
-    ProviderType.onramper,
-    ProviderType.moonpay,
-    ProviderType.kriptonim
-  ];
+        // ProviderType.robinhood, // ToDo: (Konsti) Enable once fixed in Exchange Helper, but still waiting for new Docs
+        ProviderType.dfx,
+        ProviderType.onramper,
+        ProviderType.moonpay,
+        ProviderType.kriptonim
+      ];
 
   static BuyProvider getProviderByType(ProviderType type) {
     switch (type) {
@@ -76,6 +76,6 @@ class ProvidersHelper {
         return getIt.get<MeldBuyProvider>();
       case ProviderType.kriptonim:
         return getIt.get<KryptonimBuyProvider>();
-      }
+    }
   }
 }

@@ -25,7 +25,6 @@ class RescanPage extends StatefulWidget {
 class _RescanPageState extends State<RescanPage> {
   final TextEditingController _heightController = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     Widget child;

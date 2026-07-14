@@ -320,7 +320,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     ),
                   ),
                 ],
-                 if (dashboardViewModel.showZcashMissingFundsCard) ...[
+                if (dashboardViewModel.showZcashMissingFundsCard) ...[
                   SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -335,7 +335,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                       hintWidget: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => launchUrl(
-                          Uri.parse("https://docs.cakewallet.com/tutorials/zashi/#creating-a-new-zcash-wallet-on-cake"),
+                          Uri.parse(
+                              "https://docs.cakewallet.com/tutorials/zashi/#creating-a-new-zcash-wallet-on-cake"),
                           mode: LaunchMode.externalApplication,
                         ),
                         child: Text(
@@ -478,7 +479,7 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
     dashboardViewModel.setMwebEnabled();
   }
-  
+
   Future<void> _rescanInternalChangeZcash(BuildContext context) async {
     dashboardViewModel.rescanInternalChangeZcash();
     await showPopUp<void>(
@@ -493,7 +494,6 @@ class CryptoBalanceWidget extends StatelessWidget {
       ),
     );
   }
-  
 
   Future<void> _dismissMweb(BuildContext context) async {
     await showPopUp<void>(
@@ -508,7 +508,7 @@ class CryptoBalanceWidget extends StatelessWidget {
             ));
     dashboardViewModel.dismissMweb();
   }
-  
+
   Future<void> _dismissZcash(BuildContext context) async {
     await showPopUp<void>(
         context: context,

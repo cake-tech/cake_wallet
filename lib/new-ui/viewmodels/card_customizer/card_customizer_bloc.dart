@@ -19,16 +19,13 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
       : super(CardCustomizerNotLoaded(
-            0, 0, [CardDesign.genericDefault], [],
-            "", -1, displaySats, 0)) {
-
+            0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
     on<ColorSelected>(_onColorSelected);
     on<IconStyleSelected>(_onIconStyleSelected);
     on<DesignSaved>(_onDesignSaved);
     on<AccountNameChanged>(_onAccountNameChanged);
-
 
     add(_Init());
   }
@@ -94,15 +91,14 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     }
     final accountName = (account?.label ?? "") as String;
     late final int accountIndex;
-    if(account != null) {
+    if (account != null) {
       accountIndex = account.id as int;
-    } else if(lightningMode) {
+    } else if (lightningMode) {
       accountIndex = 0;
     } else {
       accountIndex = -1;
     }
-    final curr =
-        lightningMode ? CryptoCurrency.btcln : _wallet.currency;
+    final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
     final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, curr);
     final availableDesigns = _initAvailableDesigns(lightningMode: lightningMode);
@@ -110,8 +106,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     final selectedDesignIndex = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
     final availableIconPaths = CardDesign.iconPathsForWalletType(curr);
-    final selectedIconIndex = _initSelectedIconIndex(
-        currentDesignSettings, availableIconPaths);
+    final selectedIconIndex = _initSelectedIconIndex(currentDesignSettings, availableIconPaths);
 
     emit(CardCustomizerInitial(
         selectedDesignIndex,
@@ -147,8 +142,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(selectedColorIndex: event.newColorIndex));
   }
 
-  void _onIconStyleSelected(
-      IconStyleSelected event, Emitter<CardCustomizerState> emit) {
+  void _onIconStyleSelected(IconStyleSelected event, Emitter<CardCustomizerState> emit) {
     emit(state.copyWith(selectedIconIndex: event.iconIndex));
   }
 

@@ -247,15 +247,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromKeysCredentials(
-            name: name,
-            height: height,
-            spendKey: spendKey!,
-            viewKey: viewKey!,
-            address: address!,
-            password: password,
-            language: 'English',
-            hardwareWalletType: hardwareWalletType
-          );
+              name: name,
+              height: height,
+              spendKey: spendKey!,
+              viewKey: viewKey!,
+              address: address!,
+              password: password,
+              language: 'English',
+              hardwareWalletType: hardwareWalletType);
 
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromKeysCredentials(
@@ -294,11 +293,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.zcash:
           return zcash!.createZcashRestoreWalletFromPrivateKey(
-            name: name,
-            privateKey: options['private_key'] as String,
-            password: password,
-            height: height
-          );
+              name: name,
+              privateKey: options['private_key'] as String,
+              password: password,
+              height: height);
         default:
           break;
       }

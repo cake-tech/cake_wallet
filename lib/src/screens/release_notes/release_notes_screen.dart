@@ -47,12 +47,11 @@ class ReleaseNotesScreen extends StatelessWidget {
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
                             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              decoration: TextDecoration.none,
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                        
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+                                  decoration: TextDecoration.none,
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
                             child: Text(title),
                           ),
                         ),
@@ -115,11 +114,10 @@ class ReleaseNotesScreen extends StatelessWidget {
       children: [
         DefaultTextStyle(
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              decoration: TextDecoration.none,
-              fontSize: 16.0,
-               
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+                  decoration: TextDecoration.none,
+                  fontSize: 16.0,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

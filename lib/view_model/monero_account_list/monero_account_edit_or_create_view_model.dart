@@ -20,7 +20,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
-        label = accountListItem?.label??'',
+        label = accountListItem?.label ?? '',
         _accountListItem = accountListItem,
         _wallet = wallet;
 
@@ -70,14 +70,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = IsExecutingState();
 
       if (_accountListItem != null) {
-        await _moneroAccountList.setLabelAccount(
-            _wallet,
-            accountIndex: _accountListItem.id,
-            label: label);
+        await _moneroAccountList.setLabelAccount(_wallet,
+            accountIndex: _accountListItem.id, label: label);
       } else {
-        await _moneroAccountList.addAccount(
-          _wallet,
-          label: label);
+        await _moneroAccountList.addAccount(_wallet, label: label);
       }
 
       await _wallet.save();

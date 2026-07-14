@@ -5,14 +5,7 @@ part 'shared_preferences.g.dart';
 
 class DevSharedPreferences = DevSharedPreferencesBase with _$DevSharedPreferences;
 
-enum PreferenceType {
-  unknown,
-  string,
-  int,
-  double,
-  bool,
-  listString
-}
+enum PreferenceType { unknown, string, int, double, bool, listString }
 
 abstract class DevSharedPreferencesBase with Store {
   DevSharedPreferencesBase() {

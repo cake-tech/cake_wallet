@@ -429,7 +429,8 @@ class AddressRow extends StatelessWidget {
                                   fontSize: 12,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                            Text("${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
+                            Text(
+                                "${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
