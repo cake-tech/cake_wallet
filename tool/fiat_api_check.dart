@@ -76,7 +76,7 @@ void main() {
   // --- B. Run App in a Zone to Capture Prints ---
   runZoned(
     () async {
-      printV('--- Starting Verified Price Check ---');
+      print('--- Starting Verified Price Check ---');
 
       final Map<String, List<String>> workingPairs = {};
       final Map<String, List<String>> failedPairs = {};
@@ -130,7 +130,7 @@ void main() {
             }
 
             // Print immediate status (Captured by Zone)
-            printV('$logPrefix $logMessage');
+            print('$logPrefix $logMessage');
 
             // Aggregate
             if (isSuccess) {
@@ -148,25 +148,25 @@ void main() {
       }
 
       // --- FINAL SUMMARY ---
-      printV('\n\n=== SUMMARY ===\n');
+      print('\n\n=== SUMMARY ===\n');
 
       // Print Successful
       workingPairs.forEach((crypto, fiats) {
         if (fiats.isNotEmpty) {
-          printV('✅ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
+          print('✅ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
         }
       });
 
-      printV('\n--------------------------------------------------\n');
+      print('\n--------------------------------------------------\n');
 
       // Print Failed
       failedPairs.forEach((crypto, fiats) {
         if (fiats.isNotEmpty) {
-          printV('❌ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
+          print('❌ ${crypto.toUpperCase()}: ${fiats.join(", ")}');
         }
       });
 
-      printV('\n=== DONE ===');
+      print('\n=== DONE ===');
     },
 
     // --- C. The Interceptor ---

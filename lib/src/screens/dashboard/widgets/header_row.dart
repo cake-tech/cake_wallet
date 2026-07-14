@@ -62,11 +62,6 @@ class HeaderRow extends StatelessWidget {
                 child: GestureDetector(
                   key: ValueKey('transactions_page_header_row_transaction_filter_button_key'),
                   onTap: () {
-                    showPopUp<void>(
-                      context: context,
-                      builder: (context) =>
-                          FilterWidget(filterItems: dashboardViewModel.filterItems),
-                    );
                   },
                   child: Semantics(
                     label: 'Transaction Filter',

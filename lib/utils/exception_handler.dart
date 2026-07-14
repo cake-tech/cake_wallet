@@ -277,6 +277,7 @@ class ExceptionHandler {
     "invalid signature",
     "invalid password",
     "NetworkImage._loadAsync",
+    "Invalid image data",
     "SSLV3_ALERT_BAD_RECORD_MAC",
     "PlatformException(already_active, File picker is already active",
     // SVG-related errors
@@ -296,6 +297,10 @@ class ExceptionHandler {
     "Wrong Device Status: 0x5515 (UNKNOWN)",
     "Command handling failed. With error: hostUnreachable",
 
+    // Android IME/Gboard occasionally reports a caret offset past the end of
+    // the text on the platform text-input channel while typing. Non-fatal
+    // framework<->platform desync; the app keeps working.
+    "invalid selection start",
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
@@ -452,6 +457,19 @@ class ExceptionHandler {
       final stack = errorDetails.stack.toString();
       if (stack.contains("handleFocusHighlightModeChange") ||
           stack.contains("_HighlightModeManager")) {
+        return true;
+      }
+    }
+
+    if (errorDetails.exception.toString().contains("Cannot add event after closing")) {
+      // grpc-dart teardown race (e.g. the MWEB channel on litecoin): a buffered outgoing
+      // frame is delivered to the http2 stream's sink after the call/channel was
+      // terminated. The message alone is too generic to ignore, so require the exact
+      // shape of grpc's forwarding chain: .map().map().handleError().listen(sink.add).
+      final stack = errorDetails.stack.toString();
+      if (stack.contains("_StreamSinkWrapper.add") &&
+          stack.contains("_MapStream._handleData") &&
+          stack.contains("_HandleErrorStream._handleData")) {
         return true;
       }
     }
