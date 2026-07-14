@@ -18,11 +18,7 @@ import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 
 class PowNodeCreateOrEditPage extends StatefulWidget {
   PowNodeCreateOrEditPage(
-      {required this.nodeCreateOrEditViewModel, this.editingNode, this.isSelected})
-  ;
-
-
-
+      {required this.nodeCreateOrEditViewModel, this.editingNode, this.isSelected});
 
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
@@ -34,7 +30,6 @@ class PowNodeCreateOrEditPage extends StatefulWidget {
 
 class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
   final _formKey = GlobalKey<NodeFormState>();
-
 
   @override
   void initState() {
@@ -72,7 +67,6 @@ class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: KeyboardHideOverlay(
@@ -82,11 +76,15 @@ class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
               title: widget.editingNode != null ? S.current.edit_node : S.current.node_new,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: Navigator.of(context).pop,
-              trailingIcon: CakeImageWidget(imageUrl:
-              "assets/new-ui/scan.svg",width:24,height:24,
-                colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+              trailingIcon: CakeImageWidget(
+                imageUrl: "assets/new-ui/scan.svg",
+                width: 24,
+                height: 24,
+                colorFilter:
+                    ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
-              onTrailingPressed: () => widget.nodeCreateOrEditViewModel.scanQRCodeForNewNode(context),
+              onTrailingPressed: () =>
+                  widget.nodeCreateOrEditViewModel.scanQRCodeForNewNode(context),
             ),
             Expanded(
               child: Container(
@@ -112,21 +110,25 @@ class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
                                                 builder: (BuildContext context) {
                                                   return AlertWithTwoActions(
                                                       alertTitle: S.of(context).remove_node,
-                                                      alertContent: S.of(context).remove_node_message,
+                                                      alertContent:
+                                                          S.of(context).remove_node_message,
                                                       rightButtonText: S.of(context).remove,
                                                       leftButtonText: S.of(context).cancel,
-                                                      actionRightButton: () => Navigator.pop(context, true),
-                                                      actionLeftButton: () => Navigator.pop(context, false));
+                                                      actionRightButton: () =>
+                                                          Navigator.pop(context, true),
+                                                      actionLeftButton: () =>
+                                                          Navigator.pop(context, false));
                                                 }) ??
                                             false;
-        
+
                                         if (confirmed) {
                                           await widget.editingNode!.delete();
                                           Navigator.of(context).pop();
                                         }
                                       },
                                       text: S.of(context).delete,
-                                      isDisabled: !widget.nodeCreateOrEditViewModel.isReady || (widget.isSelected ?? false),
+                                      isDisabled: !widget.nodeCreateOrEditViewModel.isReady ||
+                                          (widget.isSelected ?? false),
                                       color: Theme.of(context).colorScheme.errorContainer,
                                       textColor: Theme.of(context).colorScheme.onPrimary,
                                     ),
@@ -141,16 +143,17 @@ class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
                                           !_formKey.currentState!.validate()) {
                                         return;
                                       }
-        
-                                      await widget.nodeCreateOrEditViewModel.save(
-                                          saveAsCurrent: widget.isSelected ?? false);
+
+                                      await widget.nodeCreateOrEditViewModel
+                                          .save(saveAsCurrent: widget.isSelected ?? false);
                                       Navigator.of(context).pop();
                                     },
                                     text: S.of(context).save,
                                     color: Theme.of(context).colorScheme.primary,
                                     textColor: Theme.of(context).colorScheme.onPrimary,
                                     isDisabled: (!widget.nodeCreateOrEditViewModel.isReady) ||
-                                        (widget.nodeCreateOrEditViewModel.connectionState is IsExecutingState),
+                                        (widget.nodeCreateOrEditViewModel.connectionState
+                                            is IsExecutingState),
                                   ),
                                 )),
                               ],

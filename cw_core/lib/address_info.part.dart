@@ -41,7 +41,5 @@ class AddressInfoAdapter extends TypeAdapter<AddressInfo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AddressInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is AddressInfoAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

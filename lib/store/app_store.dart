@@ -48,7 +48,6 @@ abstract class AppStoreBase with Store {
 
   SettingsStore settingsStore;
 
-
   ThemeStore themeStore;
 
   @observable

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';

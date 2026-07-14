@@ -48,7 +48,8 @@ class LitecoinWalletService extends WalletService<
       password: credentials.password!,
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
-      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
+      derivationInfo:
+          credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -64,7 +65,6 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
       throw Exception('Wallet not found');
@@ -125,8 +125,9 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -150,8 +151,7 @@ class LitecoinWalletService extends WalletService<
     final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    derivationInfo.derivationPath =
-        credentials.hwAccountData.derivationPath;
+    derivationInfo.derivationPath = credentials.hwAccountData.derivationPath;
     await derivationInfo.save();
     credentials.walletInfo!.save();
 
@@ -170,7 +170,7 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> restoreFromKeys(LitecoinWalletFromKeysCredentials credentials,
-          {bool? isTestnet}) async {
+      {bool? isTestnet}) async {
     final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
@@ -202,7 +202,8 @@ class LitecoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
-      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
+      derivationInfo:
+          credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

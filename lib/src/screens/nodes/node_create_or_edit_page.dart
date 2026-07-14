@@ -37,16 +37,15 @@ class NodeCreateOrEditPage extends StatefulWidget {
 class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
   final _nodeFormKey = GlobalKey<NodeFormState>();
 
-
   @override
   void initState() {
     super.initState();
     reaction(
-          (_) => widget.nodeCreateOrEditViewModel.connectionState,
-          (ExecutionState state) {
+      (_) => widget.nodeCreateOrEditViewModel.connectionState,
+      (ExecutionState state) {
         if (state is ExecutedSuccessfullyState) {
           WidgetsBinding.instance.addPostFrameCallback(
-                (_) => showPopUp<void>(
+            (_) => showPopUp<void>(
               context: context,
               builder: (context) => AlertWithOneAction(
                 alertTitle: S.of(context).new_node_testing,
@@ -62,7 +61,7 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
 
         if (state is FailureState) {
           WidgetsBinding.instance.addPostFrameCallback(
-                (_) => showPopUp<void>(
+            (_) => showPopUp<void>(
               context: context,
               builder: (context) => AlertWithOneAction(
                 alertTitle: S.of(context).error,
@@ -76,19 +75,16 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
       },
     );
 
-
-    reaction((_)=>widget.nodeCreateOrEditViewModel.state, (state) async {
-      if(state is ExecutedSuccessfullyState) {
+    reaction((_) => widget.nodeCreateOrEditViewModel.state, (state) async {
+      if (state is ExecutedSuccessfullyState) {
         await Future.delayed(Duration(milliseconds: 100));
         if (mounted) Navigator.of(context).pop(widget.nodeCreateOrEditViewModel.editingNode);
       }
-
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
@@ -112,49 +108,57 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
               child: KeyboardHideOverlay(
                 child: Container(
                   padding: const EdgeInsets.only(left: 18, right: 18),
-                  child: Column(
-                    spacing: 18,
-                    children: [NodeForm(
+                  child: Column(spacing: 18, children: [
+                    NodeForm(
                       key: _nodeFormKey,
                       nodeViewModel: widget.nodeCreateOrEditViewModel,
                     ),
-      NewListSections(sections: {"":[
-        if(widget.editingNode != null)
+                    NewListSections(sections: {
+                      "": [
+                        if (widget.editingNode != null)
+                          ListItemRegularRow(
+                              keyValue: "share",
+                              label: S.of(context).share_this_node,
+                              foregroundColor: Theme.of(context).colorScheme.primary,
+                              showArrow: false,
+                              onTap: () {
+                                Navigator.of(context).push(CupertinoPageRoute(
+                                    builder: (context) => NodeSharePage(
+                                        uri: widget.editingNode!.uri,
+                                        currency: walletTypeToCryptoCurrency(widget.type!))));
+                              }),
+                        if (!(widget.editingNode == null ||
+                            !widget.nodeCreateOrEditViewModel.isReady ||
+                            widget.editingNode!.isBuiltin ||
+                            (widget.isSelected ?? false)))
+                          ListItemRegularRow(
+                              keyValue: "delete",
+                              label: S.of(context).delete_this_node,
+                              foregroundColor: Theme.of(context).colorScheme.errorContainer,
+                              showArrow: false,
+                              onTap: () async {
+                                final confirmed = await showPopUp<bool>(
+                                      context: context,
+                                      builder: (context) => AlertWithTwoActions(
+                                        alertTitle: S.of(context).remove_node,
+                                        alertContent: S.of(context).remove_node_message,
+                                        rightButtonText: S.of(context).remove,
+                                        leftButtonText: S.of(context).cancel,
+                                        actionRightButton: () => Navigator.pop(context, true),
+                                        actionLeftButton: () => Navigator.pop(context, false),
+                                      ),
+                                    ) ??
+                                    false;
 
-          ListItemRegularRow(keyValue: "share", label: S.of(context).share_this_node, foregroundColor: Theme.of(context).colorScheme.primary, showArrow: false, onTap: (){
-
-          Navigator.of(context).push(CupertinoPageRoute(builder: (context)=>NodeSharePage(uri: widget.editingNode!.uri, currency: walletTypeToCryptoCurrency(widget.type!))));
-          
-          
-        }),
-        if(!(widget.editingNode == null ||
-            !widget.nodeCreateOrEditViewModel.isReady ||
-            widget.editingNode!.isBuiltin ||
-            (widget.isSelected ?? false)))
-        ListItemRegularRow(keyValue: "delete", label: S.of(context).delete_this_node, foregroundColor: Theme.of(context).colorScheme.errorContainer, showArrow: false, onTap: ()async{
-          final confirmed = await showPopUp<bool>(
-            context: context,
-            builder: (context) => AlertWithTwoActions(
-              alertTitle: S.of(context).remove_node,
-              alertContent: S.of(context).remove_node_message,
-              rightButtonText: S.of(context).remove,
-              leftButtonText: S.of(context).cancel,
-              actionRightButton: () => Navigator.pop(context, true),
-              actionLeftButton: () => Navigator.pop(context, false),
-            ),
-          ) ??
-              false;
-
-          if (confirmed) {
-            await widget.nodeCreateOrEditViewModel.delete(editingNode: widget.editingNode!);
-            Navigator.of(context).pop();
-          }
-
-        })
-      ]})
-
-                    ]
-                  ),
+                                if (confirmed) {
+                                  await widget.nodeCreateOrEditViewModel
+                                      .delete(editingNode: widget.editingNode!);
+                                  Navigator.of(context).pop();
+                                }
+                              })
+                      ]
+                    })
+                  ]),
                 ),
               ),
             ),

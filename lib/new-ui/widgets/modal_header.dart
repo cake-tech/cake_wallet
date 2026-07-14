@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 
 class ModalHeader extends StatelessWidget {
   const ModalHeader(
-      {super.key, required this.iconPath, required this.message, required this.title, this.bottomWidget});
+      {super.key,
+      required this.iconPath,
+      required this.message,
+      required this.title,
+      this.bottomWidget});
 
   final String iconPath;
   final String title;
@@ -25,8 +29,7 @@ class ModalHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CakeImageWidget(
-                    imageUrl: iconPath, width: 36, height: 36),
+                CakeImageWidget(imageUrl: iconPath, width: 36, height: 36),
                 Text(
                   title,
                   style: TextStyle(
@@ -44,7 +47,6 @@ class ModalHeader extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
                     )),
-
               ],
             ),
           ),

@@ -73,19 +73,19 @@ class UnspentCoinsListItem extends StatelessWidget {
                           AutoSizeText(
                             note,
                             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              color: amountColor,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
+                                  color: amountColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
                             maxLines: 1,
                           ),
                         AutoSizeText(
                           amount,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: amountColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                                color: amountColor,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
                           maxLines: 1,
                         )
                       ],
@@ -111,21 +111,21 @@ class UnspentCoinsListItem extends StatelessWidget {
                   ],
                 ),
                 if (fiatAmount.isNotEmpty)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AutoSizeText(
-                      fiatAmount,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: amountColor,
-                        fontSize: 1,
-                        fontWeight: FontWeight.w600,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AutoSizeText(
+                        fiatAmount,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: amountColor,
+                              fontSize: 1,
+                              fontWeight: FontWeight.w600,
+                            ),
+                        maxLines: 1,
                       ),
-                      maxLines: 1,
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 Expanded(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -134,8 +134,8 @@ class UnspentCoinsListItem extends StatelessWidget {
                       AutoSizeText(
                         '${address.substring(0, 5)}...${address.substring(address.length - 5)}', // ToDo: Maybe use address label
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: addressColor,
-                        ),
+                              color: addressColor,
+                            ),
                         maxLines: 1,
                       ),
                       Row(

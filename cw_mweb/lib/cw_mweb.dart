@@ -18,7 +18,6 @@ class CwMweb {
   static Timer? logTimer;
   static String? nodeUriOverride;
 
-
   static Future<void> setNodeUriOverride(String uri) async {
     nodeUriOverride = uri;
     if (_rpcClient != null) {
@@ -232,13 +231,16 @@ class CwMweb {
   static Future<PsbtResponse> psbtAddRecipient(PsbtAddRecipientRequest request) async {
     log("mweb.psbtAddRecipient() called");
     _rpcClient = await stub();
-    return await _rpcClient!.psbtAddRecipient(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    return await _rpcClient!
+        .psbtAddRecipient(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
 
-  static Future<PsbtGetRecipientsResponse> psbtGetRecipients(PsbtGetRecipientsRequest request) async {
+  static Future<PsbtGetRecipientsResponse> psbtGetRecipients(
+      PsbtGetRecipientsRequest request) async {
     log("mweb.psbtGetRecipients() called");
     _rpcClient = await stub();
-    return await _rpcClient!.psbtGetRecipients(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    return await _rpcClient!
+        .psbtGetRecipients(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
 
   static Future<CreateResponse> psbtExtract(PsbtExtractRequest request) async {
@@ -246,6 +248,7 @@ class CwMweb {
     _rpcClient = await stub();
     return await _rpcClient!.psbtExtract(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
+
   static Future<PsbtResponse> psbtSign(PsbtSignRequest request) async {
     printV("mweb.psbtSign() called");
     _rpcClient = await stub();
@@ -255,6 +258,7 @@ class CwMweb {
   static Future<PsbtResponse> psbtSignNonMweb(PsbtSignNonMwebRequest request) async {
     printV("mweb.psbtSignNonMweb() called");
     _rpcClient = await stub();
-    return await _rpcClient!.psbtSignNonMweb(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    return await _rpcClient!
+        .psbtSignNonMweb(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
 }

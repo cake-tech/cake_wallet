@@ -17,7 +17,7 @@ class ConfirmDetailsCard extends StatelessWidget {
       builder: (_) {
         final feeParts = <String>[
           bridgeViewModel.quoteNativeFeeFormattedForDisplay,
-            bridgeViewModel.quoteNativeFiatFeeFormattedForDisplay,
+          bridgeViewModel.quoteNativeFiatFeeFormattedForDisplay,
         ];
         final feeLine = feeParts.join(' ');
 
@@ -40,7 +40,8 @@ class ConfirmDetailsCard extends StatelessWidget {
               ),
               ExpandableBridgeDetailRow(
                 label: S.of(context).to,
-                title: bridgeViewModel.destinationWalletName ?? bridgeViewModel.recipientAddress.trim(),
+                title: bridgeViewModel.destinationWalletName ??
+                    bridgeViewModel.recipientAddress.trim(),
                 address: bridgeViewModel.recipientAddress.trim(),
                 showChevron: bridgeViewModel.destinationWalletName != null,
               ),

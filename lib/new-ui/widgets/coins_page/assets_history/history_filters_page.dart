@@ -55,7 +55,8 @@ class HistoryFiltersPage extends StatelessWidget {
                             if (dashboardViewModel.tradeFilterStore.displayAllTrades) {
                               subtitle = S.of(context).manage_providers;
                               subtitleColor = Theme.of(context).colorScheme.onSurfaceVariant;
-                            } else if (dashboardViewModel.tradeFilterStore.enabledProvidersCount == 0) {
+                            } else if (dashboardViewModel.tradeFilterStore.enabledProvidersCount ==
+                                0) {
                               subtitle = S.of(context).no_providers_selected;
                               subtitleColor = Color(0xFFFFB84E);
                             } else {
@@ -74,10 +75,12 @@ class HistoryFiltersPage extends StatelessWidget {
                                 value: item.value(),
                                 onChanged: (val) {
                                   if ((val &&
-                                          dashboardViewModel.tradeFilterStore.enabledProvidersCount ==
+                                          dashboardViewModel
+                                                  .tradeFilterStore.enabledProvidersCount ==
                                               0) ||
                                       (!val &&
-                                          dashboardViewModel.tradeFilterStore.enabledProvidersCount >
+                                          dashboardViewModel
+                                                  .tradeFilterStore.enabledProvidersCount >
                                               0)) {
                                     dashboardViewModel.tradeFilterStore
                                         .toggleDisplayExchange(ExchangeProviderDescription.all);

@@ -22,11 +22,7 @@ class YatPageIndicator extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: isFilled
                           ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)
-                  )
-              );
-            })
-        )
-    );
+                          : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)));
+            })));
   }
 }
