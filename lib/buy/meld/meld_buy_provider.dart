@@ -20,13 +20,13 @@ import 'package:url_launcher/url_launcher.dart';
 class MeldBuyProvider extends BuyProvider {
   MeldBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
       : super(
-      wallet: wallet,
-      isTestEnvironment: isTestEnvironment,
-      hardwareWalletVM: null,
-      supportedCryptoList: supportedCryptoToFiatPairs(
-          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-      supportedFiatList: supportedFiatToCryptoPairs(
-          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
+            wallet: wallet,
+            isTestEnvironment: isTestEnvironment,
+            hardwareWalletVM: null,
+            supportedCryptoList: supportedCryptoToFiatPairs(
+                notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+            supportedFiatList: supportedFiatToCryptoPairs(
+                notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _isProduction = false;
 
@@ -45,7 +45,7 @@ class MeldBuyProvider extends BuyProvider {
   static const List<CryptoCurrency> _notSupportedCrypto = [];
   static const List<FiatCurrency> _notSupportedFiat = [];
 
-  static String get _testPublicKey => '' ; //secrets.meldTestPublicKey;
+  static String get _testPublicKey => ''; //secrets.meldTestPublicKey;
 
   @override
   String get title => 'Meld';
@@ -80,7 +80,6 @@ class MeldBuyProvider extends BuyProvider {
           'content-type': 'application/json',
         },
       );
-      
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
@@ -100,13 +99,13 @@ class MeldBuyProvider extends BuyProvider {
   @override
   Future<List<Quote>?> fetchQuote(
       {required CryptoCurrency cryptoCurrency,
-        required FiatCurrency fiatCurrency,
-        required double amount,
-        required bool isBuyAction,
-        required String walletAddress,
-        PaymentType? paymentType,
-        String? customPaymentMethodType,
-        String? countryCode}) async {
+      required FiatCurrency fiatCurrency,
+      required double amount,
+      required bool isBuyAction,
+      required String walletAddress,
+      PaymentType? paymentType,
+      String? customPaymentMethodType,
+      String? countryCode}) async {
     String? paymentMethod;
     if (paymentType != null && paymentType != PaymentType.all) {
       paymentMethod = normalizePaymentMethod(paymentType);
@@ -136,7 +135,6 @@ class MeldBuyProvider extends BuyProvider {
         headers: headers,
         body: body,
       );
-      
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;

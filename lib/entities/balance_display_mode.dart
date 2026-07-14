@@ -11,12 +11,9 @@ class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
     BalanceDisplayMode.displayableBalance,
   ];
   static const fullBalance = BalanceDisplayMode(raw: 0, title: 'Full Balance');
-  static const availableBalance =
-      BalanceDisplayMode(raw: 1, title: 'Available Balance');
-  static const hiddenBalance =
-      BalanceDisplayMode(raw: 2, title: 'Hidden Balance');
-  static const displayableBalance =
-      BalanceDisplayMode(raw: 3, title: 'Displayable Balance');
+  static const availableBalance = BalanceDisplayMode(raw: 1, title: 'Available Balance');
+  static const hiddenBalance = BalanceDisplayMode(raw: 2, title: 'Hidden Balance');
+  static const displayableBalance = BalanceDisplayMode(raw: 3, title: 'Displayable Balance');
 
   static BalanceDisplayMode deserialize({required int raw}) {
     switch (raw) {

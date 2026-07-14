@@ -44,4 +44,3 @@ class BSCClient extends EVMChainClient {
   @override
   int get chainId => 56;
 }
-

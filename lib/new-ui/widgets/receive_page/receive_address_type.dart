@@ -52,7 +52,8 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
             spacing: 12.0,
             children: [
               if (iconPath != null)
-                CakeImageWidget(imageUrl:iconPath,
+                CakeImageWidget(
+                  imageUrl: iconPath,
                   width: 24,
                   height: 24,
                   colorFilter: ColorFilter.mode(

@@ -50,10 +50,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
   ObservableList<UnspentCoinsItem> items;
 
   @computed
-  List<UnspentCoinsItem> get nonFrozenItems => items.where((e)=>!e.isFrozen).toList();
+  List<UnspentCoinsItem> get nonFrozenItems => items.where((e) => !e.isFrozen).toList();
 
   @computed
-  List<UnspentCoinsItem> get frozenItems => items.where((e)=>e.isFrozen).toList();
+  List<UnspentCoinsItem> get frozenItems => items.where((e) => e.isFrozen).toList();
 
   final Map<String, Map<String, dynamic>> _originalState;
 
@@ -74,7 +74,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @computed
   Map<String, String> get fiatAmounts {
-
     final currency = wallet.currency;
     final price = _fiatConversationStore.prices[currency];
     if (price == null || price == 0.0 || isFiatDisabled) return {};
@@ -149,7 +148,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if (wallet.type == WalletType.wownero) {
       await wownero!.updateUnspents(wallet);
     }
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin]
+        .contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
     if (wallet.type == WalletType.decred) {
@@ -176,7 +176,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-    List<Unspent> _getSpecificUnspents(UnspentCoinType overrideCoinTypeToSpendFrom) {
+  List<Unspent> _getSpecificUnspents(UnspentCoinType overrideCoinTypeToSpendFrom) {
     switch (wallet.type) {
       case WalletType.monero:
         return monero!.getUnspents(wallet);

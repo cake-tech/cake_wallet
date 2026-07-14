@@ -6,7 +6,6 @@ part 'socket_health_logs_view_model.g.dart';
 class SocketHealthLogsViewModel = SocketHealthLogsViewModelBase with _$SocketHealthLogsViewModel;
 
 abstract class SocketHealthLogsViewModelBase with Store {
-
   @observable
   bool isLoading = false;
 

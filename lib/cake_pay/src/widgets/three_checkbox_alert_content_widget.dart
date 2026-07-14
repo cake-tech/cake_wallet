@@ -48,8 +48,8 @@ class ThreeCheckboxAlert extends BaseAlertDialog {
 
   @override
   VoidCallback get actionRight => () {
-    actionRightButton(checkbox1, checkbox2, checkbox3);
-  };
+        actionRightButton(checkbox1, checkbox2, checkbox3);
+      };
 
   @override
   bool get barrierDismissible => alertBarrierDismissible;
@@ -87,13 +87,13 @@ class ThreeCheckboxAlertContent extends StatefulWidget {
 
   @override
   _ThreeCheckboxAlertContentState createState() => _ThreeCheckboxAlertContentState(
-    checkbox1: checkbox1,
-    toggleCheckbox1: toggleCheckbox1,
-    checkbox2: checkbox2,
-    toggleCheckbox2: toggleCheckbox2,
-    checkbox3: checkbox3,
-    toggleCheckbox3: toggleCheckbox3,
-  );
+        checkbox1: checkbox1,
+        toggleCheckbox1: toggleCheckbox1,
+        checkbox2: checkbox2,
+        toggleCheckbox2: toggleCheckbox2,
+        checkbox3: checkbox3,
+        toggleCheckbox3: toggleCheckbox3,
+      );
 
   static _ThreeCheckboxAlertContentState? of(BuildContext context) {
     return context.findAncestorStateOfType<_ThreeCheckboxAlertContentState>();

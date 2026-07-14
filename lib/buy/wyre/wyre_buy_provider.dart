@@ -19,13 +19,13 @@ class WyreBuyProvider extends BuyProvider {
   WyreBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
       : baseApiUrl = isTestEnvironment ? _baseTestApiUrl : _baseProductApiUrl,
         super(
-          wallet: wallet,
-          isTestEnvironment: isTestEnvironment,
-          hardwareWalletVM: null,
-          supportedCryptoList: supportedCryptoToFiatPairs(
-              notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-          supportedFiatList: supportedFiatToCryptoPairs(
-              notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
+            wallet: wallet,
+            isTestEnvironment: isTestEnvironment,
+            hardwareWalletVM: null,
+            supportedCryptoList: supportedCryptoToFiatPairs(
+                notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+            supportedFiatList: supportedFiatToCryptoPairs(
+                notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _baseTestApiUrl = 'https://api.testwyre.com';
   static const _baseProductApiUrl = 'https://api.sendwyre.com';
@@ -89,7 +89,6 @@ class WyreBuyProvider extends BuyProvider {
       throw BuyException(title: providerDescription, content: 'Url $url is not found!');
     }
 
-    
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final urlFromResponse = responseJSON['url'] as String;
     return urlFromResponse;
@@ -120,7 +119,6 @@ class WyreBuyProvider extends BuyProvider {
       throw BuyException(title: providerDescription, content: 'Quote is not found!');
     }
 
-    
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final sourceAmount = responseJSON['sourceAmount'] as double;
     final destAmount = responseJSON['destAmount'] as double;

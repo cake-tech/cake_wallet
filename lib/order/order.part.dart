@@ -71,7 +71,5 @@ class OrderAdapter extends TypeAdapter<Order> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OrderAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is OrderAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

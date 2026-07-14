@@ -228,7 +228,8 @@ class CreatePinWelcomePage extends BasePage {
                 child: PrimaryButton(
                   key: ValueKey('create_pin_welcome_page_create_a_pin_button_key'),
                   onPressed: () => Navigator.pushNamed(context, Routes.welcomeWallet),
-                  text: isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
+                  text:
+                      isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
                   color: Theme.of(context).colorScheme.primary,
                   textColor: Theme.of(context).colorScheme.onPrimary,
                 ),

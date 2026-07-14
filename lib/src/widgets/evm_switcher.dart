@@ -83,8 +83,7 @@ class _EvmSwitcherState extends State<EvmSwitcher> {
         .toList(growable: false);
   }
 
-  bool _hiddenSetsEqual(Set<int> a, Set<int> b) =>
-      a.length == b.length && a.containsAll(b);
+  bool _hiddenSetsEqual(Set<int> a, Set<int> b) => a.length == b.length && a.containsAll(b);
 
   int get _selectedIndex {
     if (widget.currentChain == null) return -1;
