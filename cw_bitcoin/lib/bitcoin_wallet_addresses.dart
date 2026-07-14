@@ -83,7 +83,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @action
-  Future<void> newPayjoinReceiver() async {
+  Future<void> newPayjoinReceiver({bool shouldSaveRecipientAddress = false}) async {
     // Soft guard: skip silently when the wallet has no spendable UTXOs, so the
     // receive page can render without surfacing a receiver-creation error.
     // PayjoinManager.initReceiver also enforces this as a hard guard.
@@ -92,12 +92,19 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       return;
     }
     try {
-      final endpoint = await payjoinManager.initReceiver(payjoinCompatibleAddress);
+      // Derive the receiver output address once and reuse it for both
+      // initReceiver (which embeds it in the pj endpoint / original PSBT) and
+      // spawnReceiver (which drives proposal processing). Re-deriving would
+      // burn two indices and yield mismatched addresses, breaking output
+      // ownership identification.
+      final address = generatePayjoinCompatibleAddress();
+      final endpoint = await payjoinManager.initReceiver(
+          address, false, 0, shouldSaveRecipientAddress);
       if (endpoint.isNotEmpty) {
         payjoinEndpoint = endpoint;
         await payjoinManager.spawnReceiver(
           pjEndpoint: endpoint,
-          address: payjoinCompatibleAddress,
+          address: address,
         );
       }
     } catch (e) {

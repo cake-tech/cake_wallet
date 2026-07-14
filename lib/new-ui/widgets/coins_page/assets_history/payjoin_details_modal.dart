@@ -59,8 +59,8 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
     return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertWithTwoActions(
-            alertTitle: 'Cancel Payjoin',
-            alertContent: 'Are you sure you want to cancel this payjoin session?',
+            alertTitle: S.of(ctx).cancel_payjoin,
+            alertContent: S.of(ctx).cancel_payjoin_content,
             leftButtonText: S.of(ctx).close,
             rightButtonText: S.of(ctx).cancel,
             actionLeftButton: () => Navigator.of(ctx).pop(false),
@@ -74,8 +74,8 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
     return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertWithTwoActions(
-            alertTitle: 'Fallback Broadcast',
-            alertContent: 'Broadcast the original transaction instead of the payjoin?',
+            alertTitle: S.of(ctx).fallback_broadcast,
+            alertContent: S.of(ctx).fallback_broadcast_content,
             leftButtonText: S.of(ctx).cancel,
             rightButtonText: S.of(ctx).ok,
             actionLeftButton: () => Navigator.of(ctx).pop(false),
@@ -124,7 +124,7 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
                           ),
                           SizedBox(height: 10),
                           Text(
-                            "${isOutgoing ? S.of(context).outgoing : S.of(context).incoming} Payjoin",
+                            "${isOutgoing ? S.of(context).sent : S.of(context).received}${S.of(context).pending}",
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                           ),
                           CopyWrapper(
@@ -226,7 +226,7 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
                                       if (vm.canCancel)
                                         _actionButton(
                                           context: context,
-                                          label: 'Cancel',
+                                          label: S.of(context).cancel,
                                           outlined: true,
                                           onPressed: () async {
                                             if (await _confirmCancel(context)) {
@@ -238,14 +238,14 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
                                       if (vm.canFallback)
                                         _actionButton(
                                           context: context,
-                                          label: 'Fallback Broadcast',
+                                          label: S.of(context).fallback_broadcast,
                                           outlined: false,
                                           onPressed: () async {
                                             if (await _confirmFallback(context)) {
                                               try {
                                                 await vm.fallbackBroadcast();
                                               } catch (e) {
-                                                showBar<void>(context, 'Fallback failed: $e');
+                                                showBar<void>(context, S.of(context).fallback_failed(e.toString()));
                                                 return;
                                               }
                                               if (context.mounted) Navigator.of(context).pop();

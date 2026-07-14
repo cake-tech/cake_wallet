@@ -209,7 +209,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri, bool shouldSaveRecipientAddress = false});
 
   String getAddress(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);

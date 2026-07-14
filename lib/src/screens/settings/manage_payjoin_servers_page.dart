@@ -200,7 +200,7 @@ class _ManagePayjoinServersBodyState
           ],
         ),
       ),
-    );
+    ).whenComplete(urlController.dispose);
   }
 }
 

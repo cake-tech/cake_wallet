@@ -77,6 +77,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     var amount = 0;
     var totalOutAmount = 0;
 
+    var walletInputCount = 0;
     for (dynamic vin in vins) {
       final vout = vin['vout'] as int;
       final out = vin['tx']['vout'][vout] as Map;
@@ -85,8 +86,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
       if (outAddresses?.intersection(addressesSet).isNotEmpty ?? false) {
         direction = TransactionDirection.outgoing;
+        walletInputCount++;
       }
     }
+
+    final isPayjoin = walletInputCount > 0 && walletInputCount < vins.length;
 
     for (dynamic out in vout) {
       final outAddresses = out['scriptPubKey']['addresses'] as List<Object>? ?? [];
@@ -111,7 +115,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: direction,
         amount: Money.fromInt(amount, walletTypeToCryptoCurrency(type)),
         date: date,
-        confirmations: confirmations);
+        confirmations: confirmations,
+        additionalInfo: {
+          if (isPayjoin) 'isPayjoin': true,
+          if (isPayjoin) 'payjoinDirection': direction.name,
+        });
   }
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
@@ -123,6 +131,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     var direction = TransactionDirection.incoming;
     var amount = 0;
     var inputAmount = 0;
+    var walletInputCount = 0;
+    var walletInputAmount = 0;
     var totalOutAmount = 0;
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
@@ -140,8 +150,13 @@ class ElectrumTransactionInfo extends TransactionInfo {
       if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
         direction = TransactionDirection.outgoing;
         inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
+        walletInputAmount += outTransaction.amount.toInt();
+        walletInputCount++;
       }
     }
+
+    final isPayjoin =
+        walletInputCount > 0 && walletInputCount < bundle.originalTransaction.inputs.length;
 
     final receivedAmounts = <int>[];
     for (final out in bundle.originalTransaction.outputs) {
@@ -182,6 +197,18 @@ class ElectrumTransactionInfo extends TransactionInfo {
       amount = receivedAmounts.reduce((a, b) => a + b);
     }
 
+    final receivedSum = receivedAmounts.isEmpty ? 0 : receivedAmounts.reduce((a, b) => a + b);
+    final netFlow = receivedSum - walletInputAmount;
+
+    if (direction == TransactionDirection.outgoing && walletInputAmount > 0 && netFlow > 0) {
+      // Payjoin receive: wallet contributes input but receives net positive
+      direction = TransactionDirection.incoming;
+      amount = netFlow;
+    } else if (isPayjoin && direction == TransactionDirection.outgoing) {
+      // Payjoin send: net debit minus fee = intended amount
+      amount = walletInputAmount - receivedSum - (inputAmount - totalOutAmount);
+    }
+
     // MWEB HogEx
     final isHogExTx = (BtcTransaction tx) {
       if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty) return false;
@@ -207,7 +234,14 @@ class ElectrumTransactionInfo extends TransactionInfo {
         amount: Money.fromInt(amount, walletCurrency),
         date: date,
         isHogEx: isHogEx,
-        additionalInfo: {'hasMissingInputTx': hasMissingInputTx},
+        additionalInfo: {
+          'hasMissingInputTx': hasMissingInputTx,
+          if (isPayjoin) 'isPayjoin': true,
+          if (isPayjoin) 'payjoinDirection': direction.name,
+          if (isPayjoin) 'pjWalletInput': walletInputAmount,
+          if (isPayjoin) 'pjReceived': receivedSum,
+          if (isPayjoin) 'pjNetFlow': netFlow,
+        },
         confirmations: bundle.confirmations);
   }
 
