@@ -497,22 +497,25 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    // rename the hive box:
-    final oldBoxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-    final newBoxName = "${newWalletName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+  static Future<void> copyMwebBox({
+    required String fromName,
+    required String toName,
+  }) async {
+    final oldBoxName = "${fromName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final newBoxName = "${toName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    if (oldBoxName == newBoxName) return;
 
     final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
-    mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
+    final newBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
-      final value = oldBox.get(key);
-      await oldBox.delete(key);
-      await mwebUtxosBox.put(key, value!);
+      await newBox.put(key, oldBox.get(key)!);
     }
-    oldBox.deleteFromDisk();
+  }
 
-    await super.renameWalletFiles(newWalletName);
+  static Future<void> deleteMwebBox(String name) async {
+    final boxName = "${name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final box = await CakeHive.openBox<MwebUtxo>(boxName);
+    await box.deleteFromDisk();
   }
 
   @action

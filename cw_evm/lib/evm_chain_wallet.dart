@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
@@ -1701,30 +1700,6 @@ abstract class EVMChainWalletBase
       encryptionFileUtils: encryptionFileUtils,
       initialChainId: initialChainIdForWallet,
     );
-  }
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final transactionHistoryFileNameForWallet = getTransactionHistoryFileName();
-
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
   }
 
   void _setTransactionUpdateTimer() {
