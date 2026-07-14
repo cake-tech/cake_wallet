@@ -313,21 +313,37 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
   }
 
   factory UtxoWithPrivateKey.fromUnspent(BitcoinUnspent input, BitcoinWalletBase wallet) {
-    final address = RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
+    final network = wallet.network;
+    final address = RegexUtils.addressTypeFromStr(input.address, network);
 
-    final newHd = input.bitcoinAddressRecord.isHidden ? wallet.sideHd : wallet.mainHd;
+    // Resolve the signing HD the same way ElectrumWallet._hdFor does: the
+    // correct BIP32 subtree depends on the address record's type, hidden flag,
+    // and legacy derivation flag. Using wallet.mainHd/sideHd directly is wrong
+    // for BIP44 multi-purpose wallets where mainHdByType[type] (e.g. m/84'...)
+    // differs from the account-level mainHd (accountHD/0). Mismatched HD yields
+    // a pubkey whose hash160 != the contributed UTXO's scriptPubKey, failing
+    // OP_EQUALVERIFY on broadcast.
+    final record = input.bitcoinAddressRecord;
+    final Bip32Slip10Secp256k1 newHd;
+    if (record.isLegacyDerivation) {
+      newHd = record.isHidden
+          ? wallet.walletAddresses.legacySideHd
+          : wallet.walletAddresses.legacyMainHd;
+    } else {
+      final map = record.isHidden ? wallet.sideHdByType : wallet.mainHdByType;
+      newHd = map[record.type] ?? (record.isHidden ? wallet.sideHd : wallet.mainHd);
+    }
 
     ECPrivate privkey;
-    if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-      final unspentAddress = input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+    if (record is BitcoinSilentPaymentAddressRecord) {
       privkey = wallet.walletAddresses.silentAddress!.b_spend.tweakAdd(
         BigintUtils.fromBytes(
-          BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
+          BytesUtils.fromHexString(record.silentPaymentTweak!),
         ),
       );
     } else {
       privkey = generateECPrivate(
-          hd: newHd, index: input.bitcoinAddressRecord.index, network: BitcoinNetwork.mainnet);
+          hd: newHd, index: input.bitcoinAddressRecord.index, network: network);
     }
 
     return UtxoWithPrivateKey(
