@@ -30,6 +30,7 @@ import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/ghostswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
@@ -315,6 +316,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         NearIntentsExchangeProvider(),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
+        GhostSwapExchangeProvider(),
       ];
 
   @observable
