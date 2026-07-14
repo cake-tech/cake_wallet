@@ -1,4 +1,3 @@
-
 class MoneroHeight {
   // for i in $(seq 1 364); do echo "_Checkpoint(_t($(curl https://xmrchain.net/block/${i}0000 | grep -E '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}' | xargs | sed 's/ /\n/g' | head -5 | tail -1 | tr '()' ' ' | sed 's/ /\n/g' | head -2 | xargs)), ${i}0000),"; done > points.txt
   static final List<_Checkpoint> _points = [

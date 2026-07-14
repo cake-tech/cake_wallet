@@ -153,7 +153,6 @@ abstract class CakePayCardsListViewModelBase with Store {
         .toList(growable: false);
   }
 
-
   bool get hasFiltersChanged {
     return selectedCountry != _initialSelectedCountry ||
         displayPrepaidCards != _initialDisplayPrepaidCards ||

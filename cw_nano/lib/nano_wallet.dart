@@ -208,7 +208,8 @@ abstract class NanoWalletBase
         amt = txOut.cryptoAmount.amount;
       }
 
-      if (balance[currency]?.currentBalance != null && amt > balance[currency]!.currentBalance.amount) {
+      if (balance[currency]?.currentBalance != null &&
+          amt > balance[currency]!.currentBalance.amount) {
         throw Exception("Trying to send more than entire balance!");
       }
 
@@ -235,7 +236,8 @@ abstract class NanoWalletBase
     }
 
     try {
-      if (runningAmount > balance[currency]!.currentBalance.amount || runningBalance < BigInt.zero) {
+      if (runningAmount > balance[currency]!.currentBalance.amount ||
+          runningBalance < BigInt.zero) {
         throw Exception(("Trying to send more than entire balance!"));
       }
     } catch (e) {

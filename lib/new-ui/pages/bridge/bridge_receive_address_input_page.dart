@@ -115,7 +115,8 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
                         focusNode: _focusNode,
                         selectedCurrency: bridgeViewModel.wallet.currency,
                         onEditingComplete: () {},
-                        validator: AddressValidator(type: bridgeViewModel.destinationChainInfo!.currency),
+                        validator:
+                            AddressValidator(type: bridgeViewModel.destinationChainInfo!.currency),
                       ),
                       const Spacer(),
                       Observer(
@@ -124,14 +125,13 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
                             onPressed: () {
                               final overlayCtx = Navigator.of(context).overlay?.context;
                               bridgeViewModel.setRecipientAddress(_controller.text.trim());
-                              
+
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 if (overlayCtx != null && overlayCtx.mounted) {
                                   showMaterialModalBottomSheet<void>(
                                     context: overlayCtx,
                                     backgroundColor: Colors.transparent,
-                                    builder: (ctx) =>
-                                        BridgeConfirmSheet(bridgeViewModel),
+                                    builder: (ctx) => BridgeConfirmSheet(bridgeViewModel),
                                   );
                                 }
                               });

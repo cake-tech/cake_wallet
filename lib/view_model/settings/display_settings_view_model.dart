@@ -59,7 +59,7 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @computed
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
-  
+
   @computed
   bool get showZcashCard => _settingsStore.showZcashMissingFundsCard;
 
@@ -126,7 +126,8 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get showZcashCardSetting => _appStore.wallet?.type == WalletType.zcash;
 
   @action
-  void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode value) => _settingsStore.displayAmountsInSatoshi = value;
+  void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode value) =>
+      _settingsStore.displayAmountsInSatoshi = value;
 
   @action
   void setShowZcashCard(bool value) => _settingsStore.showZcashMissingFundsCard = value;

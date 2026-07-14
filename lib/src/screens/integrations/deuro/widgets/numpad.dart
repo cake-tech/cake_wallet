@@ -25,8 +25,7 @@ class NumberPad extends StatelessWidget {
               return onDeletePressed();
             }
 
-            if ([".", ","].contains(keyEvent.logicalKey.keyLabel) &&
-                onDecimalPressed != null) {
+            if ([".", ","].contains(keyEvent.logicalKey.keyLabel) && onDecimalPressed != null) {
               return onDecimalPressed!();
             }
 
@@ -50,10 +49,10 @@ class NumberPad extends StatelessWidget {
                     child: Text(
                       '.',
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 30,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 30,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -70,8 +69,7 @@ class NumberPad extends StatelessWidget {
                       child: TextButton(
                         onPressed: onDeletePressed,
                         style: TextButton.styleFrom(
-                          backgroundColor:
-                              Colors.transparent,
+                          backgroundColor: Colors.transparent,
                           shape: CircleBorder(),
                         ),
                         child: Image.asset(

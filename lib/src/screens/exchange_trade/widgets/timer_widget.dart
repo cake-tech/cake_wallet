@@ -59,9 +59,9 @@ class TimerWidgetState extends State<TimerWidget> {
         ? Text(
             S.of(context).expired,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.errorContainer,
-            ),
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.errorContainer,
+                ),
           )
         : Text(
             S.of(context).time(_minutes.toString(), _seconds.toString()),

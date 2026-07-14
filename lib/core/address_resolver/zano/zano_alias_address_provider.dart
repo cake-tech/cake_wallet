@@ -10,7 +10,6 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 
 class ZanoAliasAddressProvider extends AddressLookupProvider {
-
   @override
   AddressSource get source => AddressSource.zanoAlias;
 

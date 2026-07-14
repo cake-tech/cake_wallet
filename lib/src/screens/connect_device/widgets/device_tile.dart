@@ -56,9 +56,9 @@ class DeviceTile extends StatelessWidget {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             ),

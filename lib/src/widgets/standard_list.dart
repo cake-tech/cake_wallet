@@ -50,7 +50,6 @@ class StandardListRow extends StatelessWidget {
   Widget? buildLeading(BuildContext context) => null;
 
   Widget buildCenter(BuildContext context, {required bool hasLeftOffset}) {
-
     return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -84,17 +83,17 @@ class StandardListRow extends StatelessWidget {
                           ),
                     ),
                   )
-               else
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: titleColor(context),
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                else
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: titleColor(context),
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                          ),
                     ),
                   ),
-                ),
               ],
             ),
           )

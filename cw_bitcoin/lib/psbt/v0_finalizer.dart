@@ -18,7 +18,6 @@ import "package:ledger_bitcoin/src/utils/buffer_writer.dart";
 /// through PSBT_IN_PARTIAL_SIG or PSBT_IN_TAP_KEY_SIG
 extension InputFinalizer on PsbtV2 {
   void finalizeV0() {
-
     // First check that each input has a signature
     for (var i = 0; i < getGlobalInputCount(); i++) {
       if (_isFinalized(i)) continue;
@@ -31,8 +30,7 @@ extension InputFinalizer on PsbtV2 {
       }
       if (legacyPubkeys.isNotEmpty) {
         if (legacyPubkeys.length > 1) {
-          throw Exception(
-              'Expected exactly one signature, got ${legacyPubkeys.length}');
+          throw Exception('Expected exactly one signature, got ${legacyPubkeys.length}');
         }
         if (taprootSig != null) {
           throw Exception('Both taproot and non-taproot signatures present.');
@@ -55,8 +53,7 @@ extension InputFinalizer on PsbtV2 {
           setInputFinalScriptwitness(i, witnessBuf.buffer());
           if (isWrappedSegwit) {
             if (redeemScript.isEmpty) {
-              throw Exception(
-                  "Expected non-empty redeemscript. Can't finalize input $i");
+              throw Exception("Expected non-empty redeemscript. Can't finalize input $i");
             }
             final scriptSigBuf = BufferWriter()
               ..writeUInt8(redeemScript.length) // Push redeemScript length

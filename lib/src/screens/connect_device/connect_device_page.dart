@@ -164,7 +164,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isConnected) widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
+      if (isConnected)
+        widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
     });
   }
 

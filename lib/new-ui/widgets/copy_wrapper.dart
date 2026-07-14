@@ -9,7 +9,7 @@ class CopyWrapper extends StatefulWidget {
   const CopyWrapper(
       {super.key,
       this.data,
-        this.requireLongPress = false,
+      this.requireLongPress = false,
       this.isSensitive = false,
       required this.builder,
       this.duration = const Duration(milliseconds: 1200)});
