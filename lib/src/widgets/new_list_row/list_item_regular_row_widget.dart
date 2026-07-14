@@ -147,7 +147,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                       ),
                                   ],
                                 ),
-                              ),
+                              ),),
                             ],
                           ),
                         ),
