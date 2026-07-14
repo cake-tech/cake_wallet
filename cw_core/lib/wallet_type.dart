@@ -41,11 +41,7 @@ const evmWalletTypes = [
   WalletType.bsc
 ];
 
-const hasAccountsWalletTypes = [
-  WalletType.monero,
-  WalletType.wownero,
-  WalletType.bitcoin
-];
+const hasAccountsWalletTypes = [WalletType.monero, WalletType.wownero, WalletType.bitcoin];
 
 // @HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
@@ -340,17 +336,18 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
   try {
-  if(type.tag == CryptoCurrency.bnb.tag) {
-    return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
+    if (type.tag == CryptoCurrency.bnb.tag) {
+      return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
+    }
+
+    if (type.tag != null &&
+        ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
+      return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
+    } else {
+      return _cryptoCurrencyToWalletType(type);
+    }
+  } catch (e) {
+    printV(e);
+    return null;
   }
-  
-  if(type.tag != null && ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
-    return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
-  } else {
-    return _cryptoCurrencyToWalletType(type);
-  }
-} catch (e) {
-  printV(e);
-  return null;
-}
 }

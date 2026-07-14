@@ -20,7 +20,6 @@ class DesktopDashboardNavbar extends StatelessWidget implements ObstructingPrefe
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       padding: const EdgeInsetsDirectional.only(end: 24),
       color: Theme.of(context).colorScheme.surfaceContainerLowest.withOpacity(0.1),
@@ -40,7 +39,7 @@ class DesktopDashboardNavbar extends StatelessWidget implements ObstructingPrefe
 
   @override
   Size get preferredSize => Size.fromHeight(60);
-  
+
   @override
   bool shouldFullyObstruct(BuildContext context) => false;
 }

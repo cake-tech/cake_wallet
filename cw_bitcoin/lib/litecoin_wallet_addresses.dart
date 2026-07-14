@@ -25,10 +25,10 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-        required super.mainHdByTypeAndAccount,
-        required super.sideHdByTypeAndAccount,
-        required super.accountIndexes,
-        required super.currentAccountIndex,
+    required super.mainHdByTypeAndAccount,
+    required super.sideHdByTypeAndAccount,
+    required super.accountIndexes,
+    required super.currentAccountIndex,
     required super.legacyMainHd,
     required super.legacySideHd,
     required super.network,
@@ -61,9 +61,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       ? hex.decode(scanSecretOverride!)
       : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
 
-  List<int> get spendPubkey => (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
-      ? hex.decode(spendPubkeyOverride!)
-      : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ?? List.filled(32, 0);
+  List<int> get spendPubkey =>
+      (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
+          ? hex.decode(spendPubkeyOverride!)
+          : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ??
+              List.filled(32, 0);
 
   @override
   Future<void> init({List<int> accountIndexes = const []}) async {
@@ -83,7 +85,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       return null;
     }
     if ((scanSecret.length < 1 || scanSecret.reduce((a, b) => a + b) == 0) &&
-       (spendPubkey.length < 1 || spendPubkey.reduce((a, b) => a + b) == 0)) {
+        (spendPubkey.length < 1 || spendPubkey.reduce((a, b) => a + b) == 0)) {
       return null;
     }
 
@@ -232,12 +234,16 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     // don't use mweb addresses for exchange refund address:
 
     final current = getFreshAddress();
-    final bool isMweb = receiveAddresses
-        .any((e) => e.address == current && e.type == SegwitAddresType.mweb);
+    final bool isMweb =
+        receiveAddresses.any((e) => e.address == current && e.type == SegwitAddresType.mweb);
 
     if (isMweb) {
       final segwit = receiveAddresses
-          .where((e) => e.type == SegwitAddresType.p2wpkh && !e.isUsed && !e.isHidden && !hiddenAddresses.contains(e.address))
+          .where((e) =>
+              e.type == SegwitAddresType.p2wpkh &&
+              !e.isUsed &&
+              !e.isHidden &&
+              !hiddenAddresses.contains(e.address))
           .map((e) => e.address)
           .toList();
 

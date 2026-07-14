@@ -24,7 +24,8 @@ class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 10, left: 18, right:18, top: 10+_additionalTopPadding(context)),
+      padding: EdgeInsets.only(
+          bottom: 10, left: 18, right: 18, top: 10 + _additionalTopPadding(context)),
       child: Observer(
         builder: (_) => Row(
           spacing: 12,
@@ -57,10 +58,9 @@ class TopBar extends StatelessWidget {
     );
   }
 
-
   //FIXME remove after this gets fixed flutter-side
   double _additionalTopPadding(BuildContext context) {
-    if(Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) return 24;
+    if (Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) return 24;
 
     return 0;
   }

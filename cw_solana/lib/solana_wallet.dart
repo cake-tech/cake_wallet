@@ -163,12 +163,9 @@ abstract class SolanaWalletBase
     final prefs = await _sharedPrefs.future;
     if (prefs.getBool(_scamCheckDoneKey) == true) return;
 
-    final defaultMints =
-        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
-    final defaultSymbolsUpper = DefaultSPLTokens()
-        .initialSPLTokens
-        .map((t) => t.symbol.toUpperCase())
-        .toSet();
+    final defaultMints = DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultSymbolsUpper =
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.symbol.toUpperCase()).toSet();
 
     for (final token in splTokensBox.values) {
       final suspicious = isTokenPropertiesSuspicious(
@@ -720,8 +717,7 @@ abstract class SolanaWalletBase
     'distribution',
   ];
 
-  static final _suspiciousWordPattern =
-      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
+  static final _suspiciousWordPattern = RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
 
   static const _knownNonSolanaNativeSymbols = {
     'BTC',
@@ -758,13 +754,10 @@ abstract class SolanaWalletBase
     Set<String>? cachedDefaultMints,
     Set<String>? cachedDefaultSymbolsUpper,
   }) {
-    final defaultMints = cachedDefaultMints ??
-        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultMints =
+        cachedDefaultMints ?? DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
     final defaultSymbolsUpper = cachedDefaultSymbolsUpper ??
-        DefaultSPLTokens()
-            .initialSPLTokens
-            .map((t) => t.symbol.toUpperCase())
-            .toSet();
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.symbol.toUpperCase()).toSet();
 
     final isTokenWhitelisted = defaultMints.contains(token.mintAddress);
 
@@ -799,7 +792,8 @@ abstract class SolanaWalletBase
 
     if (token.enabled) {
       final tokenBalance = await _client.getSplTokenBalance(token, solanaAddress) ??
-          balance[token] ?? SolanaBalance.zero(token);
+          balance[token] ??
+          SolanaBalance.zero(token);
 
       balance[token] = tokenBalance;
     } else {

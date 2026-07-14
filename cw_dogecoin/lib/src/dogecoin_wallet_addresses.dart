@@ -8,11 +8,9 @@ import 'package:mobx/mobx.dart';
 
 part 'dogecoin_wallet_addresses.g.dart';
 
-class DogeCoinWalletAddresses = DogeCoinWalletAddressesBase
-    with _$DogeCoinWalletAddresses;
+class DogeCoinWalletAddresses = DogeCoinWalletAddressesBase with _$DogeCoinWalletAddresses;
 
-abstract class DogeCoinWalletAddressesBase extends ElectrumWalletAddresses
-    with Store {
+abstract class DogeCoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   DogeCoinWalletAddressesBase(
     WalletInfo walletInfo, {
     required super.mainHdByTypeAndAccount,
@@ -38,6 +36,5 @@ abstract class DogeCoinWalletAddressesBase extends ElectrumWalletAddresses
       generateP2PKHAddress(hd: hd, index: index, network: network);
 
   @override
-  PaymentURI getPaymentUri(String amount) =>
-      DogeURI(address: address, amount: amount);
+  PaymentURI getPaymentUri(String amount) => DogeURI(address: address, amount: amount);
 }

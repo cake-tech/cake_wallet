@@ -142,13 +142,13 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @computed
   String get amountDisplayFormatted {
-        if (selectedToken == null) return "0.00";
+    if (selectedToken == null) return "0.00";
 
-        return amountParsingProxy.getDisplayCryptoAmount(
-              amount.replaceAll(',', '.'),
-              selectedToken!,
-            );
-    }
+    return amountParsingProxy.getDisplayCryptoAmount(
+      amount.replaceAll(',', '.'),
+      selectedToken!,
+    );
+  }
 
   DecimalAmountValidator get decimalAmountValidator => DecimalAmountValidator(
         currency: selectedToken!,
@@ -176,8 +176,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   String get quoteNativeFee {
     if (quote == null) return '—';
 
-    return amountParsingProxy.asDisplayString(
-      Money(quote!.nativeFee, wallet.currency));
+    return amountParsingProxy.asDisplayString(Money(quote!.nativeFee, wallet.currency));
   }
 
   @computed
@@ -281,10 +280,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       return;
     }
     setAmount(
-      amountParsingProxy.asDisplayString(Money(
-        selectedTokenBalance,
-        token)
-      ),
+      amountParsingProxy.asDisplayString(Money(selectedTokenBalance, token)),
     );
   }
 

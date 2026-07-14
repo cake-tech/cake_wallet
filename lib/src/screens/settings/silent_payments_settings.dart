@@ -19,7 +19,11 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
-          ModalTopBar(title: S.current.silent_payments_settings,leadingIcon: Icon(Icons.arrow_back_ios_new),onLeadingPressed: Navigator.of(context).pop,),
+          ModalTopBar(
+            title: S.current.silent_payments_settings,
+            leadingIcon: Icon(Icons.arrow_back_ios_new),
+            onLeadingPressed: Navigator.of(context).pop,
+          ),
           Expanded(
             child: SingleChildScrollView(
               child: Observer(builder: (_) {
@@ -27,14 +31,14 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
                   padding: EdgeInsets.only(top: 10),
                   child: Column(
                     children: [
-                      if(!FeatureFlag.hasNewUi)
-                      SettingsSwitcherCell(
-                        title: S.current.silent_payments_display_card,
-                        value: _silentPaymentsSettingsViewModel.silentPaymentsCardDisplay,
-                        onValueChange: (_, bool value) {
-                          _silentPaymentsSettingsViewModel.setSilentPaymentsCardDisplay(value);
-                        },
-                      ),
+                      if (!FeatureFlag.hasNewUi)
+                        SettingsSwitcherCell(
+                          title: S.current.silent_payments_display_card,
+                          value: _silentPaymentsSettingsViewModel.silentPaymentsCardDisplay,
+                          onValueChange: (_, bool value) {
+                            _silentPaymentsSettingsViewModel.setSilentPaymentsCardDisplay(value);
+                          },
+                        ),
                       SettingsSwitcherCell(
                         title: S.current.silent_payments_always_scan,
                         value: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,
@@ -44,7 +48,8 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
                       ),
                       SettingsCellWithArrow(
                         title: S.current.silent_payments_scanning,
-                        handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.rescan),
+                        handler: (BuildContext context) =>
+                            Navigator.of(context).pushNamed(Routes.rescan),
                       ),
                       SettingsCellWithArrow(
                         title: S.current.silent_payments_logs,

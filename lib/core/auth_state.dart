@@ -17,4 +17,3 @@ class AuthenticationBanned extends AuthState {
 
   final String error;
 }
-

@@ -59,12 +59,11 @@ class EnterAmountWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text('QTY ', style: Theme.of(context).textTheme.titleMedium!),
-                    Text(
-                      '1',
-                      style: Theme.of(context).textTheme
-                          .titleMedium!
-                          .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)
-                    ),
+                    Text('1',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -87,12 +86,12 @@ class EnterAmountWidget extends StatelessWidget {
             children: [
               Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  )),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      )),
               Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  )),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      )),
             ],
           ),
           Spacer(flex: 1),

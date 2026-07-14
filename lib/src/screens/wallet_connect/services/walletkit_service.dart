@@ -133,9 +133,9 @@ abstract class WalletKitServiceBase with Store {
     if (!isInitialized) {
       try {
         await _walletKit.init().timeout(
-          const Duration(seconds: 8),
-          onTimeout: () => throw TimeoutException('walletKit init timed out'),
-        );
+              const Duration(seconds: 8),
+              onTimeout: () => throw TimeoutException('walletKit init timed out'),
+            );
         debugPrint('Initialized');
         isInitialized = true;
       } catch (e) {
@@ -202,14 +202,16 @@ abstract class WalletKitServiceBase with Store {
               namespaces: session.namespaces,
             );
             if (events.contains('accountsChanged')) {
-              await _walletKit.emitSessionEvent(
-                topic: session.topic,
-                chainId: chainID,
-                event: SessionEventParams(
-                  name: 'accountsChanged',
-                  data: [chain.publicKey],
-                ),
-              ).timeout(const Duration(seconds: 3));
+              await _walletKit
+                  .emitSessionEvent(
+                    topic: session.topic,
+                    chainId: chainID,
+                    event: SessionEventParams(
+                      name: 'accountsChanged',
+                      data: [chain.publicKey],
+                    ),
+                  )
+                  .timeout(const Duration(seconds: 3));
             }
           } on ReownSignError catch (e) {
             if (e.code == 6) {
@@ -433,12 +435,10 @@ abstract class WalletKitServiceBase with Store {
       }
 
       final requesterMetadata = args.requester.metadata;
-      final requesterIcon = requesterMetadata.icons.isNotEmpty
-          ? requesterMetadata.icons.first
-          : null;
+      final requesterIcon =
+          requesterMetadata.icons.isNotEmpty ? requesterMetadata.icons.first : null;
       final chainKeysForAuth = walletKeyService.getKeysForChain(appStore.wallet!);
-      final addressForAuth =
-          chainKeysForAuth.isNotEmpty ? chainKeysForAuth.first.publicKey : '';
+      final addressForAuth = chainKeysForAuth.isNotEmpty ? chainKeysForAuth.first.publicKey : '';
       final combinedMessageBody =
           formattedMessages.map((m) => m.values.first as String).join('\n\n');
 
@@ -521,8 +521,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> deletePairing({required String topic}) async {
-    final topicSessions =
-        sessions.where((element) => element.pairingTopic == topic).toList();
+    final topicSessions = sessions.where((element) => element.pairingTopic == topic).toList();
 
     await _walletKit.core.pairing.disconnect(topic: topic);
     for (var session in topicSessions) {
@@ -557,7 +556,7 @@ abstract class WalletKitServiceBase with Store {
         reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
       );
     } catch (e) {
-     printV('disconnectSession: $e');
+      printV('disconnectSession: $e');
     }
 
     sessions.clear();
@@ -622,7 +621,7 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   List<SessionData> getSessionsForPairingInfo(PairingInfo pairing) {
-    return sessions.where((element) =>  element.pairingTopic == pairing.topic).toList();
+    return sessions.where((element) => element.pairingTopic == pairing.topic).toList();
   }
 
   String getKeyForStoringTopicsForWallet() {

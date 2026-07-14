@@ -293,7 +293,6 @@ class _CardsViewState extends State<CardsView> {
       return widget.dashboardViewModel.cardDesigns.length - 1;
     }
 
-
     if (widget.dashboardViewModel.cardOrder.length != numCards ||
         !widget.dashboardViewModel.cardOrder.containsKey(visualIndex)) {
       return visualIndex;

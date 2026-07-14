@@ -6,9 +6,7 @@ class Account {
   }) : balance = balance ?? '0.00';
 
   Account.fromMap(Map<String, Object?> map)
-      : id = map['id'] is int
-      ? map['id'] as int
-      : int.tryParse(map['id']?.toString() ?? '') ?? 0,
+      : id = map['id'] is int ? map['id'] as int : int.tryParse(map['id']?.toString() ?? '') ?? 0,
         label = (map['label'] ?? '') as String,
         balance = (map['balance'] ?? '0.00') as String;
 

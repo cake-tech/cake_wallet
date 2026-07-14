@@ -27,11 +27,11 @@ class ReceiveQrCode extends StatelessWidget {
   static const Duration animDuration = Duration(milliseconds: 500);
   final bool isLightMode = !(getIt.get<ThemeStore>().currentTheme.isDark);
 
-
   @override
   Widget build(BuildContext context) {
-    final double targetY = largeQrMode ? largeQrModeBottomPadding+50 : 0;
-    final double resolvedSize = min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) * 0.5;
+    final double targetY = largeQrMode ? largeQrModeBottomPadding + 50 : 0;
+    final double resolvedSize =
+        min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) * 0.5;
     final double resolvedScale = largeQrMode ? 1.7 : 1;
 
     return Stack(
@@ -44,8 +44,8 @@ class ReceiveQrCode extends StatelessWidget {
           child: AnimatedOpacity(
               duration: animDuration,
               opacity: largeQrMode ? 1 : 0,
-              child: CakeImageWidget(imageUrl:
-                isLightMode
+              child: CakeImageWidget(
+                imageUrl: isLightMode
                     ? "assets/new-ui/cakewallet-wordmark-light.svg"
                     : "assets/new-ui/cakewallet-wordmark.svg",
                 height: 45,
@@ -118,7 +118,7 @@ class ReceiveQrCode extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   spacing: 4,
                                   children: [
-                                    CakeImageWidget(imageUrl:"assets/new-ui/payjoin.svg"),
+                                    CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
                                     Text(S.of(context).payjoin_enabled)
                                   ],
                                 ),
@@ -126,7 +126,7 @@ class ReceiveQrCode extends StatelessWidget {
                     AnimatedSize(
                         duration: animDuration,
                         curve: Curves.easeOutCubic,
-                        child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding+40 : 0))
+                        child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding + 40 : 0))
                   ],
                 ),
               )),

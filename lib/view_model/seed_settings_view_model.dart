@@ -14,7 +14,8 @@ abstract class SeedSettingsViewModelBase with Store {
   MoneroSeedType get moneroSeedType => _appStore.settingsStore.moneroSeedType;
 
   @action
-  void setMoneroSeedType(MoneroSeedType seedType) => _appStore.settingsStore.moneroSeedType = seedType;
+  void setMoneroSeedType(MoneroSeedType seedType) =>
+      _appStore.settingsStore.moneroSeedType = seedType;
 
   @computed
   BitcoinSeedType get bitcoinSeedType => _appStore.settingsStore.bitcoinSeedType;

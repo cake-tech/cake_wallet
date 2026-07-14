@@ -6,10 +6,7 @@ import 'package:flutter_svg/svg.dart';
 
 class ChainIcon extends StatelessWidget {
   const ChainIcon(
-      {super.key,
-        required this.iconPath,
-        required this.onProgress,
-        required this.isSyncHeavy});
+      {super.key, required this.iconPath, required this.onProgress, required this.isSyncHeavy});
 
   final String iconPath;
   final bool isSyncHeavy;

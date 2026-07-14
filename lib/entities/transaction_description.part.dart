@@ -6,8 +6,7 @@ part of 'transaction_description.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TransactionDescriptionAdapter
-    extends TypeAdapter<TransactionDescription> {
+class TransactionDescriptionAdapter extends TypeAdapter<TransactionDescription> {
   @override
   final int typeId = 2;
 

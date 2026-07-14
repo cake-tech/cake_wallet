@@ -19,16 +19,13 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
       : super(CardCustomizerNotLoaded(
-            0, 0, [CardDesign.genericDefault], [],
-            "", -1, displaySats, 0)) {
-
+            0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
     on<ColorSelected>(_onColorSelected);
     on<IconStyleSelected>(_onIconStyleSelected);
     on<DesignSaved>(_onDesignSaved);
     on<AccountNameChanged>(_onAccountNameChanged);
-
 
     add(_Init());
   }
@@ -97,8 +94,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     final selectedDesignIndex = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
     final availableIconPaths = CardDesign.iconPathsForWalletType(curr);
-    final selectedIconIndex = _initSelectedIconIndex(
-        currentDesignSettings, availableIconPaths);
+    final selectedIconIndex = _initSelectedIconIndex(currentDesignSettings, availableIconPaths);
 
     emit(CardCustomizerInitial(
         selectedDesignIndex,
@@ -131,9 +127,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     if (_wallet.type == WalletType.bitcoin) {
       final selectedAccountIndex = _wallet.walletInfo.selectedAccount ?? 0;
       final accounts = await _wallet.walletInfo.getAccounts();
-      final account = accounts
-          .where((account) => account.accountIndex == selectedAccountIndex)
-          .firstOrNull;
+      final account =
+          accounts.where((account) => account.accountIndex == selectedAccountIndex).firstOrNull;
 
       return (
         accountName: account?.label ?? "",
@@ -165,8 +160,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(selectedColorIndex: event.newColorIndex));
   }
 
-  void _onIconStyleSelected(
-      IconStyleSelected event, Emitter<CardCustomizerState> emit) {
+  void _onIconStyleSelected(IconStyleSelected event, Emitter<CardCustomizerState> emit) {
     emit(state.copyWith(selectedIconIndex: event.iconIndex));
   }
 
@@ -234,5 +228,4 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       label: state.accountName,
     );
   }
-
 }
