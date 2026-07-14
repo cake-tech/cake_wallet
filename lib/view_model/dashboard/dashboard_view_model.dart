@@ -252,7 +252,6 @@ abstract class DashboardViewModelBase with Store {
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
-
   void loadFilterItems() {
     filterItems = [
       // FilterItem(
@@ -276,14 +275,12 @@ abstract class DashboardViewModelBase with Store {
       SwapFilterItem(
           enabledProviders: () => tradeFilterStore.enabledProvidersCount,
           allEnabled: () => tradeFilterStore.displayAllTrades,
-          value: () => tradeFilterStore.enabledProvidersCount>0,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
+          value: () => tradeFilterStore.enabledProvidersCount > 0,
+          onChanged: () => tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
       FilterItem(
           value: () => orderFilterStore.displayCakePay,
           caption: 'Cake Pay',
-          onChanged: () =>
-              orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
+          onChanged: () => orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
     ];
     exchangeFilterItems = [
       SwapProviderFilterItem(
@@ -354,8 +351,6 @@ abstract class DashboardViewModelBase with Store {
     ];
   }
 
-
-
   bool _isTransactionDisposerCallbackRunning = false;
 
   @action
@@ -402,9 +397,9 @@ abstract class DashboardViewModelBase with Store {
   }
 
   bool showBridge(CryptoCurrency currency) {
-    if(!isEVMCompatibleChain(wallet.type)) return false;
+    if (!isEVMCompatibleChain(wallet.type)) return false;
 
-    if(evm!.isUSDT0Token(wallet, currency)) return true;
+    if (evm!.isUSDT0Token(wallet, currency)) return true;
 
     return false;
   }
@@ -440,8 +435,8 @@ abstract class DashboardViewModelBase with Store {
       numAccounts = 1;
     }
     cardDesigns.clear();
-      Map<int, int> newOrder = {};
-      List<int> hidden = [];
+    Map<int, int> newOrder = {};
+    List<int> hidden = [];
 
     for (int i = 0; i < numAccounts; i++) {
       late final int index;
@@ -453,12 +448,9 @@ abstract class DashboardViewModelBase with Store {
         index = -1;
       }
 
+      final setting = accountStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
 
-      final setting = accountStyleSettings
-          .where((e) => e.accountIndex == index)
-          .firstOrNull;
-
-      if(setting?.hidden ?? false) {
+      if (setting?.hidden ?? false) {
         hidden.add(index);
         continue;
       }
@@ -478,7 +470,9 @@ abstract class DashboardViewModelBase with Store {
 
     // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
     for (int i = 0; i < numAccounts; i++) {
-      if (!hidden.contains(i) && !newOrder.containsValue(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
+      if (!hidden.contains(i) &&
+          !newOrder.containsValue(i) &&
+          !(wallet.type != WalletType.bitcoin && i == 1)) {
         int free = 0;
         while (newOrder.containsValue(free)) {
           free++;
@@ -522,7 +516,8 @@ abstract class DashboardViewModelBase with Store {
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
       // TODO(malik) update this in a saner way during the vm refactor
-      String _txIdentityString(String txHash, TransactionDirection direction) => "${txHash}_$direction";
+      String _txIdentityString(String txHash, TransactionDirection direction) =>
+          "${txHash}_$direction";
       String _txIdentityStringConfirmations(
               String txHash, TransactionDirection direction, int confirmations, bool isPending) =>
           "${txHash}_${direction}_${confirmations}_$isPending";
@@ -551,7 +546,8 @@ abstract class DashboardViewModelBase with Store {
           .toSet();
 
       transactions.removeWhere(
-        (item) => newKeys.contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
+        (item) => newKeys
+            .contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
       );
 
       transactions.addAll(newTransactions);
@@ -693,7 +689,9 @@ abstract class DashboardViewModelBase with Store {
       }).toList();
 
   @computed
-  bool get shouldShowBalanceHiddenMessage => balanceDisplayMode == BalanceDisplayMode.hiddenBalance && appStore.settingsStore.balanceHideCounter < 10;
+  bool get shouldShowBalanceHiddenMessage =>
+      balanceDisplayMode == BalanceDisplayMode.hiddenBalance &&
+      appStore.settingsStore.balanceHideCounter < 10;
 
   @computed
   List<OrderListItem> get orders =>
@@ -745,10 +743,8 @@ abstract class DashboardViewModelBase with Store {
   static const shortHistoryLength = 3;
 
   @computed
-  List<ActionListItem> get itemsShort => items
-          .where((item) => item is! DateSectionItem)
-          .take(shortHistoryLength)
-          .toList();
+  List<ActionListItem> get itemsShort =>
+      items.where((item) => item is! DateSectionItem).take(shortHistoryLength).toList();
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
@@ -818,7 +814,7 @@ abstract class DashboardViewModelBase with Store {
       // if (wallet.seed == "") "wallet seed is empty",
       // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
       //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-        // "primary address is invalid, you won't be able to receive / spend funds",
+      // "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }

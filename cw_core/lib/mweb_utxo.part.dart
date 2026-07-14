@@ -50,7 +50,5 @@ class MwebUtxoAdapter extends TypeAdapter<MwebUtxo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MwebUtxoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is MwebUtxoAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

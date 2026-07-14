@@ -34,23 +34,23 @@ class FioAddressProvider extends AddressLookupProvider {
   }) async {
     final Map<CryptoCurrency, String> result = {};
     try {
-    final bool isFioRegistered = await FioAddressProvider.checkAvail(query);
-    if (!isFioRegistered) return [];
+      final bool isFioRegistered = await FioAddressProvider.checkAvail(query);
+      if (!isFioRegistered) return [];
 
-    for (final cur in currencies) {
-      final address = await FioAddressProvider.getPubAddress(query, cur.title);
-      if (address != null && address.isNotEmpty) {
-        result[cur] = address;
+      for (final cur in currencies) {
+        final address = await FioAddressProvider.getPubAddress(query, cur.title);
+        if (address != null && address.isNotEmpty) {
+          result[cur] = address;
+        }
       }
-    }
 
-    if (result.isNotEmpty) {
-      return [
-        ParsedAddress(
-            parsedAddressByCurrencyMap: result, addressSource: AddressSource.fio, handle: query)
-      ];
-    }
-    return [];
+      if (result.isNotEmpty) {
+        return [
+          ParsedAddress(
+              parsedAddressByCurrencyMap: result, addressSource: AddressSource.fio, handle: query)
+        ];
+      }
+      return [];
     } catch (e) {
       printV('FioAddressProvider.resolve error: $e');
       return [];

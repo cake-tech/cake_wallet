@@ -9,8 +9,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class OpenCryptoPayService {
   static bool isOpenCryptoPayQR(String value) =>
-      value.toLowerCase().contains("lightning=lnurl") ||
-      value.toLowerCase().startsWith("lnurl");
+      value.toLowerCase().contains("lightning=lnurl") || value.toLowerCase().startsWith("lnurl");
 
   static bool requiresClientCommit(CryptoCurrency currency) =>
       [CryptoCurrency.xmr, CryptoCurrency.zano, CryptoCurrency.sol].contains(currency) ||
@@ -71,8 +70,8 @@ class OpenCryptoPayService {
     );
   }
 
-  Future<(_OpenCryptoPayQuote, Map<String, List<OpenCryptoPayQuoteAsset>>)>
-      _getOpenCryptoPayParams(Uri uri) async {
+  Future<(_OpenCryptoPayQuote, Map<String, List<OpenCryptoPayQuoteAsset>>)> _getOpenCryptoPayParams(
+      Uri uri) async {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if (response.statusCode == 200) {
@@ -90,18 +89,15 @@ class OpenCryptoPayService {
         final method = transferAmount['method'] as String;
         methods[method] = [];
         for (final assetJson in transferAmount['assets'] as List) {
-          final asset = OpenCryptoPayQuoteAsset.fromJson(
-              assetJson as Map<String, dynamic>);
+          final asset = OpenCryptoPayQuoteAsset.fromJson(assetJson as Map<String, dynamic>);
           methods[method]?.add(asset);
         }
       }
 
       log(responseBody.toString());
 
-      final quote = _OpenCryptoPayQuote.fromJson(
-          responseBody['callback'] as String,
-          responseBody['displayName'] as String?,
-          responseBody['quote'] as Map<String, dynamic>);
+      final quote = _OpenCryptoPayQuote.fromJson(responseBody['callback'] as String,
+          responseBody['displayName'] as String?, responseBody['quote'] as Map<String, dynamic>);
 
       return (quote, methods);
     } else {
@@ -110,8 +106,7 @@ class OpenCryptoPayService {
     }
   }
 
-  Future<Uri> getOpenCryptoPayAddress(
-      OpenCryptoPayRequest request, CryptoCurrency asset) async {
+  Future<Uri> getOpenCryptoPayAddress(OpenCryptoPayRequest request, CryptoCurrency asset) async {
     final uri = Uri.parse(request.callbackUrl);
     final queryParams = Map.of(uri.queryParameters);
 
@@ -135,8 +130,7 @@ class OpenCryptoPayService {
 
       if (result.queryParameters['amount'] != null) return result;
 
-      final newQueryParameters =
-          Map<String, dynamic>.from(result.queryParameters);
+      final newQueryParameters = Map<String, dynamic>.from(result.queryParameters);
 
       newQueryParameters['amount'] = _getAmountByAsset(request, asset);
       return Uri(

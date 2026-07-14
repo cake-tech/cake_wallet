@@ -15,14 +15,14 @@ class BalanceCardStyleSettings {
 
   BalanceCardStyleSettings(
       {required this.walletInfoId,
-        required this.accountIndex,
-        required this.gradientIndex,
-        required this.useSpecialDesign,
-        required this.hidden,
-        required this.backgroundImagePath,
-        this.iconStyleIndex = 0,
-        this.isGradientOnly = false,
-        required this.cardOrder});
+      required this.accountIndex,
+      required this.gradientIndex,
+      required this.useSpecialDesign,
+      required this.hidden,
+      required this.backgroundImagePath,
+      this.iconStyleIndex = 0,
+      this.isGradientOnly = false,
+      required this.cardOrder});
 
   static const tableName = "BalanceCardStyleSettings";
 
@@ -86,24 +86,20 @@ class BalanceCardStyleSettings {
     int iconStyleIndex = 0,
     int? gradientIndexOverride,
   }) {
-    final int gradientIndex = gradientIndexOverride ??
-        CardDesign.allGradients.indexOf(design.gradient);
+    final int gradientIndex =
+        gradientIndexOverride ?? CardDesign.allGradients.indexOf(design.gradient);
     return BalanceCardStyleSettings(
       walletInfoId: walletInfoId,
       accountIndex: accountIndex,
       gradientIndex: gradientIndex,
-      useSpecialDesign:
-          design.backgroundType == CardDesignBackgroundTypes.svgFull,
+      useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
       gradientIndex: CardDesign.allGradients.indexOf(design.gradient),
       useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
       hidden: hidden,
       backgroundImagePath:
-          design.backgroundType == CardDesignBackgroundTypes.image
-              ? design.imagePath
-              : "",
+          design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
       iconStyleIndex: iconStyleIndex,
-      isGradientOnly:
-          design.backgroundType == CardDesignBackgroundTypes.gradientOnly,
+      isGradientOnly: design.backgroundType == CardDesignBackgroundTypes.gradientOnly,
       cardOrder: cardOrder,
     );
   }

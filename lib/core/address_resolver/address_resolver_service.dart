@@ -104,7 +104,8 @@ class AddressResolverService {
 
             if (results.isNotEmpty) {
               final parsedAddress = results.first.parsedAddressByCurrencyMap[currency];
-              final parsedAddressStr = parsedAddress == null || parsedAddress.isEmpty ? 'N/A' : parsedAddress;
+              final parsedAddressStr =
+                  parsedAddress == null || parsedAddress.isEmpty ? 'N/A' : parsedAddress;
               printV('[address resolver service] resolved $src - $cur - $parsedAddressStr');
               return [results.first];
             }

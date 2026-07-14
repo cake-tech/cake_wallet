@@ -70,7 +70,5 @@ class ZanoAssetAdapter extends TypeAdapter<ZanoAsset> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ZanoAssetAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is ZanoAssetAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

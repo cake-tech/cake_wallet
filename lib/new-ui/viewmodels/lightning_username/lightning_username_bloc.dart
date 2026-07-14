@@ -52,7 +52,8 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
     }
   }
 
-  Future<void> onUsernameSaveRequested(RequestUsernameSave event, Emitter<LightningUsernameState> emit) async {
+  Future<void> onUsernameSaveRequested(
+      RequestUsernameSave event, Emitter<LightningUsernameState> emit) async {
     emit(LightningUsernameSaving(state.username));
     try {
       await bitcoin!.setLightningUsername(_wallet, state.username);
@@ -64,7 +65,8 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
           return;
         }
       }
-      emit(LightningUsernameError(state.username, UsernameError(bitcoin!.getBreezSdkError(e) ?? e.toString())));
+      emit(LightningUsernameError(
+          state.username, UsernameError(bitcoin!.getBreezSdkError(e) ?? e.toString())));
     }
   }
 

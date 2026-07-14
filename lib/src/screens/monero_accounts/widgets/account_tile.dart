@@ -64,7 +64,7 @@ class AccountTile extends StatelessWidget {
                             ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).colorScheme.onSurfaceVariant,
                         decoration: TextDecoration.none,
-                  ),
+                      ),
                 ),
               ),
           ],

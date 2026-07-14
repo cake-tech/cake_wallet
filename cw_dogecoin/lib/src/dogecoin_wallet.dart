@@ -75,13 +75,12 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
 
   @override
   int feeAmountForPriority(TransactionPriority priority, int inputsCount, int outputsCount,
-      {int? size}) =>
+          {int? size}) =>
       feeRate(priority) * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
 
   @override
   int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount, {int? size}) =>
       feeRate * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
-
 
   static Future<DogeCoinWallet> create(
       {required String mnemonic,

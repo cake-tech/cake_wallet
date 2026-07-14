@@ -64,10 +64,10 @@ Future<void> _initDb({String? pathOverride}) async {
   }
   await db?.close();
   db = await openDatabase(dbFile.path, version: 10,
-    onUpgrade: (Database db, int oldVersion, int newVersion) async {
-      printV("migrating: $oldVersion, $newVersion");
-      if (oldVersion <= 1) {
-        await db.execute('''
+      onUpgrade: (Database db, int oldVersion, int newVersion) async {
+    printV("migrating: $oldVersion, $newVersion");
+    if (oldVersion <= 1) {
+      await db.execute('''
 DELETE FROM WalletInfo
 WHERE walletInfoId NOT IN (
     SELECT MIN(walletInfoId)
@@ -147,10 +147,10 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         definition: 'BOOLEAN DEFAULT FALSE',
       );
     }
-      if(oldVersion <= 9) {
-        _addColumnIfNotExists(db,
-            table: "BalanceCardStyleSettings", column: "hidden", definition: "BOOLEAN DEFAULT FALSE");
-      }
+    if (oldVersion <= 9) {
+      _addColumnIfNotExists(db,
+          table: "BalanceCardStyleSettings", column: "hidden", definition: "BOOLEAN DEFAULT FALSE");
+    }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
 CREATE TABLE WalletInfo (

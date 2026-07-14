@@ -112,7 +112,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
                     buttonAction: () {
                       _showingFailureDialog = false;
                       Navigator.of(popupContext).pop();
-                      if(mounted) {
+                      if (mounted) {
                         Navigator.of(context, rootNavigator: true).pop();
                       }
                     },
@@ -318,15 +318,13 @@ class _SwapDetailsContent extends StatelessWidget {
             children: [
               _SwapDetailsTile(
                 label: 'You Send',
-                value:
-                    '${trade.amount} ${trade.from?.title ?? ''}',
+                value: '${trade.amount} ${trade.from?.title ?? ''}',
                 valueFiatFormatted: exchangeTradeViewModel.sendAmountFiatFormatted,
               ),
               const SizedBox(height: 8),
               _SwapDetailsTile(
                 label: 'You Get',
-                value:
-                    '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
+                value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
                 valueFiatFormatted: exchangeTradeViewModel
                     .getReceiveAmountFiatFormatted(trade.receiveAmount ?? '0.0'),
               ),
@@ -351,7 +349,8 @@ class _SwapDetailsContent extends StatelessWidget {
                     const SizedBox(height: 4),
                     AddressFormatter.buildSegmentedAddress(
                       address: trade.payoutAddress ?? '',
-                      walletType: trade.to != null ? cryptoCurrencyOrTokenToWalletType(trade.to!) : null,
+                      walletType:
+                          trade.to != null ? cryptoCurrencyOrTokenToWalletType(trade.to!) : null,
                       evenTextStyle: Theme.of(context)
                           .textTheme
                           .bodyMedium!

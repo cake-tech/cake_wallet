@@ -23,14 +23,14 @@ class TwitterApi {
         path: userPath + userName,
         queryParameters: queryParams);
 
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers).catchError((error) {
+    final response =
+        await ProxyWrapper().get(clearnetUri: uri, headers: headers).catchError((error) {
       throw Exception('HTTP request failed: $error');
     });
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
-    
 
     final Map<String, dynamic> responseJSON = jsonDecode(response.body) as Map<String, dynamic>;
     if (responseJSON['errors'] != null &&
