@@ -15,7 +15,7 @@ void main(List<String> args) async {
   final text = args[1];
   final force = args.last == "--force";
 
-  printV('Appending "$name": "$text"');
+  print('Appending "$name": "$text"');
 
   // add translation to all languages:
   for (var lang in langs) {
@@ -25,12 +25,12 @@ void main(List<String> args) async {
     appendStringToArbFile(fileName, name, translation, force: force);
   }
 
-  printV('Alphabetizing all files...');
+  print('Alphabetizing all files...');
   
   for (var lang in langs) {
     final fileName = getArbFileName(lang);
     alphabetizeArbFile(fileName);
   }
 
-  printV('Done!');
+  print('Done!');
 }
