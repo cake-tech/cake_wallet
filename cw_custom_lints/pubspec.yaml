@@ -1,0 +1,15 @@
+name: cw_custom_lints
+version: 0.0.1
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+
+
+dependencies:
+  analysis_server_plugin: 0.3.15
+  analyzer: 13.0.0
+  analyzer_plugin: 0.14.9
+
+dev_dependencies:
+  analyzer_testing: 0.2.6
+  test_reflective_loader: 0.4.0
+  test: 1.31.2
