@@ -24,8 +24,7 @@ class NodeAdapter extends TypeAdapter<Node> {
       trusted: fields[5] == null ? false : fields[5] as bool,
       socksProxyAddress: fields[6] as String?,
       path: fields[7] == null ? '' : fields[7] as String?,
-      isEnabledForAutoSwitching:
-      fields[11] == null ? false : fields[11] as bool,
+      isEnabledForAutoSwitching: fields[11] == null ? false : fields[11] as bool,
     )
       ..uriRaw = fields[0] == null ? '' : fields[0] as String
       ..typeRaw = fields[3] == null ? 0 : fields[3] as int
@@ -72,7 +71,5 @@ class NodeAdapter extends TypeAdapter<Node> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is NodeAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is NodeAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

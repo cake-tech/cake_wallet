@@ -12,8 +12,8 @@ class ReceiveTokenDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Observer(
-      builder: (_)=>Row(
+    return Observer(
+      builder: (_) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 8,
         children: [
@@ -31,16 +31,15 @@ class ReceiveTokenDisplay extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(4.0),
               child: Row(
-                spacing:4,
+                spacing: 4,
                 children: [
                   CakeImageWidget(
                     imageUrl:
                         "assets/new-ui/chain_badges/${addressListViewModel.wallet.type == WalletType.bsc ? 'bnb' : walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
                     width: 16,
                     height: 16,
-                    colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.primary,
-                        BlendMode.srcIn),
+                    colorFilter:
+                        ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                   ),
                   Text(walletTypeToString(addressListViewModel.wallet.type),
                       style: TextStyle(

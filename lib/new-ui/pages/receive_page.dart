@@ -171,8 +171,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
             .whereType<CryptoCurrency>()
             .toList(), onDismissed: () {
       widget.addressListViewModel.dismissInfobox();
-          setState(() {});
-        }, autoGenerateSubaddressStatus: widget.lightningMode ? AutoGenerateSubaddressStatus.disabled : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus);
+      setState(() {});
+    },
+        autoGenerateSubaddressStatus: widget.lightningMode
+            ? AutoGenerateSubaddressStatus.disabled
+            : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus);
 
     return Container(
       decoration: BoxDecoration(
@@ -202,29 +205,35 @@ class _NewReceivePageState extends State<NewReceivePage> {
               trailingWidget: Observer(
                 builder: (_) => AnimatedSwitcher(
                   duration: Duration(milliseconds: 300),
-                  child: _largeQrMode || widget.addressListViewModel.hasAddressRotation
-                      /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
-                      &&
-                      !(widget.receiveOptionViewModel.selectedReceiveOption.description ?? "")
-                          .toLowerCase()
-                          .contains("mweb") ? ModernButton(
-                    key: ValueKey(_largeQrMode),
-                      size: 36,
-                      icon: _largeQrMode ? Icon(Icons.share) : widget.addressListViewModel.isRotatingAddress
-                          ? CupertinoActivityIndicator()
-                          : Icon(Icons.refresh),
-                      onPressed: () {
-                        if(_largeQrMode) {
+                  child: _largeQrMode ||
+                          widget.addressListViewModel.hasAddressRotation
+                              /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
+                              &&
+                              !(widget.receiveOptionViewModel.selectedReceiveOption.description ??
+                                      "")
+                                  .toLowerCase()
+                                  .contains("mweb")
+                      ? ModernButton(
+                          key: ValueKey(_largeQrMode),
+                          size: 36,
+                          icon: _largeQrMode
+                              ? Icon(Icons.share)
+                              : widget.addressListViewModel.isRotatingAddress
+                                  ? CupertinoActivityIndicator()
+                                  : Icon(Icons.refresh),
+                          onPressed: () {
+                            if (_largeQrMode) {
                               ShareUtil.share(
                                 text: widget.addressListViewModel.uri.toString(),
                                 context: context,
                               );
-                        } else {
-                          if(widget.addressListViewModel.hasAddressRotation) {
-                            widget.addressListViewModel.rotateAddress();
-                          }
-                        }
-                      }):SizedBox.shrink(),
+                            } else {
+                              if (widget.addressListViewModel.hasAddressRotation) {
+                                widget.addressListViewModel.rotateAddress();
+                              }
+                            }
+                          })
+                      : SizedBox.shrink(),
                 ),
               ),
             ),
@@ -274,9 +283,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       copyData: widget.addressListViewModel.hasPayjoin
                           ? null
                           : ClipboardData(
-                          text: widget.addressListViewModel.displayAmount.isEmpty
-                              ? widget.addressListViewModel.uri.address
-                              : widget.addressListViewModel.uri.toString()),
+                              text: widget.addressListViewModel.displayAmount.isEmpty
+                                  ? widget.addressListViewModel.uri.address
+                                  : widget.addressListViewModel.uri.toString()),
                       onCopyButtonPressed: () {
                         if (widget.addressListViewModel.hasPayjoin) {
                           showModalBottomSheet(

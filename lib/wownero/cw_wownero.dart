@@ -230,7 +230,11 @@ class CWWownero extends Wownero {
           required int height,
           required String mnemonic}) =>
       WowneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
+          name: name,
+          password: password,
+          passphrase: passphrase,
+          height: height,
+          mnemonic: mnemonic);
 
   @override
   WalletCredentials createWowneroNewWalletCredentials(
@@ -240,7 +244,11 @@ class CWWownero extends Wownero {
           String? password,
           String? passphrase}) =>
       WowneroNewWalletCredentials(
-          name: name, password: password, language: language, isPolyseed: isPolyseed, passphrase: passphrase);
+          name: name,
+          password: password,
+          language: language,
+          isPolyseed: isPolyseed,
+          passphrase: passphrase);
 
   @override
   Map<String, String> getKeys(Object wallet) {

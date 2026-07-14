@@ -85,7 +85,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
 
               final imageWidget = badgeIconPath != null
                   ? Stack(
-                    clipBehavior: Clip.none,
+                      clipBehavior: Clip.none,
                       children: [
                         leadingIcon!,
                         Positioned(

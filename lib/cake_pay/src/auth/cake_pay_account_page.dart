@@ -25,8 +25,7 @@ class CakePayAccountPage extends BasePage {
             label: S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: WidgetStateColor.resolveWith(
-                        (states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => Navigator.pop(context),
               child: backButton(context),
@@ -41,10 +40,10 @@ class CakePayAccountPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.current.account,
-      style:  Theme.of(context).textTheme.titleMedium?.copyWith(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontWeight: FontWeight.w600,
-      ),
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
     );
   }
 
@@ -66,9 +65,7 @@ class CakePayAccountPage extends BasePage {
                 ),
               ),
               child: CakePayTile(
-                title: S.of(context).email_address, 
-                subTitle: cakePayAccountViewModel.email
-              ),
+                  title: S.of(context).email_address, subTitle: cakePayAccountViewModel.email),
             ),
           ),
         ],

@@ -16,15 +16,15 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OnRamperBuyProvider extends BuyProvider {
-  OnRamperBuyProvider(
-      {required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet,
-      isTestEnvironment: isTestEnvironment,
-      hardwareWalletVM: null,
-      supportedCryptoList: supportedCryptoToFiatPairs(
-          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-      supportedFiatList: supportedFiatToCryptoPairs(
-          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
+  OnRamperBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
+      : super(
+            wallet: wallet,
+            isTestEnvironment: isTestEnvironment,
+            hardwareWalletVM: null,
+            supportedCryptoList: supportedCryptoToFiatPairs(
+                notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+            supportedFiatList: supportedFiatToCryptoPairs(
+                notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _baseUrl = 'buy.onramper.com';
   static const _baseApiUrl = 'api.onramper.com';
@@ -68,7 +68,6 @@ class OnRamperBuyProvider extends BuyProvider {
       body: json.encode({'query': query}),
     );
 
-
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
     } else {
@@ -78,7 +77,6 @@ class OnRamperBuyProvider extends BuyProvider {
   }
 
   Future<String?> getRecommendedPaymentType(bool isBuyAction) async {
-
     final params = {'type': isBuyAction ? 'buy' : 'sell'};
 
     final url = Uri.https(_baseApiUrl, '$supported$defaultsAll', params);
@@ -95,10 +93,9 @@ class OnRamperBuyProvider extends BuyProvider {
 
         final recommendedPaymentType = recommended['paymentMethod'] as String?;
 
-        return recommendedPaymentType ;
+        return recommendedPaymentType;
       } else {
-        final responseBody =
-        jsonDecode(response.body) as Map<String, dynamic>;
+        final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
         printV('Failed to fetch available payment types: ${responseBody['message']}');
       }
     } catch (e) {
@@ -109,21 +106,20 @@ class OnRamperBuyProvider extends BuyProvider {
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
-
-    final normalizedCryptoCurrency =
-        cryptoCurrency.title + _getNormalizeNetwork(cryptoCurrency);
+    final normalizedCryptoCurrency = cryptoCurrency.title + _getNormalizeNetwork(cryptoCurrency);
 
     final sourceCurrency = (isBuyAction ? fiatCurrency : normalizedCryptoCurrency).toLowerCase();
-    final destinationCurrency = (isBuyAction ? normalizedCryptoCurrency : fiatCurrency).toLowerCase();
+    final destinationCurrency =
+        (isBuyAction ? normalizedCryptoCurrency : fiatCurrency).toLowerCase();
 
-    final params = {'type': isBuyAction ? 'buy' : 'sell', 'destination' : destinationCurrency};
+    final params = {'type': isBuyAction ? 'buy' : 'sell', 'destination': destinationCurrency};
 
     final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$sourceCurrency', params);
 
     try {
-      final response =
-          await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
-      
+      final response = await ProxyWrapper()
+          .get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final List<dynamic> message = data['message'] as List<dynamic>;
@@ -136,8 +132,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
         return allAvailablePaymentMethods;
       } else {
-        final responseBody =
-            jsonDecode(response.body) as Map<String, dynamic>;
+        final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
         printV('Failed to fetch available payment types: ${responseBody['message']}');
         return [];
       }
@@ -151,9 +146,8 @@ class OnRamperBuyProvider extends BuyProvider {
     final url = Uri.https(_baseApiUrl, '$supported/onramps/all');
 
     try {
-      final response =
-          await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
-      
+      final response = await ProxyWrapper()
+          .get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -191,8 +185,10 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     String? paymentMethod;
 
-    if (paymentType == PaymentType.all ) paymentMethod = null;
-    else if (paymentType == PaymentType.unknown) paymentMethod = customPaymentMethodType;
+    if (paymentType == PaymentType.all)
+      paymentMethod = null;
+    else if (paymentType == PaymentType.unknown)
+      paymentMethod = customPaymentMethodType;
     else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
 
     final actionType = isBuyAction ? 'buy' : 'sell';
@@ -217,7 +213,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
-      
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
         if (data.isEmpty) return null;
@@ -227,7 +223,6 @@ class OnRamperBuyProvider extends BuyProvider {
         if (_onrampMetadata.isEmpty) _onrampMetadata = await getOnrampMetadata();
 
         for (var item in data) {
-
           if (item['errors'] != null) continue;
 
           final paymentMethod = (item as Map<String, dynamic>)['paymentMethod'] as String;
@@ -237,8 +232,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
           if (rampMetaData == null) continue;
 
-          final quote = Quote.fromOnramperJson(
-              item, isBuyAction, _onrampMetadata, _getPaymentTypeByString(paymentMethod), customPaymentMethodType);
+          final quote = Quote.fromOnramperJson(item, isBuyAction, _onrampMetadata,
+              _getPaymentTypeByString(paymentMethod), customPaymentMethodType);
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
@@ -266,18 +261,21 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     final actionType = isBuyAction ? 'buy' : 'sell';
 
-    final primaryColor = getColorStr(Theme.of(context).colorScheme.primary,);
+    final primaryColor = getColorStr(
+      Theme.of(context).colorScheme.primary,
+    );
     final secondaryColor = getColorStr(Theme.of(context).colorScheme.surface);
     final primaryTextColor = getColorStr(Theme.of(context).colorScheme.onSurface);
-    final secondaryTextColor =
-        getColorStr(Theme.of(context).colorScheme.onSurfaceVariant);
+    final secondaryTextColor = getColorStr(Theme.of(context).colorScheme.onSurfaceVariant);
     final containerColor = getColorStr(Theme.of(context).colorScheme.surface);
     var cardColor = getColorStr(Theme.of(context).colorScheme.surfaceContainer);
 
     final defaultCrypto =
         quote.cryptoCurrency.title + _getNormalizeNetwork(quote.cryptoCurrency).toLowerCase();
 
-    final paymentMethod = quote.paymentType == PaymentType.unknown ? quote.customPaymentMethodType : normalizePaymentMethod(quote.paymentType);
+    final paymentMethod = quote.paymentType == PaymentType.unknown
+        ? quote.customPaymentMethodType
+        : normalizePaymentMethod(quote.paymentType);
 
     final networkWallets =
         '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title).toLowerCase()}:$cryptoCurrencyAddress';

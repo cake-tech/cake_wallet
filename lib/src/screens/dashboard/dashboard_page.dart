@@ -305,10 +305,9 @@ class _DashboardPageView extends BasePage {
                     ),
                   ),
                   NewMainNavBar(
-                    dashboardViewModel: dashboardViewModel,
-                    selectedIndex: 0,
-                    onItemTap: (index) {}
-                  ),
+                      dashboardViewModel: dashboardViewModel,
+                      selectedIndex: 0,
+                      onItemTap: (index) {}),
                 ],
               ),
             ],

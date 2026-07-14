@@ -39,23 +39,21 @@ class ThirdIntroduction extends StatelessWidget {
                   Text(S.of(context).third_intro_title,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                         
-                        color: Theme.of(context).colorScheme.onSurface,
-                        decoration: TextDecoration.none,
-                      )),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            decoration: TextDecoration.none,
+                          )),
                   Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Text(S.of(context).third_intro_content,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                             
-                            color: Theme.of(context).colorScheme.onSurface,
-                            decoration: TextDecoration.none,
-                          )))
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                decoration: TextDecoration.none,
+                              )))
                 ])),
           ],
         ),

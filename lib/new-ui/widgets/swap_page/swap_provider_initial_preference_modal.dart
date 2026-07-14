@@ -24,7 +24,7 @@ class SwapProviderInitialPreferenceModal extends StatelessWidget {
               child: Column(
                 spacing: 12,
                 children: [
-                  CakeImageWidget(imageUrl:"assets/new-ui/exchange_providers.svg"),
+                  CakeImageWidget(imageUrl: "assets/new-ui/exchange_providers.svg"),
                   Text(
                     "${S.of(context).swap_provider_initial_desc} Cake Wallet.",
                     textAlign: TextAlign.center,

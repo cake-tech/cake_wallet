@@ -226,8 +226,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       // must support both
-      if (!_isSolanaCurrency(request.fromCurrency) ||
-          !_isSolanaCurrency(request.toCurrency)) {
+      if (!_isSolanaCurrency(request.fromCurrency) || !_isSolanaCurrency(request.toCurrency)) {
         throw 'not supported currencies';
       }
 
