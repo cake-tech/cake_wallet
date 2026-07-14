@@ -58,7 +58,8 @@ class DEuroSavingsPage extends BasePage {
                   Observer(
                     builder: (_) => SavingsCard(
                       interestRate: "${_dEuroViewModel.interestRateFormated}%",
-                      savingsBalance: _dEuroViewModel.savingsBalanceFormated,
+                      savingsBalance:
+                          _dEuroViewModel.savingsBalance.toStringWithPrecision(fractionalDigits: 6),
                       fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalanceFormated,
                       currency: CryptoCurrency.deuro,
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
@@ -68,6 +69,10 @@ class DEuroSavingsPage extends BasePage {
                       onTooltipPressed: () => _onSavingsTooltipPressed(context),
                       isEnabled: _dEuroViewModel.isEnabled,
                       isLoading: _dEuroViewModel.isLoading,
+                      onWithdrawV1Pressed: () => _onWithdrawV1(context),
+                      savingsBalanceV1: _dEuroViewModel.savingsBalanceV1
+                          ?.toStringWithPrecision(fractionalDigits: 6),
+                      fiatSavingsBalanceV1: _dEuroViewModel.fiatSavingsBalanceV1Formated,
                     ),
                   ),
                   Observer(
@@ -126,6 +131,16 @@ class DEuroSavingsPage extends BasePage {
     _editSheetIsOpen = false;
   }
 
+  Future<void> _onWithdrawV1(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    try {
+      await _requireHardwareWallet(context);
+      await _dEuroViewModel.prepareSavingsV1Withdraw();
+    } catch (_) {}
+    _editSheetIsOpen = false;
+  }
+
   Future<void> _onSavingsRemove(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
@@ -160,7 +175,7 @@ class DEuroSavingsPage extends BasePage {
 
   Future<void> _requireHardwareWallet(BuildContext context) async {
     if (_dEuroViewModel.wallet.isHardwareWallet) {
-      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected) {
+      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected(_dEuroViewModel.wallet.type)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: _dEuroViewModel.wallet.type,
@@ -215,7 +230,7 @@ class DEuroSavingsPage extends BasePage {
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
               ? _dEuroViewModel.accruedInterestFormated
-              : tx.amountFormatted,
+              : tx.amount.toStringWithSymbol(),
           fiatAmountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
               ? _dEuroViewModel.fiatAccruedInterestFormated
               : _dEuroViewModel.pendingTransactionFiatAmountFormatted,
@@ -251,7 +266,7 @@ class DEuroSavingsPage extends BasePage {
           amountValue: tx.amountFormatted,
           fiatAmountValue: "",
           fee: S.of(bottomSheetContext).send_estimated_fee,
-          feeValue: tx.feeFormatted,
+          feeValue: tx.fee.toStringWithSymbol(),
           feeFiatAmount: "",
           outputs: [],
           onSlideActionComplete: () {
@@ -411,8 +426,8 @@ class DEuroSavingsPage extends BasePage {
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
         balance: isAdding
-            ? _dEuroViewModel.accountBalanceFormated
-            : _dEuroViewModel.savingsBalanceFormated,
+            ? _dEuroViewModel.accountBalance
+            : _dEuroViewModel.savingsBalance,
         footerType: FooterType.none,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),

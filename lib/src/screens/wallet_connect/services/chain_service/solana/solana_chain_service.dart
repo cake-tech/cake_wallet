@@ -80,7 +80,6 @@ class SolanaChainService {
           error: JsonRpcError(code: error.code, message: error.message),
         );
       }
-      //
     } catch (e) {
       debugPrint('solanaSignMessage error $e');
       final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
@@ -7,7 +6,6 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -37,7 +35,9 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
       printV(state);
       if (state is AddressSavedSuccessfully) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pop(widget.walletAddressEditOrCreateViewModel.label);
+          if (mounted && Navigator.canPop(context)) {
+            Navigator.of(context).pop(widget.walletAddressEditOrCreateViewModel.label);
+          }
         });
       }
     });

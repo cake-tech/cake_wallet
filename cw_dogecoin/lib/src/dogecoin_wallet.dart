@@ -68,7 +68,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  int get networkDustAmount => 100000000; // 1 DOGE = 1e8 koinu
+  BigInt get networkDustAmount => BigInt.from(100000000); // 1 DOGE = 1e8 koinu
 
   static int estimatedDogeCoinTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 180 + outputsCounts * 34 + 10;

@@ -2,7 +2,7 @@
 set -x -e
 cd "$(dirname "$0")"
 
-HASH=647231e2e6d93c1d6c16d4019cd3a11a3aaa9504
+HASH=5800cfdfc89ae46d8a343721d052d5e02470c2a7
 
 if [[ ! -d "zcash_lib/.git" ]];
 then

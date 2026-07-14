@@ -72,7 +72,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
-    updateSubaddressList(accountIndex: account?.id ?? 0);
+    await updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
 
@@ -84,8 +84,8 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
       addressesMap.clear();
       addressInfos.clear();
 
-      accountList.accounts.forEach((account) {
-        _subaddressList.update(accountIndex: account.id);
+      accountList.accounts.forEach((account) async {
+        await _subaddressList.update(accountIndex: account.id);
         _subaddressList.subaddresses.forEach((subaddress) {
           addressesMap[subaddress.address] = subaddress.label;
           addressInfos[account.id] ??= [];
@@ -122,8 +122,8 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     return true;
   }
 
-  void updateSubaddressList({required int accountIndex}) {
-    subaddressList.update(accountIndex: accountIndex);
+  Future<void> updateSubaddressList({required int accountIndex}) async {
+    await subaddressList.update(accountIndex: accountIndex);
     address = subaddressList.subaddresses.isNotEmpty
         ? subaddressList.subaddresses.first.address
         : getAddress();

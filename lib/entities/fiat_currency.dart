@@ -1,9 +1,10 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/enumerable_item.dart';
 
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> implements Currency {
   const FiatCurrency({
-    required String symbol,
+    required this.symbol,
     required this.countryCode,
     required this.fullName,
     this.decimals = 2,
@@ -11,9 +12,16 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   }) : super(title: symbol, raw: symbol);
 
   final String countryCode;
+
+  @override
   final String fullName;
+
+  @override
   final int decimals;
   final String? fiatSymbol;
+
+  @override
+  final String symbol;
 
   static List<FiatCurrency> get all => _all.values.toList();
 
@@ -184,4 +192,10 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
 
   @override
   String get iconPath => "assets/images/flags/$countryCode.png";
+
+  @override
+  Money parseAmount(String value) => Money.parse(value, this);
+
+  @override
+  Money? tryParseAmount(String value) => Money.tryParse(value, this);
 }

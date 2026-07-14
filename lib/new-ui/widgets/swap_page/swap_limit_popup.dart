@@ -20,7 +20,9 @@ class SwapLimitPopup extends StatelessWidget {
       child: Container(
         width: double.infinity,
         child: Observer(builder: (_) {
-          final double? amount = double.tryParse(exchangeViewModel.depositAmountCanonical);
+          final amount = exchangeViewModel.hasDepositAmount
+              ? double.tryParse(exchangeViewModel.depositAmountCanonical)
+              : null;
           final max = exchangeViewModel.limits.max ?? double.infinity;
           final min = exchangeViewModel.limits.min ?? 0;
           final tooLarge = amount != null && max != 0 && amount > max;

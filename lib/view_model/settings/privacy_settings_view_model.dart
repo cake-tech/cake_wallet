@@ -100,6 +100,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get looksUpENS => _settingsStore.lookupsENS;
 
   @computed
+  bool get lookupsZcashNames => _settingsStore.lookupsZcashNames;
+
+  @computed
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
   @computed
@@ -109,7 +112,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
 
   @computed
-  bool get canUseLightning => _wallet.type == WalletType.bitcoin;
+  bool get canUseLightning => _wallet.type == WalletType.bitcoin && !Platform.isWindows && !Platform.isLinux;
 
   @computed
   bool get useLightning => _wallet.type == WalletType.bitcoin && bitcoin!.useLightning(_wallet);

@@ -92,11 +92,9 @@ class SendTemplateCard extends StatelessWidget {
                         ],
                         onPushPasteButton: (context) async {
                           template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context);
                         },
                         onPushAddressBookButton: (context) async {
                           template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context);
                         },
                         buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(

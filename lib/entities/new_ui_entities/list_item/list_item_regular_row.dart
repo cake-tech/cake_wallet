@@ -8,6 +8,7 @@ class ListItemRegularRow extends ListItem {
     this.subtitle,
     this.trailingText,
     this.iconPath,
+    this.badgeIconPath,
     this.onTap,
     this.trailingIconPath,
     this.showArrow = true,
@@ -15,13 +16,20 @@ class ListItemRegularRow extends ListItem {
     this.trailingWidget,
     this.truncateTrailingText = false,
     this.foregroundColor,
-    this.trailingIconSize
+    this.trailingIconSize,
+    this.copyableText,
+    this.leadingIconErrorWidget,
+    this.leadingIconSize,
+    this.badgeIconSize,
+    this.iconColor,
   });
 
   final String? subtitle;
   final String? trailingText;
   final String? iconPath;
   final String? trailingIconPath;
+  final String? badgeIconPath;
+  final String? copyableText;
   final VoidCallback? onTap;
   final bool showArrow;
   final Widget? bottomWidget;
@@ -29,4 +37,8 @@ class ListItemRegularRow extends ListItem {
   final bool truncateTrailingText;
   final Color? foregroundColor;
   final double? trailingIconSize;
+  final Widget? leadingIconErrorWidget;
+  final double? leadingIconSize;
+  final double? badgeIconSize;
+  final Color? iconColor;
 }

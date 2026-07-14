@@ -7,9 +7,9 @@ import 'package:hive/hive.dart';
 import 'order_provider_description.dart';
 import 'order_source_description.dart';
 
-part 'order.g.dart';
+part 'order.part.dart';
 
-@HiveType(typeId: Order.typeId)
+// @HiveType(typeId: Order.typeId)
 class Order extends HiveObject {
   Order({
     required this.id,
@@ -37,45 +37,45 @@ class Order extends HiveObject {
   static const boxName = 'Orders';
   static const boxKey = 'ordersBoxKey';
 
-  @HiveField(0, defaultValue: '')
+  // @HiveField(0, defaultValue: '')
   String id;
 
-  @HiveField(1, defaultValue: '')
+  // @HiveField(1, defaultValue: '')
   String transferId;
 
-  @HiveField(2)
+  // @HiveField(2)
   String? from;
 
-  @HiveField(3)
+  // @HiveField(3)
   String? to;
 
-  @HiveField(4, defaultValue: '')
+  // @HiveField(4, defaultValue: '')
   late String stateRaw;
 
   TradeState get state => TradeState.deserialize(raw: stateRaw);
 
-  @HiveField(5)
+  // @HiveField(5)
   DateTime createdAt;
 
-  @HiveField(6, defaultValue: '')
+  // @HiveField(6, defaultValue: '')
   String amount;
 
-  @HiveField(7, defaultValue: '')
+  // @HiveField(7, defaultValue: '')
   String receiveAddress;
 
-  @HiveField(8, defaultValue: '')
+  // @HiveField(8, defaultValue: '')
   String walletId;
 
-  @HiveField(9, defaultValue: 0)
+  // @HiveField(9, defaultValue: 0)
   late int providerRaw;
 
-  @HiveField(10, defaultValue: '')
+  // @HiveField(10, defaultValue: '')
   String? receiveAmount;
 
-  @HiveField(11, defaultValue: 0)
+  // @HiveField(11, defaultValue: 0)
   late int? sourceRaw;
 
-  @HiveField(12, defaultValue: '')
+  // @HiveField(12, defaultValue: '')
   String? quantity;
 
   OrderSourceDescription get source => OrderSourceDescription.deserialize(raw: sourceRaw ?? 0);

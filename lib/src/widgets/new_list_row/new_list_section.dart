@@ -96,6 +96,7 @@ class NewListSections extends StatelessWidget {
         subtitle: item.subtitle,
         trailingText: item.trailingText,
         iconPath: item.iconPath,
+        badgeIconPath: item.badgeIconPath,
         trailingIconPath: item.trailingIconPath,
         onTap: tapHandlers[item.keyValue] ?? item.onTap,
         isFirstInSection: isFirst,
@@ -103,9 +104,14 @@ class NewListSections extends StatelessWidget {
         showArrow: item.showArrow,
         truncateTrailingText: item.truncateTrailingText,
         foregroundColor: item.foregroundColor,
+        copyableText: item.copyableText,
         trailingIconSize: item.trailingIconSize,
         trailingWidget: item.trailingWidget,
         bottomWidget: item.bottomWidget,
+        leadingIconErrorWidget: item.leadingIconErrorWidget,
+        leadingIconSize: item.leadingIconSize,
+        badgeIconSize: item.badgeIconSize,
+        iconColor: item.iconColor,
       );
     }
 
@@ -127,6 +133,7 @@ class NewListSections extends StatelessWidget {
         label: item.label,
         subtitle: item.subtitle,
         iconPath: item.iconPath,
+        subtitleColor: item.subtitleColor,
         showArrow: item.showArrow,
         onTap: item.onTap,
         value: item.value,

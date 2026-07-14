@@ -25,18 +25,18 @@ class TranslationChecker {
     final sourceMap = json.decode(sourceContent) as Map<String, dynamic>;
     final destinationMap = json.decode(destinationContent) as Map<String, dynamic>;
 
-    printV('Found ${sourceMap.length} keys in source, ${destinationMap.length} in destination');
+    print('Found ${sourceMap.length} keys in source, ${destinationMap.length} in destination');
 
     final keysToProcess = specificKey != null
         ? (sourceMap.containsKey(specificKey) ? [specificKey] : <String>[])
         : sourceMap.keys.toList();
 
     if (specificKey != null && keysToProcess.isEmpty) {
-      printV('Error: Key "$specificKey" not found in source file');
+      print('Error: Key "$specificKey" not found in source file');
       return;
     }
 
-    printV('Processing ${keysToProcess.length} translations...');
+    print('Processing ${keysToProcess.length} translations...');
 
     int processed = 0;
     int corrected = 0;
@@ -57,16 +57,16 @@ class TranslationChecker {
         if (correctedTranslation != destinationValue) {
           destinationMap[key] = correctedTranslation;
           corrected++;
-          printV('Processed: "$key" -> CORRECTED');
-          printV(' - eng     : "$sourceValue"');
-          printV(' - dst orig: "$destinationValue"');
-          printV(' - dst new : "$correctedTranslation"');
+          print('Processed: "$key" -> CORRECTED');
+          print(' - eng     : "$sourceValue"');
+          print(' - dst orig: "$destinationValue"');
+          print(' - dst new : "$correctedTranslation"');
           await _writeArbFile(destinationArbPath, destinationMap);
         } else {
-          printV('Processed: "$key" -> VERIFIED');
+          print('Processed: "$key" -> VERIFIED');
         }
       } else {
-        printV('Processed: "$key" -> SKIPPED (non-string)');
+        print('Processed: "$key" -> SKIPPED (non-string)');
       }
 
       processed++;
@@ -74,11 +74,11 @@ class TranslationChecker {
 
     await _writeArbFile(destinationArbPath, destinationMap);
 
-    printV('');
-    printV('Summary:');
-    printV('Processed: $processed keys');
-    printV('Corrected: $corrected keys');
-    printV('Updated: $destinationArbPath');
+    print('');
+    print('Summary:');
+    print('Processed: $processed keys');
+    print('Corrected: $corrected keys');
+    print('Updated: $destinationArbPath');
   }
 
   Future<String> _checkSingleTranslation({
@@ -108,7 +108,7 @@ class TranslationChecker {
 
       return currentTranslation;
     } catch (e) {
-      printV('Error checking translation for key "$key": $e');
+      print('Error checking translation for key "$key": $e');
       return currentTranslation;
     }
   }
@@ -186,7 +186,7 @@ IMPORTANT: Respond with a JSON object in the exact format, you must think about 
       final jsonEnd = response.lastIndexOf('}');
 
       if (jsonStart == -1 || jsonEnd == -1 || jsonStart >= jsonEnd) {
-        printV('No valid JSON found in LLM response');
+        print('No valid JSON found in LLM response');
         return null;
       }
 
@@ -195,7 +195,7 @@ IMPORTANT: Respond with a JSON object in the exact format, you must think about 
 
       return parsed['corrected_translation'] as String?;
     } catch (e) {
-      printV('Error extracting JSON from LLM response: $e');
+      print('Error extracting JSON from LLM response: $e');
       return null;
     }
   }
@@ -228,7 +228,7 @@ void main(List<String> args) async {
     final results = parser.parse(args);
 
     if (results['help'] as bool) {
-      printV(parser.usage);
+      print(parser.usage);
       return;
     }
 
@@ -239,24 +239,24 @@ void main(List<String> args) async {
     final model = results['model'] as String;
 
     if (!File(sourcePath).existsSync()) {
-      printV('Error: Source ARB file not found: $sourcePath');
+      print('Error: Source ARB file not found: $sourcePath');
       exit(1);
     }
 
     if (!File(destinationPath).existsSync()) {
-      printV('Error: Destination ARB file not found: $destinationPath');
+      print('Error: Destination ARB file not found: $destinationPath');
       exit(1);
     }
 
-    printV('Translation Checker');
-    printV('Source: $sourcePath');
-    printV('Destination: $destinationPath');
-    printV('Ollama URL: $ollamaUrl');
-    printV('Model: $model');
+    print('Translation Checker');
+    print('Source: $sourcePath');
+    print('Destination: $destinationPath');
+    print('Ollama URL: $ollamaUrl');
+    print('Model: $model');
     if (specificKey != null) {
-      printV('Key: $specificKey');
+      print('Key: $specificKey');
     }
-    printV('');
+    print('');
 
     final checker = TranslationChecker(
       ollamaBaseUrl: ollamaUrl,
@@ -270,8 +270,8 @@ void main(List<String> args) async {
     );
 
   } catch (e) {
-    printV('Error: $e');
-    printV('Run with --help for more information.');
+    print('Error: $e');
+    print('Run with --help for more information.');
     exit(1);
   }
 }

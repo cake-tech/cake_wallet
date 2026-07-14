@@ -2,15 +2,16 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/provider_options_page.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SwapOptionsPage extends StatelessWidget {
   const SwapOptionsPage({super.key, required this.exchangeViewModel});
@@ -100,7 +101,9 @@ class SwapOptionsPage extends StatelessWidget {
                             keyValue: "coin control",
                             label: "Coin Control",
                             onTap: () {
-                              Navigator.of(context).pushNamed(Routes.unspentCoinsList);
+                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
+                                return NewCoinControlPage(unspentCoinsListViewModel: exchangeViewModel.unspentCoinsListViewModel,canEdit: true,);
+                              });
                             }),
                         ListItemSelector(
                             keyValue: "curr",

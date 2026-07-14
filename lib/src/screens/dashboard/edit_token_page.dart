@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -396,10 +397,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                   alignment: Alignment.center,
                   children: [
                     ClipOval(
-                      child: CakeImageWidget(
+                      child: TokenImageWidget(
                         imageUrl: _tokenIconPathController.text,
-                        width: 75,
-                        height: 75,
+                        size: 75,
                       ),
                     ),
                     if (_isTokenVerified)

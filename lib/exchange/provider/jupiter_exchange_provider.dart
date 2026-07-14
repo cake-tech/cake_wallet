@@ -42,6 +42,9 @@ class JupiterExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false; // Jupiter doesn't support fixed rate
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.jupiter;
 
   @override
@@ -367,8 +370,6 @@ class JupiterExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
-        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? 'SOL'}',
-        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? 'SOL'}',
         routerData: transaction,
         routerValue: requestId,
         fee: totalFeeInSol,

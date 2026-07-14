@@ -114,7 +114,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
     if (_isConnecting) return false;
     _isConnecting = true;
     _connectingWalletType = type;
-    if (isConnected) {
+    if (isConnected(type)) {
       try {
         await _connection!.disconnect().catchError((_) {});
       } catch (_) {}
@@ -126,7 +126,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
 
     if (_connectionChangeSubscription == null) {
       _connectionChangeSubscription = ledger
-          .deviceStateChanges
+          .deviceStateChanges(device.device.id)
           .listen(_connectionChangeListener);
     }
 
@@ -161,7 +161,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
             allowChangeWallet: true,
             isReconnect: true,
             onConnectDevice: (context, ledgerVM) async {
-              if (context.mounted) {
+              if (context.mounted && Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               }
             },
@@ -172,7 +172,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
-  bool get isConnected => _connection != null && !(_connection!.isDisconnected);
+  bool isConnected(WalletType type) => _connection != null && !(_connection!.isDisconnected);
 
   sdk.LedgerConnection get connection => _connection!;
 
@@ -196,6 +196,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {
     switch (type) {
+      case WalletType.monero:
+        return monero!.getLedgerHardwareWalletService(connection);
       case WalletType.bitcoin:
         return bitcoin!.getLedgerHardwareWalletService(connection, true);
       case WalletType.litecoin:

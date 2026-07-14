@@ -156,13 +156,12 @@ class CWBitcoin extends Bitcoin {
         outputs
             .map((out) => OutputInfo(
                   fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
                   address: out.address,
                   note: out.note,
                   sendAll: out.sendAll,
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount,
                   memo: out.memo.isNotEmpty ? out.memo : null,
                   extra: out.extra,
                 ))
@@ -178,19 +177,20 @@ class CWBitcoin extends Bitcoin {
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
+        .map<ElectrumSubAddress>((addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isHidden,
-            isLegacyDerivation: addr.isLegacyDerivation))
+            isLegacyDerivation: addr.isLegacyDerivation,
+        derivationPath: addr.derivationPath))
         .toList();
   }
 
   @override
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority,
+  Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     try {
       final sk = ECPrivate.random();
@@ -232,7 +232,7 @@ class CWBitcoin extends Bitcoin {
 
       return estimatedTx.amount;
     } catch (_) {
-      return 0;
+      return Money.zero(wallet.currency);
     }
   }
 
@@ -245,10 +245,6 @@ class CWBitcoin extends Bitcoin {
   @override
   String formatterBitcoinAmountToString({required int amount}) =>
       bitcoinAmountToString(amount: amount);
-
-  @override
-  double formatterBitcoinAmountToDouble({required int amount}) =>
-      bitcoinAmountToDouble(amount: amount);
 
   @override
   int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
@@ -574,7 +570,8 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isHidden,
+            derivationPath: addr.derivationPath))
         .toList();
   }
 
@@ -589,7 +586,8 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isHidden,
+            derivationPath: addr.derivationPath))
         .toList();
   }
 

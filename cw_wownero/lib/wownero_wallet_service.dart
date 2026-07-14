@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'package:cw_core/exceptions.dart' show WalletDeprecationException;
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -136,7 +137,10 @@ class WowneroWalletService extends WalletService<
       if (walletInfo == null) {
         throw Exception('Wallet not found');
       }
+
       wallet = WowneroWallet(walletInfo: walletInfo, derivationInfo: await walletInfo.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: password);
+      throw WalletDeprecationException(seed: wallet.seed, curr: wallet.currency);
+
       final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
@@ -146,9 +150,9 @@ class WowneroWalletService extends WalletService<
       }
 
       await wallet.init();
-
       return wallet;
     } catch (e, s) {
+      rethrow;
       // TODO: Implement Exception for wallet list service.
 
       final bool isBadAlloc = e.toString().contains('bad_alloc') ||

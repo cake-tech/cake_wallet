@@ -153,6 +153,15 @@ class CakeFeaturesPage extends StatelessWidget {
           subTitle: "Turn your old phone into your new hardware wallet with our new app",
           image: 'assets/images/cupcake.png',
         ),
+        AppsWidget(
+          isWide: true,
+          isLink: true,
+          isCake: true,
+          onTap: () => _launchUrl("radar.chat"),
+          title: "Radar",
+          subTitle: "Your messages. Your Bitcoin. Together, at last",
+          image: 'assets/images/radar.png',
+        ),
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.only(left: 24, top: 16, bottom: 8),

@@ -2,9 +2,11 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -31,6 +33,7 @@ class AssetDetailsModal extends StatelessWidget {
       required this.mode,
       required this.wallet,
       required this.showSwap,
+      required this.showBridgeButton,
       this.asset});
 
   final String title;
@@ -44,6 +47,7 @@ class AssetDetailsModal extends StatelessWidget {
   final String chainIconPath;
   final WalletBase wallet;
   final bool showSwap;
+  final bool showBridgeButton;
   final AssetDetailsModalModes mode;
 
   @override
@@ -59,7 +63,7 @@ class AssetDetailsModal extends StatelessWidget {
             title: "",
             trailingIcon: Icon(Icons.close),
             onTrailingPressed: Navigator.of(context).pop,
-            padding: EdgeInsets.only(top:12,right:18),
+            padding: EdgeInsets.only(top: 12, right: 18),
           ),
           SafeArea(
             child: Column(
@@ -74,7 +78,10 @@ class AssetDetailsModal extends StatelessWidget {
                       child: Stack(
                         children: [
                           if (iconPath.isNotEmpty)
-                            CakeImageWidget(imageUrl: iconPath, width: 75, height: 75)
+                            TokenImageWidget(
+                              imageUrl: iconPath,
+                              size: 75,
+                            )
                           else
                             Container(
                               width: 75,
@@ -125,21 +132,20 @@ class AssetDetailsModal extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).colorScheme.onSurface),
                             ),
-                            if(asset != null)
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainer,
-                                  borderRadius: BorderRadius.circular(999999999)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-
-                                child: Text(
-                                  asset?.title??"",
-                                  style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            if (asset != null)
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
+                                    borderRadius: BorderRadius.circular(999999999)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                                  child: Text(
+                                    asset?.title ?? "",
+                                    style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  ),
                                 ),
-                              ),
-                            )
+                              )
                           ],
                         ),
                         if (subtitle.isNotEmpty)
@@ -147,11 +153,15 @@ class AssetDetailsModal extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              if(chainIconPath.isNotEmpty)
-                              CakeImageWidget(
-                                imageUrl: chainIconPath,
-                                width:16,height:16,colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant,BlendMode.srcIn),
-                              ),
+                              if (chainIconPath.isNotEmpty)
+                                CakeImageWidget(
+                                  imageUrl: chainIconPath,
+                                  width: 16,
+                                  height: 16,
+                                  colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.onSurfaceVariant,
+                                      BlendMode.srcIn),
+                                ),
                               Text(
                                 subtitle,
                                 style: TextStyle(
@@ -227,6 +237,18 @@ class AssetDetailsModal extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (showSwap && mode != AssetDetailsModalModes.ltcPrivate)
+                      AssetDetailsModalBottomButton(
+                        iconPath: "assets/new-ui/exchange.svg",
+                        title: S.of(context).swap,
+                        onPressed: () => openPage<NewSwapPage>(context, param2: asset),
+                      ),
+                    if (showBridgeButton)
+                      AssetDetailsModalBottomButton(
+                        iconPath: "assets/new-ui/bridge.svg",
+                        title: "Bridge",
+                        onPressed: () => openPage<BridgeAmountPage>(context, param1: asset),
+                      ),
                     AssetDetailsModalBottomButton(
                       iconPath: "assets/new-ui/receive.svg",
                       title: S.of(context).receive,
@@ -240,12 +262,6 @@ class AssetDetailsModal extends StatelessWidget {
                         openPage<NewReceivePage>(context, param2: asset);
                       },
                     ),
-                    if (showSwap && mode != AssetDetailsModalModes.ltcPrivate)
-                      AssetDetailsModalBottomButton(
-                        iconPath: "assets/new-ui/exchange.svg",
-                        title: S.of(context).swap,
-                        onPressed: () => openPage<NewSwapPage>(context, param2: asset),
-                      ),
                   ],
                 ),
                 SizedBox()
