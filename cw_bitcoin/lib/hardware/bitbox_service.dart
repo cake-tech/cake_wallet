@@ -67,7 +67,8 @@ class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWal
   Future<Uint8List> getMasterFingerprint() => manager.getMasterFingerprint();
 }
 
-class LitecoinBitboxService extends HardwareWalletService with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
+class LitecoinBitboxService extends HardwareWalletService
+    with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
   LitecoinBitboxService(this.manager);
 
   final BitboxManager manager;

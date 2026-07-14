@@ -49,8 +49,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
         color: Theme.of(ctx).colorScheme.onSurfaceVariant,
       );
 
-  Widget _buildHeader(BuildContext ctx) =>
-      Column(
+  Widget _buildHeader(BuildContext ctx) => Column(
         children: [
           const SizedBox(height: 12),
           Container(
@@ -81,8 +80,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
         ],
       );
 
-  Widget _buildBody(BuildContext context) =>
-      Padding(
+  Widget _buildBody(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
           children: [
@@ -123,7 +121,6 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
               copyButtonOnPressed: () async =>
                   await Clipboard.setData(ClipboardData(text: paymentIdValue)),
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
@@ -157,10 +154,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       child: Material(
-        color: Theme
-            .of(context)
-            .colorScheme
-            .surface,
+        color: Theme.of(context).colorScheme.surface,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxHeight),
           child: SingleChildScrollView(
@@ -210,17 +204,14 @@ class _StandardTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Theme
-                .of(context)
-                .colorScheme
-                .surfaceContainerLowest
-                .withAlpha(80)),
+            color: Theme.of(context).colorScheme.surfaceContainerLowest.withAlpha(80)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Row(
-                mainAxisAlignment: copyButton ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+                mainAxisAlignment:
+                    copyButton ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
                 children: [
                   if (imagePath != null)
                     Padding(

@@ -11,9 +11,8 @@ class EVMChainBitboxService extends HardwareWalletService {
   final int chainId;
 
   @override
-  Future<List<HardwareAccountData>> getAvailableAccounts(
-      {int index = 0, int limit = 5}) async {
-        final accounts = <HardwareAccountData>[];
+  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
+    final accounts = <HardwareAccountData>[];
     final indexRange = List.generate(limit, (i) => i + index);
 
     for (final i in indexRange) {

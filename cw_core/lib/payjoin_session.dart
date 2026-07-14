@@ -56,7 +56,6 @@ class PayjoinSession extends HiveObject {
 
   BigInt get amount => BigInt.parse(rawAmount ?? "0");
   set amount(BigInt amount) => rawAmount = amount.toString();
-
 }
 
 enum PayjoinSessionStatus {

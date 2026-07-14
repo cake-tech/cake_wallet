@@ -130,7 +130,5 @@ class WalletTypeAdapter extends TypeAdapter<WalletType> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WalletTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is WalletTypeAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

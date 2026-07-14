@@ -21,9 +21,9 @@ class NostrProfileHandler {
   }
 
   static Future<UserMetadata?> processRelays(
-      ProfilePointer profile,
-      String nip05Address,
-      ) async {
+    ProfilePointer profile,
+    String nip05Address,
+  ) async {
     final userDomain = _extractDomain(nip05Address);
     const int metaKind = 0;
 

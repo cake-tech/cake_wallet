@@ -40,9 +40,7 @@ Future<void> main() async {
     group("Create wallet", () {
       test("Create Legacy Wallet", () async {
         final credentials = _getTestCreateCredentials(
-            name: 'Create Wallet LS',
-            language: 'English',
-            seedType: MoneroSeedType.legacy);
+            name: 'Create Wallet LS', language: 'English', seedType: MoneroSeedType.legacy);
         final wallet = await walletService.create(credentials);
 
         expect(wallet.seed.split(" ").length, 25);
@@ -51,9 +49,7 @@ Future<void> main() async {
 
       test("Create Polyseed Wallet", () async {
         final credentials = _getTestCreateCredentials(
-            name: 'Create Wallet PS',
-            language: 'English',
-            seedType: MoneroSeedType.polyseed);
+            name: 'Create Wallet PS', language: 'English', seedType: MoneroSeedType.polyseed);
         final wallet = await walletService.create(credentials);
 
         expect(wallet.seed.split(" ").length, 16);
@@ -62,9 +58,7 @@ Future<void> main() async {
 
       test("Create Bip39 Wallet", () async {
         final credentials = _getTestCreateCredentials(
-            name: 'Create Wallet BS',
-            language: 'English',
-            seedType: MoneroSeedType.bip39);
+            name: 'Create Wallet BS', language: 'English', seedType: MoneroSeedType.bip39);
         final wallet = await walletService.create(credentials);
 
         expect(wallet.seed.split(" ").length, 12);

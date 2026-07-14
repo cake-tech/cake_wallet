@@ -31,7 +31,7 @@ class PendingNanoTransaction with PendingTransaction {
       await nanoClient.processBlock(block, "send");
     }
   }
-  
+
   @override
   Future<Map<String, String>> commitUR() => throw UnimplementedError();
 }

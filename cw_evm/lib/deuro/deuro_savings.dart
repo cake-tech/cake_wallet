@@ -169,7 +169,8 @@ class DEuro {
         contractAddress: savings.self.address.hexEip55,
         receivingAddressHex: savings.self.address.hexEip55,
         priority: priority,
-        data: savings.self.abi.functions[24].encodeCall([_address, amount, hexToBytes(frontendCode)]),
+        data:
+            savings.self.abi.functions[24].encodeCall([_address, amount, hexToBytes(frontendCode)]),
       );
 
       sendTransaction() => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
@@ -193,7 +194,8 @@ class DEuro {
     try {
       await _checkEthBalanceForGasFees(priority);
 
-      final signedTransaction = await _savings.refreshBalance((owner: _address),
+      final signedTransaction = await _savings.refreshBalance(
+        (owner: _address),
         credentials: _wallet.evmChainPrivateKey,
       );
 
@@ -228,10 +230,12 @@ class DEuro {
       await _checkEthBalanceForGasFees(priority);
 
       return (await _wallet.createApprovalTransaction(
-        Money(BigInt.parse(
-          'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-          radix: 16,
-        ), CryptoCurrency.deuro),
+        Money(
+            BigInt.parse(
+              'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+              radix: 16,
+            ),
+            CryptoCurrency.deuro),
         _savings.self.address.hexEip55,
         priority,
       )) as PendingEVMChainTransaction;
@@ -244,4 +248,3 @@ class DEuro {
     }
   }
 }
-

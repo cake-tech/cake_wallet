@@ -6,7 +6,8 @@ import 'dart:convert';
 
 // FIXME: Hardcoded values; Works only for monero
 
-int getMoneroHeigthByDate({required DateTime date}) => MoneroHeight.getBlockHeightByTime(date..subtract(Duration(days: 1)));
+int getMoneroHeigthByDate({required DateTime date}) =>
+    MoneroHeight.getBlockHeightByTime(date..subtract(Duration(days: 1)));
 
 const havenDates = {
   "2023-05": 1352995,

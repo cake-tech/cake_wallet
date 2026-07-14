@@ -38,7 +38,7 @@ class NewSendAddressInput extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final FocusNode? focusNode;
   final String? hintText;
-  
+
   @override
   State<NewSendAddressInput> createState() => _NewSendAddressInputState();
 }
