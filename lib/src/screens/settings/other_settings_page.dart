@@ -226,6 +226,7 @@ class OtherSettingsPage extends BasePage {
           label: '[dev] wallet fuzzer',
           onTap: () =>
           Navigator.of(context).pushNamed(Routes.devWalletFuzzer),
+          ),
           ListItemRegularRow(
             keyValue: '[dev] fake corrupt sqlite db',
             label: '[dev] fake corrupt sqlite db',
