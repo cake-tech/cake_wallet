@@ -26,14 +26,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
   int _nextIndex = 0;
 
-  WalletHardwareRestoreViewModelBase(
-      this.hardwareWalletVM,
-      AppStore appStore,
-      WalletCreationService walletCreationService,
-      SeedSettingsViewModel seedSettingsViewModel,
+  WalletHardwareRestoreViewModelBase(this.hardwareWalletVM, AppStore appStore,
+      WalletCreationService walletCreationService, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
-      : super(appStore, walletCreationService, seedSettingsViewModel,
-            type: type, isRecovery: true);
+      : super(appStore, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true);
 
   @observable
   String name = "";
@@ -54,8 +50,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
       final service = await hardwareWalletVM.getHardwareWalletService(type);
-      final accounts = await service
-          .getAvailableAccounts(index: _nextIndex, limit: limit);
+      final accounts = await service.getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
       _nextIndex += limit;
@@ -74,8 +69,8 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     switch (type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        credentials =
-            bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
+        credentials = bitcoin!
+            .createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
       case WalletType.ethereum:
       case WalletType.polygon:

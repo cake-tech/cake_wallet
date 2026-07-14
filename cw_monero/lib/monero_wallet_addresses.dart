@@ -34,24 +34,28 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   String get latestAddress {
-    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
-    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address)) {
       addressIndex++;
-      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-      subaddressList.update(accountIndex: account?.id??0);
+      address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id ?? 0);
     }
     return address;
   }
 
   @override
   String get addressForExchange {
-    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
-    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-    while (hiddenAddresses.contains(address) || manualAddresses.contains(address) || subaddress_list.getRawLabel(accountIndex: account?.id??0, addressIndex: addressIndex).isNotEmpty) {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address) ||
+        manualAddresses.contains(address) ||
+        subaddress_list
+            .getRawLabel(accountIndex: account?.id ?? 0, addressIndex: addressIndex)
+            .isNotEmpty) {
       addressIndex++;
-      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-      subaddressList.update(accountIndex: account?.id??0);
+      address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id ?? 0);
     }
     return address;
   }
@@ -71,7 +75,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> init() async {
     accountList.update();
-    account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
+    account = accountList.accounts.isEmpty
+        ? Account(id: 0, label: "Primary address")
+        : accountList.accounts.first;
     await updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
@@ -145,9 +151,11 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         accountIndex: accountIndex,
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
-    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0) : subaddressList.subaddresses.last;
-    if (num.tryParse(subaddress!.balance??'0') != 0) {
-      getAddress(accountIndex: accountIndex, addressIndex: (subaddress?.id??0)+1);
+    subaddress = (subaddressList.subaddresses.isEmpty)
+        ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0)
+        : subaddressList.subaddresses.last;
+    if (num.tryParse(subaddress!.balance ?? '0') != 0) {
+      getAddress(accountIndex: accountIndex, addressIndex: (subaddress?.id ?? 0) + 1);
     }
     address = subaddress!.address;
   }

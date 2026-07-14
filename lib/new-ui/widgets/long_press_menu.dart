@@ -76,8 +76,7 @@ class _LongPressMenuState extends State<LongPressMenu> {
                             spacing: 8,
                             children: [
                               CakeImageWidget(
-                                imageUrl:
-                                item.iconPath,
+                                imageUrl: item.iconPath,
                                 height: 20,
                                 width: 20,
                                 colorFilter: ColorFilter.mode(color, BlendMode.srcIn),

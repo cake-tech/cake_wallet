@@ -55,7 +55,9 @@ class WalletFuzzerPage extends BasePage {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: viewModel.isRunning ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+                  color: viewModel.isRunning
+                      ? Colors.green.withOpacity(0.3)
+                      : Colors.red.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: viewModel.isRunning ? Colors.green : Colors.red,
@@ -131,14 +133,17 @@ class WalletFuzzerPage extends BasePage {
                     itemBuilder: (context, index) {
                       final log = viewModel.logs[index];
                       final formattedTime = DateFormat('HH:mm:ss').format(log.timestamp);
-                      
+
                       Color logColor = Colors.black;
-                      if (log.action.contains('Error') || log.result?.contains('Error') == true || log.result?.contains('error') == true) {
+                      if (log.action.contains('Error') ||
+                          log.result?.contains('Error') == true ||
+                          log.result?.contains('error') == true) {
                         logColor = Colors.red;
-                      } else if (log.action.contains('Success') || log.action.contains('successfully')) {
+                      } else if (log.action.contains('Success') ||
+                          log.action.contains('successfully')) {
                         logColor = Colors.green;
                       }
-                      
+
                       return Padding(
                         padding: EdgeInsets.symmetric(vertical: 2),
                         child: Row(
@@ -235,4 +240,4 @@ class WalletFuzzerPage extends BasePage {
       ),
     );
   }
-} 
+}

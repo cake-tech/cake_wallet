@@ -105,11 +105,11 @@ class SeedWidgetState extends State<SeedWidget> {
                                   cursorColor: Theme.of(context).colorScheme.primary,
                                   backgroundCursorColor: Theme.of(context).colorScheme.primary,
                                   validStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    backgroundColor: Colors.transparent,
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 16,
-                                  ),
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        backgroundColor: Colors.transparent,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 16,
+                                      ),
                                   invalidStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                         color: Theme.of(context).colorScheme.errorContainer,
                                         backgroundColor: Colors.transparent,
@@ -157,7 +157,8 @@ class SeedWidgetState extends State<SeedWidget> {
                             padding: EdgeInsets.all(6),
                             decoration: ShapeDecoration(
                               color: Theme.of(context).colorScheme.surface,
-                              shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
+                              shape: RoundedSuperellipseBorder(
+                                  borderRadius: BorderRadius.circular(18)),
                             ),
                             child: Image.asset(
                               'assets/images/paste_ios.png',

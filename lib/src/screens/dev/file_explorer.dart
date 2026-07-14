@@ -48,9 +48,9 @@ class FileExplorerPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: viewModel.viewMode == ViewMode.fileExplorer 
-                        ? Colors.white 
-                        : Colors.transparent,
+                      color: viewModel.viewMode == ViewMode.fileExplorer
+                          ? Colors.white
+                          : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -59,9 +59,9 @@ class FileExplorerPage extends BasePage {
                   'Files',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: viewModel.viewMode == ViewMode.fileExplorer 
-                      ? FontWeight.bold 
-                      : FontWeight.normal,
+                    fontWeight: viewModel.viewMode == ViewMode.fileExplorer
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ),
@@ -76,9 +76,9 @@ class FileExplorerPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: viewModel.viewMode == ViewMode.snapshots 
-                        ? Colors.white 
-                        : Colors.transparent,
+                      color: viewModel.viewMode == ViewMode.snapshots
+                          ? Colors.white
+                          : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -87,9 +87,9 @@ class FileExplorerPage extends BasePage {
                   'Snapshots',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: viewModel.viewMode == ViewMode.snapshots 
-                      ? FontWeight.bold 
-                      : FontWeight.normal,
+                    fontWeight: viewModel.viewMode == ViewMode.snapshots
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ),
@@ -104,9 +104,9 @@ class FileExplorerPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: viewModel.viewMode == ViewMode.fileMonitor 
-                        ? Colors.white 
-                        : Colors.transparent,
+                      color: viewModel.viewMode == ViewMode.fileMonitor
+                          ? Colors.white
+                          : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -115,9 +115,9 @@ class FileExplorerPage extends BasePage {
                   'Monitor',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: viewModel.viewMode == ViewMode.fileMonitor 
-                      ? FontWeight.bold 
-                      : FontWeight.normal,
+                    fontWeight: viewModel.viewMode == ViewMode.fileMonitor
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ),
@@ -166,9 +166,11 @@ class FileExplorerPage extends BasePage {
             children: [
               IconButton(
                 icon: Icon(Icons.arrow_upward),
-                onPressed: viewModel.path == null ? null : () {
-                  viewModel.cd('..');
-                },
+                onPressed: viewModel.path == null
+                    ? null
+                    : () {
+                        viewModel.cd('..');
+                      },
                 tooltip: 'Go up',
               ),
               Expanded(
@@ -227,7 +229,7 @@ class FileExplorerPage extends BasePage {
 
   Future<void> _showFileOptions(BuildContext context, File file) async {
     final fileName = file.path;
-    
+
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -279,7 +281,7 @@ class FileExplorerPage extends BasePage {
   Future<void> _showRenameDialog(BuildContext context, File file) async {
     final fileName = file.path;
     final controller = TextEditingController(text: fileName);
-    
+
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -320,7 +322,7 @@ class FileExplorerPage extends BasePage {
   Future<void> _showCopyDialog(BuildContext context, File file) async {
     final fileName = file.path;
     final controller = TextEditingController(text: fileName);
-    
+
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -401,35 +403,35 @@ class FileExplorerPage extends BasePage {
         ),
         Expanded(
           child: viewModel.snapshots.isEmpty
-            ? Center(child: Text('No snapshots yet. Create one to start!'))
-            : ListView.builder(
-                itemCount: viewModel.snapshots.length,
-                itemBuilder: (context, index) {
-                  final snapshot = viewModel.snapshots[index];
-                  final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(snapshot.timestamp);
-                  
-                  return ListTile(
-                    leading: Icon(Icons.camera_alt, color: Colors.green),
-                    title: Text(snapshot.name),
-                    subtitle: Text('$formattedDate - ${snapshot.files.length} files'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.compare_arrows, color: Colors.orange),
-                          onPressed: () => viewModel.switchToComparison(snapshot),
-                          tooltip: 'Compare with current',
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _confirmDeleteSnapshot(context, snapshot),
-                          tooltip: 'Delete snapshot',
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+              ? Center(child: Text('No snapshots yet. Create one to start!'))
+              : ListView.builder(
+                  itemCount: viewModel.snapshots.length,
+                  itemBuilder: (context, index) {
+                    final snapshot = viewModel.snapshots[index];
+                    final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(snapshot.timestamp);
+
+                    return ListTile(
+                      leading: Icon(Icons.camera_alt, color: Colors.green),
+                      title: Text(snapshot.name),
+                      subtitle: Text('$formattedDate - ${snapshot.files.length} files'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.compare_arrows, color: Colors.orange),
+                            onPressed: () => viewModel.switchToComparison(snapshot),
+                            tooltip: 'Compare with current',
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _confirmDeleteSnapshot(context, snapshot),
+                            tooltip: 'Delete snapshot',
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -437,7 +439,7 @@ class FileExplorerPage extends BasePage {
 
   Future<void> _showCreateSnapshotDialog(BuildContext context) async {
     final nameController = TextEditingController();
-    
+
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -496,11 +498,11 @@ class FileExplorerPage extends BasePage {
 
   Widget _buildHexDumpView(BuildContext context) {
     final file = viewModel.selectedFile;
-    
+
     if (file == null) {
       return Center(child: Text('No file selected'));
     }
-    
+
     return Column(
       children: [
         Container(
@@ -535,16 +537,16 @@ class FileExplorerPage extends BasePage {
         Divider(),
         Expanded(
           child: FutureBuilder<String>(
-            future: viewModel.getHexDump(file, maxBytes: 128*1024),
+            future: viewModel.getHexDump(file, maxBytes: 128 * 1024),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
               }
-              
+
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
-              
+
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SingleChildScrollView(
@@ -569,11 +571,11 @@ class FileExplorerPage extends BasePage {
 
   Widget _buildSnapshotComparison(BuildContext context) {
     final snapshot = viewModel.comparisonSnapshot;
-    
+
     if (snapshot == null) {
       return Center(child: Text('No snapshot selected for comparison'));
     }
-    
+
     return Column(
       children: [
         Container(
@@ -609,71 +611,72 @@ class FileExplorerPage extends BasePage {
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Row(
             children: [
-              _buildChangeBadge(
-                Colors.green, 
-                viewModel.fileChanges.where((change) => change.type == ChangeType.added).length
-              ),
+              _buildChangeBadge(Colors.green,
+                  viewModel.fileChanges.where((change) => change.type == ChangeType.added).length),
               SizedBox(width: 16),
               _buildChangeBadge(
-                Colors.blue, 
-                viewModel.fileChanges.where((change) => change.type == ChangeType.touched).length
-              ),
+                  Colors.blue,
+                  viewModel.fileChanges
+                      .where((change) => change.type == ChangeType.touched)
+                      .length),
               SizedBox(width: 16),
               _buildChangeBadge(
-                Colors.orange, 
-                viewModel.fileChanges.where((change) => change.type == ChangeType.modified).length
-              ),
+                  Colors.orange,
+                  viewModel.fileChanges
+                      .where((change) => change.type == ChangeType.modified)
+                      .length),
               SizedBox(width: 16),
               _buildChangeBadge(
-                Colors.red, 
-                viewModel.fileChanges.where((change) => change.type == ChangeType.removed).length
-              ),
+                  Colors.red,
+                  viewModel.fileChanges
+                      .where((change) => change.type == ChangeType.removed)
+                      .length),
             ],
           ),
         ),
         Expanded(
           child: viewModel.fileChanges.isEmpty
-            ? Center(child: Text('No changes detected'))
-            : ListView.builder(
-                itemCount: viewModel.fileChanges.length,
-                itemBuilder: (context, index) {
-                  final change = viewModel.fileChanges[index];
-                  final icon = _getChangeIcon(change.type);
-                  final color = _getChangeColor(change.type);
-                  
-                  String details = '';
-                  switch (change.type) {
-                    case ChangeType.modified:
-                      final oldSize = _formatFileSize(change.oldFile!.size);
-                      final newSize = _formatFileSize(change.newFile!.size);
-                      details = 'Size: $oldSize → $newSize';
-                      break;
-                    case ChangeType.added:
-                      details = 'Size: ${_formatFileSize(change.newFile!.size)}';
-                      break;
-                    case ChangeType.removed:
-                      details = 'Size: ${_formatFileSize(change.oldFile!.size)}';
-                      break;
-                    case ChangeType.touched:
-                      details = 'Modified timestamp changed';
-                      break;
-                  }
-                  
-                  return ListTile(
-                    leading: Icon(icon, color: color),
-                    title: Text(change.path),
-                    subtitle: Text(details),
-                    trailing: Text(
-                      change.type.toString().split('.').last,
-                      style: TextStyle(
-                        color: color,
-                        fontWeight: FontWeight.bold,
+              ? Center(child: Text('No changes detected'))
+              : ListView.builder(
+                  itemCount: viewModel.fileChanges.length,
+                  itemBuilder: (context, index) {
+                    final change = viewModel.fileChanges[index];
+                    final icon = _getChangeIcon(change.type);
+                    final color = _getChangeColor(change.type);
+
+                    String details = '';
+                    switch (change.type) {
+                      case ChangeType.modified:
+                        final oldSize = _formatFileSize(change.oldFile!.size);
+                        final newSize = _formatFileSize(change.newFile!.size);
+                        details = 'Size: $oldSize → $newSize';
+                        break;
+                      case ChangeType.added:
+                        details = 'Size: ${_formatFileSize(change.newFile!.size)}';
+                        break;
+                      case ChangeType.removed:
+                        details = 'Size: ${_formatFileSize(change.oldFile!.size)}';
+                        break;
+                      case ChangeType.touched:
+                        details = 'Modified timestamp changed';
+                        break;
+                    }
+
+                    return ListTile(
+                      leading: Icon(icon, color: color),
+                      title: Text(change.path),
+                      subtitle: Text(details),
+                      trailing: Text(
+                        change.type.toString().split('.').last,
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    onTap: () => viewModel.switchToDetailedComparison(change),
-                  );
-                },
-              ),
+                      onTap: () => viewModel.switchToDetailedComparison(change),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -681,14 +684,14 @@ class FileExplorerPage extends BasePage {
 
   Widget _buildDetailedComparison(BuildContext context) {
     final fileChange = viewModel.selectedFileChange;
-    
+
     if (fileChange == null) {
       return Center(child: Text('No file selected for detailed comparison'));
     }
-    
+
     final color = _getChangeColor(fileChange.type);
     final icon = _getChangeIcon(fileChange.type);
-    
+
     return Column(
       children: [
         Container(
@@ -748,13 +751,13 @@ class FileExplorerPage extends BasePage {
                   ),
                 );
               }
-              
+
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
-              
+
               final diffText = snapshot.data ?? 'No data available';
-              
+
               return Stack(
                 children: [
                   SingleChildScrollView(
@@ -917,9 +920,9 @@ class FileExplorerPage extends BasePage {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox.shrink();
             }
-            
+
             final devFileExists = snapshot.data ?? false;
-            
+
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
@@ -932,9 +935,9 @@ class FileExplorerPage extends BasePage {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      devFileExists 
-                        ? 'Monitor file exists - will start on app launch' 
-                        : 'Monitor file does not exist - will not start on app launch',
+                      devFileExists
+                          ? 'Monitor file exists - will start on app launch'
+                          : 'Monitor file does not exist - will not start on app launch',
                       style: TextStyle(fontSize: 12),
                     ),
                   ),
@@ -948,13 +951,13 @@ class FileExplorerPage extends BasePage {
           child: Observer(
             builder: (_) {
               final events = FileExplorerViewModelBase.fileEvents;
-              
+
               if (events.isEmpty) {
                 return Center(
                   child: Text('No events recorded yet. Toggle monitoring to start.'),
                 );
               }
-              
+
               return ListView.builder(
                 itemCount: events.length,
                 itemBuilder: (context, index) {
@@ -962,7 +965,7 @@ class FileExplorerPage extends BasePage {
                   final icon = _getFileEventIcon(event.event.type);
                   final color = _getFileEventColor(event.event.type);
                   final formattedTime = DateFormat('HH:mm:ss.SSS').format(event.timestamp);
-                  
+
                   return ListTile(
                     leading: Icon(icon, color: color),
                     title: Text(
@@ -993,7 +996,7 @@ class FileExplorerPage extends BasePage {
       ],
     );
   }
-  
+
   IconData _getFileEventIcon(watcher.ChangeType type) {
     switch (type) {
       case watcher.ChangeType.ADD:
@@ -1006,7 +1009,7 @@ class FileExplorerPage extends BasePage {
         return Icons.help_outline;
     }
   }
-  
+
   Color _getFileEventColor(watcher.ChangeType type) {
     switch (type) {
       case watcher.ChangeType.ADD:
@@ -1023,7 +1026,7 @@ class FileExplorerPage extends BasePage {
   Future<void> _toggleDevMonitorFile(BuildContext context) async {
     final appDir = await getAppDir();
     final devMonitorFile = File('${appDir.path}/.dev-monitor-fs');
-    
+
     if (await devMonitorFile.exists()) {
       await devMonitorFile.delete();
       ScaffoldMessenger.of(context).showSnackBar(

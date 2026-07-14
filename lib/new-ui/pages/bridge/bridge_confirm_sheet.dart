@@ -205,9 +205,11 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
               child: Observer(
                 builder: (_) {
                   if (bridgeViewModel.isExecuting) {
-                    return LoadingBottomWidget(text: "${S.of(context).bridging}...",);
+                    return LoadingBottomWidget(
+                      text: "${S.of(context).bridging}...",
+                    );
                   }
-                  if(bridgeViewModel.isQuoteLoading || bridgeViewModel.quote == null) {
+                  if (bridgeViewModel.isQuoteLoading || bridgeViewModel.quote == null) {
                     return LoadingBottomWidget(text: "${S.of(context).loading}...");
                   }
                   return ConfirmSwiper(

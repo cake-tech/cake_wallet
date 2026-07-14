@@ -58,7 +58,6 @@ class UserCakePayCardsStateFailure extends UserCakePayCardsState {
 
 class UserCakePayCardsStateSuccess extends UserCakePayCardsState {}
 
-
 abstract class CakePayVendorState {}
 
 class InitialCakePayVendorLoadingState extends CakePayVendorState {}

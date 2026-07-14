@@ -61,21 +61,21 @@ abstract class WalletFuzzerViewModelBase with Store {
   }
 
   static final DateTime appStartDate = DateTime.now();
-  
+
   List<FuzzyLogEntry> logs = [];
-  
+
   @observable
   bool isRunning = false;
-  
+
   @observable
   String currentOperation = 'Idle';
-  
+
   @observable
   String currentWallet = '';
-  
+
   @observable
   int operationsCompleted = 0;
-  
+
   @observable
   int errorsEncountered = 0;
 
@@ -96,11 +96,11 @@ abstract class WalletFuzzerViewModelBase with Store {
     final buffer = StringBuffer();
     final sortedEntries = operationStats.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    
+
     for (final entry in sortedEntries) {
       final opName = entry.key;
       final opCount = entry.value;
-      
+
       String formattedName = switch (opName) {
         'loadWallet' => 'Load Wallet',
         'syncWallet' => 'Sync Wallet',
@@ -111,10 +111,10 @@ abstract class WalletFuzzerViewModelBase with Store {
         'performRandomOperation' => 'Perform Random Operation',
         _ => opName,
       };
-      
+
       buffer.writeln('$formattedName: $opCount');
     }
-    
+
     return buffer.toString();
   }
 
@@ -123,20 +123,19 @@ abstract class WalletFuzzerViewModelBase with Store {
 
   @observable
   Directory? logDir;
-  
-  
+
   WalletLoadingService walletLoadingService = getIt.get<WalletLoadingService>();
   WalletListViewModel walletListViewModel = getIt.get<WalletListViewModel>();
   SettingsStore settingsStore = getIt.get<SettingsStore>();
   KeyService keyService = getIt.get<KeyService>();
-  
+
   final _random = Random();
   Timer? _fuzzerTimer;
-  
+
   static const String _fuzzyFileName = '.wallet-fuzzer';
   static const String _lastFuzzFile = 'last_fuzz';
   static const String _statsFile = 'fuzzer_stats';
-  
+
   final allTypes = [
     WalletType.monero,
     WalletType.bitcoin,
@@ -150,35 +149,34 @@ abstract class WalletFuzzerViewModelBase with Store {
   ];
 
   Future<void> _initialize() async {
-    
     final appDir = await getAppDir();
     logDir = Directory(p.join(appDir.path, 'fuzzy'));
-    
+
     if (!await logDir!.exists()) {
       await logDir!.create(recursive: true);
     }
-    
+
     final formattedDate = DateFormat('yyyyMMdd_HHmmss').format(appStartDate);
     logFilePath = p.join(logDir!.path, 'log-$formattedDate.txt');
-    
+
     await _logToFile('Wallet Fuzzer initialized');
-    
+
     await _loadOperationStats();
   }
-  
+
   Future<void> _loadOperationStats() async {
     try {
       final appDir = await getAppDir();
       final statsFilePath = p.join(appDir.path, _statsFile);
       final statsFile = File(statsFilePath);
-      
+
       if (await statsFile.exists()) {
         final statsJson = await statsFile.readAsString();
         final stats = jsonDecode(statsJson) as Map<String, dynamic>;
-        
+
         operationStats = stats.map((key, value) => MapEntry(key, value as int));
-        
-        await _logAction('Loaded operation statistics', 
+
+        await _logAction('Loaded operation statistics',
             result: operationStats.entries.map((e) => '${e.key}: ${e.value}').join(', '));
       } else {
         await _logAction('No previous operation statistics found');
@@ -193,7 +191,7 @@ abstract class WalletFuzzerViewModelBase with Store {
       final appDir = await getAppDir();
       final statsFilePath = p.join(appDir.path, _statsFile);
       final statsFile = File(statsFilePath);
-      
+
       final statsJson = jsonEncode(operationStats);
       await statsFile.writeAsString(statsJson);
     } catch (e) {
@@ -209,20 +207,20 @@ abstract class WalletFuzzerViewModelBase with Store {
     }
     await _saveOperationStats();
   }
-  
+
   Future<void> startFuzzing() async {
     if (isRunning) return;
-    
+
     isRunning = true;
     await _logAction('Starting wallet fuzzer');
-    
+
     await _clearLastFuzzFile();
-    
+
     await _ensureEnoughWallets();
-    
+
     _fuzzerTimer = Timer.periodic(Duration(seconds: 1), (_) => _performRandomOperation());
   }
-  
+
   Future<void> _createFuzzyFile() async {
     final appDir = await getAppDir();
     final fuzzyFile = File(p.join(appDir.path, _fuzzyFileName));
@@ -231,7 +229,7 @@ abstract class WalletFuzzerViewModelBase with Store {
       await _logAction('Created fuzzy file marker for auto-restart');
     }
   }
-  
+
   Future<void> _removeFuzzyFile() async {
     final appDir = await getAppDir();
     final fuzzyFile = File(p.join(appDir.path, _fuzzyFileName));
@@ -240,67 +238,68 @@ abstract class WalletFuzzerViewModelBase with Store {
       await _logAction('Removed fuzzy file marker');
     }
   }
-  
+
   @action
   Future<void> stopFuzzing() async {
     if (!isRunning) return;
-    
+
     _fuzzerTimer?.cancel();
     _fuzzerTimer = null;
     isRunning = false;
-    
+
     await _logAction('Stopping wallet fuzzer');
   }
-  
+
   Future<void> _ensureEnoughWallets() async {
     await _logAction('Checking if we need to create wallets');
-    
+
     final wallets = walletListViewModel.wallets;
     final walletsByType = <WalletType, List<WalletListItem>>{};
-    
+
     for (final wallet in wallets.where((w) => !w.isHardware)) {
       if (!walletsByType.containsKey(wallet.type)) {
         walletsByType[wallet.type] = [];
       }
       walletsByType[wallet.type]!.add(wallet);
     }
-    
+
     const MIN_WALLETS = 8;
     for (final type in allTypes) {
       final count = walletsByType[type]?.length ?? 0;
       if (count < MIN_WALLETS) {
-        await _logAction('Not enough wallets of type ${type.toString()}. Have: $count, Need: $MIN_WALLETS');
+        await _logAction(
+            'Not enough wallets of type ${type.toString()}. Have: $count, Need: $MIN_WALLETS');
         await _createWalletsForType(type, MIN_WALLETS - count);
       } else {
         await _logAction('Enough wallets of type ${type.toString()}. Have: $count');
       }
     }
   }
-  
+
   Future<void> _createWalletsForType(WalletType type, int count) async {
     await _incrementOperationStat('createWalletsForType');
     await _logAction('Creating $count wallets for type ${type.toString()}');
     final walletCreationService = getIt.get<WalletCreationService>(param1: type);
-    
+
     for (int i = 0; i < count; i++) {
-      await _logAction('Creating wallet ${i+1} of $count');
+      await _logAction('Creating wallet ${i + 1} of $count');
       final index = i;
       await _createSingleWallet(type, index, count, walletCreationService);
       await Future.delayed(Duration(milliseconds: 500));
     }
   }
-  
+
   Future<void> _createSingleWallet(
       WalletType type, int index, int totalCount, WalletCreationService service) async {
     try {
-      currentOperation = 'Creating wallet of type ${type.toString()} (${index+1}/$totalCount)';
-      
+      currentOperation = 'Creating wallet of type ${type.toString()} (${index + 1}/$totalCount)';
+
       final timestamp = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
       final randomSuffix = _random.nextInt(9999).toString().padLeft(4, '0');
       final walletName = 'fuzzy_${type.toString().split('.').last}_${timestamp}_$randomSuffix';
-      
+
       await _logAction('Creating wallet credentials', result: walletName);
-      
+
       final dirPath = await pathForWalletDir(name: walletName, type: type);
       final path = await pathForWallet(name: walletName, type: type);
       final credentials = await _prepareCredentialsForType(type, walletName);
@@ -338,10 +337,10 @@ abstract class WalletFuzzerViewModelBase with Store {
       await _logAction('Failed to create wallet of type ${type.toString()}', result: e.toString());
     }
   }
-  
+
   Future<WalletCredentials> _prepareCredentialsForType(WalletType type, String name) async {
     final password = generateWalletPassword();
-    
+
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
@@ -412,12 +411,12 @@ abstract class WalletFuzzerViewModelBase with Store {
         throw Exception('Wallet creation not yet implemented for ${type.toString()}');
     }
   }
-  
+
   Future<void> clearLogs() async {
     logs.clear();
     await _logAction('Logs cleared from UI');
   }
-  
+
   @action
   Future<void> _logAction(String action, {String? result}) async {
     final entry = FuzzyLogEntry(
@@ -425,16 +424,16 @@ abstract class WalletFuzzerViewModelBase with Store {
       action: action,
       result: result,
     );
-    
+
     logs.insert(0, entry);
-    
+
     if (logs.length > 500) {
       logs.removeLast();
     }
-    
+
     await _logToFile(entry.toString());
   }
-  
+
   Future<void> _logToFile(String message) async {
     try {
       final file = File(logFilePath!);
@@ -445,8 +444,9 @@ abstract class WalletFuzzerViewModelBase with Store {
       printV('Error writing to log file: $e');
     }
   }
+
   bool isBusy = false;
-  
+
   Future<void> _performRandomOperation() async {
     if (!isRunning) return;
     if (isBusy) return;
@@ -456,7 +456,7 @@ abstract class WalletFuzzerViewModelBase with Store {
       await _logAction('No wallets available to test');
       return;
     }
-    
+
     try {
       await _incrementOperationStat('performRandomOperation');
       final operations = [
@@ -464,7 +464,7 @@ abstract class WalletFuzzerViewModelBase with Store {
         _syncRandomWallet,
         _checkAndCreateWallets,
       ];
-      
+
       final operation = operations[_random.nextInt(operations.length)];
       await operation();
       operationsCompleted++;
@@ -476,31 +476,29 @@ abstract class WalletFuzzerViewModelBase with Store {
       isBusy = false;
     }
   }
-  
+
   Future<void> _loadRandomWallet() async {
     await _incrementOperationStat('loadWallet');
-    
-    final wallets = walletListViewModel.wallets
-        .where((wallet) => !wallet.isHardware)
-        .toList();
-    
+
+    final wallets = walletListViewModel.wallets.where((wallet) => !wallet.isHardware).toList();
+
     if (wallets.isEmpty) {
       await _logAction('No non-hardware wallets available to load');
       return;
     }
-    
+
     final walletItem = wallets[_random.nextInt(wallets.length)];
     currentWallet = walletItem.name;
     currentOperation = 'Loading wallet ${walletItem.name}';
-    
+
     await _logAction('Loading wallet', result: walletItem.name);
-    
+
     try {
       final wallet = await walletLoadingService.load(walletItem.type, walletItem.name);
       await _logAction('Wallet loaded successfully', result: walletItem.name);
-      
+
       await _logWalletState(wallet);
-      
+
       await _closeWallet(wallet);
     } catch (e) {
       await _logWalletStateByName(walletItem.name, e.toString().replaceAll("\n", ";"));
@@ -509,67 +507,65 @@ abstract class WalletFuzzerViewModelBase with Store {
       throw e;
     }
   }
-  
+
   Future<void> _syncRandomWallet() async {
     await _incrementOperationStat('syncWallet');
-    
-    final wallets = walletListViewModel.wallets
-        .where((wallet) => !wallet.isHardware)
-        .toList();
-    
+
+    final wallets = walletListViewModel.wallets.where((wallet) => !wallet.isHardware).toList();
+
     if (wallets.isEmpty) {
       await _logAction('No non-hardware wallets available to sync');
       return;
     }
-    
+
     final walletItem = wallets[_random.nextInt(wallets.length)];
     currentWallet = walletItem.name;
 
     currentOperation = 'Syncing wallet ${walletItem.name}';
-    
+
     await _logAction('Starting sync for wallet', result: walletItem.name);
-    
+
     try {
       WalletBase wallet;
       wallet = await walletLoadingService.load(walletItem.type, walletItem.name);
       await _logAction("loaded wallet: ${wallet.name} as ${walletItem.name}");
       await _logWalletState(wallet);
-      
+
       final node = settingsStore.getCurrentNode(wallet.type);
       await wallet.connectToNode(node: node);
-      
+
       await wallet.startSync();
       await _logAction('Sync started for wallet', result: walletItem.name);
-      
+
       final syncDuration = Duration(seconds: 5 + _random.nextInt(5));
       await _logAction('Syncing for ${syncDuration.inSeconds} seconds', result: walletItem.name);
       await Future.delayed(syncDuration);
-      
+
       final syncStatus = wallet.syncStatus;
       await _logAction('Sync status', result: '${walletItem.name}: ${syncStatus.runtimeType}');
-      
+
       await wallet.stopSync();
       await _logAction('Sync stopped for wallet', result: walletItem.name);
-      
+
       await _logWalletState(wallet);
-      
+
       await _closeWallet(wallet);
     } catch (e) {
       await _logAction('Error during sync operation', result: '${walletItem.name}: $e');
       throw e;
     }
   }
-  
+
   Future<void> _closeWallet(WalletBase wallet) async {
     final walletName = wallet.name;
     await _logAction('Starting wallet close procedure', result: walletName);
-    
+
     try {
       if (wallet.syncStatus is SyncingSyncStatus) {
         await wallet.stopSync();
         await _logAction('Stopped sync before closing', result: walletName);
       }
-      
+
       await wallet.close(shouldCleanup: true);
       await _logAction('Wallet closed successfully', result: walletName);
     } catch (e) {
@@ -577,20 +573,20 @@ abstract class WalletFuzzerViewModelBase with Store {
       throw e;
     }
   }
-  
+
   Future<void> _checkAndCreateWallets() async {
     await _incrementOperationStat('checkAndCreateWallets');
-    
+
     currentOperation = 'Checking wallet counts and creating new ones if needed';
     await _logAction('Performing wallet count check and creation');
     await _ensureEnoughWallets();
   }
-  
+
   Future<void> _logWalletStateByName(String walletName, String data) async {
     try {
       final appDir = await getAppDir();
       final lastFuzzFile = File(p.join(appDir.path, _lastFuzzFile));
-      
+
       await lastFuzzFile.writeAsString('$walletName|$data\n', mode: FileMode.append);
       await _logAction('Updated wallet state file');
     } catch (e) {
@@ -603,16 +599,16 @@ abstract class WalletFuzzerViewModelBase with Store {
       final appDir = await getAppDir();
       final walletInfo = _getWalletStateInfo(wallet);
       final lastFuzzFile = File(p.join(appDir.path, _lastFuzzFile));
-      
+
       await lastFuzzFile.writeAsString('$walletInfo\n', mode: FileMode.append);
       await _logAction('Updated wallet state file', result: walletInfo);
     } catch (e) {
       await _logAction('Failed to update wallet state file', result: e.toString());
     }
   }
-  
+
   String _getWalletStateInfo(WalletBase wallet) {
-    String seed = wallet.seed??'noseed';
+    String seed = wallet.seed ?? 'noseed';
     String keys = "";
     try {
       keys = wallet.keys.toString();
@@ -622,12 +618,12 @@ abstract class WalletFuzzerViewModelBase with Store {
     final data = '${wallet.name}|${wallet.type}|${seed}|${keys}'.replaceAll("\n", ";");
     return data;
   }
-  
+
   Future<void> _clearLastFuzzFile() async {
     try {
       final appDir = await getAppDir();
       final lastFuzzFile = File(p.join(appDir.path, _lastFuzzFile));
-      
+
       if (await lastFuzzFile.exists()) {
         await lastFuzzFile.writeAsString('');
         await _logAction('Cleared last_fuzz file');
@@ -641,13 +637,13 @@ abstract class WalletFuzzerViewModelBase with Store {
     final now = DateTime.now();
     final runDuration = now.difference(appStartDate);
     final totalOps = operationStats.values.fold(0, (a, b) => a + b);
-    
+
     double opsPerHour = 0;
     if (runDuration.inMinutes >= 1) {
       final runHours = runDuration.inMilliseconds / (1000 * 60 * 60);
       opsPerHour = totalOps / runHours;
     }
-    
+
     return {
       'stats': Map.from(operationStats),
       'totalOperations': totalOps,
@@ -657,4 +653,4 @@ abstract class WalletFuzzerViewModelBase with Store {
       'currentTimestamp': now.toIso8601String(),
     };
   }
-} 
+}

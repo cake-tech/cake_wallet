@@ -6,6 +6,6 @@ class DeviceInfo {
   static DeviceInfo get instance => DeviceInfo._();
 
   bool get isMobile => Platform.isAndroid || Platform.isIOS;
-  
+
   bool get isDesktop => Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 }

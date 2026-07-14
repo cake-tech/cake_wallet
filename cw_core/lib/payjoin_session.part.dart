@@ -59,7 +59,5 @@ class PayjoinSessionAdapter extends TypeAdapter<PayjoinSession> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PayjoinSessionAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is PayjoinSessionAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

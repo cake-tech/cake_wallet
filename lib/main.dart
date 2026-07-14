@@ -171,12 +171,10 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     }
 
     if (!Platform.isWindows) {
-      var zcashPassword = await secureStorageShared.read(
-          key: "com.cakewallet.cw_zcash/zec.db");
+      var zcashPassword = await secureStorageShared.read(key: "com.cakewallet.cw_zcash/zec.db");
       if (zcashPassword == null || zcashPassword.isEmpty) {
         zcashPassword = generateKey().substring(0, 32);
-        secureStorageShared.write(
-            key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
+        secureStorageShared.write(key: "com.cakewallet.cw_zcash/zec.db", value: zcashPassword);
       }
       zcash?.unlockDatabase(zcashPassword);
     }
@@ -225,7 +223,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
     CakeHive.registerAdapter(ContactAdapter());
   }
-
 
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
