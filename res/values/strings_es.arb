@@ -555,6 +555,7 @@
   "keys": "Claves",
   "label": "Etiqueta",
   "label_address": "Etiquetar dirección",
+  "last_7_days": "Últimos 7 días",
   "last_30_days": "Últimos 30 días",
   "learn_more": "Más información",
   "ledger_connection_error": "No se pudo conectar a tu Ledger. Inténtalo de nuevo.",

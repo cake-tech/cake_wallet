@@ -1,7 +1,7 @@
 import 'package:cake_wallet/buy/sell_buy_states.dart';
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
@@ -17,7 +17,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -29,9 +28,10 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class BuySellPage extends BasePage {
-  BuySellPage(this.buySellViewModel);
+  BuySellPage(this.buySellViewModel, this._resolver);
 
   final BuySellViewModel buySellViewModel;
+  final AddressResolverService _resolver;
   final cryptoCurrencyKey = GlobalKey<ExchangeCardState>();
   final fiatCurrencyKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
@@ -301,7 +301,7 @@ class BuySellPage extends BasePage {
     });
 
     reaction((_) => buySellViewModel.cryptoCurrencyAddress, (String address) {
-      if (cryptoAddressController != address) {
+      if (cryptoAddressController.text != address) {
         cryptoCurrencyKey.currentState!.addressController.text = address;
       }
     });
@@ -321,8 +321,10 @@ class BuySellPage extends BasePage {
     _cryptoAddressFocus.addListener(() async {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
-        buySellViewModel.cryptoCurrencyAddress = await fetchParsedAddress(
-            context, domain, buySellViewModel.cryptoCurrency);
+        final parsed = await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+        if (parsed.isNotEmpty) {
+          buySellViewModel.cryptoCurrencyAddress = parsed;
+        }
       }
     });
 
@@ -502,9 +504,10 @@ class BuySellPage extends BasePage {
     String domain,
     CryptoCurrency currency,
   ) async {
-    final parsedAddress =
-        await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
-    return address;
+    final parsedAddresses = await _resolver.resolve(
+        query: domain, wallet: buySellViewModel.wallet, currency: currency);
+    return parsedAddresses.isNotEmpty
+        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 }

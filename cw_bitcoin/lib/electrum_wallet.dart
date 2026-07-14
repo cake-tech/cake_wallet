@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -38,7 +37,6 @@ import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/sync_status.dart';
@@ -1539,6 +1537,7 @@ abstract class ElectrumWalletBase
           fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
+          inputOrdering: BitcoinOrdering.shuffle,
           outputOrdering: BitcoinOrdering.none,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
@@ -1734,37 +1733,6 @@ abstract class ElectrumWalletBase
     final path = await makePath();
     await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
-  }
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    }
-
-    // Delete old name's dir and files
-    final dir = Directory(currentDirPath);
-    for (var attempt = 0; attempt < 3; attempt++) {
-      try {
-        await dir.delete(recursive: true);
-        break;
-      } on FileSystemException {
-        if (attempt == 2) rethrow;
-        await Future<void>.delayed(const Duration(milliseconds: 200));
-      }
-    }
   }
 
   @override
@@ -2118,6 +2086,9 @@ abstract class ElectrumWalletBase
     for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
+      if (inputTransaction == null) {
+        throw Exception("Missing input transaction for fee calculation");
+      }
       final vout = input.txIndex;
       final outTransaction = inputTransaction.outputs[vout];
       allInputsAmount += outTransaction.amount.toInt();
@@ -2146,6 +2117,9 @@ abstract class ElectrumWalletBase
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
+        if (inputTransaction == null) {
+          throw Exception("Missing input transaction for replace-by-fee");
+        }
         final vout = input.txIndex;
         final outTransaction = inputTransaction.outputs[vout];
         final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
@@ -2329,6 +2303,7 @@ abstract class ElectrumWalletBase
         fee: BigInt.from(newFee),
         network: network,
         memo: memo,
+        inputOrdering: BitcoinOrdering.shuffle,
         outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
       );
@@ -2434,20 +2409,24 @@ abstract class ElectrumWalletBase
     }
 
     final original = BtcTransaction.fromRaw(transactionHex);
-    final ins = <BtcTransaction>[];
+    final ins = <BtcTransaction?>[];
 
     for (final vin in original.inputs) {
-      final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
+      try {
+        final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
 
-      final String inputTransactionHex;
+        final String inputTransactionHex;
 
-      if (verboseTransaction.isEmpty) {
-        inputTransactionHex = await electrumClient.getTransactionHex(hash: hash);
-      } else {
-        inputTransactionHex = verboseTransaction['hex'] as String;
+        if (verboseTransaction.isEmpty) {
+          inputTransactionHex = await electrumClient.getTransactionHex(hash: vin.txId);
+        } else {
+          inputTransactionHex = verboseTransaction['hex'] as String;
+        }
+
+        ins.add(inputTransactionHex.isEmpty ? null : BtcTransaction.fromRaw(inputTransactionHex));
+      } catch (_) {
+        ins.add(null);
       }
-
-      ins.add(BtcTransaction.fromRaw(inputTransactionHex));
     }
 
     return ElectrumTransactionBundle(
@@ -3204,22 +3183,11 @@ abstract class ElectrumWalletBase
         }
       }
 
-      final ins = <BtcTransaction>[];
       final inputTxids = inputTxidsByHash[txid] ?? const <String>[];
 
-      bool allInputsPresent = true;
-      for (final inputTxid in inputTxids) {
-        final inTx = parsedInputTxById[inputTxid];
-        if (inTx == null) {
-          allInputsPresent = false;
-          break;
-        }
-        ins.add(inTx);
-      }
-
-      if (!allInputsPresent || ins.length != original.inputs.length) {
-        continue;
-      }
+      final ins = <BtcTransaction?>[
+        for (final inputTxid in inputTxids) parsedInputTxById[inputTxid],
+      ];
 
       bundles[txid] = ElectrumTransactionBundle(
         original,
@@ -3796,6 +3764,7 @@ abstract class ElectrumWalletBase
       for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
+        if (inputTransaction == null) continue;
         final vout = input.txIndex;
         final outTransaction = inputTransaction.outputs[vout];
         final address = addressFromOutputScript(outTransaction.scriptPubKey, network);

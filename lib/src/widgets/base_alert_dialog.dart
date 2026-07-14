@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
 
@@ -184,10 +185,7 @@ class BaseAlertDialog extends StatelessWidget {
         radius: 50,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: ClipOval(
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-          ),
+          child: CakeImageWidget (imageUrl: imageUrl, width: 100, height: 100, fit: BoxFit.cover),
         ),
       ),
     );

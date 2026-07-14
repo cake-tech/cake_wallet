@@ -29,6 +29,13 @@ BigInt? tryParseFixed(String value, int decimals) {
 BigInt parseFixed(String value, int decimals) {
   final multiplier = getMultiplier(decimals);
 
+  /// handle weird cases where users enter spaces and currency after the amount
+  /// This should be handled from UI field to prevent non numerical values
+  /// but will be in the refactoring
+  if (value.contains(" ")) {
+    value = value.split(" ").first;
+  }
+
   final negative = value.startsWith("-");
   if (negative) value = value.substring(1);
 

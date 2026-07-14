@@ -258,6 +258,7 @@ class ExceptionHandler {
     "Connection timed out",
     "Connection reset by peer",
     "Connection closed before full header was received",
+    "Connection closed while receiving data",
     "Connection terminated during handshake",
     "OS Error: Connection refused, errno = 61",
     "PERMISSION_NOT_GRANTED",
@@ -277,6 +278,7 @@ class ExceptionHandler {
     "invalid signature",
     "invalid password",
     "NetworkImage._loadAsync",
+    "Invalid image data",
     "SSLV3_ALERT_BAD_RECORD_MAC",
     "PlatformException(already_active, File picker is already active",
     // SVG-related errors
@@ -296,17 +298,22 @@ class ExceptionHandler {
     "Wrong Device Status: 0x5515 (UNKNOWN)",
     "Command handling failed. With error: hostUnreachable",
 
+    // Android IME/Gboard occasionally reports a caret offset past the end of
+    // the text on the platform text-input channel while typing. Non-fatal
+    // framework<->platform desync; the app keeps working.
+    "invalid selection start",
     "FocusScopeNode was used after being disposed",
     "_getDismissibleFlushbar",
     "_QueuedFuture.execute (package:universal_ble/src/queue.dart:65)",
+    "Pending Request Canceled | RequestQueue disposed",
     "reown_core/relay_client/websocket/websocket_handler.dart",
     "Image upload failed due to loss of GPU access",
     "transport error",
     "SdkError.sparkError(field0: Operator RPC error: Connection error: status: Unavailable, message: \"dns error\", details: []",
     "the timeout of the request was reached",
 
-    "support for coin removed, your seedphrase:"
-    "Exception: Invalid image data"
+    "support for coin removed, your seedphrase:",
+    "Exception: Invalid image data",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
@@ -441,8 +448,33 @@ class ExceptionHandler {
   }
 
   static bool _flutterErrorIgnore(FlutterErrorDetails errorDetails) {
-    // most probably a flutter context error so just ignore it if there is no stack we can debug with
-    return errorDetails.exception.toString().contains("Null check operator used on a null value") &&
-        errorDetails.stack == null;
+    if (errorDetails.exception.toString().contains("Null check operator used on a null value")) {
+      // Most probably a flutter context error so just ignore it if there is no
+      // stack we can debug with.
+      if (errorDetails.stack == null) {
+        return true;
+      }
+
+      final stack = errorDetails.stack.toString();
+      if (stack.contains("handleFocusHighlightModeChange") ||
+          stack.contains("_HighlightModeManager")) {
+        return true;
+      }
+    }
+
+    if (errorDetails.exception.toString().contains("Cannot add event after closing")) {
+      // grpc-dart teardown race (e.g. the MWEB channel on litecoin): a buffered outgoing
+      // frame is delivered to the http2 stream's sink after the call/channel was
+      // terminated. The message alone is too generic to ignore, so require the exact
+      // shape of grpc's forwarding chain: .map().map().handleError().listen(sink.add).
+      final stack = errorDetails.stack.toString();
+      if (stack.contains("_StreamSinkWrapper.add") &&
+          stack.contains("_MapStream._handleData") &&
+          stack.contains("_HandleErrorStream._handleData")) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
