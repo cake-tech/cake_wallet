@@ -149,6 +149,7 @@ class CWBitcoin extends Bitcoin {
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
     String? payjoinUri,
+    bool shouldSaveRecipientAddress = false,
   }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
@@ -169,7 +170,8 @@ class CWBitcoin extends Bitcoin {
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
-        payjoinUri: payjoinUri);
+        payjoinUri: payjoinUri,
+        shouldSaveRecipientAddress: shouldSaveRecipientAddress);
   }
 
   @override
@@ -787,14 +789,20 @@ class CWBitcoin extends Bitcoin {
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
     if (!isPayjoinAvailable(wallet)) return '';
-    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+    final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
+    return addresses.payjoinAddress == _wallet.walletAddresses.address
+        ? (addresses.payjoinEndpoint ?? '')
+        : '';
   }
 
   @override
   void updatePayjoinState(Object wallet, bool value) {
     final _wallet = wallet as ElectrumWallet;
     if (value) {
-      (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
+      // init + resume: when the wallet is already synced no sync-status
+      // transition will fire, so toggling payjoin on must itself restart
+      // the stored sender/receiver workers.
+      resumePayjoinSessions(_wallet);
     } else {
       stopPayjoinSessions(wallet);
     }
@@ -831,14 +839,16 @@ class CWBitcoin extends Bitcoin {
     final _wallet = wallet as ElectrumWallet;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinAddress = null;
   }
 
   @override
-  Future<void> ensurePayjoinSession(Object wallet) async {
+  Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false}) async {
     final _wallet = wallet as ElectrumWallet;
     final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
     addresses.payjoinEndpoint = null;
-    await addresses.newPayjoinReceiver();
+    addresses.payjoinAddress = null;
+    await addresses.newPayjoinReceiver(shouldSaveRecipientAddress: shouldSaveRecipientAddress);
   }
 
   @override

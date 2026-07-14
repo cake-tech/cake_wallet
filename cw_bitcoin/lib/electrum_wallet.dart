@@ -43,7 +43,6 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -2892,9 +2891,11 @@ abstract class ElectrumWalletBase
         if (session != null) {
           if (session.isSenderSession) {
             info.amount = Money(session.amount, info.amount.currency);
+            info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
           } else {
             info.direction = TransactionDirection.incoming;
             info.amount = Money(session.amount, info.amount.currency);
+            info.additionalInfo['pjNetFlow'] = session.amount.toInt();
           }
         }
       }
@@ -3209,6 +3210,22 @@ abstract class ElectrumWalletBase
               if (storedTx.height != oldHeight ||
                   storedTx.confirmations != oldConfs ||
                   storedTx.isPending != oldPending) {
+                transactionHistory.addOne(storedTx);
+                didUpdateHistory = true;
+              }
+            }
+
+            if (this is BitcoinWallet) {
+              final session = (this as BitcoinWallet).payjoinManager.sessionForTxId(txid);
+              if (session != null) {
+                if (session.isSenderSession) {
+                  storedTx.amount = Money(session.amount, storedTx.amount.currency);
+                  storedTx.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+                } else {
+                  storedTx.direction = TransactionDirection.incoming;
+                  storedTx.amount = Money(session.amount, storedTx.amount.currency);
+                  storedTx.additionalInfo['pjNetFlow'] = session.amount.toInt();
+                }
                 transactionHistory.addOne(storedTx);
                 didUpdateHistory = true;
               }
@@ -3668,9 +3685,11 @@ abstract class ElectrumWalletBase
             if (session != null) {
               if (session.isSenderSession) {
                 info.amount = Money(session.amount, info.amount.currency);
+                info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
               } else {
                 info.direction = TransactionDirection.incoming;
                 info.amount = Money(session.amount, info.amount.currency);
+                info.additionalInfo['pjNetFlow'] = session.amount.toInt();
               }
             }
           }

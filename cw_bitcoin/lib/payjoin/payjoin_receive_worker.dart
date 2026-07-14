@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_signer.dart';
 import 'package:cw_bitcoin/payjoin/relay_response.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
@@ -507,13 +508,8 @@ Duration _nextBackoff(int consecutiveFailures) {
   return Duration(seconds: seconds);
 }
 
-class CancelException implements Exception {}
-
-class RecoverableError implements Exception {
-  final String message;
-  RecoverableError(this.message);
-  @override
-  String toString() => message;
+class CancelException extends PayjoinSessionError {
+  const CancelException() : super('Payjoin receiver session cancelled');
 }
 
 class _InMemoryReceiverPersister extends pj.JsonReceiverSessionPersister {
