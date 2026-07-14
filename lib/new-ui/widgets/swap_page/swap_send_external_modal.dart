@@ -16,7 +16,8 @@ class SwapSendExternalModal extends StatefulWidget {
       required this.amount,
       required this.from,
       required this.to,
-      required this.address, required this.exchangeTradeViewModel});
+      required this.address,
+      required this.exchangeTradeViewModel});
 
   final String amount;
   final ExchangeTradeViewModel exchangeTradeViewModel;
@@ -164,18 +165,19 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 color: warningTextColor, fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                         )),
-                    if(widget.exchangeTradeViewModel.trade.extraId != null)
+                    if (widget.exchangeTradeViewModel.trade.extraId != null)
                       Text(
                         "${S.of(context).destination_tag} ${widget.exchangeTradeViewModel.trade.extraId}",
                         style: TextStyle(
                             fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     Row(
-                      spacing:8,
+                      spacing: 8,
                       children: [
                         Flexible(
                           child: NewPrimaryButton(
-                              onPressed: () => ClipboardUtil.copyToClipboard(context, widget.address),
+                              onPressed: () =>
+                                  ClipboardUtil.copyToClipboard(context, widget.address),
                               text: S.of(context).copy,
                               color: Theme.of(context).colorScheme.primary,
                               textColor: Theme.of(context).colorScheme.onPrimary),

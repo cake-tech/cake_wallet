@@ -54,12 +54,14 @@ class Bip353AddressProvider extends AddressLookupProvider {
         printV('Bip353Record.fetchDnsProof error: $e');
       }
 
-      return [ParsedAddress(
-        parsedAddressByCurrencyMap: result,
-        addressSource: AddressSource.bip353,
-        handle: query,
-        bip353DnsProof: dnsProof ?? '',
-      )];
+      return [
+        ParsedAddress(
+          parsedAddressByCurrencyMap: result,
+          addressSource: AddressSource.bip353,
+          handle: query,
+          bip353DnsProof: dnsProof ?? '',
+        )
+      ];
     } catch (e) {
       printV('[address resolver] Error resolving BIP353 address: $e');
       return [];

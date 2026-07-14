@@ -179,9 +179,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
     if (isPrepaidRangeSelected) {
       selectedCardId = selectedDenomination.$2 ?? card.id;
-      selectedPrice = selectedDenomination.$1.isNotEmpty
-          ? selectedDenomination.$1
-          : amount.toString();
+      selectedPrice =
+          selectedDenomination.$1.isNotEmpty ? selectedDenomination.$1 : amount.toString();
     } else if (isDenominationSelected) {
       selectedCardId = selectedDenomination.$2 ?? card.id;
       selectedPrice = selectedDenomination.$1;
@@ -196,8 +195,9 @@ abstract class CakePayBuyCardViewModelBase with Store {
         confirmsVoidedRefund: confirmsVoidedRefund,
         confirmsTermsAgreed: confirmsTermsAgreed,
       );
-      final paymentData =
-          CakePayOrder.getPaymentDataFor(method: selectedPaymentMethod, order: order); // TODO should hande other currencies if added
+      final paymentData = CakePayOrder.getPaymentDataFor(
+          method: selectedPaymentMethod,
+          order: order); // TODO should hande other currencies if added
       if (paymentData == null || order == null)
         throw Exception('Payment data or order is not available.');
 
@@ -274,7 +274,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
       formattedRemainingTime = formatDuration(remainingTime!);
     }
   }
-  
+
   Future<void> logout() async => await _cakePayService.logout();
 
   void _startExpirationTimer() {

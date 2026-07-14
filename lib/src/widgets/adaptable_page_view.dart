@@ -156,7 +156,6 @@ class _RenderSizingContainer extends RenderProxyBox {
       final double t = (page - floorPage).clamp(0.0, 1.0);
       final double height = lerpDouble(a.height, b.height, t) ?? a.height;
 
-
       child.layout(
         constraints.copyWith(minHeight: height, maxHeight: height),
         parentUsesSize: true,

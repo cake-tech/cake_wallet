@@ -14,14 +14,12 @@ void main() {
     group('formatFixed, different fractional digits and trimming zeros', () {
       test(
         'should format 1000001 into 1',
-        () => expect(
-            formatFixed(BigInt.parse("1000001"), 6, fractionalDigits: 5), '1'),
+        () => expect(formatFixed(BigInt.parse("1000001"), 6, fractionalDigits: 5), '1'),
       );
 
       test(
         'should format 1000000 into 1, fractionalDigits > decimals',
-        () => expect(
-            formatFixed(BigInt.parse("1000000"), 6, fractionalDigits: 12), '1'),
+        () => expect(formatFixed(BigInt.parse("1000000"), 6, fractionalDigits: 12), '1'),
       );
 
       test(
@@ -45,8 +43,7 @@ void main() {
       test(
         'should format 1000001 into 1.00000',
         () => expect(
-          formatFixed(BigInt.parse("1000001"), 6,
-              fractionalDigits: 5, trimZeros: false),
+          formatFixed(BigInt.parse("1000001"), 6, fractionalDigits: 5, trimZeros: false),
           '1.00000',
         ),
       );
@@ -54,8 +51,7 @@ void main() {
       test(
         'should format 1000000 into 1.000000',
         () => expect(
-          formatFixed(BigInt.parse("1000000"), 6,
-              fractionalDigits: 12, trimZeros: false),
+          formatFixed(BigInt.parse("1000000"), 6, fractionalDigits: 12, trimZeros: false),
           '1.000000',
         ),
       );

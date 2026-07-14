@@ -1,4 +1,3 @@
-
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'dart:async';
@@ -9,15 +8,16 @@ class ProxySocketInsecure implements ProxySocket {
   final Socket socket;
 
   ProxySocketInsecure(this.socket);
-  
+
   bool isClosed = false;
 
-  ProxyAddress get address => ProxyAddress(host: socket.remoteAddress.host, port: socket.remotePort);
-  
+  ProxyAddress get address =>
+      ProxyAddress(host: socket.remoteAddress.host, port: socket.remotePort);
+
   @override
   Future<void> close() async {
     try {
-    if (isClosed) return;
+      if (isClosed) return;
       isClosed = true;
       return socket.close();
     } catch (e) {
@@ -25,7 +25,7 @@ class ProxySocketInsecure implements ProxySocket {
       return;
     }
   }
-  
+
   @override
   void destroy() async {
     try {
@@ -37,7 +37,7 @@ class ProxySocketInsecure implements ProxySocket {
       return;
     }
   }
-  
+
   @override
   void write(String data) {
     try {
@@ -51,9 +51,10 @@ class ProxySocketInsecure implements ProxySocket {
       return;
     }
   }
-  
+
   @override
-  StreamSubscription<List<int>> listen(Function(Uint8List event) onData, {Function(Object error)? onError, Function()? onDone, bool cancelOnError = true}) {
+  StreamSubscription<List<int>> listen(Function(Uint8List event) onData,
+      {Function(Object error)? onError, Function()? onDone, bool cancelOnError = true}) {
     return socket.listen(
       (data) {
         onData(Uint8List.fromList(data));

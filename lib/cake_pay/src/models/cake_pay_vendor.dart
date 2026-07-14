@@ -34,19 +34,16 @@ class CakePayVendor {
         final cards = cardsJson
             .map((cardJson) => CakePayCard.fromJson(cardJson as Map<String, dynamic>))
             .toList();
-        final cardsForSelectedCountry = cards
-            .where((card) => Country.normalizeName(card.country ?? '') == country)
-            .toList();
+        final cardsForSelectedCountry =
+            cards.where((card) => Country.normalizeName(card.country ?? '') == country).toList();
 
         if (cardsForSelectedCountry.isNotEmpty) {
-          final isPrepaid = cardsForSelectedCountry
-              .every((card) => card.type == CakePayCardType.prepaid);
+          final isPrepaid =
+              cardsForSelectedCountry.every((card) => card.type == CakePayCardType.prepaid);
 
           if (isPrepaid) {
             final firstCard = cardsForSelectedCountry.first;
-            final prepaidRanges = cardsForSelectedCountry
-                .map(PrepaidRange.fromCard)
-                .toList()
+            final prepaidRanges = cardsForSelectedCountry.map(PrepaidRange.fromCard).toList()
               ..sort((a, b) => a.minValue.compareTo(b.minValue));
 
             cardForVendor = firstCard.copyWith(prepaidRange: prepaidRanges);
