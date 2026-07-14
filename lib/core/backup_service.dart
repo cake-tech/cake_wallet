@@ -19,6 +19,7 @@ import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
@@ -110,6 +111,7 @@ class $BackupService {
 
   Future<void> verifyWallets() async {
     await performHiveMigration(); // for backups made before sqlite migration
+    await performTradeHiveMigration(_secureStorage);
     correctWallets = (await WalletInfo.getAll()).where((info) => availableWalletTypes.contains(info.type)).toList();
 
     if (correctWallets.isEmpty) {

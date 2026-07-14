@@ -53,3 +53,21 @@ bool hasTokens(WalletType walletType) {
       return false;
   }
 }
+
+String tokenStandardFor(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.ethereum:
+    case WalletType.polygon:
+    case WalletType.arbitrum:
+    case WalletType.base:
+      return 'ERC-20';
+    case WalletType.bsc:
+      return 'BEP-20';
+    case WalletType.solana:
+      return 'SPL';
+    case WalletType.tron:
+      return 'TRC-20';
+    default:
+      return walletTypeToString(walletType);
+  }
+}

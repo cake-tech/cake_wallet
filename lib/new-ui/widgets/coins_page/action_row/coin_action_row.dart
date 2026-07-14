@@ -17,14 +17,13 @@ import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/lnurl.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../pages/receive_page.dart';
-import '../../../pages/scan_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
@@ -157,17 +156,7 @@ class CoinActionRow extends StatelessWidget {
   }
 
   Future<void> _onPressedScan(BuildContext context) async {
-    if (false && FeatureFlag.hasNewUiExtraPages) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => FractionallySizedBox(
-          heightFactor: 0.9,
-          child: ScanPage(),
-        ),
-      );
-    } else {
-      final code = await presentQRScanner(context);
+      final code = await presentQRScanner(context, showHelp: true);
 
       if (code == null || code.isEmpty) return;
 
@@ -175,21 +164,24 @@ class CoinActionRow extends StatelessWidget {
       var unspentCoinType = UnspentCoinType.any;
       if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
         unspentCoinType = UnspentCoinType.lightning;
-        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(getBolt11Amount(code) ?? 0));
+        final amount = getBolt11Amount(code)?.toString() ?? "0";
         req = PaymentRequest(code, amount, "", "", "");
       } else if (SendViewModelBase.isLnurlInvoice(code)) {
         unspentCoinType = UnspentCoinType.lightning;
-        final amount = CryptoCurrency.btcln.formatAmount(BigInt.from(await LNURL.getPayRequestAmount(code) ?? 0));
+        final amount = (await LNURL.getPayRequestAmount(code))?.toString() ?? "0";
         req = PaymentRequest(code, amount, "", "", "");
       } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
         req = PaymentRequest(code, "", "", "", "");
-      } else if (Uri.tryParse(code)?.scheme == "wc") {
-        if (!isEVMCompatibleChain(walletType)) {
+      } else
+      if (Uri.tryParse(code)?.scheme == "wc") {
+        if (!isWalletConnectCompatibleChain(walletType)) {
           showPopUp<void>(
               context: context,
               builder: (context) => AlertWithOneAction(
                   alertTitle: "WalletConnect",
-                  alertContent: S.of(context).switchToEVMCompatibleWallet,
+                  alertContent: S
+                      .of(context)
+                      .switchToWCCompatibleWallet(walletConnectCompatibleChainsLabel()),
                   buttonText: "OK",
                   buttonAction: Navigator.of(context).pop));
           return;
@@ -198,7 +190,12 @@ class CoinActionRow extends StatelessWidget {
         Navigator.of(context)
             .pushNamed(Routes.walletConnectConnectionsListing, arguments: Uri.parse(code));
         return;
-      } else {
+      } else if(["http", "https", "tcp"].contains(Uri.tryParse(code)?.scheme)) {
+        Navigator.of(context).pushNamed(Routes.newNode,
+            arguments: {"editingNode": Node.fromUri(Uri.parse(code), walletType)});
+        return;
+
+      }else {
         final uri = Uri.tryParse(code);
         if (uri == null) return;
         req = PaymentRequest.fromUri(uri);
@@ -222,5 +219,4 @@ class CoinActionRow extends StatelessWidget {
         ),
       );
     }
-  }
 }

@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class BalanceCardAction {
   final String label;
@@ -70,8 +69,6 @@ class BalanceCard extends StatelessWidget {
         resolvedAssetName.isNotEmpty;
 
     final height = width * 0.62;
-
-
 
     return AnimatedContainer(
       duration: designSwitchDuration,
@@ -209,7 +206,7 @@ class BalanceCard extends StatelessWidget {
                           },
                           child: Text(
                             key: ValueKey(fiatFirst ? balance : fiatBalance),
-                            fiatFirst ? "$assetName $balance" : "$fiatCurrencyTitle $fiatBalance",
+                            fiatFirst ? "$assetName $balance" : fiatBalance,
                           ),
                         ),
                       ),
@@ -247,16 +244,7 @@ class BalanceCard extends StatelessWidget {
                       switchInCurve: Curves.easeInOut,
                       switchOutCurve: Curves.easeInOut,
                       child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
-                          ? CakeImageWidget(
-                              imageUrl: design.imagePath,
-                              key: const ValueKey('svgIcon'),
-                              height: iconWidth,
-                              width: iconWidth,
-                              colorFilter: ColorFilter.mode(
-                                design.colors.backgroundImageColor.withAlpha(80),
-                                BlendMode.srcIn,
-                              ),
-                            )
+                          ? _CornerSvgIcon(design: design, iconWidth: iconWidth)
                           : const SizedBox.shrink(
                               key: ValueKey('svgIconOff'),
                             ),
@@ -319,4 +307,27 @@ class BalanceCard extends StatelessWidget {
           ),
         ),
       );
+}
+
+class _CornerSvgIcon extends StatelessWidget {
+  const _CornerSvgIcon({required this.design, required this.iconWidth});
+
+  final CardDesign design;
+  final double iconWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return CakeImageWidget(
+      imageUrl: design.imagePath,
+      key: ValueKey(design.imagePath),
+      height: iconWidth,
+      width: iconWidth,
+      colorFilter: design.preColoredIcon
+          ? null
+          : ColorFilter.mode(
+              design.colors.backgroundImageColor.withValues(alpha: 0.33),
+              BlendMode.dstIn,
+            ),
+    );
+  }
 }

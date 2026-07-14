@@ -105,7 +105,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             !widget.exchangeViewModel.isSendFromExternal;
                       }
 
-                      final String currencyIconPath = walletTypeToCryptoCurrency(item.type).iconPath ?? "";
+                      final String currencyIconPath = getCryptoCurrencyIconForWalletListItem(item.type);
 
                             final bool hasAccounts =
                                 item.type == WalletType.monero && widget.isSelectingReceiver;
@@ -263,7 +263,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                     Row(
                       spacing: 12,
                       children: [
-                        Image.asset(widget.iconPath, width: 24, height: 24),
+                        CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24),
                         Text(widget.wallet.name)
                       ],
                     ),

@@ -34,11 +34,11 @@ class CryptoBalanceWidget extends StatelessWidget {
       case null:
         return null;
       case HardwareWalletType.bitbox:
-        return "assets/images/hardware_wallet/device_bitbox.svg";
+        return "assets/new-ui/hardware_wallets/device_bitbox.svg";
       case HardwareWalletType.ledger:
-        return "assets/images/hardware_wallet/device_ledger_nano_x.svg";
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";
       case HardwareWalletType.trezor:
-        return "assets/images/hardware_wallet/device_trezor_safe_5.svg";
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_5.svg";
       case HardwareWalletType.cupcake:
         return "assets/images/cupcake.svg";
       case HardwareWalletType.coldcard:
@@ -343,7 +343,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       description: S.of(context).zcash_card_description,
                       leftButtonTitle: S.of(context).zcash_card_dismiss,
                       rightButtonTitle: S.of(context).zcash_card_scan,
-                      image: 'assets/images/zec_icon.png',
+                      image: 'assets/new-ui/crypto_full_icons/zcash.svg',
                       leftButtonAction: () => _dismissZcash(context),
                       rightButtonAction: () => _rescanInternalChangeZcash(context),
                       hintWidget: GestureDetector(
@@ -371,7 +371,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: InfoCard(
                       title: S.of(context).synchronizing,
                       description: S.of(context).decred_info_card_details,
-                      image: 'assets/images/crypto/decred.webp',
+                      image: 'assets/new-ui/crypto_full_icons/decred.svg',
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),

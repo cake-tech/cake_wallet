@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Feature or Enhancement Request ✨
-    url: https://github.com/cake-tech/cake_wallet/discussions/new?category=feature-requests
-    about: Suggest an idea for Cake Wallet
   - name: Not sure where to start?
     url: https://docs.cakewallet.com
     about: Start by reading checking out the guides!

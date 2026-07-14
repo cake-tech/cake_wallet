@@ -105,26 +105,25 @@ class CWEVM extends EVM {
     TransactionPriority? priority,
     int? feeRate,
     bool useBlinkProtection = true,
-  }) {
-    return EVMChainTransactionCredentials(
-      outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount,
-              memo: out.memo))
-          .toList(),
-      priority: priority as EVMChainTransactionPriority?,
-      currency: currency,
-      feeRate: feeRate,
-      useBlinkProtection: useBlinkProtection,
-    );
-  }
+  }) =>
+      EVMChainTransactionCredentials(
+        outputs
+            .map((out) => OutputInfo(
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                  memo: out.memo,
+                ))
+            .toList(),
+        priority: priority as EVMChainTransactionPriority?,
+        currency: currency,
+        feeRate: feeRate,
+        useBlinkProtection: useBlinkProtection,
+      );
 
   @override
   Object createEVMTransactionCredentialsRaw(
@@ -144,23 +143,39 @@ class CWEVM extends EVM {
   }
 
   @override
-  int formatterEVMParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required int height,
+    required Money amount,
+    required Money fee,
+    required String tokenSymbol,
+    int exponent = 18,
+    required TransactionDirection direction,
+    required bool isPending,
+    required DateTime date,
+    required int confirmations,
+    String? to,
+    String? from,
+    String? evmSignatureName,
+    String? contractAddress,
+    required int chainId,
+  }) =>
+      EVMChainTransactionInfo(
+          id: id,
+          height: height,
+          amount: amount,
+          fee: fee,
+          tokenSymbol: tokenSymbol,
+          direction: direction,
+          isPending: isPending,
+          date: date,
+          confirmations: confirmations,
+          to: to,
+          from: from,
+          chainId: chainId);
 
   @override
-  double formatterEVMAmountToDouble({
-    TransactionInfo? transaction,
-    BigInt? amount,
-    int exponent = 18,
-  }) {
-    assert(transaction != null || amount != null);
-
-    if (transaction != null) {
-      transaction as EVMChainTransactionInfo;
-      return transaction.ethAmount / BigInt.from(10).pow(transaction.exponent);
-    } else {
-      return (amount!) / BigInt.from(10).pow(exponent);
-    }
-  }
+  int formatterEVMParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
   List<Erc20Token> getERC20Currencies(WalletBase wallet) =>
@@ -261,20 +276,16 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
-    BigInt amount,
+    Money amount,
     String spender,
-    CryptoCurrency token,
     TransactionPriority? priority, {
     bool useBlinkProtection = true,
   }) {
     final evmWallet = wallet as EVMChainWallet;
-    final feeCurrency = EVMChainUtils.getFeeCurrency(evmWallet.selectedChainId);
     return evmWallet.createApprovalTransaction(
       amount,
       spender,
-      token,
       priority as EVMChainTransactionPriority?,
-      feeCurrency,
       useBlinkProtection: useBlinkProtection,
     );
   }
@@ -284,7 +295,7 @@ class CWEVM extends EVM {
     WalletBase wallet,
     String to,
     String dataHex,
-    BigInt valueWei,
+    Money valueWei,
     TransactionPriority? priority, {
     bool useBlinkProtection = true,
     String? sourceTokenAddress,
@@ -366,7 +377,7 @@ class CWEVM extends EVM {
 
   // Chain-specific integrations (only for Ethereum)
   @override
-  Future<BigInt>? getDEuroSavingsBalance(WalletBase wallet) {
+  Future<Money>? getDEuroSavingsBalance(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).savingsBalance;
     }
@@ -374,7 +385,15 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<BigInt>? getDEuroAccruedInterest(WalletBase wallet) {
+  Future<Money>? getDEuroSavingsV1Balance(WalletBase wallet) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
+      return DEuro(wallet).savingsBalanceV1;
+    }
+    return null;
+  }
+
+  @override
+  Future<Money>? getDEuroAccruedInterest(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).accruedInterest;
     }
@@ -411,6 +430,15 @@ class CWEVM extends EVM {
       WalletBase wallet, BigInt amount, TransactionPriority priority) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).withdrawSavings(amount, priority as EVMChainTransactionPriority);
+    }
+    return null;
+  }
+
+  @override
+  Future<PendingTransaction>? withdrawDEuroSavingV1(
+      WalletBase wallet, TransactionPriority priority) {
+    if (wallet.chainId == 1 && wallet is EVMChainWallet) {
+      return DEuro(wallet).withdrawSavingsV1(priority as EVMChainTransactionPriority);
     }
     return null;
   }
@@ -493,14 +521,6 @@ class CWEVM extends EVM {
   }
 
   @override
-  BigInt? getERC20AvailableBalance(Object balance) {
-    if (balance is EVMChainERC20Balance) {
-      return balance.balance;
-    }
-    return null;
-  }
-
-  @override
   List<ChainInfo> getAllChains() {
     final allChains = _registry.getAllChains();
     return allChains
@@ -517,7 +537,7 @@ class CWEVM extends EVM {
   ChainInfo? getChainInfoByChainId(int chainId) {
     final config = _registry.getChainConfig(chainId);
     if (config == null) return null;
-    
+
     return ChainInfo(
       chainId: config.chainId,
       name: config.name,
@@ -602,25 +622,29 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<USDT0Quote> quoteUSDT0Transfer({
+  Future<BridgeQuote> quoteUSDT0Transfer({
     required WalletBase wallet,
     required int sourceChainId,
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-  }) {
+  }) async {
     final evmWallet = wallet as EVMChainWallet;
     final client = evmWallet.getWeb3Client();
     if (client == null) {
       throw StateError('Wallet not connected');
     }
 
-    return USDT0Service.quoteCrossChainTransfer(
+    final quote = await USDT0Service.quoteCrossChainTransfer(
       client: client,
       sourceChainId: sourceChainId,
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
+    );
+    return BridgeQuote(
+      nativeFee: quote.nativeFee,
+      lzTokenFee: quote.lzTokenFee,
     );
   }
 
@@ -632,7 +656,7 @@ class CWEVM extends EVM {
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-    required USDT0Quote quote,
+    required BridgeQuote quote,
     required TransactionPriority priority,
     bool useBlinkProtection = true,
   }) {
@@ -645,13 +669,13 @@ class CWEVM extends EVM {
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
-      quote: quote,
+      quote: USDT0Quote(nativeFee: quote.nativeFee, lzTokenFee: quote.lzTokenFee),
       token: tokenErc20,
       priority: priority as EVMChainTransactionPriority,
       useBlinkProtection: useBlinkProtection,
-
-        );
+    );
   }
+
   Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
     WalletBase wallet,
     TransactionPriority priority,
@@ -668,29 +692,18 @@ class CWEVM extends EVM {
     );
   }
 
-  Future<({double usdValue, bool hasValidFiatPrice})> _getTokenUsdValueAndFiatCheck(
-    Erc20Token token,
-    BigInt balanceWei,
-  ) async {
+  Future<double> _fetchFiatApiPriceForToken(Erc20Token token) async {
     try {
       final settingsStore = getIt.get<SettingsStore>();
       final torOnly = settingsStore.fiatApiMode == FiatApiMode.torOnly;
 
-      final price = await FiatConversionService.fetchPrice(
+      return await FiatConversionService.fetchPrice(
         crypto: token,
         fiat: FiatCurrency.usd,
         torOnly: torOnly,
       );
-
-      final hasValidFiatPrice = price > 0;
-
-      final decimals = token.decimal;
-      final balance = balanceWei.toDouble() / math.pow(10, decimals);
-      final usdValue = balance * price;
-
-      return (usdValue: usdValue, hasValidFiatPrice: hasValidFiatPrice);
-    } catch (e) {
-      return (usdValue: 0.0, hasValidFiatPrice: false);
+    } catch (_) {
+      return 0.0;
     }
   }
 
@@ -706,21 +719,34 @@ class CWEVM extends EVM {
 
       final List<Future<void>> tokenChecks = [];
 
+      final whitelistedContracts =
+          wallet.getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+
       for (final item in result.newTokens) {
         tokenChecks.add((() async {
           final token = item.token;
 
           final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
+          final isWhitelisted = whitelistedContracts.contains(token.contractAddress.toLowerCase());
 
-          final fiatResult = await _getTokenUsdValueAndFiatCheck(
-            token,
-            item.balanceWei,
-          );
-          final isSpam = isPropertiesSuspicious || !fiatResult.hasValidFiatPrice;
+          final moralisPrice = item.moralisUsdPrice;
+          final moralisValue = item.moralisUsdValue ?? 0.0;
+          final hasMoralisPrice = moralisPrice != null && moralisPrice > 0;
+
+          final fiatApiPrice = await _fetchFiatApiPriceForToken(token);
+          final hasFiatApiPrice = fiatApiPrice > 0;
+
+          final isImpersonator =
+              hasFiatApiPrice && !hasMoralisPrice && !isWhitelisted && !item.verifiedContract;
+
+          final isSpam = isPropertiesSuspicious ||
+              token.isPotentialScam ||
+              isImpersonator ||
+              (!hasMoralisPrice && !hasFiatApiPrice);
 
           token.isPotentialScam = isSpam;
-
-          token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
+          token.enabled =
+              hasMoralisPrice && hasFiatApiPrice && (moralisValue >= _minTokenUsdValue) && !isSpam;
 
           await wallet.addErc20Token(token);
         })());

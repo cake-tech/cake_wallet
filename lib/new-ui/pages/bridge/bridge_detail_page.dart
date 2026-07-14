@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/view_model/bridge_details_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_details_view_model.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

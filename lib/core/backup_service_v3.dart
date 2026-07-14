@@ -144,6 +144,21 @@ class BackupMetadata {
   }
 }
 
+class IncompatibleBackupAppException implements Exception {
+  IncompatibleBackupAppException({
+    required this.sourceAppName,
+    required this.currentAppName,
+  });
+
+  final String sourceAppName;
+  final String currentAppName;
+
+  @override
+  String toString() {
+    return 'This backup was created in $sourceAppName and cannot be restored in $currentAppName.';
+  }
+}
+
 class BackupServiceV3 extends $BackupService {
   BackupServiceV3(super.secureStorage, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
 
@@ -197,7 +212,8 @@ class BackupServiceV3 extends $BackupService {
     }
   }
 
-  Future<void> importBackupFile(File file, String password, {String nonce = secrets.backupSalt}) {
+  Future<void> importBackupFile(File file, String password,
+      {String nonce = secrets.backupSalt, bool checkBackupApp = true}) {
     final version = getVersionFile(file);
     switch (version) {
       case BackupVersion.unknown:
@@ -210,11 +226,12 @@ class BackupServiceV3 extends $BackupService {
       case BackupVersion.v2:
         return super.importBackupV2(file.readAsBytesSync(), password);
       case BackupVersion.v3:
-        return importBackupFileV3(file, password, nonce: nonce);
+        return importBackupFileV3(file, password, nonce: nonce, checkBackupApp: checkBackupApp);
     }
   }
 
-  Future<void> importBackupFileV3(File file, String password, {String nonce = secrets.backupSalt}) async{
+  Future<void> importBackupFileV3(File file, String password,
+      {String nonce = secrets.backupSalt,bool checkBackupApp = true}) async{
     // Overall design of v3 backup is the following:
     // 1. backup.zip - plaintext zip file that user can open with any archive manager
     // 2. backup.zip/README.txt - text file to let user know what is inside of this file
@@ -223,6 +240,11 @@ class BackupServiceV3 extends $BackupService {
 
     final inputStream = InputFileStream(file.path);
     final archive = ZipDecoder().decodeStream(inputStream);
+
+    if (checkBackupApp) {
+      await _throwIfBackupWasCreatedInAnotherApp(archive);
+    }
+
     final metadataFile = archive.findFile('metadata.json');
     if (metadataFile == null) {
       throw Exception('Invalid v3 backup: missing metadata.json');
@@ -425,7 +447,7 @@ class BackupServiceV3 extends $BackupService {
     metadata.sha512sum = (await sha512.bind(dataBinUnencrypted.openRead()).first).toString();
 
     final raf = await dataBinUnencrypted.open();
-    
+
 
     while (true) {
       printV("Reading chunk ${chunkIndex++}");
@@ -489,6 +511,33 @@ This backup was created on ${DateTime.now().toIso8601String()}
     // tmpDir.deleteSync(recursive: true);
     final file = File(archivePathExport);
     return file;
+  }
+
+  Future<void> _throwIfBackupWasCreatedInAnotherApp(Archive archive) async {
+    final readmeFile = archive.findFile('README.txt');
+    if (readmeFile == null) return;
+
+    final readmeBytes = readmeFile.rawContent?.readBytes();
+    if (readmeBytes == null) return;
+
+    final readmeString = utf8.decode(readmeBytes, allowMalformed: true);
+    final sourceAppName = _extractBackupAppName(readmeString);
+    if (sourceAppName == null) return;
+
+
+    final currentAppName = (await PackageInfo.fromPlatform()).appName;
+    if (sourceAppName == currentAppName) return;
+
+
+    throw IncompatibleBackupAppException(
+      sourceAppName: sourceAppName,
+      currentAppName: currentAppName,
+    );
+  }
+
+  String? _extractBackupAppName(String readme) {
+    final match = RegExp(r'^This is a (.+) backup\.', multiLine: true).firstMatch(readme);
+    return match?.group(1)?.trim();
   }
 
   static const chunkSize = 24 * 1024 * 1024; // 24MiB

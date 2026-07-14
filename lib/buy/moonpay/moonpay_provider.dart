@@ -79,7 +79,7 @@ class MoonPayProvider extends BuyProvider {
   @override
   bool get isAggregator => false;
 
-  static String get _apiKey => secrets.moonPayApiKey;
+  String get _apiKey => isTestEnvironment ? secrets.moonPaySandboxApiKey : secrets.moonPayApiKey;
 
   String get currencyCode => walletTypeToCryptoCurrency(wallet.type, chainId: wallet.chainId).title.toLowerCase();
 
@@ -96,8 +96,9 @@ class MoonPayProvider extends BuyProvider {
     }
   }
 
-  Future<String> getMoonpaySignature(String query) async {
-    final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
+  Future<String> getMoonpaySignedQuery(String query) async {
+    final uri =
+        Uri.https(_cIdBaseUrl, "/api/moonpay", isTestEnvironment ? {"useSandbox": "true"} : null);
 
     final response = await ProxyWrapper().post(
       clearnetUri: uri,
@@ -107,7 +108,8 @@ class MoonPayProvider extends BuyProvider {
     
 
     if (response.statusCode == 200) {
-      return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
+      printV((jsonDecode(response.body) as Map<String, dynamic>));
+      return (jsonDecode(response.body) as Map<String, dynamic>)['query'] as String;
     } else {
       throw Exception(
           'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
@@ -297,18 +299,13 @@ class MoonPayProvider extends BuyProvider {
     required Map<String, String> params,
     String? amount,
   }) async {
-    if (_apiKey.isNotEmpty) params['apiKey'] = _apiKey;
+    if (_apiKey.isNotEmpty) params["apiKey"] = _apiKey;
 
     final baseUrl = isBuyAction ? baseBuyUrl : baseSellUrl;
-    final originalUri = Uri.https(baseUrl, '', params);
+    final originalUri = Uri.https(baseUrl, "", params);
 
-    if (isTestEnvironment) return originalUri;
-
-    final signature = await getMoonpaySignature('?${originalUri.query}');
-    final query = Map<String, dynamic>.from(originalUri.queryParameters);
-    query['signature'] = signature;
-    final signedUri = originalUri.replace(queryParameters: query);
-    return signedUri;
+    final query = await getMoonpaySignedQuery("?${originalUri.query}");
+    return Uri.parse(query);
   }
 
   Future<Order> findOrderById(String id) async {

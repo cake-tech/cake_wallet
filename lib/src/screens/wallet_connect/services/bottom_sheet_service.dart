@@ -29,7 +29,6 @@ class BottomSheetServiceImpl implements BottomSheetService {
     int closeAfter = 0,
     bool isModalDismissible = false,
   }) async {
-    // Create the bottom sheet queue item
     final completer = Completer<dynamic>();
     final queueItem = BottomSheetQueueItemModel(
       widget: widget,
@@ -38,15 +37,12 @@ class BottomSheetServiceImpl implements BottomSheetService {
       isModalDismissible: isModalDismissible,
     );
 
-    // If the current sheet it null, set it to the queue item
     if (currentSheet.value == null) {
       currentSheet.value = queueItem;
     } else {
-      // Otherwise, add it to the queue
       queue.add(queueItem);
     }
 
-    // Return the future
     return await completer.future;
   }
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/l2_send_external_modal.dart';
@@ -17,7 +18,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum l2actions { deposit, withdraw }
@@ -56,8 +56,8 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
     super.initState();
     if (widget.showOtherWallets) {
       () async {
-        items.addAll((await WalletInfo.getAll())
-            .where((item) => item.type == widget.sendViewModel.walletType && item.hardwareWalletType == null));
+        items.addAll((await WalletInfo.getAll()).where((item) =>
+            item.type == widget.sendViewModel.walletType && item.hardwareWalletType == null));
         items.sort((a, b) {
           if (a.name == widget.sendViewModel.wallet.name)
             return -1;
@@ -125,8 +125,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4.0),
                               child: WalletRow(
-                                currencyIconPath:
-                                    walletTypeToCryptoCurrency(item.type).iconPath ?? "",
+                                currencyIconPath: getCryptoCurrencyIconForWalletListItem(item.type),
                                 walletName: item.name,
                                 isCurrent: item.name == widget.sendViewModel.wallet.name,
                                 isSelected: _selectedWalletIndex == index && !textEntered,
@@ -252,8 +251,8 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   spacing: 10,
                                   children: [
-                                  CakeImageWidget(imageUrl:
-                                      "assets/new-ui/send_from_external.svg",
+                                    CakeImageWidget(
+                                      imageUrl: "assets/new-ui/send_from_external.svg",
                                       colorFilter: ColorFilter.mode(
                                           Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                                     ),
@@ -378,10 +377,9 @@ class WalletRow extends StatelessWidget {
                 Row(
                   spacing: 12,
                   children: [
-                    Image.asset(
-                      currencyIconPath,
-                      height: 24,
-                      width: 24,
+                    TokenImageWidget(
+                      imageUrl: currencyIconPath,
+                      size: 24,
                     ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,

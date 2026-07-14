@@ -5,13 +5,12 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import "package:cw_core/wallet_type.dart";
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class L2SendExternalModal extends StatefulWidget {
   const L2SendExternalModal({super.key, required this.sendViewModel});
@@ -180,11 +179,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                         children: [
                           Flexible(
                             child: NewPrimaryButton(
-                                onPressed:(){
-                                  Clipboard.setData(
-                                    ClipboardData(text: output.address),
-                                  );
-                                },
+                                onPressed: () => ClipboardUtil.copyToClipboard(context, output.address),
                                 text: S.of(context).copy,
                                 color: Theme.of(context).colorScheme.primary,
                                 textColor: Theme.of(context).colorScheme.onPrimary),

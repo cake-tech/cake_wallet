@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.da
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/view_model/bridge_history_view_model.dart';
+import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -72,12 +72,12 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
             doubleActionLeftButtonText: S.of(bottomSheetContext).close,
             doubleActionRightButtonText: 'View history',
             onLeftActionButtonPressed: () {
-              bridgeViewModel.clearBridgeSuccess();
+              bridgeViewModel.clearOnBridgeSuccess();
               Navigator.of(context, rootNavigator: true).pop();
               RequestReviewHandler.requestReview();
             },
             onRightActionButtonPressed: () {
-              bridgeViewModel.clearBridgeSuccess();
+              bridgeViewModel.clearOnBridgeSuccess();
               Navigator.of(context).popUntil((route) => route.isFirst);
               showMaterialModalBottomSheet(
                 context: context,
@@ -96,6 +96,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
     bridgeViewModel.onBridgeSuccess = null;
     bridgeViewModel.setAmount('');
     _amountController.dispose();
+    bridgeViewModel.dispose();
     super.dispose();
   }
 
@@ -165,7 +166,9 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                       hoverColor: Colors.transparent,
                                       focusedBorder: InputBorder.none,
                                       enabledBorder: InputBorder.none,
-                                      hintText: _amountFocused || _amountController.text.isNotEmpty ? null : "0.00",
+                                      hintText: _amountFocused || _amountController.text.isNotEmpty
+                                          ? null
+                                          : "0.00",
                                       hintStyle: theme.textTheme.displayMedium?.copyWith(
                                         fontWeight: FontWeight.w400,
                                         color: theme.colorScheme.onSurfaceVariant,
@@ -273,16 +276,16 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                   icon: Icon(Icons.arrow_forward, size: 20),
                                   onPressed: () {
                                     Navigator.pushNamed(
-                                        context, Routes.bridgeDestinationNetworkPage,
-                                        arguments: bridgeViewModel);
+                                      context,
+                                      Routes.bridgeDestinationNetworkPage,
+                                      arguments: bridgeViewModel,
+                                    );
                                   },
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: 24,
-                          )
+                          SizedBox(height: 24)
                         ],
                       );
                     },

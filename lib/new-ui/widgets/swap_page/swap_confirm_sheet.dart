@@ -14,6 +14,12 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_amount_format.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currencies_with_memo.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -40,7 +46,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
     final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
     if (sendVM.wallet.isHardwareWallet) {
-      if (!sendVM.hardwareWalletViewModel!.isConnected) {
+      if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: sendVM.walletType,
@@ -155,13 +161,16 @@ class SwapTransactionDetails extends StatelessWidget {
                   builder: (_) => NewListSections(showHeader: true, sections: {
                     S.of(context).send: [
                       ListItemRegularRow(
-                          showArrow: false,
-                          keyValue: "send value",
-                          label: exchangeViewModel.depositCurrency.fullName ?? "",
-                          iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
-                          trailingText: exchangeTradeViewModel.trade.amountFormatted() +
-                              " " +
-                              (exchangeViewModel.depositCurrency.title)),
+                        showArrow: false,
+                        keyValue: "send value",
+                        label: exchangeViewModel.depositCurrency.fullName ?? "",
+                        iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
+                        trailingText: exchangeViewModel.amountParsingProxy
+                            .asDisplayStringWithSymbol(exchangeViewModel.depositCurrency
+                                    .tryParseAmount(exchangeTradeViewModel.trade.amount) ??
+                                Money.zero(exchangeViewModel.depositCurrency)),
+                      ),
                       if (exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                         ListItemRegularRow(
                             showArrow: false,
@@ -179,19 +188,34 @@ class SwapTransactionDetails extends StatelessWidget {
                     ],
                     S.of(context).receive: [
                       ListItemRegularRow(
-                          showArrow: false,
-                          keyValue: "receive value",
-                          label: exchangeViewModel.receiveCurrency.fullName ?? "",
-                          iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
-                          trailingText:
-                              (receiveAmount) + " " + (exchangeViewModel.receiveCurrency.title)),
+                        showArrow: false,
+                        keyValue: "receive value",
+                        label: exchangeViewModel.receiveCurrency.fullName ?? "",
+                        iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),
+                        trailingText: (receiveAmount.withMaxDecimals(8)) +
+                            " " +
+                            (exchangeViewModel.receiveCurrency.title),
+                      ),
                       ListItemRegularRow(
                           keyValue: "receiver",
                           label: S.of(context).to,
                           showArrow: false,
                           trailingText: exchangeViewModel.receiveAddressDisplayName ??
                               middleTruncate(
-                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8))
+                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8)),
+                      if ((exchangeTradeViewModel.trade.toAddressExtraId ?? '').isNotEmpty)
+                        ListItemRegularRow(
+                          keyValue: "receive memo",
+                          showArrow: false,
+                          label: memoLabelTypeFor(exchangeViewModel.receiveCurrency) ==
+                                  MemoLabelType.destinationTag
+                              ? S.of(context).destination_tag
+                              : S.of(context).memo,
+                          trailingText: middleTruncate(
+                              exchangeTradeViewModel.trade.toAddressExtraId ?? "", 8, 8),
+                          copyableText: exchangeTradeViewModel.trade.toAddressExtraId,
+                        ),
                     ],
                     "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                       ListItemRegularRow(
@@ -258,4 +282,22 @@ class SwapTransactionDetails extends StatelessWidget {
           });
     }
   }
+}
+
+String? _resolveChainBadgePath(CryptoCurrency currency) {
+  try {
+    if (currency.chainIconPath != null) return currency.chainIconPath;
+
+    final tag = currency.tag;
+    if (tag != null && tag.isNotEmpty) {
+      final byTag = CryptoCurrency.fromString(tag);
+      if (byTag.chainIconPath != null) return byTag.chainIconPath;
+    }
+
+    final walletType = cryptoCurrencyOrTokenToWalletType(currency);
+    if (walletType != null) {
+      return walletTypeToCryptoCurrency(walletType).chainIconPath;
+    }
+  } catch (_) {}
+  return null;
 }

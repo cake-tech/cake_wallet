@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -198,8 +199,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                           ),
                       validator: isAmountEditable ? currencyValueValidator : null,
                       onChanged: (value) {
-                        var sanitized =
-                            value.replaceAll(',', '.').withMaxDecimals(selectedCurrencyDecimals);
+                        var sanitized = value.sanitized().withMaxDecimals(selectedCurrencyDecimals);
 
                         if (selectedCurrencyDecimals == 0) {
                           sanitized = sanitized.replaceAll('.', '');
