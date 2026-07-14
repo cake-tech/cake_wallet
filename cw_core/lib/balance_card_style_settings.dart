@@ -9,6 +9,8 @@ class BalanceCardStyleSettings {
   final bool useSpecialDesign;
   final bool hidden;
   final String backgroundImagePath;
+  final int iconStyleIndex;
+  final bool isGradientOnly;
   final int cardOrder;
 
   BalanceCardStyleSettings(
@@ -18,6 +20,8 @@ class BalanceCardStyleSettings {
         required this.useSpecialDesign,
         required this.hidden,
         required this.backgroundImagePath,
+        this.iconStyleIndex = 0,
+        this.isGradientOnly = false,
         required this.cardOrder});
 
   static const tableName = "BalanceCardStyleSettings";
@@ -30,6 +34,8 @@ class BalanceCardStyleSettings {
       "hidden": hidden ? 1 : 0,
       "useSpecialDesign": useSpecialDesign ? 1 : 0,
       "backgroundImagePath": backgroundImagePath,
+      "iconStyleIndex": iconStyleIndex,
+      "isGradientOnly": isGradientOnly ? 1 : 0,
       "cardOrder": cardOrder,
     };
     return ret;
@@ -43,6 +49,8 @@ class BalanceCardStyleSettings {
       gradientIndex: json["gradientIndex"] as int,
       useSpecialDesign: json["useSpecialDesign"] == 1,
       backgroundImagePath: json["backgroundImagePath"] as String? ?? "",
+      iconStyleIndex: json["iconStyleIndex"] as int? ?? 0,
+      isGradientOnly: json["isGradientOnly"] == 1,
       cardOrder: json["cardOrder"] as int? ?? -1,
     );
   }
@@ -51,6 +59,7 @@ class BalanceCardStyleSettings {
     int? walletInfoId,
     int? accountIndex,
     int? gradientIndex,
+    int? iconStyleIndex,
     bool? useSpecialDesign,
     bool? hidden,
     String? backgroundImagePath,
@@ -58,6 +67,7 @@ class BalanceCardStyleSettings {
   }) {
     return BalanceCardStyleSettings(
       walletInfoId: walletInfoId ?? this.walletInfoId,
+      iconStyleIndex: iconStyleIndex ?? this.iconStyleIndex,
       accountIndex: accountIndex ?? this.accountIndex,
       gradientIndex: gradientIndex ?? this.gradientIndex,
       useSpecialDesign: useSpecialDesign ?? this.useSpecialDesign,
@@ -67,16 +77,33 @@ class BalanceCardStyleSettings {
     );
   }
 
-  static BalanceCardStyleSettings fromCardDesign(
-      int walletInfoId, int accountIndex, int cardOrder, CardDesign design, {bool hidden = false}) {
+  static BalanceCardStyleSettings fromCardDesign({
+    required int walletInfoId,
+    required int accountIndex,
+    required int cardOrder,
+    required CardDesign design,
+    required bool hidden
+    int iconStyleIndex = 0,
+    int? gradientIndexOverride,
+  }) {
+    final int gradientIndex = gradientIndexOverride ??
+        CardDesign.allGradients.indexOf(design.gradient);
     return BalanceCardStyleSettings(
       walletInfoId: walletInfoId,
       accountIndex: accountIndex,
+      gradientIndex: gradientIndex,
+      useSpecialDesign:
+          design.backgroundType == CardDesignBackgroundTypes.svgFull,
       gradientIndex: CardDesign.allGradients.indexOf(design.gradient),
       useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
       hidden: hidden,
       backgroundImagePath:
-      design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
+          design.backgroundType == CardDesignBackgroundTypes.image
+              ? design.imagePath
+              : "",
+      iconStyleIndex: iconStyleIndex,
+      isGradientOnly:
+          design.backgroundType == CardDesignBackgroundTypes.gradientOnly,
       cardOrder: cardOrder,
     );
   }

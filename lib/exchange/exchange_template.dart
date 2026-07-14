@@ -1,9 +1,9 @@
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'exchange_template.g.dart';
+part 'exchange_template.part.dart';
 
-@HiveType(typeId: ExchangeTemplate.typeId)
+// @HiveType(typeId: ExchangeTemplate.typeId)
 class ExchangeTemplate extends HiveObject {
   ExchangeTemplate(
       {required this.amountRaw,
@@ -18,28 +18,28 @@ class ExchangeTemplate extends HiveObject {
   static const typeId = EXCHANGE_TEMPLATE_TYPE_ID;
   static const boxName = 'ExchangeTemplate';
 
-  @HiveField(0)
+  // @HiveField(0)
   String? amountRaw;
 
-  @HiveField(1)
+  // @HiveField(1)
   String? depositCurrencyRaw;
 
-  @HiveField(2)
+  // @HiveField(2)
   String? receiveCurrencyRaw;
 
-  @HiveField(3)
+  // @HiveField(3)
   String? providerRaw;
 
-  @HiveField(4)
+  // @HiveField(4)
   String? depositAddressRaw;
 
-  @HiveField(5)
+  // @HiveField(5)
   String? receiveAddressRaw;
 
-  @HiveField(6)
+  // @HiveField(6)
   String? depositCurrencyTitleRaw;
 
-  @HiveField(7)
+  // @HiveField(7)
   String? receiveCurrencyTitleRaw;
 
   String get amount => amountRaw ?? '';

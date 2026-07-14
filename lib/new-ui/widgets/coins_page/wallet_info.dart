@@ -86,11 +86,11 @@ class WalletInfoBar extends StatelessWidget {
       case null:
         return null;
       case HardwareWalletType.bitbox:
-        return "assets/images/hardware_wallet/device_bitbox.svg";
+        return "assets/new-ui/hardware_wallets/device_bitbox.svg";
       case HardwareWalletType.ledger:
-        return "assets/images/hardware_wallet/device_ledger_nano_x.svg";
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";
       case HardwareWalletType.trezor:
-        return "assets/images/hardware_wallet/device_trezor_safe_5.svg";
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_5.svg";
       case HardwareWalletType.cupcake:
         return "assets/images/cupcake.svg";
       case HardwareWalletType.coldcard:

@@ -5,6 +5,7 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -86,6 +87,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   final AppStore _appStore;
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   Quote? bestRateQuote;
 

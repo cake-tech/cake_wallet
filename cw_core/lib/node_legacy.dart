@@ -16,7 +16,7 @@ import 'package:crypto/crypto.dart';
 import 'cake_hive.dart';
 import 'node.dart' as node_new;
 
-part "node_legacy.g.dart";
+part 'node_legacy.part.dart';
 
 Future<void> performNodeHiveMigration() async {
   if(!CakeHive.isAdapterRegistered(Node.typeId)) {
@@ -165,6 +165,15 @@ class Node extends HiveObject with Keyable {
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
 
   Uri get uri {
+    try {
+      return _uri;
+    } catch (e) {
+      printV(e);
+      return Uri();
+    }
+  }
+
+  Uri get _uri {
     switch (type) {
       case WalletType.monero:
       case WalletType.zcash:

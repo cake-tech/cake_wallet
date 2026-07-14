@@ -128,6 +128,14 @@
                 <data android:scheme="nano-gpt" />
             </intent-filter>
 
+
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
+            </intent-filter>
+
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                       android:resource="@xml/device_filter" />
             <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
         </activity>
         <meta-data

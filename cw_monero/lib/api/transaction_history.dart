@@ -17,6 +17,19 @@ import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
 import 'package:mutex/mutex.dart';
 
 
+String _formatTransactionError(String error) {
+  final message = error.replaceAll(
+    RegExp(
+      r'(?:[A-Za-z]:)?[\\/][^\s:]*\.(?:c|cc|cpp|cxx|h|hpp|hxx):\d+:(?:[A-Za-z0-9_]+:)?\s*',
+    ),
+    '',
+  );
+  if (message.contains("RPC error")) {
+    return "Invalid node response, please try again or switch node\n\ntrace: $message";
+  }
+  return message;
+}
+
 Map<int, Map<String, String>> txKeys = {};
 String getTxKey(String txId) {
   txKeys[currentWallet!.ffiAddress()] ??= {};
@@ -184,11 +197,7 @@ Future<PendingTransactionDescription> createTransactionSync(
   })();
 
   if (error != null) {
-    String message = error;
-    if (message.contains("RPC error")) {
-      message = "Invalid node response, please try again or switch node\n\ntrace: $message";
-    }
-    throw CreationTransactionException(message: message);
+    throw CreationTransactionException(message: _formatTransactionError(error));
   }
 
   final rAmt = pendingTx.amount();
@@ -237,7 +246,7 @@ Future<PendingTransactionDescription> createTransactionMultDest(
   final Wallet2PendingTransaction tx = MoneroPendingTransaction(txptr);
 
   if (tx.status() != 0) {
-    throw CreationTransactionException(message: tx.errorString());
+    throw CreationTransactionException(message: _formatTransactionError(tx.errorString()));
   }
 
   return PendingTransactionDescription(
@@ -282,7 +291,7 @@ Future<String?> commitTransaction({required Wallet2PendingTransaction tx, requir
   
   }
   if (error != null && error != "no tx keys found for this txid") {
-    throw CreationTransactionException(message: error);
+    throw CreationTransactionException(message: _formatTransactionError(error));
   }
   unawaited(() async {
     storeSync(force: true);

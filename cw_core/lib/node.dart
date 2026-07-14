@@ -132,6 +132,26 @@ class Node {
     };
   }
 
+  Node.fromUri(Uri uri, WalletType type)
+      : id = 0,
+        uriRaw =
+            "${uri.host}${uri.hasPort ? ':${uri.port}' : (uri.queryParameters['port']?.isNotEmpty == true ? ':${uri.queryParameters['port']}' : '')}",
+        path = uri.path,
+        login = uri.userInfo.contains(':')
+            ? uri.userInfo.split(':')[0]
+            : uri.queryParameters['username'],
+        password = uri.userInfo.contains(':')
+            ? uri.userInfo.split(':')[1]
+            : uri.queryParameters['password'],
+        useSSL = uri.queryParameters['protocol'] == 'https',
+        trusted = uri.queryParameters['trusted'] == 'true',
+        isPow = false,
+        isEnabledForAutoSwitching = false,
+        isOfficial = false,
+        isBuiltin = false,
+        isDefault = false,
+        typeRaw = serializeToInt(type);
+
   Future<int> delete() async {
     return await db!.delete(tableName, where: '${selfIdColumn} = ?', whereArgs: [id]);
   }
@@ -248,6 +268,15 @@ class Node {
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
 
   Uri get uri {
+    try {
+      return _uri;
+    } catch (e) {
+      printV(e);
+      return Uri();
+    }
+  }
+
+  Uri get _uri {
     switch (type) {
       case WalletType.monero:
       case WalletType.zcash:
@@ -378,14 +407,14 @@ class Node {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
-      final client = ProxyWrapper().getHttpIOClient();
 
       final jsonBody = json.encode(body);
 
-      final response = await client.post(
-        rpcUri,
+      final response = await ProxyWrapper().post(
+        clearnetUri: rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
+        allowMitmMoneroBypassSSLCheck: true
       );
       // Check if we received a 401 Unauthorized response
       if (response.statusCode == 401) {

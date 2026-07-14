@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
@@ -11,7 +10,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -213,7 +211,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
     if (sendVM.wallet.isHardwareWallet) {
-      if (!sendVM.hardwareWalletViewModel!.isConnected) {
+      if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
               walletType: sendVM.walletType,
@@ -330,10 +328,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     fee: isEVMCompatibleChain(sendVM.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee
                         : S.of(bottomSheetContext).send_fee,
-                    feeValue: "${sendVM.amountParsingProxy.getDisplayCryptoAmount(
-                        sendVM.pendingTransaction!.feeFormattedValue,
-                        sendVM.selectedCryptoCurrency)} ${sendVM.amountParsingProxy
-                        .getCryptoSymbol(sendVM.wallet.currency)}",
+                    feeValue: sendVM.amountParsingProxy.asDisplayStringWithSymbol(
+                        sendVM.pendingTransaction!.fee),
                     feeFiatAmount: sendVM.pendingTransactionFeeFiatAmountFormatted,
                     outputs: sendVM.outputs,
                     onSlideActionComplete: () async {

@@ -39,7 +39,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const Map<String, String> kNearDummyAddresses = {
     // UTXO
     'LTC': 'ltc1qhdwz74m3wuuhppv2mckagqk9e2e49z5j4kucnv',
-    'BTC': 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
+    'BTC': 'bc1qzwdt09dgr5nle2fkv7h5s6axgjqpdyp5g5tumz',
     'DOGE': 'D9t7rGQ9mE3hJ2z1w8pGQxkGmKjYwYc8pQ',
     'BCH': 'qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a',
 
@@ -280,8 +280,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final trade = Trade(
         id: depositAddress,
         // Using deposit address as trade ID
-        from: from,
-        to: to,
+        from: request.fromCurrency,
+        to: request.toCurrency,
         provider: description,
         providerName: title,
         state: TradeState.created,
@@ -575,10 +575,17 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final token = supported.firstWhereOrNull((t) => t.assetId == assetId);
 
     if (token == null) return null;
-    final title = token.symbol;
+
+    final title = token.symbol.toUpperCase()
+        .replaceAll(RegExp(r'\s*\([^)]*\)'), '');
+
     final normalizedNetwork = _normalizeNearBlockchainToTag(token.blockchain);
-    final tag =
-        normalizedNetwork == title.toUpperCase() ? null : normalizedNetwork;
+
+    final isNativeAsset = assetId.contains(':native:coin');
+
+    final tag = isNativeAsset || normalizedNetwork == title
+        ? null
+        : normalizedNetwork;
 
     return (title, tag);
   }

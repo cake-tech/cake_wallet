@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/model/employed_entries.dart';
@@ -113,7 +115,8 @@ class Transfer {
             confirmations: currentDaemonHeight - transfer.height,
             isIncome: single.isIncome,
             assetId: single.assetId,
-            amount: single.amount,
+            amount: Money(single.amount,
+                asset ?? CryptoCurrency(title: ticker, name: ticker, decimals: decimalPoint)),
             tokenSymbol: isSimple ? ticker : '*${ticker}',
             decimalPoint: decimalPoint,
           );
@@ -124,7 +127,7 @@ class Transfer {
           confirmations: currentDaemonHeight - transfer.height,
           isIncome: single.isIncome,
           assetId: single.assetId,
-          amount: amount,
+          amount: Money(amount, CryptoCurrency.zano),
           tokenSymbol: isSimple ? 'ZANO' : '*ZANO',
         );
       },
