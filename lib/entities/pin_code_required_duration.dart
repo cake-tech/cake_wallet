@@ -11,7 +11,7 @@ enum PinCodeRequiredDuration {
 
   final int value;
 
-  static PinCodeRequiredDuration deserialize({required int raw}) => 
+  static PinCodeRequiredDuration deserialize({required int raw}) =>
       PinCodeRequiredDuration.values.firstWhere((e) => e.value == raw);
 
   @override

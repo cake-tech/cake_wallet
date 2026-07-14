@@ -1,7 +1,6 @@
 import 'package:mobx/mobx.dart';
 
 abstract class AccountList<T> {
-
   ObservableList<T> get accounts;
 
   void update();

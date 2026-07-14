@@ -5,7 +5,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 
 abstract class AddressLookupProvider {
-
   AddressSource get source;
 
   List<CryptoCurrency> get supportedCurrencies;

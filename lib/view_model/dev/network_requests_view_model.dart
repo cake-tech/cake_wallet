@@ -13,4 +13,4 @@ abstract class NetworkRequestsViewModelBase with Store {
   Future<void> loadLogs() async {
     logs = MemoryProxyLogger.logs;
   }
-} 
+}

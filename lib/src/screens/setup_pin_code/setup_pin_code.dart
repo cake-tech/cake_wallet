@@ -8,7 +8,7 @@ import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class SetupPinCodePage extends BasePage {
-  SetupPinCodePage(this.pinCodeViewModel,{this.onSuccessfulPinSetup, this.isDuressPin = false})
+  SetupPinCodePage(this.pinCodeViewModel, {this.onSuccessfulPinSetup, this.isDuressPin = false})
       : pinCodeStateKey = GlobalKey<PinCodeState>();
 
   final SetupPinCodeViewModel pinCodeViewModel;
@@ -24,8 +24,7 @@ class SetupPinCodePage extends BasePage {
       key: pinCodeStateKey,
       hasLengthSwitcher: true,
       onFullPin: (String pin, PinCodeState<PinCodeWidget> state) async {
-        if (pinCodeViewModel.isOriginalPinCodeFull &&
-            !pinCodeViewModel.isRepeatedPinCodeFull) {
+        if (pinCodeViewModel.isOriginalPinCodeFull && !pinCodeViewModel.isRepeatedPinCodeFull) {
           state.title = S.current.enter_your_pin_again;
           state.clear();
           return;
@@ -64,7 +63,7 @@ class SetupPinCodePage extends BasePage {
                     if (pinCodeStateKey.currentState != null) {
                       onSuccessfulPinSetup?.call(pinCodeStateKey.currentState!, pin);
                     }
-                    
+
                     state.reset();
                   },
                   alertBarrierDismissible: false,
@@ -76,8 +75,7 @@ class SetupPinCodePage extends BasePage {
               builder: (BuildContext context) {
                 return AlertWithOneAction(
                   alertTitle: isDuressPin ? S.current.durres_PIN : S.current.setup_pin,
-                  alertContent:
-                      '${S.current.setup_pin_is_failed} ${e.toString()}',
+                  alertContent: '${S.current.setup_pin_is_failed} ${e.toString()}',
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop(),
                   alertBarrierDismissible: false,
@@ -108,7 +106,6 @@ class SetupPinCodePage extends BasePage {
           pinCodeViewModel.reset();
         }
       },
-      onChangedPinLength: (int length) =>
-          pinCodeViewModel.pinCodeLength = length,
+      onChangedPinLength: (int length) => pinCodeViewModel.pinCodeLength = length,
       initialPinLength: pinCodeViewModel.pinCodeLength);
 }

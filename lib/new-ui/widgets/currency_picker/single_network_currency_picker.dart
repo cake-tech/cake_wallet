@@ -47,10 +47,8 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
   Widget build(BuildContext context) {
     final native = walletTypeToCryptoCurrency(_network);
     final query = _searchController.text.trim();
-    final tokens = _args.items
-        .where((c) => c != native)
-        .where((c) => currencyMatchesQuery(c, query))
-        .toList();
+    final tokens =
+        _args.items.where((c) => c != native).where((c) => currencyMatchesQuery(c, query)).toList();
 
     final insertOrder = {for (var i = 0; i < tokens.length; i++) tokens[i]: i};
     tokens.sort((a, b) {

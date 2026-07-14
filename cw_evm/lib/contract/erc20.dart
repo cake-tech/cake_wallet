@@ -21,10 +21,10 @@ class ERC20 extends web3.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> allowance(
-      web3.EthereumAddress owner,
-      web3.EthereumAddress spender, {
-        web3.BlockNum? atBlock,
-      }) async {
+    web3.EthereumAddress owner,
+    web3.EthereumAddress spender, {
+    web3.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[0];
     assert(checkSignature(function, 'dd62ed3e'));
     final params = [owner, spender];
@@ -38,11 +38,11 @@ class ERC20 extends web3.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<Uint8List> approve(
-      web3.EthereumAddress spender,
-      BigInt amount, {
-        required web3.Credentials credentials,
-        web3.Transaction? transaction,
-      }) async {
+    web3.EthereumAddress spender,
+    BigInt amount, {
+    required web3.Credentials credentials,
+    web3.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[1];
     assert(checkSignature(function, '095ea7b3'));
     final params = [spender, amount];
@@ -55,9 +55,9 @@ class ERC20 extends web3.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> balanceOf(
-      web3.EthereumAddress account, {
-        web3.BlockNum? atBlock,
-      }) async {
+    web3.EthereumAddress account, {
+    web3.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[2];
     assert(checkSignature(function, '70a08231'));
     final params = [account];
@@ -123,11 +123,11 @@ class ERC20 extends web3.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<Uint8List> transfer(
-      web3.EthereumAddress recipient,
-      BigInt amount, {
-        required web3.Credentials credentials,
-        web3.Transaction? transaction,
-      }) async {
+    web3.EthereumAddress recipient,
+    BigInt amount, {
+    required web3.Credentials credentials,
+    web3.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[7];
     assert(checkSignature(function, 'a9059cbb'));
     final params = [recipient, amount];
@@ -139,10 +139,9 @@ class ERC20 extends web3.GeneratedContract {
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
-  Future<Uint8List> transferFrom(web3.EthereumAddress sender,
-      web3.EthereumAddress recipient, BigInt amount,
-      {required web3.Credentials credentials,
-        web3.Transaction? transaction}) async {
+  Future<Uint8List> transferFrom(
+      web3.EthereumAddress sender, web3.EthereumAddress recipient, BigInt amount,
+      {required web3.Credentials credentials, web3.Transaction? transaction}) async {
     final function = self.abi.functions[8];
     assert(checkSignature(function, '23b872dd'));
     final params = [sender, recipient, amount];
@@ -150,8 +149,7 @@ class ERC20 extends web3.GeneratedContract {
   }
 
   /// Returns a live stream of all Approval events emitted by this contract.
-  Stream<Approval> approvalEvents(
-      {web3.BlockNum? fromBlock, web3.BlockNum? toBlock}) {
+  Stream<Approval> approvalEvents({web3.BlockNum? fromBlock, web3.BlockNum? toBlock}) {
     final event = self.event('Approval');
     final filter = web3.FilterOptions.events(
         contract: self, event: event, fromBlock: fromBlock, toBlock: toBlock);
@@ -162,8 +160,7 @@ class ERC20 extends web3.GeneratedContract {
   }
 
   /// Returns a live stream of all Transfer events emitted by this contract.
-  Stream<Transfer> transferEvents(
-      {web3.BlockNum? fromBlock, web3.BlockNum? toBlock}) {
+  Stream<Transfer> transferEvents({web3.BlockNum? fromBlock, web3.BlockNum? toBlock}) {
     final event = self.event('Transfer');
     final filter = web3.FilterOptions.events(
         contract: self, event: event, fromBlock: fromBlock, toBlock: toBlock);

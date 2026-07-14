@@ -48,12 +48,10 @@ class TradeLegacyAdapter extends TypeAdapter<TradeLegacy> {
       chainId: fields[34] as int?,
       fee: fields[35] as double?,
     )
-      ..providerRaw =
-          fields[1] == null ? 0 : fields[1] as int
+      ..providerRaw = fields[1] == null ? 0 : fields[1] as int
       ..fromRaw = (fields[2] as int?) ?? -1
       ..toRaw = (fields[3] as int?) ?? -1
-      ..stateRaw =
-          fields[4] == null ? '' : fields[4] as String;
+      ..stateRaw = fields[4] == null ? '' : fields[4] as String;
   }
 
   @override
@@ -140,7 +138,5 @@ class TradeLegacyAdapter extends TypeAdapter<TradeLegacy> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TradeLegacyAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is TradeLegacyAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

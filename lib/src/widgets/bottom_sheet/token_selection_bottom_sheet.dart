@@ -78,7 +78,8 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
   void initState() {
     super.initState();
     final baseNetwork = widget.fixedNetwork ?? WalletType.ethereum;
-    selectedNetwork = _resolveGenericETHDetectionResultToSpecificChain(baseNetwork, widget.paymentRequest.scheme.isNotEmpty);
+    selectedNetwork = _resolveGenericETHDetectionResultToSpecificChain(
+        baseNetwork, widget.paymentRequest.scheme.isNotEmpty);
     _autoSelectToken();
   }
 
@@ -101,9 +102,10 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
     return null;
   }
 
-  WalletType _resolveGenericETHDetectionResultToSpecificChain(WalletType network, bool hasURIScheme) {
-    if(hasURIScheme || network != WalletType.ethereum) return network;
-    
+  WalletType _resolveGenericETHDetectionResultToSpecificChain(
+      WalletType network, bool hasURIScheme) {
+    if (hasURIScheme || network != WalletType.ethereum) return network;
+
     final current = widget.paymentViewModel.currentWalletType;
     if (isEVMCompatibleChain(current)) return current;
     return network;
@@ -113,7 +115,8 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
     final initialNetwork = selectedNetwork;
     if (initialNetwork == null || !mounted) return;
 
-    final network = _resolveGenericETHDetectionResultToSpecificChain(initialNetwork, widget.paymentRequest.scheme.isNotEmpty);
+    final network = _resolveGenericETHDetectionResultToSpecificChain(
+        initialNetwork, widget.paymentRequest.scheme.isNotEmpty);
 
     setState(() {
       selectedNetwork = network;

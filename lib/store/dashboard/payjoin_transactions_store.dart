@@ -8,8 +8,7 @@ import 'package:mobx/mobx.dart';
 
 part 'payjoin_transactions_store.g.dart';
 
-class PayjoinTransactionsStore = PayjoinTransactionsStoreBase
-    with _$PayjoinTransactionsStore;
+class PayjoinTransactionsStore = PayjoinTransactionsStoreBase with _$PayjoinTransactionsStore;
 
 abstract class PayjoinTransactionsStoreBase with Store {
   PayjoinTransactionsStoreBase({

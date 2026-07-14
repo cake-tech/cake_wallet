@@ -42,39 +42,28 @@ class NavigationDock extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: MainActions.all
-                            .where((element) =>
-                                element.canShow?.call(dashboardViewModel) ??
-                                true)
+                            .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
                             .map(
                               (action) => Expanded(
                                 child: Semantics(
                                   button: true,
-                                  enabled: (action.isEnabled
-                                          ?.call(dashboardViewModel) ??
-                                      true),
+                                  enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
                                   child: ActionButton(
                                     key: action.key,
                                     image: Image.asset(
                                       action.image,
                                       height: 24,
                                       width: 24,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(context).colorScheme.primary,
                                     ),
                                     title: action.name(context),
-                                    onClick: (action.isEnabled
-                                                ?.call(dashboardViewModel) ??
-                                            true)
-                                        ? () async => await action.onTap(
-                                            context, dashboardViewModel)
+                                    onClick: (action.isEnabled?.call(dashboardViewModel) ?? true)
+                                        ? () async =>
+                                            await action.onTap(context, dashboardViewModel)
                                         : null,
-                                    textColor: action.isEnabled
-                                                ?.call(dashboardViewModel) ??
-                                            true
+                                    textColor: action.isEnabled?.call(dashboardViewModel) ?? true
                                         ? null
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        : Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ),

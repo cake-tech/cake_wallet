@@ -25,18 +25,14 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
     await monero!
         .getSubaddressList(wallet)
         .addSubaddress(wallet, accountIndex: monero!.getCurrentAccount(wallet).id, label: label);
-    final subaddressList = await monero!
-        .getSubaddressList(wallet)
-        .subaddresses;
-    if(subaddressList.isEmpty) {
+    final subaddressList = await monero!.getSubaddressList(wallet).subaddresses;
+    if (subaddressList.isEmpty) {
       // this shouldn't happen, we just added an addr.
       // somehow, it happened once in prod regardless.
       // we just return instead of crashing, user can press the button again ig
       return;
     }
-    final addr = subaddressList
-        .first
-        .address; // first because the order is reversed
+    final addr = subaddressList.first.address; // first because the order is reversed
     wallet.walletAddresses.manualAddresses.add(addr);
     await wallet.save();
   }

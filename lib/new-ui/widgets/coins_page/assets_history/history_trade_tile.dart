@@ -36,7 +36,6 @@ class HistoryTradeTile extends StatelessWidget {
       return SizedBox(width: 50, height: 50);
     }
 
-
     double currencyIconSize = 22.0;
 
     return SizedBox(
@@ -90,7 +89,9 @@ class HistoryTradeTile extends StatelessWidget {
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500)),
-          if(from?.title != null) Text(from!.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          if (from?.title != null)
+            Text(from!.title,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           if (fromChainIcon?.isNotEmpty ?? false)
             CakeImageWidget(
               imageUrl: fromChainIcon,
@@ -111,11 +112,12 @@ class HistoryTradeTile extends StatelessWidget {
             receiveAmount.withMaxDecimals(8),
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
-          if(to!=null)
-          Text(
-            to!.title,
-          ),
-          if (toChainIcon?.isNotEmpty ?? false) CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12)
+          if (to != null)
+            Text(
+              to!.title,
+            ),
+          if (toChainIcon?.isNotEmpty ?? false)
+            CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12)
         ],
       ),
       leadingIcon: _getLeadingStack(context),
@@ -144,10 +146,11 @@ class HistoryTradeTile extends StatelessWidget {
   }
 
   String? _getChainIcon(CryptoCurrency? currency) {
-    if(currency == null) return null;
+    if (currency == null) return null;
     try {
       if (currency.title.isNotEmpty) {
-        final parsedCurrency = CryptoCurrency.safeParseCurrencyFromString(currency.title, tag: currency.tag);
+        final parsedCurrency =
+            CryptoCurrency.safeParseCurrencyFromString(currency.title, tag: currency.tag);
         if (parsedCurrency?.chainIconPath != null) return parsedCurrency!.chainIconPath!;
       }
 

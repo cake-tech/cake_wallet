@@ -44,8 +44,7 @@ class MWebFfi {
 
   void stop() => lib.StopServer();
 
-  String addresses(
-      Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) {
+  String addresses(Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) {
     final scanSecretPtr = malloc.allocate<Uint8>(scanSecret.length);
     for (int k = 0; k < scanSecret.length; k++) {
       scanSecretPtr[k] = scanSecret[k];

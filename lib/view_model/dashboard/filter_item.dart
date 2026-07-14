@@ -1,10 +1,7 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 
 class FilterItem {
-  FilterItem({
-    required this.value,
-    required this.caption,
-    required this.onChanged});
+  FilterItem({required this.value, required this.caption, required this.onChanged});
 
   bool Function() value;
   String caption;
@@ -24,14 +21,12 @@ class SwapFilterItem extends FilterItem {
   bool Function() allEnabled;
 }
 
-
 class SwapProviderFilterItem extends FilterItem {
-  SwapProviderFilterItem({
-    required super.value,
-    required super.onChanged,
-    required this.providerDescription,
-    super.caption = ""
-});
+  SwapProviderFilterItem(
+      {required super.value,
+      required super.onChanged,
+      required this.providerDescription,
+      super.caption = ""});
 
   @override
   String get caption => providerDescription.title;
