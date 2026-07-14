@@ -39,9 +39,7 @@ class PickerRecentsLoader {
     int limit,
   ) async {
     final trades = await Trade.getAll();
-    final ordered = trades
-        .where((t) => _executedTradeStates.contains(t.state))
-        .toList()
+    final ordered = trades.where((t) => _executedTradeStates.contains(t.state)).toList()
       ..sort((a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
           .compareTo(a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0)));
 

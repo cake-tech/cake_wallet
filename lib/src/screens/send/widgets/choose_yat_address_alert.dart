@@ -90,12 +90,11 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                             
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            decoration: TextDecoration.none,
-                          ),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                decoration: TextDecoration.none,
+                              ),
                         ),
                       )
                     ],

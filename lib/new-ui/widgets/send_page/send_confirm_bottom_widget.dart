@@ -120,8 +120,8 @@ class TransactionErrorActions extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 8,
                   children: [
-                    CakeImageWidget(imageUrl:
-                      "assets/new-ui/warning.svg",
+                    CakeImageWidget(
+                      imageUrl: "assets/new-ui/warning.svg",
                       height: 24,
                       width: 24,
                       colorFilter:

@@ -25,12 +25,11 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
       contentText,
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-        fontSize: 16,
-        fontWeight: FontWeight.normal,
-         
-        color: Theme.of(context).colorScheme.onSurface,
-        decoration: TextDecoration.none,
-      ),
+            fontSize: 16,
+            fontWeight: FontWeight.normal,
+            color: Theme.of(context).colorScheme.onSurface,
+            decoration: TextDecoration.none,
+          ),
     );
   }
 

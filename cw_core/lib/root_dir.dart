@@ -23,12 +23,11 @@ bool get isNonAmnesticTails {
 
 bool showNotice = true;
 
-void setRootDirFromEnv() =>
-    _rootDirPath = Platform.environment['CAKE_WALLET_DIR'];
+void setRootDirFromEnv() => _rootDirPath = Platform.environment['CAKE_WALLET_DIR'];
 
 void copyDirectory(Directory source, Directory destination) {
   source.listSync(recursive: false).forEach((var entity) {
-    if (entity is Directory) {    
+    if (entity is Directory) {
       var newDirectory = Directory(p.join(destination.absolute.path, p.basename(entity.path)));
       newDirectory.createSync(recursive: true);
       copyDirectory(entity.absolute, newDirectory);
@@ -41,7 +40,8 @@ void copyDirectory(Directory source, Directory destination) {
 
 Future<void> linuxSymlinkSharedPreferences() async {
   if (!Platform.isLinux) return; // nuh-uh
-  final dataHome = Platform.environment["XDG_DATA_HOME"] ?? p.join(Platform.environment["HOME"] ?? "", ".local", "share");
+  final dataHome = Platform.environment["XDG_DATA_HOME"] ??
+      p.join(Platform.environment["HOME"] ?? "", ".local", "share");
   var cakeNames = ['com.example.cake_wallet', 'cake_wallet'];
   for (String name in cakeNames) {
     final oldPath = p.join(dataHome, name);
@@ -53,8 +53,8 @@ Future<void> linuxSymlinkSharedPreferences() async {
       if (oldLink.existsSync()) {
         printV("not creating, link exists");
       } else {
-        if (newDir.existsSync()) { 
-          newDir.renameSync("${newPath}_${DateTime.now().millisecondsSinceEpoch~/1000}");
+        if (newDir.existsSync()) {
+          newDir.renameSync("${newPath}_${DateTime.now().millisecondsSinceEpoch ~/ 1000}");
         }
         copyDirectory(oldDir, newDir);
         oldDir.deleteSync(recursive: true);
@@ -94,14 +94,16 @@ Future<Directory> getAppDir() async {
       // for storing things that users in general back-up
       var linuxAppPath = [
         if (appDirPath != null) appDirPath, // old preferred
-        p.join('/home', Platform.environment['USER']??"null", appName), // old fallback
-        if (Platform.environment['HOME'] != null) p.join(Platform.environment['HOME']!, ".$appName"), // old fallback but using HOME
-        if (Platform.environment['HOME'] != null) p.join(Platform.environment['HOME']!, '.config', appName), // old fallback but using HOME
+        p.join('/home', Platform.environment['USER'] ?? "null", appName), // old fallback
+        if (Platform.environment['HOME'] != null)
+          p.join(Platform.environment['HOME']!, ".$appName"), // old fallback but using HOME
+        if (Platform.environment['HOME'] != null)
+          p.join(Platform.environment['HOME']!, '.config', appName), // old fallback but using HOME
         if (isNonAmnesticTails) p.join(_tailsData, ".$appName") // tails (if persistance is enabled)
       ];
 
       String preferredPath = linuxAppPath.last;
-      
+
       preferredLoop:
       for (String notSoPreferredPath in linuxAppPath) {
         if (notSoPreferredPath == linuxAppPath.last) continue;
@@ -109,8 +111,10 @@ Future<Directory> getAppDir() async {
         if (useThisOne) {
           if (showNotice) {
             showNotice = false;
-            printV("Not using $preferredPath because $notSoPreferredPath exists, falling back for backwards compatibility");
-            printV("Can't see your wallet? Check\n - ${linuxAppPath.join("\n - ")}\n and move directory that to $preferredPath");
+            printV(
+                "Not using $preferredPath because $notSoPreferredPath exists, falling back for backwards compatibility");
+            printV(
+                "Can't see your wallet? Check\n - ${linuxAppPath.join("\n - ")}\n and move directory that to $preferredPath");
             printV("Or use CAKE_WALLET_DIR=/path/to/app/ ${Platform.executable}");
           }
           preferredPath = notSoPreferredPath;

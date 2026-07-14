@@ -53,8 +53,7 @@ class ActionButton extends StatelessWidget {
                   softWrap: false,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: textColor ??
-                            Theme.of(context).colorScheme.onSurface,
+                        color: textColor ?? Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
               ),

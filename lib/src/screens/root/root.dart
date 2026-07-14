@@ -118,7 +118,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         final uri = Uri.parse('cakewallet://quickaction/${widget.initialQuickAction}');
         handleDeepLinking(uri);
       }
-
     } catch (e) {
       printV(e);
     }
@@ -135,7 +134,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
 
     bool requireAuth = await widget.authService.requireAuth();
-
 
     if (widget.authenticationStore.state == AuthenticationState.allowedCreate) {
       requireAuth = false;

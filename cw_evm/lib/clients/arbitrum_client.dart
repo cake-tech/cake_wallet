@@ -43,4 +43,3 @@ class ArbitrumClient extends EVMChainClient {
   @override
   int get chainId => 42161;
 }
-

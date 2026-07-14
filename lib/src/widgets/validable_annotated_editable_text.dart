@@ -65,7 +65,6 @@ class ValidatableAnnotatedEditableText extends EditableText {
           backgroundCursorColor: backgroundCursorColor,
           onChanged: onChanged,
           onSubmitted: onSubmitted,
-          
           toolbarOptions: const ToolbarOptions(
             copy: true,
             cut: true,
@@ -120,17 +119,17 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
         annotation = Annotation(
           range: TextRange(start: 0, end: item.range.start),
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            backgroundColor: Colors.transparent,
-          ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                backgroundColor: Colors.transparent,
+              ),
         );
       } else if (prev.range.end < item.range.start) {
         annotation = Annotation(
           range: TextRange(start: prev.range.end, end: item.range.start),
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            color: Theme.of(context).colorScheme.onError,
-            backgroundColor: Colors.transparent,
-          ),
+                color: Theme.of(context).colorScheme.onError,
+                backgroundColor: Colors.transparent,
+              ),
         );
       }
 
@@ -146,9 +145,9 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
         Annotation(
           range: TextRange(start: result.last.range.end, end: text.length),
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            backgroundColor: Colors.transparent,
-          ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                backgroundColor: Colors.transparent,
+              ),
         ),
       );
     }

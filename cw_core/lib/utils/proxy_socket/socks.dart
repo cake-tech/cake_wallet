@@ -9,10 +9,10 @@ class ProxySocketSocks implements ProxySocket {
   final SOCKSSocket socket;
   bool isClosed = false;
   ProxySocketSocks(this.socket);
-  
+
   @override
   ProxyAddress get address => ProxyAddress(host: socket.proxyHost, port: socket.proxyPort);
-  
+
   @override
   Future<void> close() async {
     try {
@@ -24,10 +24,10 @@ class ProxySocketSocks implements ProxySocket {
       return;
     }
   }
-  
+
   @override
   void destroy() => close();
-  
+
   @override
   void write(String data) {
     try {
@@ -43,7 +43,8 @@ class ProxySocketSocks implements ProxySocket {
   }
 
   @override
-  StreamSubscription<List<int>> listen(Function(Uint8List event) onData, {Function(Object error)? onError, Function()? onDone, bool cancelOnError = true}) {
+  StreamSubscription<List<int>> listen(Function(Uint8List event) onData,
+      {Function(Object error)? onError, Function()? onDone, bool cancelOnError = true}) {
     return socket.listen(
       (data) {
         onData(Uint8List.fromList(data));
@@ -54,4 +55,3 @@ class ProxySocketSocks implements ProxySocket {
     );
   }
 }
-

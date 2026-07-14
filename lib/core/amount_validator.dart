@@ -12,9 +12,9 @@ class AmountValidator extends TextValidator {
     String? minValue,
     String? maxValue,
   }) {
-    symbolsAmountValidator =
-        SymbolsAmountValidator(isAutovalidate: isAutovalidate);
-    decimalAmountValidator = DecimalAmountValidator(currency: currency,isAutovalidate: isAutovalidate);
+    symbolsAmountValidator = SymbolsAmountValidator(isAutovalidate: isAutovalidate);
+    decimalAmountValidator =
+        DecimalAmountValidator(currency: currency, isAutovalidate: isAutovalidate);
 
     amountMinValidator = AmountMinValidator(
       minValue: minValue,

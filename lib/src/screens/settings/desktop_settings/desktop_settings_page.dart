@@ -61,9 +61,9 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                         }
 
                         if ((!widget.dashboardViewModel.isMoneroViewOnly &&
-                            item.name(context) == S.of(context).export_outputs) ||
-                           (!widget.dashboardViewModel.hasMweb &&
-                            item.name(context) == S.of(context).litecoin_mweb_settings)) {
+                                item.name(context) == S.of(context).export_outputs) ||
+                            (!widget.dashboardViewModel.hasMweb &&
+                                item.name(context) == S.of(context).litecoin_mweb_settings)) {
                           return Container();
                         }
 
@@ -103,11 +103,9 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                   key: _settingsNavigatorKey,
                   initialRoute: Routes.empty_no_route,
                   onGenerateRoute: (settings) => Router.createRoute(settings),
-                  onGenerateInitialRoutes:
-                      (NavigatorState navigator, String initialRouteName) {
+                  onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
                     return [
-                      navigator
-                          .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                      navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
                     ];
                   },
                 ),

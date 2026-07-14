@@ -12,29 +12,29 @@ const AFTER_REGEX = '(\$|\\s)';
 class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type, bool isTestnet = false})
       : super(
-    errorMessage: S.current.error_text_address,
-    useAdditionalValidation: [CryptoCurrency.btc, CryptoCurrency.ltc].contains(type)
-        ? (String txt) {
-      final RegExp lightningInvoiceRegex = RegExp(
-          r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]+$',
-          caseSensitive: false);
-      if (lightningInvoiceRegex.hasMatch(txt)) return true;
+          errorMessage: S.current.error_text_address,
+          useAdditionalValidation: [CryptoCurrency.btc, CryptoCurrency.ltc].contains(type)
+              ? (String txt) {
+                  final RegExp lightningInvoiceRegex = RegExp(
+                      r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl)[a-z0-9]+$',
+                      caseSensitive: false);
+                  if (lightningInvoiceRegex.hasMatch(txt)) return true;
 
-      return BitcoinAddressUtils.validateAddress(
-        address: txt,
-        network: type == CryptoCurrency.btc
-            ? isTestnet
-            ? BitcoinNetwork.testnet
-            : BitcoinNetwork.mainnet
-            : LitecoinNetwork.mainnet,
-      );
-    }
-        : type == CryptoCurrency.zano
-        ? zano?.validateAddress
-        : null,
-    pattern: getPattern(type, isTestnet: isTestnet),
-    length: getLength(type),
-  );
+                  return BitcoinAddressUtils.validateAddress(
+                    address: txt,
+                    network: type == CryptoCurrency.btc
+                        ? isTestnet
+                            ? BitcoinNetwork.testnet
+                            : BitcoinNetwork.mainnet
+                        : LitecoinNetwork.mainnet,
+                  );
+                }
+              : type == CryptoCurrency.zano
+                  ? zano?.validateAddress
+                  : null,
+          pattern: getPattern(type, isTestnet: isTestnet),
+          length: getLength(type),
+        );
 
   static const List<CryptoCurrency> reliableValidateCurrencies = [
     CryptoCurrency.xmr,
@@ -170,8 +170,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.hbar:
         pattern = '[0-9a-zA-Z.]+';
       case CryptoCurrency.zec:
-        pattern =
-        '(?:'
+        pattern = '(?:'
             't1[0-9A-Za-z]{33}'
             '|t3[0-9A-Za-z]{33}'
             '|zs[a-z0-9]{76}'
@@ -195,7 +194,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.pivx:
         pattern = 'D([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.btcln:
-        pattern = r'(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl|LNBC|LNTB|LNBS|LNBCRT|LNURL)[a-zA-Z0-9]+';
+        pattern =
+            r'(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl|LNBC|LNTB|LNBS|LNBCRT|LNURL)[a-zA-Z0-9]+';
       case CryptoCurrency.zano:
         pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.doge:
@@ -369,7 +369,7 @@ class AddressValidator extends TextValidator {
             '|([0-9a-zA-Z]{106})';
       case CryptoCurrency.btc:
         pattern =
-        '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
+            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
       case CryptoCurrency.ltc:
         pattern = '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
@@ -394,8 +394,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zano:
         pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.zec:
-        pattern =
-        '(?:'
+        pattern = '(?:'
             't1[0-9A-Za-z]{33}'
             '|t3[0-9A-Za-z]{33}'
             '|zs[a-z0-9]{76}'
