@@ -8,9 +8,11 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 
 enum BackupVersion {
@@ -142,8 +144,23 @@ class BackupMetadata {
   }
 }
 
+class IncompatibleBackupAppException implements Exception {
+  IncompatibleBackupAppException({
+    required this.sourceAppName,
+    required this.currentAppName,
+  });
+
+  final String sourceAppName;
+  final String currentAppName;
+
+  @override
+  String toString() {
+    return 'This backup was created in $sourceAppName and cannot be restored in $currentAppName.';
+  }
+}
+
 class BackupServiceV3 extends $BackupService {
-  BackupServiceV3(super.secureStorage, super.walletInfoSource, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
+  BackupServiceV3(super.secureStorage, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
 
   static BackupVersion get currentVersion => BackupVersion.v3;
 
@@ -195,7 +212,8 @@ class BackupServiceV3 extends $BackupService {
     }
   }
 
-  Future<void> importBackupFile(File file, String password, {String nonce = secrets.backupSalt}) {
+  Future<void> importBackupFile(File file, String password,
+      {String nonce = secrets.backupSalt, bool checkBackupApp = true}) {
     final version = getVersionFile(file);
     switch (version) {
       case BackupVersion.unknown:
@@ -208,11 +226,12 @@ class BackupServiceV3 extends $BackupService {
       case BackupVersion.v2:
         return super.importBackupV2(file.readAsBytesSync(), password);
       case BackupVersion.v3:
-        return importBackupFileV3(file, password, nonce: nonce);
+        return importBackupFileV3(file, password, nonce: nonce, checkBackupApp: checkBackupApp);
     }
   }
 
-  Future<void> importBackupFileV3(File file, String password, {String nonce = secrets.backupSalt}) async{
+  Future<void> importBackupFileV3(File file, String password,
+      {String nonce = secrets.backupSalt,bool checkBackupApp = true}) async{
     // Overall design of v3 backup is the following:
     // 1. backup.zip - plaintext zip file that user can open with any archive manager
     // 2. backup.zip/README.txt - text file to let user know what is inside of this file
@@ -221,6 +240,11 @@ class BackupServiceV3 extends $BackupService {
 
     final inputStream = InputFileStream(file.path);
     final archive = ZipDecoder().decodeStream(inputStream);
+
+    if (checkBackupApp) {
+      await _throwIfBackupWasCreatedInAnotherApp(archive);
+    }
+
     final metadataFile = archive.findFile('metadata.json');
     if (metadataFile == null) {
       throw Exception('Invalid v3 backup: missing metadata.json');
@@ -313,11 +337,11 @@ class BackupServiceV3 extends $BackupService {
 
     // Delete decrypted data file
     decryptedData.deleteSync();
+    await initDb();
   }
 
   Future<void> verifyHardwareWallets(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
-    final walletInfoSource = await reloadHiveWalletInfoBox();
     final appDir = await getAppDir();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
     final decryptedKeychainDumpFileData = await decryptV2(
@@ -334,10 +358,7 @@ class BackupServiceV3 extends $BackupService {
 
     for (final expectedHardwareWallet in expectedHardwareWallets) {
       final info = expectedHardwareWallet as Map<String, dynamic>;
-      final actualWalletInfo = walletInfoSource.values
-          .where((e) =>
-              e.name == info['name'] && e.type.toString() == info['type'])
-          .firstOrNull;
+      final actualWalletInfo = await WalletInfo.get(info['name'] as String, WalletType.values.firstWhere((e) => e.toString() == info['type'] as String));
       if (actualWalletInfo != null &&
           info["hardwareWalletType"] !=
               actualWalletInfo.hardwareWalletType?.index) {
@@ -426,7 +447,7 @@ class BackupServiceV3 extends $BackupService {
     metadata.sha512sum = (await sha512.bind(dataBinUnencrypted.openRead()).first).toString();
 
     final raf = await dataBinUnencrypted.open();
-    
+
 
     while (true) {
       printV("Reading chunk ${chunkIndex++}");
@@ -490,6 +511,33 @@ This backup was created on ${DateTime.now().toIso8601String()}
     // tmpDir.deleteSync(recursive: true);
     final file = File(archivePathExport);
     return file;
+  }
+
+  Future<void> _throwIfBackupWasCreatedInAnotherApp(Archive archive) async {
+    final readmeFile = archive.findFile('README.txt');
+    if (readmeFile == null) return;
+
+    final readmeBytes = readmeFile.rawContent?.readBytes();
+    if (readmeBytes == null) return;
+
+    final readmeString = utf8.decode(readmeBytes, allowMalformed: true);
+    final sourceAppName = _extractBackupAppName(readmeString);
+    if (sourceAppName == null) return;
+
+
+    final currentAppName = (await PackageInfo.fromPlatform()).appName;
+    if (sourceAppName == currentAppName) return;
+
+
+    throw IncompatibleBackupAppException(
+      sourceAppName: sourceAppName,
+      currentAppName: currentAppName,
+    );
+  }
+
+  String? _extractBackupAppName(String readme) {
+    final match = RegExp(r'^This is a (.+) backup\.', multiLine: true).firstMatch(readme);
+    return match?.group(1)?.trim();
   }
 
   static const chunkSize = 24 * 1024 * 1024; // 24MiB

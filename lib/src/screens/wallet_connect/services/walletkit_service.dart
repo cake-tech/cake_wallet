@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
@@ -19,10 +20,9 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chai
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_request_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_request_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_session_auth_request_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_request_sheet.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 
 import 'bottom_sheet_service.dart';
@@ -55,8 +55,6 @@ abstract class WalletKitServiceBase with Store {
   bool isInitialized;
 
   /// The list of requests from the dapp
-  /// Potential types include, but aren't limited to:
-  /// [SessionProposalEvent], [SessionAuthRequest]
   @observable
   ObservableList<PairingInfo> pairings;
 
@@ -68,7 +66,6 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   void create() {
-    // Create the walletkit client
     _walletKit = ReownWalletKit(
       core: ReownCore(
         projectId: secrets.walletConnectProjectId,
@@ -84,7 +81,6 @@ abstract class WalletKitServiceBase with Store {
 
     _walletKit.core.addLogListener(_logListener);
 
-    // Setup our listeners
     log('Created instance of walletKit');
 
     _walletKit.core.pairing.onPairingInvalid.subscribe(_onPairingInvalid);
@@ -105,14 +101,22 @@ abstract class WalletKitServiceBase with Store {
     List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
-        final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
-        if (chainNameSpace == chainId) {
-          final account = '$chainId:${chainKey.publicKey}';
-          debugPrint('registerAccount $account');
+        if (isEVMCompatibleChain(appStore.wallet!.type)) {
+          // Register account for all EVM chains (chainId is already in eip155:format)
           _walletKit.registerAccount(
             chainId: chainId,
             accountAddress: chainKey.publicKey,
           );
+        } else {
+          final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(
+            appStore.wallet!.type,
+          );
+          if (chainNameSpace == chainId) {
+            _walletKit.registerAccount(
+              chainId: chainId,
+              accountAddress: chainKey.publicKey,
+            );
+          }
         }
       }
     }
@@ -128,7 +132,10 @@ abstract class WalletKitServiceBase with Store {
     debugPrint('Intializing walletKit');
     if (!isInitialized) {
       try {
-        await _walletKit.init();
+        await _walletKit.init().timeout(
+          const Duration(seconds: 8),
+          onTimeout: () => throw TimeoutException('walletKit init timed out'),
+        );
         debugPrint('Initialized');
         isInitialized = true;
       } catch (e) {
@@ -140,6 +147,9 @@ abstract class WalletKitServiceBase with Store {
     await _emitEvent();
 
     _refreshPairings();
+
+    sessions.clear();
+    auth.clear();
 
     final newSessions = _walletKit.sessions.getAll();
     sessions.addAll(newSessions);
@@ -173,16 +183,16 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
-  Future<void> _emitEvent() async {
+  Future<void> _emitEvent({int retries = 0}) async {
     final isOnline = _walletKit.core.connectivity.isOnline.value;
-    if (!isOnline) {
+    if (!isOnline && retries < 3) {
       await Future.delayed(const Duration(milliseconds: 500));
-      _emitEvent();
+      await _emitEvent(retries: ++retries);
       return;
     }
 
-    final sessions = _walletKit.sessions.getAll();
-    for (var session in sessions) {
+    final engineSessions = _walletKit.sessions.getAll();
+    for (var session in engineSessions) {
       final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       for (var chain in chainKeys) {
         for (var chainID in chain.chains) {
@@ -192,15 +202,22 @@ abstract class WalletKitServiceBase with Store {
               namespaces: session.namespaces,
             );
             if (events.contains('accountsChanged')) {
-              final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
-              _walletKit.emitSessionEvent(
+              await _walletKit.emitSessionEvent(
                 topic: session.topic,
                 chainId: chainID,
                 event: SessionEventParams(
                   name: 'accountsChanged',
-                  data: [chainKeys.first.publicKey],
+                  data: [chain.publicKey],
                 ),
-              );
+              ).timeout(const Duration(seconds: 3));
+            }
+          } on ReownSignError catch (e) {
+            if (e.code == 6) {
+              try {
+                await deletePairing(topic: session.pairingTopic);
+              } catch (_) {}
+              sessions.removeWhere((s) => s.topic == session.topic);
+              _refreshPairings();
             }
           } catch (_) {}
         }
@@ -226,6 +243,10 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+
+    sessions.clear();
+    auth.clear();
+    pairings.clear();
 
     isInitialized = false;
   }
@@ -265,16 +286,12 @@ abstract class WalletKitServiceBase with Store {
     if (args != null) {
       final proposer = args.params.proposer;
       final result = (await _bottomSheetHandler.queueBottomSheet(
-            widget: WCRequestWidget(
+            widget: WCConnectionRequestSheet(
+              proposalData: args.params,
+              requester: proposer,
               verifyContext: args.verifyContext,
-              child: WCConnectionRequestWidget(
-                proposalData: args.params,
-                verifyContext: args.verifyContext,
-                requester: proposer,
-                walletKeyService: walletKeyService,
-                walletKit: walletKit,
-                appStore: appStore,
-              ),
+              walletKeyService: walletKeyService,
+              appStore: appStore,
             ),
           )) ??
           WCBottomSheetResult.reject;
@@ -375,6 +392,12 @@ abstract class WalletKitServiceBase with Store {
   @action
   void _onPairingCreate(PairingEvent? args) {
     debugPrint('_onPairingCreate $args');
+
+    if (args != null && args.topic != null && args.topic!.isNotEmpty) {
+      savePairingTopicToLocalStorage(args.topic!);
+
+      _refreshPairings();
+    }
   }
 
   Future<void> _onSessionAuthRequest(SessionAuthRequest? args) async {
@@ -409,16 +432,28 @@ abstract class WalletKitServiceBase with Store {
         formattedMessages.add({iss: message});
       }
 
+      final requesterMetadata = args.requester.metadata;
+      final requesterIcon = requesterMetadata.icons.isNotEmpty
+          ? requesterMetadata.icons.first
+          : null;
+      final chainKeysForAuth = walletKeyService.getKeysForChain(appStore.wallet!);
+      final addressForAuth =
+          chainKeysForAuth.isNotEmpty ? chainKeysForAuth.first.publicKey : '';
+      final combinedMessageBody =
+          formattedMessages.map((m) => m.values.first as String).join('\n\n');
+
       final WCBottomSheetResult result = (await _bottomSheetHandler.queueBottomSheet(
-            widget: WCSessionAuthRequestWidget(
-              child: WCConnectionRequestWidget(
-                sessionAuthPayload: newAuthPayload,
-                verifyContext: args.verifyContext,
-                requester: args.requester,
-                walletKeyService: walletKeyService,
-                walletKit: _walletKit,
-                appStore: appStore,
-              ),
+            widget: WCSigningRequestSheet(
+              title: S.current.wc_signing_request_title,
+              swipeLabel: S.current.wc_swipe_to_sign,
+              dappName: requesterMetadata.name,
+              dappIconUrl: requesterIcon,
+              dappSubtitle: requesterMetadata.url,
+              message: combinedMessageBody,
+              walletName: appStore.wallet?.name ?? '',
+              address: addressForAuth,
+              verifyContext: args.verifyContext,
+              signAllCount: formattedMessages.length,
             ),
           ) as WCBottomSheetResult?) ??
           WCBottomSheetResult.reject;
@@ -427,10 +462,8 @@ abstract class WalletKitServiceBase with Store {
         final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
         final privateKey = '0x${chainKeys.first.privateKey}';
         final credentials = EthPrivateKey.fromHex(privateKey);
-        //
         final messageToSign = formattedMessages.length;
         final count = (result == WCBottomSheetResult.one) ? 1 : messageToSign;
-        //
         final List<Cacao> cacaos = [];
         for (var i = 0; i < count; i++) {
           final iss = formattedMessages[i].keys.first;
@@ -488,36 +521,57 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> deletePairing({required String topic}) async {
-    final topicSessions = sessions.where((element) => element.pairingTopic == topic);
+    final topicSessions =
+        sessions.where((element) => element.pairingTopic == topic).toList();
 
     await _walletKit.core.pairing.disconnect(topic: topic);
     for (var session in topicSessions) {
-      await _walletKit.disconnectSession(
-        topic: session.topic,
-        reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
-      );
+      try {
+        await _walletKit.disconnectSession(
+          topic: session.topic,
+          reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
+        );
+      } catch (_) {}
     }
+
+    await _removePairingTopicFromLocalStorage(topic);
+    sessions.clear();
+    sessions.addAll(_walletKit.sessions.getAll());
+    _refreshPairings();
   }
 
   @action
   Future<void> disconnectSession({required String topic}) async {
-    await walletKit.disconnectSession(
-      topic: topic,
-      reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
-    );
-  }
+    String? pairingTopic;
+    for (final s in sessions) {
+      if (s.topic == topic) {
+        pairingTopic = s.pairingTopic;
+        break;
+      }
+    }
+    pairingTopic ??= _walletKit.sessions.get(topic)?.pairingTopic;
 
-  @action
-  Future<void> updateSession({
-    required String topic,
-    required Map<String, Namespace> namespaces,
-  }) async {
-    await walletKit.updateSession(topic: topic, namespaces: namespaces);
-  }
+    try {
+      await walletKit.disconnectSession(
+        topic: topic,
+        reason: Errors.getSdkError(Errors.USER_DISCONNECTED).toSignError(),
+      );
+    } catch (e) {
+     printV('disconnectSession: $e');
+    }
 
-  @action
-  Future<void> extendSession({required String topic}) async {
-    await walletKit.extendSession(topic: topic);
+    sessions.clear();
+    sessions.addAll(_walletKit.sessions.getAll());
+
+    if (pairingTopic != null &&
+        !_walletKit.sessions.getAll().any((s) => s.pairingTopic == pairingTopic)) {
+      await _removePairingTopicFromLocalStorage(pairingTopic);
+      try {
+        await _walletKit.core.pairing.disconnect(topic: pairingTopic);
+      } catch (_) {}
+    }
+
+    _refreshPairings();
   }
 
   @action
@@ -555,9 +609,11 @@ abstract class WalletKitServiceBase with Store {
     final filteredPairings = allPairings.where(
       (pairing) {
         bool isInCurrentTopics = currentTopicsForWallet.contains(pairing.topic);
-        bool isActive = pairing.active;
+        // bool isActive = pairing.active;
+        // bool hasSession = sessions.any((session) => session.pairingTopic == pairing.topic);
 
-        return isInCurrentTopics && isActive;
+        // return isInCurrentTopics && isActive;
+        return isInCurrentTopics;
       },
     ).toList();
 
@@ -566,58 +622,75 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   List<SessionData> getSessionsForPairingInfo(PairingInfo pairing) {
-    return sessions.where((element) => element.pairingTopic == pairing.topic).toList();
+    return sessions.where((element) =>  element.pairingTopic == pairing.topic).toList();
   }
 
   String getKeyForStoringTopicsForWallet() {
-    List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+    try {
+      // For EVM wallets, use getKeys() to get all EVM keys
+      // since the same address works across all EVM chains. For non-EVM wallets, use getKeysForChain()
+      // to get keys specific to the current chain.
+      List<ChainKeyModel> chainKeys;
+      if (isEVMCompatibleChain(appStore.wallet!.type)) {
+        chainKeys = walletKeyService.getKeys(appStore.wallet!);
 
-    if (chainKeys.isEmpty) {
+        chainKeys = chainKeys
+            .where((key) => key.chains.any((chain) => chain.startsWith('eip155:')))
+            .toList();
+      } else {
+        chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+      }
+
+      if (chainKeys.isEmpty) return '';
+
+      final publicKey = chainKeys.first.publicKey;
+      if (publicKey.isEmpty) return '';
+
+      return PreferencesKey.walletConnectPairingTopicsListForWallet(publicKey);
+    } catch (e) {
       return '';
     }
-
-    final keyForPairingTopic =
-        PreferencesKey.walletConnectPairingTopicsListForWallet(chainKeys.first.publicKey);
-
-    return keyForPairingTopic;
   }
 
   List<String> getPairingTopicsForWallet(String key) {
-    // Get the JSON-encoded string from shared preferences
     final jsonString = sharedPreferences.getString(key);
 
-    // If the string is null, return an empty list
     if (jsonString == null) {
       return [];
     }
 
-    // Decode the JSON string to a list of strings
     final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
 
-    // Cast each item to a string
     return jsonList.map((item) => item as String).toList();
   }
 
+  Future<void> _removePairingTopicFromLocalStorage(String pairingTopic) async {
+    final key = getKeyForStoringTopicsForWallet();
+    if (key.isEmpty) return;
+
+    final topics = getPairingTopicsForWallet(key);
+    if (!topics.contains(pairingTopic)) return;
+
+    topics.remove(pairingTopic);
+    await sharedPreferences.setString(key, jsonEncode(topics));
+  }
+
   Future<void> savePairingTopicToLocalStorage(String pairingTopic) async {
-    // Get key specific to the current wallet
     final key = getKeyForStoringTopicsForWallet();
 
     if (key.isEmpty) return;
 
-    // Get all pairing topics attached to this key
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);
 
     bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
-    debugPrint('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');
+    debugPrint(
+        'Is Pairing Topic Saved: $isPairingTopicAlreadySaved, Key: $key, Topic: $pairingTopic');
 
     if (!isPairingTopicAlreadySaved) {
-      // Update the list with the most recent pairing topic
       pairingTopicsForWallet.add(pairingTopic);
 
-      // Convert the list of updated pairing topics to a JSON-encoded string
       final jsonString = jsonEncode(pairingTopicsForWallet);
 
-      // Save the encoded string to shared preferences
       await sharedPreferences.setString(key, jsonString);
     }
   }

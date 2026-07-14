@@ -4,21 +4,19 @@ import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletManager {
-  WalletManager(this._walletInfoSource, this._sharedPreferences);
+  WalletManager(this._sharedPreferences);
 
-  final Box<WalletInfo> _walletInfoSource;
   final SharedPreferences _sharedPreferences;
 
   final List<WalletGroup> walletGroups = [];
 
-  void updateWalletGroups() {
+  Future<void> updateWalletGroups() async {
     walletGroups.clear();
 
-    for (final walletInfo in _walletInfoSource.values) {
+    for (final walletInfo in await WalletInfo.getAll()) {
       final groupKey = _resolveGroupKey(walletInfo);
       final group = _getOrCreateGroup(groupKey);
       group.wallets.add(walletInfo);
@@ -115,7 +113,7 @@ class WalletManager {
     // If the openedWallet already has an hash, then there is nothing to do
     if (walletInfo.hashedWalletIdentifier != null &&
         walletInfo.hashedWalletIdentifier!.isNotEmpty) {
-      updateWalletGroups(); // Still skeptical of calling this here. Looking for a better spot.
+      await updateWalletGroups(); // Still skeptical of calling this here. Looking for a better spot.
       return;
     }
 
@@ -123,7 +121,7 @@ class WalletManager {
     final oldGroupKey = _resolveGroupKey(walletInfo); // parentAddress fallback
 
     // Find all wallets that share this old group key (i.e the old group)
-    final oldGroupWallets = _walletInfoSource.values.where((w) {
+    final oldGroupWallets = (await WalletInfo.getAll()).where((w) {
       final key = w.hashedWalletIdentifier != null && w.hashedWalletIdentifier!.isNotEmpty
           ? w.hashedWalletIdentifier
           : (w.parentAddress ?? w.address);
@@ -150,7 +148,7 @@ class WalletManager {
     }
 
     // Finally, we rebuild the groups so that these wallets are now in the new group
-    updateWalletGroups();
+    await updateWalletGroups();
   }
 
   /// Copy an old group name to the new group key, then remove the old key.
@@ -162,6 +160,16 @@ class WalletManager {
     if (oldGroupName != null) {
       await _sharedPreferences.setString(newNameKey, oldGroupName);
       await _sharedPreferences.remove(oldNameKey);
+    }
+  }
+
+  String? getGroupName(WalletInfo walletInfo) {
+    try {
+        final groupKey = _resolveGroupKey(walletInfo);
+        final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
+        return group.groupName;
+    } catch (_) {
+        return null;
     }
   }
 }

@@ -60,8 +60,8 @@ android {
 
     defaultConfig {
         applicationId appProperties['id']
-        minSdkVersion 24
-        targetSdkVersion 35
+        minSdkVersion 26
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

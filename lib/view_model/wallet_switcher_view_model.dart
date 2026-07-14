@@ -1,11 +1,12 @@
 import 'dart:async';
 
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_switcher_view_model.g.dart';
@@ -16,12 +17,10 @@ abstract class WalletSwitcherViewModelBase with Store {
   WalletSwitcherViewModelBase({
     required this.appStore,
     required this.walletLoadingService,
-    required this.walletInfoSource,
   });
 
   final AppStore appStore;
   final WalletLoadingService walletLoadingService;
-  final Box<WalletInfo> walletInfoSource;
 
   @observable
   WalletInfo? selectedWallet;
@@ -30,12 +29,17 @@ abstract class WalletSwitcherViewModelBase with Store {
   bool isProcessing = false;
 
   @action
-  List<WalletInfo> getWallets(WalletType? walletType) {
-    if (walletType == null) {
-      return walletInfoSource.values.toList();
+  Future<List<WalletInfo>> getWallets(WalletType? walletType) async {
+    final wiList = await WalletInfo.getAll();
+    if (walletType == null) return wiList;
+
+    // For EVM-compatible wallet types, show all EVM-compatible wallets
+    // This allows users to switch between any EVM wallet regardless of the specific chain
+    if (isEVMCompatibleChain(walletType)) {
+      return wiList.where((wallet) => isEVMCompatibleChain(wallet.type)).toList();
     }
 
-    return walletInfoSource.values.where((wallet) => wallet.type == walletType).toList();
+    return wiList.where((wallet) => wallet.type == walletType).toList();
   }
 
   @action

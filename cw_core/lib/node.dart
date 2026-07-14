@@ -1,32 +1,62 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:cw_core/keyable.dart';
+import 'dart:math' as math;
+
+import 'package:blockchain_utils/hex/hex.dart';
+import 'package:cw_core/node_list.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'dart:convert';
-import 'package:hive/hive.dart';
-import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'dart:math' as math;
-import 'package:convert/convert.dart';
-
 import 'package:crypto/crypto.dart';
+import 'package:sqflite/sqflite.dart';
 
-part 'node.g.dart';
+import 'db/sqlite.dart';
 
 Uri createUriFromElectrumAddress(String address, String path) =>
     Uri.tryParse('tcp://$address$path')!;
 
-@HiveType(typeId: Node.typeId)
-class Node extends HiveObject with Keyable {
+Future<void> validateBuiltinNodes() async {
+  // ensures nodes stored as builtin in the db correspond to the nodes in the .yml files
+
+  final builtinFromDb = await Node.getAllBuiltin();
+  final builtinFromList = await loadAllDefaultNodes();
+
+  for (final listNode in builtinFromList) {
+    // preserve proxy settings from user
+    try {
+      final matchedDbNode = builtinFromDb.firstWhere(
+              (dbNode) => dbNode.uri == listNode.uri
+      );
+      listNode.socksProxyAddress = matchedDbNode.socksProxyAddress;
+    } catch(e) {}
+  }
+
+  final dbSet = builtinFromDb.toSet();
+  final listSet = builtinFromList.toSet();
+
+  final nodesToDelete = dbSet.difference(listSet);
+  final nodesToAdd = listSet.difference(dbSet);
+
+  for (final node in nodesToDelete) await node.delete();
+  for (final node in nodesToAdd) await node.save();
+}
+
+class Node {
   Node({
+    this.id = 0,
+    this.label,
     this.login,
     this.password,
     this.useSSL,
+    this.isPow = false,
     this.trusted = false,
     this.socksProxyAddress,
     this.path = '',
     this.isEnabledForAutoSwitching = false,
+    this.isOfficial = false,
+    this.isBuiltin = false,
+    this.isDefault = false,
     String? uri,
     WalletType? type,
   }) {
@@ -38,62 +68,218 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  @override
+  String toString() {
+    return """Node(
+  uriRaw: $uriRaw,
+  path: $path,
+  login: $login,
+  password: $password,
+  useSSL: $useSSL,
+  trusted: $trusted,
+  socksProxyAddress: $socksProxyAddress,
+  isEnabledForAutoSwitching: $isEnabledForAutoSwitching,
+  isOfficial: $isOfficial,
+  isBuiltin: $isBuiltin,
+  isDefault: $isDefault
+ })""";
+  }
+
   Node.fromMap(Map<String, Object?> map)
-      : uriRaw = map['uri'] as String? ?? '',
+      : id = (map[selfIdColumn] ?? 0) as int,
+        uriRaw = map['uri'] as String? ?? '',
         path = map['path'] as String? ?? '',
         login = map['login'] as String?,
+        label = map['label'] as String?,
         password = map['password'] as String?,
-        useSSL = map['useSSL'] as bool?,
-        trusted = map['trusted'] as bool? ?? false,
-        socksProxyAddress = map['socksProxyPort'] as String?,
-        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] as bool? ?? false;
+        isPow = _getBoolFromDB(map['isPow']),
+        useSSL = _getBoolFromDB(map['useSSL']),
+        typeRaw = (map["typeRaw"] ?? 0) as int,
+        trusted = _getBoolFromDB(map['trusted']),
+        socksProxyAddress = map['socksProxyAddress'] as String?,
+        isEnabledForAutoSwitching = _getBoolFromDB(map['isEnabledForAutoSwitching']),
+        isOfficial = _getBoolFromDB(map['isOfficial']),
+        isBuiltin = _getBoolFromDB(map['isBuiltin']),
+        isDefault = _getBoolFromDB(map['isDefault']);
 
-  static const typeId = NODE_TYPE_ID;
-  static const boxName = 'Nodes';
+  static bool _getBoolFromDB(value, {bool? defaultValue}) {
+    if (value is bool) {
+      return value;
+    } else if (value is int) {
+      return value == 1;
+    } else {
+      return defaultValue ?? false;
+    }
+  }
 
-  @HiveField(0, defaultValue: '')
+  Map<String, dynamic> toMap() {
+    return {
+      selfIdColumn: id,
+      'uri': uriRaw,
+      'path': path,
+      'login': login,
+      "label": label,
+      'password': password,
+      "isPow": isPow ? 1 : 0,
+      'useSSL': (useSSL??false) ? 1 : 0,
+      "typeRaw": typeRaw,
+      'trusted': trusted ? 1 : 0,
+      'socksProxyAddress': socksProxyAddress,
+      'isEnabledForAutoSwitching': isEnabledForAutoSwitching ? 1 : 0,
+      "isOfficial": isOfficial ? 1 : 0,
+      "isBuiltin": isBuiltin ? 1 : 0,
+      "isDefault": isDefault ? 1 : 0
+    };
+  }
+
+  Node.fromUri(Uri uri, WalletType type)
+      : id = 0,
+        uriRaw =
+            "${uri.host}${uri.hasPort ? ':${uri.port}' : (uri.queryParameters['port']?.isNotEmpty == true ? ':${uri.queryParameters['port']}' : '')}",
+        path = uri.path,
+        login = uri.userInfo.contains(':')
+            ? uri.userInfo.split(':')[0]
+            : uri.queryParameters['username'],
+        password = uri.userInfo.contains(':')
+            ? uri.userInfo.split(':')[1]
+            : uri.queryParameters['password'],
+        useSSL = uri.queryParameters['protocol'] == 'https',
+        trusted = uri.queryParameters['trusted'] == 'true',
+        isPow = false,
+        isEnabledForAutoSwitching = false,
+        isOfficial = false,
+        isBuiltin = false,
+        isDefault = false,
+        typeRaw = serializeToInt(type);
+
+  Future<int> delete() async {
+    return await db!.delete(tableName, where: '${selfIdColumn} = ?', whereArgs: [id]);
+  }
+
+  static Future<int> deleteAll() async {
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [0]);
+  }
+
+  static Future<int> deleteAllPow() async {
+    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [1]);
+  }
+
+  Future<int> save() async {
+
+    final json = toMap();
+    if (json[selfIdColumn] == 0) {
+      json[selfIdColumn] = null;
+    }
+    id = await db!.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
+    return id;
+  }
+
+
+  static Future<List<Node>> selectList(String where, List<dynamic> whereArgs, {String? orderBy}) async {
+    if(orderBy == null) {
+      orderBy = selfIdColumn;
+    }
+    final list = await db!.query(
+      tableName,
+      where: where.isNotEmpty ? where : "1 = 1",
+      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+      orderBy: orderBy,
+    );
+    return List.generate(list.length, (index) => Node.fromMap(list[index]));
+  }
+
+  static Future<Node?> select(String where, List<dynamic> whereArgs, {String? orderBy}) async {
+    if(orderBy == null) {
+      orderBy = selfIdColumn;
+    }
+    final list = await db!.query(
+      tableName,
+      where: where.isNotEmpty ? where : "1 = 1",
+      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+      orderBy: orderBy,
+    );
+    return list.isEmpty ? null : Node.fromMap(list.first);
+  }
+
+
+  static Future<List<Node>> getAll() async {
+    return selectList("isPow = ?", [0]);
+  }
+
+  static Future<List<Node>> getAllBuiltin() async {
+    return selectList("isPow = ? AND isBuiltin = ?", [0, 1]);
+  }
+
+  static Future<List<Node>> getAllPowBuiltin() async {
+    return selectList("isPow = ? AND isBuiltin = ?", [1, 1]);
+  }
+
+  static Future<List<Node>> getAllForWalletType(WalletType type) async {
+    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), 0]);
+  }
+
+  static Future<Node?> getDefaultForWalletType(WalletType type) async {
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 0, 1])).firstOrNull;
+  }
+
+  static Future<Node?> getDefaultPowForWalletType(WalletType type) async {
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ?", [serializeToInt(type), 1, 1])).firstOrNull;
+  }
+
+  static Future<List<Node>> getAllForWalletTypePow(WalletType type) async {
+    return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), 1]);
+  }
+
+  static Future<List<Node>> getAllPow() async {
+    return selectList("isPow = ?", [1]);
+  }
+
+  static Future<Node?> get(int id) async {
+    return select("${selfIdColumn} = ?", [id]);
+  }
+
+
+  int id;
   late String uriRaw;
-
-  @HiveField(1)
   String? login;
-
-  @HiveField(2)
   String? password;
-
-  @HiveField(3, defaultValue: 0)
   late int typeRaw;
-
-  @HiveField(4)
   bool? useSSL;
-
-  @HiveField(5, defaultValue: false)
   bool trusted;
-
-  @HiveField(6)
+  bool isPow;
   String? socksProxyAddress;
-
-  @HiveField(7, defaultValue: '')
   String? path;
-
-  @HiveField(8)
   bool? isElectrs;
-
-  @HiveField(9)
   bool? supportsSilentPayments;
-
-  @HiveField(10)
   bool? supportsMweb;
-
-  @HiveField(11, defaultValue: false)
   bool isEnabledForAutoSwitching;
+  bool isOfficial;
+  bool isBuiltin;
+  bool isDefault;
+
+  String? label;
+
+  static String get tableName => "Node";
+  static String get selfIdColumn => "${tableName}Id";
+
 
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
 
   Uri get uri {
+    try {
+      return _uri;
+    } catch (e) {
+      printV(e);
+      return Uri();
+    }
+  }
+
+  Uri get _uri {
     switch (type) {
       case WalletType.monero:
+      case WalletType.zcash:
       case WalletType.haven:
       case WalletType.wownero:
         return Uri.http(uriRaw, '');
@@ -107,6 +293,8 @@ class Node extends HiveObject with Keyable {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.bsc:
+      case WalletType.arbitrum:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.zano:
@@ -125,6 +313,7 @@ class Node extends HiveObject with Keyable {
       other is Node &&
       (other.uriRaw == uriRaw &&
           other.login == login &&
+          other.label == label &&
           other.password == password &&
           other.typeRaw == typeRaw &&
           other.useSSL == useSSL &&
@@ -136,6 +325,7 @@ class Node extends HiveObject with Keyable {
   int get hashCode =>
       uriRaw.hashCode ^
       login.hashCode ^
+      label.hashCode ^
       password.hashCode ^
       typeRaw.hashCode ^
       useSSL.hashCode ^
@@ -143,17 +333,10 @@ class Node extends HiveObject with Keyable {
       socksProxyAddress.hashCode ^
       path.hashCode;
 
-  @override
-  dynamic get keyIndex {
-    _keyIndex ??= key;
-    return _keyIndex;
-  }
 
   WalletType get type => deserializeFromInt(typeRaw);
 
   set type(WalletType type) => typeRaw = serializeToInt(type);
-
-  dynamic _keyIndex;
 
   Future<bool> requestNode() async {
     try {
@@ -171,9 +354,12 @@ class Node extends HiveObject with Keyable {
         case WalletType.ethereum:
         case WalletType.polygon:
         case WalletType.base:
+        case WalletType.arbitrum:
+        case WalletType.bsc:
         case WalletType.solana:
         case WalletType.tron:
         case WalletType.dogecoin:
+        case WalletType.zcash:
           return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();
@@ -201,7 +387,7 @@ class Node extends HiveObject with Keyable {
         body: jsonBody,
       );
 
-      
+
       final resBody = json.decode(response.body) as Map<String, dynamic>;
 
       return resBody['result']['height'] != null;
@@ -221,14 +407,14 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
-      final client = ProxyWrapper().getHttpIOClient();
 
       final jsonBody = json.encode(body);
 
-      final response = await client.post(
-        rpcUri,
+      final response = await ProxyWrapper().post(
+        clearnetUri: rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
+        allowMitmMoneroBypassSSLCheck: true
       );
       // Check if we received a 401 Unauthorized response
       if (response.statusCode == 401) {
@@ -328,7 +514,7 @@ class Node extends HiveObject with Keyable {
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body);
       if (response.statusCode != 200 ||
           data["error"] != null ||

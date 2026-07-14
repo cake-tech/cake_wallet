@@ -39,7 +39,7 @@
         android:versionName="__versionName__"
         android:requestLegacyExternalStorage="true"
         android:extractNativeLibs="true">
-        <service 
+        <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
@@ -109,6 +109,16 @@
                 <data android:scheme="base" />
                 <data android:scheme="base-wallet" />
                 <data android:scheme="base_wallet" />
+                <data android:scheme="arbitrum" />
+                <data android:scheme="arbitrum-wallet" />
+                <data android:scheme="arbitrum_wallet" />
+                <data android:scheme="bsc" />
+                <data android:scheme="bsc-wallet" />
+                <data android:scheme="bsc_wallet" />
+                <data android:scheme="zcash" />
+                <data android:scheme="zcash-wallet" />
+                <data android:scheme="lightning" />
+                <data android:scheme="lightning-wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">
@@ -118,6 +128,14 @@
                 <data android:scheme="nano-gpt" />
             </intent-filter>
 
+
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
+            </intent-filter>
+
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                       android:resource="@xml/device_filter" />
             <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
         </activity>
         <meta-data
@@ -136,7 +154,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
     </application>
-    
+
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />

@@ -1,11 +1,10 @@
 import 'package:cw_core/account.dart';
-import 'package:cw_core/address_info.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:cw_monero/monero_subaddress_list.dart';
@@ -73,7 +72,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
-    updateSubaddressList(accountIndex: account?.id ?? 0);
+    await updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
 
@@ -85,13 +84,17 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
       addressesMap.clear();
       addressInfos.clear();
 
-      accountList.accounts.forEach((account) {
-        _subaddressList.update(accountIndex: account.id);
+      accountList.accounts.forEach((account) async {
+        await _subaddressList.update(accountIndex: account.id);
         _subaddressList.subaddresses.forEach((subaddress) {
           addressesMap[subaddress.address] = subaddress.label;
           addressInfos[account.id] ??= [];
-          addressInfos[account.id]?.add(AddressInfo(
-              address: subaddress.address, label: subaddress.label, accountIndex: account.id));
+          addressInfos[account.id]?.add(WalletInfoAddressInfo(
+              walletInfoId: walletInfo.internalId,
+              mapKey: account.id,
+              accountIndex: account.id,
+              address: subaddress.address,
+              label: subaddress.label));
         });
       });
 
@@ -119,8 +122,8 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     return true;
   }
 
-  void updateSubaddressList({required int accountIndex}) {
-    subaddressList.update(accountIndex: accountIndex);
+  Future<void> updateSubaddressList({required int accountIndex}) async {
+    await subaddressList.update(accountIndex: accountIndex);
     address = subaddressList.subaddresses.isNotEmpty
         ? subaddressList.subaddresses.first.address
         : getAddress();
@@ -152,4 +155,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   bool containsAddress(String address) =>
       addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
+
+  @override
+  PaymentURI getPaymentUri(String amount) => MoneroURI(address: address, amount: amount);
 }

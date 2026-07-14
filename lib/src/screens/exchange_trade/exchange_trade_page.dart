@@ -1,6 +1,7 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
@@ -21,14 +22,14 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
-  final from = trade.from?.toString() ?? trade.userCurrencyFrom.toString();
+  final from = trade.from?.toString() ?? '';
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_trade_result_confirm(trade.amount, from, walletName) +
@@ -162,20 +163,21 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
         bottomSection: Column(
           children: [
-            PrimaryButton(
-              key: ValueKey('exchange_trade_page_send_from_external_button_key'),
-              text: S.current.send_from_external_wallet,
-              onPressed: () async {
-                Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
-              },
-              color: widget.exchangeTradeViewModel.isSendable
-                  ? Theme.of(context).colorScheme.surfaceContainer
-                  : Theme.of(context).colorScheme.primary,
-              textColor: widget.exchangeTradeViewModel.isSendable
-                  ? Theme.of(context).colorScheme.onSecondaryContainer
-                  : Theme.of(context).colorScheme.onPrimary,
-              isDisabled: widget.exchangeTradeViewModel.isSwapsXyzSendingEVMTokenSwap,
-            ),
+            if (!widget.exchangeTradeViewModel.shouldHideExternalSendButton)
+              PrimaryButton(
+                key: ValueKey('exchange_trade_page_send_from_external_button_key'),
+                text: S.current.send_from_external_wallet,
+                onPressed: () async {
+                  Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
+                },
+                color: widget.exchangeTradeViewModel.isSendable
+                    ? Theme.of(context).colorScheme.surfaceContainer
+                    : Theme.of(context).colorScheme.primary,
+                textColor: widget.exchangeTradeViewModel.isSendable
+                    ? Theme.of(context).colorScheme.onSecondaryContainer
+                    : Theme.of(context).colorScheme.onPrimary,
+              ),
+
             SizedBox(height: 16),
             Observer(
               builder: (_) {
@@ -187,10 +189,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       !(sendingState is TransactionCommitted)),
                   child: LoadingPrimaryButton(
                     key: ValueKey('exchange_trade_page_send_from_cake_button_key'),
-                    isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty ||
+                    isDisabled: trade.inputAddress == null ||
+                        trade.inputAddress!.isEmpty ||
                         sendingState is ExecutedSuccessfullyState,
                     isLoading: sendingState is IsExecutingState,
-                    onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
+                    onPressed: _onPressedSendFromCakeWallet,
                     text: S.current.send_from_cake_wallet,
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary,
@@ -202,6 +205,28 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         ),
       ),
     );
+  }
+
+  Future<void> _onPressedSendFromCakeWallet() async {
+    final sendVM = widget.exchangeTradeViewModel.sendViewModel;
+
+    if (sendVM.wallet.isHardwareWallet) {
+      if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+              walletType: sendVM.walletType,
+              hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
+              onConnectDevice: (context, _) {
+                sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+                Navigator.of(context).pop();
+              },
+            ));
+      } else {
+        sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+      }
+    }
+
+    widget.exchangeTradeViewModel.confirmSending();
   }
 
   BuildContext? dialogContext;
@@ -268,53 +293,56 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         if (state is ExecutedSuccessfullyState) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final trade = widget.exchangeTradeViewModel.trade;
+
             final isSwapsXyz = trade.provider == ExchangeProviderDescription.swapsXyz;
             final isEVMWallet = widget.exchangeTradeViewModel.sendViewModel.isEVMWallet;
 
-            final amountValue = isSwapsXyz && isEVMWallet
+            final amountValue = isSwapsXyz && isEVMWallet && !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
                 ? trade.amount
                 : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted;
+
+            final fiatAmountValue = isSwapsXyz && isEVMWallet && !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
+                ? widget.exchangeTradeViewModel.sendViewModel.calculateTransactionFiatAmount(amountValue)
+                : widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted;
 
             if (context.mounted) {
               final result = await showModalBottomSheet<bool>(
                 context: context,
                 isDismissible: false,
                 isScrollControlled: true,
-                builder: (BuildContext bottomSheetContext) {
+                builder: (bottomSheetContext) {
+                  final sendVM = widget.exchangeTradeViewModel.sendViewModel;
+
                   return ConfirmSendingBottomSheet(
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     footerType: FooterType.slideActionButton,
-                    walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
+                    isSlideActionEnabled: sendVM.isReadyForSend,
+                    walletType: sendVM.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
-                    titleIconPath:
-                        widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                    titleIconPath: sendVM.selectedCryptoCurrency.iconPath,
                     currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                     amount: S.of(bottomSheetContext).send_amount,
-                    amountValue: amountValue,
-                    fiatAmountValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-                    fee:
-                        isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
-                            ? S.of(bottomSheetContext).send_estimated_fee
-                            : S.of(bottomSheetContext).send_fee,
-                    feeValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransactionFeeFiatAmountFormatted,
-                    outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
+                    amountValue: sendVM.amountParsingProxy
+                        .getDisplayCryptoAmount(amountValue, sendVM.selectedCryptoCurrency),
+                    fiatAmountValue: fiatAmountValue,
+                    fee: isEVMCompatibleChain(sendVM.walletType)
+                        ? S.of(bottomSheetContext).send_estimated_fee
+                        : S.of(bottomSheetContext).send_fee,
+                    feeValue: sendVM.amountParsingProxy.asDisplayStringWithSymbol(
+                        sendVM.pendingTransaction!.fee),
+                    feeFiatAmount: sendVM.pendingTransactionFeeFiatAmountFormatted,
+                    outputs: sendVM.outputs,
                     onSlideActionComplete: () async {
-                      if (bottomSheetContext.mounted) {
-                        Navigator.of(bottomSheetContext).pop(true);
-                      }
-                      widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
-                      widget.exchangeTradeViewModel.registerSwapsXyzTransaction();
+                      if (bottomSheetContext.mounted && Navigator.canPop(bottomSheetContext)) Navigator.of(bottomSheetContext).pop(true);
+
+                      sendVM.commitTransaction(context);
                     },
+                    amountParsingProxy: sendVM.amountParsingProxy,
                   );
                 },
               );
 
-              if  (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
-
+              if (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
             }
           });
         }

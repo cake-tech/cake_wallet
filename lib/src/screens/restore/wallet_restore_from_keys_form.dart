@@ -7,7 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:flutter/services.dart';
 
 class WalletRestoreFromKeysForm extends StatefulWidget {
@@ -56,6 +56,12 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         spendKeyController = restoredWallet != null
             ? TextEditingController(text: restoredWallet.spendKey)
             : TextEditingController(),
+        scanSecretController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.scanSecret)
+            : TextEditingController(),
+        spendPubkeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.spendPubkey)
+            : TextEditingController(),
         privateKeyController = restoredWallet != null
             ? TextEditingController(text: restoredWallet.privateKey)
             : TextEditingController(),
@@ -72,6 +78,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   final TextEditingController addressController;
   final TextEditingController viewKeyController;
   final TextEditingController spendKeyController;
+  final TextEditingController scanSecretController;
+  final TextEditingController spendPubkeyController;
   final TextEditingController nameTextEditingController;
   final TextEditingController privateKeyController;
   final TextEditingController? passwordTextEditingController;
@@ -119,6 +127,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
     viewKeyController.dispose();
     privateKeyController.dispose();
     spendKeyController.dispose();
+    scanSecretController.dispose();
+    spendPubkeyController.dispose();
     passwordTextEditingController?.dispose();
     if (passwordListener != null) {
       passwordTextEditingController?.removeListener(passwordListener!);
@@ -222,14 +232,26 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
       bool nanoBased = widget.walletRestoreViewModel.type == WalletType.nano ||
           widget.walletRestoreViewModel.type == WalletType.banano;
-      return AddressTextField(
-        addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
-        controller: privateKeyController,
-        placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
-        options: [AddressTextFieldOption.paste],
-        onPushPasteButton: (_) {
-          _pasteText();
-        },
+      return Column(
+        children: [
+          AddressTextField(
+            addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
+            controller: privateKeyController,
+            placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
+            options: [AddressTextFieldOption.paste],
+            onPushPasteButton: (_) {
+              _pasteText();
+            },
+          ),
+          if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+            BlockchainHeightWidget(
+              key: blockchainHeightKey,
+              hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
+              onHeightChange: (_) => null,
+              onHeightOrDateEntered: widget.onHeightOrDateEntered,
+              walletType: widget.walletRestoreViewModel.type,
+            ),
+        ]
       );
     }
 
@@ -254,6 +276,23 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
           child: BaseTextFormField(
             controller: spendKeyController,
             hintText: S.of(context).restore_spend_key_private,
+            maxLines: null,
+          ),
+        ),
+        if (widget.walletRestoreViewModel.type == WalletType.litecoin)
+          Container(
+            padding: EdgeInsets.only(top: 20.0),
+            child: BaseTextFormField(
+              controller: scanSecretController,
+              hintText: "Scan secret",
+              maxLines: null,
+            ),
+          ),
+        Container(
+          padding: EdgeInsets.only(top: 20.0),
+          child: BaseTextFormField(
+            controller: spendPubkeyController,
+            hintText: "Spend public key",
             maxLines: null,
           ),
         ),

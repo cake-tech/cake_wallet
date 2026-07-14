@@ -1,9 +1,11 @@
 import 'package:cake_wallet/buy/sell_buy_states.dart';
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
@@ -12,9 +14,8 @@ import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_s
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -26,9 +27,10 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class BuySellPage extends BasePage {
-  BuySellPage(this.buySellViewModel);
+  BuySellPage(this.buySellViewModel, this._resolver);
 
   final BuySellViewModel buySellViewModel;
+  final AddressResolverService _resolver;
   final cryptoCurrencyKey = GlobalKey<ExchangeCardState>();
   final fiatCurrencyKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
@@ -56,7 +58,7 @@ class BuySellPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.transparent;
+  AppBarStyle get appBarStyle => AppBarStyle.completelyTransparent;
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
@@ -148,7 +150,7 @@ class BuySellPage extends BasePage {
             bottomSection: Observer(
               builder: (_) => Column(
                 children: [
-                  if (buySellViewModel.isBuySellQuotFailed)
+                  if (buySellViewModel.isBuySellQuoteFailed)
                     Padding(
                       padding: EdgeInsets.only(bottom: 15),
                       child: Row(
@@ -166,7 +168,8 @@ class BuySellPage extends BasePage {
                           Expanded(
                             flex: 8,
                             child: Text(
-                              S.of(context).buy_sell_pair_is_not_supported_warning,
+                              buySellViewModel.buySellQuoteFailedError ??
+                                  S.of(context).buy_sell_pair_is_not_supported_warning,
                               textAlign: TextAlign.center,
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
@@ -188,9 +191,9 @@ class BuySellPage extends BasePage {
                     },
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary,
-                    isDisabled: buySellViewModel.isBuySellQuotFailed,
+                    isDisabled: buySellViewModel.isBuySellQuoteFailed,
                     isLoading:
-                        !buySellViewModel.isReadyToTrade && !buySellViewModel.isBuySellQuotFailed,
+                        !buySellViewModel.isReadyToTrade && !buySellViewModel.isBuySellQuoteFailed,
                   ),
                 ],
               ),
@@ -255,48 +258,49 @@ class BuySellPage extends BasePage {
   }
 
   void _setReactions(BuildContext context, BuySellViewModel buySellViewModel) {
-    if (_isReactionsSet) {
-      return;
-    }
+    if (_isReactionsSet) return;
 
     final fiatAmountController = fiatCurrencyKey.currentState!.amountController;
     final cryptoAmountController = cryptoCurrencyKey.currentState!.amountController;
     final cryptoAddressController = cryptoCurrencyKey.currentState!.addressController;
+
+    cryptoAddressController.addListener(() {
+      buySellViewModel.changeCryptoCurrencyAddress(cryptoAddressController.text);
+    });
 
     _onCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
     _onCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
 
     reaction(
         (_) => buySellViewModel.wallet.name,
-        (String _) => _onWalletNameChange(
+        (_) => _onWalletNameChange(
             buySellViewModel, buySellViewModel.cryptoCurrency, cryptoCurrencyKey));
 
     reaction(
         (_) => buySellViewModel.cryptoCurrency,
-        (CryptoCurrency currency) =>
-            _onCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
+        (currency) => _onCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatCurrency,
-        (FiatCurrency currency) => _onCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
+        (currency) => _onCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
 
-    reaction((_) => buySellViewModel.fiatAmount, (String amount) {
+    reaction((_) => buySellViewModel.fiatAmount, (amount) {
       if (fiatCurrencyKey.currentState!.amountController.text != amount) {
         fiatCurrencyKey.currentState!.amountController.text = amount;
       }
     });
 
-    reaction((_) => buySellViewModel.isCryptoCurrencyAddressEnabled, (bool isEnabled) {
+    reaction((_) => buySellViewModel.isCryptoCurrencyAddressEnabled, (isEnabled) {
       cryptoCurrencyKey.currentState!.isAddressEditable(isEditable: isEnabled);
     });
 
-    reaction((_) => buySellViewModel.cryptoAmount, (String amount) {
+    reaction((_) => buySellViewModel.cryptoAmount, (amount) {
       if (cryptoCurrencyKey.currentState!.amountController.text != amount) {
         cryptoCurrencyKey.currentState!.amountController.text = amount;
       }
     });
 
     reaction((_) => buySellViewModel.cryptoCurrencyAddress, (String address) {
-      if (cryptoAddressController != address) {
+      if (cryptoAddressController.text != address) {
         cryptoCurrencyKey.currentState!.addressController.text = address;
       }
     });
@@ -313,19 +317,17 @@ class BuySellPage extends BasePage {
       }
     });
 
-    cryptoAddressController.addListener(() {
-      buySellViewModel.changeCryptoCurrencyAddress(cryptoAddressController.text);
-    });
-
     _cryptoAddressFocus.addListener(() async {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
-        buySellViewModel.cryptoCurrencyAddress = await fetchParsedAddress(
-            context, domain, buySellViewModel.cryptoCurrency);
+        final parsed = await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+        if (parsed.isNotEmpty) {
+          buySellViewModel.cryptoCurrencyAddress = parsed;
+        }
       }
     });
 
-    reaction((_) => buySellViewModel.wallet.walletAddresses.addressForExchange, (String address) {
+    reaction((_) => buySellViewModel.wallet.walletAddresses.addressForBuy, (String address) {
       if (buySellViewModel.cryptoCurrency == CryptoCurrency.xmr) {
         cryptoCurrencyKey.currentState!.changeAddress(address: address);
       }
@@ -359,7 +361,7 @@ class BuySellPage extends BasePage {
 
     key.currentState!.changeAddress(
         address:
-            isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.addressForExchange : '');
+            isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.addressForBuy : '');
 
     key.currentState!.changeAmount(amount: '');
   }
@@ -371,9 +373,9 @@ class BuySellPage extends BasePage {
     if (isCurrentTypeWallet) {
       key.currentState!.changeWalletName(buySellViewModel.wallet.name);
       key.currentState!.addressController.text =
-          buySellViewModel.wallet.walletAddresses.addressForExchange;
+          buySellViewModel.wallet.walletAddresses.addressForBuy;
     } else if (key.currentState!.addressController.text ==
-        buySellViewModel.wallet.walletAddresses.addressForExchange) {
+        buySellViewModel.wallet.walletAddresses.addressForBuy) {
       key.currentState!.changeWalletName('');
       key.currentState!.addressController.text = '';
     }
@@ -401,6 +403,7 @@ class BuySellPage extends BasePage {
         showLimitsField: false,
         currencies: buySellViewModel.fiatCurrencies,
         onCurrencySelected: (currency) => buySellViewModel.changeFiatCurrency(currency: currency),
+        onTapCurrencyPicker: _presentFiatPicker,
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_purple_icon.png',
           color: Theme.of(context).colorScheme.primary,
@@ -409,8 +412,23 @@ class BuySellPage extends BasePage {
         currencyButtonColor: Colors.transparent,
         addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderColor: Theme.of(context).colorScheme.outlineVariant,
-        onPushPasteButton: (context) async {},
-        onPushAddressBookButton: (context) async {},
+        onPushPasteButton: (context) async {
+          final domain = cryptoCurrencyKey.currentState!.addressController.text;
+          final parsed =
+          await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+          if (parsed.isNotEmpty) {
+            buySellViewModel.cryptoCurrencyAddress = parsed;
+          }
+        },
+
+        onPushAddressBookButton: (context) async {
+          final domain = cryptoCurrencyKey.currentState!.addressController.text;
+          final parsed =
+          await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+          if (parsed.isNotEmpty) {
+            buySellViewModel.cryptoCurrencyAddress = parsed;
+          }
+        },
         fillColor: buySellViewModel.isBuyAction
             ? Theme.of(context).colorScheme.surfaceContainer
             : Theme.of(context).colorScheme.surfaceContainerLow,
@@ -428,7 +446,7 @@ class BuySellPage extends BasePage {
         initialCurrency: buySellViewModel.cryptoCurrency,
         initialWalletName: '',
         initialAddress: buySellViewModel.cryptoCurrency == buySellViewModel.wallet.currency
-            ? buySellViewModel.wallet.walletAddresses.addressForExchange
+            ? buySellViewModel.wallet.walletAddresses.addressForBuy
             : buySellViewModel.cryptoCurrencyAddress,
         initialIsAmountEditable: true,
         isAmountEstimated: true,
@@ -438,6 +456,7 @@ class BuySellPage extends BasePage {
         isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
         currencies: buySellViewModel.cryptoCurrencies,
         onCurrencySelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
+        onTapCurrencyPicker: _presentCryptoPicker,
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_cake_green.png',
           color: Theme.of(context).colorScheme.primary,
@@ -452,6 +471,7 @@ class BuySellPage extends BasePage {
         fillColor: buySellViewModel.isBuyAction
             ? Theme.of(context).colorScheme.surfaceContainerLow
             : Theme.of(context).colorScheme.surfaceContainer,
+        useSatoshis: buySellViewModel.useSatoshi,
       ),
     );
 
@@ -506,14 +526,38 @@ class BuySellPage extends BasePage {
     );
   }
 
+  void _presentFiatPicker(BuildContext context) {
+    FiatCurrencyPickerSheet.show(
+      context: context,
+      selected: buySellViewModel.fiatCurrency,
+      onSelected: (currency) => buySellViewModel.changeFiatCurrency(currency: currency),
+    );
+  }
+
+  void _presentCryptoPicker(BuildContext context) {
+    final items = [...buySellViewModel.cryptoCurrencies];
+    appendEvmDefaultTokens(items);
+    CurrencyPickerSheet.show(
+      context: context,
+      args: CurrencyPickerArgs(
+        items: items,
+        selected: buySellViewModel.cryptoCurrency,
+        recentsSource: RecentsSource.orders,
+        onSelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
+        symbolResolver: buySellViewModel.amountParsingProxy.getCryptoSymbol,
+      ),
+    );
+  }
+
   Future<String> fetchParsedAddress(
     BuildContext context,
     String domain,
     CryptoCurrency currency,
   ) async {
-    final parsedAddress =
-        await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
-    return address;
+    final parsedAddresses = await _resolver.resolve(
+        query: domain, wallet: buySellViewModel.wallet, currency: currency);
+    return parsedAddresses.isNotEmpty
+        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 }

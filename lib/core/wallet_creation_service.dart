@@ -2,7 +2,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -16,8 +15,7 @@ class WalletCreationService {
       {required WalletType initialType,
       required this.keyService,
       required this.sharedPreferences,
-      required this.settingsStore,
-      required this.walletInfoSource})
+      required this.settingsStore})
       : type = initialType {
     changeWalletType(type: type);
   }
@@ -26,7 +24,6 @@ class WalletCreationService {
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
   final KeyService keyService;
-  final Box<WalletInfo> walletInfoSource;
   WalletService? _service;
 
   static const _isNewMoneroWalletPasswordUpdated = true;
@@ -36,23 +33,23 @@ class WalletCreationService {
     _service = getIt.get<WalletService>(param1: type);
   }
 
-  bool exists(String name) {
+  Future<bool> exists(String name) async {
     final walletName = name.toLowerCase();
-    return walletInfoSource.values.any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
+    return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
   }
 
-  bool typeExists(WalletType type) {
-    return walletInfoSource.values.any((walletInfo) => walletInfo.type == type);
+  Future<bool> typeExists(WalletType type) async {
+    return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.type == type);
   }
 
-  void checkIfExists(String name) {
-    if (exists(name)) {
+  Future<void> checkIfExists(String name) async {
+    if (await exists(name)) {
       throw Exception('Wallet with name ${name} already exists!');
     }
   }
 
   Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
@@ -81,15 +78,18 @@ class WalletCreationService {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
+      case WalletType.nano:
+      case WalletType.zcash:
         return true;
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.nano:
       case WalletType.banano:
       case WalletType.zano:
       case WalletType.decred:
@@ -98,7 +98,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
@@ -117,7 +117,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
@@ -136,7 +136,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) async {
-    checkIfExists(credentials.name);
+    await checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);

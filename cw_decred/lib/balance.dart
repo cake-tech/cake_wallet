@@ -1,25 +1,16 @@
-import 'package:cw_decred/amount_format.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 class DecredBalance extends Balance {
-  const DecredBalance({required this.confirmed, required this.unconfirmed, required this.frozen})
-      : super(confirmed, unconfirmed);
+  DecredBalance({required Money confirmed, required Money unconfirmed, required Money frozen})
+      : super(confirmed, unconfirmed, frozen: frozen);
 
-  factory DecredBalance.zero() => DecredBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-
-  final int confirmed;
-  final int unconfirmed;
-  final int frozen;
-
-  @override
-  String get formattedAvailableBalance => decredAmountToString(amount: confirmed - frozen);
+  factory DecredBalance.zero() => DecredBalance(
+      confirmed: Money.zero(CryptoCurrency.dcr),
+      unconfirmed: Money.zero(CryptoCurrency.dcr),
+      frozen: Money.zero(CryptoCurrency.dcr));
 
   @override
-  String get formattedAdditionalBalance => decredAmountToString(amount: unconfirmed);
-
-  @override
-  String get formattedUnAvailableBalance {
-    final frozenFormatted = decredAmountToString(amount: frozen);
-    return frozenFormatted == '0.0' ? '' : frozenFormatted;
-  }
+  Money get available => super.available - (frozen ?? Money.zero(CryptoCurrency.dcr));
 }

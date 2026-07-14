@@ -4,9 +4,8 @@ part of 'dogecoin.dart';
 class CWDogeCoin extends DogeCoin {
 
   @override
-  WalletService createDogeCoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return DogeCoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
+  WalletService createDogeCoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return DogeCoinWalletService(unspentCoinSource, isDirect);
   }
 
   @override

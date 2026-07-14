@@ -97,6 +97,7 @@ android/app/key.jks
 **/tool/.solana-secrets-config.json
 **/tool/.nano-secrets-config.json
 **/tool/.tron-secrets-config.json
+**/tool/.bitcoin-secrets-config.json
 **/lib/.secrets.g.dart
 **/cw_evm/lib/.secrets.g.dart
 **/cw_solana/lib/.secrets.g.dart
@@ -142,35 +143,21 @@ lib/zano/zano.dart
 lib/decred/decred.dart
 lib/dogecoin/dogecoin.dart
 lib/base/base.dart
+lib/arbitrum/arbitrum.dart
+lib/evm/evm.dart
+lib/zcash/zcash.dart
 
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@3x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@3x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@3x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@3x.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@2x~car.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@3x~car.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-83.5@2x~ipad.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ios-marketing.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json
+ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png
+ios/AppIcon.icon/*
 
 ios/Runner/Info.plist
 android/app/src/main/res/mipmap-*
 android/app/src/main/res/drawable/ic_launcher.png
-!android/app/src/main/res/drawable/launch_background.xml 
+!android/app/src/main/res/drawable/launch_background.xml
 !android/app/src/main/res/values/styles.xml
 assets/images/app_logo.png
+assets/new-ui/**/*.svg.vec
 
 /pubspec.yaml
 /pubspec.lock
@@ -195,6 +182,7 @@ macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
 macos/Runner/Configs/AppInfo.xcconfig
 macos/Runner.xcodeproj/project.pbxproj
+macos/AppIcon.icon/*
 
 
 integration_test/playground.dart
@@ -233,3 +221,10 @@ flatpak-build/
 
 wallet_fuzzer_data/
 scripts/torch_dart/
+fiat-check-output.txt
+scripts/zcash_lib
+scripts/android/yttrium
+scripts/bitbox_flutter
+scripts/reown_flutter
+
+*.salive

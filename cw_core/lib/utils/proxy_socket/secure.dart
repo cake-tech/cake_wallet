@@ -8,7 +8,7 @@ import 'package:cw_core/utils/proxy_socket/abstract.dart';
 class ProxySocketSecure implements ProxySocket {
   final SecureSocket socket;
 
-  bool _isClosed = false;
+  bool isClosed = false;
 
   ProxySocketSecure(this.socket);
   
@@ -17,8 +17,8 @@ class ProxySocketSecure implements ProxySocket {
   @override
   Future<void> close() async {
     try {
-      if (_isClosed) return;
-      _isClosed = true;
+      if (isClosed) return;
+      isClosed = true;
       return socket.close();
     } catch (e) {
       printV("ProxySocketSecure: close: $e");
@@ -29,8 +29,8 @@ class ProxySocketSecure implements ProxySocket {
   @override
   void destroy() async {
     try {
-    if (_isClosed) return;
-      _isClosed = true;
+    if (isClosed) return;
+      isClosed = true;
       socket.destroy();
     } catch (e) {
       printV("ProxySocketSecure: destroy: $e");
@@ -40,16 +40,22 @@ class ProxySocketSecure implements ProxySocket {
   
   @override
   void write(String data) {
-    try {
-      if (_isClosed) {
-        printV("ProxySocketSecure: write: socket is closed");
-        return;
+    runZonedGuarded(() {
+      try {
+        if (isClosed) {
+          printV("ProxySocketSecure: write: socket is closed");
+          return;
+        }
+
+        socket.write(data);
+      } catch (e) {
+        // Catches synchronous errors
+        printV("ProxySocketSecure: write (sync error): $e");
       }
-      socket.write(data);
-    } catch (e) {
-      printV("ProxySocketSecure: write: $e");
-      return;
-    }
+    }, (e, stack) {
+      // Catches asynchronous errors (like the Bad State from the StreamConsumer)
+      printV("ProxySocketSecure: write (async error): $e");
+    });
   }
   
   @override

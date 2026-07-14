@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
@@ -20,49 +21,41 @@ class SupportPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
   String get _imageSupportChat => currentTheme.isDark
-      ? 'assets/images/support_chat_dark.webp'
-      : 'assets/images/support_chat.webp';
+      ? 'assets/new-ui/icons/support_chat_dark.svg'
+      : 'assets/new-ui/icons/support_chat.svg';
 
   String get _imageSupportDocs => currentTheme.isDark
-      ? 'assets/images/support_docs_dark.webp'
-      : 'assets/images/support_docs.webp';
+      ? 'assets/new-ui/icons/support_docs_dark.svg'
+      : 'assets/new-ui/icons/support_docs.svg';
 
   String get _imageSupportLinks => currentTheme.isDark
-      ? 'assets/images/support_links_dark.webp'
-      : 'assets/images/support_links.webp';
+      ? 'assets/new-ui/icons/support_links_dark.svg'
+      : 'assets/new-ui/icons/support_links.svg';
 
   @override
   Widget body(BuildContext context) => Center(
         child: Container(
-          padding: const EdgeInsets.only(left: 24, right: 24),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
           child: Column(
+            spacing: 16,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  image: Image.asset(_imageSupportChat, width: 55, height: 55),
-                  title: S.of(context).support_title_live_chat,
-                  description: S.of(context).support_description_live_chat,
-                  onPressed: () => _onPressedSupportChat(context),
-                ),
+              OptionTile(
+                image: CakeImageWidget(imageUrl: _imageSupportChat, width: 55, height: 55),
+                title: S.of(context).support_title_live_chat,
+                description: S.of(context).support_description_live_chat,
+                onPressed: () => _onPressedSupportChat(context),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  image: Image.asset(_imageSupportDocs, width: 55, height: 55),
-                  title: S.of(context).support_title_guides,
-                  description: S.of(context).support_description_guides,
-                  onPressed: () => _launchUrl(supportViewModel.docsUrl),
-                ),
+              OptionTile(
+                image: CakeImageWidget(imageUrl: _imageSupportDocs, width: 55, height: 55),
+                title: S.of(context).support_title_guides,
+                description: S.of(context).support_description_guides,
+                onPressed: () => _launchUrl(supportViewModel.docsUrl),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: OptionTile(
-                  image: Image.asset(_imageSupportLinks, width: 55, height: 55),
-                  title: S.of(context).support_title_other_links,
-                  description: S.of(context).support_description_other_links,
-                  onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
-                ),
+              OptionTile(
+                image: CakeImageWidget(imageUrl: _imageSupportLinks, width: 55, height: 55),
+                title: S.of(context).support_title_other_links,
+                description: S.of(context).support_description_other_links,
+                onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
               ),
             ],
           ),
@@ -73,7 +66,7 @@ class SupportPage extends BasePage {
     if (DeviceInfo.instance.isDesktop) {
       _launchUrl(supportViewModel.fetchUrl());
     } else {
-      Navigator.pushNamed(context, Routes.supportLiveChat);
+      Navigator.of(context, rootNavigator: true).pushNamed(Routes.supportLiveChat);
     }
   }
 

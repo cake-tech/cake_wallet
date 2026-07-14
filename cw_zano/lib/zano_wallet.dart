@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -26,7 +27,6 @@ import 'package:cw_zano/model/zano_transaction_creation_exception.dart';
 import 'package:cw_zano/model/zano_transaction_credentials.dart';
 import 'package:cw_zano/model/zano_transaction_info.dart';
 import 'package:cw_zano/model/zano_wallet_keys.dart';
-import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_transaction_history.dart';
 import 'package:cw_zano/zano_wallet_addresses.dart';
 import 'package:cw_zano/zano_wallet_api.dart';
@@ -105,14 +105,14 @@ abstract class ZanoWalletBase
   /// number of transactions in each request
   static final int _txChunkSize = (pow(2, 32) - 1).toInt();
 
-  ZanoWalletBase(WalletInfo walletInfo, String password)
-      : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance.empty()}),
+  ZanoWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password)
+      : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance.empty(CryptoCurrency.zano)}),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         walletAddresses = ZanoWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     transactionHistory = ZanoTransactionHistory();
     if (!CakeHive.isAdapterRegistered(ZanoAsset.typeId)) {
       CakeHive.registerAdapter(ZanoAssetAdapter());
@@ -129,7 +129,7 @@ abstract class ZanoWalletBase
   }
 
   static Future<ZanoWallet> create({required WalletCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);
+    final wallet = ZanoWallet(credentials.walletInfo!, await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.createWallet(path, credentials.password!);
@@ -146,7 +146,7 @@ abstract class ZanoWalletBase
 
   static Future<ZanoWallet> restore(
       {required ZanoRestoreWalletFromSeedCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);
+    final wallet = ZanoWallet(credentials.walletInfo!, await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.restoreWalletFromSeed(
@@ -166,13 +166,13 @@ abstract class ZanoWalletBase
       {required String name, required String password, required WalletInfo walletInfo}) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
     if (ZanoWalletApi.openWalletCache[path] != null) {
-      final wallet = ZanoWallet(walletInfo, password);
+      final wallet = ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password);
       await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!).then((_) {
         unawaited(wallet.init(ZanoWalletApi.openWalletCache[path]!.wi.address));
       });
       return wallet;
     } else {
-      final wallet = ZanoWallet(walletInfo, password);
+      final wallet = ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password);
       await wallet.initWallet();
       final createWalletResult = await wallet.loadWallet(path, password);
       await wallet.parseCreateWalletResult(createWalletResult).then((_) {
@@ -199,8 +199,8 @@ abstract class ZanoWalletBase
     for (final item in result.wi.balances) {
       if (item.assetInfo.assetId == zanoAssetId) {
         balance[CryptoCurrency.zano] = ZanoBalance(
-          total: item.total,
-          unlocked: item.unlocked,
+          total: Money(item.total, CryptoCurrency.zano),
+          unlocked: Money(item.unlocked, CryptoCurrency.zano),
         );
       }
     }
@@ -232,24 +232,25 @@ abstract class ZanoWalletBase
     final isZano = credentials.currency == CryptoCurrency.zano;
     final outputs = credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalanceZano = balance[CryptoCurrency.zano]?.unlocked ?? BigInt.zero;
-    final unlockedBalanceCurrency = balance[credentials.currency]?.unlocked ?? BigInt.zero;
-    final fee = BigInt.from(calculateEstimatedFee(credentials.priority));
-    late BigInt totalAmount;
+    final unlockedBalanceZano = balance[CryptoCurrency.zano]?.unlocked ?? Money.zero(CryptoCurrency.zano);
+    final unlockedBalanceCurrency = balance[credentials.currency]?.unlocked ?? Money.zero(credentials.currency);
+    final fee = Money(BigInt.from(calculateEstimatedFee(credentials.priority)), CryptoCurrency.zano);
+
+    var totalAmount = Money.zero(credentials.currency);
     void checkForEnoughBalances() {
       if (isZano) {
         if (totalAmount + fee > unlockedBalanceZano) {
           throw ZanoTransactionCreationException(
-              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(totalAmount + fee)} ZANO, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceZano)} ZANO).");
+              "You don't have enough coins (required: ${(totalAmount + fee).toStringWithSymbol()}, unlocked ${unlockedBalanceZano.toStringWithSymbol()}).");
         }
       } else {
         if (fee > unlockedBalanceZano) {
           throw ZanoTransactionCreationException(
-              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(fee)} ZANO, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceZano)} ZANO).");
+              "You don't have enough coins (required: ${fee.toStringWithSymbol()}, unlocked ${unlockedBalanceZano.toStringWithSymbol()}).");
         }
         if (totalAmount > unlockedBalanceCurrency) {
           throw ZanoTransactionCreationException(
-              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(totalAmount, credentials.currency.decimals)} ${credentials.currency.title}, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceCurrency, credentials.currency.decimals)} ${credentials.currency.title}).");
+              "You don't have enough coins (required: ${totalAmount.toStringWithSymbol()}, unlocked ${unlockedBalanceCurrency.toStringWithSymbol()}).");
         }
       }
     }
@@ -257,15 +258,15 @@ abstract class ZanoWalletBase
     final assetId = isZano ? zanoAssetId : (credentials.currency as ZanoAsset).assetId;
     late List<Destination> destinations;
     if (hasMultiDestination) {
-      if (outputs.any((output) => output.sendAll || (output.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((output) => output.sendAll || output.cryptoAmount.amount <= BigInt.zero)) {
         throw ZanoTransactionCreationException("You don't have enough coins.");
       }
-      totalAmount = outputs.fold(
-          BigInt.zero, (acc, value) => acc + BigInt.from(value.formattedCryptoAmount ?? 0));
+      totalAmount =
+          outputs.fold(Money.zero(credentials.currency), (acc, value) => acc + value.cryptoAmount);
       checkForEnoughBalances();
       destinations = outputs
           .map((output) => Destination(
-                amount: BigInt.from(output.formattedCryptoAmount ?? 0),
+                amount: output.cryptoAmount.amount,
                 address: output.isParsedAddress ? output.extractedAddress! : output.address,
                 assetId: assetId,
               ))
@@ -279,12 +280,12 @@ abstract class ZanoWalletBase
           totalAmount = unlockedBalanceCurrency;
         }
       } else {
-        totalAmount = BigInt.from(output.formattedCryptoAmount!);
+        totalAmount = output.cryptoAmount;
       }
       checkForEnoughBalances();
       destinations = [
         Destination(
-          amount: totalAmount,
+          amount: totalAmount.amount,
           address: output.isParsedAddress ? output.extractedAddress! : output.address,
           assetId: assetId,
         )
@@ -296,8 +297,6 @@ abstract class ZanoWalletBase
       fee: fee,
       comment: outputs.first.note ?? '',
       assetId: assetId,
-      ticker: credentials.currency.title,
-      decimalPoint: credentials.currency.decimals,
       amount: totalAmount,
     );
   }
@@ -414,7 +413,7 @@ abstract class ZanoWalletBase
   Future<bool> checkNodeHealth() async {
     try {
       final status = await getWalletStatus();
-    
+
       return status.isDaemonConnected;
     } catch (_) {
       return false;
@@ -453,7 +452,7 @@ abstract class ZanoWalletBase
       enabled: true,
     );
     zanoAssets[asset.assetId] = asset;
-    balance[asset] = ZanoBalance.empty(decimalPoint: asset.decimalPoint);
+    balance[asset] = ZanoBalance.empty(asset);
     return asset;
   }
 
@@ -555,32 +554,38 @@ abstract class ZanoWalletBase
       // 2. set whitelists available in balances as 'enabled' ('disabled' by default)
       for (final b in walletInfo.wi.balances) {
         if (b.assetId == zanoAssetId) {
-          balance[CryptoCurrency.zano] = ZanoBalance(total: b.total, unlocked: b.unlocked);
+          balance[CryptoCurrency.zano] = ZanoBalance(
+            total: Money(b.total, CryptoCurrency.zano),
+            unlocked: Money(b.unlocked, CryptoCurrency.zano),
+          );
         } else {
           final asset = zanoAssets[b.assetId];
           if (asset == null) {
             printV('balance for an unknown asset ${b.assetInfo.assetId}');
             continue;
           }
-          if (balance.keys.any(
-                  (element) => element is ZanoAsset && element.assetId == b.assetInfo.assetId)) {
-            balance[balance.keys.firstWhere((element) =>
-            element is ZanoAsset && element.assetId == b.assetInfo.assetId)] =
-                ZanoBalance(
-                    total: b.total, unlocked: b.unlocked, decimalPoint: asset.decimalPoint);
+
+          final assetBalanceKey =
+              balance.keys.where((e) => e is ZanoAsset && e.assetId == asset.assetId).firstOrNull;
+          if (assetBalanceKey != null) {
+            balance[assetBalanceKey] = ZanoBalance(
+              total: Money(b.total, assetBalanceKey),
+              unlocked: Money(b.unlocked, assetBalanceKey),
+            );
           } else {
             balance[asset] = ZanoBalance(
-                total: b.total, unlocked: b.unlocked, decimalPoint: asset.decimalPoint);
+              total: Money(b.total, asset),
+              unlocked: Money(b.unlocked, asset),
+            );
           }
         }
       }
       await updateTransactions();
       // removing balances for assets missing in wallet info balances
       balance.removeWhere(
-            (key, _) =>
-        key != CryptoCurrency.zano &&
-            !walletInfo.wi.balances
-                .any((element) => element.assetId == (key as ZanoAsset).assetId),
+        (key, _) =>
+            key != CryptoCurrency.zano &&
+            !walletInfo.wi.balances.any((element) => element.assetId == (key as ZanoAsset).assetId),
       );
     }
   }

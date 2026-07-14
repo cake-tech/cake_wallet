@@ -5,11 +5,12 @@ import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/new-ui/widgets/wallet_deprecation_popup.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/exceptions.dart' show WalletDeprecationException;
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -72,14 +73,21 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
-      await ExceptionHandler.resetLastPopupDate();
-      final isLedgerError = await ExceptionHandler.isLedgerError(error);
-      if (isLedgerError || requireHardwareWalletConnection(type, name)) rethrow;
-      await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
 
+      if(error is WalletDeprecationException) {
+        if(navigatorKey.currentContext != null) {
+          showModalBottomSheet(
+              context: navigatorKey.currentContext!, builder: (context)=>WalletDeprecationPopup(type: type, seed: error.seed,));
+        }
+      } else {
+        await ExceptionHandler.resetLastPopupDate();
+        final isLedgerError = await ExceptionHandler.isLedgerError(error);
+        if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
+        await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      }
 
       // try fetching the seeds of the corrupted wallet to show it to the user
-      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
       try {
         corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
       } catch (e) {
@@ -87,9 +95,8 @@ class WalletLoadingService {
       }
 
       // try opening another wallet that is not corrupted to give user access to the app
-      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
       WalletBase? wallet;
-      for (var walletInfo in walletInfoSource.values) {
+      for (var walletInfo in await WalletInfo.getAll()) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
           final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
@@ -131,7 +138,11 @@ class WalletLoadingService {
               alertContent: S.of(context).corrupted_seed_notice,
               leftButtonText: S.of(context).cancel,
               rightButtonText: S.of(context).show_seed,
-              actionLeftButton: () => Navigator.of(context).pop(),
+              actionLeftButton: () {
+                if (context.mounted && Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
               actionRightButton: () => showSeedsPopup(context, msg),
             );
         });
@@ -191,8 +202,8 @@ class WalletLoadingService {
     return "\n\n$type ($name): ${await walletService.getSeeds(name, password, type)}";
   }
 
-  bool requireHardwareWalletConnection(WalletType type, String name) {
+  Future<bool> requireHardwareWalletConnection(WalletType type, String name) async {
     final walletService = walletServiceFactory.call(type);
-    return walletService.requireHardwareWalletConnection(name);
+    return await walletService.requireHardwareWalletConnection(name);
   }
 }

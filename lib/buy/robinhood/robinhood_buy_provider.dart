@@ -106,6 +106,8 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
@@ -121,6 +123,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.banano:
       case WalletType.wownero:
       case WalletType.zano:
+      case WalletType.zcash:
       case WalletType.decred:
         throw Exception("Wallet Type ${wallet.type.name} is not available for Robinhood");
     }
@@ -170,7 +173,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     if (wallet.isHardwareWallet) {
-      if (!hardwareWalletVM!.isConnected) {
+      if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,

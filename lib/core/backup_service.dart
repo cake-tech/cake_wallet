@@ -12,19 +12,20 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:archive/archive_io.dart';
+import 'package:archive/archive_io.dart' hide Mac;
 import 'package:cw_core/cake_hive.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 class $BackupService {
-  $BackupService(this._secureStorage, this.walletInfoSource, this.transactionDescriptionBox,
+  $BackupService(this._secureStorage, this.transactionDescriptionBox,
       this.keyService, this.sharedPreferences)
       : cipher = Cryptography.instance.chacha20Poly1305Aead(),
         correctWallets = <WalletInfo>[];
@@ -37,7 +38,6 @@ class $BackupService {
   final Cipher cipher;
   final SecureStorage _secureStorage;
   final SharedPreferences sharedPreferences;
-  final Box<WalletInfo> walletInfoSource;
   final Box<TransactionDescription> transactionDescriptionBox;
   final KeyService keyService;
   List<WalletInfo> correctWallets;
@@ -110,25 +110,13 @@ class $BackupService {
   }
 
   Future<void> verifyWallets() async {
-    final walletInfoSource = await reloadHiveWalletInfoBox();
-    correctWallets =
-        walletInfoSource.values.where((info) => availableWalletTypes.contains(info.type)).toList();
+    await performHiveMigration(); // for backups made before sqlite migration
+    await performTradeHiveMigration(_secureStorage);
+    correctWallets = (await WalletInfo.getAll()).where((info) => availableWalletTypes.contains(info.type)).toList();
 
     if (correctWallets.isEmpty) {
-      throw Exception('Correct wallets not detected');
+      printV('Correct wallets not detected');
     }
-  }
-
-  Future<Box<WalletInfo>> reloadHiveWalletInfoBox() async {
-    final appDir = await getAppDir();
-    await CakeHive.close();
-    CakeHive.init(appDir.path);
-
-    if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
-      CakeHive.registerAdapter(WalletInfoAdapter());
-    }
-
-    return await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
   }
 
   Future<void> importTransactionDescriptionDump() async {
@@ -191,12 +179,16 @@ class $BackupService {
     String currentWalletName = data[PreferencesKey.currentWalletName] as String;
     int currentWalletType = data[PreferencesKey.currentWalletType] as int;
 
-    final isCorrentCurrentWallet = correctWallets
+    final isCorrectCurrentWallet = correctWallets
         .any((info) => info.name == currentWalletName && info.type.index == currentWalletType);
 
-    if (!isCorrentCurrentWallet) {
-      currentWalletName = correctWallets.first.name;
-      currentWalletType = serializeToInt(correctWallets.first.type);
+    try {
+      if (!isCorrectCurrentWallet) {
+        currentWalletName = correctWallets.first.name;
+        currentWalletType = serializeToInt(correctWallets.first.type);
+      }
+    } catch (e) {
+
     }
 
     if (DeviceInfo.instance.isDesktop) {
@@ -283,7 +275,7 @@ class $BackupService {
   Future<Uint8List> exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final wallets = await Future.wait(walletInfoSource.values.map((walletInfo) async {
+    final wallets = await Future.wait((await WalletInfo.getAll()).map((walletInfo) async {
       try {
         return {
           'name': walletInfo.name,

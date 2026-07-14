@@ -1,11 +1,12 @@
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum SecretStoreKey { moneroWalletPassword, pinCodePassword, backupPassword }
+enum SecretStoreKey { moneroWalletPassword, pinCodePassword, backupPassword, duressPinCodePassword }
 
 const moneroWalletPassword = "MONERO_WALLET_PASSWORD";
 const pinCodePassword = "PIN_CODE_PASSWORD";
 const backupPassword = "BACKUP_CODE_PASSWORD";
+const duressPinCodePassword = "DURESS_PIN_CODE_PASSWORD";
 
 String generateStoreKeyFor({
   required SecretStoreKey key,
@@ -29,6 +30,12 @@ String generateStoreKeyFor({
     case SecretStoreKey.backupPassword:
       {
         _key = backupPassword;
+      }
+      break;
+
+    case SecretStoreKey.duressPinCodePassword:
+      {
+        _key = duressPinCodePassword;
       }
       break;
 
@@ -64,6 +71,7 @@ class SecureKey {
   static const totpSecretKey = 'totp_secret_key';
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
+  static const enableDuressPin = 'enable_duress_pin';
 
   static Future<int?> getInt({
     required SecureStorage secureStorage,

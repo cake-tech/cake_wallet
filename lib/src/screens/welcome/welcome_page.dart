@@ -1,5 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -11,8 +11,8 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.5;
-  final welcomeImageLight = 'assets/images/welcome_wallet_light.png';
-  final welcomeImageDark = 'assets/images/welcome_wallet_dark.png';
+  final welcomeImageLight = 'assets/new-ui/hero/welcome_wallet_light.svg';
+  final welcomeImageDark = 'assets/new-ui/hero/welcome_wallet_dark.svg';
 
   @override
   String? get title => S.current.wallet;
@@ -30,7 +30,7 @@ class WelcomePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final Uri _url =
-        Uri.parse('https://docs.cakewallet.com/get-started/setup/create-first-wallet/');
+        Uri.parse('https://docs.cakewallet.com/get-started/setup/');
     return IconButton(
       icon: Icon(Icons.info_outline, size: 26,),
       onPressed: () async {

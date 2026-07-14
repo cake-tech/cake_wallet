@@ -3,12 +3,14 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 
@@ -137,7 +139,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   @override
   Widget build(BuildContext context) {
-    final detectedCurrency = walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
+    final detectedCurrency = widget.paymentFlowResult.detectedCurrency!;
 
     return Form(
       key: _formKey,
@@ -158,11 +160,29 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 const SizedBox(width: 12),
                 Icon(Icons.arrow_forward, size: 24),
                 const SizedBox(width: 12),
-                CakeImageWidget(
-                  imageUrl:
-                      detectedCurrency.iconPath!,
-                  width: 32,
-                  height: 32,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CakeImageWidget(
+                      imageUrl: detectedCurrency.iconPath ?? '',
+                      width: 32,
+                      height: 32,
+                    ),
+                    if (isEVMCompatibleChain(widget.paymentFlowResult.walletType!)) ...[
+                      Positioned(
+                        bottom: -4,
+                        right: -4,
+                        child: CakeImageWidget(
+                          imageUrl: getCryptoCurrencyIconForWalletListItem(
+                            widget.paymentFlowResult.walletType!,
+                            chainId: widget.paymentFlowResult.chainId,
+                          ),
+                          width: 16,
+                          height: 16,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
@@ -178,7 +198,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               ],
               onChanged: (value) {
                 final sanitized = value
-                    .replaceAll(',', '.')
+                    .sanitized()
                     .withMaxDecimals(widget.exchangeViewModel.receiveCurrency.decimals);
                 if (sanitized != _amountController.text) {
                   // Update text while preserving a sane cursor position to avoid auto-selection
@@ -193,6 +213,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 return AmountValidator(
                   isAutovalidate: true,
                   currency: widget.exchangeViewModel.receiveCurrency,
+                  amountParsingProxy: widget.exchangeViewModel.amountParsingProxy,
                   minValue: widget.exchangeViewModel.limits.min.toString(),
                   maxValue: widget.exchangeViewModel.limits.max.toString(),
                 ).call(value);
@@ -267,7 +288,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
             SwapConfirmationTextfield(
               key: ValueKey('swap_confirmation_bottomsheet_address_textfield_key'),
               isAddress: true,
-              walletType: cryptoCurrencyToWalletType(widget.exchangeViewModel.receiveCurrency),
+              walletType: cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.receiveCurrency),
               hintText: 'Destination Address',
               focusNode: _addressFocus,
               controller: _addressController,
@@ -414,12 +435,13 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
       }
     });
 
-    exchangeViewModel.receiveCurrency = walletTypeToCryptoCurrency(paymentFlowResult.walletType!);
+    exchangeViewModel.receiveCurrency = paymentFlowResult.detectedCurrency!;
+
     await exchangeViewModel.fetchFiatPrice(exchangeViewModel.receiveCurrency);
 
     exchangeViewModel.receiveAddress = _addressController.text;
     exchangeViewModel.depositAddress = exchangeViewModel.wallet.walletAddresses.addressForExchange;
-    exchangeViewModel.receiveAmount = _amountController.text;
+    exchangeViewModel.setCanonicalReceiveAmount(_amountController.text);
     _amountFiatController.text = exchangeViewModel.receiveAmountFiatFormatted;
     exchangeViewModel.isReceiveAmountEntered = true;
     exchangeViewModel.isFixedRateMode = true;

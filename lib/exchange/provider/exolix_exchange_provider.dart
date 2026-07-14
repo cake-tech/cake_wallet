@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/core/lightning_invoice_service.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -8,7 +9,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -16,32 +16,12 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ExolixExchangeProvider extends ExchangeProvider {
-  ExolixExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  ExolixExchangeProvider();
 
   static final apiKey = isMoneroOnly ? secrets.exolixMoneroApiKey : secrets.exolixCakeWalletApiKey;
   static const apiBaseUrl = 'exolix.com';
   static const transactionsPath = '/api/v2/transactions';
   static const ratePath = '/api/v2/rate';
-
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.usdt,
-    CryptoCurrency.xhv,
-    CryptoCurrency.btt,
-    CryptoCurrency.firo,
-    CryptoCurrency.zaddr,
-    CryptoCurrency.xvg,
-    CryptoCurrency.kmd,
-    CryptoCurrency.paxg,
-    CryptoCurrency.rune,
-    CryptoCurrency.scrt,
-    CryptoCurrency.btcln,
-    CryptoCurrency.cro,
-    CryptoCurrency.ftm,
-    CryptoCurrency.frax,
-    CryptoCurrency.gusd,
-    CryptoCurrency.gtc,
-    CryptoCurrency.weth,
-  ];
 
   @override
   String get title => 'Exolix';
@@ -62,7 +42,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({
+  Future<Limits?> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -75,11 +55,11 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     if (isFixedRateMode) {
       params['coinFrom'] = _normalizeCurrency(to);
-      params['coinTo'] = _normalizeCurrency(from);
+      params['coinTo'] = _normalizeCurrency(_overrideFromCryptoCurrency(from));
       params['networkFrom'] = _networkFor(to);
       params['networkTo'] = _networkFor(from);
     } else {
-      params['coinFrom'] = _normalizeCurrency(from);
+      params['coinFrom'] = _normalizeCurrency(_overrideFromCryptoCurrency(from));
       params['coinTo'] = _normalizeCurrency(to);
       params['networkFrom'] = _networkFor(from);
       params['networkTo'] = _networkFor(to);
@@ -123,7 +103,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       if (amount == 0) return 0.0;
 
       final params = {
-        'coinFrom': _normalizeCurrency(from),
+        'coinFrom': _normalizeCurrency(_overrideFromCryptoCurrency(from)),
         'coinTo': _normalizeCurrency(to),
         'networkFrom': _networkFor(from),
         'networkTo': _networkFor(to),
@@ -163,7 +143,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         throw Exception(message);
       }
 
-      final rate = responseJSON['rate'] as double;
+      final rate = double.tryParse(responseJSON['rate']?.toString() ?? '') ?? 0.0;
 
       ExchangeProviderLogger.logSuccess(
         provider: description,
@@ -200,6 +180,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         },
       );
       printV(e.toString());
+      printV(s.toString());
       return 0.0;
     }
   }
@@ -212,12 +193,14 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }) async {
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'coinFrom': _normalizeCurrency(request.fromCurrency),
-      'coinTo': _normalizeCurrency(request.toCurrency),
+      'coinFrom': _normalizeCurrency(_overrideFromCryptoCurrency(request.fromCurrency)),
+      'coinTo': _normalizeCurrency(_overrideToCryptoCurrency(request.toCurrency, request.toAddress)),
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
-      'withdrawalAddress': _normalizeAddress(request.toAddress),
-      'refundAddress': _normalizeAddress(request.refundAddress),
+      'withdrawalAddress': await _normalizeAddress(request.toAddress),
+      if (request.toAddressExtraId.isNotEmpty)
+        'withdrawalExtraId': request.toAddressExtraId,
+      'refundAddress': await _normalizeAddress(request.refundAddress),
       'rateType': _getRateType(isFixedRateMode),
       'apiToken': apiKey,
     };
@@ -233,11 +216,10 @@ class ExolixExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final errors = responseJSON['errors'] as Map<String, String>;
+      final errors = responseJSON['error'] as Map<String, String>;
       final errorMessage = errors.values.join(', ');
       
       ExchangeProviderLogger.logError(
@@ -334,9 +316,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
@@ -360,10 +341,21 @@ class ExolixExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    // Parsing 'from' currency
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
     final coinFromNetwork = responseJSON['coinFrom']['network'] as String?;
+    final _normalizedFromNetwork = _normalizeNetworkType(coinFromNetwork ?? '');
+    final fromTag = coinFrom.toUpperCase() == _normalizedFromNetwork.toUpperCase() ? null : coinFromNetwork;
+    final from = CryptoCurrency.safeParseCurrencyFromString(coinFrom, tag: fromTag);
+
+    // Parsing 'to' currency
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
     final coinToNetwork = responseJSON['coinTo']['network'] as String?;
+    final _normalizedToNetwork = _normalizeNetworkType(coinToNetwork ?? '');
+    final toTag = coinTo.toUpperCase() == _normalizedToNetwork.toUpperCase() ? null : coinToNetwork;
+    final to = CryptoCurrency.safeParseCurrencyFromString(coinTo, tag: toTag);
+
     final inputAddress = responseJSON['depositAddress'] as String;
     final amount = responseJSON['amount'].toString();
     final status = responseJSON['status'] as String;
@@ -372,18 +364,16 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
 
     return Trade(
-        id: id,
-        from: CryptoCurrency.safeParseCurrencyFromString(coinFrom),
-        to: CryptoCurrency.safeParseCurrencyFromString(coinTo),
-        provider: description,
-        inputAddress: inputAddress,
-        amount: amount,
-        state: TradeState.deserialize(raw: _prepareStatus(status)),
-        extraId: extraId,
-        outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_' + '${coinFromNetwork ?? ''}',
-      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_' + '${coinToNetwork ?? ''}',
+      id: id,
+      from: from,
+      to: to,
+      provider: description,
+      inputAddress: inputAddress,
+      amount: amount,
+      state: TradeState.deserialize(raw: _prepareStatus(status)),
+      extraId: extraId,
+      outputTransaction: outputTransaction,
+      payoutAddress: payoutAddress,
     );
   }
 
@@ -403,9 +393,30 @@ class ExolixExchangeProvider extends ExchangeProvider {
     switch (currency) {
       case CryptoCurrency.arb:
         return 'ARBITRUM';
+      case CryptoCurrency.btcln:
+        return 'LIGHTNING';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title;
     }
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'ARBITRUM' => 'ARB',
+      _ => network,
+    };
+  }
+
+  CryptoCurrency _overrideFromCryptoCurrency(CryptoCurrency currency) {
+    if (currency == CryptoCurrency.zec)
+      return CryptoCurrency.zaddr; // Sending is always shielded zcash
+    return currency;
+  }
+
+  CryptoCurrency _overrideToCryptoCurrency(CryptoCurrency currency, String address) {
+    if (RegExp(r'u1[a-zA-Z0-9]{100,300}').hasMatch(address) && currency == CryptoCurrency.zec)
+      return CryptoCurrency.zaddr; // If the user pastes a unified address use shielded zcash
+    return currency;
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
@@ -416,6 +427,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         return 'BTT';
       case CryptoCurrency.zec:
         return 'ZEC';
+      case CryptoCurrency.zaddr:
+        return 'ZEC-SHIELDED';
       default:
         return currency.title;
     }
@@ -425,13 +438,24 @@ class ExolixExchangeProvider extends ExchangeProvider {
     switch (tag) {
       case 'POLY':
         return 'Polygon';
+        case 'ARB':
+        return 'Arbitrum';
       default:
         return tag;
     }
   }
 
-  String _normalizeAddress(String address) =>
-      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
+  Future<String> _normalizeAddress(String address) async {
+    if (address.startsWith('bitcoincash:'))
+      return address.replaceFirst('bitcoincash:', '');
+
+    // Lightning addresses
+    if(address.contains("@"))
+      return await getBolt11FromLightingAddress(address) ?? address;
+
+    return address;
+  }
+
 
   static double? _toDouble(dynamic value) {
     if (value is int) {

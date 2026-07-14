@@ -65,15 +65,15 @@ class KryptonimBuyProvider extends BuyProvider {
       'Authorization': _kryptonimApiKey,
     };
 
-    final body = jsonEncode({
-      'amount': amount,
-      'currency': fiatCurrency,
-      'converted_currency': cryptoCurrency.title,
-      'blockchain': _normalizeBlockChain(cryptoCurrency),
-      'quote_currency': fiatCurrency,
-    });
-
     try {
+      final body = jsonEncode({
+        'amount': amount,
+        'currency': fiatCurrency,
+        'converted_currency': cryptoCurrency.title,
+        'blockchain': _normalizeBlockChain(cryptoCurrency),
+        'quote_currency': fiatCurrency,
+      });
+
       final response = await ProxyWrapper().post(
         clearnetUri: url,
         headers: headers,
@@ -219,6 +219,7 @@ class KryptonimBuyProvider extends BuyProvider {
     String? blockchain = switch (cur.tag) {
       'ETH' => 'Ethereum',
       'BASE' => 'Base',
+      'ARB' => 'Arbitrum',
       'POL' => 'Polygon',
       'AVAXC' => 'Avalanche',
       'SOL' => 'Solana',
@@ -231,6 +232,7 @@ class KryptonimBuyProvider extends BuyProvider {
         CryptoCurrency.ltc => 'Litecoin',
         CryptoCurrency.eth => 'Ethereum',
         CryptoCurrency.baseEth => 'Base',
+        CryptoCurrency.arbEth => 'Arbitrum',
         CryptoCurrency.maticpoly => 'Matic',
         _ => null,
       };

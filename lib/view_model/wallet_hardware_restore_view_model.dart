@@ -1,10 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -14,9 +13,7 @@ import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_hardware_restore_view_model.g.dart';
@@ -33,10 +30,9 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       this.hardwareWalletVM,
       AppStore appStore,
       WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource,
       SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
-      : super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+      : super(appStore, walletCreationService, seedSettingsViewModel,
             type: type, isRecovery: true);
 
   @observable
@@ -57,8 +53,8 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @action
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
-      List<HardwareAccountData> accounts = await hardwareWalletVM
-          .getHardwareWalletService(type)
+      final service = await hardwareWalletVM.getHardwareWalletService(type);
+      final accounts = await service
           .getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
@@ -70,7 +66,6 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     }
 
     isLoadingMoreAccounts = false;
-    _nextIndex += limit;
   }
 
   @override
@@ -83,18 +78,18 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
             bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
       case WalletType.ethereum:
-        credentials =
-            ethereum!.createEthereumHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
-        break;
       case WalletType.polygon:
-        credentials = polygon!.createPolygonHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
+        credentials = evm!.createEVMHardwareWalletCredentials(
+          name: name,
+          hwAccountData: selectedAccount!,
+        );
         break;
       case WalletType.monero:
         final password = walletPassword ?? generateWalletPassword();
 
         credentials = monero!.createMoneroRestoreWalletFromHardwareCredentials(
           name: name,
-          ledgerConnection: (hardwareWalletVM as LedgerViewModel).connection,
+          hardwareWalletService: hardwareWalletVM.getHardwareWalletService(type),
           password: password,
           height: _options['height'] as int? ?? 0,
         );

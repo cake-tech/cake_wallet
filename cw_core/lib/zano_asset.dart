@@ -4,38 +4,38 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'zano_asset.g.dart';
+part 'zano_asset.part.dart';
 
-@HiveType(typeId: ZanoAsset.typeId)
+// @HiveType(typeId: ZanoAsset.typeId)
 class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
-  @HiveField(0)
+  // @HiveField(0)
   final String fullName;
-  @HiveField(1)
+  // @HiveField(1)
   final String ticker;
-  @HiveField(2)
+  // @HiveField(2)
   final String assetId;
-  @HiveField(3)
+  // @HiveField(3)
   final int decimalPoint;
-  @HiveField(4, defaultValue: true)
+  // @HiveField(4, defaultValue: true)
   bool _enabled;
-  @HiveField(5)
+  // @HiveField(5)
   final String? iconPath;
 
   // @HiveField(6)
   // final String? tag;
-  @HiveField(6)
+  // @HiveField(6)
   final String owner;
-  @HiveField(7)
+  // @HiveField(7)
   final String metaInfo;
-  @HiveField(8)
+  // @HiveField(8)
   final BigInt currentSupply;
-  @HiveField(9)
+  // @HiveField(9)
   final bool hiddenSupply;
-  @HiveField(10)
+  // @HiveField(10)
   final BigInt totalMaxSupply;
-  @HiveField(11)
+  // @HiveField(11)
   final bool isInGlobalWhitelist;
-  @HiveField(12, defaultValue: null)
+  // @HiveField(12, defaultValue: null)
   final Map<String, dynamic>? info;
 
   bool get enabled => _enabled;

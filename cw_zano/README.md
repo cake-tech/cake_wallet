@@ -1,15 +1,23 @@
 # cw_zano
 
-A new flutter plugin project.
+Zano wallet module for Cake Wallet. Provides a Dart wrapper around the Zano wallet API with typed models and transaction helpers.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+- Wallet lifecycle and status queries via `ZanoWalletApi`.
+- Typed models for balances, transfers, recent history, and wallet info.
+- Build and submit transfers; pending transaction modeling.
+- Address and asset utilities, formatter helpers.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Usage
 
+See `lib/zano_wallet_api.dart` and `lib/zano_wallet.dart` for the high-level API. Typical flow:
+
+```dart
+final api = ZanoWalletApi();
+final info = await api.getWalletInfo();
+final balance = await api.getBalance();
+// create transfer params and broadcast
+```
+
+Consult `lib/api/model/` for full set of supported request/response models.

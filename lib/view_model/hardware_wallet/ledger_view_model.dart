@@ -3,11 +3,10 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
@@ -115,7 +114,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
     if (_isConnecting) return false;
     _isConnecting = true;
     _connectingWalletType = type;
-    if (isConnected) {
+    if (isConnected(type)) {
       try {
         await _connection!.disconnect().catchError((_) {});
       } catch (_) {}
@@ -127,7 +126,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
 
     if (_connectionChangeSubscription == null) {
       _connectionChangeSubscription = ledger
-          .deviceStateChanges
+          .deviceStateChanges(device.device.id)
           .listen(_connectionChangeListener);
     }
 
@@ -162,7 +161,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
             allowChangeWallet: true,
             isReconnect: true,
             onConnectDevice: (context, ledgerVM) async {
-              if (context.mounted) {
+              if (context.mounted && Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               }
             },
@@ -173,39 +172,39 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
-  bool get isConnected => _connection != null && !(_connection!.isDisconnected);
+  bool isConnected(WalletType type) => _connection != null && !(_connection!.isDisconnected);
 
   sdk.LedgerConnection get connection => _connection!;
 
   @override
-  void initWallet(WalletBase wallet) {
+  Future<void> initWallet(WalletBase wallet) async {
     switch (wallet.type) {
       case WalletType.monero:
         return monero!.setLedgerConnection(wallet, connection);
       case WalletType.bitcoin:
-        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
-        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
-        return ethereum!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type}');
+        throw Exception('Unexpected wallet type: ${wallet.type} for ledger');
     }
   }
 
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {
     switch (type) {
+      case WalletType.monero:
+        return monero!.getLedgerHardwareWalletService(connection);
       case WalletType.bitcoin:
         return bitcoin!.getLedgerHardwareWalletService(connection, true);
       case WalletType.litecoin:
         return bitcoin!.getLedgerHardwareWalletService(connection, false);
       case WalletType.ethereum:
-        return ethereum!.getLedgerHardwareWalletService(connection);
       case WalletType.polygon:
-        return polygon!.getLedgerHardwareWalletService(connection);
+        return evm!.getLedgerHardwareWalletService(connection);
       default:
         throw UnimplementedError();
     }

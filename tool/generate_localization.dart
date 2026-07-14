@@ -37,7 +37,7 @@ Future<void> main(List<String> args) async {
 
   extraInfo.forEach((key, dynamic value) async {
     if (key != srcDir) {
-      printV('Wrong key: $key');
+      print('Wrong key: $key');
       return;
     }
 
@@ -45,22 +45,29 @@ Future<void> main(List<String> args) async {
     final dir = Directory(dirPath);
 
     if (!await dir.exists()) {
-      printV('Wrong directory path: $dirPath');
+      print('Wrong directory path: $dirPath');
       return;
     }
 
     final localePath = <String, dynamic>{};
     await dir.list(recursive: false).forEach((element) {
-      try {
-        final shortLocale = element.path.split('_',)[1].split('.')[0];
-        localePath[shortLocale] = element.path;
-      } catch (e) {
-        printV('Wrong file: ${element.path}');
+      // Parse the locale from the file name (e.g. strings_pt_br.arb -> pt_BR),
+      // normalizing the case so keys match LanguageService.supportedLocales.
+      final fileName = element.uri.pathSegments.last;
+      if (!fileName.startsWith('strings_') || !fileName.endsWith('.arb')) {
+        print('Wrong file: ${element.path}');
+        return;
       }
+      final parts =
+        fileName.substring('strings_'.length, fileName.length - '.arb'.length).split('_');
+      final locale = parts.length > 1
+        ? '${parts.first.toLowerCase()}_${parts.sublist(1).join('_').toUpperCase()}'
+        : parts.first.toLowerCase();
+      localePath[locale] = element.path;
     });
 
     if (!localePath.keys.contains(defaultLocale)) {
-      printV("Locale list doesn't contain $defaultLocale");
+      print("Locale list doesn't contain $defaultLocale");
       return;
     }
 
@@ -117,7 +124,7 @@ Future<void> main(List<String> args) async {
 
       await File(outputPath + localeListFileName).writeAsString(locales);
     } catch (e) {
-      printV(e.toString());
+      print(e.toString());
     }
   });
 }

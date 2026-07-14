@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -11,6 +11,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -43,6 +44,7 @@ abstract class SolanaWalletBase
     with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
@@ -56,8 +58,8 @@ abstract class SolanaWalletBase
         _client = SolanaWalletClient(),
         walletAddresses = SolanaWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, SolanaBalance>.of(
-            {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble())}),
-        super(walletInfo) {
+            {CryptoCurrency.sol: initialBalance ?? SolanaBalance.zero(CryptoCurrency.sol)}),
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = SolanaTransactionHistory(
       walletInfo: walletInfo,
@@ -79,8 +81,10 @@ abstract class SolanaWalletBase
 
   late final SolanaWalletClient _client;
 
+  SolanaWalletClient get client => _client;
+
   @observable
-  double? estimatedFee;
+  Money? estimatedFee;
 
   Timer? _transactionsUpdateTimer;
 
@@ -95,7 +99,8 @@ abstract class SolanaWalletBase
 
   @override
   @observable
-  late ObservableMap<CryptoCurrency, SolanaBalance> balance;
+  ObservableMap<CryptoCurrency, SolanaBalance> balance =
+      ObservableMap<CryptoCurrency, SolanaBalance>();
 
   final Completer<SharedPreferences> _sharedPrefs = Completer();
 
@@ -130,6 +135,8 @@ abstract class SolanaWalletBase
 
     splTokensBox = await CakeHive.openBox<SPLToken>(boxName);
 
+    await _checkForExistingScamTokens();
+
     // Create the privatekey using either the mnemonic or the privateKey
     _solanaPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
@@ -144,7 +151,38 @@ abstract class SolanaWalletBase
 
     await walletAddresses.init();
     await transactionHistory.init();
+
     await save();
+  }
+
+  String get _scamCheckDoneKey => 'solana_scam_check_v2_done_${walletInfo.name}';
+
+  Future<void> _checkForExistingScamTokens() async {
+    if (!splTokensBox.isOpen) return;
+
+    final prefs = await _sharedPrefs.future;
+    if (prefs.getBool(_scamCheckDoneKey) == true) return;
+
+    final defaultMints =
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultSymbolsUpper = DefaultSPLTokens()
+        .initialSPLTokens
+        .map((t) => t.symbol.toUpperCase())
+        .toSet();
+
+    for (final token in splTokensBox.values) {
+      final suspicious = isTokenPropertiesSuspicious(
+        token,
+        cachedDefaultMints: defaultMints,
+        cachedDefaultSymbolsUpper: defaultSymbolsUpper,
+      );
+      if (suspicious && !token.isPotentialScam) {
+        token.isPotentialScam = true;
+        await token.save();
+      }
+    }
+
+    await prefs.setBool(_scamCheckDoneKey, true);
   }
 
   Future<SolanaPrivateKey> getPrivateKey({
@@ -209,9 +247,8 @@ abstract class SolanaWalletBase
   Future<void> _getEstimatedFees() async {
     try {
       estimatedFee = await _client.getEstimatedFee(_solanaPublicKey, Commitment.confirmed);
-      printV(estimatedFee.toString());
     } catch (e) {
-      estimatedFee = 0.0;
+      estimatedFee = Money.zero(currency);
     }
   }
 
@@ -223,32 +260,25 @@ abstract class SolanaWalletBase
 
     final hasMultiDestination = outputs.length > 1;
 
-    await _updateBalance();
+    await updateTokenBalance();
 
-    final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == solCredentials.currency.title);
+    final transactionCurrency = balance.keys.firstWhere(
+        (currency) =>
+            currency.title == credentials.currency.title &&
+            currency.tag == credentials.currency.tag,
+        orElse: () => throw Exception(
+            'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
-    final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
+    final walletBalanceForCurrency = balance[transactionCurrency]!.available;
 
-    final solBalance = balance[CryptoCurrency.sol]!.balance;
+    final solBalance = balance[CryptoCurrency.sol]!.available;
 
-    double totalAmount = 0.0;
-
-    bool isSendAll = false;
+    var totalAmount = Money.zero(transactionCurrency);
+    var isSendAll = false;
 
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw SolanaTransactionWrongBalanceException(transactionCurrency);
-      }
-
-      final totalAmountFromCredentials =
-          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
-
-      totalAmount = totalAmountFromCredentials.toDouble();
-
-      if (walletBalanceForCurrency < totalAmount) {
-        throw SolanaTransactionWrongBalanceException(transactionCurrency);
-      }
+      // Solana doesn't have multi destination right now
+      throw SolanaTransactionCreationException(transactionCurrency);
     } else {
       final output = outputs.first;
 
@@ -257,9 +287,7 @@ abstract class SolanaWalletBase
       if (isSendAll) {
         totalAmount = walletBalanceForCurrency;
       } else {
-        final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-
-        totalAmount = totalOriginalAmount;
+        totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
       if (walletBalanceForCurrency < totalAmount) {
@@ -273,35 +301,75 @@ abstract class SolanaWalletBase
       tokenMint = (transactionCurrency as SPLToken).mintAddress;
     }
 
-    final pendingSolanaTransaction = await _client.signSolanaTransaction(
+    return _client.signSolanaTransaction(
       tokenMint: tokenMint,
-      tokenTitle: transactionCurrency.title,
       inputAmount: totalAmount,
       ownerPrivateKey: _solanaPrivateKey,
-      tokenDecimals: transactionCurrency.decimals,
       destinationAddress: solCredentials.outputs.first.isParsedAddress
           ? solCredentials.outputs.first.extractedAddress!
           : solCredentials.outputs.first.address,
       isSendAll: isSendAll,
       solBalance: solBalance,
     );
-
-    return pendingSolanaTransaction;
   }
 
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
   @override
-  Future<void> updateTransactionsHistory() async {
+  Future<void> updateTransactionsHistory({List<String>? specificTokenMints}) async {
     await Future.wait([
       _updateNativeSOLTransactions(),
-      _updateSPLTokenTransactions(),
+      updateSPLTokenTransactions(specificMints: specificTokenMints),
     ]);
   }
 
+  /// Polls for a specific transaction by signature with exponential backoff
+  /// I'm using this in case we make the call to fetch the transaction and it has not finished its confirmations on the solana network and been indexed by the node networks we use.
+  Future<void> pollForTransaction({
+    required String signature,
+    Duration initialDelay = const Duration(seconds: 1),
+    int maxRetries = 5,
+  }) async {
+    final walletAddress = _solanaPublicKey.toAddress().address;
+
+    for (int i = 0; i < maxRetries; i++) {
+      await Future.delayed(initialDelay * (i + 1));
+
+      try {
+        final result = await _client.fetchTransactionBySignature(
+          signature: signature,
+          walletAddress: walletAddress,
+        );
+
+        if (result != null && result.transactions.isNotEmpty) {
+          await addTransactionsToTransactionHistory(result.transactions);
+
+          // Update only the tokens involved in this transaction
+          if (result.tokenMints.isNotEmpty) {
+            await Future.wait([
+              updateSPLTokenTransactions(specificMints: result.tokenMints),
+              updateTokenBalance(tokenMints: result.tokenMints),
+            ]);
+          } else {
+            // If no token mints, still update SOL balance
+            await updateTokenBalance(tokenMints: []);
+          }
+
+          return;
+        }
+      } catch (e) {
+        printV('Error polling for transaction (attempt ${i + 1}/$maxRetries): $e');
+      }
+    }
+
+    // Fallback to full refresh if not found after max retries
+    printV('Transaction not found after $maxRetries attempts, falling back to full refresh');
+    await updateTransactionsHistory();
+  }
+
   void updateTransactions(List<SolanaTransactionModel> updatedTx) {
-    _addTransactionsToTransactionHistory(updatedTx);
+    addTransactionsToTransactionHistory(updatedTx);
   }
 
   /// Fetches the native SOL transactions linked to the wallet Public Key
@@ -309,35 +377,48 @@ abstract class SolanaWalletBase
     final transactions =
         await _client.fetchTransactions(_solanaPublicKey.toAddress(), onUpdate: updateTransactions);
 
-    await _addTransactionsToTransactionHistory(transactions);
+    await addTransactionsToTransactionHistory(transactions);
   }
 
-  /// Fetches the SPL Tokens transactions linked to the token account Public Key
-  Future<void> _updateSPLTokenTransactions() async {
-    // List<SolanaTransactionModel> splTokenTransactions = [];
+  Future<void> updateSPLTokenTransactions({List<String>? specificMints}) async {
+    final allTokens = balance.keys.whereType<SPLToken>().toList(growable: false);
 
-    // Make a copy of keys to avoid concurrent modification
-    var tokenKeys = List<CryptoCurrency>.from(balance.keys);
+    // Filter to specific mints if provided
+    final tokens = specificMints != null
+        ? allTokens.where((t) => specificMints.contains(t.mintAddress)).toList(growable: false)
+        : allTokens;
 
-    for (var token in tokenKeys) {
-      if (token is SPLToken) {
-        final tokenTxs = await _client.getSPLTokenTransfers(
-          mintAddress: token.mintAddress,
-          splTokenSymbol: token.symbol,
-          splTokenDecimal: token.decimal,
-          privateKey: _solanaPrivateKey,
-          onUpdate: updateTransactions,
-        );
+    if (tokens.isEmpty) return;
 
-        // splTokenTransactions.addAll(tokenTxs);
-        await _addTransactionsToTransactionHistory(tokenTxs);
+    const int batchSize = 5;
+
+    for (var i = 0; i < tokens.length; i += batchSize) {
+      final batch = tokens.sublist(
+        i,
+        i + batchSize > tokens.length ? tokens.length : i + batchSize,
+      );
+      final results = await Future.wait(
+        batch.map((token) async {
+          try {
+            return await _client.getSPLTokenTransfers(
+              mintAddress: token.mintAddress,
+              splToken: token,
+              privateKey: _solanaPrivateKey,
+              onUpdate: updateTransactions,
+            );
+          } catch (_) {
+            return <SolanaTransactionModel>[];
+          }
+        }),
+      );
+
+      for (final list in results) {
+        await addTransactionsToTransactionHistory(list);
       }
     }
-
-    // await _addTransactionsToTransactionHistory(splTokenTransactions);
   }
 
-  Future<void> _addTransactionsToTransactionHistory(
+  Future<void> addTransactionsToTransactionHistory(
     List<SolanaTransactionModel> transactions,
   ) async {
     final Map<String, SolanaTransactionInfo> result = {};
@@ -347,14 +428,13 @@ abstract class SolanaWalletBase
         id: transactionModel.id,
         to: transactionModel.to,
         from: transactionModel.from,
-        blockTime: transactionModel.blockTime,
+        date: transactionModel.blockTime,
         direction: transactionModel.isOutgoingTx
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
-        solAmount: transactionModel.amount,
+        amount: transactionModel.amount,
         isPending: false,
-        txFee: transactionModel.fee,
-        tokenSymbol: transactionModel.tokenSymbol,
+        fee: transactionModel.fee,
       );
     }
 
@@ -393,9 +473,9 @@ abstract class SolanaWalletBase
       }
 
       await Future.wait([
-        _updateBalance(),
+        updateTokenBalance(),
         _updateNativeSOLTransactions(),
-        _updateSPLTokenTransactions(),
+        updateSPLTokenTransactions(),
         _getEstimatedFees(),
       ]);
 
@@ -430,7 +510,8 @@ abstract class SolanaWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = SolanaBalance.fromJSON(data?['balance'] as String?) ?? SolanaBalance(0.0);
+    final balance = SolanaBalance.fromJSON(data?['balance'] as String?, CryptoCurrency.sol) ??
+        SolanaBalance.zero(CryptoCurrency.sol);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
@@ -449,8 +530,11 @@ abstract class SolanaWalletBase
       );
     }
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
     return SolanaWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       passphrase: keysData.passphrase,
       mnemonic: keysData.mnemonic,
@@ -460,9 +544,15 @@ abstract class SolanaWalletBase
     );
   }
 
-  Future<void> _updateBalance() async {
-    balance[currency] = await _fetchSOLBalance();
-    await _fetchSPLTokensBalances();
+  Future<void> updateTokenBalance({List<String>? tokenMints}) async {
+    // Fetch SOL and SPL token balances in parallel for better performance
+    await Future.wait([
+      _fetchSOLBalance().then((solBalance) {
+        balance[CryptoCurrency.sol] = solBalance;
+      }),
+      _updateSplTokenBalancesInternal(tokenMints: tokenMints),
+    ]);
+
     await save();
   }
 
@@ -472,36 +562,65 @@ abstract class SolanaWalletBase
     return SolanaBalance(balance);
   }
 
-  Future<void> _fetchSPLTokensBalances() async {
-    for (var token in splTokensBox.values) {
-      if (token.enabled) {
+  /// Internal helper to update SPL token balances.
+  /// When [tokenMints] is null or empty, updates all enabled tokens.
+  Future<void> _updateSplTokenBalancesInternal({
+    List<String>? tokenMints,
+  }) async {
+    // Remove disabled tokens first to keep state clean
+    for (var token in splTokensBox.values.where((t) => !t.enabled)) {
+      balance.remove(token);
+    }
+
+    final enabledTokens = splTokensBox.values.where((t) => t.enabled).toList(growable: false);
+    if (enabledTokens.isEmpty) return;
+
+    final tokens = tokenMints == null || tokenMints.isEmpty
+        ? enabledTokens
+        : enabledTokens.where((t) => tokenMints.contains(t.mintAddress)).toList(growable: false);
+
+    if (tokens.isEmpty) return;
+
+    const int batchSize = 5;
+
+    for (var i = 0; i < tokens.length; i += batchSize) {
+      final batch = tokens.sublist(
+        i,
+        i + batchSize > tokens.length ? tokens.length : i + batchSize,
+      );
+
+      final results = await Future.wait(batch.map((token) async {
         try {
-          final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
-              balance[token] ??
-              SolanaBalance(0.0);
-          balance[token] = tokenBalance;
+          final fetched = await _client.getSplTokenBalance(token, solanaAddress);
+          return MapEntry(token, fetched);
         } catch (e) {
           printV('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
+          return MapEntry<SPLToken, SolanaBalance?>(token, null);
         }
-      } else {
-        balance.remove(token);
+      }));
+
+      for (final entry in results) {
+        final token = entry.key;
+        final fetchedBalance = entry.value;
+        final currentBalance = balance[token] ?? SolanaBalance.zero(token);
+        balance[token] = fetchedBalance ?? currentBalance;
       }
     }
   }
 
   @override
-  Future<void>? updateBalance() async => await _updateBalance();
+  Future<void>? updateBalance() async => await updateTokenBalance();
 
   @override
   Future<bool> checkNodeHealth() async {
     try {
       // Check native balance
       await _client.getBalance(solanaAddress, throwOnError: true);
-      
+
       // Check USDC token balance
-      const usdcMintAddress = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+      final usdcMintAddress = DefaultSPLTokens().usdc;
       await _client.getSplTokenBalance(usdcMintAddress, solanaAddress, throwOnError: true);
-      
+
       return true;
     } catch (e) {
       return false;
@@ -516,20 +635,171 @@ abstract class SolanaWalletBase
     for (var token in initialSPLTokens) {
       if (!splTokensBox.containsKey(token.mintAddress)) {
         splTokensBox.put(token.mintAddress, token);
-      } else { // update existing token
+      } else {
+        // update existing token
         final existingToken = splTokensBox.get(token.mintAddress);
-        splTokensBox.put(token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
+        splTokensBox.put(
+            token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
       }
     }
   }
 
+  Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {
+    try {
+      if (!splTokensBox.isOpen) return SolanaMoralisDiscoveryResult.empty;
+
+      final address = walletAddresses.address;
+      if (address.isEmpty) return SolanaMoralisDiscoveryResult.empty;
+
+      final walletTokens = await _client.fetchWalletTokensFromMoralis(address);
+      if (walletTokens.isEmpty) return SolanaMoralisDiscoveryResult.empty;
+
+      final existingMints = {
+        for (final token in splTokensBox.values) token.mintAddress: token,
+      };
+
+      final defaultMints = DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+
+      final newTokens = <DiscoveredSPLToken>[];
+
+      for (final moralisToken in walletTokens) {
+        final mint = moralisToken.mint;
+
+        final existingToken = existingMints[mint];
+        if (existingToken != null) {
+          if (defaultMints.contains(mint) && !existingToken.enabled) {
+            existingToken.enabled = true;
+            await existingToken.save();
+            await addSPLToken(existingToken);
+          }
+          continue;
+        }
+
+        final tokenInfo = await _client.fetchSPLTokenInfo(mint);
+        if (tokenInfo == null) continue;
+
+        final discoveredToken = SPLToken(
+          name: tokenInfo.name,
+          symbol: tokenInfo.symbol,
+          mintAddress: mint,
+          decimal: moralisToken.decimals,
+          mint: tokenInfo.mint,
+          iconPath: tokenInfo.iconPath,
+          tag: 'SOL',
+        );
+
+        newTokens.add(
+          DiscoveredSPLToken(
+            token: discoveredToken,
+            balance: moralisToken.amount,
+          ),
+        );
+      }
+
+      return SolanaMoralisDiscoveryResult(newTokens: newTokens);
+    } catch (e) {
+      printV('Error discovering SPL tokens from Moralis: ${e.toString()}');
+      return SolanaMoralisDiscoveryResult.empty;
+    }
+  }
+
+  static const _urlLikeSuspiciousMarkers = [
+    't.me',
+    '.me',
+    'telegram',
+    'http',
+    'https',
+    '.com',
+    '.org',
+    '.top',
+    '.live',
+    '.xyz',
+    'www',
+    '🎁',
+    'airdrop',
+    'distribution',
+  ];
+
+  static final _suspiciousWordPattern =
+      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
+
+  static const _knownNonSolanaNativeSymbols = {
+    'BTC',
+    'ETH',
+    'BNB',
+    'AVAX',
+    'MATIC',
+    'POL',
+    'ICP',
+    'TRX',
+    'ATOM',
+    'DOT',
+    'ADA',
+    'XRP',
+    'XLM',
+    'XMR',
+    'ALGO',
+    'NEAR',
+    'TON',
+    'HBAR',
+    'APT',
+    'SUI',
+    'KAS',
+  };
+
+  static bool _hasSuspiciousData(String normalized) {
+    final lower = normalized.toLowerCase();
+    if (_urlLikeSuspiciousMarkers.any(lower.contains)) return true;
+    return _suspiciousWordPattern.hasMatch(lower);
+  }
+
+  bool isTokenPropertiesSuspicious(
+    SPLToken token, {
+    Set<String>? cachedDefaultMints,
+    Set<String>? cachedDefaultSymbolsUpper,
+  }) {
+    final defaultMints = cachedDefaultMints ??
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultSymbolsUpper = cachedDefaultSymbolsUpper ??
+        DefaultSPLTokens()
+            .initialSPLTokens
+            .map((t) => t.symbol.toUpperCase())
+            .toSet();
+
+    final isTokenWhitelisted = defaultMints.contains(token.mintAddress);
+
+    final normalizedName = normalizeHomoglyphs(token.name.trim().toUpperCase());
+    final normalizedSymbol = normalizeHomoglyphs(token.symbol.trim().toUpperCase());
+    final normalizedTitle = normalizeHomoglyphs(token.title.trim().toUpperCase());
+
+    final hasSuspiciousData = _hasSuspiciousData(normalizedName) ||
+        _hasSuspiciousData(normalizedSymbol) ||
+        _hasSuspiciousData(normalizedTitle);
+
+    const nativeSymbol = 'SOL';
+    final hasSuspiciousNativeSymbol = normalizedSymbol == nativeSymbol && !isTokenWhitelisted;
+
+    final hasSuspiciousDefaultTokenSymbol =
+        defaultSymbolsUpper.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    final hasSuspiciousNonSolanaNativeSymbol =
+        _knownNonSolanaNativeSymbols.contains(normalizedSymbol) && !isTokenWhitelisted;
+
+    return hasSuspiciousData ||
+        hasSuspiciousNativeSymbol ||
+        hasSuspiciousDefaultTokenSymbol ||
+        hasSuspiciousNonSolanaNativeSymbol;
+  }
+
   Future<void> addSPLToken(SPLToken token) async {
+    final isSuspicious = isTokenPropertiesSuspicious(token);
+    token.isPotentialScam = token.isPotentialScam || isSuspicious;
+
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {
-      final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
-          balance[token] ??
-          SolanaBalance(0.0);
+      final tokenBalance = await _client.getSplTokenBalance(token, solanaAddress) ??
+          balance[token] ?? SolanaBalance.zero(token);
 
       balance[token] = tokenBalance;
     } else {
@@ -538,15 +808,18 @@ abstract class SolanaWalletBase
   }
 
   Future<void> deleteSPLToken(SPLToken token) async {
-    await token.delete();
+    if (splTokensBox.isOpen) {
+      await splTokensBox.delete(token.mintAddress);
+    }
 
     balance.remove(token);
     await _removeTokenTransactionsInHistory(token);
-    _updateBalance();
+    updateTokenBalance();
   }
 
   Future<void> _removeTokenTransactionsInHistory(SPLToken token) async {
-    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    transactionHistory.transactions
+        .removeWhere((key, value) => value.amount.currency.symbol == token.symbol);
     await transactionHistory.save();
   }
 
@@ -559,37 +832,15 @@ abstract class SolanaWalletBase
     }
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
-
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {
       _transactionsUpdateTimer!.cancel();
     }
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      _updateBalance();
+      updateTokenBalance();
       _updateNativeSOLTransactions();
-      _updateSPLTokenTransactions();
+      updateSPLTokenTransactions();
       _getEstimatedFees();
     });
   }
@@ -655,4 +906,22 @@ abstract class SolanaWalletBase
 
   @override
   final String? passphrase;
+}
+
+class DiscoveredSPLToken {
+  final SPLToken token;
+  final double balance;
+
+  const DiscoveredSPLToken({
+    required this.token,
+    required this.balance,
+  });
+}
+
+class SolanaMoralisDiscoveryResult {
+  final List<DiscoveredSPLToken> newTokens;
+
+  const SolanaMoralisDiscoveryResult({required this.newTokens});
+
+  static const SolanaMoralisDiscoveryResult empty = SolanaMoralisDiscoveryResult(newTokens: []);
 }

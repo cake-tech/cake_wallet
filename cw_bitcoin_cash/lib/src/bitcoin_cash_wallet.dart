@@ -28,6 +28,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
@@ -41,6 +42,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
+            derivationInfo: derivationInfo,
             unspentCoinsInfo: unspentCoinsInfo,
             network: BitcoinCashNetwork.mainnet,
             initialAddresses: initialAddresses,
@@ -54,8 +56,10 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      mainHdByType: mainHdByType,
+      sideHdByType: sideHdByType,
+      legacyMainHd: mainHd,
+      legacySideHd: sideHd,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -81,6 +85,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
@@ -134,6 +139,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       mnemonic: keysData.mnemonic!,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses.map((addr) {
         try {
@@ -217,7 +223,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
           : null;
     } catch (_) {}
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromWif(
       WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,

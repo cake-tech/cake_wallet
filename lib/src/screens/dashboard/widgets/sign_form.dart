@@ -11,27 +11,27 @@ class SignForm extends StatefulWidget {
   SignForm({
     Key? key,
     required this.type,
+    required this.chainId,
     required this.includeAddress,
   }) : super(key: key);
 
   final WalletType type;
   final bool includeAddress;
-
+  final int? chainId;
+  
   @override
   SignFormState createState() => SignFormState();
 }
 
 class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
   SignFormState()
-      : formKey = GlobalKey<FormState>(),
-        messageController = TextEditingController(),
+      : messageController = TextEditingController(),
         addressController = TextEditingController(),
         signatureController = TextEditingController();
 
   final TextEditingController messageController;
   final TextEditingController addressController;
   final TextEditingController signatureController;
-  final GlobalKey<FormState> formKey;
 
   @override
   void initState() {
@@ -53,35 +53,33 @@ class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
       padding: EdgeInsets.only(left: 24, right: 24),
       child: Column(
         children: [
-          Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  AddressTextField(
-                    controller: messageController,
-                    placeholder: S.current.message,
-                    options: [AddressTextFieldOption.paste],
-                    buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                  ),
-                  if (widget.includeAddress) ...[
-                    const SizedBox(height: 20),
-                    AddressTextField(
-                      controller: addressController,
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.walletAddresses
-                      ],
-                      buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      onSelectedContact: (contact) {
-                        addressController.text = contact.address;
-                      },
-                      selectedCurrency: walletTypeToCryptoCurrency(widget.type),
-                      fillColor: Theme.of(context).colorScheme.surface,
-                    ),
+          Column(
+            children: [
+              AddressTextField(
+                controller: messageController,
+                placeholder: S.current.message,
+                options: [AddressTextFieldOption.paste],
+                buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(context).colorScheme.surface,
+              ),
+              if (widget.includeAddress) ...[
+                const SizedBox(height: 20),
+                AddressTextField(
+                  controller: addressController,
+                  options: [
+                    AddressTextFieldOption.paste,
+                    AddressTextFieldOption.walletAddresses
                   ],
-                ],
-              )),
+                  buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  onSelectedContact: (contact) {
+                    addressController.text = contact.address;
+                  },
+                  selectedCurrency: walletTypeToCryptoCurrency(widget.type, chainId: widget.chainId),
+                  fillColor: Theme.of(context).colorScheme.surface,
+                ),
+              ],
+            ],
+          ),
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () async {

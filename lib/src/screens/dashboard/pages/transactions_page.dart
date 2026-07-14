@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/csv_export_service.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
@@ -65,6 +66,8 @@ class TransactionsPage extends StatelessWidget {
             }),
             HeaderRow(
               dashboardViewModel: dashboardViewModel,
+              onExportCsv: () =>
+                  CsvExportService().exportToCsv(dashboardViewModel.items, context),
               key: ValueKey('transactions_page_header_row_key'),
             ),
             Expanded(
@@ -104,12 +107,12 @@ class TransactionsPage extends StatelessWidget {
                                   tags.add("MWEB");
                                 }
                               }
-
                               return Observer(
                                 builder: (_) => TransactionRow(
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                  isShield: transaction.additionalInfo['autoShield'] == true,
                                   direction: transaction.direction,
                                   formattedDate: DateFormat('HH:mm').format(transaction.date),
                                   formattedAmount: item.formattedCryptoAmount,
@@ -155,8 +158,8 @@ class TransactionsPage extends StatelessWidget {
                                 ),
                                 currency: "BTC",
                                 state: item.status,
-                                amount: bitcoin!
-                                    .formatterBitcoinAmountToString(amount: session.amount.toInt()),
+                                amount: dashboardViewModel.appStore.amountParsingProxy
+                                    .getDisplayCryptoString(session.amount.toInt(), CryptoCurrency.btc),
                                 createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
                                 isSending: session.isSenderSession,
                               );
@@ -166,25 +169,29 @@ class TransactionsPage extends StatelessWidget {
                               final trade = item.trade;
 
                               final tradeFrom =
-                                  trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+                                  trade.from;
 
-                              final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
+                              final tradeTo = trade.to;
 
                               return tradeFrom != null && tradeTo != null
                                   ? Observer(
                                       builder: (_) => TradeRow(
-                                          key: item.key,
-                                          onTap: () => Navigator.of(context)
-                                              .pushNamed(Routes.tradeDetails, arguments: trade),
-                                          swapState: trade.state,
-                                          provider: trade.provider,
-                                          from: tradeFrom,
-                                          to: tradeTo,
-                                          createdAtFormattedDate: trade.createdAt != null
-                                              ? DateFormat('HH:mm').format(trade.createdAt!)
-                                              : null,
-                                          formattedAmount: item.tradeFormattedAmount,
-                                          formattedReceiveAmount: item.tradeFormattedReceiveAmount),
+                                        key: item.key,
+                                        onTap: () => Navigator.of(context)
+                                            .pushNamed(Routes.tradeDetails, arguments: trade),
+                                        swapState: trade.state,
+                                        provider: trade.provider,
+                                        title: "$tradeFrom → $tradeTo",
+                                        fromSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeFrom),
+                                        toSymbol: dashboardViewModel.appStore.amountParsingProxy
+                                            .getCryptoSymbol(tradeTo),
+                                        createdAtFormattedDate: trade.createdAt != null
+                                            ? DateFormat("HH:mm").format(trade.createdAt!)
+                                            : null,
+                                        formattedAmount: item.tradeFormattedAmount,
+                                        formattedReceiveAmount: item.tradeFormattedReceiveAmount,
+                                      ),
                                     )
                                   : Container();
                             }

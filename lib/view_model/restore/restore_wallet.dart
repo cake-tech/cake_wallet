@@ -13,6 +13,8 @@ class RestoredWallet {
       this.txId,
       this.spendKey,
       this.viewKey,
+      this.scanSecret,
+      this.spendPubkey,
       this.mnemonicSeed,
       this.passphrase,
       this.txAmount,
@@ -28,6 +30,8 @@ class RestoredWallet {
   final String? txId;
   final String? spendKey;
   final String? viewKey;
+  final String? scanSecret;
+  final String? spendPubkey;
   final String? mnemonicSeed;
   final String? passphrase;
   final String? txAmount;
@@ -48,8 +52,14 @@ class RestoredWallet {
     } catch (e) {
       // fine, we don't care, it is only for monero anyway
     }
+    if (json['ltub'] != null) {
+      json['xpub'] = convertLtubToXpub(json['ltub'] as String);
+    }
     if (json['zpub'] != null) {
       json['xpub'] = convertZpubToXpub(json['zpub'] as String);
+    }
+    if (json['xpub'] != null) {
+      json['xpub'] = convertAnyToXpub(json['xpub'] as String);
     }
     json['view_key'] ??= json['xpub'];
     final height = json['height'] as String?;
@@ -60,6 +70,8 @@ class RestoredWallet {
       address: json['address'] as String?,
       spendKey: json['spend_key'] as String?,
       viewKey: json['view_key'] as String?,
+      scanSecret: json['scan_secret'] as String?,
+      spendPubkey: json['spend_pubkey'] as String?,
       height: height != null ? int.tryParse(height) ?? 0 : 0,
       privateKey: json['private_key'] as String?,
     );

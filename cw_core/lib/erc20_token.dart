@@ -2,25 +2,25 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'erc20_token.g.dart';
+part 'erc20_token.part.dart';
 
-@HiveType(typeId: Erc20Token.typeId)
+// @HiveType(typeId: Erc20Token.typeId)
 class Erc20Token extends CryptoCurrency with HiveObjectMixin {
-  @HiveField(0)
+  // @HiveField(0)
   final String name;
-  @HiveField(1)
+  // @HiveField(1)
   final String symbol;
-  @HiveField(2)
+  // @HiveField(2)
   final String contractAddress;
-  @HiveField(3)
+  // @HiveField(3)
   final int decimal;
-  @HiveField(4, defaultValue: true)
+  // @HiveField(4, defaultValue: true)
   bool _enabled;
-  @HiveField(5)
+  // @HiveField(5)
   String? iconPath;
-  @HiveField(6)
+  // @HiveField(6)
   final String? tag;
-  @HiveField(7, defaultValue: false)
+  // @HiveField(7, defaultValue: false)
   bool isPotentialScam;
 
   bool get enabled => _enabled;
@@ -71,11 +71,11 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   static const ethereumBoxName = 'EthereumErc20Tokens';
   static const polygonBoxName = 'PolygonErc20Tokens';
   static const baseBoxName = 'BaseErc20Tokens';
+  static const arbitrumBoxName = 'ArbitrumErc20Tokens';
+  static const bscBoxName = 'BscErc20Tokens';
 
   @override
-  bool operator ==(other) =>
-      (other is Erc20Token && other.contractAddress == contractAddress) ||
-      (other is CryptoCurrency && other.title == title);
+  bool operator ==(Object other) => other is Erc20Token && other.contractAddress == contractAddress;
 
   @override
   int get hashCode => contractAddress.hashCode;

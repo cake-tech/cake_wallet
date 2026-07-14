@@ -34,11 +34,14 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
   bool _effectsInstalled = false;
   ReactionDisposer? _exchangeStateReaction;
   BuildContext? _loadingBottomSheetContext;
+  bool _showingFailureDialog = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _setEffects());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _setEffects();
+    });
   }
 
   @override
@@ -49,7 +52,39 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
   }
 
   void _setEffects() {
-    if (_effectsInstalled) return;
+    if (_effectsInstalled) {
+      printV('Swap details bottom sheet effects already installed');
+      return;
+    }
+
+    final initialState = widget.exchangeTradeViewModel.sendViewModel.state;
+
+    if (initialState is FailureState && !_showingFailureDialog) {
+      _showingFailureDialog = true;
+      printV('Initial failure state: $initialState');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && context.mounted) {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext popupContext) {
+              return AlertWithOneAction(
+                key: ValueKey('swap_details_send_failure_dialog_key'),
+                buttonKey: ValueKey('swap_details_send_failure_dialog_button_key'),
+                alertTitle: S.of(popupContext).error,
+                alertContent: initialState.error,
+                buttonText: S.of(popupContext).ok,
+                buttonAction: () {
+                  _showingFailureDialog = false;
+                  Navigator.of(popupContext).pop();
+                },
+              );
+            },
+          );
+        } else {
+          _showingFailureDialog = false;
+        }
+      });
+    }
 
     _exchangeStateReaction = reaction(
       (_) => widget.exchangeTradeViewModel.sendViewModel.state,
@@ -61,21 +96,32 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
           Navigator.of(_loadingBottomSheetContext!).pop();
         }
 
-        if (state is FailureState) {
+        if (state is FailureState && !_showingFailureDialog) {
+          _showingFailureDialog = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            showPopUp<void>(
-              context: context,
-              builder: (BuildContext popupContext) {
-                return AlertWithOneAction(
-                  key: ValueKey('swap_details_send_failure_dialog_key'),
-                  buttonKey: ValueKey('swap_details_send_failure_dialog_button_key'),
-                  alertTitle: S.of(popupContext).error,
-                  alertContent: state.error,
-                  buttonText: S.of(popupContext).ok,
-                  buttonAction: () => Navigator.of(popupContext).pop(),
-                );
-              },
-            );
+            if (mounted && context.mounted) {
+              showPopUp<void>(
+                context: context,
+                builder: (BuildContext popupContext) {
+                  return AlertWithOneAction(
+                    key: ValueKey('swap_details_send_failure_dialog_key'),
+                    buttonKey: ValueKey('swap_details_send_failure_dialog_button_key'),
+                    alertTitle: S.of(popupContext).error,
+                    alertContent: state.error,
+                    buttonText: S.of(popupContext).ok,
+                    buttonAction: () {
+                      _showingFailureDialog = false;
+                      Navigator.of(popupContext).pop();
+                      if(mounted) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      }
+                    },
+                  );
+                },
+              );
+            } else {
+              _showingFailureDialog = false;
+            }
           });
         }
 
@@ -129,7 +175,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
                     onSingleActionButtonPressed: () {
                       Navigator.of(bottomSheetContext).pop();
                       if (mounted) {
-                        Navigator.of(context).pop();
+                        Navigator.of(context, rootNavigator: true).pop();
                       }
                       ;
                     },
@@ -272,13 +318,15 @@ class _SwapDetailsContent extends StatelessWidget {
             children: [
               _SwapDetailsTile(
                 label: 'You Send',
-                value: '${trade.amount} ${trade.from?.title ?? ''}',
+                value:
+                    '${trade.amount} ${trade.from?.title ?? ''}',
                 valueFiatFormatted: exchangeTradeViewModel.sendAmountFiatFormatted,
               ),
               const SizedBox(height: 8),
               _SwapDetailsTile(
                 label: 'You Get',
-                value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
+                value:
+                    '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
                 valueFiatFormatted: exchangeTradeViewModel
                     .getReceiveAmountFiatFormatted(trade.receiveAmount ?? '0.0'),
               ),
@@ -303,7 +351,7 @@ class _SwapDetailsContent extends StatelessWidget {
                     const SizedBox(height: 4),
                     AddressFormatter.buildSegmentedAddress(
                       address: trade.payoutAddress ?? '',
-                      walletType: trade.to != null ? cryptoCurrencyToWalletType(trade.to!) : null,
+                      walletType: trade.to != null ? cryptoCurrencyOrTokenToWalletType(trade.to!) : null,
                       evenTextStyle: Theme.of(context)
                           .textTheme
                           .bodyMedium!

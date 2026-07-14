@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -18,7 +20,6 @@ import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,13 +29,11 @@ class TradeMonitor {
 
   TradeMonitor({
     required this.tradesStore,
-    required this.trades,
     required this.appStore,
     required this.preferences,
   });
 
   final TradesStore tradesStore;
-  final Box<Trade> trades;
   final AppStore appStore;
   final Map<String, Timer> _tradeTimers = {};
   final SharedPreferences preferences;
@@ -52,7 +51,7 @@ class TradeMonitor {
       case ExchangeProviderDescription.exolix:
         return ExolixExchangeProvider();
       case ExchangeProviderDescription.thorChain:
-        return ThorChainExchangeProvider(tradesStore: trades);
+        return ThorChainExchangeProvider();
       case ExchangeProviderDescription.swapTrade:
         return SwapTradeExchangeProvider();
       case ExchangeProviderDescription.letsExchange:
@@ -60,11 +59,15 @@ class TradeMonitor {
       case ExchangeProviderDescription.stealthEx:
         return StealthExExchangeProvider();
       case ExchangeProviderDescription.chainflip:
-        return ChainflipExchangeProvider(tradesStore: trades);
+        return ChainflipExchangeProvider();
       case ExchangeProviderDescription.xoSwap:
         return XOSwapExchangeProvider();
       case ExchangeProviderDescription.swapsXyz:
         return SwapsXyzExchangeProvider();
+      case ExchangeProviderDescription.jupiter:
+        return JupiterExchangeProvider();
+      case ExchangeProviderDescription.nearIntents:
+        return NearIntentsExchangeProvider();
     }
     return null;
   }
@@ -92,7 +95,6 @@ class TradeMonitor {
       }
 
       if (_tradeTimers.containsKey(trade.id)) {
-        printV('Trade ${trade.id} is already being monitored');
         continue;
       } else {
         _startTradeMonitoring(trade, provider!);
@@ -122,7 +124,6 @@ class TradeMonitor {
 
   bool _shouldSkipTrade(Trade trade, String walletId, ExchangeProvider? provider) {
     if (trade.walletId != walletId) {
-      printV('Skipping trade ${trade.id} because it\'s not for this wallet');
       return true;
     }
 
@@ -138,7 +139,6 @@ class TradeMonitor {
     }
 
     if (_isFinalState(trade.state)) {
-      printV('Skipping trade ${trade.id} because it\'s in a final state');
       return true;
     }
 
@@ -184,12 +184,7 @@ class TradeMonitor {
 
     try {
       final updated = await provider.findTradeById(id: trade.id);
-      trade
-        ..stateRaw = updated.state.raw
-        ..receiveAmount = updated.receiveAmount ?? trade.receiveAmount
-        ..outputTransaction = updated.outputTransaction ?? trade.outputTransaction
-        ..userCurrencyToRaw = updated.userCurrencyToRaw
-        ..userCurrencyFromRaw = updated.userCurrencyFromRaw;
+      trade.mergeFindTradeByIdResult(updated);
       printV('Trade ${trade.id} updated: ${trade.state}');
       await trade.save();
 

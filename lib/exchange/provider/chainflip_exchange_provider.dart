@@ -8,33 +8,30 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ChainflipExchangeProvider extends ExchangeProvider {
-  ChainflipExchangeProvider({required this.tradesStore})
-      : super(pairList: supportedPairs(_notSupported));
+  ChainflipExchangeProvider();
 
-  static final List<CryptoCurrency> _notSupported = [
-    ...(CryptoCurrency.all
-        .where((element) => ![
-              CryptoCurrency.btc,
-              CryptoCurrency.eth,
-              CryptoCurrency.usdc,
-              CryptoCurrency.usdterc20,
-              CryptoCurrency.flip,
-              CryptoCurrency.sol,
-              CryptoCurrency.usdcsol,
-              // TODO: Add CryptoCurrency.etharb
-              // TODO: Add CryptoCurrency.usdcarb
-              // TODO: Add CryptoCurrency.dot
-            ].contains(element))
-        .toList())
-  ];
+  static final List<CryptoCurrency> _supported = [
+    CryptoCurrency.btc,
+    CryptoCurrency.eth,
+    CryptoCurrency.usdc,
+    CryptoCurrency.usdterc20,
+    CryptoCurrency.flip,
+    CryptoCurrency.wbtc,
+    CryptoCurrency.sol,
+    CryptoCurrency.usdcsol,
+    CryptoCurrency.usdtSol,
+    CryptoCurrency.arbEth,
+    CryptoCurrency.usdcArb,
+    CryptoCurrency.usdtArb,
+    CryptoCurrency.trx,
+    CryptoCurrency.usdttrc20,
+    ];
 
   static const _baseURL = 'chainflip-broker.io';
   static const _assetsPath = '/assets';
@@ -43,8 +40,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   static const _txInfoPath = '/status-by-deposit-channel';
   static const _affiliateBps = secrets.chainflipAffiliateFee;
   static const _affiliateKey = secrets.chainflipApiKey;
-
-  final Box<Trade> tradesStore;
 
   @override
   String get title => 'Chainflip';
@@ -59,6 +54,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
+  bool get supportsMemoOrDestinationTag => false;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.chainflip;
 
@@ -66,12 +64,17 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
 
     try {
+
+      if(!_supported.contains(from) || !_supported.contains(to)) {
+        throw Exception('No rates found for $from to $to');
+      }
+
     final assetId = _normalizeCurrency(from);
 
     final assetsResponse = await _getAssets();
@@ -102,6 +105,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     try {
       if (amount == 0) return 0.0;
+
+      if(!_supported.contains(from) || !_supported.contains(to)) return 0.0;
+
 
       final quoteParams = {
         'apiKey': _affiliateKey,
@@ -197,7 +203,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
       final swapResponse = await _openDepositChannel(swapParams);
 
-      final id = '${swapResponse['issuedBlock']}-${swapResponse['network'].toString().toUpperCase()}-${swapResponse['channelId']}';
+      final id = '${swapResponse['issuedBlock']}-${swapResponse['network'].toString()}-${swapResponse['channelId']}';
 
       ExchangeProviderLogger.logSuccess(
         provider: description,
@@ -224,19 +230,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       );
 
       return Trade(
-          id: id,
-          from: request.fromCurrency,
-          to: request.toCurrency,
-          provider: description,
-          inputAddress: swapResponse['address'].toString(),
-          createdAt: DateTime.now(),
-          amount: request.fromAmount,
-          receiveAmount: request.toAmount,
-          state: TradeState.waiting,
-          payoutAddress: request.toAddress,
-          userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-          userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
-          isSendAll: isSendAll);
+        id: id,
+        from: request.fromCurrency,
+        to: request.toCurrency,
+        provider: description,
+        inputAddress: swapResponse['address'].toString(),
+        createdAt: DateTime.now(),
+        amount: request.fromAmount,
+        receiveAmount: request.toAmount,
+        state: TradeState.waiting,
+        payoutAddress: request.toAddress,
+        isSendAll: isSendAll,
+      );
     } catch (e, s) {
       ExchangeProviderLogger.logError(
         provider: description,
@@ -263,11 +268,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     try {
       final channelParts = id.split('-');
+      final network = channelParts[1];
+      final normalizedNetwork = _normalizeNetworkName(network);
 
       final statusParams = {
         'apiKey': _affiliateKey,
         'issuedBlock': channelParts[0],
-        'network': channelParts[1],
+        'network': normalizedNetwork,
         'channelId': channelParts[2]
       };
 
@@ -289,28 +296,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final to = status['destinationAsset'].toString();
       
       final newTrade = Trade(
-          id: id,
-          from: _toCurrency(status['sourceAsset'].toString()),
-          to: _toCurrency(status['destinationAsset'].toString()),
-          provider: description,
-          amount: depositAmount,
-          receiveAmount: amount,
-          state: currentState,
-          payoutAddress: status['destinationAddress'].toString(),
-          outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
-          isRefund: isRefund,
-        userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
-        userCurrencyToRaw: '${to.toUpperCase()}' + '_',
+        id: id,
+        from: _toCurrency(from),
+        to: _toCurrency(to),
+        provider: description,
+        amount: depositAmount,
+        receiveAmount: amount,
+        state: currentState,
+        payoutAddress: status['destinationAddress'].toString(),
+        outputTransaction:
+            status['swapEgress']?['transactionReference']?.toString(),
+        isRefund: isRefund,
       );
-
-      // Find trade and update receiveAmount with the real value received
-      final storedTrade = _getStoredTrade(id);
-      
-      if (storedTrade != null) {
-        storedTrade.$2.receiveAmount = newTrade.receiveAmount;
-        storedTrade.$2.outputTransaction = newTrade.outputTransaction;
-        tradesStore.put(storedTrade.$1, storedTrade.$2);
-      }
 
       return newTrade;
     } catch (e) {
@@ -320,14 +317,33 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
-    final network = switch (currency.tag) {
-      'ETH' => 'eth',
-      'SOL' => 'sol',
-      _ => currency.title.toLowerCase()
+    // Chainflip uses 'tron' as the network slug, but Cake uses tag 'TRX' (and null
+    // for native TRX), so these can't go through the generic title.tag logic below.
+    if (currency == CryptoCurrency.trx) return 'trx.tron';
+    if (currency == CryptoCurrency.usdttrc20) return 'usdt.tron';
+
+    final tag = currency.tag?.toLowerCase();
+    final title = currency.title.toLowerCase();
+
+    // Naive assets without network tag
+    if (tag == null) return '$title.$title';
+
+    return '$title.$tag';
+  }
+
+  String _normalizeNetworkName (String name) {
+    final networkName = switch (name) {
+      'BITCOIN' => 'Bitcoin',
+      'ETHEREUM' => 'Ethereum',
+      'ARBITRUM' => 'Arbitrum',
+      'SOLANA' => 'Solana',
+      'TRON' => 'Tron',
+      _ => name
     };
 
-    return '${currency.title.toLowerCase()}.$network';
+    return networkName;
   }
+
 
   CryptoCurrency? _toCurrency(String name) {
     final currency = switch (name) {
@@ -336,23 +352,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       'usdc.eth' => CryptoCurrency.usdc,
       'usdt.eth' => CryptoCurrency.usdterc20,
       'flip.eth' => CryptoCurrency.flip,
+      'wbtc.eth' => CryptoCurrency.wbtc,
       'sol.sol' => CryptoCurrency.sol,
       'usdc.sol' => CryptoCurrency.usdcsol,
+      'eth.arb' => CryptoCurrency.arbEth,
+      'usdc.arb' => CryptoCurrency.usdcArb,
+      'usdt.arb' => CryptoCurrency.usdtArb,
+      'trx.tron' => CryptoCurrency.trx,
+      'usdt.tron' => CryptoCurrency.usdttrc20,
       _ => null
     };
 
     return currency;
-  }
-
-  (dynamic, Trade)? _getStoredTrade(String id) {
-    for (var i = tradesStore.length -1; i >= 0; i--) {
-      Trade? t = tradesStore.getAt(i);
-      
-      if (t != null && t.id == id)
-        return (i, t);
-    }
-    
-    return null;
   }
 
   String _amountToNative(double amount, CryptoCurrency currency) =>
@@ -388,7 +399,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
-    final quotes = json.decode(response.body) as List<Map<String, dynamic>>;
+    final List<dynamic> jsonList = json.decode(response.body) as List<dynamic>;
+    final List<Map<String, dynamic>> quotes =
+    jsonList.map((e) => e as Map<String, dynamic>).toList();
 
     Map<String, dynamic> highestQuote = quotes.reduce((current, next) {
       double currentAmount = current['egressAmount'] as double;

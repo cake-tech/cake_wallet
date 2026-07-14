@@ -1,7 +1,11 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - FlutterMacOS
+  - breez_sdk_spark_flutter (0.11.0):
+    - FlutterMacOS
   - connectivity_plus (0.0.1):
+    - FlutterMacOS
+  - cw_decred (0.0.1):
     - FlutterMacOS
   - cw_mweb (0.0.1):
     - FlutterMacOS
@@ -26,11 +30,18 @@ PODS:
   - FlutterMacOS (1.0.0)
   - in_app_review (2.0.0):
     - FlutterMacOS
+  - local_auth_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - OrderedSet (6.0.3)
   - package_info_plus (0.0.1):
     - FlutterMacOS
   - path_provider_foundation (0.0.1):
     - Flutter
+    - FlutterMacOS
+  - rive_common (0.0.1):
+    - FlutterMacOS
+  - rlz (0.0.1):
     - FlutterMacOS
   - share_plus (0.0.1):
     - FlutterMacOS
@@ -39,6 +50,34 @@ PODS:
     - FlutterMacOS
   - sp_scanner (0.0.1):
     - FlutterMacOS
+  - sqflite_darwin (0.0.4):
+    - Flutter
+    - FlutterMacOS
+  - sqlite3 (3.50.4):
+    - sqlite3/common (= 3.50.4)
+  - sqlite3/common (3.50.4)
+  - sqlite3/dbstatvtab (3.50.4):
+    - sqlite3/common
+  - sqlite3/fts5 (3.50.4):
+    - sqlite3/common
+  - sqlite3/math (3.50.4):
+    - sqlite3/common
+  - sqlite3/perf-threadsafe (3.50.4):
+    - sqlite3/common
+  - sqlite3/rtree (3.50.4):
+    - sqlite3/common
+  - sqlite3/session (3.50.4):
+    - sqlite3/common
+  - sqlite3_flutter_libs (0.0.1):
+    - Flutter
+    - FlutterMacOS
+    - sqlite3 (~> 3.50.4)
+    - sqlite3/dbstatvtab
+    - sqlite3/fts5
+    - sqlite3/math
+    - sqlite3/perf-threadsafe
+    - sqlite3/rtree
+    - sqlite3/session
   - torch_dart (0.0.1):
     - FlutterMacOS
   - universal_ble (0.0.1):
@@ -51,7 +90,9 @@ PODS:
 
 DEPENDENCIES:
   - bitbox_flutter (from `Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos`)
+  - breez_sdk_spark_flutter (from `Flutter/ephemeral/.symlinks/plugins/breez_sdk_spark_flutter/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
+  - cw_decred (from `Flutter/ephemeral/.symlinks/plugins/cw_decred/macos`)
   - cw_mweb (from `Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
@@ -64,11 +105,16 @@ DEPENDENCIES:
   - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - in_app_review (from `Flutter/ephemeral/.symlinks/plugins/in_app_review/macos`)
+  - local_auth_darwin (from `Flutter/ephemeral/.symlinks/plugins/local_auth_darwin/darwin`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - rive_common (from `Flutter/ephemeral/.symlinks/plugins/rive_common/macos`)
+  - rlz (from `Flutter/ephemeral/.symlinks/plugins/rlz/macos`)
   - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sp_scanner (from `Flutter/ephemeral/.symlinks/plugins/sp_scanner/macos`)
+  - sqflite_darwin (from `Flutter/ephemeral/.symlinks/plugins/sqflite_darwin/darwin`)
+  - sqlite3_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - torch_dart (from `Flutter/ephemeral/.symlinks/plugins/torch_dart/macos`)
   - universal_ble (from `Flutter/ephemeral/.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
@@ -77,12 +123,17 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - OrderedSet
+    - sqlite3
 
 EXTERNAL SOURCES:
   bitbox_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/bitbox_flutter/macos
+  breez_sdk_spark_flutter:
+    :path: Flutter/ephemeral/.symlinks/plugins/breez_sdk_spark_flutter/macos
   connectivity_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
+  cw_decred:
+    :path: Flutter/ephemeral/.symlinks/plugins/cw_decred/macos
   cw_mweb:
     :path: Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos
   device_info_plus:
@@ -107,16 +158,26 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   in_app_review:
     :path: Flutter/ephemeral/.symlinks/plugins/in_app_review/macos
+  local_auth_darwin:
+    :path: Flutter/ephemeral/.symlinks/plugins/local_auth_darwin/darwin
   package_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  rive_common:
+    :path: Flutter/ephemeral/.symlinks/plugins/rive_common/macos
+  rlz:
+    :path: Flutter/ephemeral/.symlinks/plugins/rlz/macos
   share_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   shared_preferences_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
   sp_scanner:
     :path: Flutter/ephemeral/.symlinks/plugins/sp_scanner/macos
+  sqflite_darwin:
+    :path: Flutter/ephemeral/.symlinks/plugins/sqflite_darwin/darwin
+  sqlite3_flutter_libs:
+    :path: Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin
   torch_dart:
     :path: Flutter/ephemeral/.symlinks/plugins/torch_dart/macos
   universal_ble:
@@ -128,7 +189,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bitbox_flutter: 16088f5c7febacf894f4d07bbdfb441c9f0757fe
+  breez_sdk_spark_flutter: 2e864a52e699546aedea3d64d0e0cc88bc0ac595
   connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
+  cw_decred: 0c93fbeb31bd97a6ad4ec5680960af0943bfca78
   cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
@@ -141,12 +204,18 @@ SPEC CHECKSUMS:
   flutter_secure_storage_macos: d56e2d218c1130b262bef8b4a7d64f88d7f9c9ea
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   in_app_review: 866c9b17c87a7b46a395bda43f5d3ca02deb585a
+  local_auth_darwin: fa4b06454df7df8e97c18d7ee55151c57e7af0de
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  rive_common: 9580b9f1f08a8c85006083078e80479edf3db26a
+  rlz: fa94ecbcb2ca519363c320ec7a0f22525a536b59
   share_plus: 1fa619de8392a4398bfaf176d441853922614e89
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sp_scanner: 269d96e0ec3173e69156be7239b95182be3b8303
+  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  sqlite3: 73513155ec6979715d3904ef53a8d68892d4032b
+  sqlite3_flutter_libs: 86f82662868ee26ff3451f73cac9c5fc2a1f57fa
   torch_dart: 2e94855e15fcc87bd824e179f1f9c3e0f1e1d302
   universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
   url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404

@@ -10,7 +10,7 @@ import (
 var server *mwebd.Server
 
 //export StartServer
-func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char) C.int {
+func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char, errMsg **C.char) C.int {
 	if server != nil {
 		server.Stop()
 	}
@@ -21,11 +21,14 @@ func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char) C.int {
 	var err error
 	server, err = mwebd.NewServer(goChain, goDataDir, goNodeUri)
 	if err != nil {
+		*errMsg = C.CString(err.Error())
 		return 0
 	}
 
-	start, err := server.Start(0)
+// 	err = server.StartUnix(goDataDir + "/mwebd.sock")
+    start, err := server.Start(0)
 	if err != nil {
+		*errMsg = C.CString(err.Error())
 		return 0
 	}
 

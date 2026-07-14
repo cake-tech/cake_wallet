@@ -23,9 +23,9 @@ class RestoreOptionsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => _RestoreOptionsBody(
-        isNewInstall: isNewInstall,
-        themeType: currentTheme.type,
-      );
+    isNewInstall: isNewInstall,
+    themeType: currentTheme.type,
+  );
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
@@ -93,7 +93,6 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     image: imageRestoreCupcake,
                     title: S.of(context).restore_title_from_cupcake,
                     description: S.of(context).restore_description_from_cupcake,
-                    tag: S.of(context).new_tag,
                   ),
                 ),
               Padding(
@@ -137,24 +136,28 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
   }
 
   void _showQRScanError(BuildContext context, String error) {
-    setState(() => isRestoring = false);
+    if (mounted) {
+      setState(() => isRestoring = false);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.current.error,
-                alertContent: error,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
+      if (mounted) {
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.current.error,
+                  alertContent: error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      }
     });
   }
 
   Future<void> _onScanQRCode(BuildContext context) async {
     final isCameraPermissionGranted =
-        await PermissionHandler.checkPermission(Permission.camera, context);
+    await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
     try {

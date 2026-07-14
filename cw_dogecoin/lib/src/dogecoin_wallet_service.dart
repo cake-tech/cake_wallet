@@ -1,12 +1,10 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -18,9 +16,8 @@ class DogeCoinWalletService extends WalletService<
     DogeCoinRestoreWalletFromSeedCredentials,
     DogeCoinRestoreWalletFromWIFCredentials,
     DogeCoinNewWalletCredentials> {
-  DogeCoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
+  DogeCoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
 
-  final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
 
@@ -39,6 +36,7 @@ class DogeCoinWalletService extends WalletService<
       mnemonic: credentials.mnemonic ?? MnemonicBip39.generate(strength: strength),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       passphrase: credentials.passphrase,
@@ -51,9 +49,10 @@ class DogeCoinWalletService extends WalletService<
 
   @override
   Future<DogeCoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
-
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     try {
       final wallet = await DogeCoinWalletBase.open(
         password: password,
@@ -82,9 +81,11 @@ class DogeCoinWalletService extends WalletService<
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
 
     final unspentCoinsToDelete = unspentCoinsInfoSource.values
         .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
@@ -95,27 +96,6 @@ class DogeCoinWalletService extends WalletService<
     if (keysToDelete.isNotEmpty) {
       await unspentCoinsInfoSource.deleteAll(keysToDelete);
     }
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
-    final currentWallet = await DogeCoinWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
   @override
@@ -141,6 +121,7 @@ class DogeCoinWalletService extends WalletService<
         password: credentials.password!,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
+        derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
         passphrase: credentials.passphrase);

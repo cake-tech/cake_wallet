@@ -19,26 +19,11 @@ class NavigationDock extends StatelessWidget {
       child: Observer(
         builder: (_) {
           return Container(
-            height: 150,
+            height: 84,
             alignment: Alignment.bottomCenter,
-            decoration: dashboardViewModel.settingsStore.backgroundImage.isEmpty
-                ? BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: _getColors(context),
-                    ),
-                  )
-                : null,
-            //color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: _getColors(context),
-                ),
               ),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
               child: ClipRRect(
@@ -50,38 +35,51 @@ class NavigationDock extends StatelessWidget {
                       borderRadius: BorderRadius.circular(50.0),
                       color: Theme.of(context).colorScheme.surfaceContainer,
                     ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: IntrinsicHeight(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: MainActions.all
-                              .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
-                              .map(
-                                (action) => Expanded(
-                                  child: Semantics(
-                                    button: true,
-                                    enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
-                                    child: ActionButton(
-                                      key: action.key,
-                                      image: Image.asset(action.image,
-                                          height: 24,
-                                          width: 24,
-                                          color: Theme.of(context).colorScheme.primary),
-                                      title: action.name(context),
-                                      onClick: (action.isEnabled?.call(dashboardViewModel) ?? true)
-                                          ? () async =>
-                                              await action.onTap(context, dashboardViewModel)
-                                          : null,
-                                      textColor: action.isEnabled?.call(dashboardViewModel) ?? true
-                                          ? null
-                                          : Theme.of(context).colorScheme.onSurface,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: ClipRect(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: MainActions.all
+                            .where((element) =>
+                                element.canShow?.call(dashboardViewModel) ??
+                                true)
+                            .map(
+                              (action) => Expanded(
+                                child: Semantics(
+                                  button: true,
+                                  enabled: (action.isEnabled
+                                          ?.call(dashboardViewModel) ??
+                                      true),
+                                  child: ActionButton(
+                                    key: action.key,
+                                    image: Image.asset(
+                                      action.image,
+                                      height: 24,
+                                      width: 24,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
+                                    title: action.name(context),
+                                    onClick: (action.isEnabled
+                                                ?.call(dashboardViewModel) ??
+                                            true)
+                                        ? () async => await action.onTap(
+                                            context, dashboardViewModel)
+                                        : null,
+                                    textColor: action.isEnabled
+                                                ?.call(dashboardViewModel) ??
+                                            true
+                                        ? null
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
                                   ),
                                 ),
-                              )
-                              .toList(),
-                        ),
+                              ),
+                            )
+                            .toList(),
                       ),
                     ),
                   ),
@@ -92,17 +90,5 @@ class NavigationDock extends StatelessWidget {
         },
       ),
     );
-  }
-
-  List<Color> _getColors(BuildContext context) {
-    return <Color>[
-      context.customColors.backgroundGradientColor.withAlpha(5),
-      context.customColors.backgroundGradientColor.withAlpha(50),
-      context.customColors.backgroundGradientColor.withAlpha(125),
-      context.customColors.backgroundGradientColor.withAlpha(150),
-      context.customColors.backgroundGradientColor.withAlpha(200),
-      context.customColors.backgroundGradientColor,
-      context.customColors.backgroundGradientColor,
-    ];
   }
 }

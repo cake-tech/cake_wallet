@@ -1,25 +1,39 @@
 import 'dart:math';
 
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/pages/scan_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:fast_scanner/fast_scanner.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:ur/ur_decoder.dart';
 
 var isQrScannerShown = false;
 
-Future<String?> presentQRScanner(BuildContext context) async {
+Future<String?> presentQRScanner(BuildContext context, {bool showHelp = false, bool showManualInput = true, bool useModal = false}) async {
   isQrScannerShown = true;
   try {
-    final result = await Navigator.of(context).push<String>(
-      MaterialPageRoute(
-        builder: (context) {
-          return BarcodeScannerSimple();
-        },
-      ),
-    );
+    final result = useModal
+        ? await CupertinoScaffold.showCupertinoModalBottomSheet<String?>(
+            context: context,
+            builder: (context) => ScanPage(
+                  showHelp: showHelp,
+                  showManualInput: showManualInput,
+                ))
+        : await Navigator.of(context).push<String>(
+            CupertinoPageRoute(
+              builder: (context) {
+                return ScanPage(
+                  showHelp: showHelp,
+                  showManualInput: showManualInput,
+                );
+              },
+            ),
+          );
     isQrScannerShown = false;
     return result;
   } catch (e) {
@@ -42,6 +56,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
 
   List<String> urCodes = [];
   late var ur = URQRToURQRData(urCodes);
+  final decoder = URDecoder();
 
   void _handleBarcode(BarcodeCapture barcodes) {
     try {
@@ -70,11 +85,12 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
       if (barcode.rawValue?.trim().isEmpty ?? false == false) continue;
       if (barcode.rawValue!.startsWith("ur:")) {
         if (urCodes.contains(barcode.rawValue)) continue;
+        decoder.receivePart(barcode.rawValue!);
         setState(() {
           urCodes.add(barcode.rawValue!);
           ur = URQRToURQRData(urCodes);
         });
-        if (ur.progress == 1) {
+        if (decoder.estimatedPercentComplete() == 1) {
           setState(() {
             popped = true;
           });
@@ -118,10 +134,10 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
             onDetect: _handleBarcode,
             controller: ctrl,
           ),
-          if (ur.inputs.length != 0)
+          if (decoder.expectedPartCount() != null)
             Center(
               child: Text(
-                "${ur.inputs.length}/${ur.count}",
+                "${decoder.processedPartsCount()}/${decoder.expectedPartCount()!}",
                 style: Theme.of(context)
                     .textTheme
                     .displayLarge
@@ -136,10 +152,10 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
                 child: CustomPaint(
                   painter: ProgressPainter(
                     urQrProgress: URQrProgress(
-                      expectedPartCount: ur.count - 1,
-                      processedPartsCount: ur.inputs.length,
-                      receivedPartIndexes: _urParts(),
-                      percentage: ur.progress,
+                      expectedPartCount: decoder.expectedPartCount() ?? 0,
+                      processedPartsCount: decoder.processedPartsCount(),
+                      receivedPartIndexes: decoder.receivedPartIndexes().toList(),
+                      percentage: decoder.estimatedPercentComplete(),
                     ),
                   ),
                 ),

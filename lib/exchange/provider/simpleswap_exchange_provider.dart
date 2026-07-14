@@ -9,19 +9,14 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class SimpleSwapExchangeProvider extends ExchangeProvider {
-  SimpleSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  SimpleSwapExchangeProvider();
 
-  static const List<CryptoCurrency> _notSupported = [
-    CryptoCurrency.zaddr,
-    CryptoCurrency.xhv,
-  ];
 
   static final apiKey =
       DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
@@ -55,7 +50,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits(
+  Future<Limits?> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -185,7 +180,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "amount": request.fromAmount,
       "fixed": isFixedRateMode,
       "user_refund_address": _normalizeAddress(request.refundAddress),
-      "address_to": _normalizeAddress(request.toAddress)
+      "address_to": _normalizeAddress(request.toAddress),
+      if (request.toAddressExtraId.isNotEmpty) "extra_id_to": request.toAddressExtraId,
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
@@ -294,8 +290,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
-      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
+      toAddressExtraId: request.toAddressExtraId,
     );
   }
 
@@ -330,25 +325,24 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final status = responseJSON['status'] as String;
     final payoutAddress = responseJSON['address_to'] as String;
 
+    final fromParsed =
+        CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
+    final toParsed = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     return Trade(
       id: id,
-      from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
-      to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
+      from: fromParsed,
+      to: toParsed,
       extraId: extraId,
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,
       state: TradeState.deserialize(raw: status),
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
     );
   }
 
   static String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.zaddr:
-        return 'zec';
       case CryptoCurrency.zec:
         return 'zec';
       case CryptoCurrency.bnb:

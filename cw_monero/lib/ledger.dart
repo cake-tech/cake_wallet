@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -15,7 +16,7 @@ String? latestLedgerCommand;
 typedef LedgerCallback = Void Function(Pointer<UnsignedChar>, UnsignedInt);
 NativeCallable<LedgerCallback>? callable;
 
-void enableLedgerExchange(LedgerConnection connection) {
+Future<void> enableLedgerExchange(LedgerConnection connection) async {
   callable?.close();
 
   void callback(Pointer<UnsignedChar> request, int requestLength) async {
@@ -118,3 +119,10 @@ void _logLedgerCommand(Uint8List command, [bool isResponse = true]) {
         "> ${_ledgerMoneroCommands[command[1]]} ${toHexString(command.sublist(2))}");
   }
 }
+
+class MoneroLedgerService extends HardwareWalletService {
+  final LedgerConnection connection;
+
+  MoneroLedgerService(this.connection);
+}
+

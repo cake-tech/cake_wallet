@@ -4,24 +4,31 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import "package:cw_core/balance_card_style_settings.dart";
+import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
-import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
@@ -30,7 +37,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -43,7 +49,8 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/card_design.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -61,7 +68,8 @@ import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/evm/evm.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -88,110 +96,14 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
-        filterItems = {
-          S.current.transactions: [
-            FilterItem(
-                value: () => transactionFilterStore.displayAll,
-                caption: S.current.all_transactions,
-                onChanged: transactionFilterStore.toggleAll),
-            FilterItem(
-                value: () => transactionFilterStore.displayIncoming,
-                caption: S.current.incoming,
-                onChanged: transactionFilterStore.toggleIncoming),
-            FilterItem(
-                value: () => transactionFilterStore.displayOutgoing,
-                caption: S.current.outgoing,
-                onChanged: transactionFilterStore.toggleOutgoing),
-            if (appStore.wallet!.type == WalletType.bitcoin)
-              FilterItem(
-                value: () => transactionFilterStore.displaySilentPayments,
-                caption: S.current.silent_payments,
-                onChanged: transactionFilterStore.toggleSilentPayments,
-              ),
-            // FilterItem(
-            //     value: () => false,
-            //     caption: S.current.transactions_by_date,
-            //     onChanged: null),
-          ],
-          'Orders': [
-            FilterItem(
-                value: () => orderFilterStore.displayCakePay,
-                caption: 'Cake Pay',
-                onChanged: () =>
-                    orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
-          ],
-          S.current.trades: [
-            FilterItem(
-                value: () => tradeFilterStore.displayAllTrades,
-                caption: S.current.all_trades,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
-            FilterItem(
-                value: () => tradeFilterStore.displayChangeNow,
-                caption: ExchangeProviderDescription.changeNow.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySideShift,
-                caption: ExchangeProviderDescription.sideShift.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySimpleSwap,
-                caption: ExchangeProviderDescription.simpleSwap.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
-            FilterItem(
-                value: () => tradeFilterStore.displayTrocador,
-                caption: ExchangeProviderDescription.trocador.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
-            FilterItem(
-                value: () => tradeFilterStore.displayExolix,
-                caption: ExchangeProviderDescription.exolix.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
-            FilterItem(
-                value: () => tradeFilterStore.displayChainflip,
-                caption: ExchangeProviderDescription.chainflip.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
-            FilterItem(
-                value: () => tradeFilterStore.displayThorChain,
-                caption: ExchangeProviderDescription.thorChain.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
-            FilterItem(
-                value: () => tradeFilterStore.displayLetsExchange,
-                caption: ExchangeProviderDescription.letsExchange.title,
-                onChanged: () => tradeFilterStore
-                    .toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
-            FilterItem(
-                value: () => tradeFilterStore.displayStealthEx,
-                caption: ExchangeProviderDescription.stealthEx.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
-            FilterItem(
-                value: () => tradeFilterStore.displayXOSwap,
-                caption: ExchangeProviderDescription.xoSwap.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySwapTrade,
-                caption: ExchangeProviderDescription.swapTrade.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySwapXyz,
-                caption: ExchangeProviderDescription.swapsXyz.title,
-                onChanged: () =>
-                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
-          ]
-        },
+        filterItems = [],
+        exchangeFilterItems = [],
         subname = '',
         name = appStore.wallet!.name,
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
+        cardDesigns = ObservableList<CardDesign>(),
+        cardOrder = ObservableMap<int, int>(),
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
@@ -205,6 +117,8 @@ abstract class DashboardViewModelBase with Store {
     unawaited(isBatteryOptimizationEnabled());
     unawaited(_loadConstraints());
     final _wallet = wallet;
+
+    loadFilterItems();
 
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
@@ -230,7 +144,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -260,7 +174,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -274,7 +188,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('${_wallet.type.name}_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -286,9 +200,11 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, (wallet) {
+    _walletChangeDisposer?.reaction.dispose();
+    _walletChangeDisposer = reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
 
@@ -306,11 +222,17 @@ abstract class DashboardViewModelBase with Store {
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
+                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
+                  1;
         } catch (_) {}
+      } else {
+        confirmations = appStore.wallet!.transactionHistory.transactions.values
+            .map((item) => item.isPending)
+            .fold(0, (val, pending) => pending ? val + 1 : val);
       }
       return length * confirmations;
-    }, _transactionDisposerCallback);
+    }, _transactionDisposerCallback, delay: 300);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -320,6 +242,8 @@ abstract class DashboardViewModelBase with Store {
       });
     }
 
+    loadCardDesigns();
+
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
 
@@ -328,7 +252,237 @@ abstract class DashboardViewModelBase with Store {
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
+
+  void loadFilterItems() {
+    filterItems = [
+      // FilterItem(
+      //     value: () => transactionFilterStore.displayAll,
+      //     caption: S.current.all_transactions,
+      //     onChanged: transactionFilterStore.toggleAll),
+      FilterItem(
+          value: () => transactionFilterStore.displayOutgoing,
+          caption: S.current.send,
+          onChanged: transactionFilterStore.toggleOutgoing),
+      FilterItem(
+          value: () => transactionFilterStore.displayIncoming,
+          caption: S.current.receive,
+          onChanged: transactionFilterStore.toggleIncoming),
+      if (appStore.wallet!.type == WalletType.bitcoin)
+        FilterItem(
+          value: () => transactionFilterStore.displaySilentPayments,
+          caption: S.current.silent_payments,
+          onChanged: transactionFilterStore.toggleSilentPayments,
+        ),
+      SwapFilterItem(
+          enabledProviders: () => tradeFilterStore.enabledProvidersCount,
+          allEnabled: () => tradeFilterStore.displayAllTrades,
+          value: () => tradeFilterStore.enabledProvidersCount>0,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
+      FilterItem(
+          value: () => orderFilterStore.displayCakePay,
+          caption: 'Cake Pay',
+          onChanged: () =>
+              orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
+    ];
+    exchangeFilterItems = [
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.changeNow,
+          value: () => tradeFilterStore.displayChangeNow,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.sideShift,
+          value: () => tradeFilterStore.displaySideShift,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.simpleSwap,
+          value: () => tradeFilterStore.displaySimpleSwap,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.trocador,
+          value: () => tradeFilterStore.displayTrocador,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.exolix,
+          value: () => tradeFilterStore.displayExolix,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.chainflip,
+          value: () => tradeFilterStore.displayChainflip,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.thorChain,
+          value: () => tradeFilterStore.displayThorChain,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.letsExchange,
+          value: () => tradeFilterStore.displayLetsExchange,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.stealthEx,
+          value: () => tradeFilterStore.displayStealthEx,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.xoSwap,
+          value: () => tradeFilterStore.displayXOSwap,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.swapTrade,
+          value: () => tradeFilterStore.displaySwapTrade,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.swapsXyz,
+          value: () => tradeFilterStore.displaySwapXyz,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.nearIntents,
+          value: () => tradeFilterStore.displayNearIntents,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+    ];
+  }
+
+
+
   bool _isTransactionDisposerCallbackRunning = false;
+
+  @action
+  void _reloadTransactions() {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero) {
+      return; // Monero/Wownero transactions are handled separately
+    }
+
+    transactions.clear();
+
+    transactions.addAll(
+      wallet.transactionHistory.transactions.values.map(
+        (transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          appStore: appStore,
+          key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+        ),
+      ),
+    );
+  }
+
+  @computed
+  bool get isSyncHeavy {
+    if ([
+      WalletType.monero,
+      WalletType.wownero,
+      WalletType.decred,
+      WalletType.zcash,
+      WalletType.zano
+    ].contains(wallet.type)) {
+      return true;
+    }
+
+    if (wallet.type == WalletType.bitcoin && silentPaymentsScanningActive && hasSilentPayments) {
+      return true;
+    }
+
+    if (wallet.type == WalletType.litecoin && mwebEnabled && hasMweb) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool showBridge(CryptoCurrency currency) {
+    if(!isEVMCompatibleChain(wallet.type)) return false;
+
+    if(evm!.isUSDT0Token(wallet, currency)) return true;
+
+    return false;
+  }
+
+  @action
+  void changeAllFilterItems(bool value) {
+    for (final item in filterItems) {
+      if (item.value() != value) {
+        item.onChanged();
+      }
+    }
+    for (final item in exchangeFilterItems) {
+      if (item.value() != value) {
+        item.onChanged();
+      }
+    }
+  }
+
+  @action
+  Future<void> loadCardDesigns() async {
+    final accountStyleSettings =
+        await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+
+    late final int numAccounts;
+    if (wallet.type == WalletType.monero) {
+      numAccounts = monero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.wownero) {
+      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
+    } else if (wallet.type == WalletType.bitcoin) {
+      // bitcoin and lightning
+      numAccounts = 2;
+    } else {
+      numAccounts = 1;
+    }
+    cardDesigns.clear();
+    Map<int, int> newOrder = {};
+
+    for (int i = 0; i < numAccounts; i++) {
+      late final int index;
+      if (balanceViewModel.hasAccounts) {
+        index = i;
+      } else if (wallet.type == WalletType.bitcoin && i == 1) {
+        index = 0;
+      } else {
+        index = -1;
+      }
+
+      final setting = accountStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
+
+      late final CryptoCurrency curr;
+      if (wallet.type == WalletType.bitcoin && i == 1) {
+        curr = CryptoCurrency.btcln;
+      } else {
+        curr = wallet.currency;
+      }
+
+      cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
+      if (setting?.cardOrder != null) {
+        newOrder[setting!.cardOrder] = i;
+      }
+    }
+
+    // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
+    for (int i = 0; i < numAccounts; i++) {
+      if (!newOrder.containsKey(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
+        int free = 0;
+        while (newOrder.containsValue(free)) {
+          free++;
+        }
+        if (wallet.type == WalletType.bitcoin) {
+          newOrder[free] = 0;
+        } else {
+          newOrder[free] = i;
+        }
+      }
+    }
+    cardOrder = newOrder.asObservable();
+  }
 
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame
@@ -358,13 +512,47 @@ abstract class DashboardViewModelBase with Store {
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
-      transactions.clear();
-      transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
-            transaction: tx,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-          )));
+      // TODO(malik) update this in a saner way during the vm refactor
+      String _txIdentityString(String txHash, TransactionDirection direction) => "${txHash}_$direction";
+      String _txIdentityStringConfirmations(
+              String txHash, TransactionDirection direction, int confirmations, bool isPending) =>
+          "${txHash}_${direction}_${confirmations}_$isPending";
+
+      final existingKeys = transactions
+          .map((item) => _txIdentityStringConfirmations(
+              item.transaction.txHash,
+              item.transaction.direction,
+              item.transaction.confirmations,
+              item.transaction.isPending))
+          .toSet();
+
+      final newTransactions = relevantTxs
+          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(
+              tx.txHash, tx.direction, tx.confirmations, tx.isPending)))
+          .map((tx) => TransactionListItem(
+                transaction: tx,
+                balanceViewModel: balanceViewModel,
+                appStore: appStore,
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+              ))
+          .toList();
+
+      final newKeys = newTransactions
+          .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
+          .toSet();
+
+      transactions.removeWhere(
+        (item) => newKeys.contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
+      );
+
+      transactions.addAll(newTransactions);
+      // transactions.clear();
+      // transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
+      //       transaction: tx,
+      //       balanceViewModel: balanceViewModel,
+      //       appStore: appStore,
+      //       key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+      //     )));
     } finally {
       _isTransactionDisposerCallbackRunning = false;
     }
@@ -398,16 +586,41 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool isShowThirdYatIntroduction;
 
+  @observable
+  ObservableList<CardDesign> cardDesigns;
+
+  @observable
+  ObservableMap<int, int> cardOrder;
+
   @computed
   bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;
+
   @computed
   String get address => wallet.walletAddresses.address;
 
   @computed
-  bool get isTorEnabled => CakeTor.instance!.enabled;
+  bool get isTorEnabled => settingsStore.currentBuiltinTor;
 
   @computed
   SyncStatus get status => wallet.syncStatus;
+
+  @computed
+  bool get shouldShowMwebAd {
+    if (wallet.type != WalletType.litecoin) return false;
+
+    if (mwebEnabled) return false;
+
+    if (settingsStore.mwebAdDismissed) return false;
+
+    return Platform.isAndroid || Platform.isIOS;
+  }
+
+  @action
+  void dismissMwebAd(bool enableMweb) {
+    if (enableMweb) setMwebEnabled();
+
+    settingsStore.mwebAdDismissed = true;
+  }
 
   @computed
   String get syncStatusText {
@@ -429,15 +642,49 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
+  double get confirmationProgress {
+    int received = 0;
+    int needed = 0;
+
+    for (final transaction in transactions) {
+      if (transaction.neededConfirmations == 0) {
+        continue;
+      }
+
+      if (transaction.transaction.confirmations >= transaction.neededConfirmations) {
+        continue;
+      }
+
+      received += transaction.transaction.confirmations;
+      needed += transaction.neededConfirmations;
+    }
+    if (needed == 0) {
+      return 1;
+    }
+    return received / needed;
+  }
+
+  @computed
   BalanceDisplayMode get balanceDisplayMode => appStore.settingsStore.balanceDisplayMode;
 
   @computed
+  @Deprecated("Replaced by showApps")
   bool get shouldShowMarketPlaceInDashboard =>
       appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  List<TradeListItem> get trades =>
-      tradesStore.trades.where((trade) => trade.trade.walletId == wallet.id).toList();
+  bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
+
+  @computed
+  List<TradeListItem> get trades => tradesStore.trades.where((trade) {
+        final isSameChain = trade.trade.chainId != null
+            ? trade.trade.chainId == wallet.chainId
+            : true; // returning default as true here so it falls back to the default checks if there's no chainId
+        return trade.trade.walletId == wallet.id && isSameChain;
+      }).toList();
+
+  @computed
+  bool get shouldShowBalanceHiddenMessage => balanceDisplayMode == BalanceDisplayMode.hiddenBalance && appStore.settingsStore.balanceHideCounter < 10;
 
   @computed
   List<OrderListItem> get orders =>
@@ -486,8 +733,24 @@ abstract class DashboardViewModelBase with Store {
     return formattedItemsList(_items);
   }
 
+  static const shortHistoryLength = 3;
+
+  @computed
+  List<ActionListItem> get itemsShort => items
+          .where((item) => item is! DateSectionItem)
+          .take(shortHistoryLength)
+          .toList();
+
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+
+  @computed
+  bool get hasLightning =>
+      wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
+
+  @computed
+  bool get hasWalletConnect =>
+      isWalletConnectCompatibleChain(wallet.type) && !wallet.isHardwareWallet;
 
   @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
@@ -544,11 +807,18 @@ abstract class DashboardViewModelBase with Store {
         "public view key is 0",
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
-      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
-          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-        "primary address is invalid, you won't be able to receive / spend funds",
+      // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+      //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
+        // "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
+  }
+
+  @computed
+  bool get showZcashMissingFundsCard {
+    if (wallet.type != WalletType.zcash) return false;
+    if (!settingsStore.showZcashMissingFundsCard) return false;
+    return zcash!.showMissingFundsCard(wallet);
   }
 
   @computed
@@ -559,6 +829,30 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+
+  @computed
+  bool get isEVMWallet => isEVMCompatibleChain(wallet.type);
+
+  @computed
+  List<ChainInfo> get availableChains {
+    if (!isEVMWallet) return [];
+    return evm!.getAllChains();
+  }
+
+  @computed
+  ChainInfo? get currentChain {
+    if (!isEVMWallet) return null;
+    return evm!.getCurrentChain(wallet);
+  }
+
+  @action
+  Future<void> selectChain(int chainId) async {
+    if (!isEVMWallet) return;
+
+    final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
+
+    await evm!.selectChain(wallet, chainId, node: node);
+  }
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
@@ -610,6 +904,18 @@ abstract class DashboardViewModelBase with Store {
     return resp;
   }
 
+  @action
+  void toggleSwitchStatusDisplayMode() {
+    if (status is SyncingSyncStatus &&
+        !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
+      if (settingsStore.syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
+        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.blocksRemaining;
+      } else {
+        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.eta;
+      }
+    }
+  }
+
   @observable
   late bool backgroundSyncNotificationsEnabled =
       sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
@@ -633,8 +939,11 @@ abstract class DashboardViewModelBase with Store {
   }
 
   bool get hasBgsyncNetworkConstraints => Platform.isAndroid;
+
   bool get hasBgsyncBatteryNotLowConstraints => Platform.isAndroid;
+
   bool get hasBgsyncChargingConstraints => Platform.isAndroid;
+
   bool get hasBgsyncDeviceIdleConstraints => Platform.isAndroid;
 
   @observable
@@ -789,6 +1098,16 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
+  Future<void> rescanInternalChangeZcash() async {
+    await zcash!.rescanInternalChange(wallet);
+  }
+
+  @action
+  void dismissZcash() {
+    settingsStore.showZcashMissingFundsCard = false;
+  }
+
+  @action
   void dismissDecredInfoCard() {
     showDecredInfoCard = false;
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
@@ -830,7 +1149,11 @@ abstract class DashboardViewModelBase with Store {
 
   PayjoinTransactionsStore payjoinTransactionsStore;
 
-  Map<String, List<FilterItem>> filterItems;
+  // Map<String, List<FilterItem>> filterItems;
+
+  List<FilterItem> filterItems;
+
+  List<FilterItem> exchangeFilterItems;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
@@ -863,6 +1186,10 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _transactionDisposer;
 
+  ReactionDisposer? _walletChangeDisposer;
+
+  ReactionDisposer? _chainChangeDisposer;
+
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
@@ -879,6 +1206,8 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
+      case WalletType.arbitrum:
+      case WalletType.bsc:
       case WalletType.solana:
       case WalletType.nano:
       case WalletType.banano:
@@ -889,6 +1218,7 @@ abstract class DashboardViewModelBase with Store {
         return true;
       case WalletType.zano:
       case WalletType.haven:
+      case WalletType.zcash:
       case WalletType.none:
         return false;
     }
@@ -907,7 +1237,12 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> reconnect() async {
-    final node = appStore.settingsStore.getCurrentNode(wallet.type);
+    int? chainId;
+    if (isEVMWallet) {
+      chainId = evm!.getSelectedChainId(wallet);
+    }
+
+    final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
     await wallet.connectToNode(node: node);
     if (hasPowNodes) {
       final powNode = settingsStore.getCurrentPowNode(wallet.type);
@@ -929,6 +1264,7 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    loadFilterItems();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
@@ -965,21 +1301,24 @@ abstract class DashboardViewModelBase with Store {
       // subname = null;
       subname = '';
 
-      transactions.clear();
-
-      transactions.addAll(
-        wallet.transactionHistory.transactions.values.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
+      _reloadTransactions();
     }
 
     _transactionDisposer?.reaction.dispose();
+
+    if (isEVMCompatibleChain(wallet.type)) {
+      _chainChangeDisposer?.reaction.dispose();
+      _chainChangeDisposer = reaction((_) {
+        // Access selectedChainId through proxy to track chain changes
+        return evm!.getSelectedChainId(wallet);
+      }, (_) {
+        // When chain switches, reload transactions for the new chain
+        _reloadTransactions();
+      });
+    } else {
+      _chainChangeDisposer?.reaction.dispose();
+      _chainChangeDisposer = null;
+    }
 
     _transactionDisposer = reaction((_) {
       final length = appStore.wallet!.transactionHistory.transactions.length;
@@ -990,11 +1329,17 @@ abstract class DashboardViewModelBase with Store {
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
           confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
+                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
+                  1;
         } catch (_) {}
+      } else {
+        confirmations = appStore.wallet!.transactionHistory.transactions.values
+            .map((item) => item.isPending)
+            .fold(0, (val, pending) => pending ? val + 1 : val);
       }
       return length * confirmations;
-    }, _transactionDisposerCallback);
+    }, _transactionDisposerCallback, delay: 300);
   }
 
   @action
@@ -1024,7 +1369,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -1044,7 +1389,7 @@ abstract class DashboardViewModelBase with Store {
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
+            appStore: appStore,
             key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
           ),
         ),
@@ -1067,10 +1412,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setBuiltinTor(bool value, BuildContext context) {
     if (value) {
-      unawaited(showPopUp<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
+      unawaited(
+        showPopUp<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
               alertTitle: S.of(context).tor_connection,
               alertContent: S.of(context).tor_experimental,
               buttonText: S.of(context).ok,
@@ -1083,13 +1429,25 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.currentBuiltinTor = value;
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
-        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+        if (settingsStore.currentBuiltinTor == false)
+          return; // return when tor got disabled in the meantime;
+        int? chainId;
+        if (isEVMWallet) {
+          chainId = evm!.getSelectedChainId(wallet);
+        }
+        await wallet.connectToNode(
+            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
-        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+        if (settingsStore.currentBuiltinTor == true)
+          return; // return when tor got enabled in the meantime;
+        int? chainId;
+        if (isEVMWallet) {
+          chainId = evm!.getSelectedChainId(wallet);
+        }
+        await wallet.connectToNode(
+            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
       }));
     }
   }
@@ -1098,8 +1456,8 @@ abstract class DashboardViewModelBase with Store {
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
   Future<List<String>> checkForHavenWallets() async {
-    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-    return walletInfoSource.values
+    final walletInfos = await WalletInfo.getAll();
+    return walletInfos
         .where((element) => element.type == WalletType.haven)
         .map((e) => e.name)
         .toList();
@@ -1112,10 +1470,9 @@ abstract class DashboardViewModelBase with Store {
           .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
       final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
-      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-
       List<String> affectedWallets = [];
-      for (var walletInfo in walletInfoSource.values) {
+      final walletInfos = await WalletInfo.getAll();
+      for (var walletInfo in walletInfos) {
         if (walletInfo.type == WalletType.bitcoin) {
           final password = await keyService.getWalletPassword(walletName: walletInfo.name);
           final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
@@ -1194,8 +1551,9 @@ abstract class DashboardViewModelBase with Store {
       if (tx.isReplaced == true) return ' (replaced)';
     }
 
-    if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
+    if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')
       return ' (${tx.evmSignatureName})';
+
     return '';
   }
 

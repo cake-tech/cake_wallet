@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -6,6 +7,7 @@ import 'package:cw_core/currency.dart';
 class AmountValidator extends TextValidator {
   AmountValidator({
     required CryptoCurrency currency,
+    required AmountParsingProxy amountParsingProxy,
     bool isAutovalidate = false,
     String? minValue,
     String? maxValue,
@@ -17,11 +19,15 @@ class AmountValidator extends TextValidator {
     amountMinValidator = AmountMinValidator(
       minValue: minValue,
       isAutovalidate: isAutovalidate,
+      amountParsingProxy: amountParsingProxy,
+      cryptoCurrency: currency,
     );
 
     amountMaxValidator = AmountMaxValidator(
       maxValue: maxValue,
       isAutovalidate: isAutovalidate,
+      amountParsingProxy: amountParsingProxy,
+      cryptoCurrency: currency,
     );
   }
 
@@ -52,54 +58,51 @@ class AmountValidator extends TextValidator {
 class SymbolsAmountValidator extends TextValidator {
   SymbolsAmountValidator({required bool isAutovalidate})
       : super(
-      errorMessage: S.current.error_text_amount,
-      pattern: _pattern(),
-      isAutovalidate: isAutovalidate,
-      minLength: 0,
-      maxLength: 0);
+          errorMessage: S.current.error_text_amount,
+          pattern: _pattern(),
+          isAutovalidate: isAutovalidate,
+          minLength: 0,
+          maxLength: 0,
+        );
 
-  static String _pattern() => '^([0-9]+([.\,][0-9]+)?|[.\,][0-9]+)\$';
+  static String _pattern() => r'^(?:\d+(?:[.\,]\d+)?|[.\,]\d+)$';
 }
 
 class DecimalAmountValidator extends TextValidator {
-  DecimalAmountValidator({required Currency currency, required bool isAutovalidate })
+  DecimalAmountValidator({required Currency currency, required bool isAutovalidate})
       : super(
-            errorMessage: S.current.decimal_places_error,
-            pattern: _pattern(currency),
-            isAutovalidate: isAutovalidate,
-            minLength: 0,
-            maxLength: 0);
+          errorMessage: S.current.decimal_places_error,
+          pattern: _pattern(currency),
+          isAutovalidate: isAutovalidate,
+          minLength: 0,
+          maxLength: 0,
+        );
 
-  static String _pattern(Currency currency) {
-    switch (currency) {
-      case CryptoCurrency.xmr:
-        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
-      case CryptoCurrency.btc:
-        return '^([0-9]+([.\,][0-9]{1,8})?|[.\,][0-9]{1,8})\$';
-      case CryptoCurrency.zano:
-        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,18})\$';
-      default:
-        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
-    }
-  }
+  static String _pattern(Currency currency) =>
+      '^([0-9]+([.\,][0-9]{1,${currency.decimals}})?|[.\,][0-9]{1,${currency.decimals}})\$';
 }
 
 class AllAmountValidator extends TextValidator {
   AllAmountValidator()
       : super(
-            errorMessage: S.current.error_text_amount,
-            pattern: S.current.all,
-            minLength: 0,
-            maxLength: 0);
+          errorMessage: S.current.error_text_amount,
+          pattern: S.current.all,
+          minLength: 0,
+          maxLength: 0,
+        );
 }
 
 class AmountMinValidator extends Validator<String> {
   final String? minValue;
   final bool isAutovalidate;
+  final AmountParsingProxy amountParsingProxy;
+  final CryptoCurrency cryptoCurrency;
 
   AmountMinValidator({
     this.minValue,
     required this.isAutovalidate,
+    required this.amountParsingProxy,
+    required this.cryptoCurrency,
   }) : super(errorMessage: S.current.error_text_input_below_minimum_limit);
 
   @override
@@ -112,6 +115,7 @@ class AmountMinValidator extends Validator<String> {
       return true;
     }
 
+    value = amountParsingProxy.getCanonicalCryptoAmount(value, cryptoCurrency);
     final valueInDouble = parseToDouble(value);
     final minInDouble = parseToDouble(minValue ?? '');
 
@@ -119,7 +123,7 @@ class AmountMinValidator extends Validator<String> {
       return false;
     }
 
-    return valueInDouble > minInDouble;
+    return valueInDouble >= minInDouble;
   }
 
   double? parseToDouble(String value) {
@@ -131,10 +135,14 @@ class AmountMinValidator extends Validator<String> {
 class AmountMaxValidator extends Validator<String> {
   final String? maxValue;
   final bool isAutovalidate;
+  final AmountParsingProxy amountParsingProxy;
+  final CryptoCurrency cryptoCurrency;
 
   AmountMaxValidator({
     this.maxValue,
     required this.isAutovalidate,
+    required this.amountParsingProxy,
+    required this.cryptoCurrency,
   }) : super(errorMessage: S.current.error_text_input_above_maximum_limit);
 
   @override
@@ -147,13 +155,14 @@ class AmountMaxValidator extends Validator<String> {
       return true;
     }
 
+    value = amountParsingProxy.getCanonicalCryptoAmount(value, cryptoCurrency);
     final valueInDouble = parseToDouble(value);
     final maxInDouble = parseToDouble(maxValue ?? '');
 
     if (valueInDouble == null || maxInDouble == null) {
       return false;
     }
-    return valueInDouble < maxInDouble;
+    return valueInDouble <= maxInDouble;
   }
 
   double? parseToDouble(String value) {

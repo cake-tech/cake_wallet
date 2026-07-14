@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/spl_token.dart';
 
 class DefaultSPLTokens {
@@ -43,7 +44,7 @@ class DefaultSPLTokens {
       mintAddress: '2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk',
       decimal: 6,
       mint: 'soEth',
-      iconPath: 'assets/images/crypto/ethereum.webp',
+      iconPath: 'assets/new-ui/crypto_full_icons/ethereum.svg',
       enabled: false,
     ),
     SPLToken(
@@ -52,7 +53,7 @@ class DefaultSPLTokens {
       mintAddress: 'So11111111111111111111111111111111111111112',
       decimal: 9,
       mint: 'WSOL',
-      iconPath: 'assets/images/crypto/solana.webp',
+      iconPath: 'assets/new-ui/crypto_full_icons/solana.svg',
       enabled: false,
     ),
     SPLToken(
@@ -61,7 +62,7 @@ class DefaultSPLTokens {
       mintAddress: '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E',
       decimal: 6,
       mint: 'btcsol',
-      iconPath: 'assets/images/crypto/bitcoin.webp',
+      iconPath: 'assets/new-ui/crypto_full_icons/bitcoin.svg',
       enabled: false,
     ),
     SPLToken(
@@ -85,7 +86,7 @@ class DefaultSPLTokens {
       name: 'GMT',
       symbol: 'GMT',
       mintAddress: '7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx',
-      decimal: 6,
+      decimal: 9,
       mint: 'ray',
       iconPath: 'assets/images/gmt_icon.png',
       enabled: false,
@@ -100,6 +101,15 @@ class DefaultSPLTokens {
       enabled: false,
     ),
     SPLToken(
+      name: "Tether Gold",
+      symbol: "XAUT0",
+      mintAddress: "AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P",
+      decimal: 6,
+      mint: 'xaut0',
+      enabled: false,
+      iconPath: "assets/images/xau_sol.png",
+    ),
+    SPLToken(
       name: 'Abbott xStock',
       symbol: 'ABTx',
       mintAddress: 'XsHtf5RpxsQ7jeJ9ivNewouZKJHbPxhPoEy6yYvULr7',
@@ -107,6 +117,7 @@ class DefaultSPLTokens {
       mint: 'abtx',
       enabled: false,
       iconPath: 'assets/images/stocks/abtx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'AbbVie xStock',
@@ -116,6 +127,7 @@ class DefaultSPLTokens {
       mint: 'abbvx',
       enabled: false,
       iconPath: 'assets/images/stocks/abbv.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Accenture xStock',
@@ -125,6 +137,7 @@ class DefaultSPLTokens {
       mint: 'acnx',
       enabled: false,
       iconPath: 'assets/images/stocks/acnx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Alphabet xStock',
@@ -134,6 +147,7 @@ class DefaultSPLTokens {
       mint: 'googlx',
       enabled: false,
       iconPath: 'assets/images/stocks/googlx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Amazon xStock',
@@ -143,6 +157,7 @@ class DefaultSPLTokens {
       mint: 'amznx',
       enabled: false,
       iconPath: 'assets/images/stocks/amznx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Amber xStock',
@@ -152,6 +167,7 @@ class DefaultSPLTokens {
       mint: 'ambrx',
       enabled: false,
       iconPath: 'assets/images/stocks/ambrx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Apple xStock',
@@ -161,6 +177,7 @@ class DefaultSPLTokens {
       mint: 'aaplx',
       enabled: false,
       iconPath: 'assets/images/stocks/apple.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'AppLovin xStock',
@@ -170,6 +187,7 @@ class DefaultSPLTokens {
       mint: 'appx',
       enabled: false,
       iconPath: 'assets/images/stocks/appx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'AstraZeneca xStock',
@@ -179,6 +197,7 @@ class DefaultSPLTokens {
       mint: 'aznx',
       enabled: false,
       iconPath: 'assets/images/stocks/aznx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Bank of America xStock',
@@ -188,6 +207,7 @@ class DefaultSPLTokens {
       mint: 'bacx',
       enabled: false,
       iconPath: 'assets/images/stocks/bacx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Berkshire Hathaway xStock',
@@ -197,6 +217,7 @@ class DefaultSPLTokens {
       mint: 'brkbx',
       enabled: false,
       iconPath: 'assets/images/stocks/brkbx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Broadcom xStock',
@@ -206,6 +227,7 @@ class DefaultSPLTokens {
       mint: 'avgox',
       enabled: false,
       iconPath: 'assets/images/stocks/avgox.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Chevron xStock',
@@ -215,6 +237,7 @@ class DefaultSPLTokens {
       mint: 'cvxx',
       enabled: false,
       iconPath: 'assets/images/stocks/cvxx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Circle xStock',
@@ -224,6 +247,7 @@ class DefaultSPLTokens {
       mint: 'crclx',
       enabled: false,
       iconPath: 'assets/images/stocks/crclx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Cisco xStock',
@@ -233,6 +257,7 @@ class DefaultSPLTokens {
       mint: 'cscx',
       enabled: false,
       iconPath: 'assets/images/stocks/cscox.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Coca-Cola xStock',
@@ -242,6 +267,7 @@ class DefaultSPLTokens {
       mint: 'kox',
       enabled: false,
       iconPath: 'assets/images/stocks/kox.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Coinbase xStock',
@@ -251,6 +277,7 @@ class DefaultSPLTokens {
       mint: 'coinx',
       enabled: false,
       iconPath: 'assets/images/stocks/coinx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Comcast xStock',
@@ -260,6 +287,7 @@ class DefaultSPLTokens {
       mint: 'cmcsax',
       enabled: false,
       iconPath: 'assets/images/stocks/cmcsax.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'CrowdStrike xStock',
@@ -269,6 +297,7 @@ class DefaultSPLTokens {
       mint: 'crwdx',
       enabled: false,
       iconPath: 'assets/images/stocks/crwdx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Danaher xStock',
@@ -278,6 +307,7 @@ class DefaultSPLTokens {
       mint: 'dhrx',
       enabled: false,
       iconPath: 'assets/images/stocks/dhrx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'DFDV xStock',
@@ -287,6 +317,7 @@ class DefaultSPLTokens {
       mint: 'dfdvx',
       enabled: false,
       iconPath: 'assets/images/stocks/dfdvx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Eli Lilly xStock',
@@ -296,6 +327,7 @@ class DefaultSPLTokens {
       mint: 'llyx',
       enabled: false,
       iconPath: 'assets/images/stocks/llyx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Exxon Mobil xStock',
@@ -305,6 +337,7 @@ class DefaultSPLTokens {
       mint: 'xomx',
       enabled: false,
       iconPath: 'assets/images/stocks/xomx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Gamestop xStock',
@@ -314,6 +347,7 @@ class DefaultSPLTokens {
       mint: 'gmex',
       enabled: false,
       iconPath: 'assets/images/stocks/gmex.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Gold xStock',
@@ -323,6 +357,7 @@ class DefaultSPLTokens {
       mint: 'gldx',
       enabled: false,
       iconPath: 'assets/images/stocks/gldx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Goldman Sachs xStock',
@@ -332,6 +367,7 @@ class DefaultSPLTokens {
       mint: 'gsx',
       enabled: false,
       iconPath: 'assets/images/stocks/gsx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Home Depot xStock',
@@ -341,6 +377,7 @@ class DefaultSPLTokens {
       mint: 'hdx',
       enabled: false,
       iconPath: 'assets/images/stocks/hdx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Honeywell xStock',
@@ -350,6 +387,7 @@ class DefaultSPLTokens {
       mint: 'honx',
       enabled: false,
       iconPath: 'assets/images/stocks/honx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Intel xStock',
@@ -359,6 +397,7 @@ class DefaultSPLTokens {
       mint: 'intcx',
       enabled: false,
       iconPath: 'assets/images/stocks/intcx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'International Business Machines xStock',
@@ -368,6 +407,7 @@ class DefaultSPLTokens {
       mint: 'ibmx',
       enabled: false,
       iconPath: 'assets/images/stocks/ibmx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Johnson & Johnson xStock',
@@ -377,6 +417,7 @@ class DefaultSPLTokens {
       mint: 'jnjx',
       enabled: false,
       iconPath: 'assets/images/stocks/jnjx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'JPMorgan Chase xStock',
@@ -386,6 +427,7 @@ class DefaultSPLTokens {
       mint: 'jpmx',
       enabled: false,
       iconPath: 'assets/images/stocks/jpmx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Linde xStock',
@@ -395,6 +437,7 @@ class DefaultSPLTokens {
       mint: 'linx',
       enabled: false,
       iconPath: 'assets/images/stocks/linx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Marvell xStock',
@@ -404,6 +447,7 @@ class DefaultSPLTokens {
       mint: 'mrvlx',
       enabled: false,
       iconPath: 'assets/images/stocks/mrvlx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Mastercard xStock',
@@ -413,6 +457,7 @@ class DefaultSPLTokens {
       mint: 'max',
       enabled: false,
       iconPath: 'assets/images/stocks/mastercard.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'McDonald\'s xStock',
@@ -422,6 +467,7 @@ class DefaultSPLTokens {
       mint: 'mcdx',
       enabled: false,
       iconPath: 'assets/images/stocks/mcdonalds.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Medtronic xStock',
@@ -431,6 +477,7 @@ class DefaultSPLTokens {
       mint: 'mdtx',
       enabled: false,
       iconPath: 'assets/images/stocks/mdtx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Merck xStock',
@@ -440,6 +487,7 @@ class DefaultSPLTokens {
       mint: 'mrkx',
       enabled: false,
       iconPath: 'assets/images/stocks/mrkx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Meta xStock',
@@ -449,6 +497,7 @@ class DefaultSPLTokens {
       mint: 'metax',
       enabled: false,
       iconPath: 'assets/images/stocks/metax.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Microsoft xStock',
@@ -458,6 +507,7 @@ class DefaultSPLTokens {
       mint: 'msftx',
       enabled: false,
       iconPath: 'assets/images/stocks/msftx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'MicroStrategy xStock',
@@ -467,6 +517,7 @@ class DefaultSPLTokens {
       mint: 'mstrx',
       enabled: false,
       iconPath: 'assets/images/stocks/mstrx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Nasdaq xStock',
@@ -476,6 +527,7 @@ class DefaultSPLTokens {
       mint: 'qqqx',
       enabled: false,
       iconPath: 'assets/images/stocks/qqqx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Netflix xStock',
@@ -485,6 +537,7 @@ class DefaultSPLTokens {
       mint: 'nflxx',
       enabled: false,
       iconPath: 'assets/images/stocks/nflxx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Novo Nordisk xStock',
@@ -494,6 +547,7 @@ class DefaultSPLTokens {
       mint: 'nvox',
       enabled: false,
       iconPath: 'assets/images/stocks/nvox.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'NVIDIA xStock',
@@ -503,6 +557,7 @@ class DefaultSPLTokens {
       mint: 'nvdax',
       enabled: false,
       iconPath: 'assets/images/stocks/nvdax.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'OPEN xStock',
@@ -512,6 +567,7 @@ class DefaultSPLTokens {
       mint: 'openx',
       enabled: false,
       iconPath: 'assets/images/stocks/openx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Oracle xStock',
@@ -521,6 +577,7 @@ class DefaultSPLTokens {
       mint: 'orclx',
       enabled: false,
       iconPath: 'assets/images/stocks/orclx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Palantir xStock',
@@ -530,6 +587,7 @@ class DefaultSPLTokens {
       mint: 'pltrx',
       enabled: false,
       iconPath: 'assets/images/stocks/pltrx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'PepsiCo xStock',
@@ -539,6 +597,7 @@ class DefaultSPLTokens {
       mint: 'pepx',
       enabled: false,
       iconPath: 'assets/images/stocks/pepx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Pfizer xStock',
@@ -548,6 +607,7 @@ class DefaultSPLTokens {
       mint: 'pfex',
       enabled: false,
       iconPath: 'assets/images/stocks/pfex.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Philip Morris xStock',
@@ -557,6 +617,7 @@ class DefaultSPLTokens {
       mint: 'pmx',
       enabled: false,
       iconPath: 'assets/images/stocks/pmx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Procter & Gamble xStock',
@@ -566,6 +627,7 @@ class DefaultSPLTokens {
       mint: 'pgx',
       enabled: false,
       iconPath: 'assets/images/stocks/pgx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Robinhood xStock',
@@ -575,6 +637,7 @@ class DefaultSPLTokens {
       mint: 'hoodx',
       enabled: false,
       iconPath: 'assets/images/stocks/hoodx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Salesforce xStock',
@@ -584,6 +647,7 @@ class DefaultSPLTokens {
       mint: 'crmx',
       enabled: false,
       iconPath: 'assets/images/stocks/crmx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'SP500 xStock',
@@ -593,6 +657,7 @@ class DefaultSPLTokens {
       mint: 'spyx',
       enabled: false,
       iconPath: 'assets/images/stocks/spyx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'TBLL xStock',
@@ -602,6 +667,7 @@ class DefaultSPLTokens {
       mint: 'tbllx',
       enabled: false,
       iconPath: 'assets/images/stocks/tbllx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Tesla xStock',
@@ -611,6 +677,7 @@ class DefaultSPLTokens {
       mint: 'tslax',
       enabled: false,
       iconPath: 'assets/images/stocks/tslax.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Thermo Fisher xStock',
@@ -620,6 +687,7 @@ class DefaultSPLTokens {
       mint: 'tmox',
       enabled: false,
       iconPath: 'assets/images/stocks/tmox.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'TON xStock',
@@ -629,6 +697,7 @@ class DefaultSPLTokens {
       mint: 'tonxx',
       enabled: false,
       iconPath: 'assets/images/stocks/tonxx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'TQQQ xStock',
@@ -638,6 +707,7 @@ class DefaultSPLTokens {
       mint: 'tqqqx',
       enabled: false,
       iconPath: 'assets/images/stocks/tqqqx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'UnitedHealth xStock',
@@ -647,6 +717,7 @@ class DefaultSPLTokens {
       mint: 'unhx',
       enabled: false,
       iconPath: 'assets/images/stocks/unhx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Vanguard xStock',
@@ -656,6 +727,7 @@ class DefaultSPLTokens {
       mint: 'vtix',
       enabled: false,
       iconPath: 'assets/images/stocks/vtix.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Visa xStock',
@@ -665,6 +737,7 @@ class DefaultSPLTokens {
       mint: 'vx',
       enabled: false,
       iconPath: 'assets/images/stocks/vx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
       name: 'Walmart xStock',
@@ -674,6 +747,7 @@ class DefaultSPLTokens {
       mint: 'wmtx',
       enabled: false,
       iconPath: 'assets/images/stocks/wmtx.webp',
+      groups: const {CurrencyGroups.tokenizedStock},
     ),
   ];
 
@@ -691,4 +765,6 @@ class DefaultSPLTokens {
 
         return SPLToken.copyWith(token, icon: iconPath, tag: 'SOL');
       }).toList();
+
+  SPLToken get usdc => _defaultTokens.where((e) => e.symbol == "USDC").first;
 }

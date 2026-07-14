@@ -1,39 +1,48 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## cw_dogecoin
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Dogecoin wallet module using the shared Bitcoin Electrum implementation (`cw_bitcoin`) configured for Dogecoin mainnet.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+### Features
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+- Derive keys via BIP‑39; Dogecoin HD paths using `bitcoin_base`.
+- Connect to Electrum nodes; maintain address sets and UTXOs.
+- Create/sign/broadcast DOGE transactions with configurable fee rate.
+- Address book and index management (receive/change, auto-generate settings).
+- Message signing and verification.
 
-## Features
+### Getting started
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Create/open via `DogecoinWalletService` in the app using `WalletType.dogecoin`. Ensure Electrum nodes are configured for Dogecoin.
 
 ```dart
-const like = 'sample';
+final wallet = await DogeCoinWallet.create(
+  mnemonic: '...',
+  password: 'secret',
+  walletInfo: walletInfo,
+  unspentCoinsInfo: unspentCoinsBox,
+  encryptionFileUtils: encryption,
+);
 ```
 
-## Additional information
+### Usage
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Estimate fee and send:
+
+```dart
+final feeRate = wallet.feeRate(BitcoinCashTransactionPriority.medium); // example priority mapping
+final pending = await wallet.createTransaction(
+  outputs: [
+    BitcoinTransactionOutput(
+      address: 'D...',
+      amount: 1 * 100000000, // 1 DOGE in koinu
+    ),
+  ],
+  feeRate: feeRate,
+);
+final txHash = await pending.commit();
+```
+
+### Additional information
+
+- See `lib/src/` for classes: `DogeCoinWallet`, `DogeCoinWalletAddresses`.
+- Relies on core Electrum features in `cw_bitcoin` for UTXO selection and persistence.

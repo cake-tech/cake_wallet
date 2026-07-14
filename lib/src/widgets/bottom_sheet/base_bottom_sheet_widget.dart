@@ -12,6 +12,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
     required this.footerType,
     this.slideActionButtonText,
     this.onSlideActionComplete,
+    this.isSlideActionEnabled = true,
     this.singleActionButtonText,
     this.accessibleNavigationModeSlideActionButtonText,
     this.onSingleActionButtonPressed,
@@ -30,6 +31,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
   final FooterType footerType;
   final String? slideActionButtonText;
   final VoidCallback? onSlideActionComplete;
+  final bool isSlideActionEnabled;
   final String? singleActionButtonText;
   final String? accessibleNavigationModeSlideActionButtonText;
   final VoidCallback? onSingleActionButtonPressed;
@@ -53,13 +55,15 @@ abstract class BaseBottomSheet extends StatelessWidget {
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
         child: Container(
           color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _buildHeader(context),
-              contentWidget(context),
-              _buildFooter(context),
-            ],
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                _buildHeader(context),
+                contentWidget(context),
+                _buildFooter(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -106,18 +110,19 @@ abstract class BaseBottomSheet extends StatelessWidget {
 
       case FooterType.slideActionButton:
         return Padding(
-          padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
+          padding: const EdgeInsets.fromLTRB(40, 12, 40, 24),
           child: StandardSlideButton(
             key: ValueKey('base_bottom_sheet_widget_standard_slide_button_key'),
             buttonText: slideActionButtonText ?? '',
             onSlideComplete: onSlideActionComplete ?? () {},
             accessibleNavigationModeButtonText: accessibleNavigationModeSlideActionButtonText ?? '',
+            isDisabled: !isSlideActionEnabled,
           ),
         );
 
       case FooterType.singleActionButton:
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 34),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: LoadingPrimaryButton(
             key: singleActionButtonKey,
             text: singleActionButtonText ?? '',
@@ -131,7 +136,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
 
       case FooterType.doubleActionButton:
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 34),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           child: Row(
             children: [
               Expanded(

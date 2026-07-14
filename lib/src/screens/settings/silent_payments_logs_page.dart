@@ -9,6 +9,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_model.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 
 class SilentPaymentsLogPage extends BasePage {
@@ -33,6 +34,7 @@ class SilentPaymentsLogPage extends BasePage {
               return Center(child: Text('No logs found'));
             } else {
               return SingleChildScrollView(
+                controller: ModalScrollController.of(context),
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
@@ -104,12 +106,17 @@ class SilentPaymentsLogPage extends BasePage {
 
   Future<void> _saveFile() async {
     String? outputFile = await FilePicker.platform
-        .saveFile(dialogTitle: 'Save Your File to desired location', fileName: "debug.log");
+        .saveFile(
+            dialogTitle: 'Save Your File to desired location',
+            fileName: "debug.log",
+            lockParentWindow: true);
+
+    if (outputFile == null) return;
 
     try {
       final filePath = (await getApplicationSupportDirectory()).path + "/debug.log";
       File debugLogFile = File(filePath);
-      await debugLogFile.copy(outputFile!);
+      await debugLogFile.copy(outputFile);
     } catch (exception, stackTrace) {
       ExceptionHandler.onError(FlutterErrorDetails(
         exception: exception,

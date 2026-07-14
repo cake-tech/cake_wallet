@@ -31,7 +31,7 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   @action
   void setSilentPaymentsAlwaysScan(bool value) {
     bitcoin!.setIsAlwaysScanningSP(_wallet, value);
-    if (value) bitcoin!.setScanningActive(_wallet, true);
+    bitcoin!.setScanningActive(_wallet, value);
   }
 
   Future<String> getAbbreviatedLogs() async {

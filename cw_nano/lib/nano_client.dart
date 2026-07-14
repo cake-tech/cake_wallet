@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -85,10 +87,10 @@ class NanoClient {
       throw Exception(
           "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
     }
-    final String currentBalance = data["balance"] as String;
-    final String receivableBalance = data["receivable"] as String;
-    final BigInt cur = BigInt.parse(currentBalance);
-    final BigInt rec = BigInt.parse(receivableBalance);
+    final currentBalance = data["balance"] as String;
+    final receivableBalance = data["receivable"] as String;
+    final cur = Money(BigInt.parse(currentBalance), CryptoCurrency.nano);
+    final rec = Money(BigInt.parse(receivableBalance), CryptoCurrency.nano);
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
 
@@ -258,7 +260,7 @@ class NanoClient {
 
     // first get the current account balance:
     if (balanceAfterTx == null) {
-      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance;
+      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance.amount;
       final BigInt txAmount = BigInt.parse(amountRaw);
       balanceAfterTx = currentBalance - txAmount;
     }
@@ -446,35 +448,34 @@ class NanoClient {
     required String destinationAddress,
     required String privateKey,
   }) async {
-    final receivableResponse = await ProxyWrapper().post(
-      clearnetUri: _node!.uri,
-      headers: getHeaders(_node!.uri.host),
-      body: jsonEncode({
-        "action": "receivable",
-        "account": destinationAddress,
-        "count": "-1",
-        "source": true,
-      }),
-    );
-    final receivableData = jsonDecode(receivableResponse.body) as Map<String, dynamic>;
-    if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
-      return 0;
-    }
-
-    dynamic blocks;
-    if (receivableData["blocks"] is List<dynamic>) {
-      var listBlocks = receivableData["blocks"] as List<dynamic>;
-      if (listBlocks.isEmpty) {
+    try {
+      final receivableResponse = await ProxyWrapper().post(
+        clearnetUri: _node!.uri,
+        headers: getHeaders(_node!.uri.host),
+        body: jsonEncode({
+          "action": "receivable",
+          "account": destinationAddress,
+          "count": "-1",
+          "source": true,
+        }),
+      );
+      final receivableData = jsonDecode(receivableResponse.body) as Map<String, dynamic>;
+      if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
         return 0;
       }
-      blocks = {for (var block in listBlocks) block['hash']: block};
-    } else {
-      blocks = receivableData["blocks"] as Map<String, dynamic>;
-    }
 
-    blocks = blocks as Map<String, dynamic>;
+      dynamic blocks;
+      if (receivableData["blocks"] is List<dynamic>) {
+        var listBlocks = receivableData["blocks"] as List<dynamic>;
+        if (listBlocks.isEmpty) {
+          return 0;
+        }
+        blocks = {for (var block in listBlocks) block['hash']: block};
+      } else {
+        blocks = receivableData["blocks"] as Map<String, dynamic>;
+      }
 
-    try {
+      blocks = blocks as Map<String, dynamic>;
       // confirm all receivable blocks:
       for (final blockHash in blocks.keys) {
         final block = blocks[blockHash];

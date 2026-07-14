@@ -21,7 +21,6 @@ import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -80,9 +79,9 @@ class MoonPayProvider extends BuyProvider {
   @override
   bool get isAggregator => false;
 
-  static String get _apiKey => secrets.moonPayApiKey;
+  String get _apiKey => isTestEnvironment ? secrets.moonPaySandboxApiKey : secrets.moonPayApiKey;
 
-  String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
+  String get currencyCode => walletTypeToCryptoCurrency(wallet.type, chainId: wallet.chainId).title.toLowerCase();
 
   String get trackUrl => baseBuyUrl + '/transaction_receipt?transactionId=';
 
@@ -97,8 +96,9 @@ class MoonPayProvider extends BuyProvider {
     }
   }
 
-  Future<String> getMoonpaySignature(String query) async {
-    final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
+  Future<String> getMoonpaySignedQuery(String query) async {
+    final uri =
+        Uri.https(_cIdBaseUrl, "/api/moonpay", isTestEnvironment ? {"useSandbox": "true"} : null);
 
     final response = await ProxyWrapper().post(
       clearnetUri: uri,
@@ -108,7 +108,8 @@ class MoonPayProvider extends BuyProvider {
     
 
     if (response.statusCode == 200) {
-      return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
+      printV((jsonDecode(response.body) as Map<String, dynamic>));
+      return (jsonDecode(response.body) as Map<String, dynamic>)['query'] as String;
     } else {
       throw Exception(
           'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
@@ -298,18 +299,13 @@ class MoonPayProvider extends BuyProvider {
     required Map<String, String> params,
     String? amount,
   }) async {
-    if (_apiKey.isNotEmpty) params['apiKey'] = _apiKey;
+    if (_apiKey.isNotEmpty) params["apiKey"] = _apiKey;
 
     final baseUrl = isBuyAction ? baseBuyUrl : baseSellUrl;
-    final originalUri = Uri.https(baseUrl, '', params);
+    final originalUri = Uri.https(baseUrl, "", params);
 
-    if (isTestEnvironment) return originalUri;
-
-    final signature = await getMoonpaySignature('?${originalUri.query}');
-    final query = Map<String, dynamic>.from(originalUri.queryParameters);
-    query['signature'] = signature;
-    final signedUri = originalUri.replace(queryParameters: query);
-    return signedUri;
+    final query = await getMoonpaySignedQuery("?${originalUri.query}");
+    return Uri.parse(query);
   }
 
   Future<Order> findOrderById(String id) async {
@@ -383,6 +379,8 @@ class MoonPayProvider extends BuyProvider {
         return 'yellow_card_bank_transfer';
       case PaymentType.fiatBalance:
         return 'fiat_balance';
+      case PaymentType.revolutPay:
+        return 'revolut_pay';
       default:
         return null;
     }
@@ -416,6 +414,8 @@ class MoonPayProvider extends BuyProvider {
         return PaymentType.sepaOpenBankingPayment;
       case 'yellow_card_bank_transfer':
         return PaymentType.yellowCardBankTransfer;
+      case 'revolut_pay':
+        return PaymentType.revolutPay;
       default:
         return PaymentType.unknown;
     }

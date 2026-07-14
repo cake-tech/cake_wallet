@@ -3,6 +3,15 @@ import 'dart:typed_data';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 
+String convertAnyToXpub(String any) {
+  if (any.toLowerCase().startsWith("zpub")) {
+    return convertZpubToXpub(any);
+  } else if (any.toLowerCase().startsWith("ltub")) {
+    return convertLtubToXpub(any);
+  }
+  return any;
+}
+
 String convertZpubToXpub(String zpub) {
   try {
     final decoded = Base58Decoder.checkDecode(zpub);
@@ -34,6 +43,36 @@ String convertZpubToXpub(String zpub) {
     return Base58Encoder.checkEncode(newExtendedKey);
   } catch (e) {
     throw ArgumentError('Failed to convert zpub to xpub: $e');
+  }
+}
+
+String convertLtubToXpub(String ltub) {
+  try {
+    final decoded = Base58Decoder.checkDecode(ltub);
+
+    if (decoded.length < 4) {
+      throw ArgumentError('Invalid extended public key length');
+    }
+
+    final versionBytes = decoded.sublist(0, 4);
+    final ltubVersionBytes = [0x01, 0x9D, 0xA4, 0x62]; // Ltub mainnet version
+
+    bool isLtub = listEquals(versionBytes, ltubVersionBytes);
+
+    if (!isLtub) {
+      return ltub;
+    }
+
+    final xpubVersionBytes = [0x04, 0x88, 0xb2, 0x1e];
+
+    final newExtendedKey = Uint8List.fromList([
+      ...xpubVersionBytes,
+      ...decoded.sublist(4),
+    ]);
+
+    return Base58Encoder.checkEncode(newExtendedKey);
+  } catch (e) {
+    throw ArgumentError('Failed to convert ltub to xpub: $e');
   }
 }
 

@@ -7,7 +7,7 @@ import 'package:socks_socket/socks_socket.dart';
 
 class ProxySocketSocks implements ProxySocket {
   final SOCKSSocket socket;
-  bool _isClosed = false;
+  bool isClosed = false;
   ProxySocketSocks(this.socket);
   
   @override
@@ -16,8 +16,8 @@ class ProxySocketSocks implements ProxySocket {
   @override
   Future<void> close() async {
     try {
-      if (_isClosed) return;
-      _isClosed = true;
+      if (isClosed) return;
+      isClosed = true;
       await socket.close();
     } catch (e) {
       printV("ProxySocketSocks: close: $e");
@@ -31,7 +31,7 @@ class ProxySocketSocks implements ProxySocket {
   @override
   void write(String data) {
     try {
-      if (_isClosed) {
+      if (isClosed) {
         printV("ProxySocketSocks: write: socket is closed");
         return;
       }

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -8,12 +9,13 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -230,18 +232,26 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 );
 
                             bool isPotentialScam = hasPotentialError && !isWhitelisted;
-                            final tokenSymbol = _tokenSymbolController.text.toUpperCase();
 
-                            // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
-                            // if it is, then it's probably a scam unless it's in the whitelist
+                            // Normalize to catch homoglyph spoofing attacks
+                            final tokenSymbol = normalizeHomoglyphs(
+                              _tokenSymbolController.text.trim().toUpperCase(),
+                            );
 
-                            // ugh, should it be commented out?
-                            // because there are some tokens that has the name of original currencies
-                            // like: 0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6
+                            // check if the token symbol is the same as the native token symbol
+                            // to prevent token impersonation
+                            // (e.g. fake ETH on Ethereum, fake SOL on Solana)
+                            final nativeSymbol =
+                                widget.homeSettingsViewModel.nativeToken.title.toUpperCase();
+                            if (tokenSymbol == nativeSymbol && !isWhitelisted) {
+                              isPotentialScam = true;
+                            }
 
-                            final baseCurrencySymbols =
-                                CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
-                            if (baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase()) &&
+                            // check if the token symbol is the same as any of the default token symbols
+                            // (e.g. fake USDC, USDT with wrong contract address)
+                            if (widget.homeSettingsViewModel.checkIfTokenSymbolMatchesDefaultToken(
+                                  tokenSymbol,
+                                ) &&
                                 !isWhitelisted) {
                               isPotentialScam = true;
                             }
@@ -387,10 +397,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                   alignment: Alignment.center,
                   children: [
                     ClipOval(
-                      child: CakeImageWidget(
+                      child: TokenImageWidget(
                         imageUrl: _tokenIconPathController.text,
-                        width: 75,
-                        height: 75,
+                        size: 75,
                       ),
                     ),
                     if (_isTokenVerified)

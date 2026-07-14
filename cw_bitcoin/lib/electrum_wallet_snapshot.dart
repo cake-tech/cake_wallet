@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWalletSnapshot {
@@ -25,9 +26,12 @@ class ElectrumWalletSnapshot {
     required this.silentAddressIndex,
     required this.mwebAddresses,
     required this.alwaysScan,
+    required this.useLightning,
+    this.cachedLightningAddress,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
+    this.lightningBalance,
   });
 
   final String name;
@@ -48,8 +52,11 @@ class ElectrumWalletSnapshot {
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
   List<BitcoinAddressRecord> mwebAddresses;
   bool alwaysScan;
+  bool useLightning;
+  String? cachedLightningAddress;
 
   ElectrumBalance balance;
+  ElectrumBalance? lightningBalance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
   int silentAddressIndex;
@@ -84,9 +91,19 @@ class ElectrumWalletSnapshot {
         .toList();
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;
+    final useLightning = data['useLightning'] as bool? ?? true;
+    final cachedLightningAddress = data['cachedLightningAddress'] as String?;
 
-    final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
-        ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+    final currency = walletTypeToCryptoCurrency(type);
+    final balance = ElectrumBalance.fromJSON(data['balance'] as String?, currency) ??
+        ElectrumBalance(
+          confirmed: Money.zero(currency),
+          unconfirmed: Money.zero(currency),
+          frozen: Money.zero(currency),
+        );
+    final lightningBalance =
+        ElectrumBalance.fromJSON(data['lightningBalance'] as String?, currency);
+
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var silentAddressIndex = 0;
@@ -120,6 +137,7 @@ class ElectrumWalletSnapshot {
       xpub: xpub,
       addresses: addresses,
       balance: balance,
+      lightningBalance: lightningBalance,
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
       addressPageType: data['address_page_type'] as String?,
@@ -129,6 +147,8 @@ class ElectrumWalletSnapshot {
       silentAddressIndex: silentAddressIndex,
       mwebAddresses: mwebAddresses,
       alwaysScan: alwaysScan,
+      useLightning: useLightning,
+      cachedLightningAddress: cachedLightningAddress,
     );
   }
 }

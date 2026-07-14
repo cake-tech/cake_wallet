@@ -26,6 +26,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
@@ -39,6 +40,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
+            derivationInfo: derivationInfo,
             unspentCoinsInfo: unspentCoinsInfo,
             network: DogecoinNetwork.mainnet,
             initialAddresses: initialAddresses,
@@ -52,8 +54,10 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      mainHdByType: mainHdByType,
+      sideHdByType: sideHdByType,
+      legacyMainHd: mainHd,
+      legacySideHd: sideHd,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -64,7 +68,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  int get networkDustAmount => 100000000; // 1 DOGE = 1e8 koinu
+  BigInt get networkDustAmount => BigInt.from(100000000); // 1 DOGE = 1e8 koinu
 
   static int estimatedDogeCoinTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 180 + outputsCounts * 34 + 10;
@@ -83,6 +87,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       {required String mnemonic,
       required String password,
       required WalletInfo walletInfo,
+      required DerivationInfo derivationInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required EncryptionFileUtils encryptionFileUtils,
       String? passphrase,
@@ -95,6 +100,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
@@ -148,6 +154,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       mnemonic: keysData.mnemonic!,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: await walletInfo.getDerivationInfo(),
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialBalance: snp?.balance,
@@ -168,7 +175,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
           ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
           : null;
     } catch (_) {}
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromWif(
       WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,

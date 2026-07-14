@@ -48,6 +48,10 @@ class CWWowneroAccountList extends WowneroAccountList {
     final wowneroWallet = wallet as WowneroWallet;
     await wowneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
+    if (accountIndex == wowneroWallet.walletAddresses.account?.id) {
+      wowneroWallet.walletAddresses.account = wownero_account.Account(
+          id: accountIndex, label: label, balance: wowneroWallet.walletAddresses.account!.balance);
+    }
   }
 }
 
@@ -263,14 +267,14 @@ class CWWownero extends Wownero {
       WowneroTransactionCreationCredentials(
           outputs: outputs
               .map((out) => OutputInfo(
-                  fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
-                  address: out.address,
-                  note: out.note,
-                  sendAll: out.sendAll,
-                  extractedAddress: out.extractedAddress,
-                  isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
+                    fiatAmount: out.fiatAmount,
+                    cryptoAmount: out.cryptoAmountMoney,
+                    address: out.address,
+                    note: out.note,
+                    sendAll: out.sendAll,
+                    extractedAddress: out.extractedAddress,
+                    isParsedAddress: out.isParsedAddress,
+                  ))
               .toList(),
           priority: priority as MoneroTransactionPriority);
 
@@ -315,9 +319,8 @@ class CWWownero extends Wownero {
   }
 
   @override
-  WalletService createWowneroWalletService(
-          Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
-      WowneroWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
+      WowneroWalletService(unspentCoinSource);
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -365,5 +368,27 @@ class CWWownero extends Wownero {
   @override
   Map<String, List<int>> debugCallLength() {
     return wownero_wallet_api.debugCallLength();
+  }
+
+  @override
+  Future<void> backupSeeds(Box<HavenSeedStore> havenSeedStore) async {
+    final wallets = await WalletInfo.selectList('type = ?', [WalletType.wownero.index]);
+    final unspentCoinsInfo = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    for (final w in wallets) {
+      final walletService = WowneroWalletService(unspentCoinsInfo);
+      final flutterSecureStorage = secureStorageShared;
+      final keyService = KeyService(flutterSecureStorage);
+      final password = await keyService.getWalletPassword(walletName: w.name);
+      String seed = "unknown";
+      try {
+        final wallet = await walletService.openWallet(w.name, password);
+        seed = wallet.seed;
+        wallet.close();
+      } catch (e) {
+        seed += "\n$e";
+      }
+      await havenSeedStore.add(HavenSeedStore(id: w.id, seed: seed));
+    }
+    await havenSeedStore.flush();
   }
 }

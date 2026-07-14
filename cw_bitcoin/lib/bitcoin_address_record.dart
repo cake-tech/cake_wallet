@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cw_bitcoin/electrum_derivations.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -8,6 +10,7 @@ abstract class BaseBitcoinAddressRecord {
     this.address, {
     required this.index,
     this.isHidden = false,
+    this.isLegacyDerivation = false,
     int txCount = 0,
     int balance = 0,
     String name = '',
@@ -24,6 +27,7 @@ abstract class BaseBitcoinAddressRecord {
 
   final String address;
   bool isHidden;
+  bool isLegacyDerivation;
   final int index;
   int _txCount;
   int _balance;
@@ -50,6 +54,8 @@ abstract class BaseBitcoinAddressRecord {
 
   BitcoinAddressType type;
 
+  String get derivationPath;
+
   String toJSON();
 }
 
@@ -58,6 +64,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     super.address, {
     required super.index,
     super.isHidden = false,
+    super.isLegacyDerivation = false,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
@@ -65,24 +72,47 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.type,
     String? scriptHash,
     required super.network,
-  }) : scriptHash = scriptHash ??
-            (network != null ? BitcoinAddressUtils.scriptHash(address, network: network) : null);
+  })  {
+    try {
+      this.scriptHash = scriptHash ??
+        (network != null ? BitcoinAddressUtils.scriptHash(address, network: network!) : null);
+    } catch (e) {
+      printV(e);
+    }
+}
+
+  static bool _legacyDefaultForType(BitcoinAddressType type) {
+
+    // Some address types (p2wpkh, p2wsh) were historically derived from the same account/path as our new standard
+    // but using legacy formats. For these, we default to legacy = false.
+    if (type == SegwitAddresType.p2wpkh || type == SegwitAddresType.p2wsh) return false;
+
+    // For other types (p2pkh, p2wpkh-in-p2sh, p2tr, etc.), old wallets used the non-standard
+    return true;
+  }
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
+
+    final parsedType = decoded['type'] != null && decoded['type'] != ''
+        ? BitcoinAddressType.values
+            .firstWhere((type) => type.toString() == decoded['type'] as String)
+        : SegwitAddresType.p2wpkh;
+
+    final parsedIsLegacy = decoded.containsKey('isLegacyDerivation')
+        ? (decoded['isLegacyDerivation'] as bool? ?? false)
+        : _legacyDefaultForType(parsedType);
 
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
       isHidden: decoded['isHidden'] as bool? ?? false,
+      isLegacyDerivation: parsedIsLegacy,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
-      type: decoded['type'] != null && decoded['type'] != ''
-          ? BitcoinAddressType.values
-              .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : SegwitAddresType.p2wpkh,
+      type: parsedType,
       scriptHash: decoded['scriptHash'] as String?,
       network: network,
     );
@@ -90,10 +120,54 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   String? scriptHash;
 
+  static int _purposeForType(BitcoinAddressType type) {
+    if (type == P2pkhAddressType.p2pkh) return 44;
+    if (type == P2shAddressType.p2wpkhInP2sh) return 49;
+    if (type == SegwitAddresType.p2wsh) return 48;
+    if (type == SegwitAddresType.p2tr) return 86;
+    return 84;
+  }
+
+  int _coinTypeForNetwork() {
+    if (!(network?.isMainnet ?? true)) return 1;
+
+    switch (network) {
+      case BitcoinNetwork.mainnet:
+        return 0;
+      case LitecoinNetwork.mainnet:
+        return 2;
+      case BitcoinCashNetwork.mainnet:
+        return 145;
+      case DogecoinNetwork.mainnet:
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
-    scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    try {
+      scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    } catch (e) {
+      return '';
+    }
     return scriptHash!;
+  }
+  @override
+  String get derivationPath {
+    if (type == SegwitAddresType.mweb) {
+      return "m/1000'/$index";
+    }
+
+    final coinType = _coinTypeForNetwork();
+    final purpose = _purposeForType(type);
+    final accountPath = isLegacyDerivation
+        ? electrum_path
+        : "m/$purpose'/$coinType'/0'";
+
+    final chain = isHidden ? 1 : 0;
+    return "$accountPath/$chain/$index";
   }
 
   @override
@@ -101,6 +175,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'address': address,
         'index': index,
         'isHidden': isHidden,
+        'isLegacyDerivation': isLegacyDerivation,
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,
@@ -122,7 +197,8 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     required this.silentPaymentTweak,
     required super.network,
     required super.type,
-  }) : super();
+    this.spendDerivationPath = SILENT_PAYMENTS_SPEND_PATH_TESTNET,
+  });
 
   factory BitcoinSilentPaymentAddressRecord.fromJSON(String jsonSource,
       {BasedUtxoNetwork? network}) {
@@ -144,10 +220,16 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SilentPaymentsAddresType.p2sp,
+      spendDerivationPath:
+          decoded['spend_derivation_path'] as String? ?? SILENT_PAYMENTS_SPEND_PATH_TESTNET,
     );
   }
 
   final String? silentPaymentTweak;
+  final String spendDerivationPath;
+
+  @override
+  String get derivationPath => spendDerivationPath;
 
   @override
   String toJSON() => json.encode({
@@ -161,5 +243,6 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
         'type': type.toString(),
         'network': network?.value,
         'silent_payment_tweak': silentPaymentTweak,
+        'spend_derivation_path': spendDerivationPath,
       });
 }

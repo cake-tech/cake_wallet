@@ -24,22 +24,25 @@ class MenuWidgetState extends State<MenuWidget> {
         this.tileHeight = 60,
         this.fromTopEdge = 50,
         this.fromBottomEdge = 25,
-        this.moneroIcon = Image.asset('assets/images/crypto/monero.webp'),
-        this.bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp'),
-        this.litecoinIcon = Image.asset('assets/images/crypto/litecoin.webp'),
+        this.moneroIcon = Image.asset('assets/new-ui/crypto_full_icons/monero.svg'),
+        this.bitcoinIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin.svg'),
+        this.litecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/litecoin.svg'),
         this.havenIcon = Image.asset('assets/images/haven_menu.webp'),
-        this.ethereumIcon = Image.asset('assets/images/crypto/ethereum.webp'),
-        this.nanoIcon = Image.asset('assets/images/crypto/nano.webp'),
-        this.bananoIcon = Image.asset('assets/images/crypto/nano.webp'),
-        this.bitcoinCashIcon = Image.asset('assets/images/crypto/bitcoin-cash.webp'),
-        this.polygonIcon = Image.asset('assets/images/crypto/polygon.webp'),
-        this.baseIcon = Image.asset('assets/images/crypto/base_icon.webp'),
-        this.solanaIcon = Image.asset('assets/images/crypto/solana.webp'),
-        this.tronIcon = Image.asset('assets/images/crypto/tron.webp'),
-        this.wowneroIcon = Image.asset('assets/images/crypto/wownero.webp'),
-        this.zanoIcon = Image.asset('assets/images/crypto/zano.webp'),
-        this.decredIcon = Image.asset('assets/images/crypto/decred.webp'),
-        this.dogecoinIcon = Image.asset('assets/images/crypto/dogecoin.webp');
+        this.ethereumIcon = Image.asset('assets/new-ui/crypto_full_icons/ethereum.svg'),
+        this.nanoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg'),
+        this.bananoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg'),
+        this.bitcoinCashIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin-cash.svg'),
+        this.polygonIcon = Image.asset('assets/new-ui/crypto_full_icons/polygon.svg'),
+        this.baseIcon = Image.asset('assets/new-ui/crypto_full_icons/base.svg'),
+        this.arbitrumIcon = Image.asset('assets/new-ui/crypto_full_icons/arbitrum.svg'),
+        this.bscIcon = Image.asset('assets/new-ui/crypto_full_icons/bnb.svg'),
+        this.solanaIcon = Image.asset('assets/new-ui/crypto_full_icons/solana.svg'),
+        this.tronIcon = Image.asset('assets/new-ui/crypto_full_icons/tron.svg'),
+        this.wowneroIcon = Image.asset('assets/new-ui/crypto_full_icons/wownero.svg'),
+        this.zanoIcon = Image.asset('assets/new-ui/crypto_full_icons/zano.svg'),
+        this.decredIcon = Image.asset('assets/new-ui/crypto_full_icons/decred.svg'),
+        this.dogecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg'),
+        this.zcashIcon = Image.asset('assets/new-ui/crypto_full_icons/zcash.svg');
 
   final largeScreen = 731;
 
@@ -62,12 +65,15 @@ class MenuWidgetState extends State<MenuWidget> {
   Image bananoIcon;
   Image polygonIcon;
   Image baseIcon;
+  Image arbitrumIcon;
+  Image bscIcon;
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
   Image zanoIcon;
   Image decredIcon;
   Image dogecoinIcon;
+  Image zcashIcon;
 
   @override
   void initState() {
@@ -116,8 +122,8 @@ class MenuWidgetState extends State<MenuWidget> {
     }
     int itemCount = items.length;
 
-    moneroIcon = Image.asset('assets/images/crypto/monero.webp');
-    bitcoinIcon = Image.asset('assets/images/crypto/bitcoin.webp');
+    moneroIcon = Image.asset('assets/new-ui/crypto_full_icons/monero.svg');
+    bitcoinIcon = Image.asset('assets/new-ui/crypto_full_icons/bitcoin.svg');
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -227,7 +233,7 @@ class MenuWidgetState extends State<MenuWidget> {
     );
   }
 
-  Image _iconFor({required WalletType type}) {
+  Widget _iconFor({required WalletType type}) {
     switch (type) {
       case WalletType.monero:
         return moneroIcon;
@@ -251,6 +257,10 @@ class MenuWidgetState extends State<MenuWidget> {
         return solanaIcon;
       case WalletType.base:
         return baseIcon;
+      case WalletType.arbitrum:
+        return arbitrumIcon;
+      case WalletType.bsc:
+        return bscIcon;
       case WalletType.tron:
         return tronIcon;
       case WalletType.wownero:
@@ -261,6 +271,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return decredIcon;
       case WalletType.dogecoin:
         return dogecoinIcon;
+      case WalletType.zcash:
+        return zcashIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

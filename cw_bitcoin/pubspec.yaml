@@ -6,7 +6,7 @@ author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
-  sdk: ">=2.17.5 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=1.20.0"
 
 dependencies:
@@ -14,8 +14,8 @@ dependencies:
     sdk: flutter
   path_provider: ^2.0.11
   http: ^1.1.0
-  mobx: ^2.0.7+4
-  flutter_mobx: ^2.0.6+1
+  mobx: ^2.6.0
+  flutter_mobx: ^2.3.0
   intl: any
   shared_preferences: ^2.0.15
   cw_core:
@@ -32,24 +32,21 @@ dependencies:
       ref: cake-update-v2
   cw_mweb:
     path: ../cw_mweb
-  grpc: ^4.0.1
+  grpc: 4.0.1
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.1
-  bech32:
-    git:
-      url: https://github.com/cake-tech/bech32.git
   payjoin_flutter:
     git:
       url: https://github.com/konstantinullrich/payjoin-flutter
-      ref: cake-v3
+      ref: b28c825b1d63381e8c2b25ef2ccabacbf833ce53
   ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-bitcoin
-      ref: dc42621f55702d0732681afc2f90bc0047f26633
+      ref: 75bba8632c529debf30ee2b1858530009fa6440b
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
@@ -57,7 +54,7 @@ dependencies:
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
-      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
+      ref: d1242cea90f84b00200e7bcab914a5af750e23fb
   bitbox_flutter:
     path: ../scripts/bitbox_flutter
   socks_socket:
@@ -72,14 +69,18 @@ dependencies:
     git:
       url: https://github.com/mrcyjanek/bbqrdart
       ref: e867e3d0156d0b29858100f30adc2625b9dae586
+  breez_sdk_spark_flutter:
+    git:
+      url: https://github.com/breez/breez-sdk-spark-flutter
+      ref: v0.14.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.4.15
-  build_resolvers: ^2.4.4
-  mobx_codegen: ^2.0.7
-  hive_generator: ^2.0.1
+  build_runner: ^2.15.0
+  mobx_codegen: ^2.7.6
+#  hive_generator: ^2.0.1
+  hive: 2.0.1
 
 dependency_overrides:
   watcher: ^1.1.0

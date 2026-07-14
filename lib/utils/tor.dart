@@ -3,11 +3,12 @@ import 'dart:io';
 
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/tor/disabled.dart';
 import 'package:flutter/material.dart';
 
 bool didTorStart = false;
 Future<void> ensureTorStopped({required BuildContext? context}) async {
-  if (!didTorStart) {
+  if (!didTorStart || CakeTor.instance is CakeTorDisabled) {
     printV("Tor hasn't been initialized yet, so it can't be stopped.");
     return;
   }

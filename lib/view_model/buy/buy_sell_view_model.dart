@@ -5,6 +5,7 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -12,9 +13,9 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
 part 'buy_sell_view_model.g.dart';
@@ -24,8 +25,7 @@ class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with Store {
   BuySellViewModelBase(
     AppStore appStore,
-  )   : _cryptoNumberFormat = NumberFormat(),
-        cryptoAmount = '',
+  )   : _cryptoAmount = '',
         fiatAmount = '',
         cryptoCurrencyAddress = '',
         isCryptoCurrencyAddressEnabled = false,
@@ -54,7 +54,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
   }
 
-  final NumberFormat _cryptoNumberFormat;
   late Timer bestRateSync;
 
   List<BuyProvider> get availableBuyProviders {
@@ -79,14 +78,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   double get amount {
-    final formattedFiatAmount = double.tryParse(fiatAmount) ?? 200.0;
-    final formattedCryptoAmount =
-        double.tryParse(cryptoAmount) ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
+    final formattedFiatAmount = double.tryParse(fiatAmount);
+    final formattedCryptoAmount = double.tryParse(_cryptoAmount);
 
-    return isBuyAction ? formattedFiatAmount : formattedCryptoAmount;
+    return isBuyAction
+        ? formattedFiatAmount ?? 200.0
+        : formattedCryptoAmount ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
   }
 
   final AppStore _appStore;
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   Quote? bestRateQuote;
 
@@ -120,7 +122,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   CryptoCurrency cryptoCurrency;
 
   @observable
-  String cryptoAmount;
+  String _cryptoAmount;
+
+  @computed
+  String get cryptoAmount =>
+      _appStore.amountParsingProxy.getDisplayCryptoAmount(_cryptoAmount, cryptoCurrency);
 
   @observable
   String fiatAmount;
@@ -157,7 +163,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   @computed
-  bool get isBuySellQuotFailed => buySellQuotState is BuySellQuotFailed;
+  bool get isBuySellQuoteFailed => buySellQuotState is BuySellQuotFailed;
+
+  @computed
+  String? get buySellQuoteFailedError => buySellQuotState is BuySellQuotFailed
+      ? (buySellQuotState as BuySellQuotFailed).errorMessage
+      : null;
+
+  @computed
+  bool get useSatoshi => _appStore.amountParsingProxy.useSatoshi(cryptoCurrency);
 
   @action
   void reset() {
@@ -195,26 +209,23 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (amount.isEmpty) {
       fiatAmount = '';
-      cryptoAmount = '';
+      _cryptoAmount = '';
       return;
     }
 
-    final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
-
-    if (!isReadyToTrade && !isBuySellQuotFailed) {
-      cryptoAmount = S.current.fetching;
+    if (!isReadyToTrade && !isBuySellQuoteFailed) {
+      _cryptoAmount = S.current.fetching;
       return;
-    } else if (isBuySellQuotFailed) {
-      cryptoAmount = '';
+    } else if (isBuySellQuoteFailed) {
+      _cryptoAmount = '';
       return;
     }
 
     if (bestRateQuote != null) {
-      _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
-      cryptoAmount = _cryptoNumberFormat
-          .format(enteredAmount / bestRateQuote!.rate)
-          .toString()
-          .replaceAll(RegExp('\\,'), '');
+      final enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0;
+      final amount = enteredAmount / bestRateQuote!.rate;
+
+      _cryptoAmount = amount.toString().withMaxDecimals(cryptoCurrency.decimals);
     } else {
       await calculateBestRate();
     }
@@ -222,29 +233,27 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> changeCryptoAmount({required String amount}) async {
-    cryptoAmount = amount;
+    _cryptoAmount = _appStore.amountParsingProxy.getCanonicalCryptoAmount(amount, cryptoCurrency);
 
     if (amount.isEmpty) {
       fiatAmount = '';
-      cryptoAmount = '';
+      _cryptoAmount = '';
       return;
     }
 
-    final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
-
-    if (!isReadyToTrade && !isBuySellQuotFailed) {
+    if (!isReadyToTrade && !isBuySellQuoteFailed) {
       fiatAmount = S.current.fetching;
       return;
-    } else if (isBuySellQuotFailed) {
+    } else if (isBuySellQuoteFailed) {
       fiatAmount = '';
       return;
     }
 
     if (bestRateQuote != null) {
-      fiatAmount = _cryptoNumberFormat
-          .format(enteredAmount * bestRateQuote!.rate)
-          .toString()
-          .replaceAll(RegExp('\\,'), '');
+      final enteredAmount = double.tryParse(_cryptoAmount.replaceAll(',', '.')) ?? 0;
+
+      fiatAmount =
+          (enteredAmount * bestRateQuote!.rate).toString().withMaxDecimals(fiatCurrency.decimals);
     } else {
       await calculateBestRate();
     }
@@ -333,7 +342,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   Future<void> _initialize() async {
     _setProviders();
-    cryptoAmount = '';
+    _cryptoAmount = '';
     fiatAmount = '';
     cryptoCurrencyAddress = _getInitialCryptoCurrencyAddress();
     paymentMethodState = InitialPaymentMethod();
@@ -343,27 +352,32 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   String _getInitialCryptoCurrencyAddress() {
-    return cryptoCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    if (cryptoCurrency == wallet.currency) {
+      if ([CryptoCurrency.zec, CryptoCurrency.btc].contains(cryptoCurrency)) {
+        return wallet.walletAddresses.addressForBuy;
+      }
+
+      return wallet.walletAddresses.address;
+    }
+    return '';
   }
 
   @action
   Future<void> _getAvailablePaymentTypes() async {
     paymentMethodState = PaymentMethodLoading();
     selectedPaymentMethod = null;
-    final result = await Future.wait(providerList.map((element) => element
-        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction)
-        .timeout(
-          Duration(seconds: 10),
-          onTimeout: () => [],
-        )));
+    final result = await Future.wait(providerList.map((element) =>
+        element.getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction).timeout(
+              Duration(seconds: 10),
+              onTimeout: () => [],
+            )));
 
     final List<PaymentMethod> tempPaymentMethods = [];
 
     for (var methods in result) {
       for (var method in methods) {
         final alreadyExists = tempPaymentMethods.any((m) {
-          return m.paymentMethodType == method.paymentMethodType &&
-              m.customTitle == method.customTitle;
+          return m.paymentMethodType == method.paymentMethodType;
         });
 
         if (!alreadyExists) {
@@ -390,11 +404,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final List<BuyProvider> validProviders = providerList.where((provider) {
       if (isBuyAction) {
-        return provider.supportedCryptoList.any((pair) =>
-        pair.from == cryptoCurrency && pair.to == fiatCurrency);
+        return provider.supportedCryptoList
+            .any((pair) => pair.from == cryptoCurrency && pair.to == fiatCurrency);
       } else {
-        return provider.supportedFiatList.any((pair) =>
-        pair.from == fiatCurrency && pair.to == cryptoCurrency);
+        return provider.supportedFiatList
+            .any((pair) => pair.from == fiatCurrency && pair.to == cryptoCurrency);
       }
     }).toList();
 
@@ -431,7 +445,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
+    if (isBuyAction) {
+      validQuotes.sort((a, b) => b.payout.compareTo(a.payout));
+    } else {
+      validQuotes.sort((a, b) => a.payout.compareTo(b.payout));
+    }
 
     final Set<String> addedProviders = {};
     final List<Quote> uniqueProviderQuotes = validQuotes.where((element) {
@@ -440,10 +458,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return true;
     }).toList();
 
-    final List<Quote> successRateQuotes = validQuotes.where((element) =>
-    element.provider is OnRamperBuyProvider &&
-        element.recommendations.contains(ProviderRecommendation.successRate)
-    ).toList();
+    final List<Quote> successRateQuotes = validQuotes
+        .where((element) =>
+            element.provider is OnRamperBuyProvider &&
+            element.recommendations.contains(ProviderRecommendation.successRate))
+        .toList();
 
     for (final quote in successRateQuotes) {
       if (!uniqueProviderQuotes.contains(quote)) {
@@ -458,8 +477,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (sortedRecommendedQuotes.isNotEmpty) {
       sortedRecommendedQuotes.first
-        ..setIsBestRate = true
-        ..recommendations.insert(0, ProviderRecommendation.bestRate);
+        ..setIsBestRate = true;
       bestRateQuote = sortedRecommendedQuotes.first;
 
       sortedRecommendedQuotes.sort((a, b) {
@@ -467,6 +485,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         if (b.provider is OnRamperBuyProvider) return 1;
         return 0;
       });
+
+      final Quote effectiveBestRateQuote =
+      sortedRecommendedQuotes.reduce((a, b) {
+        return isBuyAction ? a.rate < b.rate ? a : b : a.rate > b.rate ? a : b;
+      });
+
+
+      effectiveBestRateQuote.recommendations
+          .add(ProviderRecommendation.bestRate);
 
       selectedQuote = sortedRecommendedQuotes.first;
       sortedRecommendedQuotes.first.setIsSelected = true;
@@ -478,12 +505,21 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   Future<void> launchTrade(BuildContext context) async {
     final provider = selectedQuote!.provider;
-    await provider.launchProvider(
-      context: context,
-      quote: selectedQuote!,
-      amount: amount,
-      isBuyAction: isBuyAction,
-      cryptoCurrencyAddress: cryptoCurrencyAddress,
-    );
+    try {
+      await provider.launchProvider(
+        context: context,
+        quote: selectedQuote!,
+        amount: amount,
+        isBuyAction: isBuyAction,
+        cryptoCurrencyAddress: cryptoCurrencyAddress,
+      );
+    } catch (e) {
+      if (e.toString().contains("403")) {
+        buySellQuotState = BuySellQuotFailed(errorMessage: "Using Tor is not supported");
+      } else {
+        buySellQuotState =
+            BuySellQuotFailed(errorMessage: "Something went wrong please try again later");
+      }
+    }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
@@ -5,6 +7,7 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -21,6 +24,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     String? titleIconPath,
     String? slideActionButtonText,
     VoidCallback? onSlideActionComplete,
+    bool isSlideActionEnabled = true,
     String? accessibleNavigationModeSlideActionButtonText,
     required this.currency,
     this.paymentId,
@@ -34,6 +38,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.feeFiatAmount,
     required this.outputs,
     required this.walletType,
+    this.amountParsingProxy,
     this.change,
     this.explanation,
     this.isOpenCryptoPay = false,
@@ -48,6 +53,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             footerType: footerType,
             slideActionButtonText: slideActionButtonText ?? 'Swipe to send',
             onSlideActionComplete: onSlideActionComplete,
+            isSlideActionEnabled: isSlideActionEnabled,
             accessibleNavigationModeSlideActionButtonText:
                 accessibleNavigationModeSlideActionButtonText,
             key: key);
@@ -69,9 +75,13 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final CakePayBuyCardViewModel? cakePayBuyCardViewModel;
   final String? quantity;
   final String? explanation;
+  final AmountParsingProxy? amountParsingProxy;
 
   final bool showScrollbar;
   final ScrollController scrollController = ScrollController();
+
+  bool get showAddress => !outputs
+      .any((e) => RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()));
 
   @override
   Widget contentWidget(BuildContext context) {
@@ -111,7 +121,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                         itemSubTitleTextStyle: itemSubTitleTextStyle,
                         tileBackgroundColor: tileBackgroundColor,
                         applyAddressFormatting: false,
-                    copyButton: true,
+                        copyButton: true,
                       )),
             ),
           if (explanation != null)
@@ -125,7 +135,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             ),
           StandardTile(
             itemTitle: amount,
-            itemValue: '$amountValue ${currency.title}',
+            itemValue: amountValue,
             itemTitleTextStyle: itemTitleTextStyle,
             itemSubTitle: fiatAmountValue,
             itemSubTitleTextStyle: itemSubTitleTextStyle,
@@ -143,48 +153,49 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
           const SizedBox(height: 8),
           Column(
             children: [
-              ListView.separated(
-                padding: const EdgeInsets.only(top: 0),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: outputs.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final bool isBatchSending = outputs.length > 1;
-                  final item = outputs[index];
-                  final contactName = item.parsedAddress.name;
-                  final isCakePayName = contactName == 'Cake Pay';
-                  final batchContactTitle =
-                      '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
-                  final _address = item.isParsedAddress ? item.extractedAddress : item.address;
-                  final _amount = item.cryptoAmount.replaceAll(',', '.') + ' ${currency.title}';
-                  return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
-                      ? ExpansionAddressTile(
-                          contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
-                          name: isBatchSending ? batchContactTitle : contactName,
-                          address: _address,
-                          amount: _amount,
-                          walletType: walletType,
-                          isBatchSending: isBatchSending,
-                          itemTitleTextStyle: itemTitleTextStyle,
-                          itemSubTitleTextStyle: itemSubTitleTextStyle,
-                          tileBackgroundColor: tileBackgroundColor,
-                        )
-                      : AddressTile(
-                          itemTitle: isCakePayName
-                              ? item.parsedAddress.profileName
-                              : S.of(context).address,
-                          imagePath: isCakePayName ? item.parsedAddress.profileImageUrl : null,
-                          itemTitleTextStyle: itemTitleTextStyle,
-                          walletType: walletType,
-                          amount: isCakePayName ? item.fiatAmount : _amount,
-                          address: _address,
-                          itemSubTitle: isCakePayName ? quantity : null,
-                          itemSubTitleTextStyle: itemSubTitleTextStyle,
-                          tileBackgroundColor: tileBackgroundColor,
-                        );
-                },
-              ),
+              if (showAddress)
+                ListView.separated(
+                  padding: const EdgeInsets.only(top: 0),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: outputs.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final isBatchSending = outputs.length > 1;
+                    final item = outputs[index];
+                    final contactName = item.parsedAddress.profileName;
+                    final isCakePayName = contactName == 'Cake Pay';
+                    final batchContactTitle =
+                        '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
+                    final _address = item.isParsedAddress ? item.extractedAddress : item.address;
+                    final _amount = '${item.cryptoAmount.sanitized()} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}';
+                    return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
+                        ? ExpansionAddressTile(
+                            contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
+                            name: isBatchSending ? batchContactTitle : contactName,
+                            address: _address,
+                            amount: _amount,
+                            walletType: walletType,
+                            isBatchSending: isBatchSending,
+                            itemTitleTextStyle: itemTitleTextStyle,
+                            itemSubTitleTextStyle: itemSubTitleTextStyle,
+                            tileBackgroundColor: tileBackgroundColor,
+                          )
+                        : AddressTile(
+                            itemTitle: isCakePayName
+                                ? item.parsedAddress.profileName
+                                : S.of(context).address,
+                            imagePath: isCakePayName ? item.parsedAddress.profileImageUrl : null,
+                            itemTitleTextStyle: itemTitleTextStyle,
+                            walletType: walletType,
+                            amount: isCakePayName ? item.fiatAmount : _amount,
+                            address: _address,
+                            itemSubTitle: isCakePayName ? quantity : null,
+                            itemSubTitleTextStyle: itemSubTitleTextStyle,
+                            tileBackgroundColor: tileBackgroundColor,
+                          );
+                  },
+                ),
               if (change != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -192,7 +203,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     contactType: 'Change',
                     name: S.of(context).send_change_to_you,
                     address: change!.address,
-                    amount: change!.amount + ' ${currency.title}',
+                    amount:
+                        '${amountParsingProxy?.getDisplayCryptoString(change!.amount.toInt(), currency)} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}',
                     isBatchSending: true,
                     walletType: walletType,
                     itemTitleTextStyle: itemTitleTextStyle,
