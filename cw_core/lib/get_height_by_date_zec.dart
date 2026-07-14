@@ -1,4 +1,3 @@
-
 class ZcashHeight {
   // for i in $(seq 1 331); do echo "_Checkpoint($(date -j -f "%Y-%m-%d %H:%M:%S" "$(curl -s "https://mainnet.zcashexplorer.app/blocks/${i}0000" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}')" "+%s"), ${i}0000),"; done > points.txt
   static final List<_Checkpoint> _points = [

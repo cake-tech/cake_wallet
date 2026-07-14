@@ -46,22 +46,25 @@ class PendingZcashTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    await ZcashWalletBase.runWithCoin(accountId: zcashWallet.accountId, func: (coin) async {
-      final signTx = await zkool_pay.signTransaction(pczt: txPlan, c: coin);
-      final txBytes = await zkool_pay.extractTransaction(package: signTx);
-      final currentHeight = await zkool_network.getCurrentHeight(c: coin);
-      final result = await zkool_pay.broadcastTransaction(
-        height: currentHeight,
-        txBytes: txBytes,
-        c: coin,
-      );
-      printV("result: $result");
-      final txId = ZcashWalletService.normalizeTxId(result);
-      if (txId.length != 64) {
-        throw TransactionCommitFailed(errorMessage: result);
-      }
-      _txId = txId;
-    });
+    await ZcashWalletBase.runWithCoin(
+      accountId: zcashWallet.accountId,
+      func: (coin) async {
+        final signTx = await zkool_pay.signTransaction(pczt: txPlan, c: coin);
+        final txBytes = await zkool_pay.extractTransaction(package: signTx);
+        final currentHeight = await zkool_network.getCurrentHeight(c: coin);
+        final result = await zkool_pay.broadcastTransaction(
+          height: currentHeight,
+          txBytes: txBytes,
+          c: coin,
+        );
+        printV("result: $result");
+        final txId = ZcashWalletService.normalizeTxId(result);
+        if (txId.length != 64) {
+          throw TransactionCommitFailed(errorMessage: result);
+        }
+        _txId = txId;
+      },
+    );
     await zcashWallet.updateTransactions();
     await zcashWallet.updateBalance();
   }

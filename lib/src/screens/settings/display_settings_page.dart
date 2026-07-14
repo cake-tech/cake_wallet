@@ -115,14 +115,6 @@ class DisplaySettingsPage extends StatelessWidget {
                       onChanged: (val) {
                         _displaySettingsViewModel.setDisableTradeOption(val);
                       }),
-                  if (_displaySettingsViewModel.showZcashCardSetting)
-                    ListItemToggle(
-                        keyValue: "display_settings_show_zcashcard",
-                        label: S.of(context).show_zcash_card,
-                        value: _displaySettingsViewModel.showZcashCard,
-                        onChanged: (val) {
-                          _displaySettingsViewModel.setShowZcashCard(val);
-                        }),
                   ListItemSelector(
                       keyValue: "display_settings_sync_status_display",
                       label: S.of(context).sync_status_display_mode,
