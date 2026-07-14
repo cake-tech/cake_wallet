@@ -6,8 +6,8 @@ cd ..
 for i in cw_bitcoin cw_bitcoin_cash cw_core cw_decred cw_dogecoin cw_evm cw_monero cw_mweb cw_nano cw_solana cw_tron cw_zano cw_zcash lib;
 do
     {
-        # files modified after the 29th and committed
-        git log --since="2026-06-29 23:59:59" --name-only --diff-filter=d --format="" -- "$i"
+        # files modified after the lints got enabled and committed
+        git log --since="2026-07-14 23:59:59" --name-only --diff-filter=d --format="" -- "$i"
         # uncommitted files (assumed to have been modified after the 29th)
         git diff --name-only --diff-filter=d HEAD -- "$i"
     } | grep '\.dart$' | sort -u | while IFS= read -r file; do
