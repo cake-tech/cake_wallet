@@ -231,45 +231,45 @@ class _NewSendPageState extends State<NewSendPage> {
       }
     });
 
-    if (widget.initialPaymentRequest != null &&
-        widget.sendViewModel.walletCurrencyName ==
-            widget.initialPaymentRequest!.scheme.toLowerCase()) {
-      _addressControllers[0].text = widget.initialPaymentRequest!.address;
-      _memoControllers[0].text = widget.initialPaymentRequest!.note;
-      final contractAddress = widget.initialPaymentRequest!.contractAddress;
-      if (contractAddress != null && contractAddress.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!mounted) return;
-          await widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
-          if (!mounted) return;
+    if (widget.initialPaymentRequest != null) {
+      if (_isInitialRequestTypeSameAsCurrentWallet()) {
+        _addressControllers[0].text = widget.initialPaymentRequest!.address;
+        _memoControllers[0].text = widget.initialPaymentRequest!.note;
+        final contractAddress = widget.initialPaymentRequest!.contractAddress;
+        if (contractAddress != null && contractAddress.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (!mounted) return;
+            await widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
+            if (!mounted) return;
+            _amountControllers[0].text = widget.initialPaymentRequest!.amount;
+          });
+        } else {
           _amountControllers[0].text = widget.initialPaymentRequest!.amount;
-        });
+        }
       } else {
-        _amountControllers[0].text = widget.initialPaymentRequest!.amount;
+        WidgetsBinding.instance.addPostFrameCallback(
+          (timeStamp) {
+            if (mounted) {
+              final paymentRequest = widget.initialPaymentRequest!;
+              final scheme = paymentRequest.scheme.toLowerCase();
+              final String uri;
+              if (scheme.isEmpty || scheme == 'lightning') {
+                uri = paymentRequest.address;
+              } else {
+                final chainSuffix = (scheme == 'ethereum' &&
+                        paymentRequest.chainId != null &&
+                        paymentRequest.chainId != 1)
+                    ? "@${paymentRequest.chainId}"
+                    : "";
+                final amount =
+                    paymentRequest.amount.isNotEmpty ? "?amount=${paymentRequest.amount}" : "";
+                uri = "${paymentRequest.scheme}:${paymentRequest.address}$chainSuffix$amount";
+              }
+              _handlePaymentFlow(uri, paymentRequest);
+            }
+          },
+        );
       }
-    }
-
-    /// if the current wallet doesn't match the one in the qr code
-    if (widget.initialPaymentRequest != null &&
-        widget.sendViewModel.walletCurrencyName !=
-            widget.initialPaymentRequest!.scheme.toLowerCase()) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (timeStamp) {
-          if (mounted) {
-            final paymentRequest = widget.initialPaymentRequest!;
-            final prefix = paymentRequest.scheme.isNotEmpty ? "${paymentRequest.scheme}:" : "";
-            final chainSuffix = (paymentRequest.scheme == 'ethereum' &&
-                    paymentRequest.chainId != null &&
-                    paymentRequest.chainId != 1)
-                ? "@${paymentRequest.chainId}"
-                : "";
-            final amount =
-                paymentRequest.amount.isNotEmpty ? "?amount=${paymentRequest.amount}" : "";
-            final uri = prefix + paymentRequest.address + chainSuffix + amount;
-            _handlePaymentFlow(uri, paymentRequest);
-          }
-        },
-      );
     }
 
     _addressFocusNode.addListener(() async {
@@ -957,6 +957,30 @@ class _NewSendPageState extends State<NewSendPage> {
     await _handleEvmNetworkFlow(target, paymentRequest);
   }
 
+  bool _isInitialRequestTypeSameAsCurrentWallet() {
+    final req = widget.initialPaymentRequest;
+    if (req == null) return false;
+
+    final currentType = widget.sendViewModel.wallet.type;
+    if (evm != null && isEVMCompatibleChain(currentType)) {
+      final targetChainId = _evmTargetChainId(req);
+      if (targetChainId != null) {
+        return targetChainId == evm!.getChainIdByWalletType(currentType);
+      }
+    }
+    return widget.sendViewModel.walletCurrencyName == req.scheme.toLowerCase();
+  }
+
+  int? _evmTargetChainId(PaymentRequest req) {
+    final scheme = req.scheme.toLowerCase();
+    if (scheme == 'ethereum') return req.chainId ?? 1;
+    try {
+      return getChainIdByCryptoCurrency(CryptoCurrency.fromString(scheme));
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     final isEip681 = uri.toLowerCase().startsWith('ethereum:');
     if (!isEip681 && (uri.contains('@') || paymentRequest.address.contains('@'))) return;
@@ -1148,6 +1172,10 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (destinationWalletInfo == null) return;
+
+    // We may have awaited the wallet picker above, so make sure the decision page
+    // is still around before we reach into its navigator.
+    if (!pageContext.mounted) return;
     if (Navigator.of(pageContext).canPop()) Navigator.of(pageContext).pop();
     if (!mounted) return;
     await _completeWalletSwitch(destinationWalletInfo, result, paymentRequest);
@@ -1168,9 +1196,15 @@ class _NewSendPageState extends State<NewSendPage> {
       showModalBottomSheet<void>(
         context: context,
         isDismissible: false,
-        builder: (BuildContext context) {
-          loadingBottomSheetContext = context;
-          return LoadingBottomSheet(titleText: S.of(context).loading_your_wallet);
+        builder: (BuildContext sheetContext) {
+          if (completedFlow) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Navigator.canPop(sheetContext)) Navigator.of(sheetContext).pop();
+            });
+            return const SizedBox.shrink();
+          }
+          loadingBottomSheetContext = sheetContext;
+          return LoadingBottomSheet(titleText: S.of(sheetContext).loading_your_wallet);
         },
       );
     });
@@ -1320,7 +1354,7 @@ class _NewSendPageState extends State<NewSendPage> {
         address: contract,
       );
     }
-    if (!mounted) return;
+    if (!mounted || !presentContext.mounted) return;
 
     final receiveCurrency = resolvedToken ??
         result.detectedCurrency ??
