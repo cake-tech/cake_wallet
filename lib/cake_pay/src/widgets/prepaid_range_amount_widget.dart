@@ -119,7 +119,7 @@ class _PrepaidRangeAmountWidgetState extends State<PrepaidRangeAmountWidget> {
     widget.amountController.text = nextAmount;
     widget.onAmountChanged(nextAmount);
     widget.cakePayBuyCardViewModel.selectedDenomination = (
-      nextAmount,
+      nextAmount.replaceAll(',', '.'),
       int.tryParse(_selectedRange.rangeId),
     );
   }
