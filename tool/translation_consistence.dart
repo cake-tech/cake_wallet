@@ -28,8 +28,7 @@ void main(List<String> args) async {
 
       missingKeys.forEach((key) {
         print('Missing in "$lang": "$key"');
-        if (doFix)
-          missingDefaults[key] = arbObj[key] as String;
+        if (doFix) missingDefaults[key] = arbObj[key] as String;
       });
 
       if (missingDefaults.isNotEmpty) {
