@@ -15,11 +15,17 @@ import 'package:hive/hive.dart';
 import 'package:monero/zano.dart' as zano;
 
 class ZanoNewWalletCredentials extends WalletCredentials {
-  ZanoNewWalletCredentials({required String name, String? password, required String? passphrase}) : super(name: name, password: password, passphrase: passphrase);
+  ZanoNewWalletCredentials({required String name, String? password, required String? passphrase})
+      : super(name: name, password: password, passphrase: passphrase);
 }
 
 class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
-  ZanoRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required this.mnemonic})
+  ZanoRestoreWalletFromSeedCredentials(
+      {required String name,
+      required String password,
+      required String passphrase,
+      required int height,
+      required this.mnemonic})
       : super(name: name, password: password, passphrase: passphrase, height: height);
 
   final String mnemonic;
@@ -42,11 +48,15 @@ class ZanoRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String spendKey;
 }
 
-class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, 
-    ZanoRestoreWalletFromSeedCredentials, ZanoRestoreWalletFromKeysCredentials, ZanoNewWalletCredentials> {
+class ZanoWalletService extends WalletService<
+    ZanoNewWalletCredentials,
+    ZanoRestoreWalletFromSeedCredentials,
+    ZanoRestoreWalletFromKeysCredentials,
+    ZanoNewWalletCredentials> {
   ZanoWalletService();
 
-  static bool walletFilesExist(String path) => !File(path).existsSync() && !File('$path.keys').existsSync();
+  static bool walletFilesExist(String path) =>
+      !File(path).existsSync() && !File('$path.keys').existsSync();
 
   int hWallet = 0;
 
@@ -72,7 +82,8 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
       throw WalletNotFoundException();
     }
     try {
-      final wallet = await ZanoWalletBase.open(name: name, password: password, walletInfo: walletInfo);
+      final wallet =
+          await ZanoWalletBase.open(name: name, password: password, walletInfo: walletInfo);
       saveBackup(name);
       return wallet;
     } catch (e) {
@@ -104,7 +115,8 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
     if (currentWalletInfo == null) {
       throw WalletNotFoundException();
     }
-    final currentWallet = ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password);
+    final currentWallet =
+        ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -116,17 +128,20 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   }
 
   @override
-  Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
+  Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials,
+      {bool? isTestnet}) async {
     throw UnimplementedError();
   }
 
   @override
-  Future<ZanoWallet> restoreFromSeed(ZanoRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+  Future<ZanoWallet> restoreFromSeed(ZanoRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     return ZanoWalletBase.restore(credentials: credentials);
   }
 
   @override
   Future<ZanoWallet> restoreFromHardwareWallet(ZanoNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Zano wallet from a hardware wallet is not yet supported!");
+    throw UnimplementedError(
+        "Restoring a Zano wallet from a hardware wallet is not yet supported!");
   }
 }

@@ -58,11 +58,13 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                           curve: Curves.easeInOut,
                           margin: EdgeInsets.only(right: 24),
                           decoration: ShapeDecoration(
-                            shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(cellRadius),
-                            side: BorderSide(
-                                    color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                                    strokeAlign: BorderSide.strokeAlignOutside)
-                          )),
+                              shape: RoundedSuperellipseBorder(
+                                  borderRadius: BorderRadius.circular(cellRadius),
+                                  side: BorderSide(
+                                      color: isSelected
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Colors.transparent,
+                                      strokeAlign: BorderSide.strokeAlignOutside))),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(cellRadius),
                             child: CakeImageWidget(
@@ -97,8 +99,8 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                         children: [
                           Padding(
                               padding: EdgeInsets.only(top: 14),
-                              child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
-                          ),
+                              child: Container(
+                                  height: 1, color: Theme.of(context).colorScheme.outlineVariant)),
                           SizedBox(height: cellHeight),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,10 +125,14 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                                           duration: Duration(milliseconds: 350),
                                           opacity: isSelected ? 1 : 0,
                                           child: Container(
-                                              width:28,height:28,decoration: BoxDecoration(borderRadius: BorderRadius.circular(99999999),border: Border.all(color:Theme.of(context)
-                                              .colorScheme
-                                              .onSurface))
-                                          ),
+                                              width: 28,
+                                              height: 28,
+                                              decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(99999999),
+                                                  border: Border.all(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface))),
                                         ),
                                         AnimatedScale(
                                           duration: Duration(milliseconds: 350),
@@ -153,19 +159,19 @@ class SettingsThemeChoicesCell extends StatelessWidget {
               if (_displaySettingsViewModel.currentTheme is BlackTheme)
                 Padding(
                     padding: EdgeInsets.only(top: 12, bottom: 4),
-                    child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
-                ),
+                    child:
+                        Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant)),
               if (_displaySettingsViewModel.currentTheme is BlackTheme)
-              SettingsSwitcherCell(
-                height: 40,
-                title: S.current.oled_mode,
-                value: _displaySettingsViewModel.isBlackThemeOledEnabled,
-                onValueChange: (_, bool value) {
-                  _displaySettingsViewModel.setBlackThemeOled(value);
-                },
-                padding: EdgeInsets.zero,
-                switchBackgroundColor: currentTheme.colorScheme.secondaryContainer,
-              ),
+                SettingsSwitcherCell(
+                  height: 40,
+                  title: S.current.oled_mode,
+                  value: _displaySettingsViewModel.isBlackThemeOledEnabled,
+                  onValueChange: (_, bool value) {
+                    _displaySettingsViewModel.setBlackThemeOled(value);
+                  },
+                  padding: EdgeInsets.zero,
+                  switchBackgroundColor: currentTheme.colorScheme.secondaryContainer,
+                ),
             ],
           ),
         );

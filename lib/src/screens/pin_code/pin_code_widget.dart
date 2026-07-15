@@ -231,7 +231,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         child: TextButton(
                                           onPressed: () => {_pop(), HapticFeedback.mediumImpact()},
                                           style: TextButton.styleFrom(
-                                            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                                            backgroundColor:
+                                                Theme.of(context).colorScheme.surfaceContainer,
                                             shape: CircleBorder(),
                                           ),
                                           child: deleteIconImage,
@@ -249,7 +250,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                     key: ValueKey('pin_code_button_${index}_key'),
                                     onPressed: () => {_push(index), HapticFeedback.mediumImpact()},
                                     style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.surfaceContainer,
                                       shape: CircleBorder(),
                                     ),
                                     child: Text('$index',

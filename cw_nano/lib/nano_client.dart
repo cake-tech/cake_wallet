@@ -80,7 +80,7 @@ class NanoClient {
         },
       ),
     );
-    
+
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200 ||
         data["error"] != null ||
@@ -109,7 +109,7 @@ class NanoClient {
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return AccountInfoResponse.fromJson(data);
     } catch (e) {
@@ -134,7 +134,7 @@ class NanoClient {
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
     } catch (e) {
@@ -201,7 +201,7 @@ class NanoClient {
         },
       ),
     );
-    
+
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body) as Map<String, dynamic>;
       if (decoded.containsKey("error")) {
@@ -512,7 +512,7 @@ class NanoClient {
           // "raw": true,
         }),
       );
-      
+
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final transactions = data["history"] is List ? data["history"] as List<dynamic> : [];
 
@@ -535,7 +535,6 @@ class NanoClient {
       body: jsonEncode({"action": "reps"}),
     );
     try {
-      
       final List<N2Node> nodes = (jsonDecode(response.body) as List<dynamic>)
           .map((dynamic e) => N2Node.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -556,7 +555,6 @@ class NanoClient {
       }),
     );
     try {
-      
       final N2Node node = N2Node.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
       return node.score ?? 100;
     } catch (error) {

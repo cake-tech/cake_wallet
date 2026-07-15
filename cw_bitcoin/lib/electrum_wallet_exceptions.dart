@@ -1,8 +1,6 @@
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:bitcoin_base/bitcoin_base.dart';
 
-// class RichardIsAFuckingIdiotException {...}
-
 class RbfException extends CakeException {
   const RbfException(super.message);
 }

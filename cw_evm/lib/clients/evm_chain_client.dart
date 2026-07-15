@@ -146,7 +146,9 @@ class EVMChainClient {
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0 &&
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          jsonResponse['status'] != 0 &&
           jsonResponse['result'] is List) {
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
@@ -521,9 +523,11 @@ class EVMChainClient {
     */
   }
 
-  Future<EVMChainERC20Balance> fetchERC20Balances(EthereumAddress userAddress, Erc20Token token) async {
+  Future<EVMChainERC20Balance> fetchERC20Balances(
+      EthereumAddress userAddress, Erc20Token token) async {
     try {
-      final erc20 = ERC20(address: EthereumAddress.fromHex(token.contractAddress), client: _client!);
+      final erc20 =
+          ERC20(address: EthereumAddress.fromHex(token.contractAddress), client: _client!);
       final balance = await erc20.balanceOf(userAddress);
 
       return EVMChainERC20Balance(Money(balance, token));
@@ -660,9 +664,8 @@ class EVMChainClient {
           final tokenData = item;
 
           final nativeRaw = tokenData['native_token'];
-          final nativeToken = nativeRaw is bool
-              ? nativeRaw
-              : (nativeRaw?.toString().toLowerCase() == 'true');
+          final nativeToken =
+              nativeRaw is bool ? nativeRaw : (nativeRaw?.toString().toLowerCase() == 'true');
           if (nativeToken) continue;
 
           final balanceStr = tokenData['balance'] as String? ?? '0';

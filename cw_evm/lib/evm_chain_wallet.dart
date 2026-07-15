@@ -562,8 +562,7 @@ abstract class EVMChainWalletBase
     'distribution',
   ];
 
-  static final _suspiciousWordPattern =
-      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
+  static final _suspiciousWordPattern = RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
 
   static const _knownNonEvmNativeSymbols = {
     'ICP',
@@ -631,8 +630,7 @@ abstract class EVMChainWalletBase
     final prefs = await sharedPrefs.future;
     if (prefs.getBool(_scamCheckDoneKey) == true) return;
 
-    final whitelistLower =
-        getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+    final whitelistLower = getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
     final defaultSymbolsUpper =
         EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId).toSet();
 
@@ -1317,23 +1315,18 @@ abstract class EVMChainWalletBase
       } else if (newTxInfo.direction == TransactionDirection.incoming &&
           existingTxInfo.direction == TransactionDirection.outgoing) {
         result[transactionModel.hash] = newTxInfo;
-      }
-
-      else if (newTxInfo.direction == TransactionDirection.outgoing &&
+      } else if (newTxInfo.direction == TransactionDirection.outgoing &&
           existingTxInfo.direction == TransactionDirection.outgoing &&
           _hasEvmTokenContractAddress(newTxInfo) &&
           !_hasEvmTokenContractAddress(existingTxInfo)) {
         result[transactionModel.hash] = newTxInfo;
-      }
-
-      else if (existingTxInfo.isPending) {
+      } else if (existingTxInfo.isPending) {
         result[transactionModel.hash] = newTxInfo;
       }
     }
 
     return result;
   }
-
 
   bool _hasEvmTokenContractAddress(EVMChainTransactionInfo info) {
     final c = info.contractAddress;

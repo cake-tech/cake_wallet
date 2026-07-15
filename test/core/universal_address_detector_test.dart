@@ -48,7 +48,8 @@ void main() {
       });
 
       test('detects Lightning invoice', () {
-        const invoice = 'lnbc1u1p3zj7j8pp5vkwxc4vxfzgzxcjzk5ksp0l7jgrgzmqxqmexxp8e8gfqk6s0knnqdlc35hsggzypnxw7xxxnrvd3hscqzpgxqrrsssp5txs5g8vkdmdtnm8g5v9m3u094nnxkl0jjf38jj5xn2pptxlqkwn7gpgfkt7q6z0frcj7vjy4mv7659hccln2e0gzt4ufnsukxcnknh7e58kwnr8pk6kgv6vrghcpld2z5n';
+        const invoice =
+            'lnbc1u1p3zj7j8pp5vkwxc4vxfzgzxcjzk5ksp0l7jgrgzmqxqmexxp8e8gfqk6s0knnqdlc35hsggzypnxw7xxxnrvd3hscqzpgxqrrsssp5txs5g8vkdmdtnm8g5v9m3u094nnxkl0jjf38jj5xn2pptxlqkwn7gpgfkt7q6z0frcj7vjy4mv7659hccln2e0gzt4ufnsukxcnknh7e58kwnr8pk6kgv6vrghcpld2z5n';
         final result = UniversalAddressDetector.detectAddress(invoice);
 
         expect(result.isValid, true);

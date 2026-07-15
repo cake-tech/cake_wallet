@@ -163,8 +163,9 @@ abstract class CakePayBuyCardViewModelBase with Store {
         confirmsVoidedRefund: confirmsVoidedRefund,
         confirmsTermsAgreed: confirmsTermsAgreed,
       );
-      final paymentData =
-          CakePayOrder.getPaymentDataFor(method: selectedPaymentMethod, order: order); // TODO should hande other currencies if added
+      final paymentData = CakePayOrder.getPaymentDataFor(
+          method: selectedPaymentMethod,
+          order: order); // TODO should hande other currencies if added
       if (paymentData == null || order == null)
         throw CakePayNoDataException('Payment data or order is not available.');
 
@@ -241,7 +242,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
       formattedRemainingTime = formatDuration(remainingTime!);
     }
   }
-  
+
   Future<void> logout() async => await _cakePayService.logout();
 
   void _startExpirationTimer() {

@@ -16,11 +16,11 @@ extension Emoji on String {
 
   bool _hasOnlyEmojis() {
     final parsedText = this.replaceAll(' ', '');
-    if(parsedText.isEmpty) return false;
-    for (final c in Characters(parsedText))
-      if (!REGEX_EMOJI.hasMatch(c)) return false;
+    if (parsedText.isEmpty) return false;
+    for (final c in Characters(parsedText)) if (!REGEX_EMOJI.hasMatch(c)) return false;
     return true;
   }
- /// Returns true if the given text contains only emojis.
+
+  /// Returns true if the given text contains only emojis.
   bool get hasOnlyEmojis => _hasOnlyEmojis();
 }

@@ -104,5 +104,4 @@ class Bip353Record {
       return result;
     }
   }
-
 }

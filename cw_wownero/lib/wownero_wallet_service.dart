@@ -24,7 +24,11 @@ import 'package:monero/wownero.dart' as wownero;
 
 class WowneroNewWalletCredentials extends WalletCredentials {
   WowneroNewWalletCredentials(
-      {required String name, required this.language, required this.isPolyseed, this.passphrase, String? password})
+      {required String name,
+      required this.language,
+      required this.isPolyseed,
+      this.passphrase,
+      String? password})
       : super(name: name, password: password);
 
   final String language;
@@ -34,7 +38,11 @@ class WowneroNewWalletCredentials extends WalletCredentials {
 
 class WowneroRestoreWalletFromSeedCredentials extends WalletCredentials {
   WowneroRestoreWalletFromSeedCredentials(
-      {required String name, required this.mnemonic, required this.passphrase, int height = 0, String? password})
+      {required String name,
+      required this.mnemonic,
+      required this.passphrase,
+      int height = 0,
+      String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
@@ -98,9 +106,15 @@ class WowneroWalletService extends WalletService<
       }
 
       await wownero_wallet_manager.createWallet(
-          path: path, password: credentials.password!, language: credentials.language, passphrase: credentials.passphrase??'');
+          path: path,
+          password: credentials.password!,
+          language: credentials.language,
+          passphrase: credentials.passphrase ?? '');
       final wallet = WowneroWallet(
-          walletInfo: credentials.walletInfo!, derivationInfo: await credentials.walletInfo!.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: credentials.password!);
+          walletInfo: credentials.walletInfo!,
+          derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -139,7 +153,11 @@ class WowneroWalletService extends WalletService<
         throw Exception('Wallet not found');
       }
 
-      wallet = WowneroWallet(walletInfo: walletInfo, derivationInfo: await walletInfo.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: password);
+      wallet = WowneroWallet(
+          walletInfo: walletInfo,
+          derivationInfo: await walletInfo.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: password);
       throw WalletDeprecationException(seed: wallet.seed, curr: wallet.currency);
 
       final isValid = wallet.walletAddresses.validate();
@@ -225,7 +243,11 @@ class WowneroWalletService extends WalletService<
     if (currentWalletInfo == null) {
       throw WalletNotFoundException();
     }
-    final currentWallet = WowneroWallet(walletInfo: currentWalletInfo, derivationInfo: await currentWalletInfo.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: password);
+    final currentWallet = WowneroWallet(
+        walletInfo: currentWalletInfo,
+        derivationInfo: await currentWalletInfo.getDerivationInfo(),
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -250,7 +272,10 @@ class WowneroWalletService extends WalletService<
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
       final wallet = WowneroWallet(
-          walletInfo: credentials.walletInfo!, derivationInfo: await credentials.walletInfo!.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: credentials.password!);
+          walletInfo: credentials.walletInfo!,
+          derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -284,7 +309,10 @@ class WowneroWalletService extends WalletService<
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
       final wallet = WowneroWallet(
-          walletInfo: credentials.walletInfo!, derivationInfo: await credentials.walletInfo!.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: credentials.password!);
+          walletInfo: credentials.walletInfo!,
+          derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -304,7 +332,8 @@ class WowneroWalletService extends WalletService<
       final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
 
       return _restoreFromPolyseed(
-          path, credentials.password!, polyseed, credentials.walletInfo!, lang, passphrase: credentials.passphrase);
+          path, credentials.password!, polyseed, credentials.walletInfo!, lang,
+          passphrase: credentials.passphrase);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       printV('WowneroWalletsManager Error: $e');
@@ -314,20 +343,19 @@ class WowneroWalletService extends WalletService<
 
   Future<WowneroWallet> _restoreFromPolyseed(
       String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
-      {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO, int? overrideHeight, String? passphrase}) async {
-
-    
-    if (polyseed.isEncrypted == false &&
-        (passphrase??'') != "") {
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO,
+      int? overrideHeight,
+      String? passphrase}) async {
+    if (polyseed.isEncrypted == false && (passphrase ?? '') != "") {
       // Fallback to the different passphrase offset method, when a passphrase
       // was provided but the polyseed is not encrypted.
       wownero_wallet_manager.restoreWalletFromPolyseedWithOffset(
-        path: path,
-        password: password,
-        seed: polyseed.encode(lang, coin),
-        seedOffset: passphrase??'',
-        language: "English");
-      
+          path: path,
+          password: password,
+          seed: polyseed.encode(lang, coin),
+          seedOffset: passphrase ?? '',
+          language: "English");
+
       final wallet = WowneroWallet(
         walletInfo: walletInfo,
         derivationInfo: await walletInfo.getDerivationInfo(),
@@ -358,9 +386,13 @@ class WowneroWalletService extends WalletService<
         spendKey: spendKey);
 
     wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
-    wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase??'');
+    wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase ?? '');
 
-    final wallet = WowneroWallet(walletInfo: walletInfo, derivationInfo: await walletInfo.getDerivationInfo(), unspentCoinsInfo: unspentCoinsInfoSource, password: password);
+    final wallet = WowneroWallet(
+        walletInfo: walletInfo,
+        derivationInfo: await walletInfo.getDerivationInfo(),
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password);
     await wallet.init();
 
     return wallet;

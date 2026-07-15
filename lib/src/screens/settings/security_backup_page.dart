@@ -73,8 +73,8 @@ class SecurityBackupPage extends BasePage {
                                       isAuthenticatedSuccessfully);
                                 }
                               } else {
-                                _securitySettingsViewModel.setAllowBiometricalAuthentication(
-                                    isAuthenticatedSuccessfully);
+                                _securitySettingsViewModel
+                                    .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                               }
                             },
                             conditionToDetermineIfToUse2FA: _securitySettingsViewModel
@@ -85,13 +85,13 @@ class SecurityBackupPage extends BasePage {
                         }
                       }),
                 if (DeviceInfo.instance.isMobile)
-                ListItemToggle(
-                    keyValue: "display_settings_prevent_screen_capture",
-                    label: S.of(context).prevent_screenshots,
-                    value: _securitySettingsViewModel.isAppSecure,
-                    onChanged: (val) {
-                      _securitySettingsViewModel.setIsAppSecure(val);
-                    }),
+                  ListItemToggle(
+                      keyValue: "display_settings_prevent_screen_capture",
+                      label: S.of(context).prevent_screenshots,
+                      value: _securitySettingsViewModel.isAppSecure,
+                      onChanged: (val) {
+                        _securitySettingsViewModel.setIsAppSecure(val);
+                      }),
                 if (FeatureFlag.duressPinEnabled)
                   ListItemToggle(
                       keyValue: "security_backup_page_duress_pin_button_key",
@@ -114,8 +114,7 @@ class SecurityBackupPage extends BasePage {
                               if (confirmation) {
                                 Navigator.of(context).pushNamed(
                                   Routes.setupDuressPin,
-                                  arguments:
-                                      (PinCodeState<PinCodeWidget> pinCtx, String _) async {
+                                  arguments: (PinCodeState<PinCodeWidget> pinCtx, String _) async {
                                     pinCtx.close();
                                     _securitySettingsViewModel.setEnableDuressPin(true);
                                   },

@@ -101,7 +101,8 @@ class JsonExplorerPage extends StatelessWidget {
       final appDir = await getAppDir();
       final filePath = appDir.path + '/.json_dump_temp.json';
       await File(filePath).writeAsString(jsonString);
-      await ShareUtil.shareFile(filePath: filePath, fileName: path.basename(filePath), context: context);
+      await ShareUtil.shareFile(
+          filePath: filePath, fileName: path.basename(filePath), context: context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to share file: $e')),
@@ -144,11 +145,11 @@ class _JsonExplorerState extends State<JsonExplorer> {
 
   void _buildItemList() {
     _allItems.clear();
-    
+
     if (widget.data is Map) {
       final map = widget.data as Map<String, dynamic>;
       final sortedKeys = map.keys.toList()..sort();
-      
+
       for (final key in sortedKeys) {
         _allItems.add(CacheItem(
           key: key,
@@ -166,7 +167,7 @@ class _JsonExplorerState extends State<JsonExplorer> {
         ));
       }
     }
-    
+
     _applyFilter();
   }
 
@@ -176,7 +177,7 @@ class _JsonExplorerState extends State<JsonExplorer> {
     } else {
       _filteredItems = _allItems.where((item) {
         return item.displayKey.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               _valueContainsSearch(item.value, _searchQuery.toLowerCase());
+            _valueContainsSearch(item.value, _searchQuery.toLowerCase());
       }).toList();
     }
   }
@@ -211,10 +212,10 @@ class _JsonExplorerState extends State<JsonExplorer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalItems = widget.data is Map 
-        ? (widget.data as Map).length 
-        : widget.data is List 
-            ? (widget.data as List).length 
+    final totalItems = widget.data is Map
+        ? (widget.data as Map).length
+        : widget.data is List
+            ? (widget.data as List).length
             : 0;
 
     return Column(
@@ -231,9 +232,7 @@ class _JsonExplorerState extends State<JsonExplorer> {
                     prefixIcon: const Icon(Icons.search),
                     border: const OutlineInputBorder(),
                     isDense: true,
-                    suffixText: _searchQuery.isNotEmpty 
-                        ? '${_filteredItems.length} found'
-                        : null,
+                    suffixText: _searchQuery.isNotEmpty ? '${_filteredItems.length} found' : null,
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -246,7 +245,6 @@ class _JsonExplorerState extends State<JsonExplorer> {
             ],
           ),
         ),
-
         Expanded(
           child: _filteredItems.isEmpty && _searchQuery.isNotEmpty
               ? Center(
@@ -312,11 +310,11 @@ class CacheItemTile extends StatelessWidget {
   Color _getTypeColor(BuildContext context, dynamic value) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     if (value == null) {
       return Colors.grey;
     }
-    
+
     switch (value.runtimeType) {
       case String:
         return Colors.green;
@@ -338,22 +336,22 @@ class CacheItemTile extends StatelessWidget {
 
   String _getValuePreview(dynamic value) {
     if (value == null) return 'null';
-    
+
     if (value is Map) {
       return '{${value.length} items}';
     }
-    
+
     if (value is List) {
       return '[${value.length} items]';
     }
-    
+
     if (value is String) {
       if (value.length > 100) {
         return '"${value.substring(0, 97)}..."';
       }
       return '"$value"';
     }
-    
+
     final str = value.toString();
     if (str.length > 100) {
       return '${str.substring(0, 97)}...';
@@ -408,9 +406,7 @@ class CacheItemTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: ListTile(
         leading: Icon(
-          canNavigate 
-              ? (item.value is Map ? Icons.folder : Icons.list)
-              : Icons.description,
+          canNavigate ? (item.value is Map ? Icons.folder : Icons.list) : Icons.description,
           color: _getTypeColor(context, item.value),
         ),
         title: _buildHighlightedText(
@@ -434,8 +430,7 @@ class CacheItemTile extends StatelessWidget {
               icon: const Icon(Icons.copy, size: 18),
               tooltip: 'Copy ${item.displayKey}',
             ),
-            if (canNavigate)
-              const Icon(Icons.chevron_right),
+            if (canNavigate) const Icon(Icons.chevron_right),
           ],
         ),
         onTap: canNavigate ? onTap : null,

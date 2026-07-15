@@ -5,8 +5,7 @@ class Subtransfer {
   final String assetId;
   final bool isIncome;
 
-  Subtransfer(
-      {required this.amount, required this.assetId, required this.isIncome});
+  Subtransfer({required this.amount, required this.assetId, required this.isIncome});
 
   factory Subtransfer.fromJson(Map<String, dynamic> json) => Subtransfer(
         amount: ZanoFormatter.bigIntFromDynamic(json['amount']),

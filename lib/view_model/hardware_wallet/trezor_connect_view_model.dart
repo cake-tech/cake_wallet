@@ -143,12 +143,10 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
           isDismissible: false,
           enableDrag: false,
           useSafeArea: true,
-          builder: (context) =>
-              HardwareWalletProceedOnDeviceSheet(
-                hardwareWalletType: hardwareWalletType,
-                trezorConnectVM: this,
-                onRetry: () => connectDevice(device, type, true)
-              ),
+          builder: (context) => HardwareWalletProceedOnDeviceSheet(
+              hardwareWalletType: hardwareWalletType,
+              trezorConnectVM: this,
+              onRetry: () => connectDevice(device, type, true)),
         );
       }
 
@@ -235,7 +233,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   }
 }
 
-
 abstract class TrezorParingState {
   static TrezorParingState initial = InitialTrezorParingState();
   static TrezorParingState enterPin = EnterPinTrezorParingState();
@@ -244,11 +241,11 @@ abstract class TrezorParingState {
   static TrezorParingState fail(String message) => FailTrezorParingState(message);
 }
 
-class InitialTrezorParingState  extends TrezorParingState {}
+class InitialTrezorParingState extends TrezorParingState {}
 
-class EnterPinTrezorParingState  extends TrezorParingState {}
+class EnterPinTrezorParingState extends TrezorParingState {}
 
-class VerifyingPinTrezorParingState  extends TrezorParingState {}
+class VerifyingPinTrezorParingState extends TrezorParingState {}
 
 class SuccessTrezorParingState extends TrezorParingState {}
 

@@ -65,18 +65,18 @@ class _DenominationsAmountWidgetState extends State<DenominationsAmountWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownFilterList(
-                  items: widget.denominations
-                      .map((e) => e.value.toString())
-                      .toList(),
+                  items: widget.denominations.map((e) => e.value.toString()).toList(),
                   itemPrefix: widget.fiatCurrency,
                   selectedItem: _selected.$1,
                   onItemSelected: (value) {
-                    setState(() => _selected = (value, widget.denominations
-                        .firstWhere((e) => e.value.toString() == value)
-                        .cardId));
+                    setState(() => _selected = (
+                          value,
+                          widget.denominations.firstWhere((e) => e.value.toString() == value).cardId
+                        ));
                     widget.amountController.text = value;
                     widget.onAmountChanged(value);
-                    widget.cakePayBuyCardViewModel.selectedDenomination = (_selected.$1, _selected.$2);
+                    widget.cakePayBuyCardViewModel.selectedDenomination =
+                        (_selected.$1, _selected.$2);
                   },
                 ),
                 const SizedBox(height: 4),

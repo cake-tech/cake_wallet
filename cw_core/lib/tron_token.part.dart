@@ -55,7 +55,5 @@ class TronTokenAdapter extends TypeAdapter<TronToken> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TronTokenAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is TronTokenAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

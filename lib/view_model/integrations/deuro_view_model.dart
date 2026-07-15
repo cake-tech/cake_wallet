@@ -28,7 +28,8 @@ class DEuroViewModel = DEuroViewModelBase with _$DEuroViewModel;
 abstract class DEuroViewModelBase with Store {
   final AppStore _appStore;
 
-  static Money get MIN_ACCRUED_INTEREST => Money(BigInt.parse("1000000000000"), CryptoCurrency.deuro);
+  static Money get MIN_ACCRUED_INTEREST =>
+      Money(BigInt.parse("1000000000000"), CryptoCurrency.deuro);
 
   static Money get ZERO => Money.zero(CryptoCurrency.deuro);
 
@@ -183,7 +184,7 @@ abstract class DEuroViewModelBase with Store {
       }
 
       final amount = tryParseFixed(amountRaw, 18);
-      
+
       if (amount == BigInt.zero || amount == null) {
         throw ArgumentError("Invalid amount: amount cannot be zero");
       }

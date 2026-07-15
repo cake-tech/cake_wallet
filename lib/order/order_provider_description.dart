@@ -10,8 +10,8 @@ class OrderProviderDescription extends EnumerableItem<int> with Serializable<int
 
   final String image;
 
-  static const cakePay = OrderProviderDescription(
-      title: 'Cake Pay', raw: 0, image: 'assets/images/cake_pay_icon.png');
+  static const cakePay =
+      OrderProviderDescription(title: 'Cake Pay', raw: 0, image: 'assets/images/cake_pay_icon.png');
 
   static OrderProviderDescription deserialize({required int raw}) {
     switch (raw) {

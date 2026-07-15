@@ -115,7 +115,6 @@ class TOTPEnterCode extends StatefulWidget {
     required this.isClosable,
   });
 
-
   final Setup2FAViewModel setup2FAViewModel;
   final bool isForSetup;
   final bool isClosable;
@@ -154,7 +153,6 @@ class _TOTPEnterCodeState extends State<TOTPEnterCode> {
                 ),
                 child: Column(
                   children: [
-
                     BaseTextFormField(
                       textAlign: TextAlign.left,
                       hintText: S.current.totp_code,
@@ -180,15 +178,17 @@ class _TOTPEnterCodeState extends State<TOTPEnterCode> {
                         return PrimaryButton(
                           isDisabled: widget.setup2FAViewModel.enteredOTPCode.length != 8,
                           onPressed: () async {
-                            final result =
-                                await widget.setup2FAViewModel.totp2FAAuth(totpController.text, widget.isForSetup);
-                            final bannedState = widget.setup2FAViewModel.state is AuthenticationBanned;
+                            final result = await widget.setup2FAViewModel
+                                .totp2FAAuth(totpController.text, widget.isForSetup);
+                            final bannedState =
+                                widget.setup2FAViewModel.state is AuthenticationBanned;
 
                             await showPopUp<void>(
                               context: context,
                               builder: (BuildContext context) {
                                 return PopUpCancellableAlertDialog(
-                                  contentText: _textDisplayedInPopupOnResult(result, bannedState, context),
+                                  contentText:
+                                      _textDisplayedInPopupOnResult(result, bannedState, context),
                                   actionButtonText: S.of(context).ok,
                                   buttonAction: () {
                                     result ? widget.setup2FAViewModel.success() : null;

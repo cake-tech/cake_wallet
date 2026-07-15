@@ -9,11 +9,11 @@ class DogecoinTransactionPriority extends BitcoinTransactionPriority {
 
   static const List<DogecoinTransactionPriority> all = [fast, medium, slow];
   static const DogecoinTransactionPriority slow =
-  DogecoinTransactionPriority(title: 'Slow', raw: 0);
+      DogecoinTransactionPriority(title: 'Slow', raw: 0);
   static const DogecoinTransactionPriority medium =
-  DogecoinTransactionPriority(title: 'Medium', raw: 1);
+      DogecoinTransactionPriority(title: 'Medium', raw: 1);
   static const DogecoinTransactionPriority fast =
-  DogecoinTransactionPriority(title: 'Fast', raw: 2);
+      DogecoinTransactionPriority(title: 'Fast', raw: 2);
 
   static DogecoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
@@ -55,4 +55,3 @@ class DogecoinTransactionPriority extends BitcoinTransactionPriority {
     return label;
   }
 }
-

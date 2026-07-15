@@ -42,7 +42,6 @@ class _RecipientDotRowState extends State<RecipientDotRow> {
 
   @override
   Widget build(BuildContext context) {
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewportWidth = constraints.maxWidth;
@@ -51,11 +50,11 @@ class _RecipientDotRowState extends State<RecipientDotRow> {
         final totalContentWidth = (widget.numDots * itemExtent) - _outputDotSpacing;
         final isScrollable = totalContentWidth > viewportWidth;
 
-        final sidePadding = isScrollable ? viewportWidth * (_deadzoneSize/2) : 0.0;
+        final sidePadding = isScrollable ? viewportWidth * (_deadzoneSize / 2) : 0.0;
 
         if (isScrollable && !_wasScrollable) {
-          _outputDotsController
-              .jumpTo((widget.numDots * (_deadzoneSize/2)) * itemExtent - (_outputDotSpacing * (_deadzoneSize+1)));
+          _outputDotsController.jumpTo((widget.numDots * (_deadzoneSize / 2)) * itemExtent -
+              (_outputDotSpacing * (_deadzoneSize + 1)));
         }
 
         _wasScrollable = isScrollable;
@@ -141,7 +140,8 @@ class RecipientDot extends StatefulWidget {
       required this.spacing,
       required this.index,
       required this.onTap,
-      required this.selected, required this.textOpacity});
+      required this.selected,
+      required this.textOpacity});
 
   final double size;
   final double spacing;
@@ -197,13 +197,15 @@ class _RecipientDotState extends State<RecipientDot> {
                     alignment: Alignment.center,
                     child: Opacity(
                       opacity: widget.textOpacity,
-                      child: Text((widget.index+1).toString(),
-                      style: TextStyle(
-                        color: widget.selected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.onSurface,
-                        fontSize:14,fontWeight: FontWeight.w500
-                      ),),
+                      child: Text(
+                        (widget.index + 1).toString(),
+                        style: TextStyle(
+                            color: widget.selected
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.onSurface,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500),
+                      ),
                     ),
                   ),
                 ),

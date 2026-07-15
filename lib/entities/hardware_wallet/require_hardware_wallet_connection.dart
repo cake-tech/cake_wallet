@@ -6,11 +6,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<bool> requireHardwareWalletConnection() async {
-  final name = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName);
-  final typeRaw =
-      getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
+  final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+  final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
 
   if (typeRaw == null) {
     return false;

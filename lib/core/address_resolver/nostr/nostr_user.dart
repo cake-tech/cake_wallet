@@ -1,4 +1,3 @@
-
 class UserMetadata {
   final String name;
   final String lnurl;

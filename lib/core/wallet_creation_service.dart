@@ -37,7 +37,8 @@ class WalletCreationService {
 
   Future<bool> exists(String name) async {
     final walletName = name.toLowerCase();
-    return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
+    return (await WalletInfo.getAll())
+        .any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
   }
 
   Future<bool> typeExists(WalletType type) async {

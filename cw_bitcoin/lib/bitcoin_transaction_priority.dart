@@ -3,7 +3,8 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 
 class BitcoinTransactionPriority extends TransactionPriority {
-  const BitcoinTransactionPriority({required String title, required int raw, String? description, String? hint})
+  const BitcoinTransactionPriority(
+      {required String title, required int raw, String? description, String? hint})
       : super(title: title, raw: raw, description: description, hint: hint);
 
   static const List<BitcoinTransactionPriority> all = [fast, medium, slow, custom];
@@ -11,10 +12,10 @@ class BitcoinTransactionPriority extends TransactionPriority {
       BitcoinTransactionPriority(title: 'Slow', description: "2 sat/byte", hint: "~ 24 h", raw: 0);
   static const BitcoinTransactionPriority medium =
       BitcoinTransactionPriority(title: 'Medium', description: "3 sat/byte", hint: "~ 1 h", raw: 1);
-  static const BitcoinTransactionPriority fast =
-      BitcoinTransactionPriority(title: 'Fast', description: "4 sat/byte", hint: "~ 30 min", raw: 2);
+  static const BitcoinTransactionPriority fast = BitcoinTransactionPriority(
+      title: 'Fast', description: "4 sat/byte", hint: "~ 30 min", raw: 2);
   static const BitcoinTransactionPriority custom =
-  BitcoinTransactionPriority(title: 'Custom', raw: 3);
+      BitcoinTransactionPriority(title: 'Custom', raw: 3);
 
   static BitcoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
@@ -117,19 +118,19 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
 
     return label;
   }
-
 }
+
 class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
   const BitcoinCashTransactionPriority({required String title, required int raw})
       : super(title: title, raw: raw);
 
   static const List<BitcoinCashTransactionPriority> all = [fast, medium, slow];
   static const BitcoinCashTransactionPriority slow =
-  BitcoinCashTransactionPriority(title: 'Slow', raw: 0);
+      BitcoinCashTransactionPriority(title: 'Slow', raw: 0);
   static const BitcoinCashTransactionPriority medium =
-  BitcoinCashTransactionPriority(title: 'Medium', raw: 1);
+      BitcoinCashTransactionPriority(title: 'Medium', raw: 1);
   static const BitcoinCashTransactionPriority fast =
-  BitcoinCashTransactionPriority(title: 'Fast', raw: 2);
+      BitcoinCashTransactionPriority(title: 'Fast', raw: 2);
 
   static BitcoinCashTransactionPriority deserialize({required int raw}) {
     switch (raw) {
@@ -171,4 +172,3 @@ class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
     return label;
   }
 }
-

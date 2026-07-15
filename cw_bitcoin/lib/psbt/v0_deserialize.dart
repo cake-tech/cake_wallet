@@ -8,7 +8,6 @@ import 'package:ledger_bitcoin/src/utils/buffer_reader.dart';
 import 'package:ledger_bitcoin/src/utils/uint8list_extension.dart' as ext;
 
 extension PsbtSigner on PsbtV2 {
-
   void deserializeV0(Uint8List psbt) {
     final bufferReader = BufferReader(psbt);
     if (!listEquals(bufferReader.readSlice(5), Uint8List.fromList([0x70, 0x73, 0x62, 0x74, 0xff]))) {
@@ -27,7 +26,8 @@ extension PsbtSigner on PsbtV2 {
       while (_readKeyPair(inputMaps[i], bufferReader)) {}
       final input = tx.inputs[i];
       setInputOutputIndex(i, input.txIndex);
-      setInputPreviousTxId(i, Uint8List.fromList(BytesUtils.fromHexString(input.txId).reversed.toList()));
+      setInputPreviousTxId(
+          i, Uint8List.fromList(BytesUtils.fromHexString(input.txId).reversed.toList()));
       setInputSequence(i, Uint8List.fromList(input.sequence).readUint32LE(0));
     }
     for (var i = 0; i < getGlobalOutputCount(); i++) {

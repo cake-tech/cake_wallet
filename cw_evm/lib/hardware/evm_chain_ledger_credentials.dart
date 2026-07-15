@@ -20,15 +20,13 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   @override
   EthereumAddress get address => EthereumAddress.fromHex(_address);
 
-  Future<void> setLedgerConnection(LedgerConnection connection,
-      [String? derivationPath]) async {
-    ethereumLedgerApp = EthereumLedgerApp(connection,
-        derivationPath: derivationPath ?? "m/44'/60'/0'/0/0");
+  Future<void> setLedgerConnection(LedgerConnection connection, [String? derivationPath]) async {
+    ethereumLedgerApp =
+        EthereumLedgerApp(connection, derivationPath: derivationPath ?? "m/44'/60'/0'/0/0");
   }
 
   @override
-  MsgSignature signToEcSignature(Uint8List payload,
-          {int? chainId, bool isEIP1559 = false}) =>
+  MsgSignature signToEcSignature(Uint8List payload, {int? chainId, bool isEIP1559 = false}) =>
       throw UnimplementedError("EvmLedgerCredentials.signToEcSignature");
 
   @override
@@ -66,13 +64,11 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
       chainIdV = chainId != null ? (parity + (chainId * 2 + 35)) : parity;
     }
 
-    return MsgSignature(
-        BigInt.parse(r, radix: 16), BigInt.parse(s, radix: 16), chainIdV);
+    return MsgSignature(BigInt.parse(r, radix: 16), BigInt.parse(s, radix: 16), chainIdV);
   }
 
   @override
-  Future<Uint8List> signPersonalMessage(Uint8List payload,
-      {int? chainId}) async {
+  Future<Uint8List> signPersonalMessage(Uint8List payload, {int? chainId}) async {
     if (isNotConnected) throw exception.DeviceNotConnectedException();
 
     final sig = await ethereumLedgerApp!.signMessage(payload);
@@ -89,11 +85,9 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
   @override
   Uint8List signPersonalMessageToUint8List(Uint8List payload, {int? chainId}) =>
-      throw UnimplementedError(
-          "EvmLedgerCredentials.signPersonalMessageToUint8List");
+      throw UnimplementedError("EvmLedgerCredentials.signPersonalMessageToUint8List");
 
-  Future<void> provideERC20Info(
-      String erc20ContractAddress, int chainId) async {
+  Future<void> provideERC20Info(String erc20ContractAddress, int chainId) async {
     if (isNotConnected) throw exception.DeviceNotConnectedException();
 
     try {
@@ -106,5 +100,6 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
     }
   }
 
-  bool get isNotConnected => ethereumLedgerApp == null || ethereumLedgerApp!.connection.isDisconnected;
+  bool get isNotConnected =>
+      ethereumLedgerApp == null || ethereumLedgerApp!.connection.isDisconnected;
 }

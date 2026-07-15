@@ -48,13 +48,12 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -134,8 +133,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
-
-
     final formattedFromAmount = double.parse(request.fromAmount);
 
     final params = {
@@ -145,8 +142,9 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'destination': _normalizeAddress(request.toAddress),
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps,
-      'refund_address':
-          isRefundAddressSupported.contains(request.fromCurrency) ? _normalizeAddress(request.refundAddress) : '',
+      'refund_address': isRefundAddressSupported.contains(request.fromCurrency)
+          ? _normalizeAddress(request.refundAddress)
+          : '',
     };
 
     final responseJSON = await _getSwapQuote(params);
@@ -205,7 +203,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
     final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
 
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, description:'Trade not found for id: $formattedId', provider: description);
@@ -237,7 +234,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         : '';
 
     final formattedToChain = CryptoCurrency.safeParseCurrencyFromString(toChain);
-    final toAssetWithChain = CryptoCurrency.safeParseCurrencyFromString(toAsset, walletCurrency: formattedToChain);
+    final toAssetWithChain =
+        CryptoCurrency.safeParseCurrencyFromString(toAsset, walletCurrency: formattedToChain);
 
     final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
     final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;
@@ -259,39 +257,39 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static Future<Map<String, String>?>? lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
     try {
-  final response = await ProxyWrapper().get(clearnetUri: uri);
-  
-  if (response.statusCode != 200) {
-    return null;
-  }
-  
-  final body = json.decode(response.body) as Map<String, dynamic>;
-  final entries = body['entries'] as List<dynamic>?;
-  
-  if (entries == null || entries.isEmpty) {
-    return null;
-  }
-  
-  Map<String, String> chainToAddressMap = {};
-  
-  for (final entry in entries) {
-    final chain = entry['chain'] as String;
-    final address = entry['address'] as String;
-    chainToAddressMap[chain] = address;
-  }
-  
-  return chainToAddressMap;
-}  catch (e) {
-  printV(e.toString());
-  return null;
-}
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+
+      if (response.statusCode != 200) {
+        return null;
+      }
+
+      final body = json.decode(response.body) as Map<String, dynamic>;
+      final entries = body['entries'] as List<dynamic>?;
+
+      if (entries == null || entries.isEmpty) {
+        return null;
+      }
+
+      Map<String, String> chainToAddressMap = {};
+
+      for (final entry in entries) {
+        final chain = entry['chain'] as String;
+        final address = entry['address'] as String;
+        chainToAddressMap[chain] = address;
+      }
+
+      return chainToAddressMap;
+    } catch (e) {
+      printV(e.toString());
+      return null;
+    }
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
+
     if (response.statusCode != 200) {
       ExchangeProviderLogger.logError(
         provider: description,

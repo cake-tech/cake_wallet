@@ -10,7 +10,11 @@ import 'package:flutter/material.dart';
 /// calling Navigator.of(context).pop() will pop the page INSIDE the modal sheet.
 /// if you want to pop the whole sheet, use Navigator.of(context, rootNavigator: true).pop().
 class ModalNavigator extends StatefulWidget {
-  const ModalNavigator({super.key, required this.rootPage, required this.parentContext, this.heightMode = ModalHeightModes.fullScreen});
+  const ModalNavigator(
+      {super.key,
+      required this.rootPage,
+      required this.parentContext,
+      this.heightMode = ModalHeightModes.fullScreen});
 
   final Widget rootPage;
   final BuildContext parentContext;
@@ -23,8 +27,10 @@ class ModalNavigator extends StatefulWidget {
 enum ModalHeightModes {
   /// just render as big a modal as possible
   fullScreen,
+
   /// after first frame, read height and lock to that height
   autoLock,
+
   /// let the content size itself. jumps around when pushing different-sized pages!
   natural
 }
@@ -40,7 +46,7 @@ class _ModalNavigatorState extends State<ModalNavigator> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final context = _sheetKey.currentContext;
       if (context == null) return;
-      if(_sheetHeight != null) return;
+      if (_sheetHeight != null) return;
 
       final box = context.findRenderObject() as RenderBox;
       setState(() {
@@ -52,16 +58,19 @@ class _ModalNavigatorState extends State<ModalNavigator> {
   @override
   Widget build(BuildContext context) {
     late final double? height;
-    switch(widget.heightMode) {
+    switch (widget.heightMode) {
       case ModalHeightModes.fullScreen:
-        height = MediaQuery.of(context).size.height; break;
-        case ModalHeightModes.autoLock:
-        height = _sheetHeight; break;
+        height = MediaQuery.of(context).size.height;
+        break;
+      case ModalHeightModes.autoLock:
+        height = _sheetHeight;
+        break;
       case ModalHeightModes.natural:
-        height = null; break;
+        height = null;
+        break;
     }
     return Container(
-      key:_sheetKey,
+      key: _sheetKey,
       height: height,
       child: Theme(
         data: Theme.of(context).copyWith(
@@ -91,16 +100,16 @@ class _ModalNavigatorState extends State<ModalNavigator> {
           child: Navigator(
               key: _navigatorKey,
               onGenerateRoute: (settings) {
-
                 printV(settings.name);
 
                 if (settings.name == "/")
-                  return handleRouteWithPlatformAwareness((context) => PopScope(
-                      canPop: false,
-                      onPopInvokedWithResult: (didPop, result) async {
-                        Navigator.of(widget.parentContext).pop();
-                      },
-                      child: widget.rootPage),
+                  return handleRouteWithPlatformAwareness(
+                      (context) => PopScope(
+                          canPop: false,
+                          onPopInvokedWithResult: (didPop, result) async {
+                            Navigator.of(widget.parentContext).pop();
+                          },
+                          child: widget.rootPage),
                       fullscreenDialog: false);
                 else
                   return createRoute(settings);

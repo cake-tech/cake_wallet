@@ -109,16 +109,14 @@ class PayjoinManager {
   Future<Sender> initSender(
       String pjUriString, String originalPsbt, int networkFeesSatPerVb) async {
     try {
-      final pjUri =
-          (await PayjoinUri.Uri.fromStr(pjUriString)).checkPjSupported();
+      final pjUri = (await PayjoinUri.Uri.fromStr(pjUriString)).checkPjSupported();
       final minFeeRateSatPerKwu = BigInt.from(networkFeesSatPerVb * 250);
       final senderBuilder = await SenderBuilder.fromPsbtAndUri(
         psbtBase64: originalPsbt,
         pjUri: pjUri,
       );
       final persister = PayjoinSenderPersister.impl();
-      final newSender =
-          await senderBuilder.buildRecommended(minFeeRate: minFeeRateSatPerKwu);
+      final newSender = await senderBuilder.buildRecommended(minFeeRate: minFeeRateSatPerKwu);
       final senderToken = await newSender.persist(persister: persister);
 
       return Sender.load(token: senderToken, persister: persister);
@@ -134,8 +132,7 @@ class PayjoinManager {
     bool isTestnet = false,
   }) async {
     final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
-    await _payjoinStorage.insertSenderSession(
-        sender, pjUri, _wallet.id, amount);
+    await _payjoinStorage.insertSenderSession(sender, pjUri, _wallet.id, amount);
 
     return _spawnSender(isTestnet: isTestnet, sender: sender, pjUri: pjUri);
   }
@@ -208,8 +205,7 @@ class PayjoinManager {
     return completer.future;
   }
 
-  Future<Receiver> getUnusedReceiver(String address,
-      [bool isTestnet = false]) async {
+  Future<Receiver> getUnusedReceiver(String address, [bool isTestnet = false]) async {
     final session = _payjoinStorage.getUnusedActiveReceiverSession(_wallet.id);
 
     if (session != null) {
@@ -221,7 +217,8 @@ class PayjoinManager {
     return initReceiver(address);
   }
 
-  Future<Receiver> initReceiver(String address, [bool isTestnet = false, int retryCount = 0]) async {
+  Future<Receiver> initReceiver(String address,
+      [bool isTestnet = false, int retryCount = 0]) async {
     if (retryCount > 0) writePayjoinLog("Retrying initReceiver ${retryCount + 1} attempt");
 
     try {
@@ -246,7 +243,6 @@ class PayjoinManager {
     } catch (e) {
       writePayjoinLog(e.toString());
       if (e.toString().contains("error sending request for url") && retryCount < 5) {
-
         return initReceiver(address, isTestnet, ++retryCount);
       } else {
         rethrow;
@@ -274,13 +270,11 @@ class PayjoinManager {
               rawAmount = getOutputAmountFromTx(tx, _wallet);
               break;
             case PayjoinReceiverRequestTypes.checkIsOwned:
-              (_wallet.walletAddresses as BitcoinWalletAddresses)
-                  .newPayjoinReceiver();
+              (_wallet.walletAddresses as BitcoinWalletAddresses).newPayjoinReceiver();
               _payjoinStorage.markReceiverSessionInProgress(receiver.id());
 
               final inputScript = message['input_script'] as Uint8List;
-              final isOwned =
-                  _wallet.isMine(Script.fromRaw(byteData: inputScript));
+              final isOwned = _wallet.isMine(Script.fromRaw(byteData: inputScript));
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': isOwned,
@@ -289,8 +283,7 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.checkIsReceiverOutput:
               final outputScript = message['output_script'] as Uint8List;
-              final isReceiverOutput =
-                  _wallet.isMine(Script.fromRaw(byteData: outputScript));
+              final isReceiverOutput = _wallet.isMine(Script.fromRaw(byteData: outputScript));
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': isReceiverOutput,
@@ -311,7 +304,8 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.processPsbt:
               final psbt = message['psbt'] as String;
-              writePayjoinLog("Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.processPsbt: $psbt");
+              writePayjoinLog(
+                  "Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.processPsbt: $psbt");
 
               final signedPsbt = await _wallet.signPsbt(psbt, utxos);
               mainToIsolateSendPort?.send({
@@ -323,7 +317,8 @@ class PayjoinManager {
             case PayjoinReceiverRequestTypes.proposalSent:
               _cleanupSession(receiver.id());
               final psbt = message['psbt'] as String;
-              writePayjoinLog("Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.proposalSent: $psbt");
+              writePayjoinLog(
+                  "Receiver(${receiver.id()}) PayjoinReceiverRequestTypes.proposalSent: $psbt");
 
               await _payjoinStorage.markReceiverSessionComplete(
                   receiver.id(), getTxIdFromPsbtV0(psbt), rawAmount);

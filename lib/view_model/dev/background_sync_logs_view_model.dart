@@ -2,7 +2,9 @@ import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:mobx/mobx.dart';
 
 part 'background_sync_logs_view_model.g.dart';
-class BackgroundSyncLogsViewModel = BackgroundSyncLogsViewModelBase with _$BackgroundSyncLogsViewModel;
+
+class BackgroundSyncLogsViewModel = BackgroundSyncLogsViewModelBase
+    with _$BackgroundSyncLogsViewModel;
 
 abstract class BackgroundSyncLogsViewModelBase with Store {
   final FlutterDaemon _daemon = FlutterDaemon();
@@ -26,7 +28,7 @@ abstract class BackgroundSyncLogsViewModelBase with Store {
   Future<void> loadLogs() async {
     isLoading = true;
     error = null;
-    
+
     try {
       logData = await _daemon.getLogs();
     } catch (e) {
@@ -41,4 +43,4 @@ abstract class BackgroundSyncLogsViewModelBase with Store {
     await _daemon.clearLogs();
     await loadLogs();
   }
-} 
+}

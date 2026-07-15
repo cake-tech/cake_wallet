@@ -29,60 +29,42 @@ class SecondIntroduction extends StatelessWidget {
               Container(
                   height: 45,
                   padding: EdgeInsets.only(left: 24, right: 24),
-                  child: YatBar(onClose: onClose)
-              ),
+                  child: YatBar(onClose: onClose)),
               animation,
               Padding(
                 padding: EdgeInsets.only(top: 40, left: 30, right: 30),
-                child: Column(
-                    children: [
-                      Text(
-                          S.of(context).second_intro_title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                child: Column(children: [
+                  Text(S.of(context).second_intro_title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                             
                             color: Theme.of(context).colorScheme.onSurface,
                             decoration: TextDecoration.none,
-                          )
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: Text(
-                              S.of(context).second_intro_content,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          )),
+                  Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Text(S.of(context).second_intro_content,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
-                                 
                                 color: Theme.of(context).colorScheme.onSurface,
                                 decoration: TextDecoration.none,
-                              )
-                          )
-                      )
-                    ]
-                ),
+                              )))
+                ]),
               ),
             ],
           ),
           bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-          bottomSection: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                PrimaryButton(
-                    text: S.of(context).restore_next,
-                    textColor: Theme.of(context).colorScheme.onPrimary,
-                    color: Theme.of(context).colorScheme.primary,
-                    onPressed: onNext
-                ),
-                Padding(
-                    padding: EdgeInsets.only(top: 24),
-                    child: YatPageIndicator(filled: 1)
-                )
-              ]
-          ),
-        )
-    );
+          bottomSection: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            PrimaryButton(
+                text: S.of(context).restore_next,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.primary,
+                onPressed: onNext),
+            Padding(padding: EdgeInsets.only(top: 24), child: YatPageIndicator(filled: 1))
+          ]),
+        ));
   }
 }

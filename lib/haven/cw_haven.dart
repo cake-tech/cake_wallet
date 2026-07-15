@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cw_core/balance.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -13,7 +12,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 class HavenWalletService extends WalletService {
-
   HavenWalletService();
 
   @override
@@ -32,7 +30,7 @@ class HavenWalletService extends WalletService {
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw WalletOpenException('Wallet not found');
+      throw Exception('Wallet not found');
     }
     await WalletInfo.delete(walletInfo);
   }

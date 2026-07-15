@@ -25,7 +25,7 @@ void main() {
     FlutterError.onError = (FlutterErrorDetails details) {
       debugPrint('FlutterError caught: ${details.exception}');
     };
-    
+
     commonTestFlows = CommonTestFlows(tester);
     exchangePageRobot = ExchangePageRobot(tester);
     dashboardPageRobot = DashboardPageRobot(tester);

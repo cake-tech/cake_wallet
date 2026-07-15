@@ -13,7 +13,8 @@ class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
   static const defaultSeedType = polyseed;
 
   static const legacy = MoneroSeedType(raw: 0, title: 'Legacy (25 words)', shortTitle: "Legacy");
-  static const polyseed = MoneroSeedType(raw: 1, title: 'Polyseed (16 words)', shortTitle: "Polyseed");
+  static const polyseed =
+      MoneroSeedType(raw: 1, title: 'Polyseed (16 words)', shortTitle: "Polyseed");
   static const wowneroSeed = MoneroSeedType(raw: 2, title: 'Wownero');
   static const bip39 = MoneroSeedType(raw: 3, title: 'BIP39 (12 words)', shortTitle: "BIP39");
 

@@ -17,22 +17,23 @@ class ProxyWrapper {
   factory ProxyWrapper() {
     return _proxyWrapper;
   }
-  
+
   ProxyWrapper._internal();
-  Future<ProxySocket> getSocksSocket(bool sslEnabled, String host, int port, {Duration? connectionTimeout}) async {
+  Future<ProxySocket> getSocksSocket(bool sslEnabled, String host, int port,
+      {Duration? connectionTimeout}) async {
     logger?.log(
-      uri: Uri(
-        scheme: sslEnabled ? "https" : "http",
-        host: host,
-        port: port,
-      ),
-      method: RequestMethod.newProxySocket,
-      body: Uint8List(0),
-      response: null,
-      network: requestNetwork(),
-      error: null
-    );
-    return ProxySocket.connect(sslEnabled, ProxyAddress(host: host, port: port), connectionTimeout: connectionTimeout);
+        uri: Uri(
+          scheme: sslEnabled ? "https" : "http",
+          host: host,
+          port: port,
+        ),
+        method: RequestMethod.newProxySocket,
+        body: Uint8List(0),
+        response: null,
+        network: requestNetwork(),
+        error: null);
+    return ProxySocket.connect(sslEnabled, ProxyAddress(host: host, port: port),
+        connectionTimeout: connectionTimeout);
   }
 
   RequestNetwork requestNetwork() {
@@ -57,17 +58,17 @@ class ProxyWrapper {
 
   int getPort() => CakeTor.instance!.port;
 
-  @Deprecated('Use ProxyWrapper().get/post/put methods instead, and provide proper clearnet and onion uri.')
+  @Deprecated(
+      'Use ProxyWrapper().get/post/put methods instead, and provide proper clearnet and onion uri.')
   HttpClient getHttpClient({int? portOverride, bool internal = false}) {
     if (!internal) {
       logger?.log(
-        uri: null,
-        method: RequestMethod.newProxySocket,
-        body: Uint8List(0),
-        response: null,
-        network: requestNetwork(),
-        error: null
-      );
+          uri: null,
+          method: RequestMethod.newProxySocket,
+          body: Uint8List(0),
+          response: null,
+          network: requestNetwork(),
+          error: null);
     }
     if (CakeTor.instance!.started) {
       // Assign connection factory.
@@ -84,8 +85,6 @@ class ProxyWrapper {
       return HttpClient();
     }
   }
-
-
 
   Future<Response> _make({
     required RequestMethod method,
@@ -217,7 +216,6 @@ class ProxyWrapper {
 
     throw ConnectionException("Unable to connect to server");
   }
-  
 
   Future<Response> post({
     Map<String, String>? headers,
@@ -235,7 +233,6 @@ class ProxyWrapper {
     }
 
     ioc.IOClient clearnetClient = ioc.IOClient(cleatnetHttpClient);
-
 
     bool torEnabled = CakeTor.instance!.started;
 
@@ -439,7 +436,6 @@ class ProxyWrapper {
     throw ConnectionException("Unable to connect to server");
   }
 }
-
 
 class CakeTor {
   static CakeTorInstance? instance;

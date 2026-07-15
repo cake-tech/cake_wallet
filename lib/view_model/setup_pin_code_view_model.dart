@@ -4,8 +4,7 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 
 class SetupPinCodeViewModel {
-  SetupPinCodeViewModel(this._authService, this._settingsStore,
-      {this.isDuressPin = false})
+  SetupPinCodeViewModel(this._authService, this._settingsStore, {this.isDuressPin = false})
       : _pinCodeLength = _settingsStore.pinCodeLength;
 
   String originalPinCode = '';
@@ -46,7 +45,6 @@ class SetupPinCodeViewModel {
     originalPinCode = pin;
 
     if (isDuressPin && pin.length == pinCodeLength) {
-
       final regularKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
       final encodedRegularPin = await _authService.secureStorage.read(key: regularKey);
 
@@ -83,7 +81,6 @@ class SetupPinCodeViewModel {
       await _authService.setDuressPin(repeatedPinCode);
       return;
     }
-
 
     await _authService.setPassword(repeatedPinCode);
     _settingsStore.pinCodeLength = pinCodeLength;

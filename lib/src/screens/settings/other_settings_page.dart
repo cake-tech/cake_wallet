@@ -149,7 +149,8 @@ class OtherSettingsPage extends BasePage {
                 Navigator.of(context).pushNamed(Routes.signPage);
               }),
         ],
-        if (_otherSettingsViewModel.walletType == WalletType.bitcoin) "btc_logging": [
+        if (_otherSettingsViewModel.walletType == WalletType.bitcoin)
+          "btc_logging": [
             ListItemRegularRow(
                 keyValue: "export_lightning_logs",
                 label: S.of(context).export_lightning_logs,
@@ -158,72 +159,74 @@ class OtherSettingsPage extends BasePage {
                 keyValue: "export_payjoin_logs",
                 label: S.of(context).export_payjoin_logs,
                 onTap: () => onExportPJLog(context)),
-        ],
-        "dev": FeatureFlag.hasDevOptions == false ? [] : [
-          if (_otherSettingsViewModel.walletType == WalletType.monero)
-            ListItemRegularRow(
-                keyValue: "[dev] monero background sync",
-                label: "[dev] monero background sync",
-                onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync)),
-          if ([WalletType.monero, WalletType.wownero, WalletType.zano]
-                  .contains(_otherSettingsViewModel.walletType))
-            ListItemRegularRow(
-                keyValue: "[dev] xmr call profiler",
-                label: "[dev] xmr call profiler",
-                onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler)),
-          if ([WalletType.monero].contains(_otherSettingsViewModel.walletType))
-            ListItemRegularRow(
-                keyValue: '[dev] xmr wallet cache debug',
-                label: '[dev] xmr wallet cache debug',
-                onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug)),
-          ListItemRegularRow(
-              keyValue: '[dev] shared preferences',
-              label: '[dev] shared preferences',
-              onTap: () => Navigator.of(context).pushNamed(Routes.devSharedPreferences)),
-          ListItemRegularRow(
-              keyValue: '[dev] secure storage preferences',
-              label: '[dev] secure storage preferences',
-              onTap: () => Navigator.of(context).pushNamed(Routes.devSecurePreferences)),
-          ListItemRegularRow(
-              keyValue: '[dev] background sync logs',
-              label: '[dev] background sync logs',
-              onTap: () => Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs)),
-          ListItemRegularRow(
-              keyValue: '[dev] socket health logs',
-              label: '[dev] socket health logs',
-              onTap: () => Navigator.of(context).pushNamed(Routes.devSocketHealthLogs)),
-          ListItemRegularRow(
-              keyValue: '[dev] network requests logs',
-              label: '[dev] network requests logs',
-              onTap: () => Navigator.of(context).pushNamed(Routes.devNetworkRequests)),
-          ListItemRegularRow(
-              keyValue: '[dev] exchange provider logs',
-              label: '[dev] exchange provider logs',
-              onTap: () => Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs)),
-          ListItemRegularRow(
-              keyValue: '[dev] *QR tools',
-              label: '[dev] *QR tools',
-              onTap: () => Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs)),
-          ListItemRegularRow(
-              keyValue: '[dev] browse sqlite db',
-              label: '[dev] browse sqlite db',
-              onTap: () async {
-                final data = await dumpDb();
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => JsonExplorerPage(data: data, title: 'sqlite db'),
-                  ),
-                );
-              }),
-          ListItemRegularRow(
-            keyValue: '[dev] fake corrupt sqlite db',
-            label: '[dev] fake corrupt sqlite db',
-            onTap: () async {
-              final dbDebugMarker = await sqliteDebugMarkerFile();
-              dbDebugMarker.create();
-            }
-          ),
-        ]
+          ],
+        "dev": FeatureFlag.hasDevOptions == false
+            ? []
+            : [
+                if (_otherSettingsViewModel.walletType == WalletType.monero)
+                  ListItemRegularRow(
+                      keyValue: "[dev] monero background sync",
+                      label: "[dev] monero background sync",
+                      onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync)),
+                if ([WalletType.monero, WalletType.wownero, WalletType.zano]
+                    .contains(_otherSettingsViewModel.walletType))
+                  ListItemRegularRow(
+                      keyValue: "[dev] xmr call profiler",
+                      label: "[dev] xmr call profiler",
+                      onTap: () => Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler)),
+                if ([WalletType.monero].contains(_otherSettingsViewModel.walletType))
+                  ListItemRegularRow(
+                      keyValue: '[dev] xmr wallet cache debug',
+                      label: '[dev] xmr wallet cache debug',
+                      onTap: () =>
+                          Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug)),
+                ListItemRegularRow(
+                    keyValue: '[dev] shared preferences',
+                    label: '[dev] shared preferences',
+                    onTap: () => Navigator.of(context).pushNamed(Routes.devSharedPreferences)),
+                ListItemRegularRow(
+                    keyValue: '[dev] secure storage preferences',
+                    label: '[dev] secure storage preferences',
+                    onTap: () => Navigator.of(context).pushNamed(Routes.devSecurePreferences)),
+                ListItemRegularRow(
+                    keyValue: '[dev] background sync logs',
+                    label: '[dev] background sync logs',
+                    onTap: () => Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs)),
+                ListItemRegularRow(
+                    keyValue: '[dev] socket health logs',
+                    label: '[dev] socket health logs',
+                    onTap: () => Navigator.of(context).pushNamed(Routes.devSocketHealthLogs)),
+                ListItemRegularRow(
+                    keyValue: '[dev] network requests logs',
+                    label: '[dev] network requests logs',
+                    onTap: () => Navigator.of(context).pushNamed(Routes.devNetworkRequests)),
+                ListItemRegularRow(
+                    keyValue: '[dev] exchange provider logs',
+                    label: '[dev] exchange provider logs',
+                    onTap: () => Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs)),
+                ListItemRegularRow(
+                    keyValue: '[dev] *QR tools',
+                    label: '[dev] *QR tools',
+                    onTap: () => Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs)),
+                ListItemRegularRow(
+                    keyValue: '[dev] browse sqlite db',
+                    label: '[dev] browse sqlite db',
+                    onTap: () async {
+                      final data = await dumpDb();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => JsonExplorerPage(data: data, title: 'sqlite db'),
+                        ),
+                      );
+                    }),
+                ListItemRegularRow(
+                    keyValue: '[dev] fake corrupt sqlite db',
+                    label: '[dev] fake corrupt sqlite db',
+                    onTap: () async {
+                      final dbDebugMarker = await sqliteDebugMarkerFile();
+                      dbDebugMarker.create();
+                    }),
+              ]
       }),
     );
   }

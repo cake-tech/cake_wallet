@@ -39,7 +39,8 @@ class WCPermissionsMapper {
     }
 
     final permissions = <WCPermission>[
-      WCPermission(iconUrl: "assets/new-ui/global_view.svg", label: S.current.wc_permission_view_balance),
+      WCPermission(
+          iconUrl: "assets/new-ui/global_view.svg", label: S.current.wc_permission_view_balance),
     ];
 
     final wantsTransactionApproval = methods.any(_transactionMethods.contains);

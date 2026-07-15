@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:flutter/material.dart';
+
 class MwebNodePage extends StatefulWidget {
   const MwebNodePage(this.mwebSettingsViewModelBase, {super.key});
 
@@ -30,30 +31,28 @@ class _MwebNodePageState extends State<MwebNodePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: ModalPageWrapper(
-          topBar: ModalTopBar(
+        topBar: ModalTopBar(
             title: S.current.litecoin_mweb_settings,
             onLeadingPressed: Navigator.of(context).pop,
             leadingIcon: Icon(Icons.arrow_back_ios_new)),
-          content: Container(
-            child: NewListSections(
-                controllers: {
-                  widget.mwebSettingsViewModelBase.mwebNodeUri: _nodeUriController,
-                },
-                sections: {
-              'main': [
-                ListItemTextField(
-                  keyValue: widget.mwebSettingsViewModelBase.mwebNodeUri,
-                  label: S.current.node_address,
-                  validator: NodePathValidator(),
-                ),
-              ]
-            }),
-          ),
-          bottomContent: LoadingPrimaryButton(
-        onPressed: () => save(context),
-        text: S.of(context).save,
-        color: Theme.of(context).colorScheme.primary,
-        textColor: Theme.of(context).colorScheme.onPrimary,
+        content: Container(
+          child: NewListSections(controllers: {
+            widget.mwebSettingsViewModelBase.mwebNodeUri: _nodeUriController,
+          }, sections: {
+            'main': [
+              ListItemTextField(
+                keyValue: widget.mwebSettingsViewModelBase.mwebNodeUri,
+                label: S.current.node_address,
+                validator: NodePathValidator(),
+              ),
+            ]
+          }),
+        ),
+        bottomContent: LoadingPrimaryButton(
+          onPressed: () => save(context),
+          text: S.of(context).save,
+          color: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onPrimary,
         ),
       ),
     );

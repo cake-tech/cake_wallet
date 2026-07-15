@@ -22,7 +22,6 @@ class MastodonAPI {
       );
 
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
 
       if (response.statusCode != 200) return null;
 
@@ -50,7 +49,6 @@ class MastodonAPI {
       );
 
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
 
       if (response.statusCode != 200) {
         throw AddressResolverServerResponseException('Unexpected HTTP status: ${response.statusCode}');

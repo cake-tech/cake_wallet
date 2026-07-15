@@ -45,8 +45,7 @@ String getFilename() => currentWallet!.filename();
 
 String getSeed() {
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
-  final cakepolyseed =
-      currentWallet!.getCacheAttribute(key: "cakewallet.seed");
+  final cakepolyseed = currentWallet!.getCacheAttribute(key: "cakewallet.seed");
   final cakepassphrase = getPassphrase();
 
   final weirdPolyseed = currentWallet!.getPolyseed(passphrase: cakepassphrase);
@@ -70,7 +69,7 @@ String getSeed() {
 
   final bip39 = currentWallet!.getCacheAttribute(key: "cakewallet.seed.bip39");
 
-  if(bip39.isNotEmpty) return bip39;
+  if (bip39.isNotEmpty) return bip39;
 
   final legacy = getSeedLegacy(null);
   return legacy;
@@ -78,11 +77,21 @@ String getSeed() {
 
 String? getSeedLanguage(String? language) {
   switch (language) {
-    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
-    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
-    case "Korean": language = "English"; break;
-    case "Czech": language = "English"; break;
-    case "Japanese": language = "English"; break;
+    case "Chinese (Traditional)":
+      language = "Chinese (simplified)";
+      break;
+    case "Chinese (Simplified)":
+      language = "Chinese (simplified)";
+      break;
+    case "Korean":
+      language = "English";
+      break;
+    case "Czech":
+      language = "English";
+      break;
+    case "Japanese":
+      language = "English";
+      break;
   }
   return language;
 }
@@ -133,7 +142,7 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
 
   // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
   // this could be a while loop, but I'm in favor of making it if to not cause freezes
-  if (currentWallet!.numSubaddresses(accountIndex: accountIndex)-1 < addressIndex) {
+  if (currentWallet!.numSubaddresses(accountIndex: accountIndex) - 1 < addressIndex) {
     if (currentWallet!.numSubaddressAccounts() < accountIndex) {
       currentWallet!.addSubaddressAccount();
     } else {
@@ -142,8 +151,8 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   }
   addressCache[currentWallet!.ffiAddress()] ??= {};
   addressCache[currentWallet!.ffiAddress()]![accountIndex] ??= {};
-  addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex] ??= currentWallet!.address(
-        accountIndex: accountIndex, addressIndex: addressIndex);
+  addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex] ??=
+      currentWallet!.address(accountIndex: accountIndex, addressIndex: addressIndex);
   return addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex]!;
 }
 
@@ -154,7 +163,6 @@ Money getUnlockedBalance({int accountIndex = 0}) => Money.fromInt(
     currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0, CryptoCurrency.xmr);
 
 int getCurrentHeight() => currentWallet?.blockChainHeight() ?? 0;
-
 
 int cachedNodeHeight = 0;
 bool isHeightRefreshing = false;
@@ -239,10 +247,8 @@ void startRefreshSync() {
   currentWallet!.startRefresh();
 }
 
-
 void setRefreshFromBlockHeight({required int height}) {
-  currentWallet!.setRefreshFromBlockHeight(
-    refresh_from_block_height: height);
+  currentWallet!.setRefreshFromBlockHeight(refresh_from_block_height: height);
 }
 
 void setRecoveringFromSeed({required bool isRecovery}) {
@@ -251,7 +257,6 @@ void setRecoveringFromSeed({required bool isRecovery}) {
 }
 
 final storeMutex = Mutex();
-
 
 int lastStorePointer = 0;
 int lastStoreHeight = 0;
@@ -262,7 +267,7 @@ void storeSync({bool force = false}) async {
   });
   if (lastStorePointer == addr &&
       lastStoreHeight + 75000 > currentWallet!.blockChainHeight() &&
-      !synchronized && 
+      !synchronized &&
       !force) {
     return;
   }
@@ -301,8 +306,8 @@ class SyncListener {
       : _cachedBlockchainHeight = 0,
         _lastKnownBlockHeight = 0,
         _initialSyncHeight = 0 {
-          _start();
-        }
+    _start();
+  }
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
@@ -324,8 +329,7 @@ class SyncListener {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
-    _updateSyncInfoTimer ??=
-        Timer.periodic(Duration(milliseconds: 1200), (_) async {
+    _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
         onNewTransaction();
       }
@@ -371,8 +375,8 @@ class SyncListener {
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListener setListeners(void Function(int, int, double) onNewBlock,
-    void Function() onNewTransaction) {
+SyncListener setListeners(
+    void Function(int, int, double) onNewBlock, void Function() onNewTransaction) {
   final listener = SyncListener(onNewBlock, onNewTransaction);
   // setListenerNative();
   return listener;
@@ -408,12 +412,10 @@ Future<int> getNodeHeight() async => getNodeHeightSync();
 void rescanBlockchainAsync() => currentWallet!.rescanBlockchainAsync();
 
 String getSubaddressLabel(int accountIndex, int addressIndex) {
-  return currentWallet!.getSubaddressLabel(
-      accountIndex: accountIndex, addressIndex: addressIndex);
+  return currentWallet!.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex);
 }
 
-Future setTrustedDaemon(bool trusted) async =>
-    currentWallet!.setTrustedDaemon(arg: trusted);
+Future setTrustedDaemon(bool trusted) async => currentWallet!.setTrustedDaemon(arg: trusted);
 
 Future<bool> trustedDaemon() async => currentWallet!.trustedDaemon();
 
@@ -427,7 +429,8 @@ Map<String, List<int>> debugCallLength() => monero.debugCallLength;
 
 Map<String, dynamic> getWalletCacheDebug() {
   try {
-    final jsonString = monero.MONERO_Wallet_serializeCacheToJson(Pointer.fromAddress(currentWallet!.ffiAddress()));
+    final jsonString =
+        monero.MONERO_Wallet_serializeCacheToJson(Pointer.fromAddress(currentWallet!.ffiAddress()));
     final blob = json.decode(jsonString);
     blob['cake:unspent'] = getAllUnspent();
     return blob;
