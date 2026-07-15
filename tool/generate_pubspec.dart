@@ -9,12 +9,12 @@ Future<void> main(List<String> args) async {
   final pubspecDescription = File(pubspecDescriptionPath);
 
   if (!pubspecBase.existsSync() || !pubspecDescription.existsSync()) {
-    throw("$pubspecBasePath or $pubspecDescriptionPath doesn't exists");
+    throw ("$pubspecBasePath or $pubspecDescriptionPath doesn't exists");
   }
 
   final pubspecBaseContent = await pubspecBase.readAsString();
   final pubspecDescriptionContent = await pubspecDescription.readAsString();
-  final pubSpecContent =  pubspecDescriptionContent + '\n\n' + pubspecBaseContent;
+  final pubSpecContent = pubspecDescriptionContent + '\n\n' + pubspecBaseContent;
   final outputPubspec = File(outputPubspecPath);
 
   if (outputPubspec.existsSync()) {
