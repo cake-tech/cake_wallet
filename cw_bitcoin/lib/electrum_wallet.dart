@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:math' show Random;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
@@ -912,7 +913,7 @@ abstract class ElectrumWalletBase
 
     // Single Random Draw: shuffle the pool so selection is non-deterministic, removing the
     // predictable address/scan order (a fingerprint). MWEB coins are kept last afterwards.
-    availableInputs.shuffle();
+    availableInputs.shuffle(Random.secure());
     availableInputs = [
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type != SegwitAddresType.mweb),
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb),

@@ -80,7 +80,7 @@ SelectedCoins selectCoins({required List<int> values, required int target,
       s == null ? null : SelectedCoins([for (final i in s.indices) keep[i]], s.hasChange);
   final bnb = map(branchAndBound(eff, target, costOfChange));
   if (bnb != null) return bnb;
-  final srd = map(singleRandomDraw(eff, target, minChange, rng ?? Random()));
+  final srd = map(singleRandomDraw(eff, target, minChange, rng ?? Random.secure()));
   if (srd != null) return srd;
   throw const InsufficientFundsException();
 }
