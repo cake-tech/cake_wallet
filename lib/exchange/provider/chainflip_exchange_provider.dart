@@ -31,7 +31,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.usdtArb,
     CryptoCurrency.trx,
     CryptoCurrency.usdttrc20,
-    ];
+  ];
 
   static const _baseURL = 'chainflip-broker.io';
   static const _assetsPath = '/assets';
@@ -57,8 +57,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   bool get supportsMemoOrDestinationTag => false;
 
   @override
-  ExchangeProviderDescription get description =>
-      ExchangeProviderDescription.chainflip;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.chainflip;
 
   @override
   Future<bool> checkIsAvailable() async => true;
@@ -68,25 +67,23 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-
     try {
-
-      if(!_supported.contains(from) || !_supported.contains(to)) {
+      if (!_supported.contains(from) || !_supported.contains(to)) {
         throw Exception('No rates found for $from to $to');
       }
 
-    final assetId = _normalizeCurrency(from);
+      final assetId = _normalizeCurrency(from);
 
-    final assetsResponse = await _getAssets();
-    final assets = assetsResponse['assets'] as List<dynamic>;
+      final assetsResponse = await _getAssets();
+      final assets = assetsResponse['assets'] as List<dynamic>;
 
-    final minAmount = assets.firstWhere(
-            (asset) => asset['id'] == assetId,
-            orElse: () => null)?['minimalAmountNative'] ?? '0';
+      final minAmount = assets.firstWhere((asset) => asset['id'] == assetId,
+              orElse: () => null)?['minimalAmountNative'] ??
+          '0';
 
-    if (minAmount == '0') throw Exception('No rates found for $from to $to');
+      if (minAmount == '0') throw Exception('No rates found for $from to $to');
 
-    return Limits(min: _amountFromNative(minAmount.toString(), from));
+      return Limits(min: _amountFromNative(minAmount.toString(), from));
     } catch (e) {
       printV(e.toString());
       throw Exception('Chainflip failed to fetch limits');
@@ -94,20 +91,18 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount
-  }) async {
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     // TODO: It seems this rate is getting cached, and re-used for different amounts, can we not do this?
 
     try {
       if (amount == 0) return 0.0;
 
-      if(!_supported.contains(from) || !_supported.contains(to)) return 0.0;
-
+      if (!_supported.contains(from) || !_supported.contains(to)) return 0.0;
 
       final quoteParams = {
         'apiKey': _affiliateKey,
@@ -119,8 +114,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
       final quoteResponse = await _getSwapQuote(quoteParams);
 
-      final expectedAmountOut =
-          quoteResponse['egressAmountNative'] as String? ?? '0';
+      final expectedAmountOut = quoteResponse['egressAmountNative'] as String? ?? '0';
 
       final rate = _amountFromNative(expectedAmountOut, to) / amount;
 
@@ -194,7 +188,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'retryDurationInBlocks': '150'
       };
 
-      if (quoteResponse.containsKey('numberOfChunks') && quoteResponse.containsKey('chunkIntervalBlocks')) {
+      if (quoteResponse.containsKey('numberOfChunks') &&
+          quoteResponse.containsKey('chunkIntervalBlocks')) {
         swapParams.addAll({
           'numberOfChunks': quoteResponse['numberOfChunks'].toString(),
           'chunkIntervalBlocks': quoteResponse['chunkIntervalBlocks'].toString(),
@@ -203,7 +198,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
       final swapResponse = await _openDepositChannel(swapParams);
 
-      final id = '${swapResponse['issuedBlock']}-${swapResponse['network'].toString()}-${swapResponse['channelId']}';
+      final id =
+          '${swapResponse['issuedBlock']}-${swapResponse['network'].toString()}-${swapResponse['channelId']}';
 
       ExchangeProviderLogger.logSuccess(
         provider: description,
@@ -280,8 +276,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
       final statusResponse = await _getStatus(statusParams);
 
-      if (statusResponse == null)
-        throw Exception('Trade not found for id: $id');
+      if (statusResponse == null) throw Exception('Trade not found for id: $id');
 
       final status = statusResponse['status'];
       final currentState = _determineState(status['state'].toString());
@@ -294,7 +289,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
       final from = status['sourceAsset'].toString();
       final to = status['destinationAsset'].toString();
-      
+
       final newTrade = Trade(
         id: id,
         from: _toCurrency(from),
@@ -304,8 +299,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         receiveAmount: amount,
         state: currentState,
         payoutAddress: status['destinationAddress'].toString(),
-        outputTransaction:
-            status['swapEgress']?['transactionReference']?.toString(),
+        outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
         isRefund: isRefund,
       );
 
@@ -331,7 +325,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     return '$title.$tag';
   }
 
-  String _normalizeNetworkName (String name) {
+  String _normalizeNetworkName(String name) {
     final networkName = switch (name) {
       'BITCOIN' => 'Bitcoin',
       'ETHEREUM' => 'Ethereum',
@@ -343,7 +337,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     return networkName;
   }
-
 
   CryptoCurrency? _toCurrency(String name) {
     final currency = switch (name) {
@@ -372,8 +365,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   double _amountFromNative(String amount, CryptoCurrency currency) =>
       double.parse(amount) / pow(10, currency.decimals);
 
-  Future<Map<String, dynamic>> _getAssets() async =>
-      _getRequest(_assetsPath, {});
+  Future<Map<String, dynamic>> _getAssets() async => _getRequest(_assetsPath, {});
 
   Future<Map<String, dynamic>> _openDepositChannel(Map<String, String> params) async =>
       _getRequest(_swapPath, params);
@@ -384,7 +376,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw Exception(
+          'Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
     return json.decode(response.body) as Map<String, dynamic>;
@@ -396,12 +389,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw Exception(
+          'Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
     final List<dynamic> jsonList = json.decode(response.body) as List<dynamic>;
     final List<Map<String, dynamic>> quotes =
-    jsonList.map((e) => e as Map<String, dynamic>).toList();
+        jsonList.map((e) => e as Map<String, dynamic>).toList();
 
     Map<String, dynamic> highestQuote = quotes.reduce((current, next) {
       double currentAmount = current['egressAmount'] as double;
@@ -421,7 +415,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     if (response.statusCode == 404) return null;
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw Exception(
+          'Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
     return json.decode(response.body) as Map<String, dynamic>;

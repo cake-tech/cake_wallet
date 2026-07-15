@@ -45,7 +45,7 @@ abstract class MoneroSubaddressListBase with Store {
   }
 
   Future<List<Subaddress>> getAll() async {
-    var subaddresses = await  subaddress_list.getAllSubaddresses();
+    var subaddresses = await subaddress_list.getAllSubaddresses();
 
     if (subaddresses.length > 2) {
       final primary = subaddresses.first;
@@ -60,7 +60,7 @@ abstract class MoneroSubaddressListBase with Store {
       return Subaddress(
           id: id,
           address: address,
-          balance: (s.received/1e12).toStringAsFixed(6),
+          balance: (s.received / 1e12).toStringAsFixed(6),
           txCount: s.txCount,
           label: label);
     }).toList();
@@ -138,15 +138,17 @@ abstract class MoneroSubaddressListBase with Store {
           final address = s.address;
           final label = s.label;
           return Subaddress(
-            id: id,
-            address: address,
-            balance: (s.received/1e12).toStringAsFixed(6),
-            txCount: s.txCount,
-            label: id == 0 &&
-                    label.toLowerCase() == 'Primary account'.toLowerCase()
-                ? 'Primary address'
-                : label);
-      }).toList().reversed.toList();
+              id: id,
+              address: address,
+              balance: (s.received / 1e12).toStringAsFixed(6),
+              txCount: s.txCount,
+              label: id == 0 && label.toLowerCase() == 'Primary account'.toLowerCase()
+                  ? 'Primary address'
+                  : label);
+        })
+        .toList()
+        .reversed
+        .toList();
   }
 
   Future<bool> _newSubaddress({required int accountIndex, required String label}) async {

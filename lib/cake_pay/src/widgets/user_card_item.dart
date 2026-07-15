@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import 'image_placeholder.dart';
 
 class UserCardItem extends StatelessWidget {
-  UserCardItem({
-    required this.title,
-    required this.subTitle,
-    this.onTap,
-    this.logoUrl
-  });
+  UserCardItem({required this.title, required this.subTitle, this.onTap, this.logoUrl});
 
   final VoidCallback? onTap;
   final String title;

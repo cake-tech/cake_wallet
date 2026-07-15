@@ -6,7 +6,7 @@ class ConfirmationsListItem extends TransactionDetailsListItem {
 
   ConfirmationsListItem({required super.title, required super.value, super.key}) {
     final parts = value.split("/");
-    current = int.tryParse(parts.first)??0;
-    needed = int.tryParse(parts.last)??0;
+    current = int.tryParse(parts.first) ?? 0;
+    needed = int.tryParse(parts.last) ?? 0;
   }
 }

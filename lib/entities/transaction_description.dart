@@ -5,7 +5,8 @@ part 'transaction_description.part.dart';
 
 // @HiveType(typeId: TransactionDescription.typeId)
 class TransactionDescription extends HiveObject {
-  TransactionDescription({required this.id, this.recipientAddress, this.transactionNote, this.transactionKey});
+  TransactionDescription(
+      {required this.id, this.recipientAddress, this.transactionNote, this.transactionKey});
 
   static const typeId = TRANSACTION_TYPE_ID;
   static const boxName = 'TransactionDescriptions';
@@ -26,11 +27,11 @@ class TransactionDescription extends HiveObject {
   String get note => transactionNote ?? '';
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'recipientAddress': recipientAddress,
-    'transactionNote': transactionNote,
-    'transactionKey': transactionKey,
-  };
+        'id': id,
+        'recipientAddress': recipientAddress,
+        'transactionNote': transactionNote,
+        'transactionKey': transactionKey,
+      };
 
   factory TransactionDescription.fromJson(Map<String, dynamic> json) {
     return TransactionDescription(

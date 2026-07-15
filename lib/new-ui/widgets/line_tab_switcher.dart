@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -29,7 +30,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
   void didUpdateWidget(covariant LineTabSwitcher oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.tabs.length != widget.tabs.length) {
+    if (!listEquals(oldWidget.tabs, widget.tabs)) {
       textWidgetKeys = List.generate(widget.tabs.length, (_) => GlobalKey());
       textWidgetSizes = [];
       totalWidth = 0;
@@ -63,15 +64,13 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
   }
 
   void measure() {
-    if(textWidgetsMeasured) return;
+    if (textWidgetsMeasured) return;
     setState(() {
-      textWidgetSizes = textWidgetKeys
-          .map((k) => k.currentContext!.size)
-          .whereType<Size>()
-          .toList();
+      textWidgetSizes =
+          textWidgetKeys.map((k) => k.currentContext!.size).whereType<Size>().toList();
 
-      for(final size in textWidgetSizes) {
-        totalWidth += size.width+itemPadding;
+      for (final size in textWidgetSizes) {
+        totalWidth += size.width + itemPadding;
       }
       totalWidth += barPadding;
       textWidgetsMeasured = true;
@@ -89,10 +88,9 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          height: 28,
-          child: Row(
-            children: widget.tabs.map((item){
-
+            height: 28,
+            child: Row(
+                children: widget.tabs.map((item) {
               final index = widget.tabs.indexOf(item);
 
               return GestureDetector(
@@ -106,15 +104,15 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                     AnimatedDefaultTextStyle(
                       duration: Duration(milliseconds: 150),
                       style: DefaultTextStyle.of(context).style.copyWith(
-                        inherit: true,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: widget.selectedTab == index
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            inherit: true,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: widget.selectedTab == index
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: itemPadding/2),
+                        padding: EdgeInsets.symmetric(horizontal: itemPadding / 2),
                         child: Text(
                           item,
                           key: textWidgetKeys[index],
@@ -124,34 +122,31 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                   ],
                 ),
               );
-            }).toList()
-          )
-        ),
-        if(widget.tabs.length > 1)
-        Container(
-          width: totalWidth,
-          height: 2,
-          child: Stack(
-            children: [
-              AnimatedPositioned(
-                curve: Curves.easeOut,
-                left: _calcBarLeft(),
-                bottom: 0,
-                duration: Duration(milliseconds: 150),
-                child: AnimatedSize(
+            }).toList())),
+        if (widget.tabs.length > 1)
+          Container(
+            width: totalWidth,
+            height: 2,
+            child: Stack(
+              children: [
+                AnimatedPositioned(
+                  curve: Curves.easeOut,
+                  left: _calcBarLeft(),
+                  bottom: 0,
                   duration: Duration(milliseconds: 150),
-                  child: Container(
-                    height: 2,
-                    width: textWidgetSizes.isEmpty
-                        ? 0
-                        : textWidgetSizes[widget.selectedTab].width,
-                    color: Theme.of(context).colorScheme.onSurface,
+                  child: AnimatedSize(
+                    duration: Duration(milliseconds: 150),
+                    child: Container(
+                      height: 2,
+                      width:
+                          textWidgetSizes.isEmpty ? 0 : textWidgetSizes[widget.selectedTab].width,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

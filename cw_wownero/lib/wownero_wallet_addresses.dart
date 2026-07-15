@@ -34,25 +34,26 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   String get latestAddress {
-    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
-    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address)) {
       addressIndex++;
-      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+      address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     }
     return address;
   }
 
   @override
   String get addressForExchange {
-    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
-    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address) || manualAddresses.contains(address)) {
       addressIndex++;
-      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+      address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     }
     return address;
   }
+
   @observable
   Account? account;
 
@@ -69,7 +70,9 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> init() async {
     accountList.update();
-    account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
+    account = accountList.accounts.isEmpty
+        ? Account(id: 0, label: "Primary address")
+        : accountList.accounts.first;
     updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
@@ -143,7 +146,9 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
         accountIndex: accountIndex,
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
-    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0) : subaddressList.subaddresses.last;
+    subaddress = (subaddressList.subaddresses.isEmpty)
+        ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0)
+        : subaddressList.subaddresses.last;
     address = subaddress!.address;
   }
 
@@ -152,6 +157,5 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
       addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
 
   @override
-  PaymentURI getPaymentUri(String amount) =>
-      WowneroURI(address: address, amount: amount);
+  PaymentURI getPaymentUri(String amount) => WowneroURI(address: address, amount: amount);
 }

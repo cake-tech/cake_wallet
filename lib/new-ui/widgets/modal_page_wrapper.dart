@@ -3,18 +3,17 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-void nothing(){}
+void nothing() {}
 
 class ModalPageWrapper extends StatelessWidget {
   ModalPageWrapper(
       {super.key,
       required this.content,
       required this.topBar,
-        this.header,
-        this.bottomContent,
+      this.header,
+      this.bottomContent,
       this.horizontalPadding = 18.0,
-      this.verticalPadding = 72.0}) {
-  }
+      this.verticalPadding = 72.0}) {}
 
   final Widget content;
   final Widget? bottomContent;
@@ -35,8 +34,8 @@ class ModalPageWrapper extends StatelessWidget {
           alignment: Alignment.topCenter,
           children: [
             Positioned.fill(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                     child: CustomScrollView(
                       controller: ModalScrollController.of(context),
                       physics: ClampingScrollPhysics(),
@@ -49,8 +48,7 @@ class ModalPageWrapper extends StatelessWidget {
                         SliverSafeArea(sliver: SliverToBoxAdapter(child: content)),
                         SliverToBoxAdapter(child: SizedBox(height: verticalPadding)),
                       ],
-                    )
-                  )),
+                    ))),
             if (bottomContent != null)
               Positioned(
                 bottom: 12,

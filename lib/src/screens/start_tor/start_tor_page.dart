@@ -34,7 +34,7 @@ class StartTorPage extends BasePage {
                 CircularProgressIndicator(),
                 SizedBox(height: 20),
                 _buildWaitingText(context),
-                ],
+              ],
               if (startTorViewModel.showOptions) ...[
                 _buildOptionsButtons(context),
               ],
@@ -93,4 +93,4 @@ class StartTorPage extends BasePage {
       ],
     );
   }
-} 
+}

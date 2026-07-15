@@ -56,7 +56,7 @@ class PayjoinCopyModal extends StatelessWidget {
                 ]
               }),
             ),
-            SizedBox(height:128)
+            SizedBox(height: 128)
           ],
         ),
       ),

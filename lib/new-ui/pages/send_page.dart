@@ -187,7 +187,6 @@ class NewSendPage extends StatefulWidget {
 }
 
 class _NewSendPageState extends State<NewSendPage> {
-
   int _selectedOutput = 0;
 
   final _amountControllers = <TextEditingController>[];
@@ -291,7 +290,6 @@ class _NewSendPageState extends State<NewSendPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
@@ -321,8 +319,8 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.sendViewModel.outputs.length > 1)
                             ModernButton(
                                 size: 36,
-                                icon: CakeImageWidget(imageUrl:
-                                  "assets/new-ui/remove_recipient.svg",
+                                icon: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/remove_recipient.svg",
                                   colorFilter: ColorFilter.mode(
                                     Theme.of(context).colorScheme.primary,
                                     BlendMode.srcIn,
@@ -352,8 +350,8 @@ class _NewSendPageState extends State<NewSendPage> {
                           if (widget.mode.helpContent != null)
                             ModernButton(
                                 size: 36,
-                                icon: CakeImageWidget(imageUrl:
-                                  "assets/new-ui/help.svg",
+                                icon: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/help.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                                 ),
@@ -420,7 +418,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             output.loadContact(contact);
                                           },
                                           onPushPasteButton: (context) async {
-                                            if(_justHandledPasteButton) return;
+                                            if (_justHandledPasteButton) return;
                                             _justHandledPasteButton = true;
                                             try {
                                               output.resetParsedAddress();
@@ -505,7 +503,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                       ),
                                     ],
                                   ),
-                                  if (widget.sendViewModel.isMwebAvailable && widget.mode == SendPageModes.normal)
+                                  if (widget.sendViewModel.isMwebAvailable &&
+                                      widget.mode == SendPageModes.normal)
                                     StandardCheckbox(
                                       caption: S.of(context).litecoin_mweb_allow_coins,
                                       captionColor: Theme.of(context).colorScheme.onSurface,
@@ -516,7 +515,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       onChanged: (value) =>
                                           widget.sendViewModel.setAllowMwebCoins(value),
                                     ),
-                                  if(widget.sendViewModel.hasMemos)
+                                  if (widget.sendViewModel.hasMemos)
                                     Observer(
                                         builder: (_) => NewSendMemoInput(
                                               memoController: _memoControllers[_selectedOutput],
@@ -542,14 +541,22 @@ class _NewSendPageState extends State<NewSendPage> {
                                           ),
                                         if (widget.sendViewModel.hasCoinControl)
                                           ListItemRegularRowWidget(
-                                            keyValue: "",
-                                            label: "Coin Control",
-                                            onTap: () {
-                                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                                  return NewCoinControlPage(unspentCoinsListViewModel: widget.sendViewModel.unspentCoinsListViewModel,canEdit: true);
-                                              });
-                                            }
-                                          ),
+                                              keyValue: "",
+                                              label: "Coin Control",
+                                              onTap: () {
+                                                showCupertinoModalBottomSheet(
+                                                    enableDrag: false,
+                                                    useRootNavigator: true,
+                                                    isDismissible: false,
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return NewCoinControlPage(
+                                                          unspentCoinsListViewModel: widget
+                                                              .sendViewModel
+                                                              .unspentCoinsListViewModel,
+                                                          canEdit: true);
+                                                    });
+                                              }),
                                       ]),
                                     )
                                 ],
@@ -718,7 +725,6 @@ class _NewSendPageState extends State<NewSendPage> {
       if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLength) {
         output.memo = memo;
       }
-
     });
   }
 
@@ -731,8 +737,7 @@ class _NewSendPageState extends State<NewSendPage> {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
-              _amountControllers[i].text.sanitized(),
-              widget.sendViewModel.selectedCryptoCurrency);
+              _amountControllers[i].text.sanitized(), widget.sendViewModel.selectedCryptoCurrency);
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
       }
@@ -803,6 +808,8 @@ class _NewSendPageState extends State<NewSendPage> {
           }
           showModalBottomSheet(
               isScrollControlled: true,
+              isDismissible: false,
+              enableDrag: false,
               context: navigatorKey.currentContext ?? context,
               backgroundColor: Colors.transparent,
               builder: (context) {
@@ -854,9 +861,7 @@ class _NewSendPageState extends State<NewSendPage> {
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
           amount: '${r.availableBalance} ${r.asset.title}',
-          fiat: isFiatDisabled
-              ? null
-              : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}',
+          fiat: isFiatDisabled ? null : '${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}',
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
     };
@@ -1240,13 +1245,11 @@ class _NewSendPageState extends State<NewSendPage> {
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
-      try{
+      try {
         _amountControllers[_selectedOutput].text = widget.sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(
                 paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
-      } catch(e) {
-
-      }
+      } catch (e) {}
     }
     _memoControllers[_selectedOutput].text = paymentRequest.note;
   }
@@ -1415,7 +1418,7 @@ class SendHelpPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CakeImageWidget(imageUrl:content.imagePath),
+                CakeImageWidget(imageUrl: content.imagePath),
                 Text(
                   content.description,
                   textAlign: TextAlign.center,
@@ -1464,8 +1467,8 @@ Future<bool> showParsedAddressConfirmationAlert(
             ? parsedAddress.addressSource.iconPath
             : parsedAddress.profileImageUrl,
         alertContent: S.of(context).extracted_address_content(
-          '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
-        ),
+              '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
+            ),
         buttonText: S.of(context).ok,
         buttonAction: () => Navigator.of(context).pop(true),
       );

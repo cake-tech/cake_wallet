@@ -44,7 +44,5 @@ class NanoAccountAdapter extends TypeAdapter<NanoAccount> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NanoAccountAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is NanoAccountAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

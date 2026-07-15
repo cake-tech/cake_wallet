@@ -8,8 +8,7 @@ import 'utils/translation/translation_utils.dart';
 
 void main(List<String> args) async {
   if (args.length != 1) {
-    throw Exception(
-        'Insufficient arguments!\n\nTry to run `./translation_add_lang.dart langCode`');
+    throw Exception('Insufficient arguments!\n\nTry to run `./translation_add_lang.dart langCode`');
   }
 
   final targetLang = args.first;
@@ -34,5 +33,5 @@ void main(List<String> args) async {
   }
 
   appendStringsToArbFile(targetFileName, translations);
-  printV("Success! Please add your Language Code to lib/entities/language_service.dart");
+  print("Success! Please add your Language Code to lib/entities/language_service.dart");
 }

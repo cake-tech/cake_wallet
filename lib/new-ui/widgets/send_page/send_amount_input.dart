@@ -7,16 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class NewSendAmountInput extends StatefulWidget {
-  const NewSendAmountInput(
-      {super.key,
-      required this.currency,
-      required this.maxDecimals,
-      required this.hasPicker,
-      required this.onPickerClicked,
-      required this.currencyIconPath,
-      required this.amountController,
-      this.validator,
-      });
+  const NewSendAmountInput({
+    super.key,
+    required this.currency,
+    required this.maxDecimals,
+    required this.hasPicker,
+    required this.onPickerClicked,
+    required this.currencyIconPath,
+    required this.amountController,
+    this.validator,
+  });
 
   final String currency;
   final String currencyIconPath;
@@ -35,7 +35,8 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
 
   @override
   void initState() {
-    widget.amountController.addListener(()=>formFieldKey.currentState?.didChange(widget.amountController.text));
+    widget.amountController
+        .addListener(() => formFieldKey.currentState?.didChange(widget.amountController.text));
     super.initState();
   }
 
@@ -71,6 +72,8 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 signed: false,
                                 decimal: widget.maxDecimals > 0,
                               ),
+                              autocorrect: false,
+                              enableSuggestions: false,
                               inputFormatters: <TextInputFormatter>[
                                 DecimalInputFormatter(maxDecimals: widget.maxDecimals),
                               ],
@@ -87,7 +90,11 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                               onPressed: () async {
                                 final data = await Clipboard.getData(Clipboard.kTextPlain);
                                 if (data != null && data.text != null) {
-                                  widget.amountController.text = data.text!;
+                                  final text = data.text!;
+                                  widget.amountController.value = TextEditingValue(
+                                    text: text,
+                                    selection: TextSelection.collapsed(offset: text.length),
+                                  );
                                 }
                               }),
                         ],
@@ -118,11 +125,12 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                     spacing: 8,
                                     children: [
                                       if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                        TokenImageWidget(imageUrl: widget.currencyIconPath, size: 24),
+                                        TokenImageWidget(
+                                            imageUrl: widget.currencyIconPath, size: 24),
                                       Text(widget.currency),
                                       if (widget.hasPicker)
-                                        CakeImageWidget(imageUrl:
-                                          "assets/new-ui/chooser.svg",
+                                        CakeImageWidget(
+                                          imageUrl: "assets/new-ui/chooser.svg",
                                           width: 12,
                                           height: 12,
                                           colorFilter: ColorFilter.mode(

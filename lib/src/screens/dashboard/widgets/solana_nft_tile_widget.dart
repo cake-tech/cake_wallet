@@ -61,9 +61,9 @@ class SolanaNFTTileWidget extends StatelessWidget {
                   Text(
                     'Symbol: ${nftAsset.symbol ?? '---'}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      height: 1,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          height: 1,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -71,10 +71,10 @@ class SolanaNFTTileWidget extends StatelessWidget {
                         ? nftAsset.name!
                         : (nftAsset.symbol ?? '---'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      height: 1,
-                    ),
+                          fontWeight: FontWeight.w900,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          height: 1,
+                        ),
                   ),
                 ],
               ),

@@ -75,8 +75,7 @@ class _KeyboardHideButtonState extends State<KeyboardHideButton> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: CakeImageWidget(
-                      imageUrl:
-                      "assets/new-ui/hide_keyboard.svg",
+                      imageUrl: "assets/new-ui/hide_keyboard.svg",
                       colorFilter: ColorFilter.mode(
                           Theme.of(context).colorScheme.onPrimary, BlendMode.srcIn),
                     ),

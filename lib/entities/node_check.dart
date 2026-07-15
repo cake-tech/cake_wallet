@@ -32,19 +32,21 @@ const Map<WalletType, String> powNodePreferenceKeys = {
   WalletType.nano: PreferencesKey.currentNanoPowNodeIdKey
 };
 
-Future<void> checkNodeForWalletType(SharedPreferences sharedPreferences, SettingsStore settingsStore, WalletType type, bool isPow) async {
+Future<void> checkNodeForWalletType(SharedPreferences sharedPreferences,
+    SettingsStore settingsStore, WalletType type, bool isPow) async {
   final preferenceKey = isPow ? powNodePreferenceKeys[type] : nodePreferenceKeys[type];
 
-  if(preferenceKey == null) {
+  if (preferenceKey == null) {
     return;
   }
 
   final currentId = await sharedPreferences.getInt(preferenceKey);
 
-  final nodes = isPow ? await Node.getAllForWalletTypePow(type) : await Node.getAllForWalletType(type);
-  final currentNode = nodes.firstWhereOrNull((item)=>item.id == currentId);
+  final nodes =
+      isPow ? await Node.getAllForWalletTypePow(type) : await Node.getAllForWalletType(type);
+  final currentNode = nodes.firstWhereOrNull((item) => item.id == currentId);
 
-  if(currentNode == null) {
+  if (currentNode == null) {
     final newNode = (isPow
             ? await Node.getDefaultPowForWalletType(type)
             : await Node.getDefaultForWalletType(type)) ??
@@ -55,16 +57,15 @@ Future<void> checkNodeForWalletType(SharedPreferences sharedPreferences, Setting
   } else {
     settingsStore.nodes[type] = currentNode;
   }
-
 }
 
-
-Future<void> checkCurrentNodes(SharedPreferences sharedPreferences, SettingsStore settingsStore) async {
-  for(final walletType in nodePreferenceKeys.keys) {
+Future<void> checkCurrentNodes(
+    SharedPreferences sharedPreferences, SettingsStore settingsStore) async {
+  for (final walletType in nodePreferenceKeys.keys) {
     await checkNodeForWalletType(sharedPreferences, settingsStore, walletType, false);
   }
 
-  for(final walletType in powNodePreferenceKeys.keys) {
+  for (final walletType in powNodePreferenceKeys.keys) {
     await checkNodeForWalletType(sharedPreferences, settingsStore, walletType, true);
   }
 }

@@ -51,11 +51,10 @@ class TransactionListItem extends ActionListItem with Keyable {
           .withLocalSeperator(_appStore.settingsStore.languageCode);
     }
 
-    return transaction.amount.toStringWithSymbol();
+    return transaction.amount.toStringWithSymbol(fractionalDigits: 8);
   }
 
   String get formattedTitle {
-
     if (balanceViewModel.wallet.type == WalletType.bitcoin &&
         transaction.additionalInfo['hasMissingInputTx'] == true) {
       return 'Transaction has missing data';
@@ -90,8 +89,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.litecoin:
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
         bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
-        if(isPegOut || fromPegOut)
-          return 6;
+        if (isPegOut || fromPegOut) return 6;
       default:
         return 0;
     }

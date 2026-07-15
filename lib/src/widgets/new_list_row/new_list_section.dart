@@ -14,15 +14,14 @@ import 'package:cake_wallet/src/widgets/new_list_row/list_item_toggle_widget.dar
 import 'package:flutter/material.dart';
 
 class NewListSections extends StatelessWidget {
-  const NewListSections({
-    super.key,
-    required this.sections,
-    this.controllers = const {},
-    this.tapHandlers = const {},
-    this.getCheckboxValue,
-    this.updateCheckboxValue,
-    this.showHeader = false
-  });
+  const NewListSections(
+      {super.key,
+      required this.sections,
+      this.controllers = const {},
+      this.tapHandlers = const {},
+      this.getCheckboxValue,
+      this.updateCheckboxValue,
+      this.showHeader = false});
 
   final Map<String, List<ListItem>> sections;
   final Map<String, TextEditingController> controllers;
@@ -133,6 +132,7 @@ class NewListSections extends StatelessWidget {
         label: item.label,
         subtitle: item.subtitle,
         iconPath: item.iconPath,
+        subtitleColor: item.subtitleColor,
         showArrow: item.showArrow,
         onTap: item.onTap,
         value: item.value,

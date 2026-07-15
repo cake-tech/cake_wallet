@@ -56,7 +56,7 @@ class DFXBuyProvider extends BuyProvider {
 
   static final List<FiatCurrency> _supportedFiat = [FiatCurrency.chf, FiatCurrency.eur];
   static final List<FiatCurrency> _notSupportedFiat =
-  FiatCurrency.all.where((fiat) => !_supportedFiat.contains(fiat)).toList();
+      FiatCurrency.all.where((fiat) => !_supportedFiat.contains(fiat)).toList();
 
   @override
   String get title => 'DFX.swiss';
@@ -83,7 +83,6 @@ class DFXBuyProvider extends BuyProvider {
         return walletTypeToString(wallet.type);
     }
   }
-
 
   Future<String> getSignMessage(String walletAddress) async =>
       "By_signing_this_message,_you_confirm_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_$walletAddress";
@@ -157,10 +156,9 @@ class DFXBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, '/v1/fiat');
 
     try {
-      final response = await ProxyWrapper().get(
-        clearnetUri: url,
-        headers: {'accept': 'application/json'});
-      
+      final response =
+          await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
         for (final item in data) {
@@ -182,8 +180,9 @@ class DFXBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain});
 
     try {
-      final response = await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
-      
+      final response =
+          await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
+
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
@@ -301,7 +300,7 @@ class DFXBuyProvider extends BuyProvider {
         headers: headers,
         body: body,
       );
-      
+
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {

@@ -26,8 +26,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final bool isLastInSection;
 
   @override
-  State<ListItemTextFieldWidget> createState() =>
-      _ListItemTextFieldWidgetState();
+  State<ListItemTextFieldWidget> createState() => _ListItemTextFieldWidgetState();
 }
 
 class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
@@ -36,7 +35,7 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
     return ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
-        height:50,
+        height: 50,
         builder: (context, textStyle, labelStyle) {
           return Row(
             children: [

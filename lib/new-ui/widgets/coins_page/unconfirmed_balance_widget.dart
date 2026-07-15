@@ -23,83 +23,82 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
           .hasAdditionalBalance(dashboardViewModel.wallet.currency);
 
       return AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
-          alignment: Alignment.topCenter,
-          child: show
-              ? Column(
-                  children: [
-                    const SizedBox(height: 12, width: double.infinity),
-                    Observer(
-                      builder: (context) {
-                        final balance = dashboardViewModel.balanceViewModel.additionalBalance(currency);
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        alignment: Alignment.topCenter,
+        child: show
+            ? Column(
+                children: [
+                  const SizedBox(height: 12, width: double.infinity),
+                  Observer(builder: (context) {
+                    final balance = dashboardViewModel.balanceViewModel.additionalBalance(currency);
 
-                        return Container(
-                          width: MediaQuery.of(context).size.width * 0.87,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                showMaterialModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    context: context,
-                                    builder: (context) => UnconfirmedBalanceModal(
-                                        balance: balance.toStringWithSymbol(),
-                                        currencyIconPath: currency.iconPath ?? "",
-                                      ));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    return Container(
+                      width: MediaQuery.of(context).size.width * 0.87,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            showMaterialModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                builder: (context) => UnconfirmedBalanceModal(
+                                      balance: balance.toStringWithSymbol(),
+                                      currencyIconPath: currency.iconPath ?? "",
+                                    ));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  spacing: 12,
                                   children: [
+                                    SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        backgroundColor:
+                                            Theme.of(context).colorScheme.primary.withAlpha(50),
+                                        color: Theme.of(context).colorScheme.primary,
+                                        value: dashboardViewModel.confirmationProgress,
+                                      ),
+                                    ),
                                     Row(
-                                      spacing: 12,
+                                      spacing: 4,
                                       children: [
-                                        SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(50),
+                                        Text(
+                                          "$balance ${currency.title}",
+                                          style: TextStyle(
                                             color: Theme.of(context).colorScheme.primary,
-                                            value: dashboardViewModel.confirmationProgress,
                                           ),
                                         ),
-                                        Row(
-                                          spacing: 4,
-                                          children: [
-                                            Text(
-                                              "$balance ${currency.title}",
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
-                                            ),
-                                            Text(S.of(context).confirming),
-                                          ],
-                                        )
+                                        Text(S.of(context).confirming),
                                       ],
-                                    ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     )
                                   ],
                                 ),
-                              ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                )
+                              ],
                             ),
                           ),
-                        );
-                      }
-                    ),
-                  ],
-                )
-              : const SizedBox(width: double.infinity),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              )
+            : const SizedBox(width: double.infinity),
       );
     });
   }

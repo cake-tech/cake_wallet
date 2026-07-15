@@ -22,8 +22,6 @@ abstract class QRToolsViewModelBase with Store {
   @observable
   String input = '';
 
-
-
   @computed
   Map<String, dynamic> get data => _getResult(input);
 
@@ -32,7 +30,6 @@ abstract class QRToolsViewModelBase with Store {
     final out = cborDecoder.decodeBytes();
     return out.$1;
   }
-
 
   Map<String, dynamic> _getResult(String input) {
     try {
@@ -49,15 +46,17 @@ abstract class QRToolsViewModelBase with Store {
         decoder.receivePart(part);
       }
       return {
-        "result": (decoder.result != null) ? switch (decoder.result.runtimeType) {
-          UR => {
-            "cbor": (decoder.result as UR).cbor,
-            "_cbor.decode.base64": base64.encode(_decodeCBOR((decoder.result as UR).cbor)),
-            "type": (decoder.result as UR).type,
-            "toString": (decoder.result as UR).toString(),
-          },
-          _ => "unknown type: ${decoder.result.runtimeType}"
-        } : null,
+        "result": (decoder.result != null)
+            ? switch (decoder.result.runtimeType) {
+                UR => {
+                    "cbor": (decoder.result as UR).cbor,
+                    "_cbor.decode.base64": base64.encode(_decodeCBOR((decoder.result as UR).cbor)),
+                    "type": (decoder.result as UR).type,
+                    "toString": (decoder.result as UR).toString(),
+                  },
+                _ => "unknown type: ${decoder.result.runtimeType}"
+              }
+            : null,
         "expectedType": decoder.expectedType,
         "estimatedPercentComplete": decoder.estimatedPercentComplete(),
         "processedPartsCount": decoder.processedPartsCount(),
@@ -70,7 +69,6 @@ abstract class QRToolsViewModelBase with Store {
         "resultError": decoder.resultError(),
         "resultMessage": decoder.resultMessage(),
         "toString": decoder.toString(),
-
       };
     } catch (e) {
       return {

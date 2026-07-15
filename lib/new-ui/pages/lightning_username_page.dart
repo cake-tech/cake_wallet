@@ -13,7 +13,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LightningUsernamePage extends StatefulWidget {
-  LightningUsernamePage({super.key, required this.isSetup, required this.themeStore, required this.lightningUsernameBloc});
+  LightningUsernamePage(
+      {super.key,
+      required this.isSetup,
+      required this.themeStore,
+      required this.lightningUsernameBloc});
 
   final bool isSetup;
 
@@ -167,8 +171,8 @@ class LightningUsernameInfo extends StatelessWidget {
       children: [
         CakeImageWidget(
             imageUrl: isLightMode
-            ? "assets/new-ui/lightning_username_setup_light.svg"
-            : "assets/new-ui/lightning_username_setup.svg"),
+                ? "assets/new-ui/lightning_username_setup_light.svg"
+                : "assets/new-ui/lightning_username_setup.svg"),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 2,
@@ -223,8 +227,8 @@ class LightningUsernameEditor extends StatelessWidget {
       children: [
         CakeImageWidget(
             imageUrl: isLightMode
-            ? "assets/new-ui/lightning_username_setup_light.svg"
-            : "assets/new-ui/lightning_username_setup.svg"),
+                ? "assets/new-ui/lightning_username_setup_light.svg"
+                : "assets/new-ui/lightning_username_setup.svg"),
         if (isSetup)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -258,7 +262,7 @@ class LightningUsernameEditor extends StatelessWidget {
                         child: InkWell(
                           onTap: onRandomizeButtonTap,
                           child: CakeImageWidget(
-                          imageUrl: "assets/new-ui/randomize.svg",
+                              imageUrl: "assets/new-ui/randomize.svg",
                               colorFilter: ColorFilter.mode(
                                   Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
                         ),
