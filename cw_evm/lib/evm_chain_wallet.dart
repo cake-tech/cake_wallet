@@ -487,8 +487,8 @@ abstract class EVMChainWalletBase
 
       final usdcAddress = _getUSDCContractAddress();
       if (usdcAddress != null) {
-        final usdcContractAddress = Erc20Token(
-            name: "USDC", symbol: "USDC", contractAddress: usdcAddress, decimal: 6);
+        final usdcContractAddress =
+            Erc20Token(name: "USDC", symbol: "USDC", contractAddress: usdcAddress, decimal: 6);
 
         await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
       }

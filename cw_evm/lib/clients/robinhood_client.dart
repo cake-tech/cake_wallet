@@ -42,8 +42,7 @@ class RobinhoodClient extends EVMChainClient {
   }
 
   @override
-  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) =>
-      signedTransaction;
+  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) => signedTransaction;
 
   @override
   int get chainId => 4663;
@@ -81,8 +80,7 @@ class RobinhoodClient extends EVMChainClient {
   }
 
   @override
-  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(
-      String address) async {
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
       final response = await client.get(Uri.https(_explorerHost, '/api', {
         'module': 'account',
@@ -98,8 +96,8 @@ class RobinhoodClient extends EVMChainClient {
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
         return (jsonResponse['result'] as List)
-            .map((e) => EVMChainTransactionModel.fromJson(
-                e as Map<String, dynamic>, symbol, chainId))
+            .map((e) =>
+                EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, symbol, chainId))
             .toList();
       }
 

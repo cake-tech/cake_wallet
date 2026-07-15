@@ -189,7 +189,7 @@ class EVMChainClient {
         }
 
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
-      }else if(node.uriRaw.contains('alchemy')){
+      } else if (node.uriRaw.contains('alchemy')) {
         isModifiedNodeUri = true;
         String alchemyApiKey = secrets.alchemyApiKey;
 

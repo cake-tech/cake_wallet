@@ -1426,8 +1426,7 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final bscNode = nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
-    final robinhoodNode =
-        nodeSource.firstWhereOrNull((e) => e.id == robinhoodNodeId) ??
+    final robinhoodNode = nodeSource.firstWhereOrNull((e) => e.id == robinhoodNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == robinhoodDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();

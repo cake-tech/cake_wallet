@@ -164,12 +164,11 @@ class CardDesign {
 
   static const arbitrum = CardDesign(imagePath: "assets/new-ui/balance_card_icons/arbitrum.svg");
 
-  static const robinhood = CardDesign(
-      imagePath: "assets/new-ui/balance_card_icons/robinhood.svg");
-
   static const zec = CardDesign(imagePath: "assets/new-ui/balance_card_icons/zcash.svg");
 
   static const bnb = CardDesign(imagePath: "assets/new-ui/balance_card_icons/bnb.svg");
+
+  static const robinhood = CardDesign(imagePath: "assets/new-ui/balance_card_icons/robinhood.svg");
 
   static const ethSpecial = CardDesign(
       gradient: const LinearGradient(
@@ -329,8 +328,8 @@ class CardDesign {
   static const robinhoodSpecial = CardDesign(
       gradient: const LinearGradient(
           colors: <Color>[Color(0xFF5AA438), Color(0xFF2E6B1E)],
-          begin: Alignment.topCenter, end: Alignment.bottomCenter
-      ),
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter),
       colors: CardColorCombination.light,
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/robinhood.svg");
