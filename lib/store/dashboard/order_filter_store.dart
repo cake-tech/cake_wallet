@@ -30,8 +30,7 @@ abstract class OrderFilterStoreBase with Store {
     required List<OrderListItem> orders,
     required WalletBase wallet,
   }) {
-    final walletOrders =
-    orders.where((item) => item.order.walletId == wallet.id).toList();
+    final walletOrders = orders.where((item) => item.order.walletId == wallet.id).toList();
 
     final cakePayOrders = walletOrders.where((item) {
       final order = item.order;

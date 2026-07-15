@@ -53,18 +53,16 @@ class _URQRState extends State<URQR> {
 
   String get nextLabel => widget.urqr.keys.toList()[(selectedInt + 1) % widget.urqr.length];
   void next() => setState(() {
-    final keys = widget.urqr.keys.toList();
+        final keys = widget.urqr.keys.toList();
 
-    selectedInt++;
-    selected = keys[(selectedInt) % keys.length];
-  });
+        selectedInt++;
+        selected = keys[(selectedInt) % keys.length];
+      });
 
   late String selected = (widget.urqr.isEmpty) ? "unknown" : widget.urqr.keys.first;
 
-
   List<String> get frames => widget.urqr[selected]?.split("\n") ?? [];
   void _nextFrame() => setState(() => frame++);
-
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +83,7 @@ class _URQRState extends State<URQR> {
           ),
         ),
         if (widget.urqr.values.length > 1)
-          widget.walletType == WalletType.monero
-              ? _legacySwitch(context)
-              : _newSwitch(context),
+          widget.walletType == WalletType.monero ? _legacySwitch(context) : _newSwitch(context),
         if (FeatureFlag.hasDevOptions) ...{
           TextButton(
             onPressed: () {

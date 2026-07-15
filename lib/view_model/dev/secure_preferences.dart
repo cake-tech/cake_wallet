@@ -6,14 +6,7 @@ part 'secure_preferences.g.dart';
 
 class DevSecurePreferences = DevSecurePreferencesBase with _$DevSecurePreferences;
 
-enum PreferenceType {
-  unknown,
-  string,
-  int,
-  double,
-  bool,
-  listString
-}
+enum PreferenceType { unknown, string, int, double, bool, listString }
 
 abstract class DevSecurePreferencesBase with Store {
   DevSecurePreferencesBase() {
@@ -29,9 +22,7 @@ abstract class DevSecurePreferencesBase with Store {
   List<String> get keys => values.keys.toList()..sort();
 
   @action
-  Future<void> delete(String key) async {
-    
-  }
+  Future<void> delete(String key) async {}
 
   dynamic get(String key) {
     if (!values.containsKey(key)) {
@@ -42,13 +33,11 @@ abstract class DevSecurePreferencesBase with Store {
       final decodedPassword = decodeWalletPassword(password: values[key]!);
       return values[key]! + "\n\nDecoded: $decodedPassword";
     } catch (e) {
-      return values[key]! +"\n$e";
+      return values[key]! + "\n$e";
     }
   }
 
-  Future<void> set(String key, PreferenceType type, dynamic value) async {
-    
-  }
+  Future<void> set(String key, PreferenceType type, dynamic value) async {}
 
   PreferenceType getPreferenceType(String key) {
     if (!values.containsKey(key)) {

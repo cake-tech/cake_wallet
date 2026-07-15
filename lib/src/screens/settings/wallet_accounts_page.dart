@@ -318,10 +318,10 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       printV("${item.accountListItem.id}: $orderIndex");
 
       await BalanceCardStyleSettings.fromCardDesign(
-          walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
-          accountIndex : item.accountListItem.id,
-          cardOrder : orderIndex,
-          design : item.card.design)
+              walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
+              accountIndex: item.accountListItem.id,
+              cardOrder: orderIndex,
+              design: item.card.design)
           .insert();
     }
   }

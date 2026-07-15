@@ -139,7 +139,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @override
-  bool containsAddress(String address) => super.containsAddress(address) || address == lightningAddress;
+  bool containsAddress(String address) =>
+      super.containsAddress(address) || address == lightningAddress;
 
   @override
   String get addressForBuy {
@@ -147,10 +148,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       return super
           .allAddresses
           .firstWhere((e) =>
-      e.accountIndex == currentAccountIndex &&
-          e.type == SegwitAddresType.p2wpkh &&
-          !e.isHidden &&
-          !e.isUsed)
+              e.accountIndex == currentAccountIndex &&
+              e.type == SegwitAddresType.p2wpkh &&
+              !e.isHidden &&
+              !e.isUsed)
           .address;
     } catch (_) {
       return super.addressForBuy;
@@ -159,12 +160,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   String get addressForExchange {
-
     final current = getFreshAddress();
     final availableReceiveAddresses = receiveAddresses.where((element) =>
-        !element.isUsed &&
-            !element.isHidden &&
-            !hiddenAddresses.contains(element.address));
+        !element.isUsed && !element.isHidden && !hiddenAddresses.contains(element.address));
 
     final bool isSilentPaymentsPage = addressPageType == SilentPaymentsAddresType.p2sp;
     final bool isLightningPage = addressPageType == LightningAddressType.p2l;

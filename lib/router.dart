@@ -173,13 +173,15 @@ late RouteSettings currentRouteSettings;
 
 Route<T> handleRouteWithPlatformAwareness<T>(
   Widget Function(BuildContext) builder, {
-      RouteSettings? settings,
+  RouteSettings? settings,
   bool fullscreenDialog = false,
 }) {
   if (Platform.isIOS) {
-    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
+    return CupertinoPageRoute<T>(
+        builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
   } else {
-    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
+    return MaterialPageRoute<T>(
+        builder: builder, fullscreenDialog: fullscreenDialog, settings: settings);
   }
 }
 
@@ -447,7 +449,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness(
         (context) => Material(
           child: getIt.get<NewSendPage>(
-            param1: SendPageParams(initialPaymentRequest: initialPaymentRequest,unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
+            param1: SendPageParams(
+                initialPaymentRequest: initialPaymentRequest,
+                unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
           ),
         ),
         settings: settings,
@@ -458,11 +462,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
     case Routes.receive:
-      return CupertinoPageRoute<void>(builder: (context) => getIt.get<ReceivePage>(), settings: settings);
+      return CupertinoPageRoute<void>(
+          builder: (context) => getIt.get<ReceivePage>(), settings: settings);
 
     case Routes.addressPage:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<AddressPage>(), settings: settings);
+      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
+          settings: settings);
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -587,9 +592,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.securityBackupDuressPin:
       return handleRouteWithPlatformAwareness(
-            (context) => getIt.get<SecurityBackupPage>(),
+        (context) => getIt.get<SecurityBackupPage>(),
       );
-
 
     case Routes.privacyPage:
       return handleRouteWithPlatformAwareness(
@@ -617,9 +621,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newNode:
       final args = settings.arguments as Map<String, dynamic>?;
       final page = getIt.get<NodeCreateOrEditPage>(
-        param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
-      return CupertinoPageRoute<void>(
-          builder: (_) => page);
+          param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
+      return CupertinoPageRoute<void>(builder: (_) => page);
 
     case Routes.login:
       return CupertinoPageRoute<void>(
@@ -636,9 +639,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newPowNode:
       final args = settings.arguments as Map<String, dynamic>?;
       final page = getIt.get<PowNodeCreateOrEditPage>(
-        param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
-      return CupertinoPageRoute<void>(
-          builder: (_) => page);
+          param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
+      return CupertinoPageRoute<void>(builder: (_) => page);
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
@@ -823,7 +825,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
       final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
-      final viewModelParam = {'type' : type, 'isPow' : false};
+      final viewModelParam = {'type': type, 'isPow': false};
 
       return handleRouteWithPlatformAwareness(
         (context) => AdvancedPrivacySettingsPage(

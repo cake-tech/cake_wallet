@@ -9,10 +9,10 @@ import 'package:web3dart/web3dart.dart';
 
 class EnsRecord {
   static Future<String> fetchEnsAddress(
-      String name,
-      CryptoCurrency cur, {
-        WalletBase? wallet,
-      }) async {
+    String name,
+    CryptoCurrency cur, {
+    WalletBase? wallet,
+  }) async {
     Web3Client? _client;
 
     if (wallet?.type == WalletType.ethereum || wallet?.type == WalletType.polygon) {
@@ -45,11 +45,11 @@ class EnsRecord {
   }
 
   static CoinType? getEnsCoinType(CryptoCurrency cur) => switch (cur) {
-    CryptoCurrency.xmr => CoinType.XMR,
-    CryptoCurrency.btc => CoinType.BTC,
-    CryptoCurrency.ltc => CoinType.LTC,
-    CryptoCurrency.eth => CoinType.ETH,
-    CryptoCurrency.matic => CoinType.MATIC,
-    _ => null,
-  };
+        CryptoCurrency.xmr => CoinType.XMR,
+        CryptoCurrency.btc => CoinType.BTC,
+        CryptoCurrency.ltc => CoinType.LTC,
+        CryptoCurrency.eth => CoinType.ETH,
+        CryptoCurrency.matic => CoinType.MATIC,
+        _ => null,
+      };
 }

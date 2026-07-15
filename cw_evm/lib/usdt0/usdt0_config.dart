@@ -1,15 +1,13 @@
 import 'package:cw_core/erc20_token.dart';
 
-/// USDT0 (Omnichain USDT) config. 
+/// USDT0 (Omnichain USDT) config.
 /// Addresses and EIDs from https://docs.usdt0.to/technical-documentation/deployments
 class USDT0Config {
   USDT0Config._();
 
-  static const String ethereumOftAdapter =
-      '0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee';
+  static const String ethereumOftAdapter = '0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee';
 
-  static const String ethereumNativeUsdt =
-      '0xdac17f958d2ee523a2206206994597c13d831ec7';
+  static const String ethereumNativeUsdt = '0xdac17f958d2ee523a2206206994597c13d831ec7';
 
   static const Map<int, String> usdt0TokenAddressByChainId = {
     1: ethereumNativeUsdt,
@@ -31,24 +29,20 @@ class USDT0Config {
 
   static const int ethereumChainId = 1;
 
-  static List<int> get supportedChainIds =>
-      usdt0TokenAddressByChainId.keys.toList(growable: false);
+  static List<int> get supportedChainIds => usdt0TokenAddressByChainId.keys.toList(growable: false);
 
   static String? getOftAdapterAddress(int chainId) {
     if (chainId == ethereumChainId) return ethereumOftAdapter;
     return null;
   }
 
-  static String? getUsdt0TokenAddress(int chainId) =>
-      usdt0TokenAddressByChainId[chainId];
+  static String? getUsdt0TokenAddress(int chainId) => usdt0TokenAddressByChainId[chainId];
 
-  static String? getOftContractAddress(int chainId) =>
-      oftContractAddressByChainId[chainId];
+  static String? getOftContractAddress(int chainId) => oftContractAddressByChainId[chainId];
 
   static int? getEndpointId(int chainId) => endpointIdByChainId[chainId];
 
-  static bool isChainSupported(int chainId) =>
-      usdt0TokenAddressByChainId.containsKey(chainId);
+  static bool isChainSupported(int chainId) => usdt0TokenAddressByChainId.containsKey(chainId);
 
   static bool isUSDT0Token(Erc20Token token, int chainId) {
     final address = getUsdt0TokenAddress(chainId);

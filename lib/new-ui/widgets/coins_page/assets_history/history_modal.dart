@@ -88,9 +88,9 @@ class HistoryModal extends StatelessWidget {
                         color: Colors.transparent,
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1)
-                          ),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                  color: Theme.of(context).colorScheme.primary, width: 1)),
                           height: 56,
                           width: double.infinity,
                           child: Row(

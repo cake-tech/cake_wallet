@@ -9,19 +9,19 @@ class RoundedCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  value
-          ? Container(
-              height: 20.0,
-              width: 20.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              child: Icon(
-                Icons.check,
-                color: Theme.of(context).colorScheme.surface,
-                size: 14.0,
-              ))
-          : Offstage();
+    return value
+        ? Container(
+            height: 20.0,
+            width: 20.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(50.0)),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: Icon(
+              Icons.check,
+              color: Theme.of(context).colorScheme.surface,
+              size: 14.0,
+            ))
+        : Offstage();
   }
 }

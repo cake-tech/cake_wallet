@@ -11,11 +11,10 @@ import 'package:cake_wallet/monero/monero.dart';
 
 part 'monero_account_list_view_model.g.dart';
 
-class MoneroAccountListViewModel = MoneroAccountListViewModelBase
-    with _$MoneroAccountListViewModel;
+class MoneroAccountListViewModel = MoneroAccountListViewModelBase with _$MoneroAccountListViewModel;
 
-abstract class MoneroAccountListViewModelBase with Store implements WalletAccountListViewModel{
-  MoneroAccountListViewModelBase(this._wallet,this.settingsStore) : scrollOffsetFromTop = 0;
+abstract class MoneroAccountListViewModelBase with Store implements WalletAccountListViewModel {
+  MoneroAccountListViewModelBase(this._wallet, this.settingsStore) : scrollOffsetFromTop = 0;
 
   final SettingsStore settingsStore;
 
@@ -36,25 +35,27 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
   List<AccountListItem> get accounts {
     final hideBalance = settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance;
     if (_wallet.type == WalletType.monero) {
-      return monero
-        !.getAccountList(_wallet)
-        .accounts.map((acc) => AccountListItem(
-            label: acc.label,
-            id: acc.id,
-            balance: hideBalance ? '●●●●●●' : acc.balance,
-            isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
-        .toList();
+      return monero!
+          .getAccountList(_wallet)
+          .accounts
+          .map((acc) => AccountListItem(
+              label: acc.label,
+              id: acc.id,
+              balance: hideBalance ? '●●●●●●' : acc.balance,
+              isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
+          .toList();
     }
 
     if (_wallet.type == WalletType.wownero) {
-      return wownero
-        !.getAccountList(_wallet)
-        .accounts.map((acc) => AccountListItem(
-            label: acc.label,
-            id: acc.id,
-            balance: hideBalance ? '●●●●●●' : acc.balance,
-            isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
-        .toList();
+      return wownero!
+          .getAccountList(_wallet)
+          .accounts
+          .map((acc) => AccountListItem(
+              label: acc.label,
+              id: acc.id,
+              balance: hideBalance ? '●●●●●●' : acc.balance,
+              isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
+          .toList();
     }
 
     throw Exception('Unexpected wallet type: ${_wallet.type} for monero');
@@ -79,7 +80,7 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
         item.id,
         item.label,
         item.balance,
-        );
+      );
     }
 
     if (_wallet.type == WalletType.wownero) {
@@ -88,7 +89,7 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
         item.id,
         item.label,
         item.balance,
-        );
+      );
     }
   }
 }

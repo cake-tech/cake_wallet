@@ -15,7 +15,9 @@ part 'bitcoin_account_edit_or_create_view_model.g.dart';
 class BitcoinAccountEditOrCreateViewModel = BitcoinAccountEditOrCreateViewModelBase
     with _$BitcoinAccountEditOrCreateViewModel;
 
-abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements WalletAccountEditOrCreateViewModel{
+abstract class BitcoinAccountEditOrCreateViewModelBase
+    with Store
+    implements WalletAccountEditOrCreateViewModel {
   BitcoinAccountEditOrCreateViewModelBase({
     required WalletBase wallet,
     AccountListItem? accountListItem,
@@ -51,11 +53,11 @@ abstract class BitcoinAccountEditOrCreateViewModelBase with Store implements Wal
     final accounts = await _wallet.walletInfo.getAccounts();
 
     await BalanceCardStyleSettings.fromCardDesign(
-        walletInfoId: _wallet.walletInfo.internalId,
-        accountIndex : accountIndex,
-        cardOrder : accounts.length - 1,
-        design : CardDesign.specialDesignsForCurrencies[_wallet.currency]!
-            .withGradient(gradients[Random().nextInt(gradients.length)]))
+            walletInfoId: _wallet.walletInfo.internalId,
+            accountIndex: accountIndex,
+            cardOrder: accounts.length - 1,
+            design: CardDesign.specialDesignsForCurrencies[_wallet.currency]!
+                .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
   }
 

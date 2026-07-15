@@ -11,7 +11,10 @@ class PSBTTransactionBuild {
   final PsbtV2 psbt = PsbtV2();
 
   PSBTTransactionBuild(
-      {required List<PSBTReadyUtxoWithAddress> inputs, required List<BitcoinBaseOutput> outputs, required List<OutputInfo> cwOutputs, bool enableRBF = true}) {
+      {required List<PSBTReadyUtxoWithAddress> inputs,
+      required List<BitcoinBaseOutput> outputs,
+      required List<OutputInfo> cwOutputs,
+      bool enableRBF = true}) {
     psbt.setGlobalTxVersion(2);
     psbt.setGlobalInputCount(inputs.length);
     psbt.setGlobalOutputCount(outputs.length);
@@ -23,10 +26,10 @@ class PSBTTransactionBuild {
       printV(input.utxo.isSegwit());
       printV(input.utxo.isP2shSegwit());
 
-      psbt.setInputPreviousTxId(i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
+      psbt.setInputPreviousTxId(
+          i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
       psbt.setInputOutputIndex(i, input.utxo.vout);
       psbt.setInputSequence(i, enableRBF ? 0xfffffffd : 0xffffffff);
-      
 
       if (input.utxo.isSegwit()) {
         setInputSegwit(i, input);
@@ -48,10 +51,10 @@ class PSBTTransactionBuild {
         if (cwOutputs.isNotEmpty) {
           try {
             final cwOutput = cwOutputs
-            .where((e) => [e.address, e.extractedAddress]
-              .map((e) => e?.toLowerCase())
-              .contains(output.address.toAddress().toLowerCase()))
-            .firstOrNull;
+                .where((e) => [e.address, e.extractedAddress]
+                    .map((e) => e?.toLowerCase())
+                    .contains(output.address.toAddress().toLowerCase()))
+                .firstOrNull;
             if (cwOutput != null &&
                 cwOutput.extra.containsKey('bip353_name') &&
                 cwOutput.extra.containsKey('bip353_proof')) {
@@ -80,20 +83,14 @@ class PSBTTransactionBuild {
 
   void setInputP2pkh(int i, PSBTReadyUtxoWithAddress input) {
     psbt.setInputNonWitnessUtxo(i, Uint8List.fromList(hex.decode(input.rawTx)));
-    psbt.setInputBip32Derivation(
-        i,
-        Uint8List.fromList(hex.decode(input.ownerPublicKey)),
-        input.ownerMasterFingerprint,
-        BIPPath.fromString(input.ownerDerivationPath).toPathArray());
+    psbt.setInputBip32Derivation(i, Uint8List.fromList(hex.decode(input.ownerPublicKey)),
+        input.ownerMasterFingerprint, BIPPath.fromString(input.ownerDerivationPath).toPathArray());
   }
 
   void setInputSegwit(int i, PSBTReadyUtxoWithAddress input) {
     psbt.setInputNonWitnessUtxo(i, Uint8List.fromList(hex.decode(input.rawTx)));
-    psbt.setInputBip32Derivation(
-        i,
-        Uint8List.fromList(hex.decode(input.ownerPublicKey)),
-        input.ownerMasterFingerprint,
-        BIPPath.fromString(input.ownerDerivationPath).toPathArray());
+    psbt.setInputBip32Derivation(i, Uint8List.fromList(hex.decode(input.ownerPublicKey)),
+        input.ownerMasterFingerprint, BIPPath.fromString(input.ownerDerivationPath).toPathArray());
 
     psbt.setInputWitnessUtxo(i, Uint8List.fromList(bigIntToUint64LE(input.utxo.value)),
         Uint8List.fromList(input.ownerDetails.address.toScriptPubKey().toBytes()));

@@ -100,7 +100,7 @@ class _SqliteErrorHandlerState extends State<SqliteErrorHandler> {
       final dbFile = File("${(await getAppDir()).path}/cake.db");
       final jsonText = JsonEncoder.withIndent("    ").convert(await dumpCustomDb(dbFile.path));
       setState(() {
-          log = jsonText;
+        log = jsonText;
       });
     } catch (e, s) {
       setState(() {

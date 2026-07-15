@@ -10,4 +10,3 @@ class EthereumClient extends EVMChainClient {
   Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) =>
       prependTransactionType(0x02, signedTransaction);
 }
-

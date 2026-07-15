@@ -18,8 +18,7 @@ class BuyItem {
     BuyAmount _buyAmount;
 
     try {
-      _buyAmount = await provider
-          .calculateAmount(amount?.toString() ?? '', fiatCurrency.title);
+      _buyAmount = await provider.calculateAmount(amount?.toString() ?? '', fiatCurrency.title);
     } catch (e) {
       _buyAmount = BuyAmount(sourceAmount: 0.0, destAmount: 0.0);
       printV(e.toString());

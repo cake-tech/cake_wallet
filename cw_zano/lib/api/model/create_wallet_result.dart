@@ -30,12 +30,11 @@ class CreateWalletResult {
       required this.publicSpendKey,
       required this.publicViewKey});
 
-  factory CreateWalletResult.fromJson(Map<String, dynamic> json) =>
-      CreateWalletResult(
+  factory CreateWalletResult.fromJson(Map<String, dynamic> json) => CreateWalletResult(
         name: json['name'] as String? ?? '',
         pass: json['pass'] as String? ?? '',
-        recentHistory: RecentHistory.fromJson(
-            json['recent_history'] as Map<String, dynamic>? ?? {}),
+        recentHistory:
+            RecentHistory.fromJson(json['recent_history'] as Map<String, dynamic>? ?? {}),
         recovered: json['recovered'] as bool? ?? false,
         walletFileSize: json['wallet_file_size'] as int? ?? 0,
         walletId: json['wallet_id'] as int? ?? 0,
