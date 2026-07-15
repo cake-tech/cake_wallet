@@ -156,7 +156,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
     amount = double.parse(input.replaceAll(',', '.'));
 
     if (card.prepaidRange.isNotEmpty) {
-      selectedDenomination = (input, selectedDenomination.$2);
+      selectedDenomination = (input.replaceAll(',', '.'), selectedDenomination.$2);
     }
   }
 
