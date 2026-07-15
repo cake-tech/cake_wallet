@@ -43,7 +43,7 @@ class _AboutPageState extends State<AboutPage> {
 
   void _easterEgg() {
     _easterEggCounter++;
-    if(_easterEggCounter == easterEggTreshold) {
+    if (_easterEggCounter == easterEggTreshold) {
       setState(() {
         _bottomText = aboutPageEasterEggs.elementAt(Random().nextInt(aboutPageEasterEggs.length));
       });

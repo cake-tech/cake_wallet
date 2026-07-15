@@ -508,7 +508,8 @@ class SolanaWalletClient {
                 outgoingAmount = diff.toDouble();
                 outgoingMintAddress = mint;
                 final token = await getTokenInfo(mint);
-                outgoingToken = token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
+                outgoingToken =
+                    token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
                 outgoingFrom = walletAddress;
                 // We find the intermediate account
                 if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
@@ -1807,10 +1808,8 @@ class SolanaWalletClient {
     return transaction.serializeString();
   }
 
-  Future<String> sendTransaction({
-    required String serializedTransaction,
-    required Commitment commitment
-  }) =>
+  Future<String> sendTransaction(
+          {required String serializedTransaction, required Commitment commitment}) =>
       _provider!.request(
         SolanaRPCSendTransaction(
           encodedTransaction: serializedTransaction,

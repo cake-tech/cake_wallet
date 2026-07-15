@@ -12,7 +12,8 @@ import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_litecoin/ledger_litecoin.dart';
 
-class LitecoinLedgerService extends HardwareWalletService with BitcoinHardwareWalletService,   LitecoinHardwareWalletService {
+class LitecoinLedgerService extends HardwareWalletService
+    with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
   LitecoinLedgerService(this.ledgerConnection)
       : litecoinLedgerApp = LitecoinLedgerApp(ledgerConnection);
 
@@ -53,7 +54,6 @@ class LitecoinLedgerService extends HardwareWalletService with BitcoinHardwareWa
     required List<PSBTReadyUtxoWithAddress> inputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
   }) {
-
     final readyInputs = <LedgerTransaction>[];
     for (final utxo in inputs) {
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
@@ -77,7 +77,7 @@ class LitecoinLedgerService extends HardwareWalletService with BitcoinHardwareWa
         inputs: readyInputs,
         outputs: outputs
             .map((e) => TransactionOutput.fromBigInt((e as BitcoinOutput).value,
-            Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
+                Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
             .toList(),
         changePath: changePath,
         sigHashType: 0x01,

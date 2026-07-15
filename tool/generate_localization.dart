@@ -13,21 +13,21 @@ const srcDir = 'srcDir';
 const defaultLocale = 'en';
 
 Future<void> main(List<String> args) async {
-  final extraInfo = args.isNotEmpty ?
-  args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
-    final parts = arg.split('=');
-    var key = normalizeKeyName(parts[0]);
-    if (key.contains('--')) {
-      key = key.substring(2);
-    }
-    acc[key] = parts.length > 1
-        ? parts[1].isNotEmpty
-          ? parts[1]
-          : inputPath
-        : inputPath;
-    return acc;
-  })
-  : <String, dynamic> {srcDir : inputPath};
+  final extraInfo = args.isNotEmpty
+      ? args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
+          final parts = arg.split('=');
+          var key = normalizeKeyName(parts[0]);
+          if (key.contains('--')) {
+            key = key.substring(2);
+          }
+          acc[key] = parts.length > 1
+              ? parts[1].isNotEmpty
+                  ? parts[1]
+                  : inputPath
+              : inputPath;
+          return acc;
+        })
+      : <String, dynamic>{srcDir: inputPath};
 
   final outputDir = Directory(outputPath);
 
@@ -37,7 +37,7 @@ Future<void> main(List<String> args) async {
 
   extraInfo.forEach((key, dynamic value) async {
     if (key != srcDir) {
-      printV('Wrong key: $key');
+      print('Wrong key: $key');
       return;
     }
 
@@ -45,7 +45,7 @@ Future<void> main(List<String> args) async {
     final dir = Directory(dirPath);
 
     if (!await dir.exists()) {
-      printV('Wrong directory path: $dirPath');
+      print('Wrong directory path: $dirPath');
       return;
     }
 
@@ -55,19 +55,19 @@ Future<void> main(List<String> args) async {
       // normalizing the case so keys match LanguageService.supportedLocales.
       final fileName = element.uri.pathSegments.last;
       if (!fileName.startsWith('strings_') || !fileName.endsWith('.arb')) {
-        printV('Wrong file: ${element.path}');
+        print('Wrong file: ${element.path}');
         return;
       }
       final parts =
-        fileName.substring('strings_'.length, fileName.length - '.arb'.length).split('_');
+          fileName.substring('strings_'.length, fileName.length - '.arb'.length).split('_');
       final locale = parts.length > 1
-        ? '${parts.first.toLowerCase()}_${parts.sublist(1).join('_').toUpperCase()}'
-        : parts.first.toLowerCase();
+          ? '${parts.first.toLowerCase()}_${parts.sublist(1).join('_').toUpperCase()}'
+          : parts.first.toLowerCase();
       localePath[locale] = element.path;
     });
 
     if (!localePath.keys.contains(defaultLocale)) {
-      printV("Locale list doesn't contain $defaultLocale");
+      print("Locale list doesn't contain $defaultLocale");
       return;
     }
 
@@ -78,8 +78,7 @@ Future<void> main(List<String> args) async {
       output += part1;
       output += textDirectionDeclaration;
 
-      var inputContent =
-        File(localePath[defaultLocale].toString()).readAsStringSync();
+      var inputContent = File(localePath[defaultLocale].toString()).readAsStringSync();
       var config = json.decode(inputContent) as Map<String, dynamic>;
 
       output += localizedStrings(config: config, hasOverride: false);
@@ -124,7 +123,7 @@ Future<void> main(List<String> args) async {
 
       await File(outputPath + localeListFileName).writeAsString(locales);
     } catch (e) {
-      printV(e.toString());
+      print(e.toString());
     }
   });
 }
@@ -161,4 +160,3 @@ String localizedStrings({required Map<String, dynamic> config, required bool has
 
   return output;
 }
-

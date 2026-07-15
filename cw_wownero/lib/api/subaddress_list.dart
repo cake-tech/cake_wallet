@@ -38,7 +38,8 @@ class Subaddress {
   );
   final int addressIndex;
   final int accountIndex;
-  String get label => wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+  String get label => wownero.Wallet_getSubaddressLabel(wptr!,
+      accountIndex: accountIndex, addressIndex: addressIndex);
   final int txCount;
   final int received;
 }
@@ -68,7 +69,10 @@ List<Subaddress> getAllSubaddresses() {
       final subaddrs = wownero.TransactionInfo_subaddrIndex(tx).split(",");
       final account = wownero.TransactionInfo_subaddrAccount(tx);
       newttDetails.add(TinyTransactionDetails(
-        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex:  int.tryParse(subaddrs[index])??0)),
+        address: List.generate(
+            subaddrs.length,
+            (index) => getAddress(
+                accountIndex: account, addressIndex: int.tryParse(subaddrs[index]) ?? 0)),
         amount: wownero.TransactionInfo_amount(tx),
       ));
     }
@@ -79,7 +83,7 @@ List<Subaddress> getAllSubaddresses() {
   final list = List.generate(size, (index) {
     final ttDetailsLocal = ttDetails.where((element) {
       final address = getAddress(
-        accountIndex: subaddress!.accountIndex, 
+        accountIndex: subaddress!.accountIndex,
         addressIndex: index,
       );
       if (address == element.address) return true;
@@ -97,7 +101,8 @@ List<Subaddress> getAllSubaddresses() {
     );
   }).reversed.toList();
   if (list.isEmpty) {
-    list.add(Subaddress(addressIndex: 0, accountIndex: subaddress!.accountIndex, txCount: 0, received: 0));
+    list.add(Subaddress(
+        addressIndex: 0, accountIndex: subaddress!.accountIndex, txCount: 0, received: 0));
   }
   return list;
 }
@@ -113,7 +118,8 @@ int numSubaddresses(int subaccountIndex) {
 
 void setLabelForSubaddressSync(
     {required int accountIndex, required int addressIndex, required String label}) {
-  wownero.Wallet_setSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex, label: label);
+  wownero.Wallet_setSubaddressLabel(wptr!,
+      accountIndex: accountIndex, addressIndex: addressIndex, label: label);
 }
 
 void _addSubaddress(Map<String, dynamic> args) {
@@ -128,8 +134,7 @@ void _setLabelForSubaddress(Map<String, dynamic> args) {
   final accountIndex = args['accountIndex'] as int;
   final addressIndex = args['addressIndex'] as int;
 
-  setLabelForSubaddressSync(
-      accountIndex: accountIndex, addressIndex: addressIndex, label: label);
+  setLabelForSubaddressSync(accountIndex: accountIndex, addressIndex: addressIndex, label: label);
 }
 
 Future<void> addSubaddress({required int accountIndex, required String label}) async {
@@ -138,11 +143,8 @@ Future<void> addSubaddress({required int accountIndex, required String label}) a
 }
 
 Future<void> setLabelForSubaddress(
-        {required int accountIndex, required int addressIndex, required String label}) async {
-  _setLabelForSubaddress({
-    'accountIndex': accountIndex,
-    'addressIndex': addressIndex,
-    'label': label
-  });
+    {required int accountIndex, required int addressIndex, required String label}) async {
+  _setLabelForSubaddress(
+      {'accountIndex': accountIndex, 'addressIndex': addressIndex, 'label': label});
   await store();
 }

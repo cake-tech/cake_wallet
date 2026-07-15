@@ -162,10 +162,14 @@ class ProviderOptionsPage extends StatelessWidget {
                                       label: item.title,
                                       showArrow: item.title == "Trocador",
                                       value: exchangeViewModel.selectedProviders.contains(item),
-                                      subtitle: item.title == "Trocador" ? S.of(context).manage_providers : null,
-                                      onTap: item.title == "Trocador" ? (){
-                                        _openTrocadorProvidersPage(context);
-                                      } : null,
+                                      subtitle: item.title == "Trocador"
+                                          ? S.of(context).manage_providers
+                                          : null,
+                                      onTap: item.title == "Trocador"
+                                          ? () {
+                                              _openTrocadorProvidersPage(context);
+                                            }
+                                          : null,
                                       onChanged: (val) {
                                         _switchProviderStatus(item, val, context);
                                       });
@@ -180,7 +184,7 @@ class ProviderOptionsPage extends StatelessWidget {
                             ))
                         ],
                       ),
-                      SizedBox(height:36)
+                      SizedBox(height: 36)
                     ],
                   ),
                 ),

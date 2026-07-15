@@ -37,15 +37,12 @@ class CakePayOrder {
   });
 
   factory CakePayOrder.fromMap(Map<String, dynamic> map) {
-
     final cards = map['cards'] as List<dynamic>;
     final firstCard = cards.isNotEmpty ? cards.first as Map<String, dynamic> : {};
 
     return CakePayOrder(
         orderId: map['order_id'] as String,
-        cards: cards
-            .map((x) => OrderCard.fromMap(x as Map<String, dynamic>))
-            .toList(),
+        cards: cards.map((x) => OrderCard.fromMap(x as Map<String, dynamic>)).toList(),
         externalId: map['external_id'] as String?,
         amountUsd: map['amount_usd'] as double,
         totalReceiveAmount: firstCard['subtotal'] as String? ?? '',
@@ -56,7 +53,7 @@ class CakePayOrder {
         paymentData: PaymentData.fromMap(map['payment_data'] as Map<String, dynamic>));
   }
 
-  static CryptoPaymentData? getPaymentDataFor({CakePayPaymentMethod? method,CakePayOrder? order}) {
+  static CryptoPaymentData? getPaymentDataFor({CakePayPaymentMethod? method, CakePayOrder? order}) {
     if (order == null || method == null) return null;
 
     final data = switch (method) {
@@ -76,7 +73,8 @@ class CakePayOrder {
       final addr = uri.path;
       final price = uri.queryParameters['amount'] ?? data.price;
 
-      return CryptoPaymentData(price: price, address: addr, amount: data.amount, paymentUrls: data.paymentUrls);
+      return CryptoPaymentData(
+          price: price, address: addr, amount: data.amount, paymentUrls: data.paymentUrls);
     }
 
     return data;
@@ -151,12 +149,21 @@ class PaymentData {
 
   factory PaymentData.fromMap(Map<String, dynamic> map) {
     return PaymentData(
-      btc: map['BTC'] != null ? CryptoPaymentData.fromMap(map['BTC'] as Map<String, dynamic>) : null,
-      btc_ln: map['BTC_LN'] != null ? CryptoPaymentData.fromMap(map['BTC_LN'] as Map<String, dynamic>) : null,
-      xmr: map['XMR'] != null ? CryptoPaymentData.fromMap(map['XMR'] as Map<String, dynamic>) : null,
-      ltc: map['LTC'] != null ? CryptoPaymentData.fromMap(map['LTC'] as Map<String, dynamic>) : null,
-      ltc_mweb: map['LTC_MWEB'] != null ? CryptoPaymentData.fromMap(map['LTC_MWEB'] as Map<String, dynamic>) : null,
-      zec: map['ZEC_CHAIN'] != null ? CryptoPaymentData.fromMap(map['ZEC_CHAIN'] as Map<String, dynamic>) : null,
+      btc:
+          map['BTC'] != null ? CryptoPaymentData.fromMap(map['BTC'] as Map<String, dynamic>) : null,
+      btc_ln: map['BTC_LN'] != null
+          ? CryptoPaymentData.fromMap(map['BTC_LN'] as Map<String, dynamic>)
+          : null,
+      xmr:
+          map['XMR'] != null ? CryptoPaymentData.fromMap(map['XMR'] as Map<String, dynamic>) : null,
+      ltc:
+          map['LTC'] != null ? CryptoPaymentData.fromMap(map['LTC'] as Map<String, dynamic>) : null,
+      ltc_mweb: map['LTC_MWEB'] != null
+          ? CryptoPaymentData.fromMap(map['LTC_MWEB'] as Map<String, dynamic>)
+          : null,
+      zec: map['ZEC_CHAIN'] != null
+          ? CryptoPaymentData.fromMap(map['ZEC_CHAIN'] as Map<String, dynamic>)
+          : null,
       invoiceTime: DateTime.fromMillisecondsSinceEpoch(map['invoice_time'] as int),
       expirationTime: DateTime.fromMillisecondsSinceEpoch(map['expiration_time'] as int),
       commission: map['commission'] as int?,

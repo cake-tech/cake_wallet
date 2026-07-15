@@ -1,7 +1,6 @@
 import 'package:cw_core/parse_fixed.dart';
 
-String formatFixed(BigInt value, int? decimals,
-    {int? fractionalDigits, bool trimZeros = true}) {
+String formatFixed(BigInt value, int? decimals, {int? fractionalDigits, bool trimZeros = true}) {
   decimals ??= 0;
   fractionalDigits ??= decimals;
 

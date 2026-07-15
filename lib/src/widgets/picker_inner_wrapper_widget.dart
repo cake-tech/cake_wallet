@@ -3,8 +3,7 @@ import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 
 class PickerInnerWrapperWidget extends StatelessWidget {
-  PickerInnerWrapperWidget(
-      {required this.children, this.title, this.itemsHeight});
+  PickerInnerWrapperWidget({required this.children, this.title, this.itemsHeight});
 
   final List<Widget> children;
   final String? title;
@@ -48,10 +47,9 @@ class PickerInnerWrapperWidget extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxHeight:
-                        itemsHeight != null && itemsHeight! <= containerHeight
-                            ? itemsHeight!
-                            : containerHeight,
+                    maxHeight: itemsHeight != null && itemsHeight! <= containerHeight
+                        ? itemsHeight!
+                        : containerHeight,
                     maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                   ),
                   child: Column(

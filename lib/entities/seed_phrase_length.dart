@@ -1,4 +1,3 @@
-
 enum SeedPhraseLength {
   twelveWords(12),
   twentyFourWords(24);

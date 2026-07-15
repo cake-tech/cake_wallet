@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class CheckboxWidget extends StatefulWidget {
   CheckboxWidget({required this.value, required this.caption, required this.onChanged});
 

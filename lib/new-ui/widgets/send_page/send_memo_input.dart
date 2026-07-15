@@ -59,8 +59,7 @@ class NewSendMemoInput extends StatelessWidget {
               Expanded(
                 child: Text(disclaimerText ?? S.of(context).memo_disclaimer,
                     style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               Text("${memoController.text.length} / ${maxMemoLength}",
                   style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary))

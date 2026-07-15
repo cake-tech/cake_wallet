@@ -30,7 +30,8 @@ class ReceiveLargeAmountPreview extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 12,
             children: [
-              CakeImageWidget(imageUrl:"assets/new-ui/send.svg",
+              CakeImageWidget(
+                  imageUrl: "assets/new-ui/send.svg",
                   width: 24,
                   height: 24,
                   colorFilter: ColorFilter.mode(
