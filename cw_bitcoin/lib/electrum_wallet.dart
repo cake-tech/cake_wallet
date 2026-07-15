@@ -907,8 +907,13 @@ abstract class ElectrumWalletBase
     }).toList();
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
-    // sort the unconfirmed coins so that mweb coins are last:
-    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? 1 : -1);
+    // Single Random Draw: shuffle the pool so selection is non-deterministic, removing the
+    // predictable address/scan order (a fingerprint). MWEB coins are kept last afterwards.
+    availableInputs.shuffle();
+    availableInputs = [
+      ...availableInputs.where((u) => u.bitcoinAddressRecord.type != SegwitAddresType.mweb),
+      ...availableInputs.where((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb),
+    ];
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
