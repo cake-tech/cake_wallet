@@ -42,6 +42,31 @@ SelectedCoins? singleRandomDraw(List<int> effValues, int target, int minChange, 
   return null;
 }
 
+/// Branch-and-bound over effective values (value minus the cost of spending the
+/// input at the current fee rate). A match means the excess over [target] stays
+/// within [window], so the remainder can be absorbed into the fee instead of
+/// creating a change output. Returns null when no such subset exists.
+SelectedCoins? changelessMatch({
+  required List<int> values,
+  required int target,
+  required int inputCost,
+  required int window,
+  int maxTries = 100000,
+}) {
+  final keep = <int>[];
+  final eff = <int>[];
+  for (var i = 0; i < values.length; i++) {
+    final e = effectiveValue(values[i], inputCost);
+    if (e > 0) {
+      keep.add(i);
+      eff.add(e);
+    }
+  }
+  final match = branchAndBound(eff, target, window, maxTries: maxTries);
+  if (match == null) return null;
+  return SelectedCoins([for (final i in match.indices) keep[i]], false);
+}
+
 class InsufficientFundsException implements Exception { const InsufficientFundsException(); }
 
 SelectedCoins selectCoins({required List<int> values, required int target,

@@ -36,6 +36,19 @@ void main() {
     final r = selectCoins(values:[50,1000],target:500,inputCost:136,costOfChange:5,minChange:10,rng:Random(1));
     expect(r.indices, equals([1]));
   });
+  test('changelessMatch finds a set whose effective sum lands in the window', () {
+    // inputCost 100: values [50, 400, 300, 200] -> eff [dropped, 300, 200, 100]
+    // target 500, window 46: eff {300, 200} = 500, exact
+    final r = changelessMatch(values: [50, 400, 300, 200], target: 500, inputCost: 100, window: 46);
+    expect(r, isNotNull);
+    expect(r!.hasChange, isFalse);
+    final effSum = r.indices.map((i) => [50, 400, 300, 200][i] - 100).reduce((a, b) => a + b);
+    expect(effSum >= 500 && effSum <= 546, isTrue);
+    expect(r.indices.contains(0), isFalse); // negative-eff coin never selected
+  });
+  test('changelessMatch returns null when no subset lands in the window', () {
+    expect(changelessMatch(values: [10000, 9000], target: 500, inputCost: 100, window: 46), isNull);
+  });
   test('selectCoins throws when insufficient', () {
     expect(() => selectCoins(values:[100,100],target:500,inputCost:0,costOfChange:5,minChange:10),
         throwsA(isA<InsufficientFundsException>()));

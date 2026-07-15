@@ -9,6 +9,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/coin_selection.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -879,6 +880,8 @@ abstract class ElectrumWalletBase
     required bool paysToSilentPayment,
     int credentialsAmount = 0,
     int? inputsCount,
+    int feeRate = 0,
+    int outputsCount = 0,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     List<UtxoWithAddress> utxos = [];
@@ -914,6 +917,34 @@ abstract class ElectrumWalletBase
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type != SegwitAddresType.mweb),
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb),
     ];
+
+    // Branch-and-bound: prefer an input set whose excess over the amount plus its own fee
+    // stays below dust, so the caller drops the change output and the send is changeless.
+    // When no such set exists, the shuffled pool below acts as a single random draw.
+    final canTryChangeless = !sendAll &&
+        inputsCount == null &&
+        credentialsAmount > 0 &&
+        feeRate > 0 &&
+        outputsCount > 0 &&
+        !availableInputs.any((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb);
+    if (canTryChangeless) {
+      final perInputVBytes = estimatedTransactionSize(1, 0) - estimatedTransactionSize(0, 0);
+      final match = changelessMatch(
+        values: [for (final u in availableInputs) u.value],
+        target: credentialsAmount + estimatedTransactionSize(0, outputsCount) * feeRate,
+        inputCost: perInputVBytes * feeRate,
+        window: networkDustAmount.toInt(),
+      );
+      if (match != null) {
+        final chosen = match.indices.toSet();
+        availableInputs = [
+          for (final i in match.indices) availableInputs[i],
+          for (var i = 0; i < availableInputs.length; i++)
+            if (!chosen.contains(i)) availableInputs[i],
+        ];
+        inputsCount = match.indices.length;
+      }
+    }
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
@@ -1133,6 +1164,8 @@ abstract class ElectrumWalletBase
       sendAll: false,
       credentialsAmount: credentialsAmount.amount.toInt(),
       inputsCount: inputsCount,
+      feeRate: feeRate,
+      outputsCount: outputs.length,
       paysToSilentPayment: hasSilentPayment,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
