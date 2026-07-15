@@ -11,8 +11,8 @@ abstract class BuyAmountViewModelBase with Store {
   BuyAmountViewModelBase()
       : amount = '',
         fiatCurrency = FiatCurrency.usd {
-    int selectedIndex = FiatCurrency.currenciesAvailableToBuyWith
-        .indexOf(getIt.get<SettingsStore>().fiatCurrency);
+    int selectedIndex =
+        FiatCurrency.currenciesAvailableToBuyWith.indexOf(getIt.get<SettingsStore>().fiatCurrency);
 
     if (selectedIndex != -1) {
       fiatCurrency = FiatCurrency.currenciesAvailableToBuyWith[selectedIndex];

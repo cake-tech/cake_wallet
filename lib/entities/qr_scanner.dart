@@ -14,7 +14,8 @@ import 'package:ur/ur_decoder.dart';
 
 var isQrScannerShown = false;
 
-Future<String?> presentQRScanner(BuildContext context, {bool showHelp = false, bool showManualInput = true, bool useModal = false}) async {
+Future<String?> presentQRScanner(BuildContext context,
+    {bool showHelp = false, bool showManualInput = true, bool useModal = false}) async {
   isQrScannerShown = true;
   try {
     final result = useModal

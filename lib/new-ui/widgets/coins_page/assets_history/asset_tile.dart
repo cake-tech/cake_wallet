@@ -18,7 +18,10 @@ class AssetTile extends StatelessWidget {
       this.title,
       this.trailingText,
       this.modalMode = AssetDetailsModalModes.normal,
-      required this.wallet, required this.showSwap, required this.isFirst, required this.isLast});
+      required this.wallet,
+      required this.showSwap,
+      required this.isFirst,
+      required this.isLast});
 
   final BalanceRecord balance;
   final bool showSecondary;
@@ -37,7 +40,7 @@ class AssetTile extends StatelessWidget {
     final iconPath = balance.asset.iconPath ?? "";
 
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -120,11 +123,12 @@ class AssetTile extends StatelessWidget {
                                   title ?? balance.asset.fullName ?? balance.asset.name,
                                   style: TextStyle(fontWeight: FontWeight.w500),
                                 ),
-                                if(trailingText != null)
-                                Text(
-                                  trailingText!,
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                ),
+                                if (trailingText != null)
+                                  Text(
+                                    trailingText!,
+                                    style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  ),
                               ],
                             ),
                             Padding(
@@ -133,8 +137,8 @@ class AssetTile extends StatelessWidget {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                   "${showSecondary ?balance.secondAvailableBalance: balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
-                                  maxLines:1,
+                                  "${showSecondary ? balance.secondAvailableBalance : balance.availableBalance} ${balance.formattedAssetTitle.safeSubString(0, 6)}",
+                                  maxLines: 1,
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),

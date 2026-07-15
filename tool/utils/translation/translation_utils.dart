@@ -38,7 +38,7 @@ Future<String> getTranslation(String text, String lang) async {
   try {
     translation = (await translator.translate(text, from: defaultLang, to: lang)).text;
   } catch (e) {
-    printV("$lang, $text, $e");
+    print("$lang, $text, $e");
   }
   placeholder.forEach((index, value) {
     final translatedPlaceholder = regExp.allMatches(translation).toList()[index];

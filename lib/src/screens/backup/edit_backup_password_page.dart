@@ -23,9 +23,8 @@ class _EditBackupPasswordPageState extends State<EditBackupPasswordPage> {
   void initState() {
     super.initState();
     textEditingController.text = widget.editBackupPasswordViewModel.backupPassword;
-    textEditingController
-        .addListener(() {
-      if(textEditingController.text != widget.editBackupPasswordViewModel.backupPassword) {
+    textEditingController.addListener(() {
+      if (textEditingController.text != widget.editBackupPasswordViewModel.backupPassword) {
         widget.editBackupPasswordViewModel.backupPassword = textEditingController.text;
       }
     });

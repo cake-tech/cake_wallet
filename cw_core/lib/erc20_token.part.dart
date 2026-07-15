@@ -1,4 +1,4 @@
-  // GENERATED CODE - DO NOT MODIFY BY HAND
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'erc20_token.dart';
 
@@ -55,7 +55,5 @@ class Erc20TokenAdapter extends TypeAdapter<Erc20Token> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Erc20TokenAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is Erc20TokenAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

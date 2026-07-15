@@ -47,9 +47,9 @@ class StandardListStatusRow extends StatelessWidget {
                     Text(
                       value,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                     )
                   ],
                 ),

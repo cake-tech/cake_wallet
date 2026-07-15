@@ -24,10 +24,7 @@ class QRFormatInfoBottomSheet extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.3),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

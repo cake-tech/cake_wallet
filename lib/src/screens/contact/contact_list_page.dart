@@ -41,7 +41,7 @@ class ContactListPage extends BasePage {
 
   @override
   Widget? trailing(BuildContext context) {
-    if(!showAddButton) return SizedBox.shrink();
+    if (!showAddButton) return SizedBox.shrink();
     return MergeSemantics(
       child: Container(
         width: 36.0,
@@ -417,32 +417,32 @@ class _ContactListBodyState extends State<ContactListBody> {
 
   ActionPane _actionPane(BuildContext context, ContactRecord contact) {
     return ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.4,
-        children: [
-          SlidableAction(
-            onPressed: (_) async => await Navigator.of(context)
-                .pushNamed(Routes.addressBookAddContact, arguments: contact),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            icon: Icons.edit,
-            label: S.of(context).edit,
-          ),
-          SlidableAction(
-            onPressed: (_) async {
-              final isDelete = await DialogService.showAlertDialog(context);
-  
-              if (isDelete) {
-                await widget.contactListViewModel.delete(contact);
-              }
-            },
-            backgroundColor: Theme.of(context).colorScheme.error,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
-          ),
-        ],
-      );
+      motion: const ScrollMotion(),
+      extentRatio: 0.4,
+      children: [
+        SlidableAction(
+          onPressed: (_) async => await Navigator.of(context)
+              .pushNamed(Routes.addressBookAddContact, arguments: contact),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          icon: Icons.edit,
+          label: S.of(context).edit,
+        ),
+        SlidableAction(
+          onPressed: (_) async {
+            final isDelete = await DialogService.showAlertDialog(context);
+
+            if (isDelete) {
+              await widget.contactListViewModel.delete(contact);
+            }
+          },
+          backgroundColor: Theme.of(context).colorScheme.error,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          icon: CupertinoIcons.delete,
+          label: S.of(context).delete,
+        ),
+      ],
+    );
   }
 
   Widget filterButtonWidget(BuildContext context, ContactListViewModel contactListViewModel) {
@@ -525,9 +525,9 @@ class DialogService {
                     textAlign: TextAlign.center,
                     walletType: cryptoCurrencyOrTokenToWalletType(contact.type),
                     evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      decoration: TextDecoration.none,
-                    ),
+                          fontSize: 16,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                   rightButtonText: S.of(context).copy,
                   leftButtonText: S.of(context).cancel,

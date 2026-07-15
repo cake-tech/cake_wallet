@@ -21,8 +21,7 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.unspentCoinsInfoSource,
-      this.payjoinSessionSource, this.isDirect);
+  BitcoinWalletService(this.unspentCoinsInfoSource, this.payjoinSessionSource, this.isDirect);
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final Box<PayjoinSession> payjoinSessionSource;
@@ -38,9 +37,12 @@ class BitcoinWalletService extends WalletService<
 
     final String mnemonic;
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    derivationInfo.derivationType = credentials.derivationInfo?.derivationType ?? derivationInfo.derivationType;
-    derivationInfo.derivationPath = credentials.derivationInfo?.derivationPath ?? derivationInfo.derivationPath;
-    derivationInfo.description = credentials.derivationInfo?.description ?? derivationInfo.description;
+    derivationInfo.derivationType =
+        credentials.derivationInfo?.derivationType ?? derivationInfo.derivationType;
+    derivationInfo.derivationPath =
+        credentials.derivationInfo?.derivationPath ?? derivationInfo.derivationPath;
+    derivationInfo.description =
+        credentials.derivationInfo?.description ?? derivationInfo.description;
     derivationInfo.scriptType = credentials.derivationInfo?.scriptType ?? derivationInfo.scriptType;
     await derivationInfo.save();
     switch (derivationInfo.derivationType) {
@@ -119,8 +121,9 @@ class BitcoinWalletService extends WalletService<
     }
     await WalletInfo.delete(walletInfo);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-          (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -135,11 +138,10 @@ class BitcoinWalletService extends WalletService<
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    derivationInfo.derivationPath =
-        credentials.hwAccountData.derivationPath;
-    
+    derivationInfo.derivationPath = credentials.hwAccountData.derivationPath;
+
     final xpub = convertAnyToXpub(credentials.hwAccountData.xpub!);
-    
+
     await credentials.walletInfo!.save();
     final wallet = await BitcoinWallet(
       password: credentials.password!,

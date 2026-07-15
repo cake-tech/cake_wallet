@@ -34,15 +34,18 @@ void checkIfMoneroCIsFine() {
   final dartCsExp = wownero.wallet2_api_c_exp_sha256;
 
   if (cppCsCpp != dartCsCpp) {
-    throw MoneroCException("monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
+    throw MoneroCException(
+        "monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
   }
 
   if (cppCsH != dartCsH) {
-    throw MoneroCException("monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
+    throw MoneroCException(
+        "monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
   }
 
   if (cppCsExp != dartCsExp && (Platform.isIOS || Platform.isMacOS)) {
-    throw MoneroCException("monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
+    throw MoneroCException(
+        "monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
   }
 }
 
@@ -133,10 +136,10 @@ void restoreWalletFromSeedSync(
   }
 
   wptr = newWptr;
-  
+
   wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
   wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
-  
+
   openedWalletsByPath[path] = wptr!;
 
   store();
@@ -153,29 +156,27 @@ void restoreWalletFromKeysSync(
     int restoreHeight = 0}) {
   txhistory = null;
   var newWptr = (spendKey != "")
-   ? wownero.WalletManager_createDeterministicWalletFromSpendKey(
-    wmPtr,
-    path: path,
-    password: password,
-    language: language,
-    spendKeyString: spendKey, 
-    newWallet: true, // TODO(mrcyjanek): safe to remove
-    restoreHeight: restoreHeight)
-   : wownero.WalletManager_createWalletFromKeys(
-    wmPtr,
-    path: path,
-    password: password,
-    restoreHeight: restoreHeight,
-    addressString: address,
-    viewKeyString: viewKey,
-    spendKeyString: spendKey,
-    nettype: 0,
-  );
+      ? wownero.WalletManager_createDeterministicWalletFromSpendKey(wmPtr,
+          path: path,
+          password: password,
+          language: language,
+          spendKeyString: spendKey,
+          newWallet: true, // TODO(mrcyjanek): safe to remove
+          restoreHeight: restoreHeight)
+      : wownero.WalletManager_createWalletFromKeys(
+          wmPtr,
+          path: path,
+          password: password,
+          restoreHeight: restoreHeight,
+          addressString: address,
+          viewKeyString: viewKey,
+          spendKeyString: spendKey,
+          nettype: 0,
+        );
 
   final status = wownero.Wallet_status(newWptr);
   if (status != 0) {
-    throw WalletRestoreFromKeysException(
-        message: wownero.Wallet_errorString(newWptr));
+    throw WalletRestoreFromKeysException(message: wownero.Wallet_errorString(newWptr));
   }
   // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
   // match the view key provided
@@ -184,7 +185,7 @@ void restoreWalletFromKeysSync(
     if (viewKey != viewKeyRestored && viewKey != "") {
       wownero.WalletManager_closeWallet(wmPtr, newWptr, false);
       File(path).deleteSync();
-      File(path+".keys").deleteSync();
+      File(path + ".keys").deleteSync();
       newWptr = wownero.WalletManager_createWalletFromKeys(
         wmPtr,
         path: path,
@@ -197,8 +198,7 @@ void restoreWalletFromKeysSync(
       );
       final status = wownero.Wallet_status(newWptr);
       if (status != 0) {
-        throw WalletRestoreFromKeysException(
-            message: wownero.Wallet_errorString(newWptr));
+        throw WalletRestoreFromKeysException(message: wownero.Wallet_errorString(newWptr));
       }
     }
   }
@@ -206,8 +206,6 @@ void restoreWalletFromKeysSync(
 
   openedWalletsByPath[path] = wptr!;
 }
-
-
 
 // English only, because normalization.
 void restoreWalletFromPolyseedWithOffset(
@@ -217,7 +215,6 @@ void restoreWalletFromPolyseedWithOffset(
     required String seedOffset,
     required String language,
     int nettype = 0}) {
-  
   txhistory = null;
   final newWptr = wownero.WalletManager_createWalletFromPolyseed(
     wmPtr,
@@ -332,8 +329,7 @@ String _lastOpenedWallet = "";
 
 Map<String, wownero.wallet> openedWalletsByPath = {};
 
-void loadWallet(
-    {required String path, required String password, int nettype = 0}) {
+void loadWallet({required String path, required String password, int nettype = 0}) {
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     wptr = openedWalletsByPath[path]!;
@@ -347,8 +343,7 @@ void loadWallet(
       });
     }
     txhistory = null;
-    final newWptr = wownero.WalletManager_openWallet(wmPtr,
-        path: path, password: password);
+    final newWptr = wownero.WalletManager_openWallet(wmPtr, path: path, password: password);
 
     _lastOpenedWallet = path;
     final status = wownero.Wallet_status(newWptr);
@@ -379,7 +374,11 @@ void _restoreFromSeed(Map<String, dynamic> args) {
   final restoreHeight = args['restoreHeight'] as int;
 
   restoreWalletFromSeedSync(
-      path: path, password: password, passphrase: passphrase, seed: seed, restoreHeight: restoreHeight);
+      path: path,
+      password: password,
+      passphrase: passphrase,
+      seed: seed,
+      restoreHeight: restoreHeight);
 }
 
 void _restoreFromKeys(Map<String, dynamic> args) {
@@ -418,19 +417,15 @@ void _restoreFromSpendKey(Map<String, dynamic> args) {
       spendKey: spendKey);
 }
 
-Future<void> _openWallet(Map<String, String> args) async => loadWallet(
-    path: args['path'] as String, password: args['password'] as String);
+Future<void> _openWallet(Map<String, String> args) async =>
+    loadWallet(path: args['path'] as String, password: args['password'] as String);
 
 Future<bool> _isWalletExist(String path) async => isWalletExistSync(path: path);
 
-void openWallet(
-        {required String path,
-        required String password,
-        int nettype = 0}) async =>
+void openWallet({required String path, required String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
-Future<void> openWalletAsync(Map<String, String> args) async =>
-    _openWallet(args);
+Future<void> openWalletAsync(Map<String, String> args) async => _openWallet(args);
 
 Future<void> createWallet(
         {required String path,

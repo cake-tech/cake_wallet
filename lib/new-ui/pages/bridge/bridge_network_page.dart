@@ -57,12 +57,14 @@ class BridgeNetworkPage extends StatelessWidget {
                               (chain) {
                                 final chainName = chain.name;
                                 return ListItemRegularRow(
-                                  iconPath: 'assets/new-ui/crypto_full_icons/${chainName.toLowerCase()}.svg',
+                                  iconPath:
+                                      'assets/new-ui/crypto_full_icons/${chainName.toLowerCase()}.svg',
                                   keyValue: chain.chainId.toString(),
                                   label: chainName,
                                   onTap: () {
                                     bridgeViewModel.setDestinationChain(chain.chainId);
-                                    Navigator.pushNamed(context, Routes.bridgeReceivingWalletPage, arguments: bridgeViewModel);
+                                    Navigator.pushNamed(context, Routes.bridgeReceivingWalletPage,
+                                        arguments: bridgeViewModel);
                                   },
                                 );
                               },

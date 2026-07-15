@@ -23,8 +23,7 @@ void main() {
       });
 
       test("extract address and amount from Cake Style Uri", () {
-        final uri =
-            Uri.parse("ethereum:0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41@1?amount=2.00");
+        final uri = Uri.parse("ethereum:0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41@1?amount=2.00");
         final paymentRequest = PaymentRequest.fromUri(uri);
 
         expect(paymentRequest.address, "0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41");

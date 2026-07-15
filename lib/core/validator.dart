@@ -18,9 +18,7 @@ class TextValidator extends Validator<String> {
     String errorMessage = '',
     this.length,
     this.isAutovalidate = false,
-  }) : super(
-            errorMessage: errorMessage,
-            useAdditionalValidation: useAdditionalValidation);
+  }) : super(errorMessage: errorMessage, useAdditionalValidation: useAdditionalValidation);
 
   final int? minLength;
   final int? maxLength;
@@ -40,8 +38,7 @@ class TextValidator extends Validator<String> {
     final lengthMatched = length?.contains(value.length) ?? true;
     if (!lengthMatched) return false;
 
-    final lowerThanMaxLength =
-        (maxLength ?? 0) > 0 ? (value.length <= maxLength!) : true;
+    final lowerThanMaxLength = (maxLength ?? 0) > 0 ? (value.length <= maxLength!) : true;
     if (!lowerThanMaxLength) return false;
 
     if (pattern == null) return true;
@@ -54,6 +51,5 @@ class TextValidator extends Validator<String> {
     return valueValidated;
   }
 
-  bool match(String value) =>
-      pattern != null ? RegExp(pattern!).hasMatch(value) : false;
+  bool match(String value) => pattern != null ? RegExp(pattern!).hasMatch(value) : false;
 }

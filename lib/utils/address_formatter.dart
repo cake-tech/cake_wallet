@@ -11,7 +11,6 @@ class AddressFormatter {
     TextAlign? textAlign,
     bool shouldTruncate = false,
   }) {
-
     final cleanAddress = address.replaceAll('bitcoincash:', '');
     final isMWEB = address.startsWith('ltcmweb');
     final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;
@@ -27,7 +26,8 @@ class AddressFormatter {
         isMWEB: isMWEB,
         chunkSize: chunkSize,
         evenTextStyle: evenTextStyle,
-        oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(150)),
+        oddTextStyle:
+            oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(150)),
         textAlign: textAlign,
       );
     } else {
@@ -36,7 +36,8 @@ class AddressFormatter {
         isMWEB: isMWEB,
         chunkSize: chunkSize,
         evenTextStyle: evenTextStyle,
-        oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(128)),
+        oddTextStyle:
+            oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(128)),
         textAlign: textAlign,
       );
     }
@@ -50,7 +51,6 @@ class AddressFormatter {
     required TextStyle oddTextStyle,
     TextAlign? textAlign,
   }) {
-
     final chunks = <String>[];
 
     if (isMWEB) {
@@ -95,7 +95,6 @@ class AddressFormatter {
     required TextStyle oddTextStyle,
     TextAlign? textAlign,
   }) {
-
     if (isMWEB) {
       const fixedPrefix = 'ltcmweb';
       final secondChunkStart = fixedPrefix.length;
@@ -133,10 +132,8 @@ class AddressFormatter {
       }
 
       final String firstPart = address.substring(0, digitCount);
-      final String secondPart =
-      address.substring(digitCount, digitCount * 2);
-      final String lastPart =
-      address.substring(address.length - digitCount);
+      final String secondPart = address.substring(digitCount, digitCount * 2);
+      final String lastPart = address.substring(address.length - digitCount);
 
       final spans = <TextSpan>[
         TextSpan(text: '$firstPart ', style: evenTextStyle),

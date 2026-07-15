@@ -11,7 +11,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 
 class TwitterAddressProvider extends AddressLookupProvider {
-
   @override
   AddressSource get source => AddressSource.twitter;
 

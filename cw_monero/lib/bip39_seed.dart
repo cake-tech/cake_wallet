@@ -8,21 +8,17 @@ bool isBip39Seed(String mnemonic) => bip39.validateMnemonic(mnemonic);
 
 String getBip39Seed() => bip39.generateMnemonic();
 
-String getLegacySeedFromBip39(String mnemonic,
-  {int accountIndex = 0, String passphrase = ""}) {
+String getLegacySeedFromBip39(String mnemonic, {int accountIndex = 0, String passphrase = ""}) {
   final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase);
 
-  final bip32KeyPair =
-      bip32.BIP32.fromSeed(seed).derivePath("m/44'/128'/$accountIndex'/0/0");
+  final bip32KeyPair = bip32.BIP32.fromSeed(seed).derivePath("m/44'/128'/$accountIndex'/0/0");
 
   final spendKey = _reduceECKey(bip32KeyPair.privateKey!);
 
-  return LegacySeedLang.getByEnglishName("English")
-      .encodePhrase(spendKey.toHexString());
+  return LegacySeedLang.getByEnglishName("English").encodePhrase(spendKey.toHexString());
 }
 
-const _ed25519CurveOrder =
-    "1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED";
+const _ed25519CurveOrder = "1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED";
 
 Uint8List _reduceECKey(Uint8List buffer) {
   final curveOrder = BigInt.parse(_ed25519CurveOrder, radix: 16);
@@ -51,8 +47,7 @@ BigInt _readBytes(Uint8List bytes) {
       return BigInt.from(result);
     }
     final mid = start + ((end - start) >> 1);
-    return read(start, mid) +
-        read(mid, end) * (BigInt.one << ((mid - start) * 8));
+    return read(start, mid) + read(mid, end) * (BigInt.one << ((mid - start) * 8));
   }
 
   return read(0, bytes.length);
