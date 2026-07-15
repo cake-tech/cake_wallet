@@ -7,7 +7,7 @@ import 'package:archive/archive_io.dart';
 final _dio = Dio();
 
 final List<String> triplets = [
-  "x86_64-linux-gnu", // linux desktop - majority of users onlinux 
+  "x86_64-linux-gnu", // linux desktop - majority of users onlinux
   // "i686-linux-gnu", // not supported by cake
   // "i686-meego-linux-gnu", // sailfishos (emulator)- not supported by cake
   // "aarch64-linux-gnu", // not (yet) supported by cake - (mostly) mobile linux
@@ -18,7 +18,7 @@ final List<String> triplets = [
   "armv7a-linux-androideabi",
   // "i686-w64-mingw32", // 32bit windows - not supported by monero_c
   "x86_64-w64-mingw32",
-  // "x86_64-apple-darwin11", // Intel macbooks (contrib) - not used by cake 
+  // "x86_64-apple-darwin11", // Intel macbooks (contrib) - not used by cake
   // "aarch64-apple-darwin11", // apple silicon macbooks (contrib) - not used by cake
   // "x86_64-host-apple-darwin", // not available on CI (yet)
   "aarch64-apple-darwin", // apple silicon macbooks
@@ -55,10 +55,8 @@ Future<void> main() async {
   }
   if (Platform.isMacOS) {
     print("Generating ios framework");
-    final result = Process.runSync("bash", [
-      "-c",
-      "cd scripts/ios && ./gen_framework.sh && cd ../.."
-    ]);
-    print((result.stdout+result.stderr).toString().trim());
+    final result =
+        Process.runSync("bash", ["-c", "cd scripts/ios && ./gen_framework.sh && cd ../.."]);
+    print((result.stdout + result.stderr).toString().trim());
   }
 }
