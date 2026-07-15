@@ -57,7 +57,7 @@ BigInt parseFixed(String value, int decimals) {
 
   final wholeValue = BigInt.parse(whole);
   final fractionValue = BigInt.parse(fraction);
-  final multiplierValue = BigInt.parse(multiplier);
+  final multiplierValue = multiplierOf(decimals);
 
   var wei = (wholeValue * multiplierValue) + fractionValue;
 
@@ -68,3 +68,8 @@ BigInt parseFixed(String value, int decimals) {
 
 // Returns a string "1" followed by decimal "0"s
 String getMultiplier(int decimals) => "1".padRight(decimals + 1, "0");
+
+final _multipliers = <int, BigInt>{};
+
+// this is more direct and faster than having it as string then parsing everytime to get the number
+BigInt multiplierOf(int decimals) => _multipliers[decimals] ??= BigInt.from(10).pow(decimals);

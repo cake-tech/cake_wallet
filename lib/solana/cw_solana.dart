@@ -122,9 +122,13 @@ class CWSolana extends Solana {
       return CryptoCurrency.sol;
     }
 
-    return (wallet as SolanaWallet).splTokenCurrencies.firstWhere(
-      (element) => transaction.amount.currency.symbol == element.symbol,
-    );
+    final token = (wallet as SolanaWallet).splTokenBySymbol(transaction.amount.currency.symbol);
+
+    if (token == null) {
+      throw StateError('No SPL token for symbol ${transaction.amount.currency.symbol}');
+    }
+
+    return token;
   }
 
   @override
@@ -401,6 +405,15 @@ class CWSolana extends Solana {
       }
 
       await Future.wait(tokenChecks);
+
+      final discoveredMints = result.newTokens
+          .where((item) => item.token.enabled)
+          .map((item) => item.token.mintAddress)
+          .toList();
+
+      if (discoveredMints.isNotEmpty) {
+        await wallet.updateSPLTokenTransactions(specificMints: discoveredMints);
+      }
     } catch (_) {}
   }
 
