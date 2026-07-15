@@ -19,7 +19,7 @@ class CwCustomLintsPlugin extends Plugin {
     registry.registerWarningRule(RestrictedImportsRule());
     registry.registerWarningRule(HttpForceProxyRule());
     registry.registerWarningRule(UseCakeExceptionRule());
-    // registry.registerWarningRule(NoBareCatchRule());
+    registry.registerWarningRule(NoBareCatchRule());
 
     registry.registerFixForRule(PrintVerboseRule.code, ReplaceWithPrintV.new);
   }
