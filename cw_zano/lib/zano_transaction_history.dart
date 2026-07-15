@@ -5,11 +5,10 @@ import 'package:cw_zano/model/zano_transaction_info.dart';
 
 part 'zano_transaction_history.g.dart';
 
-class ZanoTransactionHistory = ZanoTransactionHistoryBase
-    with _$ZanoTransactionHistory;
+class ZanoTransactionHistory = ZanoTransactionHistoryBase with _$ZanoTransactionHistory;
 
-abstract class ZanoTransactionHistoryBase
-    extends TransactionHistoryBase<ZanoTransactionInfo> with Store {
+abstract class ZanoTransactionHistoryBase extends TransactionHistoryBase<ZanoTransactionInfo>
+    with Store {
   ZanoTransactionHistoryBase() {
     transactions = ObservableMap<String, ZanoTransactionInfo>();
   }
@@ -18,8 +17,7 @@ abstract class ZanoTransactionHistoryBase
   Future<void> save() async {}
 
   @override
-  void addOne(ZanoTransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
+  void addOne(ZanoTransactionInfo transaction) => transactions[transaction.id] = transaction;
 
   @override
   void addMany(Map<String, ZanoTransactionInfo> transactions) =>

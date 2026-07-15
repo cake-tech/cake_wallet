@@ -50,10 +50,14 @@ class DevSharedPreferencesPage extends BasePage {
                 _showEditDialog(context, key, type, values[key]);
               },
               title: switch (type) {
-                PreferenceType.bool => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue)),
-                PreferenceType.int => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.green)),
-                PreferenceType.double => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.yellow)),
-                PreferenceType.listString => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.purple)),
+                PreferenceType.bool => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue)),
+                PreferenceType.int => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.green)),
+                PreferenceType.double => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.yellow)),
+                PreferenceType.listString => Text(key,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.purple)),
                 PreferenceType.string => Text(key),
                 PreferenceType.unknown => Text(key),
               },
@@ -61,9 +65,12 @@ class DevSharedPreferencesPage extends BasePage {
                 PreferenceType.bool => Text("bool: ${values[key]}"),
                 PreferenceType.int => Text("int: ${values[key]}"),
                 PreferenceType.double => Text("double: ${values[key]}"),
-                PreferenceType.listString => values[key].isEmpty as bool ? Text("listString: []") : Text("listString:\n- ${values[key].join("\n- ")}"),
+                PreferenceType.listString => values[key].isEmpty as bool
+                    ? Text("listString: []")
+                    : Text("listString:\n- ${values[key].join("\n- ")}"),
                 PreferenceType.string => Text("string: ${values[key]}"),
-                PreferenceType.unknown => Text("UNKNOWN(${values[key].runtimeType}): ${values[key]}"),
+                PreferenceType.unknown =>
+                  Text("UNKNOWN(${values[key].runtimeType}): ${values[key]}"),
               },
             );
           },
@@ -72,12 +79,14 @@ class DevSharedPreferencesPage extends BasePage {
     );
   }
 
-  void _showEditDialog(BuildContext context, String key, PreferenceType type, dynamic currentValue) {
+  void _showEditDialog(
+      BuildContext context, String key, PreferenceType type, dynamic currentValue) {
     dynamic newValue = currentValue;
     bool isListString = type == PreferenceType.listString;
-    List<String> listItems = isListString ? List<String>.from(currentValue as Iterable<dynamic>) : [];
-    TextEditingController textController = TextEditingController(
-        text: isListString ? '' : currentValue?.toString() ?? '');
+    List<String> listItems =
+        isListString ? List<String>.from(currentValue as Iterable<dynamic>) : [];
+    TextEditingController textController =
+        TextEditingController(text: isListString ? '' : currentValue?.toString() ?? '');
 
     showDialog(
       context: context,
@@ -91,10 +100,10 @@ class DevSharedPreferencesPage extends BasePage {
                 height: double.maxFinite,
                 child: SingleChildScrollView(
                   child: _buildDialogContent(
-                    type, 
-                    newValue, 
-                    listItems, 
-                    textController, 
+                    type,
+                    newValue,
+                    listItems,
+                    textController,
                     (value) => setState(() => newValue = value),
                     (items) => setState(() => listItems = items),
                   ),
@@ -116,12 +125,7 @@ class DevSharedPreferencesPage extends BasePage {
                   child: Text('Save'),
                   onPressed: () async {
                     if (_validateAndUpdateValue(
-                      context, 
-                      type, 
-                      textController, 
-                      listItems, 
-                      (value) => newValue = value
-                    )) {
+                        context, type, textController, listItems, (value) => newValue = value)) {
                       await viewModel.set(key, type, newValue);
                       Navigator.of(context).pop();
                     }
@@ -210,9 +214,8 @@ class DevSharedPreferencesPage extends BasePage {
         BaseTextFormField(
           controller: controller,
           hintText: label,
-          keyboardType: isInteger 
-              ? TextInputType.number 
-              : TextInputType.numberWithOptions(decimal: true),
+          keyboardType:
+              isInteger ? TextInputType.number : TextInputType.numberWithOptions(decimal: true),
           inputFormatters: isInteger
               ? [FilteringTextInputFormatter.digitsOnly]
               : [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
@@ -222,7 +225,7 @@ class DevSharedPreferencesPage extends BasePage {
   }
 
   Widget _buildListEditor(
-    List<String> items, 
+    List<String> items,
     TextEditingController controller,
     Function(List<String>) onListChanged,
   ) {
@@ -358,7 +361,8 @@ class DevSharedPreferencesPage extends BasePage {
                         DropdownMenuItem(value: PreferenceType.bool, child: Text('Boolean')),
                         DropdownMenuItem(value: PreferenceType.int, child: Text('Integer')),
                         DropdownMenuItem(value: PreferenceType.double, child: Text('Double')),
-                        DropdownMenuItem(value: PreferenceType.listString, child: Text('List of Strings')),
+                        DropdownMenuItem(
+                            value: PreferenceType.listString, child: Text('List of Strings')),
                       ],
                       onChanged: (value) {
                         if (value != null) {
@@ -384,14 +388,17 @@ class DevSharedPreferencesPage extends BasePage {
                       return;
                     }
 
-                    viewModel.set(keyController.text, selectedType, switch (selectedType) {
-                      PreferenceType.bool => false,
-                      PreferenceType.int => 0,
-                      PreferenceType.double => 0.0,
-                      PreferenceType.string => '',
-                      PreferenceType.listString => [],
-                      PreferenceType.unknown => null,
-                    });
+                    viewModel.set(
+                        keyController.text,
+                        selectedType,
+                        switch (selectedType) {
+                          PreferenceType.bool => false,
+                          PreferenceType.int => 0,
+                          PreferenceType.double => 0.0,
+                          PreferenceType.string => '',
+                          PreferenceType.listString => [],
+                          PreferenceType.unknown => null,
+                        });
                     Navigator.of(context).pop();
                   },
                 ),

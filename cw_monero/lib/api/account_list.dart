@@ -39,7 +39,7 @@ void refreshAccounts() {
   }
 }
 
-  List<Wallet2SubaddressAccountRow> getAllAccount() {
+List<Wallet2SubaddressAccountRow> getAllAccount() {
   // final size = monero.Wallet_numSubaddressAccounts(wptr!);
   refreshAccounts();
   int size = subaddressAccount!.getAll_size();

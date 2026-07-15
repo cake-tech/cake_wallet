@@ -10,13 +10,12 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 
 abstract class BuyProvider {
-  BuyProvider({
-    required this.wallet,
-    required this.isTestEnvironment,
-    required this.hardwareWalletVM,
-    required this.supportedCryptoList,
-    required this.supportedFiatList
-  });
+  BuyProvider(
+      {required this.wallet,
+      required this.isTestEnvironment,
+      required this.hardwareWalletVM,
+      required this.supportedCryptoList,
+      required this.supportedFiatList});
 
   final WalletBase wallet;
   final bool isTestEnvironment;
@@ -54,7 +53,7 @@ abstract class BuyProvider {
       throw UnimplementedError();
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async =>
+          String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async =>
       [];
 
   Future<List<Quote>?> fetchQuote(
@@ -64,7 +63,7 @@ abstract class BuyProvider {
           required bool isBuyAction,
           required String walletAddress,
           PaymentType? paymentType,
-            String? customPaymentMethodType,
+          String? customPaymentMethodType,
           String? countryCode}) async =>
       null;
 }

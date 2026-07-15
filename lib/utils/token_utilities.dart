@@ -328,9 +328,7 @@ class TokenUtilities {
           }
         }
       }
-    }
-
-    else if (network == WalletType.solana) {
+    } else if (network == WalletType.solana) {
       final userSolTokens = await loadAllUniqueSolTokens();
       for (final token in userSolTokens) {
         final mintAddress = token.mintAddress.toLowerCase();

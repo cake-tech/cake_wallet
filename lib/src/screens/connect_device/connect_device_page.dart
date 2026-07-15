@@ -149,8 +149,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               bleDevices.add(device);
               if (longWait) longWait = false;
             }))
-          ..onError((e) {
-            throw e.toString();
+          ..onError((Object e) {
+            printV(e);
           });
         _bleRefreshTimer?.cancel();
         _bleRefreshTimer = null;
@@ -164,7 +164,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isConnected) widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
+      if (isConnected)
+        widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
     });
   }
 

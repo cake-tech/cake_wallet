@@ -45,10 +45,7 @@ class MoneroNewWalletCredentials extends WalletCredentials {
 
 class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
   MoneroRestoreWalletFromHardwareCredentials(
-      {required String name,
-      required this.hardwareWalletService,
-      int height = 0,
-      String? password})
+      {required String name, required this.hardwareWalletService, int height = 0, String? password})
       : super(name: name, password: password, height: height);
   HardwareWalletService hardwareWalletService;
 }
@@ -111,8 +108,7 @@ class MoneroWalletService extends WalletService<
   WalletType getType() => WalletType.monero;
 
   @override
-  Future<MoneroWallet> create(MoneroNewWalletCredentials credentials,
-      {bool? isTestnet}) async {
+  Future<MoneroWallet> create(MoneroNewWalletCredentials credentials, {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
@@ -130,14 +126,13 @@ class MoneroWalletService extends WalletService<
         final polyseed = Polyseed.create();
         final lang = PolyseedLang.getByEnglishName(credentials.language);
 
-        if (credentials.passphrase != null)
-          polyseed.crypt(credentials.passphrase!);
+        if (credentials.passphrase != null) polyseed.crypt(credentials.passphrase!);
 
-        final heightOverride = getMoneroHeigthByDate(
-            date: DateTime.now().subtract(Duration(days: 2)));
+        final heightOverride =
+            getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
 
-        return _restoreFromPolyseed(path, credentials.password!, polyseed,
-            credentials.walletInfo!, lang,
+        return _restoreFromPolyseed(
+            path, credentials.password!, polyseed, credentials.walletInfo!, lang,
             overrideHeight: heightOverride, passphrase: credentials.passphrase);
       }
 
@@ -181,8 +176,7 @@ class MoneroWalletService extends WalletService<
 
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
-      await monero_wallet_manager
-          .openWallet(path: path, password: password);
+      await monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
         throw Exception('Wallet not found');
@@ -315,13 +309,13 @@ class MoneroWalletService extends WalletService<
         final watchCredentials = await Trezor(service).getWatchCredentials();
 
         monero_wallet_manager.restoreWalletFromKeys(
-            path: path,
-            password: credentials.password!,
-            language: "English",
-            restoreHeight: credentials.height!,
-            address: watchCredentials.address,
-            viewKey: watchCredentials.watchKey,
-            spendKey: "",
+          path: path,
+          password: credentials.password!,
+          language: "English",
+          restoreHeight: credentials.height!,
+          address: watchCredentials.address,
+          viewKey: watchCredentials.watchKey,
+          spendKey: "",
         );
       }
 
@@ -341,8 +335,7 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<MoneroWallet> restoreFromSeed(
-      MoneroRestoreWalletFromSeedCredentials credentials,
+  Future<MoneroWallet> restoreFromSeed(MoneroRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     // Restore from Polyseed
     try {
@@ -356,8 +349,7 @@ class MoneroWalletService extends WalletService<
 
     try {
       if (isBip39Seed(credentials.mnemonic)) {
-        final path =
-            await pathForWallet(name: credentials.name, type: getType());
+        final path = await pathForWallet(name: credentials.name, type: getType());
 
         return _restoreFromBip39(
           path: path,
@@ -410,10 +402,8 @@ class MoneroWalletService extends WalletService<
     derivationInfo.derivationPath = "m/44'/128'/0'/0/0";
     await derivationInfo.save();
 
-    final legacyMnemonic =
-        getLegacySeedFromBip39(mnemonic, passphrase: passphrase ?? "");
-    final height =
-        overrideHeight ?? getMoneroHeigthByDate(date: DateTime.now());
+    final legacyMnemonic = getLegacySeedFromBip39(mnemonic, passphrase: passphrase ?? "");
+    final height = overrideHeight ?? getMoneroHeigthByDate(date: DateTime.now());
 
     walletInfo.isRecovery = true;
     walletInfo.restoreHeight = height;
@@ -426,10 +416,8 @@ class MoneroWalletService extends WalletService<
       restoreHeight: height,
     );
 
-    currentWallet!.setCacheAttribute(
-        key: "cakewallet.seed.bip39", value: mnemonic);
-    currentWallet!.setCacheAttribute(
-        key: "cakewallet.passphrase", value: passphrase ?? '');
+    currentWallet!.setCacheAttribute(key: "cakewallet.seed.bip39", value: mnemonic);
+    currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase ?? '');
 
     currentWallet!.store();
 
@@ -450,8 +438,7 @@ class MoneroWalletService extends WalletService<
       final path = await pathForWallet(name: credentials.name, type: getType());
       final polyseedCoin = PolyseedCoin.POLYSEED_MONERO;
       final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
-      final polyseed =
-          Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
+      final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
 
       return _restoreFromPolyseed(
           path, credentials.password!, polyseed, credentials.walletInfo!, lang,
@@ -463,8 +450,8 @@ class MoneroWalletService extends WalletService<
     }
   }
 
-  Future<MoneroWallet> _restoreFromPolyseed(String path, String password,
-      Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
+  Future<MoneroWallet> _restoreFromPolyseed(
+      String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
       {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO,
       int? overrideHeight,
       String? passphrase}) async {
@@ -507,9 +494,8 @@ class MoneroWalletService extends WalletService<
         restoreHeight: height,
         spendKey: spendKey);
 
-
     currentWallet!.setCacheAttribute(key: "cakewallet.seed", value: seed);
-    currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase??'');
+    currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase ?? '');
 
     final wallet = MoneroWallet(
       walletInfo: walletInfo,
@@ -556,8 +542,7 @@ class MoneroWalletService extends WalletService<
 
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
-      await monero_wallet_manager
-          .openWallet(path: path, password: password);
+      await monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
         throw Exception('Wallet not found');

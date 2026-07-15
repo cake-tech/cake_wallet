@@ -66,12 +66,11 @@ class StandardCheckbox extends StatelessWidget {
                   caption,
                   softWrap: true,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16.0,
-                     
-                    fontWeight: FontWeight.normal,
-                    color: captionColor ?? Theme.of(context).colorScheme.onSurface,
-                    decoration: TextDecoration.none,
-                  ),
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                        color: captionColor ?? Theme.of(context).colorScheme.onSurface,
+                        decoration: TextDecoration.none,
+                      ),
                 ),
               ),
             )

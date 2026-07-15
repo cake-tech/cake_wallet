@@ -121,14 +121,14 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) return;
-        if(mounted)
-        await widget.handleOnPopInvoked(context);
+        if (mounted) await widget.handleOnPopInvoked(context);
       },
       child: FutureBuilder<void>(
         future: _initialization,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator(
+            return Center(
+                child: CircularProgressIndicator(
               color: Theme.of(context).colorScheme.primary,
             ));
           }
@@ -153,10 +153,10 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                         Text(
                           S.current.all_coins,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                       ],
                     ),
@@ -165,46 +165,44 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                     child: unspentCoinsListViewModel.items.isEmpty
                         ? Center(
                             child: Text(
-                              'No unspent coins available',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                            )
-                          )
+                            'No unspent coins available',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ))
                         : ListView.separated(
                             itemCount: unspentCoinsListViewModel.items.length,
                             separatorBuilder: (_, __) => SizedBox(height: 15),
                             itemBuilder: (_, int index) {
                               final item = unspentCoinsListViewModel.items[index];
-                              return Observer(
-                                builder: (_) {
-                                  final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.amount] ?? '';
-                                  return GestureDetector(
-                                    onTap: () => Navigator.of(context).pushNamed(
-                                      Routes.unspentCoinsDetails,
-                                      arguments: [item, unspentCoinsListViewModel],
-                                    ),
-                                    child: UnspentCoinsListItem(
-                                      note: item.note,
-                                      amount: item.amount,
-                                      fiatAmount: fiatAmount,
-                                      address: item.address,
-                                      isSending: item.isSending,
-                                      isFrozen: item.isFrozen,
-                                      isChange: item.isChange,
-                                      isSilentPayment: item.isSilentPayment,
-                                      onCheckBoxTap: item.isFrozen
-                                          ? null
-                                          : () async {
-                                        item.isSending = !item.isSending;
-                                        await unspentCoinsListViewModel
-                                            .saveUnspentCoinInfo(item);
-                                      },
-                                    ),
-                                  );
-                                }
-                              );
+                              return Observer(builder: (_) {
+                                final fiatAmount =
+                                    unspentCoinsListViewModel.fiatAmounts[item.amount] ?? '';
+                                return GestureDetector(
+                                  onTap: () => Navigator.of(context).pushNamed(
+                                    Routes.unspentCoinsDetails,
+                                    arguments: [item, unspentCoinsListViewModel],
+                                  ),
+                                  child: UnspentCoinsListItem(
+                                    note: item.note,
+                                    amount: item.amount,
+                                    fiatAmount: fiatAmount,
+                                    address: item.address,
+                                    isSending: item.isSending,
+                                    isFrozen: item.isFrozen,
+                                    isChange: item.isChange,
+                                    isSilentPayment: item.isSilentPayment,
+                                    onCheckBoxTap: item.isFrozen
+                                        ? null
+                                        : () async {
+                                            item.isSending = !item.isSending;
+                                            await unspentCoinsListViewModel
+                                                .saveUnspentCoinInfo(item);
+                                          },
+                                  ),
+                                );
+                              });
                             },
                           ),
                   ),

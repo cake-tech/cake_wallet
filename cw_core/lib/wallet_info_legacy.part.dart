@@ -53,9 +53,7 @@ class DerivationInfoAdapter extends TypeAdapter<DerivationInfo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DerivationInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is DerivationInfoAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class WalletInfoAdapter extends TypeAdapter<WalletInfo> {
@@ -88,8 +86,8 @@ class WalletInfoAdapter extends TypeAdapter<WalletInfo> {
       fields[26] == null ? false : fields[26] as bool,
     )
       ..addresses = (fields[10] as Map?)?.cast<String, String>()
-      ..addressInfos = (fields[14] as Map?)?.map((dynamic k, dynamic v) =>
-          MapEntry(k as int, (v as List).cast<AddressInfo>()))
+      ..addressInfos = (fields[14] as Map?)
+          ?.map((dynamic k, dynamic v) => MapEntry(k as int, (v as List).cast<AddressInfo>()))
       ..usedAddresses = (fields[15] as List?)?.cast<String>()
       ..derivationType = fields[16] as newWi.DerivationType?
       ..derivationPath = fields[17] as String?
@@ -163,9 +161,7 @@ class WalletInfoAdapter extends TypeAdapter<WalletInfo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WalletInfoAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is WalletInfoAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class DerivationTypeAdapter extends TypeAdapter<newWi.DerivationType> {
@@ -217,9 +213,7 @@ class DerivationTypeAdapter extends TypeAdapter<newWi.DerivationType> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DerivationTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is DerivationTypeAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class HardwareWalletTypeAdapter extends TypeAdapter<newWi.HardwareWalletType> {

@@ -9,8 +9,6 @@ class SeedPhraseGridWidget extends StatelessWidget {
 
   final List<String> list;
 
-
-
   @override
   Widget build(BuildContext context) {
     int minTiles = 1;
@@ -22,7 +20,6 @@ class SeedPhraseGridWidget extends StatelessWidget {
 
     int crossAxisCount =
         ((screenWidth + spacing - (2 * padding)) / (desiredTileWidth + spacing)).floor();
-
 
     if (crossAxisCount > maxTiles) crossAxisCount = maxTiles;
     if (crossAxisCount < minTiles) crossAxisCount = minTiles;
@@ -44,9 +41,8 @@ class SeedPhraseGridWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).colorScheme.surfaceContainerHigh
-          ),
+              borderRadius: BorderRadius.circular(8),
+              color: Theme.of(context).colorScheme.surfaceContainerHigh),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

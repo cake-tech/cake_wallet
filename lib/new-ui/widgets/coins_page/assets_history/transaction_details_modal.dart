@@ -17,7 +17,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class TransactionDetailsModal extends StatefulWidget {
-  const TransactionDetailsModal({super.key, required this.transactionDetailsViewModel, this.highlightNoteField = false});
+  const TransactionDetailsModal(
+      {super.key, required this.transactionDetailsViewModel, this.highlightNoteField = false});
 
   final TransactionDetailsViewModel transactionDetailsViewModel;
   final bool highlightNoteField;
@@ -41,7 +42,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
       }
     });
 
-    if(widget.highlightNoteField) {
+    if (widget.highlightNoteField) {
       noteFocusNode.requestFocus();
     }
   }
@@ -73,9 +74,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                     child: Column(
                       children: [
                         TokenImageWidget(
-                          imageUrl: widget
-                              .transactionDetailsViewModel.transactionAsset.iconPath ??
-                              "",
+                          imageUrl:
+                              widget.transactionDetailsViewModel.transactionAsset.iconPath ?? "",
                           size: 64,
                         ),
                         SizedBox(height: 10),
@@ -87,12 +87,18 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                         CopyWrapper(
                           requireLongPress: true,
                           data: ClipboardData(text: transactionInfoAmount.toString()),
-                          builder: (context, copied)=> AnimatedSwitcher(
+                          builder: (context, copied) => AnimatedSwitcher(
                             duration: Duration(milliseconds: 300),
                             child: Text(
                               key: ValueKey(copied),
-                              copied ? S.of(context).copied : transactionInfoAmount.toStringWithSymbol(),
-                              style: TextStyle(fontSize: 28, color: copied ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface),
+                              copied
+                                  ? S.of(context).copied
+                                  : transactionInfoAmount.toStringWithSymbol(),
+                              style: TextStyle(
+                                  fontSize: 28,
+                                  color: copied
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.onSurface),
                             ),
                           ),
                         ),
@@ -104,25 +110,23 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                               NewListSections(sections: {
                                 "": widget.transactionDetailsViewModel.items
                                     .map((item) {
-                                  if (item.value.isEmpty) return null;
+                                      if (item.value.isEmpty) return null;
 
-                                  final shouldBuildBottomWidget =
-                                      item.value.length > 25;
+                                      final shouldBuildBottomWidget = item.value.length > 25;
 
-                                  return ListItemRegularRow(
-                                      copyableText: item.value,
-                                      showArrow: false,
-                                      keyValue:
-                                      ((item.key as ValueKey?)?.value as String?) ??
-                                          item.title,
-                                      label: item.title,
-                                      trailingWidget: shouldBuildBottomWidget
-                                          ? null
-                                          : _buildTrailingWIdget(item),
-                                      bottomWidget: shouldBuildBottomWidget
-                                          ? _buildBottomWidget(item)
-                                          : null);
-                                })
+                                      return ListItemRegularRow(
+                                          copyableText: item.value,
+                                          showArrow: false,
+                                          keyValue: ((item.key as ValueKey?)?.value as String?) ??
+                                              item.title,
+                                          label: item.title,
+                                          trailingWidget: shouldBuildBottomWidget
+                                              ? null
+                                              : _buildTrailingWIdget(item),
+                                          bottomWidget: shouldBuildBottomWidget
+                                              ? _buildBottomWidget(item)
+                                              : null);
+                                    })
                                     .whereType<ListItem>()
                                     .toList(),
                               }),
@@ -157,12 +161,10 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                   "view tx": [
                                     ListItemRegularRow(
                                         keyValue: "view tx on",
-                                        label: widget.transactionDetailsViewModel
-                                            .explorerDescription,
-                                        onTap: widget
-                                            .transactionDetailsViewModel.launchExplorer,
-                                        foregroundColor:
-                                        Theme.of(context).colorScheme.primary,
+                                        label:
+                                            widget.transactionDetailsViewModel.explorerDescription,
+                                        onTap: widget.transactionDetailsViewModel.launchExplorer,
+                                        foregroundColor: Theme.of(context).colorScheme.primary,
                                         trailingIconPath: "assets/new-ui/link_arrow.svg",
                                         trailingIconSize: 8)
                                   ],
@@ -174,10 +176,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                           onTap: () {
                                             Navigator.of(context)
                                                 .pushNamed(Routes.bumpFeePage, arguments: [
-                                              widget.transactionDetailsViewModel
-                                                  .transactionInfo,
-                                              widget.transactionDetailsViewModel
-                                                  .rawTransaction
+                                              widget.transactionDetailsViewModel.transactionInfo,
+                                              widget.transactionDetailsViewModel.rawTransaction
                                             ]);
                                           })
                                     ]

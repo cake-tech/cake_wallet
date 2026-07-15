@@ -56,7 +56,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
 
   @override
   Widget build(BuildContext context) => TextField(
-  style: Theme.of(context).textTheme.titleMedium!,
+      style: Theme.of(context).textTheme.titleMedium!,
       enableInteractiveSelection: false,
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.bottom,
@@ -78,16 +78,16 @@ class _NumberTextFieldState extends State<NumberTextField> {
               type: MaterialType.transparency,
               child: InkWell(
                   child: Container(
-                    width: widget.arrowsWidth,
+                      width: widget.arrowsWidth,
                       alignment: Alignment.bottomCenter,
-                      child: Icon(Icons.keyboard_arrow_left_outlined ,size: widget.arrowsWidth)),
+                      child: Icon(Icons.keyboard_arrow_left_outlined, size: widget.arrowsWidth)),
                   onTap: _canGoDown ? () => _update(false) : null)),
           suffixIcon: Material(
               type: MaterialType.transparency,
               child: InkWell(
                   child: Container(
-                    width: widget.arrowsWidth,
-                    alignment: Alignment.bottomCenter,
+                      width: widget.arrowsWidth,
+                      alignment: Alignment.bottomCenter,
                       child: Icon(Icons.keyboard_arrow_right_outlined, size: widget.arrowsWidth)),
                   onTap: _canGoUp ? () => _update(true) : null))),
       maxLines: 1,

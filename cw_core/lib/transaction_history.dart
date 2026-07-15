@@ -2,8 +2,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_info.dart';
 
 abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
-  TransactionHistoryBase()
-    : transactions = ObservableMap<String, TransactionType>();
+  TransactionHistoryBase() : transactions = ObservableMap<String, TransactionType>();
 
   @observable
   ObservableMap<String, TransactionType> transactions;

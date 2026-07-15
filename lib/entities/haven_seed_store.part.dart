@@ -38,7 +38,5 @@ class HavenSeedStoreAdapter extends TypeAdapter<HavenSeedStore> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HavenSeedStoreAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is HavenSeedStoreAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

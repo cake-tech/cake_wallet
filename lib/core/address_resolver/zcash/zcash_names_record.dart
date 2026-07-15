@@ -67,8 +67,7 @@ class ZcashNamesRecord {
   }
 
   static bool _isValidZcashAddress(String address) {
-    final pattern =
-        AddressValidator.getAddressFromStringPattern(CryptoCurrency.zec);
+    final pattern = AddressValidator.getAddressFromStringPattern(CryptoCurrency.zec);
     if (pattern == null) return false;
     return RegExp('^(?:$pattern)\$').hasMatch(address);
   }

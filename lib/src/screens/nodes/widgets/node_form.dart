@@ -34,7 +34,7 @@ class NodeFormState extends State<NodeForm> {
   void initState() {
     super.initState();
 
-    for(final key in vm.textFieldKeys) {
+    for (final key in vm.textFieldKeys) {
       _controllers[key] = TextEditingController();
 
       _controllers[key]!.text = vm.getTextValue(key);
@@ -61,114 +61,112 @@ class NodeFormState extends State<NodeForm> {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_)=>Form(
+      builder: (_) => Form(
         key: _formKey,
         child: NewListSections(
-          sections:  {
-            if(!(vm.editingNode?.isBuiltin ?? false)) ...{
-              'main': [
-                ListItemTextField(
-                  keyValue: vm.nodeLabelUIKey,
-                  label: 'Node label',
-                  initialValue: vm.label,
-                ),
-                ListItemTextField(
-                  keyValue: vm.nodeAddressUIKey,
-                  label: S.current.node_address,
-                  initialValue: vm.address,
-                  validator: vm.walletType == WalletType.decred
-                      ? NodeAddressValidatorDecredBlankException()
-                      : NodeAddressValidator(),
-                ),
-                if (vm.hasPathSupport)
+            sections: {
+              if (!(vm.editingNode?.isBuiltin ?? false)) ...{
+                'main': [
                   ListItemTextField(
-                    keyValue: vm.nodePathUIKey,
-                    label: '/path',
-                    initialValue: vm.path,
-                    validator: NodePathValidator(),
-                  ),
-                ListItemTextField(
-                  keyValue: vm.nodePortUIKey,
-                  label: S.current.node_port,
-                  initialValue: '',
-                  //keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator: NodePortValidator(),
-                ),
-                if (vm.hasAuthCredentials) ...[
-                  ListItemTextField(
-                    keyValue: vm.nodeUsernameUIKey,
-                    label: S.current.login,
-                    initialValue: vm.login,
+                    keyValue: vm.nodeLabelUIKey,
+                    label: 'Node label',
+                    initialValue: vm.label,
                   ),
                   ListItemTextField(
-                    keyValue: vm.nodePasswordUIKey,
-                    label: S.current.password,
-                    initialValue: vm.password,
+                    keyValue: vm.nodeAddressUIKey,
+                    label: S.current.node_address,
+                    initialValue: vm.address,
+                    validator: vm.walletType == WalletType.decred
+                        ? NodeAddressValidatorDecredBlankException()
+                        : NodeAddressValidator(),
                   ),
-                ]
-              ],
-              'advanced': [
-                ListItemCheckbox(
-                    keyValue: vm.useSSLUIKey,
-                    label: S.current.use_ssl,
-                    value: vm.useSSL,
-                    onChanged: (value) => vm.useSSL = value),
-                ListItemCheckbox(
-                  keyValue: vm.nodeTrustedUIKey,
-                  label: S.current.trusted,
-                  value: vm.trusted,
-                  onChanged: (value) => vm.trusted = value,
-                ),
-                if (vm.usesEmbeddedProxy)
+                  if (vm.hasPathSupport)
+                    ListItemTextField(
+                      keyValue: vm.nodePathUIKey,
+                      label: '/path',
+                      initialValue: vm.path,
+                      validator: NodePathValidator(),
+                    ),
+                  ListItemTextField(
+                    keyValue: vm.nodePortUIKey,
+                    label: S.current.node_port,
+                    initialValue: '',
+                    //keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                    validator: NodePortValidator(),
+                  ),
+                  if (vm.hasAuthCredentials) ...[
+                    ListItemTextField(
+                      keyValue: vm.nodeUsernameUIKey,
+                      label: S.current.login,
+                      initialValue: vm.login,
+                    ),
+                    ListItemTextField(
+                      keyValue: vm.nodePasswordUIKey,
+                      label: S.current.password,
+                      initialValue: vm.password,
+                    ),
+                  ]
+                ],
+                'advanced': [
                   ListItemCheckbox(
-                    keyValue: vm.nodeEmbeddedTorProxyUIKey,
-                    label: 'Embedded Tor SOCKS Proxy',
-                    value: vm.usesEmbeddedProxy,
-                    onChanged: (_) {},
-                  ),
-                if(FeatureFlag.isAutomaticNodeSwitchingEnabled)
+                      keyValue: vm.useSSLUIKey,
+                      label: S.current.use_ssl,
+                      value: vm.useSSL,
+                      onChanged: (value) => vm.useSSL = value),
                   ListItemCheckbox(
-                      keyValue: vm.autoSwitchingUIKey,
-                      label: S.current.enable_for_auto_switching,
-                      value: vm.isEnabledForAutoSwitching,
-                      onChanged: (value) => vm.isEnabledForAutoSwitching = value),
-              ],
+                    keyValue: vm.nodeTrustedUIKey,
+                    label: S.current.trusted,
+                    value: vm.trusted,
+                    onChanged: (value) => vm.trusted = value,
+                  ),
+                  if (vm.usesEmbeddedProxy)
+                    ListItemCheckbox(
+                      keyValue: vm.nodeEmbeddedTorProxyUIKey,
+                      label: 'Embedded Tor SOCKS Proxy',
+                      value: vm.usesEmbeddedProxy,
+                      onChanged: (_) {},
+                    ),
+                  if (FeatureFlag.isAutomaticNodeSwitchingEnabled)
+                    ListItemCheckbox(
+                        keyValue: vm.autoSwitchingUIKey,
+                        label: S.current.enable_for_auto_switching,
+                        value: vm.isEnabledForAutoSwitching,
+                        onChanged: (value) => vm.isEnabledForAutoSwitching = value),
+                ],
+              },
+              "proxy": [
+                ListItemCheckbox(
+                  keyValue: vm.useSocksProxyUIKey,
+                  label: 'Use SOCKS Proxy',
+                  value: vm.useSocksProxy,
+                  onChanged: (value) {
+                    vm.socksProxyAddress = '';
+                    vm.useSocksProxy = value;
+                  },
+                ),
+                if (vm.useSocksProxy)
+                  ListItemTextField(
+                    keyValue: vm.socksProxyAddressUIKey,
+                    label: 'host:port',
+                    initialValue: vm.socksProxyAddress,
+                    validator: SocksProxyNodeAddressValidator(),
+                  ),
+              ]
             },
-
-            "proxy" : [
-              ListItemCheckbox(
-                keyValue: vm.useSocksProxyUIKey,
-                label: 'Use SOCKS Proxy',
-                value: vm.useSocksProxy,
-                onChanged: (value) {
-                  vm.socksProxyAddress = '';
-                  vm.useSocksProxy = value;
-                },
-              ),
-              if (vm.useSocksProxy)
-                ListItemTextField(
-                  keyValue: vm.socksProxyAddressUIKey,
-                  label: 'host:port',
-                  initialValue: vm.socksProxyAddress,
-                  validator: SocksProxyNodeAddressValidator(),
-                ),
-            ]
-          },
-          controllers: _controllers,
-          getCheckboxValue: vm.getCheckboxValue,
-          updateCheckboxValue: vm.updateCheckboxValue,
-          tapHandlers: tapHandlers
-        ),
+            controllers: _controllers,
+            getCheckboxValue: vm.getCheckboxValue,
+            updateCheckboxValue: vm.updateCheckboxValue,
+            tapHandlers: tapHandlers),
       ),
     );
   }
 
   Map<String, VoidCallback> get tapHandlers => {
-    'node_regular_with_drill_in_row_key': () => _showToast('Regular with drill-in row tapped'),
-    'node_tall_row_key': () => _showToast('Tall row tapped'),
-    'node_regular_with_trailing_row_key': () => _showToast('Regular with trailing row tapped'),
-    'node_item_selector_row_key': () => _showToast('Item selector row tapped'),
-  };
+        'node_regular_with_drill_in_row_key': () => _showToast('Regular with drill-in row tapped'),
+        'node_tall_row_key': () => _showToast('Tall row tapped'),
+        'node_regular_with_trailing_row_key': () => _showToast('Regular with trailing row tapped'),
+        'node_item_selector_row_key': () => _showToast('Item selector row tapped'),
+      };
 
   void _showToast(String msg) async {
     try {
@@ -178,7 +176,6 @@ class NodeFormState extends State<NodeForm> {
       );
     } catch (_) {}
   }
-
 
   void _setupReactions() {
     _bindController(() => vm.label, vm.nodeLabelUIKey);
