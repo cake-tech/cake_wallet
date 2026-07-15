@@ -14,10 +14,8 @@ class RoundedOverlayCards extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(25.0),
-        bottomRight: Radius.circular(25.0),
-      ),
+      borderRadius:
+          BorderRadius.only(bottomLeft: Radius.circular(25.0), bottomRight: Radius.circular(25.0)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
