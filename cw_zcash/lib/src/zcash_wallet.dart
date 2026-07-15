@@ -388,10 +388,6 @@ abstract class ZcashWalletBase
                 unawaited(wallet.updateTransactions());
                 unawaited(
                   ZcashTaddressRotation.updateCache(mainAccountId: wallet.accountId)
-                      .then((_) async {
-                        await wallet.walletAddresses.init();
-                        await wallet.updateTransactions();
-                      })
                       .catchError((final e) {
                         printV("rotation cache refresh: $e");
                       }),
@@ -1043,10 +1039,6 @@ abstract class ZcashWalletBase
       await updateTransactions();
       unawaited(
         ZcashTaddressRotation.updateCache(mainAccountId: accountId)
-            .then((_) async {
-              await walletAddresses.init();
-              await updateTransactions();
-            })
             .catchError((final e) => printV("rotation cache refresh: $e")),
       );
       await _initKeys();

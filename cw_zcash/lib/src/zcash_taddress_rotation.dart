@@ -473,7 +473,7 @@ class ZcashTaddressRotation {
       return;
     }
     try {
-      await wallet.walletAddresses.init();
+      await wallet.walletAddresses.refreshRotationAddresses();
     } catch (e) {
       printV("rotation address refresh: $e");
     }

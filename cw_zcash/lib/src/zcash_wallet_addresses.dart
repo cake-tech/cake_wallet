@@ -174,26 +174,47 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       ],
     };
     await _syncRotationHiddenAddresses();
+    await _applyAddressForCurrentType();
 
-    // addressInfos[0]?.removeWhere((final test) => hiddenAddresses.contains(test.address));
+    if (isPlaceholderAddress(walletInfo.address)) {
+      final resolved = _resolvedWalletInfoAddress();
+      if (!isPlaceholderAddress(resolved)) {
+        walletInfo.address = resolved;
+        await walletInfo.save();
+      }
+    }
+
+    await saveAddressesInBox();
+  }
+
+  Future<void> refreshRotationAddresses() async {
+    _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
+    final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
+    addressInfos = {
+      0: [
+        for (int i = 0; i < rotationAddrs.length; i++)
+          WalletInfoAddressInfo(
+            walletInfoId: walletInfo.internalId,
+            mapKey: i + 1,
+            accountIndex: 0,
+            address: rotationAddrs[i],
+            label: "",
+          ),
+      ],
+    };
+    await _syncRotationHiddenAddresses();
+    await _applyAddressForCurrentType();
+  }
+
+  Future<void> _applyAddressForCurrentType() async {
     if (_addressPageType == ZcashAddressType.transparentRotated) {
       final addr = await ZcashTaddressRotation.addressForAccount(accountId);
       if (addr != null) {
         address = addr;
       }
-    } else {
-      address = latestAddress;
-      final resolved = _resolvedWalletInfoAddress();
-      if (!isPlaceholderAddress(resolved)) {
-        address = resolved;
-        if (isPlaceholderAddress(walletInfo.address)) {
-          walletInfo.address = resolved;
-          await walletInfo.save();
-        }
-      }
+      return;
     }
-
-    await saveAddressesInBox();
+    address = latestAddress;
   }
 
   @observable
