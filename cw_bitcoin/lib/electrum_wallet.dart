@@ -2240,11 +2240,13 @@ abstract class ElectrumWalletBase
         }
       }
 
-      // If still not enough, add UTXOs until the fee is covered
+      // If still not enough, add UTXOs until the fee is covered, drawing them at
+      // random instead of in the predictable wallet scan order (address, then age).
       if (remainingFee > BigInt.zero) {
         final unusedUtxos = unspentCoins
             .where((utxo) => utxo.isSending && !utxo.isFrozen && utxo.confirmations! > 0)
-            .toList();
+            .toList()
+          ..shuffle(Random.secure());
 
         for (final utxo in unusedUtxos) {
           final address = RegexUtils.addressTypeFromStr(utxo.address, network);
