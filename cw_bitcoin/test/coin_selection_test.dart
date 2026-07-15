@@ -53,4 +53,27 @@ void main() {
     expect(() => selectCoins(values:[100,100],target:500,inputCost:0,costOfChange:5,minChange:10),
         throwsA(isA<InsufficientFundsException>()));
   });
+  test('changeless pipeline: leftover absorbed into fee is non-negative and below dust', () {
+    // Mirrors the _createUTXOS / estimateTxForAmount arithmetic with the wallet's
+    // 68*inputs + 34*outputs + 10 vBytes model, at 10 sat/vB with 1 recipient output.
+    const feeRate = 10;
+    const amount = 50000;
+    final values = [60700, 30000, 21800, 9000, 5000];
+    const target = amount + (34 * 1 + 10) * feeRate;
+    final r = changelessMatch(
+        values: values, target: target, inputCost: 68 * feeRate, window: 546);
+    expect(r, isNotNull);
+    final inAmount = r!.indices.map((i) => values[i]).reduce((a, b) => a + b);
+    final feeNoChange = (68 * r.indices.length + 34 * 1 + 10) * feeRate;
+    final leftover = inAmount - amount - feeNoChange;
+    expect(leftover >= 0, isTrue); // the caller never recurses for more inputs
+    expect(leftover <= 546, isTrue); // fee overpay is bounded by the dust limit
+  });
+  test('BnB terminates and returns null on large pools with no possible match', () {
+    // 300 even effective values, odd target, zero window: no subset can ever match,
+    // so the search must stop at maxTries instead of exploring 2^300 branches.
+    final values = List<int>.generate(300, (i) => 1000000 + i * 2);
+    final r = changelessMatch(values: values, target: 1500001, inputCost: 10, window: 0);
+    expect(r, isNull);
+  });
 }
