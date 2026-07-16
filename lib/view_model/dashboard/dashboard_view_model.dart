@@ -228,9 +228,10 @@ abstract class DashboardViewModelBase with Store {
                   1;
         } catch (_) {}
       } else {
-        confirmations = appStore.wallet!.transactionHistory.transactions.values
-            .map((item) => item.isPending)
-            .fold(0, (val, pending) => pending ? val + 1 : val);
+        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
+            .where((item) => item.isPending)
+            .length;
+        confirmations = pendingCount + 1;
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);
@@ -1333,9 +1334,10 @@ abstract class DashboardViewModelBase with Store {
                   1;
         } catch (_) {}
       } else {
-        confirmations = appStore.wallet!.transactionHistory.transactions.values
-            .map((item) => item.isPending)
-            .fold(0, (val, pending) => pending ? val + 1 : val);
+        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
+            .where((item) => item.isPending)
+            .length;
+        confirmations = pendingCount + 1;
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);
