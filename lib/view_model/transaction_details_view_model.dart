@@ -302,8 +302,8 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String get note {
     final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
-    final description = transactionDescriptionBox.values.firstWhereOrNull(
-      (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+    final description = transactionDescriptionBox.values
+      .firstWhereOrNull((val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
     );
     return description?.transactionNote ?? "";
   }

@@ -217,11 +217,20 @@ IMPORTANT: Respond with a JSON object in the exact format, you must think about 
 
 void main(List<String> args) async {
   final parser = ArgParser()
-    ..addOption('source', abbr: 's', help: 'Path to source ARB file (e.g., ./res/values/strings_en.arb)', mandatory: true)
-    ..addOption('destination', abbr: 'd', help: 'Path to destination ARB file (e.g., ./res/values/strings_pl.arb)', mandatory: true)
+    ..addOption('source',
+        abbr: 's',
+        help: 'Path to source ARB file (e.g., ./res/values/strings_en.arb)',
+        mandatory: true)
+    ..addOption('destination',
+        abbr: 'd',
+        help: 'Path to destination ARB file (e.g., ./res/values/strings_pl.arb)',
+        mandatory: true)
     ..addOption('key', abbr: 'k', help: 'Translate only this specific key (optional)')
-    ..addOption('ollama-url', help: 'Ollama server URL (default: http://localhost:11434)', defaultsTo: 'http://localhost:11434')
-    ..addOption('model', help: 'Ollama model name (default: gpt-oss:120b)', defaultsTo: 'gpt-oss:120b')
+    ..addOption('ollama-url',
+        help: 'Ollama server URL (default: http://localhost:11434)',
+        defaultsTo: 'http://localhost:11434')
+    ..addOption('model',
+        help: 'Ollama model name (default: gpt-oss:120b)', defaultsTo: 'gpt-oss:120b')
     ..addFlag('help', abbr: 'h', help: 'Show this help message', negatable: false);
 
   try {
@@ -268,7 +277,6 @@ void main(List<String> args) async {
       destinationArbPath: destinationPath,
       specificKey: specificKey,
     );
-
   } catch (e) {
     print('Error: $e');
     print('Run with --help for more information.');

@@ -13,7 +13,8 @@ bool isBolt11ZeroInvoice(String invoice) {
     final request =
         const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
-    final prefix = _BOLT_PREFIXES.firstWhere(request.hrp.startsWith, orElse: () => "");
+    final prefix =
+        _BOLT_PREFIXES.firstWhere(request.hrp.startsWith, orElse: () => "");
 
     return request.hrp.length == prefix.length;
   } catch (e) {
