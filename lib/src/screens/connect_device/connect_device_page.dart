@@ -161,8 +161,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                 }
               }),
             )..onError((e) {
-              printV(e);
-        });
+            printV(e);
+          });
         _bleRefreshTimer?.cancel();
         _bleRefreshTimer = null;
       }
@@ -274,6 +274,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                         ),
                         child: ListView.separated(
                           shrinkWrap: true,
+                          padding: EdgeInsets.zero,
                           itemBuilder: (context, index) {
                             final item = allDevices[index];
                             return GestureDetector(
