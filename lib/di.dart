@@ -142,6 +142,8 @@ import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settin
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_payjoin_servers_page.dart';
+import 'package:cake_wallet/view_model/payjoin/payjoin_server_list_view_model.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
@@ -1692,6 +1694,11 @@ Future<void> setup({
         nodeListViewModel: getIt.get<NodeListViewModel>(param1: isPow),
         dashboardViewModel: getIt.get<DashboardViewModel>());
   });
+
+  getIt.registerFactory<PayjoinServerListViewModel>(() => PayjoinServerListViewModel());
+
+  getIt.registerFactory<ManagePayjoinServersPage>(
+      () => ManagePayjoinServersPage(viewModel: getIt.get<PayjoinServerListViewModel>()));
 
   getIt.registerFactory(
     () => WalletConnectConnectionsView(walletKitService: getIt.get<WalletKitService>()),

@@ -113,6 +113,10 @@ class PreferencesKey {
   static const useBlinkProtection = 'use_blink_protection';
   static const usePayjoin = 'use_payjoin';
   static const showPayjoinCard = 'show_payjoin_card';
+  static const payjoinRelays = 'payjoin_relays';
+  static const payjoinDirectories = 'payjoin_directories';
+  static const payjoinRemovedDefaultRelays = 'payjoin_removed_default_relays';
+  static const payjoinRemovedDefaultDirectories = 'payjoin_removed_default_directories';
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
