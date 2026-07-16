@@ -1,12 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:http/http.dart' as http;
 import 'package:payjoin/payjoin.dart' as pj;
 
 class PayjoinSenderWorker {
+  PayjoinSenderWorker({
+    required MailroomManager mailroomManager,
+  }) : _mailroomManager = mailroomManager;
+
+  final MailroomManager _mailroomManager;
   final http.Client client = ProxyWrapper().getHttpIOClient();
   bool _cancelled = false;
 
@@ -15,7 +22,6 @@ class PayjoinSenderWorker {
   Future<String> run(
     String psbtBase64,
     String pjUriString,
-    String ohttpRelay,
     int minFeeRateSatPerKwu,
   ) async {
     final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
@@ -26,26 +32,18 @@ class PayjoinSenderWorker {
     final persister = _InMemorySenderPersister();
     final withReplyKey = initialTransition.save(persister: persister);
 
-    final subscribeReqCtx = withReplyKey.createV2PostRequest(ohttpRelay: ohttpRelay);
-    printV('[pjSender] POST subscribe -> ${subscribeReqCtx.request.url}');
-    final subscribeResponse = await _httpPost(subscribeReqCtx.request);
-
-    final withReplyKeyTransition = withReplyKey.processResponse(
-      response: subscribeResponse,
-      postCtx: subscribeReqCtx.ohttpCtx,
-    );
-    var polling = withReplyKeyTransition.save(persister: persister);
-    printV('[pjSender] subscribe response OK; now polling');
+    var polling = await _postOriginalProposal(withReplyKey, persister);
 
     while (true) {
       if (_cancelled) throw PayjoinSenderCancelledException();
       printV('Polling Payjoin Sender Proposal');
       try {
-        final pollReqCtx = polling.createPollRequest(ohttpRelay: ohttpRelay);
-        final pollResponse = await _httpPost(pollReqCtx.request);
+        final relayResponse = await _postViaRelay(
+          (relay) => polling.createPollRequest(ohttpRelay: relay),
+        );
         final pollTransition = polling.processResponse(
-          response: pollResponse,
-          ohttpCtx: pollReqCtx.ohttpCtx,
+          response: relayResponse.bodyBytes,
+          ohttpCtx: relayResponse.ohttpCtx,
         );
         final outcome = pollTransition.save(persister: persister);
         printV('[pjSender] poll outcome=${outcome.runtimeType}');
@@ -56,6 +54,8 @@ class PayjoinSenderWorker {
         }
         polling = (outcome as pj.StasisPollingForProposalTransitionOutcome).inner;
         printV('[pjSender] Stasis; will retry');
+      } on PayjoinSenderCancelledException {
+        rethrow;
       } catch (e, s) {
         if (e is pj.ResponseException) {
           printV('Payjoin poll recoverable error: $e');
@@ -68,14 +68,59 @@ class PayjoinSenderWorker {
     }
   }
 
-  Future<Uint8List> _httpPost(pj.Request request) async {
-    final httpResponse = await client.post(
-      Uri.parse(request.url),
-      headers: {'Content-Type': request.contentType},
-      body: request.body,
+  Future<pj.PollingForProposal> _postOriginalProposal(
+    pj.WithReplyKey withReplyKey,
+    _InMemorySenderPersister persister,
+  ) async {
+    final relayResponse = await _postViaRelay(
+      (relay) => withReplyKey.createV2PostRequest(ohttpRelay: relay),
     );
-    return httpResponse.bodyBytes;
+    printV('[pjSender] POST subscribe -> ${relayResponse.requestUrl}');
+    final transition = withReplyKey.processResponse(
+      response: relayResponse.bodyBytes,
+      postCtx: relayResponse.ohttpCtx,
+    );
+    return transition.save(persister: persister);
   }
+
+  Future<_RelayResponse> _postViaRelay(
+    pj.RequestOhttpContext Function(String relay) buildRequest,
+  ) async {
+    while (true) {
+      final relay = _mailroomManager.chooseRelay();
+      final reqCtx = buildRequest(relay);
+      try {
+        final response = await client.post(
+          Uri.parse(reqCtx.request.url),
+          headers: {'Content-Type': reqCtx.request.contentType},
+          body: reqCtx.request.body,
+        );
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          return _RelayResponse(
+            bodyBytes: response.bodyBytes,
+            ohttpCtx: reqCtx.ohttpCtx,
+            requestUrl: reqCtx.request.url,
+          );
+        }
+        throw HttpException('HTTP ${response.statusCode}');
+      } catch (e) {
+        printV('[pjSender] relay $relay failed: $e');
+        _mailroomManager.addFailedRelay(relay);
+      }
+    }
+  }
+}
+
+class _RelayResponse {
+  final Uint8List bodyBytes;
+  final pj.ClientResponse ohttpCtx;
+  final String requestUrl;
+
+  _RelayResponse({
+    required this.bodyBytes,
+    required this.ohttpCtx,
+    required this.requestUrl,
+  });
 }
 
 class PayjoinSenderCancelledException implements Exception {
