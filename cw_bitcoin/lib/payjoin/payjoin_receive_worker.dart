@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_signer.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -31,21 +33,25 @@ class _ProcessPsbt extends pj.ProcessPsbt {
 }
 
 class PayjoinReceiverWorker {
-  final String ohttpRelay;
+  PayjoinReceiverWorker({
+    required MailroomManager mailroomManager,
+    required this.utxos,
+    required this.isMineChecker,
+    this.getCurrentHeight,
+    pj.JsonReceiverSessionPersister? persister,
+    void Function()? onProposalReceived,
+  })  : _mailroomManager = mailroomManager,
+        _persister = persister,
+        _onProposalReceived = onProposalReceived;
+
+  final MailroomManager _mailroomManager;
   final http.Client client = ProxyWrapper().getHttpIOClient();
   final List<UtxoWithPrivateKey> utxos;
   final bool Function(Uint8List) isMineChecker;
   final int Function()? getCurrentHeight;
   final pj.JsonReceiverSessionPersister? _persister;
+  final void Function()? _onProposalReceived;
   bool _cancelled = false;
-
-  PayjoinReceiverWorker({
-    required this.ohttpRelay,
-    required this.utxos,
-    required this.isMineChecker,
-    this.getCurrentHeight,
-    pj.JsonReceiverSessionPersister? persister,
-  }) : _persister = persister;
 
   void cancel() => _cancelled = true;
 
@@ -77,13 +83,13 @@ class PayjoinReceiverWorker {
       return _processFromInitialized(state.inner, persister);
     }
     if (state is pj.UncheckedOriginalPayloadReceiveSession) {
+      _onProposalReceived?.call();
       final maybeInputsOwned = state.inner.assumeInteractiveReceiver().save(persister: persister);
       return _processFromMaybeInputsOwned(maybeInputsOwned, persister);
     }
     if (state is pj.ClosedReceiveSession) {
       throw Exception('Session already completed');
     }
-    // Terminal error states
     throw Exception('Session not resumable: ${state.runtimeType}');
   }
 
@@ -105,6 +111,7 @@ class PayjoinReceiverWorker {
     pj.JsonReceiverSessionPersister persister,
   ) async {
     final uncheckedProposal = await _pollForProposal(initialized, persister);
+    _onProposalReceived?.call();
     final maybeInputsOwned =
         uncheckedProposal.assumeInteractiveReceiver().save(persister: persister);
 
@@ -120,7 +127,6 @@ class PayjoinReceiverWorker {
     final psbtToSend = payjoinProposal.psbt();
     printV('=== PayjoinProposal PSBT (sent to sender) ===');
     printV(psbtToSend);
-    // Decode first 300 chars of base64 to hex for manual inspection
     final decoded = base64Decode(psbtToSend);
     printV(
         'First 300 bytes hex: ${BytesUtils.toHexString(decoded.sublist(0, decoded.length > 300 ? 300 : decoded.length))}');
@@ -135,15 +141,12 @@ class PayjoinReceiverWorker {
       if (_cancelled) throw CancelException();
       printV('Polling for Proposal');
       try {
-        final reqResp = initialized.createPollRequest(ohttpRelay: ohttpRelay);
-        final httpResponse = await client.post(
-          Uri.parse(reqResp.request.url),
-          headers: {'Content-Type': reqResp.request.contentType},
-          body: reqResp.request.body,
+        final relayResponse = await _postViaRelay(
+          (relay) => initialized.createPollRequest(ohttpRelay: relay),
         );
         final transition = initialized.processResponse(
-          body: httpResponse.bodyBytes,
-          ctx: reqResp.clientResponse,
+          body: relayResponse.bodyBytes,
+          ctx: relayResponse.clientResponse,
         );
         final outcome = transition.save(persister: persister);
 
@@ -208,7 +211,6 @@ class PayjoinReceiverWorker {
       );
       final provisionalProposal = applyFeeRangeTransition.save(persister: persister);
 
-      // Log the PSBT before our signing (from psbt_to_sign)
       final psbtToSignStr = provisionalProposal.psbtToSign();
       printV('=== PSBT to sign (before receiver signing) ===');
       printV(psbtToSignStr);
@@ -260,19 +262,55 @@ class PayjoinReceiverWorker {
     pj.PayjoinProposal proposal,
     pj.JsonReceiverSessionPersister persister,
   ) async {
-    final reqResp = proposal.createPostRequest(ohttpRelay: ohttpRelay);
-    final httpResponse = await client.post(
-      Uri.parse(reqResp.request.url),
-      headers: {'Content-Type': reqResp.request.contentType},
-      body: reqResp.request.body,
+    final relayResponse = await _postViaRelay(
+      (relay) => proposal.createPostRequest(ohttpRelay: relay),
     );
     final transition = proposal.processResponse(
-      body: httpResponse.bodyBytes,
-      ohttpContext: reqResp.clientResponse,
+      body: relayResponse.bodyBytes,
+      ohttpContext: relayResponse.clientResponse,
     );
     transition.save(persister: persister);
     return proposal.psbt();
   }
+
+  Future<_RelayResponse> _postViaRelay(
+    pj.RequestResponse Function(String relay) buildRequest,
+  ) async {
+    while (true) {
+      final relay = _mailroomManager.chooseRelay();
+      final reqResp = buildRequest(relay);
+      try {
+        final response = await client.post(
+          Uri.parse(reqResp.request.url),
+          headers: {'Content-Type': reqResp.request.contentType},
+          body: reqResp.request.body,
+        );
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          return _RelayResponse(
+            bodyBytes: response.bodyBytes,
+            clientResponse: reqResp.clientResponse,
+            requestUrl: reqResp.request.url,
+          );
+        }
+        throw HttpException('HTTP ${response.statusCode}');
+      } catch (e) {
+        printV('[pjReceiver] relay $relay failed: $e');
+        _mailroomManager.addFailedRelay(relay);
+      }
+    }
+  }
+}
+
+class _RelayResponse {
+  final Uint8List bodyBytes;
+  final pj.ClientResponse clientResponse;
+  final String requestUrl;
+
+  _RelayResponse({
+    required this.bodyBytes,
+    required this.clientResponse,
+    required this.requestUrl,
+  });
 }
 
 class CancelException implements Exception {}

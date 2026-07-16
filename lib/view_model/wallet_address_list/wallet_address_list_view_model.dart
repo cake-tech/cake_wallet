@@ -187,7 +187,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin &&
       !isLightning &&
       !isSilentPayments &&
-      uri.toString().contains("payjo.in");
+      payjoinEndpoint.isNotEmpty;
 
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
