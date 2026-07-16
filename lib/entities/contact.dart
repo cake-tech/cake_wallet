@@ -7,7 +7,12 @@ part 'contact.part.dart';
 
 // @HiveType(typeId: Contact.typeId)
 class Contact extends HiveObject with Keyable {
-  Contact({required this.name, required this.address, CryptoCurrency? type, DateTime? lastChange, this.displayName = ""})
+  Contact(
+      {required this.name,
+      required this.address,
+      CryptoCurrency? type,
+      DateTime? lastChange,
+      this.displayName = ""})
       : lastChange = lastChange ?? DateTime.now() {
     if (type != null) {
       raw = type.raw;

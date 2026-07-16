@@ -28,8 +28,7 @@ class ServicesResponse {
 
   ServicesResponse(this.servicesStatus, this.hasUpdates, this.currentSha);
 
-  factory ServicesResponse.fromJson(
-      Map<String, dynamic> json, bool hasUpdates, String currentSha) {
+  factory ServicesResponse.fromJson(Map<String, dynamic> json, bool hasUpdates, String currentSha) {
     return ServicesResponse(
       (json['notices'] as List? ?? [])
           .map((e) => ServiceStatus.fromJson(e as Map<String, dynamic>))

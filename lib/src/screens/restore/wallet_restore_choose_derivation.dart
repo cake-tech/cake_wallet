@@ -11,9 +11,10 @@ class WalletRestoreChooseDerivationPage extends BasePage {
   @override
   Widget middle(BuildContext context) => Text(
         S.current.choose_derivation,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary),
+        style: Theme.of(context)
+            .textTheme
+            .titleLarge
+            ?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
       );
 
   final WalletRestoreChooseDerivationViewModel walletRestoreChooseDerivationViewModel;

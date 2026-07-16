@@ -8,6 +8,7 @@ import 'package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dar
 import 'package:cake_wallet/cake_pay/src/widgets/enter_amount_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/prepaid_range_amount_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/rounded_overlay_cards_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/text_icon_button.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/three_checkbox_alert_content_widget.dart';
@@ -147,24 +148,38 @@ class CakePayBuyCardPage extends BasePage {
                 ),
                 bottomCardChild: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: card.denominationItems.isNotEmpty
-                        ? DenominationsAmountWidget(
-                            fiatCurrency: card.fiatCurrency.title,
-                            denominations: card.denominationItems,
-                            amountFieldFocus: _amountFieldFocus,
-                            amountController: _amountController,
-                            quantityFieldFocus: _quantityFieldFocus,
-                            quantityController: _quantityController,
-                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                            onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
-                            cakePayBuyCardViewModel: cakePayBuyCardViewModel)
-                        : EnterAmountWidget(
-                            minValue: card.minValue ?? '-',
-                            maxValue: card.maxValue ?? '-',
-                            fiatCurrency: card.fiatCurrency.title,
-                            amountFieldFocus: _amountFieldFocus,
-                            amountController: _amountController,
-                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged))),
+                    child: Column(children: [
+                      if (card.prepaidRange.isNotEmpty)
+                        PrepaidRangeAmountWidget(
+                          fiatCurrency: card.fiatCurrency.title,
+                          prepaidRanges: card.prepaidRange,
+                          amountFieldFocus: _amountFieldFocus,
+                          amountController: _amountController,
+                          cakePayBuyCardViewModel: cakePayBuyCardViewModel,
+                          onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                        )
+                      else if (card.denominationItems.isNotEmpty)
+                        DenominationsAmountWidget(
+                          fiatCurrency: card.fiatCurrency.title,
+                          denominations: card.denominationItems,
+                          amountFieldFocus: _amountFieldFocus,
+                          amountController: _amountController,
+                          quantityFieldFocus: _quantityFieldFocus,
+                          quantityController: _quantityController,
+                          onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                          onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
+                          cakePayBuyCardViewModel: cakePayBuyCardViewModel,
+                        )
+                      else
+                        EnterAmountWidget(
+                          minValue: card.minValue ?? '-',
+                          maxValue: card.maxValue ?? '-',
+                          fiatCurrency: card.fiatCurrency.title,
+                          amountFieldFocus: _amountFieldFocus,
+                          amountController: _amountController,
+                          onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                        ),
+                    ]))),
             Expanded(
               flex: 2,
               child: Padding(
@@ -360,7 +375,8 @@ class CakePayBuyCardPage extends BasePage {
                       },
                       text: S.of(context).purchase_gift_card,
                       isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
-                          cakePayBuyCardViewModel.isPurchasing || _sendViewModel.state is ExecutedSuccessfullyState,
+                          cakePayBuyCardViewModel.isPurchasing ||
+                          _sendViewModel.state is ExecutedSuccessfullyState,
                       isLoading: _sendViewModel.state is IsExecutingState ||
                           cakePayBuyCardViewModel.isPurchasing,
                       color: Theme.of(context).colorScheme.primary,
@@ -585,8 +601,7 @@ class CakePayBuyCardPage extends BasePage {
                 .map((o) => o.OutputCopyWithParsedAddress(
                       parsedAddress: ParsedAddress(
                         parsedAddressByCurrencyMap: {
-                          cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency:
-                          o.address,
+                          cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency: o.address,
                         },
                         handle: 'Cake Pay',
                         profileName: order?.cards.first.cardName ?? 'Cake Pay',
@@ -613,13 +628,13 @@ class CakePayBuyCardPage extends BasePage {
                   titleIconPath: _sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: _sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: _sendViewModel.amountParsingProxy.asDisplayStringWithSymbol(
-                      _sendViewModel.pendingTransaction!.amount),
+                  amountValue: _sendViewModel.amountParsingProxy
+                      .asDisplayStringWithSymbol(_sendViewModel.pendingTransaction!.amount),
                   quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
                   fiatAmountValue: _sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: _sendViewModel.amountParsingProxy.asDisplayStringWithSymbol(
-                      _sendViewModel.pendingTransaction!.fee),
+                  feeValue: _sendViewModel.amountParsingProxy
+                      .asDisplayStringWithSymbol(_sendViewModel.pendingTransaction!.fee),
                   feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
@@ -657,8 +672,7 @@ class CakePayBuyCardPage extends BasePage {
             .map((o) => o.OutputCopyWithParsedAddress(
                   parsedAddress: ParsedAddress(
                     parsedAddressByCurrencyMap: {
-                      cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency:
-                      o.address,
+                      cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency: o.address,
                     },
                     handle: 'Cake Pay',
                     profileName: order?.cards.first.cardName ?? 'Cake Pay',

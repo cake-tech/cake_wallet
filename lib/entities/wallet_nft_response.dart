@@ -43,8 +43,7 @@ class NFTAssetModel {
       name: json['name'] as String?,
       symbol: json['symbol'] as String?,
       normalizedMetadata: json['normalized_metadata'] != null
-          ? new NormalizedMetadata.fromJson(
-              json['normalized_metadata'] as Map<String, dynamic>)
+          ? new NormalizedMetadata.fromJson(json['normalized_metadata'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -66,7 +65,6 @@ class NormalizedMetadata {
       description: json['description'] as String?,
       image: json['image'] as String?,
     );
-
   }
 
   String? get imageUrl {

@@ -211,13 +211,15 @@ class UnstoppableAddressProvider extends AddressLookupProvider {
     var address = '';
 
     try {
-      final uri = Uri.parse("https://api.unstoppabledomains.com/profile/public/${Uri.encodeQueryComponent(domain)}?fields=records");
+      final uri = Uri.parse(
+          "https://api.unstoppabledomains.com/profile/public/${Uri.encodeQueryComponent(domain)}?fields=records");
       final response = await ProxyWrapper().get(clearnetUri: uri);
 
       final jsonParsed = json.decode(response.body) as Map<String, dynamic>;
       if (jsonParsed["records"] == null) {
         throw Exception(".records response from $uri is empty");
-      };
+      }
+      ;
       final records = jsonParsed["records"] as Map<String, dynamic>;
       final key = "crypto.${ticker.toUpperCase()}.address";
       if (records[key] == null) {

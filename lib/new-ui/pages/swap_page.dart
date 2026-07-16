@@ -51,7 +51,8 @@ import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewSwapPage extends StatefulWidget {
-  NewSwapPage(this.exchangeViewModel, this.authService,this.adrResService, this.initialPaymentRequest,
+  NewSwapPage(
+      this.exchangeViewModel, this.authService, this.adrResService, this.initialPaymentRequest,
       {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
@@ -425,11 +426,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     printV("$domain");
-    final parsedAddress = await widget.adrResService.resolve(
-        query: domain,
-        wallet: widget.exchangeViewModel.wallet,
-        currency: currency);
-    return parsedAddress.isNotEmpty ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? '' : '';
+    final parsedAddress = await widget.adrResService
+        .resolve(query: domain, wallet: widget.exchangeViewModel.wallet, currency: currency);
+    return parsedAddress.isNotEmpty
+        ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 
   void _showFeeAlert(BuildContext context) async {
@@ -472,8 +473,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
               title: S.of(context).swap,
               leadingIcon: Icon(Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: CakeImageWidget(imageUrl:
-                "assets/new-ui/options.svg",
+              trailingIcon: CakeImageWidget(
+                imageUrl: "assets/new-ui/options.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
@@ -543,7 +544,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           type: widget.exchangeViewModel.depositCurrency),
                                       onPushPasteButton: (context) async {
                                         final clipboard = await Clipboard.getData('text/plain');
-                                        widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
+                                        widget.exchangeViewModel.depositAddress =
+                                            clipboard?.text ?? '';
 
                                         final domain = widget.exchangeViewModel.depositAddress;
                                         widget.exchangeViewModel.depositAddress =
@@ -600,8 +602,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             ? AmountValidator(
                                                 isAutovalidate: true,
                                                 currency: widget.exchangeViewModel.receiveCurrency,
-                                                minValue: widget.exchangeViewModel.limits.min.toString(),
-                                                maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                                minValue:
+                                                    widget.exchangeViewModel.limits.min.toString(),
+                                                maxValue:
+                                                    widget.exchangeViewModel.limits.max.toString(),
                                                 amountParsingProxy:
                                                     widget.exchangeViewModel.amountParsingProxy,
                                               ).call(value)
@@ -611,7 +615,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           type: widget.exchangeViewModel.receiveCurrency),
                                       onPushPasteButton: (context) async {
                                         final clipboard = await Clipboard.getData('text/plain');
-                                        widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
+                                        widget.exchangeViewModel.receiveAddress =
+                                            clipboard?.text ?? '';
 
                                         final domain = widget.exchangeViewModel.receiveAddress;
                                         widget.exchangeViewModel.receiveAddress =
@@ -783,8 +788,8 @@ class SwapProviderPreview extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                             color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
-                      CakeImageWidget(imageUrl:
-                        "assets/new-ui/chooser.svg",
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/chooser.svg",
                         colorFilter: ColorFilter.mode(
                             Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
                       )
@@ -980,8 +985,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         onTap: _presentCurrencyPicker,
                         child: Container(
                           decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(999999),
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(999999),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.only(top: 4.0, bottom: 4, left: 4, right: 4),
@@ -1013,11 +1018,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                 ] else
                                   const SizedBox(width: 10),
                                 Container(
-                                  width:16,height:16,
+                                  width: 16,
+                                  height: 16,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(9999999999),
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh
-                                  ),
+                                      borderRadius: BorderRadius.circular(9999999999),
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                   child: Padding(
                                     padding: const EdgeInsets.all(4.0),
                                     child: RotatedBox(
@@ -1069,7 +1074,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           amountController.text = widget.exchangeViewModel.depositAmount;
                         }
                       },
-                      onAllButtonPressed: (){
+                      onAllButtonPressed: () {
                         setState(() {
                           _fiatInputMode = false;
                         });

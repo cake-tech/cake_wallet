@@ -56,7 +56,5 @@ class TemplateAdapter extends TypeAdapter<Template> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TemplateAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is TemplateAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

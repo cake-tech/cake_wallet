@@ -19,17 +19,16 @@ class DevQRToolsPage extends BasePage {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-            controller: textCtrl,
-            maxLines: 8,
-            onChanged: (value) {
-              viewModel.input = value;
-            }
-          ),
+              controller: textCtrl,
+              maxLines: 8,
+              onChanged: (value) {
+                viewModel.input = value;
+              }),
           Observer(
             builder: (_) {
               return Expanded(
-              child: JsonExplorer(data: viewModel.data, title: "result"),
-            );
+                child: JsonExplorer(data: viewModel.data, title: "result"),
+              );
             },
           ),
         ],

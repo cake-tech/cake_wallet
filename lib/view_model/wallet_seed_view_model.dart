@@ -21,7 +21,6 @@ abstract class WalletSeedViewModelBase with Store {
     setupSeedVerification();
   }
 
-
   @observable
   String name;
 

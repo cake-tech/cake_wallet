@@ -16,8 +16,9 @@ final Set<String> _stablecoinSymbols = {
 };
 
 bool isTrustedStablecoin(CryptoCurrency c) =>
-   (c.groups.contains(CurrencyGroups.stablecoin) ||
-    _stablecoinSymbols.contains(c.title.toUpperCase())) && !c.isPotentialScam;
+    (c.groups.contains(CurrencyGroups.stablecoin) ||
+        _stablecoinSymbols.contains(c.title.toUpperCase())) &&
+    !c.isPotentialScam;
 
 const _kEvmDefaultTokenNatives = <CryptoCurrency>[
   CryptoCurrency.baseEth,
@@ -44,8 +45,7 @@ void appendEvmDefaultTokens(List<CryptoCurrency> into) {
 }
 
 class CurrencyPickerBalance {
-  const CurrencyPickerBalance(
-      {required this.amount, this.fiat, this.fiatValue});
+  const CurrencyPickerBalance({required this.amount, this.fiat, this.fiatValue});
 
   final String amount;
   final String? fiat;

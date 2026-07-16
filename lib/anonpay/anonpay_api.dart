@@ -78,7 +78,7 @@ class AnonPayApi {
       clearnetUri: Uri.https(clearNetAuthority, anonPayPath, body),
       onionUri: Uri.https(onionApiAuthority, anonPayPath, body),
     );
-    
+
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['ID'] as String;
     final url = responseJSON['url'] as String;
@@ -156,7 +156,7 @@ class AnonPayApi {
       clearnetUri: Uri.https(clearNetAuthority, coinPath, params),
       onionUri: Uri.https(onionApiAuthority, coinPath, params),
     );
-    
+
     final responseJSON = json.decode(response.body) as List<dynamic>;
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');

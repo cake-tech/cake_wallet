@@ -105,8 +105,8 @@ class ProviderOptionTile extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  ImageUtil.getImageFromPath(imagePath:imagePath,
-                      height: imageHeight, width: imageWidth),
+                  ImageUtil.getImageFromPath(
+                      imagePath: imagePath, height: imageHeight, width: imageWidth),
                   SizedBox(width: 8),
                   Expanded(
                     child: Container(

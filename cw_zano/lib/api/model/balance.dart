@@ -15,15 +15,14 @@ class Balance {
       required this.awaitingOut,
       required this.total,
       required this.unlocked});
-      
+
   String get assetId => assetInfo.assetId;
 
   @override
   String toString() => '$assetInfo: $total/$unlocked';
 
   factory Balance.fromJson(Map<String, dynamic> json) => Balance(
-        assetInfo:
-            ZanoAsset.fromJson(json['asset_info'] as Map<String, dynamic>? ?? {}),
+        assetInfo: ZanoAsset.fromJson(json['asset_info'] as Map<String, dynamic>? ?? {}),
         awaitingIn: ZanoFormatter.bigIntFromDynamic(json['awaiting_in']),
         awaitingOut: ZanoFormatter.bigIntFromDynamic(json['awaiting_out']),
         total: ZanoFormatter.bigIntFromDynamic(json['total']),

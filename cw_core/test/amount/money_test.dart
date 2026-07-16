@@ -316,7 +316,7 @@ void main() {
       });
     });
 
-    group("toStringWithPrecision", (){
+    group("toStringWithPrecision", () {
       test("with fractionalDigits and padded with zeros", () {
         final money = Money.parse("1", CryptoCurrency.btc);
         expect(money.amount, equals(BigInt.parse("100000000")));
@@ -332,7 +332,7 @@ void main() {
       });
     });
 
-    group("toStringWithSymbol", (){
+    group("toStringWithSymbol", () {
       test("with fractionalDigits and padded with zeros", () {
         final money = Money.parse("1", CryptoCurrency.btc);
         expect(money.amount, equals(BigInt.parse("100000000")));

@@ -12,7 +12,8 @@ class ListItemSelectorWidget extends StatelessWidget {
     required this.selectedIndex,
     required this.onChanged,
     this.isFirstInSection = false,
-    this.isLastInSection = false, this.onTap,
+    this.isLastInSection = false,
+    this.onTap,
   });
 
   final String keyValue;
@@ -45,16 +46,16 @@ class ListItemSelectorWidget extends StatelessWidget {
                       options[selectedIndex],
                       style: labelStyle,
                     ),
-                    CakeImageWidget(imageUrl:
-                    "assets/new-ui/chooser.svg",
+                    CakeImageWidget(
+                      imageUrl: "assets/new-ui/chooser.svg",
                       colorFilter:
-                      ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                          ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
                     ),
                   ],
                 ),
               ),
             ],
-            );
+          );
         });
   }
 }

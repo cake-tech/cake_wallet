@@ -18,46 +18,54 @@ class ZanoFormatter {
   }
 
   static String intAmountToString(int amount, [int decimalPoint = defaultDecimalPoint]) {
-      final numberFormat = NumberFormat()..maximumFractionDigits = decimalPoint
-                                         ..minimumFractionDigits = 1;
-      return numberFormat.format(
-        DecimalIntl(
-          _bigIntDivision(
-            amount: BigInt.from(amount),
-            divider: BigInt.from(pow(10, decimalPoint)),
+    final numberFormat = NumberFormat()
+      ..maximumFractionDigits = decimalPoint
+      ..minimumFractionDigits = 1;
+    return numberFormat
+        .format(
+          DecimalIntl(
+            _bigIntDivision(
+              amount: BigInt.from(amount),
+              divider: BigInt.from(pow(10, decimalPoint)),
+            ),
           ),
-        ),
-      )
-      .replaceAll(',', '');
+        )
+        .replaceAll(',', '');
   }
 
   static String bigIntAmountToString(BigInt amount, [int decimalPoint = defaultDecimalPoint]) {
     if (decimalPoint == 0) {
       return '0';
     }
-    final numberFormat = NumberFormat()..maximumFractionDigits = decimalPoint
-                                        ..minimumFractionDigits = 1;
-    return numberFormat.format(
-        DecimalIntl(
-          _bigIntDivision(
-            amount: amount,
-            divider: BigInt.from(pow(10, decimalPoint)),
+    final numberFormat = NumberFormat()
+      ..maximumFractionDigits = decimalPoint
+      ..minimumFractionDigits = 1;
+    return numberFormat
+        .format(
+          DecimalIntl(
+            _bigIntDivision(
+              amount: amount,
+              divider: BigInt.from(pow(10, decimalPoint)),
+            ),
           ),
-        ),
-      )
-      .replaceAll(',', '');
+        )
+        .replaceAll(',', '');
   }
 
-  static double intAmountToDouble(int amount, [int decimalPoint = defaultDecimalPoint]) => _bigIntDivision(
+  static double intAmountToDouble(int amount, [int decimalPoint = defaultDecimalPoint]) =>
+      _bigIntDivision(
         amount: BigInt.from(amount),
         divider: BigInt.from(pow(10, decimalPoint)),
       ).toDouble();
 
   static int parseAmount(String amount, [int decimalPoint = defaultDecimalPoint]) {
-    final resultBigInt = (Decimal.parse(amount) * Decimal.fromBigInt(BigInt.from(10).pow(decimalPoint))).toBigInt();
+    final resultBigInt =
+        (Decimal.parse(amount) * Decimal.fromBigInt(BigInt.from(10).pow(decimalPoint))).toBigInt();
     if (!resultBigInt.isValidInt) {
       try {
-        Fluttertoast.showToast(msg: 'Cannot transfer $amount. Maximum is ${intAmountToString(resultBigInt.toInt(), decimalPoint)}.');
+        Fluttertoast.showToast(
+            msg:
+                'Cannot transfer $amount. Maximum is ${intAmountToString(resultBigInt.toInt(), decimalPoint)}.');
       } catch (_) {}
     }
     return resultBigInt.toInt();

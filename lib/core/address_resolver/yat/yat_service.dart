@@ -11,8 +11,7 @@ class YatService {
   static const apiReleaseUrl = "https://a.y.at";
   static const apiDevUrl = 'https://a.yat.fyi';
 
-  static String lookupEmojiUrl(String emojiId) =>
-      "$apiUrl/emoji_id/$emojiId/payment";
+  static String lookupEmojiUrl(String emojiId) => "$apiUrl/emoji_id/$emojiId/payment";
 
   static const String MONERO_SUB_ADDRESS = '0x1002';
   static const String MONERO_STD_ADDRESS = '0x1001';
@@ -23,9 +22,9 @@ class YatService {
   };
 
   static Future<List<YatRecord>> fetchYatAddress(
-      String emojiId,
-      String ticker,
-      ) async {
+    String emojiId,
+    String ticker,
+  ) async {
     final tagQuery = tags[ticker.toUpperCase()];
     if (tagQuery == null) return const [];
 
@@ -48,9 +47,7 @@ class YatService {
             records.add(YatRecord.fromJson(data, tag.toString()));
           }
         });
-      }
-
-      else if (res is List) {
+      } else if (res is List) {
         for (final item in res) {
           if (item is Map<String, dynamic>) {
             final tag = item['tag']?.toString() ?? '';
