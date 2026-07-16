@@ -103,6 +103,7 @@ import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settin
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_payjoin_servers_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
@@ -949,6 +950,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
+
+    case Routes.managePayjoinServers:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<ManagePayjoinServersPage>());
 
     case Routes.walletConnectConnectionsListing:
       return MaterialPageRoute<void>(

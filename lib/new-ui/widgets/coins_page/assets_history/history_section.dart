@@ -1,5 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
@@ -18,6 +20,7 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -184,6 +187,15 @@ class HistorySection extends StatelessWidget {
                             );
                           } else if (item is PayjoinTransactionListItem) {
                             final session = item.session;
+                            final direction = session.isSenderSession
+                                ? TransactionDirection.outgoing
+                                : TransactionDirection.incoming;
+                            final isComplete =
+                                session.status == 'success' && item.transaction?.isPending == false;
+                            final pending = !isComplete &&
+                                (session.status == 'inProgress' ||
+                                    session.status == 'waiting' ||
+                                    session.status == 'success');
 
                             return _historyRow(
                               onTap: () => Navigator.of(context).pushNamed(
@@ -194,10 +206,11 @@ class HistorySection extends StatelessWidget {
                                   createdAt:
                                       _formatTransactionDate(session.inProgressSince!, localeName),
                                   amount: dashboardViewModel.appStore.amountParsingProxy
-                                      .asDisplayString(Money(session.amount, CryptoCurrency.btc)),
-                                  currency: item.transaction?.from ?? "BTC",
-                                  state: item.status,
-                                  isSending: session.isSenderSession,
+                                      .asDisplayStringWithSymbol(
+                                          Money(session.amount, CryptoCurrency.btc)),
+                                  amountFiat: _computeFiatAmount(session.amount),
+                                  direction: direction,
+                                  pending: pending,
                                   roundedTop: roundedTop,
                                   roundedBottom: roundedBottom,
                                   bottomSeparator: !roundedBottom),
@@ -231,6 +244,16 @@ class HistorySection extends StatelessWidget {
                   );
           },
         ));
+  }
+
+  String _computeFiatAmount(BigInt amount) {
+    final price =
+        dashboardViewModel.balanceViewModel.fiatConversionStore.prices[CryptoCurrency.btc];
+    final cryptoAmount = double.parse(Money(amount, CryptoCurrency.btc).toString());
+    final raw = calculateFiatAmountRaw(cryptoAmount: cryptoAmount, price: price)
+        .withLocalSeperator(dashboardViewModel.appStore.settingsStore.languageCode);
+    final fiatCurrency = dashboardViewModel.appStore.settingsStore.fiatCurrency;
+    return '${fiatCurrency.title} $raw';
   }
 
   String _getChainIconPath() {
