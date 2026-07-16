@@ -9,6 +9,13 @@ class ExchangeProviderResponseException extends ServerResponseException {
 
 
 
+class ExchangeProviderResponseCodeException extends ExchangeProviderResponseException with ResponseCodeException {
+  ExchangeProviderResponseCodeException(super.message, this.code);
+
+  @override
+  final int code;
+}
+
 class RateNotFoundException extends ExchangeProviderResponseException {
   const RateNotFoundException(this.from, this.to, {required this.provider, this.description = ''}) : super("");
 

@@ -1,5 +1,6 @@
 
 import "package:cw_core/currency.dart";
+import "package:cw_core/wallet_type.dart";
 
 abstract class CakeException implements Exception {
   const CakeException(this.message);
@@ -32,6 +33,10 @@ class ConnectionException extends CakeException {
 
 class ServerResponseException extends CakeException {
   const ServerResponseException(super.message);
+}
+
+mixin ResponseCodeException {
+  int get code;
 }
 
 class CurrencyParseException extends CakeException {
