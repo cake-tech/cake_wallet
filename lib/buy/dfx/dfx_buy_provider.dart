@@ -149,7 +149,7 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.zano:
         return wallet.signMessage(message, address: walletAddress);
       default:
-        throw BadWalletTypeException("WalletType is not available for DFX ${wallet.type}");
+        throw BadWalletTypeException("WalletType is not available for DFX ${wallet.type}",wallet.type);
     }
   }
 

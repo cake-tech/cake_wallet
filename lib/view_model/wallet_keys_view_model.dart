@@ -331,7 +331,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.zcash:
         return 'zcash-wallet';
       case WalletType.none:
-        throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
+        throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys', _wallet.type);
     }
   }
 

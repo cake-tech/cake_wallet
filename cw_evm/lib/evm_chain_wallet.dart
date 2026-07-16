@@ -1661,7 +1661,7 @@ abstract class EVMChainWalletBase
     // Get chainId from wallet type, use saved chainId if available (for chain switching)
     final defaultChainId = registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
     if (defaultChainId == null) {
-      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}');
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
 
     // Use saved chainId if available, otherwise default to wallet type's chainId

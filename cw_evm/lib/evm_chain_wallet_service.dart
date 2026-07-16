@@ -97,7 +97,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}');
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -205,7 +205,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}');
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -246,7 +246,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}');
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -285,7 +285,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}');
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -350,7 +350,7 @@ class EVMChainWalletService extends WalletService<
     final chainConfig = _registry.getChainConfigByWalletType(walletType);
 
     if (chainConfig == null) {
-      throw BadWalletTypeException('Chain config not found for wallet type: $walletType');
+      throw BadWalletTypeException('Chain config not found for wallet type: $walletType', walletInfo.type);
     }
 
     return EVMChainWallet(

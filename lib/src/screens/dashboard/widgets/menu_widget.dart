@@ -275,7 +275,7 @@ class MenuWidgetState extends State<MenuWidget> {
       case WalletType.zcash:
         return zcashIcon;
       default:
-        throw BadWalletTypeException('No icon for ${type.toString()}');
+        throw BadWalletTypeException('No icon for ${type.toString()}',type);
     }
   }
 }

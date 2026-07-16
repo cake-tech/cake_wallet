@@ -51,7 +51,7 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.zec;
     case WalletType.none:
       throw BadWalletTypeException(
-          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency', type);
   }
 }
 

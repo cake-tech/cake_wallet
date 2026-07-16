@@ -1243,7 +1243,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.arbitrum,
           WalletType.zcash,
         ].contains(wallet.type)) {
-      throw BadWalletTypeException('Priority is null for wallet type: ${wallet.type}');
+      throw BadWalletTypeException('Priority is null for wallet type: ${wallet.type}', wallet.type);
     }
 
     switch (wallet.type) {
@@ -1307,7 +1307,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // priority: priority,
         );
       default:
-        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for send');
+        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for send', wallet.type);
     }
   }
 

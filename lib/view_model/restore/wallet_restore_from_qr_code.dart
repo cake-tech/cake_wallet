@@ -134,7 +134,7 @@ class WalletRestoreFromQRCode {
       await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
       walletType =
           await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletType?;
-      if (walletType == null) throw BadWalletTypeException("Failed to determine wallet type.");
+      if (walletType == null) throw ScanValueException("Failed to determine wallet type.");
 
       final seedPhrase = _extractSeedPhraseFromUrl(code, walletType);
 

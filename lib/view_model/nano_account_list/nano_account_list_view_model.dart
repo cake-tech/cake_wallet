@@ -37,7 +37,7 @@ abstract class NanoAccountListViewModelBase with Store {
           .toList();
     }
 
-    throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type} for nano');
+    throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type} for nano', _wallet.type);
   }
 
   final WalletBase _wallet;

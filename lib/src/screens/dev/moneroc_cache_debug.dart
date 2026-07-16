@@ -38,7 +38,7 @@ class _MoneroCacheDebugState extends State<MoneroCacheDebug> {
 
   late DebuggableWallets wallet = switch (dashboardViewModel.wallet.type) {
     WalletType.monero => DebuggableWallets.monero,
-    _ => throw BadWalletTypeException("Unknown wallet type"),
+    _ => throw BadWalletTypeException("Unknown wallet type",dashboardViewModel.wallet.type),
   };
 
   late Map<String, dynamic> walletCache = switch (wallet) {

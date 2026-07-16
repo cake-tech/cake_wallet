@@ -86,6 +86,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     if (minAmount == '0') throw RateNotFoundException(from, to, provider: description);
 
       return Limits(min: _amountFromNative(minAmount.toString(), from));
+    } on ExchangeProviderResponseException {
+      rethrow;
     } catch (e) {
       printV(e.toString());
       throw ExchangeProviderResponseException('Chainflip failed to fetch limits');
@@ -391,7 +393,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw ExchangeProviderResponseException('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw ExchangeProviderResponseCodeException('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}', response.statusCode);
     }
 
     final List<dynamic> jsonList = json.decode(response.body) as List<dynamic>;
@@ -416,7 +418,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     if (response.statusCode == 404) return null;
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw ExchangeProviderResponseException('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw ExchangeProviderResponseCodeException('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}', response.statusCode);
     }
 
     return json.decode(response.body) as Map<String, dynamic>;

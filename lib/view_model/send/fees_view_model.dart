@@ -57,7 +57,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null && hasFeesPriority) {
-      throw BadWalletTypeException('Unexpected type ${wallet.type}');
+      throw BadWalletTypeException('Unexpected type ${wallet.type}', wallet.type);
     }
 
     return priority!;

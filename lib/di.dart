@@ -986,7 +986,7 @@ Future<void> setup({
       return NanoAccountListViewModel(wallet);
     }
     throw BadWalletTypeException(
-        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel');
+        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel',wallet.type);
   });
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
@@ -997,7 +997,7 @@ Future<void> setup({
       return MoneroAccountListViewModel(wallet, getIt.get<SettingsStore>());
     }
     throw BadWalletTypeException(
-        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
+        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel',wallet.type);
   });
 
   getIt.registerFactory(
@@ -1336,7 +1336,7 @@ Future<void> setup({
       case WalletType.zcash:
         return zcash!.createZcashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
-        throw BadWalletTypeException('Unexpected token: ${param1.toString()} for generating of WalletService');
+        throw BadWalletTypeException('Unexpected token: ${param1.toString()} for generating of WalletService',param1);
     }
   });
 

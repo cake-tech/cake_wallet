@@ -47,7 +47,7 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
     WalletType.monero => ProfilableWallet.monero,
     WalletType.wownero => ProfilableWallet.wownero,
     WalletType.zano => ProfilableWallet.zano,
-    _ => throw BadWalletTypeException("Unknown wallet type"),
+    _ => throw BadWalletTypeException("Unknown wallet type",dashboardViewModel.wallet.type),
   };
   final precalc = 1700298;
 

@@ -8,7 +8,9 @@ abstract class CakeException implements Exception {
 }
 
 class BadWalletTypeException extends CakeException {
-  const BadWalletTypeException(super.message);
+  const BadWalletTypeException(super.message, this.walletType);
+
+  final WalletType walletType;
 }
 
 class BadCurrencyException extends CakeException {

@@ -201,7 +201,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         } else if (widget.walletType == WalletType.zcash) {
           height = await zcash!.getHeightByDate(date);
         } else {
-          throw BadWalletTypeException("unknown currency in BlockchainHeightWidget");
+          throw BadWalletTypeException("unknown currency in BlockchainHeightWidget",widget.walletType);
         }
       }
       if (mounted) {

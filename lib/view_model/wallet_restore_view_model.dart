@@ -321,7 +321,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       }
     }
 
-    throw BadWalletTypeException('Unexpected type: ${type.toString()}');
+    throw BadWalletTypeException('Unexpected type: ${type.toString()}', type);
   }
 
   Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {

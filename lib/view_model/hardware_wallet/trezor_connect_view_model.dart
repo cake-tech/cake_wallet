@@ -228,7 +228,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
-        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for trezor');
+        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for trezor', wallet.type);
     }
   }
 }

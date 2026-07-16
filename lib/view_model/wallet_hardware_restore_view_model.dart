@@ -90,7 +90,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           height: _options['height'] as int? ?? 0,
         );
       default:
-        throw BadWalletTypeException('Unexpected type: ${type.toString()}');
+        throw BadWalletTypeException('Unexpected type: ${type.toString()}', type);
     }
 
     credentials.hardwareWalletType = hardwareWalletVM.hardwareWalletType;

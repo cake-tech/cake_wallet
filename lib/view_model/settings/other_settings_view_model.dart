@@ -53,7 +53,7 @@ abstract class OtherSettingsViewModelBase with Store {
     final priority = _settingsStore.getPriority(walletType, chainId: chainId);
 
     if (priority == null) {
-      throw BadWalletTypeException('Unexpected type ${walletType.toString()}');
+      throw BadWalletTypeException('Unexpected type ${walletType.toString()}', walletType);
     }
 
     return priority;

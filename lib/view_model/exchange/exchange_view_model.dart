@@ -541,7 +541,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null) {
-      throw BadWalletTypeException('Unexpected type ${wallet.type.toString()}');
+      throw BadWalletTypeException('Unexpected type ${wallet.type.toString()}', wallet.type);
     }
 
     return priority;
