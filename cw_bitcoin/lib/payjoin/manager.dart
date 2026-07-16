@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_persister.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
@@ -12,30 +13,37 @@ import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/psbt/utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:http/http.dart' as http;
 import 'package:payjoin/payjoin.dart' as pj;
 
 class PayjoinManager {
-  PayjoinManager(this._payjoinStorage, this._wallet);
+  PayjoinManager(this._payjoinStorage, this._wallet, {MailroomManager? mailroomManager})
+      : _mailroomManager = mailroomManager ??
+            MailroomManager(
+              relayUrls: const [
+                'https://pj.bobspacebkk.com',
+                'https://pj.benalleng.com',
+                'https://ohttp.achow101.com',
+              ],
+              directoryUrls: const [
+                'https://pj.benalleng.com',
+                'https://payjo.in',
+                'https://lets.payjo.in',
+              ],
+            );
 
   final PayjoinStorage _payjoinStorage;
   final BitcoinWalletBase _wallet;
-  final http.Client _client = ProxyWrapper().getHttpIOClient();
+  final MailroomManager _mailroomManager;
+
+  void configureMailroom({
+    required List<String> relays,
+    required List<String> directories,
+  }) {
+    _mailroomManager.setConfig(relays: relays, directories: directories);
+  }
   final PayjoinEventStore _eventStore = PayjoinEventStore();
   final Map<String, PayjoinReceiverWorker> _runningReceivers = {};
   final Map<String, PayjoinSenderWorker> _runningSenders = {};
-
-  static const List<String> ohttpRelayUrls = [
-    'https://pj.bobspacebkk.com',
-    'https://ohttp.achow101.com',
-    'https://ohttp.cakewallet.com',
-  ];
-
-  static String randomOhttpRelayUrl() =>
-      ohttpRelayUrls[Random.secure().nextInt(ohttpRelayUrls.length)];
-
-  static const payjoinDirectoryUrl = 'https://payjo.in';
 
   var _logStreamController = StreamController<String>.broadcast();
   Stream<String> get logStream => _logStreamController.stream;
@@ -114,7 +122,10 @@ class PayjoinManager {
           sessionId,
           'Unrecoverable error',
         );
+      } else if (state is pj.InitializedReceiveSession) {
+        await _payjoinStorage.markReceiverSessionWaiting(sessionId);
       } else {
+        await _payjoinStorage.markReceiverSessionInProgress(sessionId);
         writePayjoinLog("Receiver($sessionId) resume: ${state.runtimeType}");
       }
     } catch (e) {
@@ -159,9 +170,10 @@ class PayjoinManager {
       originalPsbt: originalPsbt,
     );
 
-    final senderWorker = PayjoinSenderWorker();
+    final senderWorker = PayjoinSenderWorker(
+      mailroomManager: _mailroomManager,
+    );
     final minFeeRateSatPerKwu = networkFeesSatPerVb * 250;
-    final ohttpRelay = randomOhttpRelayUrl();
 
     _runningSenders[pjUri] = senderWorker;
 
@@ -171,13 +183,13 @@ class PayjoinManager {
       final proposalPsbt = await senderWorker.run(
         originalPsbt,
         pjUrl,
-        ohttpRelay,
         minFeeRateSatPerKwu,
       );
       writePayjoinLog("Sender($pjUri) proposedPSBT len=${proposalPsbt.length}: $proposalPsbt");
 
       final utxos = _wallet.getUtxoWithPrivateKeys();
-      writePayjoinLog("Sender($pjUri) utxos=${utxos.length}; types=${utxos.map((u) => u.utxo.scriptType.value).toList()}");
+      writePayjoinLog(
+          "Sender($pjUri) utxos=${utxos.length}; types=${utxos.map((u) => u.utxo.scriptType.value).toList()}");
       final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
       writePayjoinLog("Sender($pjUri) finalizedPsbt: $finalizedPsbt");
 
@@ -197,16 +209,8 @@ class PayjoinManager {
     }
   }
 
-  Future<pj.OhttpKeys> _fetchOhttpKeys(
-    String ohttpRelay,
-    String directory,
-  ) async {
-    final keysUrl = Uri.parse('$directory/.well-known/ohttp-gateway');
-    final resp = await _client.get(
-      keysUrl,
-      headers: {'Accept': 'application/ohttp-keys'},
-    );
-    return pj.OhttpKeys.decode(bytes: resp.bodyBytes);
+  Future<pj.OhttpKeys> _fetchOhttpKeys(String directory) async {
+    return _mailroomManager.fetchOhttpKeysFromDirectory(directory);
   }
 
   Future<String> initSender(
@@ -233,46 +237,50 @@ class PayjoinManager {
       writePayjoinLog("Retrying initReceiver ${retryCount + 1} attempt");
     }
 
-    try {
-      final ohttpKeys = await _fetchOhttpKeys(
-        randomOhttpRelayUrl(),
-        payjoinDirectoryUrl,
-      );
-
-      final receiver = pj.ReceiverBuilder(
-        address: address,
-        directory: payjoinDirectoryUrl,
-        ohttpKeys: ohttpKeys,
-      );
-      final initialTransition = receiver.build();
-
-      // Build with ephemeral persister to extract pjEndpoint
-      final ephemeral = _EphemeralReceiverPersister();
-      final initialized = initialTransition.save(persister: ephemeral);
-
-      final pjEndpoint = initialized.pjUri().pjEndpoint();
-
-      // Save Initialized event to durable store so worker replays this session
-      final durablePersister = PayjoinReceiverPersister(
-        _eventStore.box,
-        pjEndpoint,
-      );
-      for (final event in ephemeral.load()) {
-        durablePersister.save(event);
+    // Try directories in order with relay failover (like Rust reference impl)
+    while (true) {
+      String directory;
+      try {
+        directory = _mailroomManager.chooseDirectory();
+      } on StateError {
+        writePayjoinLog("No valid directories available");
+        rethrow;
       }
 
-      await _payjoinStorage.insertReceiverSession(
-        pjEndpoint,
-        _wallet.id,
-      );
+      try {
+        final ohttpKeys = await _fetchOhttpKeys(directory);
 
-      return pjEndpoint;
-    } catch (e) {
-      writePayjoinLog(e.toString());
-      if (e.toString().contains("error sending request for url") && retryCount < 5) {
-        return initReceiver(address, isTestnet, ++retryCount);
+        final receiver = pj.ReceiverBuilder(
+          address: address,
+          directory: directory,
+          ohttpKeys: ohttpKeys,
+        );
+        final initialTransition = receiver.build();
+
+        final ephemeral = _EphemeralReceiverPersister();
+        final initialized = initialTransition.save(persister: ephemeral);
+
+        final pjEndpoint = initialized.pjUri().pjEndpoint();
+
+        final durablePersister = PayjoinReceiverPersister(
+          _eventStore.box,
+          pjEndpoint,
+        );
+        for (final event in ephemeral.load()) {
+          durablePersister.save(event);
+        }
+
+        await _payjoinStorage.insertReceiverSession(
+          pjEndpoint,
+          _wallet.id,
+        );
+
+        return pjEndpoint;
+      } catch (e) {
+        writePayjoinLog(e.toString());
+        _mailroomManager.addFailedDirectory(directory);
+        _mailroomManager.clearFailedRelays();
       }
-      rethrow;
     }
   }
 
@@ -282,12 +290,10 @@ class PayjoinManager {
     bool isTestnet = false,
   }) async {
     try {
-      final ohttpKeys = await _fetchOhttpKeys(
-        randomOhttpRelayUrl(),
-        payjoinDirectoryUrl,
-      );
+      final directory = _mailroomManager.chooseDirectory();
+      final ohttpKeys = await _fetchOhttpKeys(directory);
 
-      _payjoinStorage.markReceiverSessionInProgress(pjEndpoint);
+      _payjoinStorage.markReceiverSessionWaiting(pjEndpoint);
 
       final persister = PayjoinReceiverPersister(
         _eventStore.box,
@@ -303,24 +309,27 @@ class PayjoinManager {
       // predictable; shuffle so the receiver's input choice can't mirror it.
       utxos.shuffle(Random.secure());
       final worker = PayjoinReceiverWorker(
-        ohttpRelay: randomOhttpRelayUrl(),
+        mailroomManager: _mailroomManager,
         utxos: utxos,
         isMineChecker: (scriptBytes) {
           final script = Script.fromRaw(byteData: scriptBytes);
           return _wallet.isMine(script);
         },
         persister: persister,
+        onProposalReceived: () {
+          _payjoinStorage.markReceiverSessionInProgress(pjEndpoint);
+        },
       );
 
       _runningReceivers[pjEndpoint] = worker;
 
       try {
-        final psbt = await worker.run(address, payjoinDirectoryUrl, ohttpKeys);
+        final psbt = await worker.run(address, directory, ohttpKeys);
         writePayjoinLog("Receiver($pjEndpoint) proposalSent: $psbt");
         _payjoinStorage.markReceiverSessionComplete(
           pjEndpoint,
           getTxIdFromPsbtV0(psbt),
-          '0',
+          getReceiverNetAmountFromPsbt(psbt, _wallet),
         );
       } finally {
         _runningReceivers.remove(pjEndpoint);
