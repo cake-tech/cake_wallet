@@ -16,6 +16,8 @@ import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 bool _alwaysVisible(DashboardViewModel _) => true;
 
+bool _isBtc(DashboardViewModel vm) => vm.wallet.type == WalletType.bitcoin;
+
 bool _hasLightning(DashboardViewModel vm) => vm.hasLightning;
 
 bool _hasSilentPayments(DashboardViewModel vm) => vm.hasSilentPayments;
@@ -100,6 +102,12 @@ class WalletSettingsResolver {
         S.current.nodes,
         Routes.manageNodes,
         isCore: true,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/payjoin.svg",
+        'Payjoin',
+        Routes.managePayjoinServers,
+        condition: _isBtc,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/coin-control.svg",
