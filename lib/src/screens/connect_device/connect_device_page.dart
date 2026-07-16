@@ -1,55 +1,54 @@
-import 'dart:async';
-import 'dart:io';
+import "dart:async";
+import "dart:io";
 
-import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/main.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/base_page.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/primary_button.dart";
+import "package:cake_wallet/themes/core/material_base_theme.dart";
+import "package:cake_wallet/utils/responsive_layout_util.dart";
+import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 typedef OnConnectDevice = void Function(BuildContext, HardwareWalletViewModel);
 
 class ConnectDevicePageParams {
-  final WalletType walletType;
-  final OnConnectDevice onConnectDevice;
-  final bool allowChangeWallet;
-  final bool isReconnect;
-  final HardwareWalletType hardwareWalletType;
-
-  ConnectDevicePageParams({
+  const ConnectDevicePageParams({
     required this.walletType,
     required this.hardwareWalletType,
     required this.onConnectDevice,
     this.allowChangeWallet = false,
     this.isReconnect = true,
   });
-}
 
-class ConnectDevicePage extends BasePage {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
   final bool isReconnect;
-  final HardwareWalletViewModel hardwareWalletVM;
+  final HardwareWalletType hardwareWalletType;
+}
 
+class ConnectDevicePage extends BasePage {
   ConnectDevicePage(ConnectDevicePageParams params, this.hardwareWalletVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
         allowChangeWallet = params.allowChangeWallet,
         isReconnect = params.isReconnect;
+  final WalletType walletType;
+  final OnConnectDevice onConnectDevice;
+  final bool allowChangeWallet;
+  final bool isReconnect;
+  final HardwareWalletViewModel hardwareWalletVM;
 
   @override
   String get title => isReconnect
@@ -65,27 +64,27 @@ class ConnectDevicePage extends BasePage {
         child: ConnectDevicePageBody(
           walletType,
           onConnectDevice,
-          allowChangeWallet,
           hardwareWalletVM,
           currentTheme,
+          allowChangeWallet: allowChangeWallet,
         ),
       );
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
+  const ConnectDevicePageBody(
+    this.walletType,
+    this.onConnectDevice,
+    this.hardwareWalletVM,
+    this.currentTheme, {
+    this.allowChangeWallet = false,
+  });
+
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
   final HardwareWalletViewModel hardwareWalletVM;
   final MaterialThemeBase currentTheme;
-
-  const ConnectDevicePageBody(
-    this.walletType,
-    this.onConnectDevice,
-    this.allowChangeWallet,
-    this.hardwareWalletVM,
-    this.currentTheme,
-  );
 
   @override
   ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
@@ -97,10 +96,10 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   List<HardwareWalletDevice> get allDevices => [...bleDevices, ...usbDevices];
 
-  late Timer? _usbRefreshTimer = null;
-  late Timer? _bleRefreshTimer = null;
-  late Timer? _bleStateTimer = null;
-  late StreamSubscription<HardwareWalletDevice>? _bleRefresh = null;
+  Timer? _usbRefreshTimer;
+  Timer? _bleRefreshTimer;
+  Timer? _bleStateTimer;
+  StreamSubscription<HardwareWalletDevice>? _bleRefresh;
 
   bool longWait = false;
   Timer? _longWaitTimer;
@@ -109,19 +108,22 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _bleStateTimer =
-          Timer.periodic(Duration(seconds: 1), (_) => widget.hardwareWalletVM.updateBleState());
+      _bleStateTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => widget.hardwareWalletVM.updateBleState(),
+      );
 
-      _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
+      _bleRefreshTimer = Timer.periodic(const Duration(seconds: 1), (_) => _refreshBleDevices());
 
       if (Platform.isAndroid) {
-        _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+        _usbRefreshTimer = Timer.periodic(const Duration(seconds: 1), (_) => _refreshUsbDevices());
       }
 
       if (widget.hardwareWalletVM.hasBluetooth) {
-        _longWaitTimer = Timer(Duration(seconds: 10), () {
-          if (widget.hardwareWalletVM.isBleEnabled && bleDevices.isEmpty)
+        _longWaitTimer = Timer(const Duration(seconds: 10), () {
+          if (widget.hardwareWalletVM.isBleEnabled && bleDevices.isEmpty) {
             setState(() => longWait = true);
+          }
         });
       }
     });
@@ -143,19 +145,24 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   Future<void> _refreshUsbDevices() async {
     final dev = await widget.hardwareWalletVM.getAllUsbDevices();
 
-    if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
+    if (usbDevices.length != dev.length) {
+      setState(() => usbDevices = dev);
+    }
   }
 
   Future<void> _refreshBleDevices() async {
     try {
       if (widget.hardwareWalletVM.isBleEnabled) {
-        _bleRefresh = widget.hardwareWalletVM.scanForBleDevices().listen((device) => setState(() {
-              bleDevices.add(device);
-              if (longWait) longWait = false;
-            }))
-          ..onError((Object e) {
-            printV(e);
-          });
+        _bleRefresh = widget.hardwareWalletVM.scanForBleDevices().listen(
+              (device) => setState(() {
+                bleDevices.add(device);
+                if (longWait) {
+                  longWait = false;
+                }
+              }),
+            )..onError((e) {
+              printV(e);
+        });
         _bleRefreshTimer?.cancel();
         _bleRefreshTimer = null;
       }
@@ -165,8 +172,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   var _isConnectPressed = false;
+
   Future<void> _connectToDevice(HardwareWalletDevice device) async {
-    if (_isConnectPressed) return;
+    if (_isConnectPressed) {
+      return;
+    }
+
     _isConnectPressed = true;
     try {
       final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
@@ -213,9 +224,13 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   String get description {
-    if (!Platform.isAndroid) return S.of(context).connect_your_hardware_wallet_ble;
+    if (!Platform.isAndroid) {
+      return S.of(context).connect_your_hardware_wallet_ble;
+    }
 
-    if (widget.hardwareWalletVM.hasBluetooth) return S.of(context).connect_your_hardware_wallet;
+    if (widget.hardwareWalletVM.hasBluetooth) {
+      return S.of(context).connect_your_hardware_wallet;
+    }
 
     return S.of(context).connect_your_hardware_wallet_usb;
   }
@@ -267,34 +282,37 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                               child: SizedBox(
                                 height: 48,
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         spacing: 12,
                                         children: [
-                                          Observer(builder: (_) {
-                                            if (widget.hardwareWalletVM.isConnecting) {
-                                              return CupertinoActivityIndicator(
-                                                animating: true,
-                                                color:
-                                                    Theme.of(context).colorScheme.onSurfaceVariant,
-                                                radius: 12,
-                                              );
-                                            }
+                                          Observer(
+                                            builder: (_) {
+                                              if (widget.hardwareWalletVM.isConnecting) {
+                                                return CupertinoActivityIndicator(
+                                                  animating: true,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                  radius: 12,
+                                                );
+                                              }
 
-                                            return CakeImageWidget(
-                                              imageUrl: _getDeviceTileLeading(item.type),
-                                              width: 24,
-                                              height: 24,
-                                              colorFilter: ColorFilter.mode(
-                                                Theme.of(context).colorScheme.onSurfaceVariant,
-                                                BlendMode.srcIn,
-                                              ),
-                                            );
-                                          }),
-                                          Text(item.name)
+                                              return CakeImageWidget(
+                                                imageUrl: _getDeviceTileLeading(item.type),
+                                                width: 24,
+                                                height: 24,
+                                                colorFilter: ColorFilter.mode(
+                                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  BlendMode.srcIn,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          Text(item.name),
                                         ],
                                       ),
                                       Row(
@@ -318,9 +336,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                                               Theme.of(context).colorScheme.onSurfaceVariant,
                                               BlendMode.srcIn,
                                             ),
-                                          )
+                                          ),
                                         ],
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -340,7 +358,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                           color: Theme.of(context).colorScheme.primary,
                           textColor: Theme.of(context).colorScheme.onPrimary,
                           onPressed: _onChangeWallet,
-                        )
+                        ),
                       ],
                     ],
                   ),
@@ -351,7 +369,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                 color: Theme.of(context).colorScheme.surfaceContainer,
                 textColor: Theme.of(context).colorScheme.primary,
                 onPressed: () => _onHowToConnect(context),
-              )
+              ),
             ],
           ),
         ),
@@ -372,14 +390,22 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       builder: (_) => InfoStepsBottomSheet(
         titleText: S.of(context).how_to_connect,
         steps: [
-          InfoStep('assets/images/wallet_connect_step_icons/step1_power.svg',
-              S.of(context).connect_hw_info_step_1),
-          InfoStep('assets/images/wallet_connect_step_icons/step2_connect.svg',
-              S.of(context).connect_hw_info_step_2),
-          InfoStep('assets/images/wallet_connect_step_icons/step3_unlock.svg',
-              S.of(context).connect_hw_info_step_3),
-          InfoStep('assets/images/wallet_connect_step_icons/step4_select.svg',
-              S.of(context).connect_hw_info_step_4),
+          InfoStep(
+            "assets/images/wallet_connect_step_icons/step1_power.svg",
+            S.of(context).connect_hw_info_step_1,
+          ),
+          InfoStep(
+            "assets/images/wallet_connect_step_icons/step2_connect.svg",
+            S.of(context).connect_hw_info_step_2,
+          ),
+          InfoStep(
+            "assets/images/wallet_connect_step_icons/step3_unlock.svg",
+            S.of(context).connect_hw_info_step_3,
+          ),
+          InfoStep(
+            "assets/images/wallet_connect_step_icons/step4_select.svg",
+            S.of(context).connect_hw_info_step_4,
+          ),
         ],
       ),
     );

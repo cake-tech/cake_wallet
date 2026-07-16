@@ -1,8 +1,8 @@
-import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 
 abstract class HardwareWalletViewModel {
   HardwareWalletType get hardwareWalletType;
@@ -27,4 +27,6 @@ abstract class HardwareWalletViewModel {
   Future<void> initWallet(WalletBase wallet);
 
   String? interpretErrorCode(String error) => null;
+
+  Future<void> close() async {}
 }
