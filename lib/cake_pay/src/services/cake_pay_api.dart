@@ -8,7 +8,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 
 class CakePayApi {
-  static const testBaseUri = FeatureFlag.hasDevOptions;
+  static const testBaseUri = false; //FeatureFlag.hasDevOptions;
 
   static const baseTestCakePayUri = 'api-stg.cakepay.com';
   static const baseProdCakePayUri = 'api-prod.cakepay.com';
