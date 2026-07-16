@@ -1132,6 +1132,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           date: DateTime.now(),
           confirmations: 0,
           chainId: wallet.chainId ?? 0,
+          contractAddress: selectedCryptoCurrency is Erc20Token
+              ? (selectedCryptoCurrency as Erc20Token).contractAddress
+              : null,
         ));
       }
 
