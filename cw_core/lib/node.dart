@@ -301,7 +301,7 @@ class Node {
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
-        throw BadWalletTypeException('Unexpected type ${type.toString()} for Node uri');
+        throw BadWalletTypeException('Unexpected type ${type.toString()} for Node uri', type);
     }
   }
 

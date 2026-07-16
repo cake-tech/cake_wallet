@@ -97,7 +97,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(_baseUrl, _getPaths, params);
       final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       if (res.statusCode != 200) {
-        throw ExchangeProviderResponseCodeException('Unexpected http status: ${res.statusCode}', response.statusCode);
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${res.statusCode}', res.statusCode);
       }
 
       final body = json.decode(res.body) as Map<String, dynamic>;
@@ -454,7 +454,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     final resp = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
     if (resp.statusCode != 200) {
-      throw ExchangeProviderResponseCodeException('getStatus failed: ${resp.statusCode} ${resp.body}', response.statusCode);
+      throw ExchangeProviderResponseCodeException('getStatus failed: ${resp.statusCode} ${resp.body}', resp.statusCode);
     }
 
     final data = json.decode(resp.body) as Map<String, dynamic>;
