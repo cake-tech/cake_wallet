@@ -207,7 +207,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, description:'Trade not found for id: $formattedId', provider: description);
     } else if (response.statusCode != 200) {
-      throw ExchangeProviderResponseException('Unexpected HTTP status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected HTTP status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body);
@@ -294,14 +294,14 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       ExchangeProviderLogger.logError(
         provider: description,
         function: '_getSwapQuote',
-        error: ExchangeProviderResponseException('Unexpected HTTP status: ${response.statusCode}'),
+        error: ExchangeProviderResponseCodeException('Unexpected HTTP status: ${response.statusCode}', response.statusCode),
         stackTrace: StackTrace.current,
         requestData: {
           'params': params,
           'url': uri.toString(),
         },
       );
-      throw ExchangeProviderResponseException('Unexpected HTTP status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected HTTP status: ${response.statusCode}', response.statusCode);
     }
 
     if (response.body.contains('error')) {

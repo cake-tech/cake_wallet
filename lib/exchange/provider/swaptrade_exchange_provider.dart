@@ -62,7 +62,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200)
-        throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
       final coinsInfoRaw = responseJSON['data'];
       final coinsInfo = coinsInfoRaw is List<dynamic> ? coinsInfoRaw : <dynamic>[];
@@ -123,7 +123,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'fetchRate',
-          error: ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}'),
+          error: ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode),
           stackTrace: StackTrace.current,
           requestData: {
             'from': from.title,
@@ -135,7 +135,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
       }
 
       final data = responseBody['data'] as Map<String, dynamic>;
@@ -262,7 +262,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
       }
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
@@ -350,7 +350,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       }
 
       if (response.statusCode != 200)
-        throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final fromCurrency = responseData['coin_send'] as String;
@@ -382,7 +382,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");
-      rethrow;
+      throw TradeNotFoundException(
+        id,
+        provider: description,
+        description: e.toString(),
+      );
     }
   }
 

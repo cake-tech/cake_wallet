@@ -68,11 +68,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
-      throw ExchangeProviderResponseException('$error');
+      throw ExchangeProviderResponseCodeException('$error', response.statusCode);
     }
 
     if (response.statusCode != 200) {
-      throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -304,11 +304,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
-      throw ExchangeProviderResponseException(error);
+      throw ExchangeProviderResponseCodeException(error, response.statusCode);
     }
 
     if (response.statusCode != 200) {
-      throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;

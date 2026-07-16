@@ -82,9 +82,9 @@ class ExolixExchangeProvider extends ExchangeProvider {
           params['amount'] = errorResponse['minAmount'].toString();
           continue;
         }
-        throw ExchangeProviderResponseException('Error 422: ${errorResponse['message'] ?? 'Unknown error'}');
+        throw ExchangeProviderResponseCodeException('Error 422: ${errorResponse['message'] ?? 'Unknown error'}', response.statusCode);
       } else {
-        throw ExchangeProviderResponseException('Unexpected HTTP status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected HTTP status: ${response.statusCode}', response.statusCode);
       }
     }
 
@@ -139,7 +139,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
           },
         );
         
-        throw ExchangeProviderResponseException(message??"");
+        throw ExchangeProviderResponseCodeException(message??"", response.statusCode);
       }
 
       final rate = double.tryParse(responseJSON['rate']?.toString() ?? '') ?? 0.0;
@@ -240,7 +240,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         },
       );
       
-      throw ExchangeProviderResponseException(errorMessage??"");
+      throw ExchangeProviderResponseCodeException(errorMessage??"", response.statusCode);
     }
 
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -262,7 +262,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
           'url': uri.toString(),
         },
       );
-      throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -337,7 +337,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200)
-      throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 

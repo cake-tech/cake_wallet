@@ -69,7 +69,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       );
 
       if (response.statusCode != 200) {
-        throw ExchangeProviderResponseException('StealthEx fetch limits failed: ${response.body}');
+        throw ExchangeProviderResponseCodeException('StealthEx fetch limits failed: ${response.body}', response.statusCode);
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final min = _toDouble(responseJSON['min_amount']);
@@ -217,7 +217,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
             'rateId': rateId,
           },
         );
-        throw ExchangeProviderResponseException('StealthEx create trade failed: ${response.body}');
+        throw ExchangeProviderResponseCodeException('StealthEx create trade failed: ${response.body}', response.statusCode);
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final deposit = responseJSON['deposit'] as Map<String, dynamic>;
@@ -333,7 +333,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode != 200) {
-      throw ExchangeProviderResponseException('StealthEx fetch trade failed: ${response.body}');
+      throw ExchangeProviderResponseCodeException('StealthEx fetch trade failed: ${response.body}', response.statusCode);
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final deposit = responseJSON['deposit'] as Map<String, dynamic>;

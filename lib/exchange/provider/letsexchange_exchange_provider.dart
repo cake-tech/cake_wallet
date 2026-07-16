@@ -341,7 +341,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
 
     if (response.statusCode != 200) {
-      throw ExchangeProviderResponseException('LetsExchange fetch trade failed: ${response.body}');
+      throw ExchangeProviderResponseCodeException('LetsExchange fetch trade failed: ${response.body}', response.statusCode);
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -400,7 +400,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       );
 
       if (response.statusCode != 200) {
-        throw ExchangeProviderResponseException('LetsExchange fetch info failed: ${response.body}');
+        throw ExchangeProviderResponseCodeException('LetsExchange fetch info failed: ${response.body}', response.statusCode);
       }
       return json.decode(response.body) as Map<String, dynamic>;
     } catch (e) {

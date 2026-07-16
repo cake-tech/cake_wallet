@@ -342,8 +342,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
     if (response.statusCode != 200) {
-      throw ExchangeProviderResponseException(
-        'Near Intents fetch trade failed: ${response.statusCode} ${response.body}',
+      throw ExchangeProviderResponseCodeException(
+        'Near Intents fetch trade failed: ${response.statusCode} ${response.body}', response.statusCode
       );
     }
 

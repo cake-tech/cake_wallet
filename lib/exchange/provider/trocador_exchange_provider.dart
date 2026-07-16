@@ -96,7 +96,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
 
     if (response.statusCode != 200)
-      throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as List<dynamic>;
 
@@ -324,7 +324,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
           'url': uri.toString(),
         },
       );
-      throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -404,7 +404,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     return ProxyWrapper()
         .get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {
       if (response.statusCode != 200)
-        throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
       final responseListJson = json.decode(response.body) as List;
       final responseJSON = responseListJson.first as Map<String, dynamic>;
@@ -466,7 +466,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if (response.statusCode != 200)
-      throw ExchangeProviderResponseException('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 

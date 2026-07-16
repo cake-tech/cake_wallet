@@ -124,7 +124,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
-        throw ExchangeProviderResponseException('Failed to fetch assets for ${currency.title} on ${currency.tag}');
+        throw ExchangeProviderResponseCodeException('Failed to fetch assets for ${currency.title} on ${currency.tag}', response.statusCode);
       }
 
       final decoded = jsonDecode(response.body);
