@@ -225,7 +225,7 @@ dependency_overrides:
   universal_ble:
     git:
       url: https://github.com/cake-tech/universal_ble.git
-      ref: f4973c7c7c95532288b9506295989f73a9694639
+      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
