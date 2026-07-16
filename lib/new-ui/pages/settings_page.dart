@@ -72,6 +72,9 @@ class SettingsSectionData {
     SettingsListItem(
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem(
+        "assets/new-ui/settings_row_icons/payjoin.svg", 'Payjoin', Routes.managePayjoinServers,
+        condition: _isBtc),
+    SettingsListItem(
         "assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.recovery_and_keys,
         Routes.showKeysDisclaimer),
