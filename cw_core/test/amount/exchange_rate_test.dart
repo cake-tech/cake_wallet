@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('ExchangeRate', () {
     final rate = ExchangeRate(
-      baseCurrency: CryptoCurrency.btc,
+      base: CryptoCurrency.btc,
       quote: Money.parse("60000", EUR),
     );
 
@@ -34,7 +34,7 @@ void main() {
 
   group('Edge Cases', () {
     final rate = ExchangeRate(
-      baseCurrency: CryptoCurrency.btc,
+      base: CryptoCurrency.btc,
       quote: Money.parse("60000", EUR),
     );
 
@@ -66,7 +66,7 @@ void main() {
 
     test('Base currency without decimals places: JPY', () {
       final rate = ExchangeRate(
-        baseCurrency: JPY,
+        base: JPY,
         quote: Money.fromInt(1, EUR),
       );
 
@@ -76,7 +76,7 @@ void main() {
 
     test('Base currency with 18 decimals places: ETH', () {
       final rate = ExchangeRate(
-        baseCurrency: CryptoCurrency.eth,
+        base: CryptoCurrency.eth,
         quote: Money.fromInt(300000, EUR),
       );
 
@@ -86,7 +86,7 @@ void main() {
 
     test('Smalles base unit is less than smalles base unit of quote', () {
       final rate = ExchangeRate(
-        baseCurrency: CryptoCurrency.eth,
+        base: CryptoCurrency.eth,
         quote: Money.fromInt(300000, EUR),
       );
       expect(rate.convert(Money(BigInt.one, CryptoCurrency.eth)), Money(BigInt.zero, EUR));
@@ -98,7 +98,7 @@ void main() {
 
     test('handle quote being 0 correctly', () {
       final zeroRate = ExchangeRate(
-        baseCurrency: CryptoCurrency.btc,
+        base: CryptoCurrency.btc,
         quote: Money(BigInt.zero, EUR),
       );
       expect(zeroRate.convert(Money.fromInt(100, CryptoCurrency.btc)), Money(BigInt.zero, EUR));
