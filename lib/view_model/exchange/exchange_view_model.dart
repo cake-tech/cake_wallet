@@ -646,8 +646,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           cryptoAmount: _receiveAmount.toString(),
         );
       }
-    } catch (e) {
-      log('Error calculating receive amount fiat formatted: $e');
+    } catch (_) {
+      log('Error calculating receive amount fiat formatted: $_');
     }
     return isFiatDisabled ? '' : '$amount';
   }
@@ -664,8 +664,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           cryptoAmount: _depositAmount.toString(),
         );
       }
-    } catch (e) {
-      log('Error calculating deposit amount fiat formatted: $e');
+    } catch (_) {
+      log('Error calculating deposit amount fiat formatted: $_');
     }
     return isFiatDisabled ? '' : '$amount';
   }
@@ -682,8 +682,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             cryptoAmount: _receiveAmount.toString(),
             raw: true);
       }
-    } catch (e) {
-      log('Error calculating receive amount fiat formatted: $e');
+    } catch (_) {
+      log('Error calculating receive amount fiat formatted: $_');
     }
     return amount;
   }
@@ -701,8 +701,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           raw: true,
         );
       }
-    } catch (e) {
-      log('Error calculating deposit amount fiat formatted: $e');
+    } catch (_) {
+      log('Error calculating deposit amount fiat formatted: $_');
     }
     return amount;
   }

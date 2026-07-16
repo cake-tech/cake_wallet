@@ -13,7 +13,6 @@ analyzer:
     cw_monero/ios/External/**,
     cw_shared_external/**,
     shared_external/**,
-    integration_test/**,
     ]
   language:
     strict-casts: true

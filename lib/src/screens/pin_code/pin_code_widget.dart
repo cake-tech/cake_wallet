@@ -55,9 +55,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     title = S.current.enter_your_pin;
     _aspectRatio = 0;
     _focusNode = FocusNode();
-    WidgetsBinding.instance.addPostFrameCallback((duration) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
-      _afterLayout(duration);
+      _afterLayout(_);
     });
   }
 
