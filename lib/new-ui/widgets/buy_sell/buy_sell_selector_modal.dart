@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/main.dart";
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -67,12 +68,13 @@ class BuySellSelectorModal extends StatelessWidget {
     showModalBottomSheet(
         useSafeArea: true,
         isScrollControlled: true,
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (modalContext) => ModalNavigator(
-              rootPage: page,
-              parentContext: context,
-            ));
+          rootPage: page,
+          parentContext: modalContext,
+        ));
   }
+
 }
 
 class BuySellSelectorModalButton extends StatelessWidget {
