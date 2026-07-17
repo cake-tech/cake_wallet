@@ -37,6 +37,10 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   bool isBleEnabled = false;
 
   @override
+  @observable
+  bool isConnecting = false;
+
+  @override
   bool get hasBluetooth => Platform.isIOS && false; // TODO: remove when we enable bluetooth
 
   @override
@@ -53,10 +57,11 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   Future<void> stopScanning() async {}
 
   @override
+  @action
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
     if (!(device is BitboxHardwareWalletDevice)) return false;
-    if (_isConnecting) return false;
-    _isConnecting = true;
+    if (isConnecting) return false;
+    isConnecting = true;
 
     try {
       final appDocDir = await getAppDir();
@@ -67,16 +72,14 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       printV("Bitbox initialized!", file: '${appDocDir.path}/error.txt');
       await bitboxManager.channelHashVerify();
       printV("Bitbox channel-hash verified!", file: '${appDocDir.path}/error.txt');
-      _isConnecting = false;
+      isConnecting = false;
       return true;
     } catch (e) {
       printV(e);
     }
-    _isConnecting = false;
+    isConnecting = false;
     return false;
   }
-
-  bool _isConnecting = false;
 
   @override
   bool isConnected(WalletType type) => false;

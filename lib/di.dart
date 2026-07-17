@@ -425,12 +425,14 @@ Future<void> setup({
     }
   });
 
-  getIt.registerLazySingleton(() => LedgerViewModel());
+  getIt.registerLazySingleton(() => LedgerViewModel(getIt<AppStore>()));
 
-  getIt.registerLazySingleton(() => BitboxViewModel());
+  getIt.registerLazySingleton(BitboxViewModel.new);
 
   getIt.registerLazySingleton(
-      () => TrezorConnect("cakewallet://trezor_connect", appName: "Cake Wallet"));
+    () => TrezorConnect("cakewallet://trezor_connect", appName: "Cake Wallet"),
+  );
+
   getIt.registerLazySingleton(() => TrezorConnectViewModel(getIt<TrezorConnect>()));
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));

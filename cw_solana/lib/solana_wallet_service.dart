@@ -14,6 +14,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/solana_mnemonics.dart';
 import 'package:cw_solana/solana_wallet.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SolanaWalletService extends WalletService<
     SolanaNewWalletCredentials,
@@ -97,6 +98,11 @@ class SolanaWalletService extends WalletService<
       throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in prefs.getKeys().where(
+            (k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
+      await prefs.remove(key);
+    }
   }
 
   @override
