@@ -9,6 +9,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
+import 'package:cake_wallet/core/address_service.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
@@ -535,10 +536,17 @@ Future<void> setup({
           getIt.get<SeedSettingsViewModel>(),
           type: type));
 
+  getIt.registerLazySingleton<AddressService>(() => AddressService(
+        wallet: () => getIt.get<AppStore>().wallet!,
+        settingsStore: getIt.get<SettingsStore>(),
+        amountParsingProxyGetter: () => getIt.get<AppStore>().amountParsingProxy,
+      ));
+
   getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
       appStore: getIt.get<AppStore>(),
       yatStore: getIt.get<YatStore>(),
-      fiatConversionStore: getIt.get<FiatConversionStore>()));
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
+      addressService: getIt.get<AddressService>()));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -859,8 +867,11 @@ Future<void> setup({
           initialCurrency: param2));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
-      (WalletAddressListItem? item, _) =>
-          WalletAddressEditOrCreateViewModel(wallet: getIt.get<AppStore>().wallet!, item: item));
+      (WalletAddressListItem? item, _) => WalletAddressEditOrCreateViewModel(
+            wallet: getIt.get<AppStore>().wallet!,
+            addressService: getIt.get<AddressService>(),
+            item: item,
+          ));
 
   getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>((dynamic item, _) =>
       AddressEditOrCreatePage(
