@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "dart:io";
+
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class DigitInputController {
   String _text = "";
@@ -19,38 +21,37 @@ class DigitInputController {
 }
 
 class DigitInputPill extends StatelessWidget {
-  const DigitInputPill({super.key, this.digit, required this.highlighted});
+  const DigitInputPill({required this.highlighted, super.key, this.digit});
 
   final String? digit;
   final bool highlighted;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 51,
-      height: 84,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            highlighted ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2) : null,
-      ),
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Text(digit ?? " ", style: TextStyle(fontSize: 40)),
+  Widget build(BuildContext context) => Container(
+        width: 51,
+        height: 84,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(16),
+          border: highlighted
+              ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+              : null,
         ),
-      ),
-    );
-  }
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(digit ?? " ", style: const TextStyle(fontSize: 40)),
+          ),
+        ),
+      );
 }
 
 class DigitInput extends StatefulWidget {
   const DigitInput({
-    super.key,
     required this.controller,
     required this.desiredLength,
     this.breakAt = 3,
+    super.key,
   });
 
   final DigitInputController controller;
@@ -74,12 +75,9 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
     if (_textInputConnection == null || !_textInputConnection!.attached) {
       _textInputConnection = TextInput.attach(
         this,
-        const TextInputConfiguration(
-          inputType: TextInputType.numberWithOptions(
-            signed: false,
-            decimal: false,
-          ),
-          inputAction: TextInputAction.none,
+        TextInputConfiguration(
+          inputType: TextInputType.number,
+          inputAction: Platform.isIOS ? TextInputAction.done : TextInputAction.none,
         ),
       );
     }
@@ -102,30 +100,28 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _openVirtualKeyboard,
-      child: SizedBox(
-        height: 84,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => DigitInputPill(
-            digit: widget.controller.text.length > index ? widget.controller.text[index] : null,
-            highlighted: widget.controller.text.length == index,
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: _openVirtualKeyboard,
+        child: SizedBox(
+          height: 84,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) => DigitInputPill(
+              digit: widget.controller.text.length > index ? widget.controller.text[index] : null,
+              highlighted: widget.controller.text.length == index,
+            ),
+            separatorBuilder: (context, index) =>
+                SizedBox(width: (index + 1) % widget.breakAt == 0 ? 16 : 4),
+            itemCount: widget.desiredLength,
           ),
-          separatorBuilder: (context, index) =>
-              SizedBox(width: (index + 1) % widget.breakAt == 0 ? 16 : 4),
-          itemCount: widget.desiredLength,
         ),
-      ),
-    );
-  }
+      );
 
   @override
   void updateEditingValue(TextEditingValue value) {
-    final RegExp numberRegExp = RegExp(r'^\d{0,6}$');
+    final RegExp numberRegExp = RegExp(r"^\d{0,6}$");
 
     if (numberRegExp.hasMatch(value.text)) {
       setState(() => widget.controller.text = value.text);
