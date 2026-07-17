@@ -3,15 +3,21 @@ import 'package:cake_wallet/new-ui/widgets/charts_page/asset_grid.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/asset_grid_header.dart';
 import 'package:cake_wallet/new-ui/widgets/charts_page/chart_header.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/new-ui/page_open_listener.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ChartsPage extends StatelessWidget {
+class ChartsPage extends StatelessWidget implements PageOpenListener {
   const ChartsPage({super.key, required this.chartsBloc});
 
   final ChartsBloc chartsBloc;
+
+  @override
+  void onPageOpen() {
+    chartsBloc.add(Init());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +26,6 @@ class ChartsPage extends StatelessWidget {
       child: BlocBuilder<ChartsBloc, ChartsState>(
         builder: (context, state) {
           if (state is ChartsInitial) {
-            // if someone has a really slow device put a placeholder instead of a glitched broken page
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

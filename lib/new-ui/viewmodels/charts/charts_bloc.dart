@@ -29,10 +29,13 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     on<PageRefreshed>(_onPageRefreshed, transformer: sequential());
     on<PageLoadStarted>(_onPageLoadStarted, transformer: restartable());
     on<Init>(_init);
-    add(Init());
   }
 
   Future<void> _init(Init event, Emitter<ChartsState> emit) async {
+    if(state is! ChartsInitial) {
+      return;
+    }
+
     final assets = await ChartsAsset.get();
 
     if (assets.isEmpty) {
