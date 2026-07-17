@@ -12,19 +12,22 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AddressesPage extends StatelessWidget {
-  const AddressesPage({super.key, this.showHidden = false});
+  const AddressesPage({super.key, this.showHidden = false, this.onSelect});
 
   final bool showHidden;
+  final void Function(String address)? onSelect;
 
   @override
   Widget build(BuildContext context) => BlocProvider<AddressesBloc>(
       create: (_) => getIt<AddressesBloc>(param1: showHidden),
-      child: const _AddressesPageBody(),
+      child: _AddressesPageBody(onSelect: onSelect),
     );
 }
 
 class _AddressesPageBody extends StatelessWidget {
-  const _AddressesPageBody();
+  const _AddressesPageBody({this.onSelect});
+
+  final void Function(String address)? onSelect;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -37,7 +40,7 @@ class _AddressesPageBody extends StatelessWidget {
           builder: (context, state) => switch (state) {
             AddressesLoading() => const _LoadingWidget(),
             AddressesFailure() => _FailureWidget(code: state.code),
-            AddressesLoaded() => _LoadedWidget(state: state),
+            AddressesLoaded() => _LoadedWidget(state: state, onSelect: onSelect),
           },
         ),
       ),
@@ -71,9 +74,12 @@ class _FailureWidget extends StatelessWidget {
 }
 
 class _LoadedWidget extends StatelessWidget {
-  const _LoadedWidget({required this.state});
+  const _LoadedWidget({required this.state, this.onSelect});
 
   final AddressesLoaded state;
+  final void Function(String address)? onSelect;
+
+  bool get isPicker => onSelect != null;
 
   @override
   Widget build(BuildContext context) {
@@ -97,12 +103,12 @@ class _LoadedWidget extends StatelessWidget {
                   itemBuilder: (context, i) => _rowAt(context, groups, i),
                 ),
         ),
-        if (state.showAddManualAddresses && !state.showHidden)
+        if (!isPicker && state.showAddManualAddresses && !state.showHidden)
           _BottomActionButton(
             label: S.of(context).add_account,
             onPressed: () => _promptAddAddress(context),
           ),
-        if (!state.showHidden)
+        if (!isPicker && !state.showHidden)
           _BottomActionButton(
             label: S.of(context).show_hidden_addresses,
             onPressed: () => Navigator.of(context).pushNamed(
@@ -139,9 +145,11 @@ class _LoadedWidget extends StatelessWidget {
           return _AddressRow(
             entry: entry,
             walletType: state.walletType,
-            isActive: entry.address == state.activeAddress,
-            onTap: () => context.read<AddressesBloc>().add(ActiveAddressSet(entry.address)),
-            onLongPress: () => _showRowMenu(context, entry),
+            isActive: !isPicker && entry.address == state.activeAddress,
+            onTap: isPicker
+                ? () => onSelect!(entry.address)
+                : () => context.read<AddressesBloc>().add(ActiveAddressSet(entry.address)),
+            onLongPress: isPicker ? () {} : () => _showRowMenu(context, entry),
           );
         }
         i += 1;

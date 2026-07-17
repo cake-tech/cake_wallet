@@ -63,15 +63,13 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
-import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive/addresses_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive/receive_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
-import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
-import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
@@ -93,7 +91,6 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
@@ -125,11 +122,9 @@ import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart'
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
-import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
@@ -163,7 +158,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
-import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
@@ -284,9 +278,6 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
@@ -325,7 +316,6 @@ import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
-import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 
 final getIt = GetIt.instance;
@@ -576,12 +566,6 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
-      appStore: getIt.get<AppStore>(),
-      yatStore: getIt.get<YatStore>(),
-      fiatConversionStore: getIt.get<FiatConversionStore>(),
-      addressService: getIt.get<AddressService>()));
-
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
@@ -810,7 +794,6 @@ Future<void> setup({
         bottomSheetService: getIt.get<BottomSheetService>(),
         balancePage: getIt.get<BalancePage>(),
         dashboardViewModel: getIt.get<DashboardViewModel>(),
-        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
       ));
 
   getIt.registerFactory<NewDashboard>(() => NewDashboard(
@@ -837,7 +820,6 @@ Future<void> setup({
       (desktopKey, _) => DesktopDashboardPage(
             balancePage: getIt.get<BalancePage>(),
             dashboardViewModel: getIt.get<DashboardViewModel>(),
-            addressListViewModel: getIt.get<WalletAddressListViewModel>(),
             desktopKey: desktopKey,
           ));
 
@@ -881,50 +863,14 @@ Future<void> setup({
         getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 
-  getIt.registerFactory<ReceivePage>(
-      () => ReceivePage(addressListViewModel: getIt.get<WalletAddressListViewModel>()));
-
-  getIt.registerFactory<AddressPage>(
-    () => AddressPage(
-      addressListViewModel: getIt<WalletAddressListViewModel>(),
-      dashboardViewModel: getIt<DashboardViewModel>(),
-      receiveOptionViewModel: getIt<ReceiveOptionViewModel>(),
-    ),
+  getIt.registerFactoryParam<ReceivePage, bool?, CryptoCurrency?>(
+    (lightningMode, initialToken) {
+      final typeOverride = (lightningMode ?? false)
+          ? bitcoin!.getBitcoinLightningReceivePageOption()
+          : null;
+      return ReceivePage(typeOverride: typeOverride, initialToken: initialToken);
+    },
   );
-
-  getIt.registerFactoryParam<NewReceivePage, bool?, CryptoCurrency?>((param1, param2) =>
-      NewReceivePage(
-          addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-          receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(),
-          dashboardViewModel: getIt.get<DashboardViewModel>(),
-          lightningMode: param1 ?? false,
-          initialCurrency: param2));
-
-  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
-      (WalletAddressListItem? item, _) => WalletAddressEditOrCreateViewModel(
-            wallet: getIt.get<AppStore>().wallet!,
-            addressService: getIt.get<AddressService>(),
-            item: item,
-          ));
-
-  getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>((dynamic item, _) =>
-      AddressEditOrCreatePage(
-          addressEditOrCreateViewModel:
-              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
-
-  getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
-      AddressLabelInputPopup(
-          walletAddressEditOrCreateViewModel:
-              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
-
-  getIt.registerFactoryParam<AddressInfoPopup, dynamic, void>((dynamic item, _) => AddressInfoPopup(
-      walletAddressEditOrCreateViewModel:
-          getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
-
-  getIt.registerFactoryParam<ReceiveLabelModal, dynamic, void>((dynamic item, _) =>
-      ReceiveLabelModal(
-          walletAddressEditOrCreateViewModel:
-              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
@@ -1154,19 +1100,13 @@ Future<void> setup({
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
 
-  getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
-
   getIt.registerFactoryParam<NodeListViewModel, bool, void>((isPow, _) {
     final appStore = getIt.get<AppStore>();
     return NodeListViewModel(appStore, isPow);
   });
 
-  getIt.registerFactoryParam<NewAddressesPage, bool, void>(
-    (showHidden, _) => NewAddressesPage(
-      showHidden: showHidden,
-      addressListViewModel: getIt<WalletAddressListViewModel>(),
-      dashboardViewModel: getIt<DashboardViewModel>(),
-    ),
+  getIt.registerFactoryParam<AddressesPage, bool, void>(
+    (showHidden, _) => AddressesPage(showHidden: showHidden),
   );
 
   getIt.registerFactory(

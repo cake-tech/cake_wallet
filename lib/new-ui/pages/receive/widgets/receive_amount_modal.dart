@@ -140,7 +140,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 ),
                                 inputFormatters: [
                                   DecimalInputFormatter(
-                                      maxDecimals: widget.selectedCurrencyDecimals),
+                                    maxDecimals: widget.selectedCurrencyDecimals,
+                                  ),
                                 ],
                                 decoration: InputDecoration(
                                   hint: Text(

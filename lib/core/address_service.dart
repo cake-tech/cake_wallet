@@ -11,6 +11,7 @@ import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/solana/solana.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/tron/tron.dart";
+import "package:cake_wallet/wownero/wownero.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -60,13 +61,17 @@ class AddressService {
 
   bool get infoboxDismissed => wallet.walletInfo.receiveInfoboxDismissed;
 
-  bool get hasAccounts => const {WalletType.monero}.contains(wallet.type);
+  bool get hasAccounts =>
+      const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
 
   List<AddressGroup> computeAddressList() {
     final type = wallet.type;
 
     if (type == WalletType.monero) {
       return [_moneroAddresses()];
+    }
+    if (type == WalletType.wownero) {
+      return [_wowneroAddresses()];
     }
     if (_isElectrumType(type)) {
       return _electrumAddresses();
@@ -111,6 +116,25 @@ class AddressService {
             isPrimary: identical(s, primary),
             txCount: s.txCount,
             balance: s.received,
+            isHidden: w.walletAddresses.hiddenAddresses.contains(s.address),
+            isManual: w.walletAddresses.manualAddresses.contains(s.address),
+          ),
+        )
+        .toList();
+    return AddressGroup(entries: entries);
+  }
+
+  AddressGroup _wowneroAddresses() {
+    final w = wallet;
+    final subaddresses = wownero!.getSubaddressList(w).subaddresses;
+    final primary = subaddresses.firstOrNull;
+    final entries = subaddresses
+        .map(
+          (s) => AddressEntry(
+            id: s.id,
+            address: s.address,
+            label: s.label,
+            isPrimary: identical(s, primary),
             isHidden: w.walletAddresses.hiddenAddresses.contains(s.address),
             isManual: w.walletAddresses.manualAddresses.contains(s.address),
           ),
@@ -252,6 +276,20 @@ class AddressService {
       await wallet.save();
       return;
     }
+
+    if (type == WalletType.wownero) {
+      await wownero!.getSubaddressList(wallet).addSubaddress(
+            wallet,
+            accountIndex: wownero!.getCurrentAccount(wallet).id,
+            label: label,
+          );
+      final subaddresses = wownero!.getSubaddressList(wallet).subaddresses;
+      if (subaddresses.isEmpty) {
+        return;
+      }
+      wallet.walletAddresses.manualAddresses.add(subaddresses.first.address);
+      await wallet.save();
+    }
   }
 
   Future<void> setLabel(String address, String label) async {
@@ -283,6 +321,16 @@ class AddressService {
       await wallet.save();
       return;
     }
+
+    if (type == WalletType.wownero) {
+      await wownero!.getSubaddressList(wallet).setLabelSubaddress(
+            wallet,
+            accountIndex: wownero!.getCurrentAccount(wallet).id,
+            addressIndex: index,
+            label: label,
+          );
+      await wallet.save();
+    }
   }
 
   int? _entryIdFor(String address) {
@@ -309,6 +357,12 @@ class AddressService {
       await monero!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
+    }
+
+    if (wallet.type == WalletType.wownero) {
+      wownero!
+          .getSubaddressList(wallet)
+          .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
     }
   }
 
@@ -340,17 +394,6 @@ class AddressService {
     }
     if (type == WalletType.zcash) {
       await zcash!.setAddressType(wallet, zcash!.getZcashAddressType(option));
-    }
-  }
-
-  Future<void> setAddressTypeRaw(dynamic chainSpecificType) async {
-    final type = wallet.type;
-    if (type == WalletType.bitcoin || type == WalletType.litecoin) {
-      await bitcoin!.setAddressType(wallet, chainSpecificType);
-      return;
-    }
-    if (type == WalletType.zcash) {
-      await zcash!.setAddressType(wallet, chainSpecificType);
     }
   }
 
@@ -445,6 +488,10 @@ class AddressService {
     final type = wallet.type;
     if (type == WalletType.monero) {
       final acc = monero!.getCurrentAccount(wallet);
+      return AddressAccount(id: acc.id, label: acc.label);
+    }
+    if (type == WalletType.wownero) {
+      final acc = wownero!.getCurrentAccount(wallet);
       return AddressAccount(id: acc.id, label: acc.label);
     }
     return null;

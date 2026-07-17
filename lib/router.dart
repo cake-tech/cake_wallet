@@ -9,7 +9,6 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
-import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -41,7 +40,6 @@ import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
@@ -79,11 +77,11 @@ import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart'
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive/addresses_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
-import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
@@ -117,7 +115,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
-import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
@@ -413,7 +410,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.receiveAddresses:
       return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<NewAddressesPage>(param1: settings.arguments as bool));
+          (context) => getIt.get<AddressesPage>(param1: settings.arguments as bool));
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
@@ -465,7 +462,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (context) => getIt.get<ReceivePage>(), settings: settings);
 
     case Routes.addressPage:
-      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
+      return handleRouteWithPlatformAwareness((context) => getIt.get<ReceivePage>(),
           settings: settings);
 
     case Routes.transactionDetails:
@@ -478,10 +475,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as List<dynamic>));
-
-    case Routes.newSubaddress:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
@@ -662,7 +655,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
 
     case Routes.pickerWalletAddress:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
+      return MaterialPageRoute<void>(
+          builder: (context) => AddressesPage(
+                onSelect: (address) => Navigator.of(context).pop(address),
+              ));
 
     case Routes.addressBookAddContact:
       return handleRouteWithPlatformAwareness(

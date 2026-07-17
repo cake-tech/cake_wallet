@@ -1,9 +1,9 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/receive/receive_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -14,7 +14,6 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/node.dart';
@@ -23,7 +22,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-import '../../../pages/receive_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
@@ -91,8 +89,8 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).receive,
             action: () async {
+              final page = getIt.get<ReceivePage>(param1: lightningMode);
               if (FeatureFlag.hasNewUiExtraPages) {
-                final page = getIt.get<NewReceivePage>(param1: lightningMode);
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
                   barrierColor: Colors.black.withAlpha(60),
@@ -101,15 +99,7 @@ class CoinActionRow extends StatelessWidget {
                   },
                 );
               } else {
-                // ToDo: (Konsti) refactor as part of the derivation PR (I hate myself for it)
-                if (lightningMode) {
-                  await getIt<WalletAddressListViewModel>().setAddressType(
-                      bitcoin!.getOptionToType(bitcoin!.getBitcoinLightningReceivePageOption()));
-                } else {
-                  await getIt<WalletAddressListViewModel>().setAddressType(
-                      bitcoin!.getOptionToType(bitcoin!.getBitcoinSegwitPageOption()));
-                }
-                Navigator.of(context).pushNamed(Routes.addressPage);
+                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
               }
             },
           ),
