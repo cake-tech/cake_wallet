@@ -13,6 +13,7 @@ class ModalTopBar extends StatelessWidget {
       this.leadingIcon,
       this.trailingIcon,
       this.padding,
+      this.bottomText,
       this.leadingWidget,
       this.trailingWidget}) {
     if (leadingIcon != null && leadingWidget != null) {
