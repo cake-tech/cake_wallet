@@ -8,13 +8,25 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:http/http.dart' as http;
 import 'package:payjoin/payjoin.dart' as pj;
 
+/// Drives the v2 Payjoin sender state machine.
+///
+/// Mirrors `payjoin-cli`'s `process_sender_session` driver:
+///   WithReplyKey -> PollingForProposal -> Closed(Success)
+///
+/// On [run], if [persister] already holds events the worker resumes via
+/// `replaySenderEventLog` (matching [PayjoinReceiverWorker]'s replay path).
+/// Otherwise it builds a fresh [pj.SenderBuilder] from the original PSBT and
+/// uri, then proceeds through the state machine.
 class PayjoinSenderWorker {
   PayjoinSenderWorker({
     required MailroomManager mailroomManager,
-  }) : _mailroomManager = mailroomManager;
+    pj.JsonSenderSessionPersister? persister,
+  })  : _mailroomManager = mailroomManager,
+        _persister = persister;
 
   final MailroomManager _mailroomManager;
   final http.Client client = ProxyWrapper().getHttpIOClient();
+  final pj.JsonSenderSessionPersister? _persister;
   bool _cancelled = false;
 
   void cancel() => _cancelled = true;
@@ -24,16 +36,86 @@ class PayjoinSenderWorker {
     String pjUriString,
     int minFeeRateSatPerKwu,
   ) async {
+    if (_cancelled) throw PayjoinSenderCancelledException();
+    final persister = _persister ?? _InMemorySenderPersister();
+    final events = persister.load();
+
+    if (events.isNotEmpty) {
+      printV('[pjSender] resuming from ${events.length} event(s)');
+      return _runFromReplay(persister);
+    }
+
+    return _runFresh(psbtBase64, pjUriString, minFeeRateSatPerKwu, persister);
+  }
+
+  Future<String> _runFromReplay(
+    pj.JsonSenderSessionPersister persister,
+  ) async {
+    final replayResult = pj.replaySenderEventLog(persister: persister);
+    final state = replayResult.state();
+    replayResult.dispose();
+
+    if (state is pj.WithReplyKeySendSession) {
+      printV('[pjSender] replay -> WithReplyKey; posting original proposal');
+      final polling = await _postOriginalProposal(state.inner, persister);
+      return _pollForProposal(polling, persister);
+    }
+    if (state is pj.PollingForProposalSendSession) {
+      printV('[pjSender] replay -> PollingForProposal; continuing');
+      return _pollForProposal(state.inner, persister);
+    }
+    if (state is pj.SenderPendingFallbackSendSession) {
+      throw PayjoinSenderFallbackAvailableException(
+        state.inner.fallbackTx(),
+      );
+    }
+    if (state is pj.ClosedSendSession) {
+      final outcome = state.inner;
+      if (outcome.isSuccess()) {
+        final psbt = outcome.successPsbtBase64();
+        if (psbt != null) return psbt;
+      }
+      throw Exception('Sender session already closed without a proposal');
+    }
+    throw Exception('Sender session not resumable: ${state.runtimeType}');
+  }
+
+  Future<String> _runFresh(
+    String psbtBase64,
+    String pjUriString,
+    int minFeeRateSatPerKwu,
+    pj.JsonSenderSessionPersister persister,
+  ) async {
     final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
     final builder = pj.SenderBuilder(psbt: psbtBase64, uri: pjUri);
     final initialTransition = builder.buildRecommended(
       minFeeRateSatPerKwu: minFeeRateSatPerKwu,
     );
-    final persister = _InMemorySenderPersister();
     final withReplyKey = initialTransition.save(persister: persister);
 
-    var polling = await _postOriginalProposal(withReplyKey, persister);
+    final polling = await _postOriginalProposal(withReplyKey, persister);
+    return _pollForProposal(polling, persister);
+  }
 
+  Future<pj.PollingForProposal> _postOriginalProposal(
+    pj.WithReplyKey withReplyKey,
+    pj.JsonSenderSessionPersister persister,
+  ) async {
+    final relayResponse = await _postViaRelay(
+      (relay) => withReplyKey.createV2PostRequest(ohttpRelay: relay),
+    );
+    printV('[pjSender] POST subscribe -> ${relayResponse.requestUrl}');
+    final transition = withReplyKey.processResponse(
+      response: relayResponse.bodyBytes,
+      postCtx: relayResponse.ohttpCtx,
+    );
+    return transition.save(persister: persister);
+  }
+
+  Future<String> _pollForProposal(
+    pj.PollingForProposal polling,
+    pj.JsonSenderSessionPersister persister,
+  ) async {
     while (true) {
       if (_cancelled) throw PayjoinSenderCancelledException();
       printV('Polling Payjoin Sender Proposal');
@@ -56,6 +138,8 @@ class PayjoinSenderWorker {
         printV('[pjSender] Stasis; will retry');
       } on PayjoinSenderCancelledException {
         rethrow;
+      } on PayjoinSenderFallbackAvailableException {
+        rethrow;
       } catch (e, s) {
         if (e is pj.ResponseException) {
           printV('Payjoin poll recoverable error: $e');
@@ -66,21 +150,6 @@ class PayjoinSenderWorker {
       }
       await Future.delayed(const Duration(seconds: 2));
     }
-  }
-
-  Future<pj.PollingForProposal> _postOriginalProposal(
-    pj.WithReplyKey withReplyKey,
-    _InMemorySenderPersister persister,
-  ) async {
-    final relayResponse = await _postViaRelay(
-      (relay) => withReplyKey.createV2PostRequest(ohttpRelay: relay),
-    );
-    printV('[pjSender] POST subscribe -> ${relayResponse.requestUrl}');
-    final transition = withReplyKey.processResponse(
-      response: relayResponse.bodyBytes,
-      postCtx: relayResponse.ohttpCtx,
-    );
-    return transition.save(persister: persister);
   }
 
   Future<_RelayResponse> _postViaRelay(
@@ -126,6 +195,18 @@ class _RelayResponse {
 class PayjoinSenderCancelledException implements Exception {
   @override
   String toString() => 'PayjoinSenderCancelledException';
+}
+
+/// Thrown when a replayed sender session is already in the
+/// `SenderPendingFallback` state, meaning the user must broadcast the
+/// enclosed fallback transaction to settle the original payment.
+class PayjoinSenderFallbackAvailableException implements Exception {
+  PayjoinSenderFallbackAvailableException(this.fallbackTx);
+  final Uint8List fallbackTx;
+
+  @override
+  String toString() =>
+      'PayjoinSenderFallbackAvailableException(fallbackTxLen=${fallbackTx.length})';
 }
 
 class _InMemorySenderPersister extends pj.JsonSenderSessionPersister {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/entities/payjoin/payjoin_server.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,7 @@ class PayjoinServerListViewModel extends ChangeNotifier {
 
   final List<PayjoinServer> relays = [];
   final List<PayjoinServer> directories = [];
-  final http.Client _client = http.Client();
+  final http.Client _client = ProxyWrapper().getHttpIOClient();
 
   bool _isTesting = false;
   bool get isTesting => _isTesting;

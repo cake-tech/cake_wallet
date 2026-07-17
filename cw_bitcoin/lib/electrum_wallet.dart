@@ -40,6 +40,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -2556,13 +2557,28 @@ abstract class ElectrumWalletBase
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, int? height, bool? retryOnFailure}) async {
     try {
-      return ElectrumTransactionInfo.fromElectrumBundle(
+      final info = ElectrumTransactionInfo.fromElectrumBundle(
         await getTransactionExpanded(hash: hash, height: height),
         walletInfo.type,
         network,
         addresses: addressesSet,
         height: height,
       );
+      info.id = hash;
+
+      if (this is BitcoinWallet) {
+        final session = (this as BitcoinWallet).payjoinManager.sessionForTxId(hash);
+        if (session != null) {
+          if (session.isSenderSession) {
+            info.amount = Money(session.amount, info.amount.currency);
+          } else {
+            info.direction = TransactionDirection.incoming;
+            info.amount = Money(session.amount, info.amount.currency);
+          }
+        }
+      }
+
+      return info;
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
         await Future.delayed(const Duration(seconds: 2));
@@ -3131,6 +3147,19 @@ abstract class ElectrumWalletBase
             height: heightsByHash?[txId],
           );
           info.id = txId;
+
+          if (this is BitcoinWallet) {
+            final session = (this as BitcoinWallet).payjoinManager.sessionForTxId(txId);
+            if (session != null) {
+              if (session.isSenderSession) {
+                info.amount = Money(session.amount, info.amount.currency);
+              } else {
+                info.direction = TransactionDirection.incoming;
+                info.amount = Money(session.amount, info.amount.currency);
+              }
+            }
+          }
+
           result[txId] = info;
         } catch (_) {
           result[txId] = null;

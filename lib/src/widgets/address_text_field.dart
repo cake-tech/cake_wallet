@@ -234,13 +234,10 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     if (code == null) return;
     if (code.isEmpty) return;
 
-    try {
-      final uri = Uri.parse(code);
-      controller?.text = uri.path;
-      onURIScanned?.call(uri);
-    } catch (_) {
-      controller?.text = code;
-    }
+    if (_applyScannedOrPasted(code)) return;
+
+    controller?.text = code;
+    onPushPasteButton?.call(context);
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
@@ -267,22 +264,44 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     final clipboard = await Clipboard.getData('text/plain');
     final address = clipboard?.text ?? '';
 
-    if (address.isNotEmpty) {
-      // if it has query parameters then it's a valid uri
-      // added because Uri.parse(address) can parse a normal address string and would still be valid
-      if (address.contains("=")) {
-        try {
-          final uri = Uri.parse(address);
-          controller?.text = uri.path;
-          onURIScanned?.call(uri);
-        } catch (_) {
-          controller?.text = address;
-        }
-      } else {
-        controller?.text = address;
-      }
-    }
+    if (address.isEmpty) return;
 
+    if (_applyScannedOrPasted(address)) return;
+
+    controller?.text = address;
     onPushPasteButton?.call(context);
+  }
+
+  /// Returns true if [input] looks like a BIP21 payment URI such as
+  /// `bitcoin:bc1q...?amount=0.001&pj=https://...`. A bare address never
+  /// has both a scheme separator and a query string.
+  bool _isBip21Uri(String input) {
+    if (!input.contains(':') || !input.contains('?')) return false;
+    try {
+      final uri = Uri.parse(input);
+      return uri.scheme == "bitcoin" &&
+          uri.queryParameters.isNotEmpty &&
+          uri.path.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Normalizes a scanned/pasted string that turns out to be a BIP21 payment
+  /// URI. Sets the visible field text to the bare address and dispatches the
+  /// full URI through [onURIScanned] so the send view model receives the
+  /// `amount=`/`pj=` parameters.
+  ///
+  /// Returns true if [input] was recognized as a BIP21 URI and handled.
+  bool _applyScannedOrPasted(String input) {
+    if (!_isBip21Uri(input)) return false;
+    try {
+      final uri = Uri.parse(input);
+      controller?.text = uri.path;
+      onURIScanned?.call(uri);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }
