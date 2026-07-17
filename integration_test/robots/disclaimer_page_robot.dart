@@ -34,7 +34,7 @@ class DisclaimerPageRobot {
 
   Future<void> tapAcceptButton() async {
     await commonTestCases.tapItemByKey('disclaimer_accept_button_key');
-    
+
     await commonTestCases.defaultSleepTime();
   }
 }

@@ -12,7 +12,6 @@ class ModalTopBar extends StatelessWidget {
       this.onTrailingPressed = nothing,
       this.leadingIcon,
       this.trailingIcon,
-      this.bottomText,
       this.padding,
       this.leadingWidget,
       this.trailingWidget}) {
