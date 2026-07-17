@@ -4,13 +4,11 @@ String formatFixed(BigInt value, int? decimals, {int? fractionalDigits, bool tri
   decimals ??= 0;
   fractionalDigits ??= decimals;
 
-  var multiplier = getMultiplier(decimals);
-  // Make sure wei is a big number (convert as necessary)
+  final multiplier = multiplierOf(decimals);
   var negative = value.isNegative;
-  if (negative) value = value * BigInt.from(-1);
+  if (negative) value = -value;
 
-  var fraction =
-      value.modPow(BigInt.one, BigInt.parse(multiplier)).toString().padLeft(decimals, "0");
+  var fraction = (value % multiplier).toString().padLeft(decimals, "0");
 
   if (fractionalDigits < 0) fractionalDigits = 0;
   if (fractionalDigits > decimals) fractionalDigits = decimals;
@@ -20,7 +18,7 @@ String formatFixed(BigInt value, int? decimals, {int? fractionalDigits, bool tri
     fraction = removeTrailing("0", fraction);
   }
 
-  final whole = (value ~/ BigInt.parse(multiplier));
+  final whole = value ~/ multiplier;
 
   final valString = fraction.isEmpty ? "$whole" : "$whole.$fraction";
 
