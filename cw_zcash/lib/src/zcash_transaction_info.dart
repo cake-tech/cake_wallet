@@ -37,8 +37,7 @@ class ZcashTransactionInfo extends TransactionInfo {
       additionalInfo['txType'] = txType.name;
     }
     additionalInfo['isRotationReceive'] = isRotationReceive;
-    additionalInfo['autoShield'] = ZcashWalletService.isAutoshieldTx(txHash);
-    additionalInfo['isAutoShield'] = isShieldAction;
+    additionalInfo['isAutoShield'] = isShieldAction || ZcashWalletService.isAutoshieldTx(txHash);
 
     if (additionalInfo['isAutoShield'] == true) {
       additionalInfo['memo'] ??= '';
