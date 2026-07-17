@@ -150,5 +150,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
         walletType: addressService.walletType,
         showAddManualAddresses: !addressService.isAutoGenerateSubaddressEnabled ||
             const {WalletType.monero, WalletType.wownero}.contains(addressService.walletType),
+        hasBalance: addressService.isBalanceAvailable,
+        hasReceived: addressService.isReceivedAvailable,
       );
 }

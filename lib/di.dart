@@ -548,12 +548,12 @@ Future<void> setup({
         amountParsingProxyGetter: () => getIt.get<AppStore>().amountParsingProxy,
       ));
 
-  getIt.registerFactoryParam<ReceiveBloc, ReceivePageOption?, CryptoCurrency?>(
-    (typeOverride, initialToken) => ReceiveBloc(
+  getIt.registerFactoryParam<ReceiveBloc, bool, CryptoCurrency?>(
+    (lightningMode, initialToken) => ReceiveBloc(
       addressService: getIt.get<AddressService>(),
       fiatRateService: getIt.get<FiatRateService>(),
       activeWalletService: getIt.get<ActiveWalletService>(),
-      typeOverride: typeOverride,
+      lightningMode: lightningMode,
       initialToken: initialToken,
     ),
   );
@@ -864,12 +864,10 @@ Future<void> setup({
   });
 
   getIt.registerFactoryParam<ReceivePage, bool?, CryptoCurrency?>(
-    (lightningMode, initialToken) {
-      final typeOverride = (lightningMode ?? false)
-          ? bitcoin!.getBitcoinLightningReceivePageOption()
-          : null;
-      return ReceivePage(typeOverride: typeOverride, initialToken: initialToken);
-    },
+    (lightningMode, initialToken) => ReceivePage(
+      lightningMode: lightningMode ?? false,
+      initialToken: initialToken,
+    ),
   );
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(

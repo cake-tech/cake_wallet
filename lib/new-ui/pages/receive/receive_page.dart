@@ -1,7 +1,11 @@
+import "package:cake_wallet/anonpay/anonpay_donation_link_info.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/receive/widgets/receive_address_type_display.dart";
+import "package:cake_wallet/new-ui/pages/receive/widgets/receive_address_type_selector.dart";
 import "package:cake_wallet/new-ui/pages/receive/widgets/receive_address_widget.dart";
 import "package:cake_wallet/new-ui/pages/receive/widgets/receive_amount_display.dart";
 import "package:cake_wallet/new-ui/pages/receive/widgets/receive_amount_modal.dart";
@@ -12,6 +16,7 @@ import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_bottom_buttons.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_info_box.dart";
@@ -19,26 +24,30 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_label_widget.dar
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_large_amount_preview.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/receive/anonpay_receive_page.dart";
+import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/utils/qr_util.dart";
 import "package:cake_wallet/utils/share_util.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/receive_page_option.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 class ReceivePage extends StatelessWidget {
-  const ReceivePage({super.key, this.typeOverride, this.initialToken});
+  const ReceivePage({super.key, this.lightningMode = false, this.initialToken});
 
-  final ReceivePageOption? typeOverride;
+  final bool lightningMode;
   final CryptoCurrency? initialToken;
 
   @override
   Widget build(BuildContext context) => BlocProvider<ReceiveBloc>(
-        create: (_) => getIt<ReceiveBloc>(param1: typeOverride, param2: initialToken),
+        create: (_) => getIt<ReceiveBloc>(param1: lightningMode, param2: initialToken),
         child: const _ReceivePageBody(),
       );
 }
@@ -147,12 +156,12 @@ class _LoadedWidget extends StatelessWidget {
       state.walletType,
       supportedCurrencies: state.receivableTokens,
       onDismissed: () => context.read<ReceiveBloc>().add(const InfoboxDismissed()),
-      autoGenerateSubaddressStatus: state.isAutoGenerateSubaddressEnabled
-          ? AutoGenerateSubaddressStatus.enabled
-          : AutoGenerateSubaddressStatus.disabled,
+      autoGenerateSubaddressStatus: state.isLightning
+          ? AutoGenerateSubaddressStatus.disabled
+          : state.autoGenerateSubaddressStatus,
     );
-    final canRotate =
-        state.hasAddressRotation && !_isMwebOption(state.addressType) && !state.isRotatingAddress;
+    final rotationAvailable =
+        state.hasAddressRotation && !_isMwebOption(state.addressType);
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -161,19 +170,31 @@ class _LoadedWidget extends StatelessWidget {
         ModalTopBar(
           title: largeQrMode ? "" : S.of(context).receive,
           leadingIcon: const Icon(Icons.close),
-          trailingIcon: largeQrMode
-              ? const Icon(Icons.share)
-              : canRotate
-                  ? const Icon(Icons.refresh)
-                  : null,
+          trailingWidget: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: largeQrMode || rotationAvailable
+                ? ModernButton(
+                    key: ValueKey(largeQrMode),
+                    size: 36,
+                    icon: largeQrMode
+                        ? const Icon(Icons.share)
+                        : state.isRotatingAddress
+                            ? const CupertinoActivityIndicator()
+                            : const Icon(Icons.refresh),
+                    onPressed: () {
+                      if (largeQrMode) {
+                        ShareUtil.share(
+                          text: state.paymentUri.toString(),
+                          context: context,
+                        );
+                      } else if (rotationAvailable) {
+                        context.read<ReceiveBloc>().add(const AddressRotated());
+                      }
+                    },
+                  )
+                : const SizedBox.shrink(),
+          ),
           onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          onTrailingPressed: () {
-            if (largeQrMode) {
-              ShareUtil.share(text: state.paymentUri.toString(), context: context);
-            } else if (canRotate) {
-              context.read<ReceiveBloc>().add(const AddressRotated());
-            }
-          },
         ),
         Expanded(
           child: Column(
@@ -314,21 +335,23 @@ class _LoadedWidget extends StatelessWidget {
 
   Future<void> _showAmountModal(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
-    final showTokenPicker = state.receivableTokens.length > 1;
-    final displayCrypto = state.tokenCurrency ?? state.receivableTokens.firstOrNull;
+    final displayCrypto = state.tokenCurrency ?? state.walletCurrency;
+    final initialAmount = state.inputCurrency is FiatCurrency
+        ? state.fiatEquivalent?.toStringWithPrecision() ?? ""
+        : state.requestedAmount?.toStringWithPrecision() ?? "";
 
     await showMaterialModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(80),
       builder: (_) => ReceiveAmountModal(
-        initialAmount: state.requestedAmount?.toStringWithPrecision() ?? "",
+        initialAmount: initialAmount,
         selectedCurrencySymbol: _currencySymbol(state.inputCurrency),
-        selectedCurrencyDecimals: state.inputCurrency.decimals,
-        useSatoshi: false,
-        showTokenPicker: showTokenPicker,
-        tokenIconPath: displayCrypto?.iconPath ?? "",
-        tokenTitle: displayCrypto?.title ?? "",
+        selectedCurrencyDecimals: state.useSatoshi ? 0 : state.inputCurrency.decimals,
+        useSatoshi: state.useSatoshi,
+        showTokenPicker: state.hasTokensList,
+        tokenIconPath: displayCrypto.iconPath ?? "",
+        tokenTitle: displayCrypto.title,
         onAmountSubmitted: (raw) => bloc.add(AmountChanged(raw)),
         onCurrencyPickerTap: () => _pickInputCurrency(context, state, bloc),
         onTokenPickerTap: () => _pickToken(context, state, bloc),
@@ -348,7 +371,7 @@ class _LoadedWidget extends StatelessWidget {
     ReceiveLoaded state,
     ReceiveBloc bloc,
   ) async {
-    final cryptoOption = state.tokenCurrency ?? state.receivableTokens.firstOrNull;
+    final cryptoOption = state.tokenCurrency ?? state.walletCurrency;
     await FiatCurrencyPickerSheet.show(
       context: context,
       selected: state.inputCurrency,
@@ -376,21 +399,17 @@ class _LoadedWidget extends StatelessWidget {
 
   Future<void> _showAddressTypePicker(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
-    final selected = await showModalBottomSheet<ReceivePageOption>(
+    final currentSelected = state.addressType ?? ReceivePageOption.mainnet;
+    final lightningMode = state.isLightning;
+    final selected = await showCupertinoModalBottomSheet<ReceivePageOption>(
       context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: state.addressTypeOptions
-              .map(
-                (option) => ListTile(
-                  title: Text(option.value),
-                  subtitle: option.description != null ? Text(option.description!) : null,
-                  onTap: () => Navigator.of(context).pop(option),
-                ),
-              )
-              .toList(),
+      barrierColor: Colors.black.withAlpha(80),
+      builder: (_) => Material(
+        child: ReceiveAddressTypeSelector(
+          options: state.addressTypeOptions,
+          selected: currentSelected,
+          walletType: state.walletType,
+          lightningMode: lightningMode,
         ),
       ),
     );
@@ -399,8 +418,7 @@ class _LoadedWidget extends StatelessWidget {
       return;
     }
 
-    if (selected == ReceivePageOption.anonPayInvoice ||
-        selected == ReceivePageOption.anonPayDonationLink) {
+    if (selected == ReceivePageOption.anonPayInvoice) {
       if (context.mounted) {
         await Navigator.of(context).pushNamed(
           Routes.anonPayInvoicePage,
@@ -410,7 +428,51 @@ class _LoadedWidget extends StatelessWidget {
       return;
     }
 
+    if (selected == ReceivePageOption.anonPayDonationLink) {
+      if (context.mounted) {
+        await _openAnonPayDonationLink(context, state, selected);
+      }
+      return;
+    }
+
     bloc.add(AddressTypeSelected(selected));
+  }
+
+  Future<void> _openAnonPayDonationLink(
+    BuildContext context,
+    ReceiveLoaded state,
+    ReceivePageOption option,
+  ) async {
+    final prefs = getIt.get<SharedPreferences>();
+    final clearnetUrl = prefs.getString(PreferencesKey.clearnetDonationLink);
+    final onionUrl = prefs.getString(PreferencesKey.onionDonationLink);
+    final donationWalletName = prefs.getString(PreferencesKey.donationLinkWalletName);
+    final walletName = getIt.get<AppStore>().wallet?.name;
+    final qrImage = state.isLightning
+        ? "assets/images/btc_chain_qr_lightning.svg"
+        : getQrImage(state.walletType);
+
+    if (clearnetUrl != null &&
+        onionUrl != null &&
+        walletName != null &&
+        walletName == donationWalletName) {
+      await Navigator.of(context).pushNamed(
+        Routes.anonPayReceivePage,
+        arguments: AnonPayReceivePageArgs(
+          invoiceInfo: AnonpayDonationLinkInfo(
+            clearnetUrl: clearnetUrl,
+            onionUrl: onionUrl,
+            address: state.addressEntry.address,
+          ),
+          qrImage: qrImage,
+        ),
+      );
+    } else {
+      await Navigator.of(context).pushNamed(
+        Routes.anonPayInvoicePage,
+        arguments: [state.addressEntry.address, option],
+      );
+    }
   }
 
   Future<void> _openAddressesPage(BuildContext context, ReceiveLoaded state) async {

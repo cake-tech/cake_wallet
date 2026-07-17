@@ -6,6 +6,7 @@ import "package:cake_wallet/core/active_wallet_service.dart";
 import "package:cake_wallet/core/address_service.dart";
 import "package:cake_wallet/core/address_types.dart";
 import "package:cake_wallet/core/fiat_rate_service.dart";
+import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -24,7 +25,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     required this.addressService,
     required this.fiatRateService,
     required this.activeWalletService,
-    ReceivePageOption? typeOverride,
+    bool lightningMode = false,
     CryptoCurrency? initialToken,
   }) : super(const ReceiveLoading()) {
     on<ReceiveOpened>(_onOpened, transformer: restartable());
@@ -45,7 +46,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     _payjoinSub =
         addressService.payjoinEndpointChanges.listen((_) => add(const _PayjoinEndpointChanged()));
 
-    add(ReceiveOpened(typeOverride: typeOverride, initialToken: initialToken));
+    add(ReceiveOpened(lightningMode: lightningMode, initialToken: initialToken));
   }
 
   final AddressService addressService;
@@ -68,12 +69,12 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     emit(const ReceiveLoading());
 
     try {
-      if (event.typeOverride != null && !_isAnonpayOption(event.typeOverride!)) {
-        await addressService.setAddressType(event.typeOverride!);
-      }
+      await addressService.applyOpenDefaults(lightningMode: event.lightningMode);
+      addressService.applyAutoGenerateOverride();
 
-      final loaded = _buildLoaded(initialToken: event.initialToken);
-      emit(loaded);
+      final effectiveInitialToken =
+          event.lightningMode ? CryptoCurrency.btcln : event.initialToken;
+      emit(_buildLoaded(initialToken: effectiveInitialToken));
     } catch (e) {
       printV("ReceiveBloc _onOpened failed: $e");
       emit(const ReceiveFailure(ReceiveFailureCode.addressListUnavailable));
@@ -81,13 +82,13 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   }
 
   Future<void> _onAmountChanged(AmountChanged event, Emitter<ReceiveState> emit) async {
-    final loaded = state;
-    if (loaded is! ReceiveLoaded) {
+    final initial = state;
+    if (initial is! ReceiveLoaded) {
       return;
     }
 
     final raw = event.raw.replaceAll(",", ".");
-    final receiveCrypto = _receiveCryptoCurrency(loaded);
+    final receiveCrypto = _receiveCryptoCurrency(initial);
 
     Money? requestedAmount;
     Money? fiatEquivalent;
@@ -95,16 +96,21 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     if (raw.isEmpty) {
       requestedAmount = null;
       fiatEquivalent = null;
-    } else if (loaded.inputCurrency is FiatCurrency) {
-      final fiatCurrency = loaded.inputCurrency as FiatCurrency;
+    } else if (initial.inputCurrency is FiatCurrency) {
+      final fiatCurrency = initial.inputCurrency as FiatCurrency;
       final fiatMoney = fiatCurrency.tryParseAmount(raw);
       if (fiatMoney != null) {
         await fiatRateService.ensureRateFor(receiveCrypto, fiatCurrency);
+        if (state case final ReceiveLoaded current
+            when current.walletType != initial.walletType) {
+          return;
+        }
         requestedAmount = fiatRateService.convertFromFiat(fiatMoney, receiveCrypto);
         fiatEquivalent = fiatMoney;
       }
     } else {
-      requestedAmount = receiveCrypto.tryParseAmount(raw);
+      final canonical = addressService.canonicalCryptoAmount(raw, receiveCrypto);
+      requestedAmount = receiveCrypto.tryParseAmount(canonical);
       if (requestedAmount != null) {
         fiatEquivalent =
             fiatRateService.convertToFiat(requestedAmount, fiatRateService.defaultFiat);
@@ -113,7 +119,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
     final rawCryptoForUri = requestedAmount?.toStringWithPrecision() ?? "";
 
-    if (loaded.isLightning) {
+    if (state case final ReceiveLoaded loaded when loaded.isLightning) {
       emit(
         loaded.copyWith(
           requestedAmount: requestedAmount,
@@ -138,7 +144,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           emit(loaded.copyWith(fetchingInvoice: false));
         }
       }
-    } else {
+    } else if (state case final ReceiveLoaded loaded) {
       final uri = addressService.buildPaymentUri(
         rawAmount: rawCryptoForUri,
         token: loaded.tokenCurrency,
@@ -164,7 +170,12 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       return;
     }
 
-    emit(loaded.copyWith(inputCurrency: event.currency));
+    emit(
+      loaded.copyWith(
+        inputCurrency: event.currency,
+        useSatoshi: addressService.useSatoshi(event.currency),
+      ),
+    );
 
     if (event.currency is FiatCurrency && event.currency != fiatRateService.defaultFiat) {
       await fiatRateService.ensureRateFor(
@@ -199,12 +210,14 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       token: token,
     );
 
+    final newInputCurrency =
+        loaded.inputCurrency is CryptoCurrency ? receiveCrypto : loaded.inputCurrency;
     emit(
       loaded.copyWith(
         tokenCurrency: token,
         clearTokenCurrency: token == null,
-        inputCurrency:
-            loaded.inputCurrency is CryptoCurrency ? receiveCrypto : loaded.inputCurrency,
+        inputCurrency: newInputCurrency,
+        useSatoshi: addressService.useSatoshi(newInputCurrency),
         paymentUri: uri,
       ),
     );
@@ -320,7 +333,14 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   }
 
   Future<void> _onWalletChanged(_WalletChanged event, Emitter<ReceiveState> emit) async {
-    add(const ReceiveOpened());
+    emit(const ReceiveLoading());
+    try {
+      addressService.applyAutoGenerateOverride();
+      emit(_buildLoaded());
+    } catch (e) {
+      printV("ReceiveBloc _onWalletChanged failed: $e");
+      emit(const ReceiveFailure(ReceiveFailureCode.addressListUnavailable));
+    }
   }
 
   Future<void> _onFiatRateChanged(_FiatRateChanged event, Emitter<ReceiveState> emit) async {
@@ -380,7 +400,12 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       isLightning: uri is LightningPaymentRequest,
       isBitcoinViewOnly: addressService.isBitcoinViewOnly,
       isAutoGenerateSubaddressEnabled: addressService.isAutoGenerateSubaddressEnabled,
+      autoGenerateSubaddressStatus: addressService.autoGenerateSubaddressStatus,
+      isZCashTransparent: addressService.isZCashTransparent,
+      useSatoshi: addressService.useSatoshi(inputCurrency),
       walletType: addressService.walletType,
+      walletCurrency: addressService.walletCurrency,
+      hasTokensList: addressService.hasTokensList,
     );
   }
 
@@ -405,7 +430,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     if (preset == null) {
       return null;
     }
-    if (preset == addressService.walletCurrency || preset == CryptoCurrency.btcln) {
+    if (preset == addressService.walletCurrency) {
       return null;
     }
     return preset;

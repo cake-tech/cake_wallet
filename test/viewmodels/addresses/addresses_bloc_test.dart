@@ -59,6 +59,8 @@ void main() {
     when(
       () => addressService.isAutoGenerateSubaddressEnabled,
     ).thenReturn(isAutoGenerateSubaddressEnabled);
+    when(() => addressService.isBalanceAvailable).thenReturn(false);
+    when(() => addressService.isReceivedAvailable).thenReturn(false);
     when(() => activeWalletService.walletChanges).thenAnswer((_) => walletChangesController.stream);
   }
 
@@ -231,6 +233,37 @@ void main() {
       verify: (bloc) {
         final state = bloc.state as AddressesLoaded;
         expect(state.showHidden, isTrue);
+      },
+    );
+
+    blocTest<AddressesBloc, AddressesState>(
+      "AddressHideToggled re-emits with fresh groups from service",
+      setUp: () {
+        var call = 0;
+        when(() => addressService.computeAddressList()).thenAnswer((_) {
+          call += 1;
+          return call == 1
+              ? [_group([_entry("addr1"), _entry("addr2")])]
+              : [_group([_entry("addr1", isHidden: true), _entry("addr2")])];
+        });
+        when(() => addressService.currentAddress).thenReturn("addr1");
+        when(() => addressService.hasAccounts).thenReturn(false);
+        when(() => addressService.currentAccount).thenReturn(null);
+        when(() => addressService.walletType).thenReturn(WalletType.bitcoin);
+        when(() => addressService.isAutoGenerateSubaddressEnabled).thenReturn(false);
+        when(() => addressService.isBalanceAvailable).thenReturn(false);
+        when(() => addressService.isReceivedAvailable).thenReturn(false);
+        when(() => addressService.setHidden(any(), hidden: any(named: "hidden")))
+            .thenAnswer((_) async {});
+        when(() => activeWalletService.walletChanges)
+            .thenAnswer((_) => walletChangesController.stream);
+      },
+      build: buildBloc,
+      act: (bloc) => bloc.add(const AddressHideToggled("addr1", hidden: true)),
+      wait: const Duration(milliseconds: 20),
+      verify: (bloc) {
+        final state = bloc.state as AddressesLoaded;
+        expect(state.groups.first.entries.first.isHidden, isTrue);
       },
     );
   });

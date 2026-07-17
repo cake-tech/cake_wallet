@@ -655,7 +655,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
 
     case Routes.pickerWalletAddress:
-      return MaterialPageRoute<void>(
+      return MaterialPageRoute<String>(
           builder: (context) => AddressesPage(
                 onSelect: (address) => Navigator.of(context).pop(address),
               ));

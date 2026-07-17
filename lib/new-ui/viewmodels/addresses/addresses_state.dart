@@ -21,6 +21,8 @@ final class AddressesLoaded extends AddressesState {
     required this.currentAccount,
     required this.walletType,
     required this.showAddManualAddresses,
+    required this.hasBalance,
+    required this.hasReceived,
   });
 
   final List<AddressGroup> groups;
@@ -31,6 +33,8 @@ final class AddressesLoaded extends AddressesState {
   final AddressAccount? currentAccount;
   final WalletType walletType;
   final bool showAddManualAddresses;
+  final bool hasBalance;
+  final bool hasReceived;
 
   List<AddressGroup> get displayableGroups {
     final term = searchTerm.toLowerCase();
@@ -63,6 +67,8 @@ final class AddressesLoaded extends AddressesState {
     bool clearAccount = false,
     WalletType? walletType,
     bool? showAddManualAddresses,
+    bool? hasBalance,
+    bool? hasReceived,
   }) => AddressesLoaded(
       groups: groups ?? this.groups,
       activeAddress: activeAddress ?? this.activeAddress,
@@ -72,11 +78,13 @@ final class AddressesLoaded extends AddressesState {
       currentAccount: clearAccount ? null : (currentAccount ?? this.currentAccount),
       walletType: walletType ?? this.walletType,
       showAddManualAddresses: showAddManualAddresses ?? this.showAddManualAddresses,
+      hasBalance: hasBalance ?? this.hasBalance,
+      hasReceived: hasReceived ?? this.hasReceived,
     );
 
   @override
   List<Object?> get props => [
-        groups.length,
+        groups,
         activeAddress,
         searchTerm,
         showHidden,
@@ -84,6 +92,8 @@ final class AddressesLoaded extends AddressesState {
         currentAccount,
         walletType,
         showAddManualAddresses,
+        hasBalance,
+        hasReceived,
       ];
 }
 

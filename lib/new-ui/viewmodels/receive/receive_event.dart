@@ -5,9 +5,9 @@ sealed class ReceiveEvent {
 }
 
 final class ReceiveOpened extends ReceiveEvent {
-  const ReceiveOpened({this.typeOverride, this.initialToken});
+  const ReceiveOpened({this.lightningMode = false, this.initialToken});
 
-  final ReceivePageOption? typeOverride;
+  final bool lightningMode;
   final CryptoCurrency? initialToken;
 }
 

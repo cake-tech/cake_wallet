@@ -5,10 +5,12 @@ import "package:cake_wallet/core/active_wallet_service.dart";
 import "package:cake_wallet/core/address_service.dart";
 import "package:cake_wallet/core/address_types.dart";
 import "package:cake_wallet/core/fiat_rate_service.dart";
+import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/wallet_base.dart";
@@ -30,6 +32,8 @@ class _FakeFiatCurrency extends Fake implements FiatCurrency {}
 
 class _FakeMoney extends Fake implements Money {}
 
+class _FakeCurrency extends Fake implements Currency {}
+
 const _btcAddress = AddressEntry(address: "bc1qtestaddress", isPrimary: true);
 final _btcUri = BitcoinURI(address: _btcAddress.address, amount: "");
 
@@ -39,6 +43,7 @@ void main() {
     registerFallbackValue(_FakeCryptoCurrency());
     registerFallbackValue(_FakeFiatCurrency());
     registerFallbackValue(_FakeMoney());
+    registerFallbackValue(_FakeCurrency());
   });
 
   late _MockAddressService addressService;
@@ -48,12 +53,12 @@ void main() {
   late StreamController<void> rateChangesController;
   late StreamController<String?> payjoinController;
 
-  ReceiveBloc buildBloc({ReceivePageOption? typeOverride, CryptoCurrency? initialToken}) =>
+  ReceiveBloc buildBloc({bool lightningMode = false, CryptoCurrency? initialToken}) =>
       ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
         activeWalletService: activeWalletService,
-        typeOverride: typeOverride,
+        lightningMode: lightningMode,
         initialToken: initialToken,
       );
 
@@ -91,6 +96,14 @@ void main() {
       () => addressService.isAutoGenerateSubaddressEnabled,
     ).thenReturn(isAutoGenerateSubaddressEnabled);
     when(() => addressService.isZCashTransparent).thenReturn(isZCashTransparent);
+    when(() => addressService.useSatoshi(any())).thenReturn(false);
+    when(() => addressService.canonicalCryptoAmount(any(), any()))
+        .thenAnswer((invocation) => invocation.positionalArguments[0] as String);
+    when(() => addressService.autoGenerateSubaddressStatus)
+        .thenReturn(AutoGenerateSubaddressStatus.disabled);
+    when(() => addressService.hasTokensList).thenReturn(false);
+    when(() => addressService.applyOpenDefaults(lightningMode: any(named: "lightningMode")))
+        .thenAnswer((_) async {});
     when(() => addressService.currentAccount).thenReturn(currentAccount);
     when(() => addressService.selectedAddressType).thenReturn(selectedAddressType);
     when(
@@ -132,26 +145,22 @@ void main() {
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "applies typeOverride via setAddressType",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.setAddressType(any())).thenAnswer((_) async {});
-      },
-      build: () => buildBloc(typeOverride: ReceivePageOption.mainnet),
-      verify: (_) {
-        verify(() => addressService.setAddressType(ReceivePageOption.mainnet)).called(1);
+      "applies lightning open defaults when lightningMode is true",
+      setUp: wireDefaults,
+      build: () => buildBloc(lightningMode: true),
+      verify: (bloc) {
+        verify(() => addressService.applyOpenDefaults(lightningMode: true)).called(1);
+        final state = bloc.state as ReceiveLoaded;
+        expect(state.tokenCurrency, CryptoCurrency.btcln);
       },
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "does not call setAddressType for anonpay options",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.setAddressType(any())).thenAnswer((_) async {});
-      },
-      build: () => buildBloc(typeOverride: ReceivePageOption.anonPayInvoice),
+      "applies non-lightning open defaults when lightningMode is false",
+      setUp: wireDefaults,
+      build: buildBloc,
       verify: (_) {
-        verifyNever(() => addressService.setAddressType(any()));
+        verify(() => addressService.applyOpenDefaults(lightningMode: false)).called(1);
       },
     );
 
@@ -360,6 +369,21 @@ void main() {
       wait: const Duration(milliseconds: 100),
       verify: (bloc) {
         verify(() => addressService.rotateAddress()).called(1);
+      },
+    );
+
+    blocTest<ReceiveBloc, ReceiveState>(
+      "rotation failure still clears isRotatingAddress",
+      setUp: () {
+        wireDefaults();
+        when(() => addressService.rotateAddress()).thenThrow(Exception("boom"));
+      },
+      build: buildBloc,
+      act: (bloc) => bloc.add(const AddressRotated()),
+      wait: const Duration(milliseconds: 50),
+      verify: (bloc) {
+        final state = bloc.state as ReceiveLoaded;
+        expect(state.isRotatingAddress, isFalse);
       },
     );
   });

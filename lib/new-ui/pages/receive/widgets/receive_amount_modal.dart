@@ -201,7 +201,9 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                       NewPrimaryButton(
                         text: S.of(context).continue_text,
                         onPressed: () {
-                          widget.onAmountSubmitted(_amountController.text);
+                          if (double.tryParse(_amountController.text) != null) {
+                            widget.onAmountSubmitted(_amountController.text);
+                          }
                           Navigator.of(context).pop();
                         },
                         color: Theme.of(context).colorScheme.primary,

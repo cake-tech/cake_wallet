@@ -8,6 +8,7 @@ import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cake_wallet/solana/solana.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/tron/tron.dart";
@@ -15,6 +16,7 @@ import "package:cake_wallet/wownero/wownero.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/payment_uris.dart";
@@ -58,6 +60,8 @@ class AddressService {
 
   List<CryptoCurrency> get receivableTokens =>
       wallet.balance.keys.whereType<CryptoCurrency>().toList();
+
+  bool get hasTokensList => hasTokens(wallet.type);
 
   bool get infoboxDismissed => wallet.walletInfo.receiveInfoboxDismissed;
 
@@ -497,6 +501,11 @@ class AddressService {
     return null;
   }
 
+  bool get isBalanceAvailable => _isElectrumType(wallet.type);
+
+  bool get isReceivedAvailable =>
+      const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
+
   bool get isBitcoinViewOnly {
     if (wallet.type != WalletType.bitcoin) {
       return false;
@@ -509,6 +518,29 @@ class AddressService {
       return false;
     }
     return _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+  }
+
+  AutoGenerateSubaddressStatus get autoGenerateSubaddressStatus =>
+      _settingsStore.autoGenerateSubaddressStatus;
+
+  void applyAutoGenerateOverride() {
+    if (!wallet.isEnabledAutoGenerateSubaddress) {
+      return;
+    }
+    final latestAddress = wallet.walletAddresses.latestAddress;
+    if (latestAddress.isNotEmpty) {
+      wallet.walletAddresses.address = latestAddress;
+    }
+  }
+
+  Future<void> applyOpenDefaults({required bool lightningMode}) async {
+    if (lightningMode) {
+      await setAddressType(bitcoin!.getBitcoinLightningReceivePageOption());
+      return;
+    }
+    if (wallet.type == WalletType.bitcoin) {
+      await setAddressType(bitcoin!.getBitcoinSegwitPageOption());
+    }
   }
 
   bool get isSilentPayments =>
@@ -529,6 +561,11 @@ class AddressService {
       printV("failed to save receiveInfoboxDismissed: $e");
     }
   }
+
+  bool useSatoshi(Currency currency) => _amountParsingProxy.useSatoshi(currency);
+
+  String canonicalCryptoAmount(String raw, CryptoCurrency currency) =>
+      _amountParsingProxy.getCanonicalCryptoAmount(raw, currency);
 
   bool _isElectrumType(WalletType type) =>
       type == WalletType.bitcoin ||

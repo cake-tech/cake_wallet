@@ -32,7 +32,12 @@ final class ReceiveLoaded extends ReceiveState {
     required this.isLightning,
     required this.isBitcoinViewOnly,
     required this.isAutoGenerateSubaddressEnabled,
+    required this.autoGenerateSubaddressStatus,
+    required this.isZCashTransparent,
+    required this.useSatoshi,
     required this.walletType,
+    required this.walletCurrency,
+    required this.hasTokensList,
   });
 
   final AddressEntry addressEntry;
@@ -59,8 +64,13 @@ final class ReceiveLoaded extends ReceiveState {
   final bool isLightning;
   final bool isBitcoinViewOnly;
   final bool isAutoGenerateSubaddressEnabled;
+  final AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
+  final bool isZCashTransparent;
+  final bool useSatoshi;
 
   final WalletType walletType;
+  final CryptoCurrency walletCurrency;
+  final bool hasTokensList;
 
   bool get hasPayjoin =>
       payjoinEndpoint != null && payjoinEndpoint!.isNotEmpty && !isSilentPayments && !isLightning;
@@ -69,7 +79,7 @@ final class ReceiveLoaded extends ReceiveState {
     if (isLightning) {
       return false;
     }
-    if (walletType == WalletType.zcash) {
+    if (walletType == WalletType.zcash && !isZCashTransparent) {
       return false;
     }
     return const {
@@ -80,6 +90,7 @@ final class ReceiveLoaded extends ReceiveState {
       WalletType.litecoin,
       WalletType.decred,
       WalletType.dogecoin,
+      WalletType.zcash,
     }.contains(walletType);
   }
 
@@ -110,35 +121,46 @@ final class ReceiveLoaded extends ReceiveState {
     bool? isLightning,
     bool? isBitcoinViewOnly,
     bool? isAutoGenerateSubaddressEnabled,
+    AutoGenerateSubaddressStatus? autoGenerateSubaddressStatus,
+    bool? isZCashTransparent,
+    bool? useSatoshi,
     WalletType? walletType,
-  }) => ReceiveLoaded(
-      addressEntry: addressEntry ?? this.addressEntry,
-      addressType: addressType ?? this.addressType,
-      addressTypeOptions: addressTypeOptions ?? this.addressTypeOptions,
-      inputCurrency: inputCurrency ?? this.inputCurrency,
-      tokenCurrency: clearTokenCurrency ? null : (tokenCurrency ?? this.tokenCurrency),
-      receivableTokens: receivableTokens ?? this.receivableTokens,
-      requestedAmount: clearRequestedAmount ? null : (requestedAmount ?? this.requestedAmount),
-      fiatEquivalent: clearFiatEquivalent ? null : (fiatEquivalent ?? this.fiatEquivalent),
-      infoboxDismissed: infoboxDismissed ?? this.infoboxDismissed,
-      payjoinEndpoint: clearPayjoinEndpoint ? null : (payjoinEndpoint ?? this.payjoinEndpoint),
-      fetchingInvoice: fetchingInvoice ?? this.fetchingInvoice,
-      isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
-      paymentUri: paymentUri ?? this.paymentUri,
-      hasAccounts: hasAccounts ?? this.hasAccounts,
-      accountLabel: clearAccountLabel ? null : (accountLabel ?? this.accountLabel),
-      isSilentPayments: isSilentPayments ?? this.isSilentPayments,
-      isLightning: isLightning ?? this.isLightning,
-      isBitcoinViewOnly: isBitcoinViewOnly ?? this.isBitcoinViewOnly,
-      isAutoGenerateSubaddressEnabled:
-          isAutoGenerateSubaddressEnabled ?? this.isAutoGenerateSubaddressEnabled,
-      walletType: walletType ?? this.walletType,
-    );
+    CryptoCurrency? walletCurrency,
+    bool? hasTokensList,
+  }) =>
+      ReceiveLoaded(
+        addressEntry: addressEntry ?? this.addressEntry,
+        addressType: addressType ?? this.addressType,
+        addressTypeOptions: addressTypeOptions ?? this.addressTypeOptions,
+        inputCurrency: inputCurrency ?? this.inputCurrency,
+        tokenCurrency: clearTokenCurrency ? null : (tokenCurrency ?? this.tokenCurrency),
+        receivableTokens: receivableTokens ?? this.receivableTokens,
+        requestedAmount: clearRequestedAmount ? null : (requestedAmount ?? this.requestedAmount),
+        fiatEquivalent: clearFiatEquivalent ? null : (fiatEquivalent ?? this.fiatEquivalent),
+        infoboxDismissed: infoboxDismissed ?? this.infoboxDismissed,
+        payjoinEndpoint: clearPayjoinEndpoint ? null : (payjoinEndpoint ?? this.payjoinEndpoint),
+        fetchingInvoice: fetchingInvoice ?? this.fetchingInvoice,
+        isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
+        paymentUri: paymentUri ?? this.paymentUri,
+        hasAccounts: hasAccounts ?? this.hasAccounts,
+        accountLabel: clearAccountLabel ? null : (accountLabel ?? this.accountLabel),
+        isSilentPayments: isSilentPayments ?? this.isSilentPayments,
+        isLightning: isLightning ?? this.isLightning,
+        isBitcoinViewOnly: isBitcoinViewOnly ?? this.isBitcoinViewOnly,
+        isAutoGenerateSubaddressEnabled:
+            isAutoGenerateSubaddressEnabled ?? this.isAutoGenerateSubaddressEnabled,
+        autoGenerateSubaddressStatus:
+            autoGenerateSubaddressStatus ?? this.autoGenerateSubaddressStatus,
+        isZCashTransparent: isZCashTransparent ?? this.isZCashTransparent,
+        useSatoshi: useSatoshi ?? this.useSatoshi,
+        walletType: walletType ?? this.walletType,
+        walletCurrency: walletCurrency ?? this.walletCurrency,
+        hasTokensList: hasTokensList ?? this.hasTokensList,
+      );
 
   @override
   List<Object?> get props => [
-        addressEntry.address,
-        addressEntry.label,
+        addressEntry,
         addressType,
         addressTypeOptions,
         inputCurrency,
@@ -157,7 +179,12 @@ final class ReceiveLoaded extends ReceiveState {
         isLightning,
         isBitcoinViewOnly,
         isAutoGenerateSubaddressEnabled,
+        autoGenerateSubaddressStatus,
+        isZCashTransparent,
+        useSatoshi,
         walletType,
+        walletCurrency,
+        hasTokensList,
       ];
 }
 
