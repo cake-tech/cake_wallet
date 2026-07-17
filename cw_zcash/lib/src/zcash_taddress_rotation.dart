@@ -39,7 +39,7 @@ class ZcashTaddressRotation {
   static const int _transparentSyncLimit = 100;
 
   static zkool_account.Seed seedForOffset(final zkool_account.Seed seed) {
-    final seedStr = "${seed.mnemonic} ${seed.phrase}".trim();
+    final seedStr = "${seed.mnemonic} ${seed.phrase.replaceAll(" ", "_")}".trim();
     final seedWords = seedStr.split(" ");
     if ([12, 24].contains(seedWords.length)) {
       seedWords.add("");

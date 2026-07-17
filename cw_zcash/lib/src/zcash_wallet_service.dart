@@ -127,7 +127,7 @@ class ZcashWalletService
 
   @override
   Future<void> remove(final String wallet) async {
-    final path = (await pathForWalletDir(name: wallet, type: getType())) + ".v2";
+    final path = (await pathForWalletDir(name: wallet, type: getType()));
     final file = Directory(path);
     final isExist = file.existsSync();
 
