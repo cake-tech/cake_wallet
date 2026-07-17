@@ -1121,6 +1121,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // it is required because evm, solana and tron don't actually save the transaction info when you send something.
       // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
       if (isEVMWallet) {
+        final selectedToken = evm!.getERC20Currencies(wallet).firstWhereOrNull(
+              (token) => token.title.toUpperCase() == selectedCryptoCurrency.title.toUpperCase(),
+            );
+
         wallet.transactionHistory.addOne(evm!.getTransactionInfo(
           id: pendingTransaction!.evmTxHashFromRawHex!,
           height: 0,
@@ -1132,6 +1136,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           date: DateTime.now(),
           confirmations: 0,
           chainId: wallet.chainId ?? 0,
+          contractAddress: selectedToken?.contractAddress,
         ));
       }
 
