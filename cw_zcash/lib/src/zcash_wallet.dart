@@ -54,6 +54,10 @@ abstract class ZcashWalletBase
   Timer? _periodicSyncTimer;
   int _initialSyncHeight = 0;
   int _lastKnownBlockHeight = 0;
+  bool _isSyncStatusUpdating = false;
+  bool _isPeriodicSyncRunning = false;
+  bool _warpSyncRetryScheduled = false;
+  bool _isClosed = false;
 
   @override
   ObservableMap<CryptoCurrency, ZcashBalance> balance = ObservableMap.of({
@@ -96,9 +100,10 @@ abstract class ZcashWalletBase
 
   @override
   Future<void> close({final bool shouldCleanup = false}) async {
+    _isClosed = true;
     _stopSyncStatusUpdates();
     _stopPeriodicSync();
-    await ZcashWalletService.runInDbMutex(() async => WarpApi.cancelSync());
+    WarpApi.cancelSync();
   }
 
   Node? lastNode;
@@ -477,6 +482,7 @@ abstract class ZcashWalletBase
   @action
   Future<void> startSync() async {
     try {
+      _isClosed = false;
       syncStatus = AttemptingSyncStatus();
 
       _initialSyncHeight = 0;
@@ -504,6 +510,26 @@ abstract class ZcashWalletBase
   }
 
   static Mutex warpSyncMutex = Mutex();
+
+  void _scheduleWarpSyncRetry() {
+    if (_isClosed || _warpSyncRetryScheduled) {
+      return;
+    }
+
+    _warpSyncRetryScheduled = true;
+    unawaited(
+      Future.delayed(const Duration(seconds: 3)).then((_) async {
+        _warpSyncRetryScheduled = false;
+        if (_isClosed) {
+          return;
+        }
+        if (_syncStatusTimer == null) {
+          _startSyncStatusUpdates();
+        }
+        await _runWarpSync();
+      }),
+    );
+  }
 
   static Future<void> initialSyncCheck() async {
     final zcashDir = await pathForWalletTypeDir(type: WalletType.zcash);
@@ -556,12 +582,16 @@ abstract class ZcashWalletBase
       printV("warpSync completed with result: $result");
 
       await _updateSyncStatus();
+      if (syncStatus is SyncingSyncStatus || syncStatus is SyncronizingSyncStatus) {
+        _scheduleWarpSyncRetry();
+      }
     } catch (e) {
-      syncStatus = FailedSyncStatus(error: e.toString());
-      unawaited(Future.delayed(Duration(seconds: 1)).then((_) => unawaited(_runWarpSync())));
-      _stopSyncStatusUpdates();
-    } finally {
       isNodeWorking = false;
+      printV("WarpSync error: $e");
+      syncStatus = FailedSyncStatus(error: e.toString());
+      _stopSyncStatusUpdates();
+      _scheduleWarpSyncRetry();
+    } finally {
       warpSyncMutex.release();
       _t?.cancel();
     }
@@ -586,6 +616,11 @@ abstract class ZcashWalletBase
     printV("_startPeriodicSync");
     _stopPeriodicSync();
     _periodicSyncTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      if (_isPeriodicSyncRunning || _isClosed) {
+        return;
+      }
+
+      _isPeriodicSyncRunning = true;
       try {
         final chainHeight = await WarpApi.getLatestHeight(coin);
         final dbHeight = WarpApi.getDbHeight(coin);
@@ -601,6 +636,8 @@ abstract class ZcashWalletBase
         }
       } catch (e) {
         printV("Periodic sync error: $e");
+      } finally {
+        _isPeriodicSyncRunning = false;
       }
     });
   }
@@ -612,6 +649,11 @@ abstract class ZcashWalletBase
 
   @action
   Future<void> _updateSyncStatus() async {
+    if (_isSyncStatusUpdating || _isClosed) {
+      return;
+    }
+
+    _isSyncStatusUpdating = true;
     try {
       final dbHeight = WarpApi.getDbHeight(coin);
       final height = dbHeight.unpack();
@@ -631,9 +673,8 @@ abstract class ZcashWalletBase
         }
         try {
           await updateBalance();
-          await updateTransactions();
         } catch (e) {
-          printV("Error updating balance/transactions: $e");
+          printV("Error updating balance: $e");
         }
         return;
       }
@@ -646,9 +687,8 @@ abstract class ZcashWalletBase
         }
         try {
           await updateBalance();
-          await updateTransactions();
         } catch (e) {
-          printV("Error updating balance/transactions: $e");
+          printV("Error updating balance: $e");
         }
         return;
       }
@@ -692,9 +732,10 @@ abstract class ZcashWalletBase
       syncStatus = SyncingSyncStatus(blocksLeft, ptc.clamp(0.0, 1.0));
 
       await updateBalance();
-      await updateTransactions();
     } catch (e) {
       printV("Sync status update error: $e");
+    } finally {
+      _isSyncStatusUpdating = false;
     }
   }
 
@@ -709,7 +750,14 @@ abstract class ZcashWalletBase
   }
 
   static final autoShieldMutex = Mutex();
+  static bool _isAutoShieldRunning = false;
+
   Future<void> _autoShield() async {
+    if (_isAutoShieldRunning) {
+      return;
+    }
+
+    _isAutoShieldRunning = true;
     try {
       await autoShieldMutex.acquire();
       await _$autoShield();
@@ -718,6 +766,7 @@ abstract class ZcashWalletBase
       await Future.delayed(Duration(seconds: 30));
     } finally {
       autoShieldMutex.release();
+      _isAutoShieldRunning = false;
     }
   }
 

@@ -388,7 +388,6 @@ class ZcashTaddressRotation {
       } catch (e, s) {
         printV(e);
         s.toString().split("\n").forEach(printV);
-        rethrow;
       } finally {
         await Future.delayed(Duration(seconds: 30));
       }
