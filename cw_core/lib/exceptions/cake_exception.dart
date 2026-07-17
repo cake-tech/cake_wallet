@@ -6,6 +6,9 @@ abstract class CakeException implements Exception {
   const CakeException(this.message);
 
   final String message;
+
+  @override
+  String toString() => message;
 }
 
 class BadWalletTypeException extends CakeException {
