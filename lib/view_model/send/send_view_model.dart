@@ -917,16 +917,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return pendingTransaction;
     } catch (e) {
       _ledgerTxStateTimer?.cancel();
-      // if (e is LedgerException) {
-      //   final errorCode = e.errorCode.toRadixString(16);
-      //   final fallbackMsg =
-      //       e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
-      //   final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
-      //
-      //   state = FailureState(errorMsg);
-      // } else {
-      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
-      // }
+      final interpretedError =
+          wallet.isHardwareWallet ? hardwareWalletViewModel?.interpretErrorCode(e.toString()) : null;
+      state = FailureState(interpretedError ?? translateErrorMessage(e, wallet.type, wallet.currency));
     }
     return null;
   }

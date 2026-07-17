@@ -211,6 +211,8 @@
   "coin_control_desc_no_edit": "Freeze outputs if needed. The changes will be persistent across all transactions. You can also filter outputs for one transaction on the Send or Swap screens.",
   "coin_control_load_failed": "Failed to load unspent coins",
   "cold_or_recover_wallet": "Add an air-gapped cold wallet or recover a paper wallet.",
+  "coldcard_connection_error": "Failed to connect to your Coldcard. Please try again.",
+  "coldcard_error_tx_rejected_by_user": "Transaction rejected on device",
   "collection_address": "Collection Address",
   "collection_description": "Collection Description",
   "collection_name": "Collection Name",

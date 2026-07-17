@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:coldcard_protocol/client.dart';
 import 'package:coldcard_usb/coldcard_usb_transport.dart';
@@ -67,6 +68,14 @@ class ColdcardViewModel extends HardwareWalletViewModel {
     return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
   }
 
-  // todo: add proper error codes
-  String? interpretErrorCode(String error) => null;
+  String? interpretErrorCode(String error) {
+    final lowerError = error.toLowerCase();
+    if (lowerError.contains('refused')) {
+      return S.current.coldcard_error_tx_rejected_by_user;
+    }
+    if (lowerError.contains('timeout')) {
+      return S.current.coldcard_connection_error;
+    }
+    return null;
+  }
 }
