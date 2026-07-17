@@ -7,6 +7,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_his
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
@@ -199,10 +200,35 @@ class HistorySection extends StatelessWidget {
                                     session.status == 'success');
 
                             return _historyRow(
-                              onTap: () => Navigator.of(context).pushNamed(
-                                Routes.payjoinDetails,
-                                arguments: [item.sessionId, item.transaction],
-                              ),
+                              onTap: () {
+                                if (isComplete && item.transaction != null) {
+                                  final page = getIt.get<TransactionDetailsModal>(
+                                      param1: item.transaction);
+                                  if (detailsAsPage) {
+                                    Navigator.of(context).push(CupertinoPageRoute(
+                                        builder: (context) => Material(child: page)));
+                                  } else {
+                                    showModalBottomSheet(
+                                        isScrollControlled: true,
+                                        context: context,
+                                        builder: (context) =>
+                                            FractionallySizedBox(heightFactor: 0.9, child: page));
+                                  }
+                                } else {
+                                  final page = getIt.get<PayjoinDetailsModal>(
+                                      param1: item.sessionId, param2: item.transaction);
+                                  if (detailsAsPage) {
+                                    Navigator.of(context).push(CupertinoPageRoute(
+                                        builder: (context) => Material(child: page)));
+                                  } else {
+                                    showModalBottomSheet(
+                                        isScrollControlled: true,
+                                        context: context,
+                                        builder: (context) =>
+                                            FractionallySizedBox(heightFactor: 0.9, child: page));
+                                  }
+                                }
+                              },
                               child: PayjoinHistoryTile(
                                   createdAt:
                                       _formatTransactionDate(session.inProgressSince!, localeName),

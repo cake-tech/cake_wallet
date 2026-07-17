@@ -84,6 +84,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @action
   Future<void> newPayjoinReceiver() async {
+    // Soft guard: skip silently when the wallet has no spendable UTXOs, so the
+    // receive page can render without surfacing a receiver-creation error.
+    // PayjoinManager.initReceiver also enforces this as a hard guard.
+    if (!payjoinManager.canCreateReceiver) {
+      printV('Skipping payjoin receiver creation: no spendable UTXOs available');
+      return;
+    }
     try {
       final endpoint = await payjoinManager.initReceiver(payjoinCompatibleAddress);
       if (endpoint.isNotEmpty) {
