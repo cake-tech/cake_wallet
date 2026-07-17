@@ -12,6 +12,7 @@ import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/address_service.dart';
 import 'package:cake_wallet/core/fiat_rate_service.dart';
+import 'package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
@@ -551,9 +552,20 @@ Future<void> setup({
 
   getIt.registerLazySingleton<AddressService>(() => AddressService(
         wallet: () => getIt.get<ActiveWalletService>().wallet,
+        walletChanges: getIt.get<ActiveWalletService>().walletChanges,
         settingsStore: getIt.get<SettingsStore>(),
         amountParsingProxyGetter: () => getIt.get<AppStore>().amountParsingProxy,
       ));
+
+  getIt.registerFactoryParam<ReceiveBloc, ReceivePageOption?, CryptoCurrency?>(
+    (typeOverride, initialToken) => ReceiveBloc(
+      addressService: getIt.get<AddressService>(),
+      fiatRateService: getIt.get<FiatRateService>(),
+      activeWalletService: getIt.get<ActiveWalletService>(),
+      typeOverride: typeOverride,
+      initialToken: initialToken,
+    ),
+  );
 
   getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
       appStore: getIt.get<AppStore>(),

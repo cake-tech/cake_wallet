@@ -1,0 +1,177 @@
+part of "receive_bloc.dart";
+
+sealed class ReceiveState extends Equatable {
+  const ReceiveState();
+
+  @override
+  List<Object?> get props => const [];
+}
+
+final class ReceiveLoading extends ReceiveState {
+  const ReceiveLoading();
+}
+
+final class ReceiveLoaded extends ReceiveState {
+  const ReceiveLoaded({
+    required this.addressEntry,
+    required this.addressType,
+    required this.addressTypeOptions,
+    required this.inputCurrency,
+    required this.tokenCurrency,
+    required this.receivableTokens,
+    required this.requestedAmount,
+    required this.fiatEquivalent,
+    required this.infoboxDismissed,
+    required this.payjoinEndpoint,
+    required this.fetchingInvoice,
+    required this.isRotatingAddress,
+    required this.paymentUri,
+    required this.hasAccounts,
+    required this.accountLabel,
+    required this.isSilentPayments,
+    required this.isLightning,
+    required this.isBitcoinViewOnly,
+    required this.isAutoGenerateSubaddressEnabled,
+    required this.walletType,
+  });
+
+  final AddressEntry addressEntry;
+  final ReceivePageOption? addressType;
+  final List<ReceivePageOption> addressTypeOptions;
+
+  final Currency inputCurrency;
+  final CryptoCurrency? tokenCurrency;
+  final List<CryptoCurrency> receivableTokens;
+
+  final Money? requestedAmount;
+  final Money? fiatEquivalent;
+
+  final bool infoboxDismissed;
+  final String? payjoinEndpoint;
+  final bool fetchingInvoice;
+  final bool isRotatingAddress;
+
+  final PaymentURI paymentUri;
+
+  final bool hasAccounts;
+  final String? accountLabel;
+  final bool isSilentPayments;
+  final bool isLightning;
+  final bool isBitcoinViewOnly;
+  final bool isAutoGenerateSubaddressEnabled;
+
+  final WalletType walletType;
+
+  bool get hasPayjoin =>
+      payjoinEndpoint != null && payjoinEndpoint!.isNotEmpty && !isSilentPayments && !isLightning;
+
+  bool get hasAddressList {
+    if (isLightning) {
+      return false;
+    }
+    if (walletType == WalletType.zcash) {
+      return false;
+    }
+    return const {
+      WalletType.monero,
+      WalletType.wownero,
+      WalletType.bitcoinCash,
+      WalletType.bitcoin,
+      WalletType.litecoin,
+      WalletType.decred,
+      WalletType.dogecoin,
+    }.contains(walletType);
+  }
+
+  bool get hasAddressRotation => hasAddressList && walletType != WalletType.zcash;
+
+  ReceiveLoaded copyWith({
+    AddressEntry? addressEntry,
+    ReceivePageOption? addressType,
+    List<ReceivePageOption>? addressTypeOptions,
+    Currency? inputCurrency,
+    CryptoCurrency? tokenCurrency,
+    bool clearTokenCurrency = false,
+    List<CryptoCurrency>? receivableTokens,
+    Money? requestedAmount,
+    bool clearRequestedAmount = false,
+    Money? fiatEquivalent,
+    bool clearFiatEquivalent = false,
+    bool? infoboxDismissed,
+    String? payjoinEndpoint,
+    bool clearPayjoinEndpoint = false,
+    bool? fetchingInvoice,
+    bool? isRotatingAddress,
+    PaymentURI? paymentUri,
+    bool? hasAccounts,
+    String? accountLabel,
+    bool clearAccountLabel = false,
+    bool? isSilentPayments,
+    bool? isLightning,
+    bool? isBitcoinViewOnly,
+    bool? isAutoGenerateSubaddressEnabled,
+    WalletType? walletType,
+  }) => ReceiveLoaded(
+      addressEntry: addressEntry ?? this.addressEntry,
+      addressType: addressType ?? this.addressType,
+      addressTypeOptions: addressTypeOptions ?? this.addressTypeOptions,
+      inputCurrency: inputCurrency ?? this.inputCurrency,
+      tokenCurrency: clearTokenCurrency ? null : (tokenCurrency ?? this.tokenCurrency),
+      receivableTokens: receivableTokens ?? this.receivableTokens,
+      requestedAmount: clearRequestedAmount ? null : (requestedAmount ?? this.requestedAmount),
+      fiatEquivalent: clearFiatEquivalent ? null : (fiatEquivalent ?? this.fiatEquivalent),
+      infoboxDismissed: infoboxDismissed ?? this.infoboxDismissed,
+      payjoinEndpoint: clearPayjoinEndpoint ? null : (payjoinEndpoint ?? this.payjoinEndpoint),
+      fetchingInvoice: fetchingInvoice ?? this.fetchingInvoice,
+      isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
+      paymentUri: paymentUri ?? this.paymentUri,
+      hasAccounts: hasAccounts ?? this.hasAccounts,
+      accountLabel: clearAccountLabel ? null : (accountLabel ?? this.accountLabel),
+      isSilentPayments: isSilentPayments ?? this.isSilentPayments,
+      isLightning: isLightning ?? this.isLightning,
+      isBitcoinViewOnly: isBitcoinViewOnly ?? this.isBitcoinViewOnly,
+      isAutoGenerateSubaddressEnabled:
+          isAutoGenerateSubaddressEnabled ?? this.isAutoGenerateSubaddressEnabled,
+      walletType: walletType ?? this.walletType,
+    );
+
+  @override
+  List<Object?> get props => [
+        addressEntry.address,
+        addressEntry.label,
+        addressType,
+        addressTypeOptions,
+        inputCurrency,
+        tokenCurrency,
+        receivableTokens,
+        requestedAmount,
+        fiatEquivalent,
+        infoboxDismissed,
+        payjoinEndpoint,
+        fetchingInvoice,
+        isRotatingAddress,
+        paymentUri.toString(),
+        hasAccounts,
+        accountLabel,
+        isSilentPayments,
+        isLightning,
+        isBitcoinViewOnly,
+        isAutoGenerateSubaddressEnabled,
+        walletType,
+      ];
+}
+
+final class ReceiveFailure extends ReceiveState {
+  const ReceiveFailure(this.code);
+
+  final ReceiveFailureCode code;
+
+  @override
+  List<Object?> get props => [code];
+}
+
+enum ReceiveFailureCode {
+  walletNotReady,
+  addressListUnavailable,
+  invoiceFetchFailed,
+}

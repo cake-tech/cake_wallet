@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/address_types.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
@@ -21,22 +23,44 @@ import "package:cw_core/tron_token.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart" as mobx;
 
 class AddressService {
   AddressService({
     required WalletBase Function() wallet,
+    required Stream<WalletBase> walletChanges,
     required SettingsStore settingsStore,
     required AmountParsingProxy Function() amountParsingProxyGetter,
   })  : _wallet = wallet,
         _settingsStore = settingsStore,
-        _amountParsingProxyGetter = amountParsingProxyGetter;
+        _amountParsingProxyGetter = amountParsingProxyGetter {
+    _walletSub = walletChanges.listen((_) => _bindPayjoin());
+    _bindPayjoin();
+  }
 
   final WalletBase Function() _wallet;
   final SettingsStore _settingsStore;
   final AmountParsingProxy Function() _amountParsingProxyGetter;
 
+  final _payjoinController = StreamController<String?>.broadcast();
+  late final StreamSubscription<WalletBase> _walletSub;
+  mobx.ReactionDisposer? _payjoinDisposer;
+
   WalletBase get wallet => _wallet();
   AmountParsingProxy get _amountParsingProxy => _amountParsingProxyGetter();
+
+  WalletType get walletType => wallet.type;
+
+  CryptoCurrency get walletCurrency => wallet.currency;
+
+  int? get walletChainId => wallet.chainId;
+
+  List<CryptoCurrency> get receivableTokens =>
+      wallet.balance.keys.whereType<CryptoCurrency>().toList();
+
+  bool get infoboxDismissed => wallet.walletInfo.receiveInfoboxDismissed;
+
+  bool get hasAccounts => const {WalletType.monero}.contains(wallet.type);
 
   List<AddressGroup> computeAddressList() {
     final type = wallet.type;
@@ -373,6 +397,49 @@ class AddressService {
       wallet.type == WalletType.bitcoin ? bitcoin!.getPayjoinEndpoint(wallet) : "";
 
   bool get isPayjoinUnavailable => payjoinEndpoint.isEmpty;
+
+  Stream<String?> get payjoinEndpointChanges => _payjoinController.stream;
+
+  void _bindPayjoin() {
+    _payjoinDisposer?.call();
+    _payjoinDisposer = null;
+
+    final WalletType type;
+    try {
+      type = wallet.type;
+    } catch (_) {
+      return;
+    }
+
+    if (type != WalletType.bitcoin) {
+      _emitPayjoin(null);
+      return;
+    }
+
+    final w = wallet;
+    _emitPayjoin(_normalize(bitcoin!.getPayjoinEndpoint(w)));
+
+    _payjoinDisposer = mobx.reaction<String>(
+      (_) => bitcoin!.getPayjoinEndpoint(w),
+      (value) => _emitPayjoin(_normalize(value)),
+    );
+  }
+
+  void _emitPayjoin(String? value) {
+    if (_payjoinController.isClosed) {
+      return;
+    }
+    _payjoinController.add(value);
+  }
+
+  String? _normalize(String v) => v.isEmpty ? null : v;
+
+  Future<void> dispose() async {
+    _payjoinDisposer?.call();
+    _payjoinDisposer = null;
+    await _walletSub.cancel();
+    await _payjoinController.close();
+  }
 
   AddressAccount? get currentAccount {
     final type = wallet.type;

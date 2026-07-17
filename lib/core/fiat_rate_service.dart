@@ -20,6 +20,11 @@ class FiatRateService {
       _fiatConversionStore.prices.forEach((_, __) {});
       _rateController.add(null);
     });
+
+    _disposeFiatReaction = mobx.reaction(
+      (_) => _settingsStore.fiatCurrency,
+      (_) => _rateController.add(null),
+    );
   }
 
   final FiatConversionStore _fiatConversionStore;
@@ -27,8 +32,11 @@ class FiatRateService {
   final StreamController<void> _rateController = StreamController<void>.broadcast();
   final Map<CryptoCurrency, Map<FiatCurrency, double>> _customRates = {};
   late final mobx.ReactionDisposer _disposeReaction;
+  late final mobx.ReactionDisposer _disposeFiatReaction;
 
   Stream<void> get rateChanges => _rateController.stream;
+
+  FiatCurrency get defaultFiat => _settingsStore.fiatCurrency;
 
   double? rateFor(CryptoCurrency crypto, FiatCurrency fiat) {
     if (fiat == _settingsStore.fiatCurrency) {
@@ -63,8 +71,7 @@ class FiatRateService {
       return null;
     }
 
-    final cryptoValue = _toDisplayDouble(amount);
-    final fiatValue = cryptoValue * rate;
+    final fiatValue = amount.toDouble() * rate;
     return Money.parse(fiatValue.toStringAsFixed(to.decimals), to);
   }
 
@@ -77,18 +84,13 @@ class FiatRateService {
       return null;
     }
 
-    final fiatValue = _toDisplayDouble(fiatAmount);
-    final cryptoValue = fiatValue / rate;
+    final cryptoValue = fiatAmount.toDouble() / rate;
     return Money.parse(cryptoValue.toStringAsFixed(to.decimals), to);
-  }
-
-  double _toDisplayDouble(Money m) {
-    final divisor = BigInt.from(10).pow(m.currency.decimals).toDouble();
-    return m.amount.toDouble() / divisor;
   }
 
   Future<void> dispose() async {
     _disposeReaction();
+    _disposeFiatReaction();
     await _rateController.close();
   }
 }
