@@ -244,7 +244,7 @@ class OtherSettingsPage extends BasePage {
     final file = await _otherSettingsViewModel.getPayjoinLog();
 
     if (file != null) {
-      await ShareUtil.shareFile(filePath: file.path, fileName: "Payjoin.log", context: context);
+      await ShareUtil.shareFile(filePath: file.path, fileName: "Payjoin_export.txt", context: context);
     }
   }
 }

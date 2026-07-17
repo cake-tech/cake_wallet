@@ -25,6 +25,7 @@ import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
@@ -746,8 +747,19 @@ abstract class DashboardViewModelBase with Store {
       _items.forEach((e) {
         if (e is TransactionListItem &&
             _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)) {
-          _payjoinTransactions.firstWhere((t) => t.session.txId == e.transaction.id).transaction =
-              e.transaction;
+          final payjoinItem =
+              _payjoinTransactions.firstWhere((t) => t.session.txId == e.transaction.id);
+          if (payjoinItem.session.isSenderSession) {
+            e.transaction.amount = Money(payjoinItem.session.amount, e.transaction.amount.currency);
+            if (payjoinItem.session.recipientAddress != null &&
+                payjoinItem.session.recipientAddress!.isNotEmpty) {
+              e.transaction.to = payjoinItem.session.recipientAddress;
+            }
+          } else {
+            e.transaction.direction = TransactionDirection.incoming;
+            e.transaction.amount = Money(payjoinItem.session.amount, e.transaction.amount.currency);
+          }
+          payjoinItem.transaction = e.transaction;
         }
       });
       _items.addAll(_payjoinTransactions);
