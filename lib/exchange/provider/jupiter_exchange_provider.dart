@@ -393,6 +393,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
         },
       );
       printV('createTrade error: $e');
+      if(e is! ExchangeProviderResponseException) throw TradeNotCreatedException(description, description: e.toString());
       rethrow;
     }
   }
@@ -457,6 +458,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
           'hasSignedTransaction': signedTransaction.isNotEmpty,
         },
       );
+      if(e is! ExchangeProviderResponseException) throw TradeExecutionException(description, description: e.toString());
       rethrow;
     }
   }

@@ -602,7 +602,7 @@ class Token {
   factory Token.fromJson(Map<String, dynamic> json) {
     final decimals = json['decimals'] as int?;
     if (decimals == null) {
-      throw ArgumentError('Token decimals is null for assetId: ${json['assetId']}');
+      throw ExchangeProviderResponseException('Token decimals is null for assetId: ${json['assetId']}');
     }
     return Token(
       assetId: json['assetId'] as String,

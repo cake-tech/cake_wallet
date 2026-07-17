@@ -25,10 +25,8 @@ class RateNotFoundException extends ExchangeProviderResponseException {
   final String description;
 
   @override
-  String get message => toString();
+  String get message => 'no rate ${from.symbol} -> ${to.symbol} at $provider, $description';
 
-  @override
-  String toString() => 'no rate ${from.symbol} -> ${to.symbol} at $provider, $description';
 }
 
 class TradeNotFoundException extends ExchangeProviderResponseException {
@@ -39,10 +37,7 @@ class TradeNotFoundException extends ExchangeProviderResponseException {
   final String description;
 
   @override
-  String get message => toString();
-
-  @override
-  String toString() => '${S.current.trade_id_not_found(tradeId, provider.title)} $description';
+  String get message => '${S.current.trade_id_not_found(tradeId, provider.title)} $description';
 }
 
 
