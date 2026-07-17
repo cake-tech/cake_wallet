@@ -1,30 +1,30 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/buy/payment_method.dart';
-import 'package:cake_wallet/buy/sell_buy_states.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_provider_page.dart';
-import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
-import 'package:cake_wallet/new-ui/widgets/floating_amount_input.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/core/theme_extension.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/buy/payment_method.dart";
+import "package:cake_wallet/buy/sell_buy_states.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_provider_page.dart";
+import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/floating_amount_input.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
 
 class NewBuySellAmountPage extends StatefulWidget {
-  const NewBuySellAmountPage({super.key, required this.buySellViewModel});
+  const NewBuySellAmountPage({required this.buySellViewModel, super.key});
 
   final BuySellViewModel buySellViewModel;
 
@@ -50,16 +50,15 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
     when(
         (_) => widget.buySellViewModel.paymentMethodState is PaymentMethodLoaded,
         () => widget.buySellViewModel.selectedPaymentMethod = widget.buySellViewModel.paymentMethods
-            .firstWhere((item) => item.paymentMethodType == PaymentType.all));
+            .firstWhere((item) => item.paymentMethodType == PaymentType.all),);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return PopScope(
+  Widget build(BuildContext context) => PopScope(
       onPopInvokedWithResult: (didPop, result) => Navigator.of(context, rootNavigator: true).pop(),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
           gradient: LinearGradient(
             colors: [
               Theme.of(context).colorScheme.surface,
@@ -78,14 +77,14 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                   bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
                       ? null
                       : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
-                  leadingIcon: Icon(Icons.close),
+                  leadingIcon: const Icon(Icons.close),
                   onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                 ),
               ),
               Expanded(
                   child: Observer(
                 builder: (_) => AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   child: _customAmountMode
                       ? BuySellCustomAmountInput(
                           fiatCurrency: widget.buySellViewModel.fiatCurrency,
@@ -103,7 +102,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                               widget.buySellViewModel.changeFiatAmount(amount: amount),
                         )
                       : BuySellDefaultAmountSelector(
-                          key: ValueKey(0),
+                          key: const ValueKey(0),
                           defaultAmounts: widget.buySellViewModel.defaultAmounts,
                           fiatCurrency: widget.buySellViewModel.fiatCurrency,
                           currentAmount: widget.buySellViewModel.fiatAmount,
@@ -122,18 +121,17 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                               customInputFocusNode.requestFocus();
                             } else {
                               await widget.buySellViewModel.changeFiatAmount(amount: amount);
-                              navigateToProviders(context);
+                              await navigateToProviders(context);
                             }
                           },
                         ),
                 ),
-              ))
+              ),),
             ],
           ),
         ),
       ),
     );
-  }
 
   void selectCryptoCurrency(BuildContext context) => CurrencyPickerSheet.show(
       context: context,
@@ -141,7 +139,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
         items: widget.buySellViewModel.activeWalletCurrencies.toList(),
         onSelected: (item) => widget.buySellViewModel.changeCryptoCurrency(currency: item),
         symbolResolver: widget.buySellViewModel.amountParsingProxy.getCryptoSymbol,
-      ));
+      ),);
 
   String get _pageTitle => widget.buySellViewModel.mode == BuySellPageMode.buy
       ? S.current.buy
@@ -161,16 +159,16 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
       });
 
       await asyncWhen((_) => [PaymentMethodLoaded, PaymentMethodFailed]
-          .contains(widget.buySellViewModel.paymentMethodState.runtimeType));
+          .contains(widget.buySellViewModel.paymentMethodState.runtimeType),);
 
       if (widget.buySellViewModel.paymentMethodState is PaymentMethodFailed) {
-        showPopUp(
+        await showPopUp(
             context: context,
             builder: (context) => AlertWithOneAction(
                 alertTitle: S.of(context).failed_to_load_payment_methods,
                 alertContent: S.of(context).please_try_again_later,
                 buttonText: "OK",
-                buttonAction: Navigator.of(context).pop));
+                buttonAction: Navigator.of(context).pop,),);
         return;
       }
 
@@ -182,7 +180,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
 
       final page = BuySellProviderPage(buySellViewModel: widget.buySellViewModel);
       Navigator.of(context).push(CupertinoPageRoute(
-          builder: (context) => Material(color: Colors.transparent, child: page)));
+          builder: (context) => Material(color: Colors.transparent, child: page),),);
     } finally {
       setState(() {
         _isLoadingPaymentMethods = false;
@@ -193,17 +191,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
 
 class BuySellCustomAmountInput extends StatelessWidget {
   const BuySellCustomAmountInput(
-      {super.key,
-      required this.fiatCurrency,
-      required this.cryptoCurrency,
-      required this.cryptoAmount,
-      required this.controller,
-      required this.onContinuePressed,
-      required this.isLoading,
-      required this.onChanged,
-      required this.focusNode,
-      required this.hasCurrencySelector,
-      required this.onCurrencySelectorPressed});
+      {required this.fiatCurrency, required this.cryptoCurrency, required this.cryptoAmount, required this.controller, required this.onContinuePressed, required this.isLoading, required this.onChanged, required this.focusNode, required this.hasCurrencySelector, required this.onCurrencySelectorPressed, super.key,});
 
   final FiatCurrency fiatCurrency;
   final CryptoCurrency cryptoCurrency;
@@ -217,19 +205,18 @@ class BuySellCustomAmountInput extends StatelessWidget {
   final Function(String) onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+  Widget build(BuildContext context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox.shrink(),
+          const SizedBox.shrink(),
           Column(
             spacing: 8,
             children: [
               if (hasCurrencySelector) ...[
                 BuySellCurrencyPickerPill(curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
-                SizedBox.shrink(),
+                const SizedBox.shrink(),
               ],
               FloatingAmountInput(
                 currency: fiatCurrency,
@@ -244,38 +231,29 @@ class BuySellCustomAmountInput extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,),
                 ),
-              )
+              ),
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: const EdgeInsets.all(18),
             child: NewPrimaryButton(
                 onPressed: onContinuePressed,
                 isLoading: isLoading,
                 text: S.of(context).continue_text,
                 color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary),
-          )
+                textColor: Theme.of(context).colorScheme.onPrimary,),
+          ),
         ],
       ),
     );
-  }
 }
 
 class BuySellDefaultAmountSelector extends StatelessWidget {
   const BuySellDefaultAmountSelector(
-      {super.key,
-      required this.defaultAmounts,
-      required this.fiatCurrency,
-      required this.mode,
-      required this.onSelected,
-      this.currentAmount,
-      required this.isLoading,
-      required this.hasCurrencySelector,
-      required this.onCurrencySelectorPressed,
-      required this.cryptoCurrency});
+      {required this.defaultAmounts, required this.fiatCurrency, required this.mode, required this.onSelected, required this.isLoading, required this.hasCurrencySelector, required this.onCurrencySelectorPressed, required this.cryptoCurrency, super.key,
+      this.currentAmount,});
 
   final List<String> defaultAmounts;
   final String? currentAmount;
@@ -288,8 +266,7 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
   final Function(String?) onSelected;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget build(BuildContext context) => Column(
       spacing: 24,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -302,14 +279,14 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           child: GridView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               // +1 for "custom" option
               itemCount: defaultAmounts.length + 1,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 16, mainAxisExtent: 105),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 16, mainAxisExtent: 105,),
               itemBuilder: (context, index) {
                 final String? item = index == defaultAmounts.length ? null : defaultAmounts[index];
 
@@ -318,23 +295,21 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
                   amount: item == null ? null : Money.parse(item, fiatCurrency),
                   onTap: () => onSelected(item),
                 );
-              }),
+              },),
         ),
       ],
     );
-  }
 }
 
 class BuySellAmountPill extends StatelessWidget {
-  const BuySellAmountPill({super.key, this.amount, required this.onTap, required this.isLoading});
+  const BuySellAmountPill({required this.onTap, required this.isLoading, super.key, this.amount});
 
   final Money? amount;
   final VoidCallback onTap;
   final bool isLoading;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(9999999999),
         border: Border.all(
@@ -344,7 +319,7 @@ class BuySellAmountPill extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             context.customColors.cardGradientColorPrimary,
-            context.customColors.cardGradientColorSecondary
+            context.customColors.cardGradientColorSecondary,
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -357,7 +332,7 @@ class BuySellAmountPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(9999999999),
           onTap: onTap,
           child: isLoading
-              ? CupertinoActivityIndicator()
+              ? const CupertinoActivityIndicator()
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -368,7 +343,7 @@ class BuySellAmountPill extends StatelessWidget {
                         if (amount != null)
                           Text(
                             amount!.toStringWithPrecision(fractionalDigits: 0),
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                           ),
                         Text(
                           amount?.currency.symbol ?? S.of(context).custom,
@@ -377,33 +352,31 @@ class BuySellAmountPill extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               color: amount == null
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.onSurfaceVariant),
-                        )
+                                  : Theme.of(context).colorScheme.onSurfaceVariant,),
+                        ),
                       ],
                     ),
                     if (amount == null)
                       Text(
                         S.of(context).enter_amount,
                         style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      )
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant,),
+                      ),
                   ],
                 ),
         ),
       ),
     );
-  }
 }
 
 class BuySellCurrencyPickerPill extends StatelessWidget {
-  const BuySellCurrencyPickerPill({super.key, required this.curr, required this.onTap});
+  const BuySellCurrencyPickerPill({required this.curr, required this.onTap, super.key});
 
   final CryptoCurrency curr;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -411,7 +384,7 @@ class BuySellCurrencyPickerPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(999999999),
         ),
         child: Padding(
-          padding: EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+          padding: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: 10,
@@ -423,7 +396,7 @@ class BuySellCurrencyPickerPill extends StatelessWidget {
               ),
               Text(
                 curr.fullName ?? curr.title,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
               RotatedBox(
                 quarterTurns: 2,
@@ -440,5 +413,4 @@ class BuySellCurrencyPickerPill extends StatelessWidget {
         ),
       ),
     );
-  }
 }
