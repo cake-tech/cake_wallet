@@ -209,16 +209,10 @@ class CWZcash extends Zcash {
   }
 
   @override
-  bool showMissingFundsCard(WalletBase wallet) {
-    final zcashWallet = wallet as ZcashWallet;
-    return zcashWallet.couldBeZashiWallet();
-  }
+  bool showMissingFundsCard(WalletBase wallet) => false;
 
   @override
-  Future<void> rescanInternalChange(WalletBase wallet) {
-    final zcashWallet = wallet as ZcashWallet;
-    return zcashWallet.rescanInternalChange();
-  }
+  Future<void> rescanInternalChange(WalletBase wallet) async {}
 }
 
 const wordList = [

@@ -4,7 +4,6 @@
 library;
 
 export 'src/zcash_balance.dart';
-export 'src/zcash_mnemonic_is_incorrect_exception.dart';
 export 'src/zcash_transaction_info.dart';
 export 'src/zcash_transactions.dart';
 export 'src/zcash_wallet.dart';
