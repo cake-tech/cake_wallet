@@ -391,8 +391,8 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   String get formattedTitle {
-    if (transactionInfo.additionalInfo['autoShield'] == true) {
-      return "Autoshield";
+    if (transactionInfo.additionalInfo['isAutoShield'] == true) {
+      return S.current.shielding;
     }
     if (transactionInfo.direction == TransactionDirection.incoming) {
       return S.current.received;

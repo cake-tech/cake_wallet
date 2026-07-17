@@ -6,7 +6,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:warp_api/warp_api.dart';
+import 'package:zkool/src/rust/api/account.dart' as zkool_account;
 
 part 'zcash_wallet_addresses.g.dart';
 
@@ -17,24 +17,34 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     addressPageType = ZcashReceivePageOption.typeFromString(walletInfo.addressPageType ?? "");
   }
 
-  final int accountId;
+  int accountId;
 
   static const int transparentType = 0;
   static const int shieldedSaplingType = 1;
   static const int shieldedOrchardType = 2;
   static const int unifiedType = 3;
 
-  String? _transparentAddress;
-  String? _saplingAddress;
-  String? _orchardAddress;
-  String? _unifiedAddress;
+  @observable
+  String? transparentAddress;
+
+  @observable
+  String? _transparentObservableAddress;
+
+  @observable
+  String? saplingAddress;
+
+  @observable
+  String? orchardAddress;
+
+  @observable
+  String? unifiedAddress;
 
   @override
   @computed
   String get latestAddress {
     switch (addressPageType) {
       case ZcashAddressType.transparent:
-        return transparentAddress;
+        return transparentAddress ?? "unknown transparentAddress";
       case ZcashAddressType.transparentRotated:
         // just to display something, after the wallet is synced the address
         // will start rotating, and since we can't rotate address until the wallet syncs
@@ -46,16 +56,15 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
         // 3) display first address from rotated pool which is also static until synced
         // 2 seems like an obvious winner simply because it offers little to no benefit over 3
         // and is noticably less complex in implementation
-        return transparentAddressRotated ?? transparentAddress;
+        return _transparentObservableAddress ??
+            transparentAddress ??
+            "unknown transparentAddressRotated";
       case ZcashAddressType.shieldedSapling:
-        return saplingAddress;
+        return saplingAddress ?? "unknown saplingAddress";
       case ZcashAddressType.shieldedOrchard:
-        return orchardAddress;
+        return orchardAddress ?? "unknown orchardAddress";
       case ZcashAddressType.unifiedType:
-        if (_unifiedAddress == null) {
-          _unifiedAddress = WarpApi.getAddress(ZcashWalletBase.coin, accountId, 6);
-        }
-        return _unifiedAddress ?? "";
+        return unifiedAddress ?? "unknown unifiedAddress";
     }
   }
 
@@ -79,62 +88,20 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     await walletInfo.save();
   }
 
-  String get transparentAddress {
-    try {
-      if (_transparentAddress == null) {
-        _transparentAddress = WarpApi.getTAddr(ZcashWalletBase.coin, accountId);
-      }
-      return _transparentAddress ?? "";
-    } catch (e) {
-      return "";
-    }
-  }
-
+  @override
   @computed
-  String? get transparentAddressRotated {
-    try {
-      return ZcashTaddressRotation.addressForAccount(accountId, hiddenAddresses);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  String get saplingAddress {
-    try {
-      if (_saplingAddress == null) {
-        _saplingAddress = WarpApi.getAddress(ZcashWalletBase.coin, accountId, 2);
-      }
-      return _saplingAddress ?? "";
-    } catch (e) {
-      return "";
-    }
-  }
-
-  String get orchardAddress {
-    try {
-      if (_orchardAddress == null) {
-        _orchardAddress = WarpApi.getAddress(ZcashWalletBase.coin, accountId, 4);
-      }
-      return _orchardAddress ?? "";
-    } catch (e) {
-      return "";
-    }
-  }
+  String get addressForExchange =>
+      _transparentObservableAddress ?? transparentAddress ?? "unknown addressForExchange";
 
   @override
   @computed
-  String get addressForExchange => transparentAddressRotated ?? transparentAddress;
-
-  @override
-  @computed
-  String get addressForBuy => transparentAddressRotated ?? transparentAddress;
+  String get addressForBuy =>
+      _transparentObservableAddress ?? transparentAddress ?? "unknown addressForBuy";
 
   @override
   bool containsAddress(final String address) {
     return this.address == address || addressesMap.values.contains(address);
   }
-
-  static int get coin => ZcashWalletBase.coin;
 
   @override
   @observable
@@ -149,37 +116,105 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     address = latestAddress;
   }
 
+  Future<void> _syncRotationHiddenAddresses() async {
+    final all = (await ZcashTaddressRotation.allAddressesForAccount(accountId)).toSet();
+    final used = (await ZcashTaddressRotation.usedAddressesForAccount(accountId)).toSet();
+    hiddenAddresses.removeWhere(all.contains);
+    hiddenAddresses.addAll(used);
+  }
+
   @override
   Future<void> init() async {
+    try {
+      await _init();
+    } catch (e) {
+      printV("init failed, retrying in 2 seconds");
+      printV(e);
+      await Future.delayed(Duration(seconds: 2));
+      await init();
+    }
+  }
+
+  static bool isPlaceholderAddress(final String? address) =>
+      address == null || address.isEmpty || address.startsWith('unknown ');
+
+  String _resolvedWalletInfoAddress() {
+    for (final candidate in [unifiedAddress, orchardAddress, saplingAddress, transparentAddress]) {
+      if (!isPlaceholderAddress(candidate)) {
+        return candidate!;
+      }
+    }
+    return latestAddress;
+  }
+
+  Future<void> _init() async {
     await _initAddresses();
 
-    await ZcashTaddressRotation.init();
-    int accountIndex = 0;
-    addressInfos = {
-      0:
-          ZcashTaddressRotation.allAddressesForAccount(accountId)?.map((final v) {
-            return WalletInfoAddressInfo(
-              walletInfoId: walletInfo.internalId,
-              mapKey: ++accountIndex,
-              accountIndex: 0,
-              address: v,
-              label: "",
-            );
-          }).toList() ??
-          [],
-    };
-    hiddenAddresses.addAll(
-      ZcashTaddressRotation.allUsedAddressesForAccount(accountId)?.toSet() ?? {},
+    final addr = await ZcashWalletBase.runWithCoin(
+      accountId: accountId,
+      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7),
     );
 
-    // addressInfos[0]?.removeWhere((final test) => hiddenAddresses.contains(test.address));
+    transparentAddress = addr.taddr ?? 'unknown addr.taddr';
+    saplingAddress = addr.saddr ?? 'unknown addr.saddr';
+    orchardAddress = addr.oaddr ?? 'unknown addr.oaddr';
+    unifiedAddress = addr.ua ?? 'unknown addr.ua';
+    _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
+    final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
+    addressInfos = {
+      0: [
+        for (int i = 0; i < rotationAddrs.length; i++)
+          WalletInfoAddressInfo(
+            walletInfoId: walletInfo.internalId,
+            mapKey: i + 1,
+            accountIndex: 0,
+            address: rotationAddrs[i],
+            label: "",
+          ),
+      ],
+    };
+    await _syncRotationHiddenAddresses();
+    await _applyAddressForCurrentType();
+
+    if (isPlaceholderAddress(walletInfo.address)) {
+      final resolved = _resolvedWalletInfoAddress();
+      if (!isPlaceholderAddress(resolved)) {
+        walletInfo.address = resolved;
+        await walletInfo.save();
+      }
+    }
+
+    await saveAddressesInBox();
+  }
+
+  Future<void> refreshRotationAddresses() async {
+    _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
+    final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
+    addressInfos = {
+      0: [
+        for (int i = 0; i < rotationAddrs.length; i++)
+          WalletInfoAddressInfo(
+            walletInfoId: walletInfo.internalId,
+            mapKey: i + 1,
+            accountIndex: 0,
+            address: rotationAddrs[i],
+            label: "",
+          ),
+      ],
+    };
+    await _syncRotationHiddenAddresses();
+    await _applyAddressForCurrentType();
+  }
+
+  Future<void> _applyAddressForCurrentType() async {
     if (_addressPageType == ZcashAddressType.transparentRotated) {
-      final addr = ZcashTaddressRotation.addressForAccount(accountId, hiddenAddresses);
+      final addr = await ZcashTaddressRotation.addressForAccount(accountId);
       if (addr != null) {
         address = addr;
       }
+      return;
     }
-    await saveAddressesInBox();
+    address = latestAddress;
   }
 
   @observable
@@ -198,12 +233,17 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> saveAddressesInBox() async {
     try {
+      if (!isPlaceholderAddress(address)) {
+        walletInfo.address = address;
+      }
       await walletInfo.setAddresses(addressesMap);
       await walletInfo.setAddressInfos(addressInfos);
       await walletInfo.setUsedAddresses(usedAddresses.toList());
       await walletInfo.setHiddenAddresses(hiddenAddresses.toList());
       await walletInfo.setManualAddresses(manualAddresses.toList());
+      await walletInfo.save();
       await _initAddresses();
+      await _syncRotationHiddenAddresses();
     } catch (e) {
       printV("Error saving addresses: $e");
     }
@@ -211,10 +251,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> updateAddressesInBox() async {
-    _transparentAddress = null;
-    _saplingAddress = null;
-    _orchardAddress = null;
-    _unifiedAddress = null;
+    await _initAddresses();
   }
 
   @override
@@ -227,11 +264,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     if (addressPageType != ZcashAddressType.transparentRotated) {
       return [];
     }
-    final List<WalletInfoAddressInfo> allInfos = [];
-    for (final entry in addressInfos.entries) {
-      allInfos.addAll(entry.value);
-    }
-    return allInfos;
+    return addressInfos[0] ?? [];
   }
 
   @override
