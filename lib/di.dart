@@ -6,10 +6,12 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/active_wallet_service.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/address_service.dart';
+import 'package:cake_wallet/core/fiat_rate_service.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
@@ -536,8 +538,16 @@ Future<void> setup({
           getIt.get<SeedSettingsViewModel>(),
           type: type));
 
+  getIt.registerLazySingleton<ActiveWalletService>(
+      () => ActiveWalletService(getIt.get<AppStore>()));
+
+  getIt.registerLazySingleton<FiatRateService>(() => FiatRateService(
+        fiatConversionStore: getIt.get<FiatConversionStore>(),
+        settingsStore: getIt.get<SettingsStore>(),
+      ));
+
   getIt.registerLazySingleton<AddressService>(() => AddressService(
-        wallet: () => getIt.get<AppStore>().wallet!,
+        wallet: () => getIt.get<ActiveWalletService>().wallet,
         settingsStore: getIt.get<SettingsStore>(),
         amountParsingProxyGetter: () => getIt.get<AppStore>().amountParsingProxy,
       ));
