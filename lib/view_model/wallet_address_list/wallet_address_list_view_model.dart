@@ -370,8 +370,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.zcash) {
       final addrInfos = zcash!.getAddressInfos(wallet);
       addrInfos.forEach((info) {
-        addressList.add(
-            new WalletAddressListItem(isPrimary: false, address: info.address, name: info.label));
+        addressList.add(WalletAddressListItem(
+          id: info.mapKey,
+          isPrimary: false,
+          address: info.address,
+          name: info.label,
+          txCount: info.txCount,
+          balance: info.balance == null
+              ? null
+              : _appStore.amountParsingProxy
+                  .getDisplayCryptoString(info.balance!, walletTypeToCryptoCurrency(type)),
+        ));
       });
     }
 
@@ -571,7 +580,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   String get monoImage => getChainMonoImage(type);
 
   @computed
-  bool get isBalanceAvailable => isElectrumWallet;
+  bool get isBalanceAvailable =>
+      isElectrumWallet || (wallet.type == WalletType.zcash && isZCashTransparent);
 
   @computed
   bool get isReceivedAvailable => [WalletType.monero, WalletType.wownero].contains(wallet.type);

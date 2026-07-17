@@ -61,6 +61,8 @@ class WalletInfoAddressInfo {
     required this.accountIndex,
     required this.address,
     required this.label,
+    this.txCount,
+    this.balance,
   });
 
   int id;
@@ -69,6 +71,8 @@ class WalletInfoAddressInfo {
   int accountIndex;
   String address;
   String label;
+  int? txCount;
+  int? balance;
 
   static String get tableName => 'walletInfoAddressInfo';
 

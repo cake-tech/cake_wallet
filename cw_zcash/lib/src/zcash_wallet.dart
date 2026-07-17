@@ -784,21 +784,27 @@ abstract class ZcashWalletBase
 
       final confirmedPoolBalances = WarpApi.getPoolBalances(coin, accountId, 3, true);
       final confirmedBalances = confirmedPoolBalances.unpack();
-      final confirmedTotal =
-          confirmedBalances.orchard + confirmedBalances.sapling + confirmedBalances.transparent;
+
+      int rotatedTransparentBalance = 0;
+      for (final account in ZcashTaddressRotation.accountsForAccount(accountId)) {
+        final accountBalances = WarpApi.getPoolBalances(coin, account.id, 0, true);
+        rotatedTransparentBalance += accountBalances.transparent;
+        ZcashTaddressRotation.refreshAddressMetadata(account);
+      }
 
       int knownOutPending = 0;
       ZcashWalletBase.temporarySentTx[accountId]?.forEach((final sTx) {
         knownOutPending += sTx.value; // it's negative
       });
-      final confirmedSpendable = confirmedTotal - balances.transparent + knownOutPending;
+      final confirmedSpendable =
+          confirmedBalances.orchard + confirmedBalances.sapling + knownOutPending;
 
       unawaited(_autoShield());
 
       balance[CryptoCurrency.zec] = ZcashBalance(
         Money.fromInt(confirmedSpendable, currency),
         Money.fromInt(spendable - confirmedSpendable, currency),
-        frozen: Money.zero(currency),
+        frozen: Money.fromInt(balances.transparent + rotatedTransparentBalance, currency),
       );
     } catch (e, stackTrace) {
       printV("Balance update error: $e");
