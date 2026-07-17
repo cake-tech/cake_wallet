@@ -1027,7 +1027,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool isMweb = spendsMweb || paysToMweb;
 
     if (isMweb && !mwebEnabled) {
-      throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+      throw ArgumentError("MWEB is not enabled! can't calculate fee without starting the mweb server!");
       // TODO: likely the change address is mweb and just not updated
     }
 
