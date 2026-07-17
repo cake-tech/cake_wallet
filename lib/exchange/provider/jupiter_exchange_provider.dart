@@ -458,7 +458,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
           'hasSignedTransaction': signedTransaction.isNotEmpty,
         },
       );
-      if(e is! ExchangeProviderResponseException) throw TradeExecutionException(description, description: e.toString());
+      if(e is! ExchangeProviderResponseException) throw TradeExecutionException(e.toString());
       rethrow;
     }
   }
