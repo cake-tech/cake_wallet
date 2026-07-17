@@ -1284,7 +1284,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(s);
       if (e.toString().contains("commit failed")) {
         printV(e);
-        throw TransactionGenerationException("Transaction commit failed (no peers responded), please try again.");
+        throw TransactionSendingException("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
     }
