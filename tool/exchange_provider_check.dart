@@ -183,15 +183,12 @@ String placeholderAddress(CryptoCurrency c) {
   const xrpAddress = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe";
   const trxAddress = "TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9";
   const solAddress = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM";
-  const xmrAddress =
-      "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A";
+  const xmrAddress = "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A";
   const nanoAddress = "nano_3t6k35gi95xu6tergt6p69ck76ogmitsa8mnijtpxm9fkcm736xtoncuohr3";
   const bchAddress = "bitcoincash:qp3wjpa3tjlj042z2wv7hahsldgwhwy0rq9sywjpyy";
   const dogeAddress = "DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L";
-  const adaAddress =
-      "addr1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp";
-  const zecAddress =
-      "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya";
+  const adaAddress = "addr1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp";
+  const zecAddress = "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya";
   const dcrAddress = "DsUZxxoHJSty8DCfwfartwTYbuhmVct7tJu";
   const xlmAddress = "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
   const tonAddress = "UQD4FPq-PRDieyQKkizsMkhnRPSelJ_RmpVGBssFNnfbKnAy";
@@ -238,19 +235,13 @@ void writeJsonReport(List<TradeResult> results, String path) {
   File(path).writeAsStringSync(const JsonEncoder.withIndent("  ").convert(data));
 }
 
-/// One-line summary for the live console output. Real provider classes
-/// don't expose a raw HTTP status code — only a parsed Trade on success or
-/// a thrown Exception with a text message on failure — so this surfaces the
-/// closest equivalents: the provider-confirmed amounts on success, and the
-/// full error text on failure.
+
 String summaryLine(TradeResult r) {
-  final header = '${r.success ? "✅" : "❌"} ${r.provider} '
-      '${displayName(r.from)}→${displayName(r.to)} requested=${r.amount}';
+  final header = '${r.success ? "✅" : "❌"} ${r.provider} ${displayName(r.from)} ➡️ ${displayName(r.to)} requested = ${r.amount}';
   if (r.success) {
-    return '$header confirmed=${r.confirmedAmount}→${r.confirmedReceiveAmount} '
-        'trade_id=${r.tradeId}';
+    return '$header confirmed = ${r.confirmedAmount} ➡️ ${r.confirmedReceiveAmount} trade_id = ${r.tradeId}';
   }
-  return '$header error="${r.errorMessage}"';
+  return '$header error = "${r.errorMessage}"';
 }
 
 // ─────────────────────────────────────────────────────────────────────────
