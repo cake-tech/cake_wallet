@@ -229,7 +229,7 @@ class _NewSendPageState extends State<NewSendPage> {
             widget.initialPaymentRequest!.scheme.toLowerCase()) {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
-      _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      _applyPaymentRequestNote(widget.initialPaymentRequest!.note, 0);
       final contractAddress = widget.initialPaymentRequest!.contractAddress;
       if (contractAddress != null && contractAddress.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1251,7 +1251,27 @@ class _NewSendPageState extends State<NewSendPage> {
                 paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
       } catch (e) {}
     }
-    _memoControllers[_selectedOutput].text = paymentRequest.note;
+    _applyPaymentRequestNote(paymentRequest.note, _selectedOutput);
+  }
+
+  /// The `message` / `tx_description` of a payment URI is descriptive metadata
+  /// chosen by the payee to be shown to the payer. It is not data the payer
+  /// asked to publish.
+  ///
+  /// Putting it in the memo field made it an OP_RETURN output on Bitcoin (see
+  /// [BitcoinTransactionBuilder]), permanently publishing text the sender never
+  /// typed and paying fee for it. The memo input is only rendered when
+  /// [SendViewModel.hasMemos] is set, so on Bitcoin this happened with nothing
+  /// shown on the send screen at all.
+  ///
+  /// Keep it as the local transaction note instead, which is what the old send
+  /// card already does.
+  void _applyPaymentRequestNote(String note, int outputIndex) {
+    if (widget.sendViewModel.hasMemos) {
+      _memoControllers[outputIndex].text = note;
+    } else {
+      widget.sendViewModel.outputs[outputIndex].note = note;
+    }
   }
 
   Future<void> _handleSwapFlow(
