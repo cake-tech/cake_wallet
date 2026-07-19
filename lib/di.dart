@@ -424,16 +424,19 @@ Future<void> setup({
       case HardwareWalletType.seedsigner:
       case HardwareWalletType.keystone:
         throw Exception(
-            "This should not have happened, because airgapped Wallets don't need View Models");
+          "This should not have happened, because airgapped Wallets don't need View Models",
+        );
     }
   });
 
-  getIt.registerLazySingleton(() => LedgerViewModel());
+  getIt.registerLazySingleton(() => LedgerViewModel(getIt<AppStore>()));
 
-  getIt.registerLazySingleton(() => BitboxViewModel());
+  getIt.registerLazySingleton(BitboxViewModel.new);
 
   getIt.registerLazySingleton(
-      () => TrezorConnect("cakewallet://trezor_connect", appName: "Cake Wallet"));
+    () => TrezorConnect("cakewallet://trezor_connect", appName: "Cake Wallet"),
+  );
+
   getIt.registerLazySingleton(() => TrezorConnectViewModel(getIt<TrezorConnect>()));
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
@@ -601,6 +604,9 @@ Future<void> setup({
             (displayMode == BitcoinAmountDisplayMode.satoshi ||
                 (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
   });
+
+  getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
+      accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));

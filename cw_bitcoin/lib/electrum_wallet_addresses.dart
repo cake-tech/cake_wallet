@@ -383,7 +383,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         accountIndexes.isNotEmpty ? accountIndexes : this.accountIndexes;
 
     if (accountIndexes.isNotEmpty) this.accountIndexes = accountIndexes;
-
     if (walletInfo.type == WalletType.bitcoinCash) {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
@@ -897,7 +896,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           type: type,
           isLegacyDerivation: isLegacyDerivation,
           accountIndex: accountIndex);
-
       addAddresses(newAddresses);
     }
   }

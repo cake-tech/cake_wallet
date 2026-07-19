@@ -8,9 +8,9 @@ import 'utils/translation/translation_utils.dart';
 const changelogsFilePath = "./assets/new-ui/changelog/text";
 
 void main() async {
-  final List<dynamic> defaultLangChangelog = jsonDecode(
-          await File("$changelogsFilePath/changelog_$defaultLang.json").readAsString())
-      as List<dynamic>;
+  final List<dynamic> defaultLangChangelog =
+      jsonDecode(await File("$changelogsFilePath/changelog_$defaultLang.json").readAsString())
+          as List<dynamic>;
 
   int currentLang = 0;
   for (final lang in langs) {
@@ -50,7 +50,6 @@ void main() async {
           "\r$currentLang/${langs.length} langs done, $currentItem/${defaultLangChangelog.length} items done");
     }
     currentLang++;
-    await File("$changelogsFilePath/changelog_$lang.json")
-        .writeAsString(jsonEncode(out));
+    await File("$changelogsFilePath/changelog_$lang.json").writeAsString(jsonEncode(out));
   }
 }

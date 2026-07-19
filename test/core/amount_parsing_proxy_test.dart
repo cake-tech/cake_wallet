@@ -48,7 +48,8 @@ void main() {
 
       group("getCanonicalCryptoAmount", () {
         test("Amount should not change for Bitcoin", () {
-          final amount = amountParsingProxy.getCanonicalCryptoAmount("0.000001", CryptoCurrency.btc);
+          final amount =
+              amountParsingProxy.getCanonicalCryptoAmount("0.000001", CryptoCurrency.btc);
           expect(amount, "0.000001");
         });
 
@@ -58,7 +59,8 @@ void main() {
         });
 
         test("Amount should not change for Bitcoin", () {
-          final amount = amountParsingProxy.getCanonicalCryptoAmount("0.000001", CryptoCurrency.btcln);
+          final amount =
+              amountParsingProxy.getCanonicalCryptoAmount("0.000001", CryptoCurrency.btcln);
           expect(amount, "0.000001");
         });
 
@@ -118,7 +120,8 @@ void main() {
         });
 
         test("Amount should be formated to Satoshi for Bitcoin Lightning", () {
-          final amount = amountParsingProxy.getDisplayCryptoAmount("0.000001", CryptoCurrency.btcln);
+          final amount =
+              amountParsingProxy.getDisplayCryptoAmount("0.000001", CryptoCurrency.btcln);
           expect(amount, "100");
         });
 
