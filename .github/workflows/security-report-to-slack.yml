@@ -1,0 +1,38 @@
+name: Security report to Slack
+
+# Fires when a security researcher submits a report through GitHub's
+# Private Vulnerability Reporting ("Report a vulnerability" button).
+# Requires:
+#   - Private vulnerability reporting enabled (repo/org Settings -> Security).
+#   - A repository secret SECURITY_SLACK_WEBHOOK_URL (a Slack incoming webhook).
+#   - This file present on the DEFAULT branch (repository_advisory events, like
+#     other non-PR events, always run the workflow from the default branch).
+#
+# Note: this event only fires for researcher-submitted private reports, not for
+# advisories drafted internally by maintainers.
+
+on:
+  repository_advisory:
+    types: [reported]
+
+permissions: {}
+
+jobs:
+  notify-slack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post report to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SECURITY_SLACK_WEBHOOK_URL }}
+          # Passed via env (never inlined into the shell) to avoid script injection
+          # from attacker-controlled advisory text.
+          ADV_SUMMARY: ${{ github.event.repository_advisory.summary }}
+          ADV_SEVERITY: ${{ github.event.repository_advisory.severity }}
+          ADV_URL: ${{ github.event.repository_advisory.html_url }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          text=$(printf ':rotating_light: *New private security report* in *%s*\n*Summary:* %s\n*Severity:* %s\n<%s|Open the advisory>' \
+            "$REPO" "${ADV_SUMMARY:-(no summary provided)}" "${ADV_SEVERITY:-unset}" "$ADV_URL")
+          jq -n --arg t "$text" '{text: $t}' \
+            | curl -sS -X POST -H 'Content-type: application/json' -d @- "$SLACK_WEBHOOK_URL"
