@@ -971,6 +971,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         return;
       }
 
+      // Skip validation for addresses whose HD map hasn't been prepared yet
+      final accountIdx = walletInfo.type == WalletType.bitcoin ? element.accountIndex : 0;
+      if (!element.isLegacyDerivation) {
+        final mapExists = element.isHidden
+            ? sideHdByTypeAndAccount.containsKey(accountIdx)
+            : mainHdByTypeAndAccount.containsKey(accountIdx);
+        if (!mapExists) return;
+      }
+
       final mainHd = _hdForAddressGeneration(
           isHidden: false,
           type: element.type,
