@@ -227,3 +227,4 @@ scripts/bitbox_flutter
 scripts/reown_flutter
 
 *.salive
+android/.kotlin

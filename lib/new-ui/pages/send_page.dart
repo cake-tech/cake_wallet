@@ -594,7 +594,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               builder: (context) => Material(
                                                       child: L2ActionWalletSelector(
                                                     showOtherWallets: false,
-                                                    action: l2actions.deposit,
+                                                    action: L2Actions.deposit,
                                                     sendViewModel: widget.sendViewModel,
                                                     contactListViewModel:
                                                         widget.contactListViewModel,
@@ -609,7 +609,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               builder: (context) => Material(
                                                       child: L2ActionWalletSelector(
                                                     showOtherWallets: false,
-                                                    action: l2actions.withdraw,
+                                                    action: L2Actions.withdraw,
                                                     sendViewModel: widget.sendViewModel,
                                                     contactListViewModel:
                                                         widget.contactListViewModel,

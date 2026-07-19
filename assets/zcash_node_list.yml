@@ -5,8 +5,8 @@
   useSSL: true
   isEnabledForAutoSwitching: true
   label: "Cake Wallet"
--
-  uri: zec.rocks:443
+- uri: zec.rocks:443
+  is_default: true
   useSSL: true
   isEnabledForAutoSwitching: true
   label: "Zec.rocks"

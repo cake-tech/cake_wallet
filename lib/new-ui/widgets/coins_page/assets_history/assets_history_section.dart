@@ -59,14 +59,13 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             AssetsSection(
               dashboardViewModel: widget.dashboardViewModel,
             ),
-            hasAssetsButton ?
-            AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg",
-                () {
-              Navigator.of(context).pushNamed(
+           hasAssetsButton ? AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg",
+
+              () {Navigator.of(context).pushNamed(
                 Routes.homeSettings,
                 arguments: widget.dashboardViewModel.balanceViewModel,
               );
-            }) : null),
+            }): null),
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(
