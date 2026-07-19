@@ -229,7 +229,7 @@ class _NewSendPageState extends State<NewSendPage> {
             widget.initialPaymentRequest!.scheme.toLowerCase()) {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
-      _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      // _memoControllers[0].text = widget.initialPaymentRequest!.note;
       final contractAddress = widget.initialPaymentRequest!.contractAddress;
       if (contractAddress != null && contractAddress.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1251,7 +1251,7 @@ class _NewSendPageState extends State<NewSendPage> {
                 paymentRequest.amount, widget.sendViewModel.selectedCryptoCurrency);
       } catch (e) {}
     }
-    _memoControllers[_selectedOutput].text = paymentRequest.note;
+    // _memoControllers[_selectedOutput].text = paymentRequest.note;
   }
 
   Future<void> _handleSwapFlow(
