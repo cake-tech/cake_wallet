@@ -111,7 +111,7 @@ class TransactionsPage extends StatelessWidget {
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                  isShield: transaction.additionalInfo['autoShield'] == true,
+                                  isShield: transaction.additionalInfo['isAutoShield'] == true,
                                   direction: transaction.direction,
                                   formattedDate: DateFormat('HH:mm').format(transaction.date),
                                   formattedAmount: item.formattedCryptoAmount,

@@ -142,12 +142,22 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     super.dispose();
   }
 
+  var _isRefreshingUsb = false;
   Future<void> _refreshUsbDevices() async {
-    final dev = await widget.hardwareWalletVM.getAllUsbDevices();
-
-    if (usbDevices.length != dev.length) {
-      setState(() => usbDevices = dev);
+    if (_isRefreshingUsb) {
+      return;
     }
+    _isRefreshingUsb = true;
+    try {
+      final dev = await widget.hardwareWalletVM.getAllUsbDevices();
+
+      if (usbDevices.length != dev.length) {
+        setState(() => usbDevices = dev);
+      }
+    } catch(e) {
+      printV(e);
+    }
+    _isRefreshingUsb = false;
   }
 
   Future<void> _refreshBleDevices() async {
