@@ -605,9 +605,6 @@ Future<void> setup({
                 (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
   });
 
-  getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
-      accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
-
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
 

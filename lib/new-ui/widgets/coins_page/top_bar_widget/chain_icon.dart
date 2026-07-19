@@ -8,7 +8,7 @@ class ChainIcon extends StatelessWidget {
   const ChainIcon(
       {super.key,
       required this.iconPath,
-      required this.dashboardViewModel,
+      required this.onProgress,
       required this.isSyncHeavy});
 
   final String iconPath;
