@@ -230,6 +230,7 @@ class _NewSendPageState extends State<NewSendPage> {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
       // _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      widget.sendViewModel.outputs.first.note = widget.initialPaymentRequest!.note;
       final contractAddress = widget.initialPaymentRequest!.contractAddress;
       if (contractAddress != null && contractAddress.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1252,6 +1253,8 @@ class _NewSendPageState extends State<NewSendPage> {
       } catch (e) {}
     }
     // _memoControllers[_selectedOutput].text = paymentRequest.note;
+
+    widget.sendViewModel.outputs[_selectedOutput].note = widget.initialPaymentRequest!.note;
   }
 
   Future<void> _handleSwapFlow(
