@@ -319,6 +319,8 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
+  bool _hasLoadedUnspents = false;
+
   Future<List<int>> loadAccountIndexes() async {
     if (type != WalletType.bitcoin) return [0];
 
@@ -354,10 +356,18 @@ abstract class ElectrumWalletBase
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) {
-    return accountBalances[accountIndex] ?? _zeroBalance(currency);
+    final fromUnspents = accountBalances[accountIndex];
+    if (fromUnspents != null) return fromUnspents;
+
+    if (accountIndex == currentAccountIndex) {
+      return balance[currency] ?? _zeroBalance(currency);
+    }
+
+    return _zeroBalance(currency);
   }
 
   void _updateAccountBalancesFromUnspents() {
+    if (!_hasLoadedUnspents) return;
     final newBalances = <int, ElectrumBalance>{};
 
     for (final coin in unspentCoins) {
@@ -378,6 +388,21 @@ abstract class ElectrumWalletBase
       newBalances.putIfAbsent(accountIndex, () => _zeroBalance(currency));
     }
 
+
+    for (final accountIndex in walletAddresses.accountIndexes) {
+      final computed = newBalances[accountIndex];
+      final existing = accountBalances[accountIndex];
+      if (computed != null && existing != null) {
+        final computedIsZero = computed.confirmed == Money.zero(currency) &&
+            computed.unconfirmed == Money.zero(currency);
+        final existingIsNonZero = existing.confirmed != Money.zero(currency) ||
+            existing.unconfirmed != Money.zero(currency);
+        if (computedIsZero && existingIsNonZero) {
+          newBalances[accountIndex] = existing;
+        }
+      }
+    }
+
     accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
   }
 
@@ -386,7 +411,21 @@ abstract class ElectrumWalletBase
       return;
     }
 
-    balance[currency] = balanceForAccount(accountIndex ?? currentAccountIndex);
+    final newBalance = balanceForAccount(accountIndex ?? currentAccountIndex);
+    final current = balance[currency];
+
+    final newIsZero = newBalance.confirmed == Money.zero(currency) &&
+        newBalance.unconfirmed == Money.zero(currency);
+    final currentIsNonZero = current != null &&
+        (current.confirmed != Money.zero(currency) ||
+            current.unconfirmed != Money.zero(currency));
+
+    if (newIsZero && currentIsNonZero) {
+      printV('_updateCurrentAccountBalance: skipping zero update to preserve existing balance');
+      return;
+    }
+
+    balance[currency] = newBalance;
   }
 
   Set<String> get addressesSet => walletAddresses.allAddresses
@@ -413,7 +452,6 @@ abstract class ElectrumWalletBase
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
     walletInfo.selectedAccount = accountIndex;
-    accountBalances[accountIndex] ??= _zeroBalance(currency);
     _updateCurrentAccountBalance(accountIndex: accountIndex);
 
     await walletInfo.setSelectedAccount(accountIndex);
@@ -435,7 +473,6 @@ abstract class ElectrumWalletBase
     walletAddresses.updateReceiveAddresses();
     walletAddresses.updateChangeAddresses();
 
-    accountBalances[accountIndex] ??= _zeroBalance(currency);
     _updateCurrentAccountBalance(accountIndex: accountIndex);
 
     unawaited(() async {
@@ -1901,6 +1938,7 @@ abstract class ElectrumWalletBase
         updatedUnspentCoins.addAll(result!);
       }
       unspentCoins = updatedUnspentCoins;
+      _hasLoadedUnspents = true;
     } else {
       if (updatedUnspentCoins.isEmpty) {
         unspentCoins = handleFailedUtxoFetch(
@@ -1944,11 +1982,13 @@ abstract class ElectrumWalletBase
     final scriptHashes = byScriptHash.keys.toList();
 
     try {
+      final failedScriptHashes = <String>{};
       final unspentByScriptHash =
           await _processChunksToMap<String, String, List<Map<String, dynamic>>>(
         items: scriptHashes,
         chunkSize: addressHistoryChunkSize,
         processChunk: _getListUnspentBatch,
+        onChunkError: (chunk, _) => failedScriptHashes.addAll(chunk),
       );
 
       final txHashes = <String>{};
@@ -1986,6 +2026,7 @@ abstract class ElectrumWalletBase
 
       return addresses.map((address) {
         final scriptHash = address.getScriptHash(network);
+        if (failedScriptHashes.contains(scriptHash)) return null;
         return coinsByScriptHash[scriptHash] ?? <BitcoinUnspent>[];
       }).toList();
     } catch (e) {
@@ -3551,12 +3592,35 @@ abstract class ElectrumWalletBase
         .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
 
-    final balances = shouldUseBatchFetching
-        ? await fetchBalancesBatch(addresses)
-        : await fetchBalancesRegular(addresses);
+    List<Map<String, dynamic>> balances;
+    try {
+      balances = shouldUseBatchFetching
+          ? await fetchBalancesBatch(addresses)
+          : await fetchBalancesRegular(addresses);
+    } catch (e) {
+      printV("fetchBalances network error, returning last known balance: $e");
+      syncStatus = LostConnectionSyncStatus();
+      return balance[currency] ??
+          ElectrumBalance(
+            confirmed: Money.zero(currency),
+            unconfirmed: Money.zero(currency),
+            frozen: Money.zero(currency),
+          );
+    }
 
     printV(
         'Fetched balances for ${addresses.length} addresses. Batch fetching: $shouldUseBatchFetching');
+
+    // If the balances list is empty (no addresses or all fetches silently returned nothing),
+    // preserve the last known balance rather than returning zero.
+    if (balances.isEmpty) {
+      return balance[currency] ??
+          ElectrumBalance(
+            confirmed: Money.zero(currency),
+            unconfirmed: Money.zero(currency),
+            frozen: Money.zero(currency),
+          );
+    }
 
     var totalFrozen = 0;
     var totalConfirmed = 0;
@@ -3592,7 +3656,9 @@ abstract class ElectrumWalletBase
       });
     });
 
-    if (balances.isNotEmpty && balances.first['confirmed'] == null) {
+    // Check if ALL returned balances have null confirmed — indicates server is unreachable.
+    final allNull = balances.every((b) => b['confirmed'] == null);
+    if (allNull) {
       // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
       printV("got null balance responses from the server, setting connection status to lost");
       syncStatus = LostConnectionSyncStatus();
@@ -3628,9 +3694,25 @@ abstract class ElectrumWalletBase
 
   Future<void> updateBalance() async {
     printV("updateBalance() called!");
-    balance[currency] = await fetchBalances();
-    _updateCurrentAccountBalance();
-    await save();
+    try {
+      final newBalance = await fetchBalances();
+      final currentBalance = balance[currency];
+      final isZeroBalance = newBalance.confirmed == Money.zero(currency) &&
+          newBalance.unconfirmed == Money.zero(currency);
+      final hadPreviousBalance = currentBalance != null &&
+          (currentBalance.confirmed != Money.zero(currency) ||
+              currentBalance.unconfirmed != Money.zero(currency));
+
+      if (!isZeroBalance || !hadPreviousBalance) {
+        balance[currency] = newBalance;
+        _updateCurrentAccountBalance();
+        await save();
+      } else {
+        printV("updateBalance: skipping zero balance update to preserve existing balance");
+      }
+    } catch (e) {
+      printV("updateBalance failed: $e");
+    }
   }
 
   @override
