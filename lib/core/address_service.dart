@@ -379,6 +379,21 @@ class AddressService {
     }
 
     await wallet.walletAddresses.saveAddressesInBox();
+
+    final type = wallet.type;
+    if (type == WalletType.monero) {
+      await monero!.getSubaddressList(wallet).update(
+            wallet,
+            accountIndex: monero!.getCurrentAccount(wallet).id,
+          );
+      return;
+    }
+    if (type == WalletType.wownero) {
+      wownero!.getSubaddressList(wallet).update(
+            wallet,
+            accountIndex: wownero!.getCurrentAccount(wallet).id,
+          );
+    }
   }
 
   Future<void> deleteSilentPaymentAddress(String address) async {
@@ -415,7 +430,7 @@ class AddressService {
       return;
     }
     if (type == WalletType.zcash) {
-      await zcash!.setAddressType(wallet, zcash!.getZcashAddressType(option));
+      await zcash!.setAddressType(wallet, zcash!.getOptionToType(option));
     }
   }
 

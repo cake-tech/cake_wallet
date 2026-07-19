@@ -172,6 +172,7 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                     _GroupSection(
                       group: groups[i],
                       state: state,
+                      isFirstGroup: i == 0,
                       isLast: i == groups.length - 1,
                       isPicker: _isPicker,
                       onEntrySelected: _handleEntrySelected,
@@ -205,6 +206,7 @@ class _GroupSection extends StatelessWidget {
   const _GroupSection({
     required this.group,
     required this.state,
+    required this.isFirstGroup,
     required this.isLast,
     required this.isPicker,
     required this.onEntrySelected,
@@ -212,6 +214,7 @@ class _GroupSection extends StatelessWidget {
 
   final AddressGroup group;
   final AddressesLoaded state;
+  final bool isFirstGroup;
   final bool isLast;
   final bool isPicker;
   final void Function(BuildContext context, String address) onEntrySelected;
@@ -234,7 +237,7 @@ class _GroupSection extends StatelessWidget {
               return _AddressRow(
                 entry: entry,
                 selected: entry.address == state.activeAddress && !isPicker,
-                first: index == 0,
+                first: isFirstGroup && index == 0 && state.showHidden,
                 last: index == group.entries.length - 1,
                 walletType: state.walletType,
                 hasBalance: state.hasBalance,
@@ -826,7 +829,7 @@ class _AddressInfoPopup extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Column(
                   children: [
-                    Text("${S.of(context).address_index}: ${entry.id ?? 0}"),
+                    Text("${S.of(context).address_index}: ${entry.id?.toString() ?? ""}"),
                     const SizedBox(height: 16),
                     Text("${S.of(context).derivationpath}: ${entry.derivationPath ?? ""}"),
                   ],

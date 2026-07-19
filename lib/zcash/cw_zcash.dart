@@ -171,22 +171,6 @@ class CWZcash extends Zcash {
   }
 
   @override
-  dynamic getZcashAddressType(ReceivePageOption option) {
-    switch (option) {
-      case ZcashReceivePageOption.unified:
-        return ZcashAddressType.unifiedType;
-      case ZcashReceivePageOption.transparent:
-        return ZcashAddressType.transparent;
-      case ZcashReceivePageOption.shieldedSapling:
-        return ZcashAddressType.shieldedSapling;
-      case ZcashReceivePageOption.shieldedOrchard:
-        return ZcashAddressType.shieldedOrchard;
-      default:
-        throw Exception("Unknown ReceivePageOption!");
-    }
-  }
-
-  @override
   Future<void> setAddressType(Object wallet, dynamic option) async {
     final zcashWallet = wallet as ZcashWallet;
     await (zcashWallet.walletAddresses as ZcashWalletAddresses)

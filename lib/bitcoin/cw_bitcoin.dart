@@ -318,25 +318,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
-    switch (option) {
-      case BitcoinReceivePageOption.p2pkh:
-        return P2pkhAddressType.p2pkh;
-      case BitcoinReceivePageOption.p2sh:
-        return P2shAddressType.p2wpkhInP2sh;
-      case BitcoinReceivePageOption.p2tr:
-        return SegwitAddresType.p2tr;
-      case BitcoinReceivePageOption.p2wsh:
-        return SegwitAddresType.p2wsh;
-      case BitcoinReceivePageOption.mweb:
-        return SegwitAddresType.mweb;
-      case BitcoinReceivePageOption.p2wpkh:
-      default:
-        return SegwitAddresType.p2wpkh;
-    }
-  }
-
-  @override
   BitcoinReceivePageOption getBitcoinLightningReceivePageOption() =>
       BitcoinReceivePageOption.lightning;
   @override

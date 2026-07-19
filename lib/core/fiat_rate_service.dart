@@ -31,6 +31,7 @@ class FiatRateService {
   final SettingsStore _settingsStore;
   final StreamController<void> _rateController = StreamController<void>.broadcast();
   final Map<CryptoCurrency, Map<FiatCurrency, double>> _customRates = {};
+  final Map<CryptoCurrency, Map<FiatCurrency, Completer<void>>> _ongoingChecks = {};
   late final mobx.ReactionDisposer _disposeReaction;
   late final mobx.ReactionDisposer _disposeFiatReaction;
 
@@ -52,6 +53,29 @@ class FiatRateService {
     if (rateFor(crypto, fiat) != null) {
       return;
     }
+
+    final isOngoingCheck = _ongoingChecks[crypto]?[fiat];
+    if (isOngoingCheck != null) {
+      await isOngoingCheck.future;
+      return;
+    }
+
+    final completer = Completer<void>();
+    _ongoingChecks.putIfAbsent(crypto, () => {})[fiat] = completer;
+    try {
+      await _fetchRate(crypto, fiat);
+    } finally {
+      _ongoingChecks[crypto]?.remove(fiat);
+      if (_ongoingChecks[crypto]?.isEmpty ?? false) {
+        _ongoingChecks.remove(crypto);
+      }
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    }
+  }
+
+  Future<void> _fetchRate(CryptoCurrency crypto, FiatCurrency fiat) async {
     try {
       final value = await FiatConversionService.fetchPrice(
         crypto: crypto,
