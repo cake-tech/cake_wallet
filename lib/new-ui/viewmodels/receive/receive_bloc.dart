@@ -86,8 +86,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       await addressService.applyOpenDefaults(lightningMode: _lightningMode);
       addressService.applyAutoGenerateOverride();
 
-      final effectiveInitialToken =
-          _lightningMode ? CryptoCurrency.btcln : event.initialToken;
+      final effectiveInitialToken = _lightningMode ? CryptoCurrency.btcln : event.initialToken;
       emit(_buildLoaded(initialToken: effectiveInitialToken));
     } catch (e) {
       printV("ReceiveBloc _onOpened failed: $e");
@@ -115,8 +114,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       final fiatMoney = fiatCurrency.tryParseAmount(raw);
       if (fiatMoney != null) {
         await fiatRateService.ensureRateFor(receiveCrypto, fiatCurrency);
-        if (state case final ReceiveLoaded current
-            when current.walletType != initial.walletType) {
+        if (state case final ReceiveLoaded current when current.walletType != initial.walletType) {
           return;
         }
         requestedAmount = fiatRateService.convertFromFiat(fiatMoney, receiveCrypto);
@@ -270,13 +268,38 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
         token: loaded.tokenCurrency,
       );
+      final isCurrentRequestLightning = newUri is LightningPaymentRequest;
+
+      var nextToken = loaded.tokenCurrency;
+      var nextInput = loaded.inputCurrency;
+      var clearToken = false;
+
+      if (isCurrentRequestLightning && !loaded.isLightning) {
+        nextToken = CryptoCurrency.btcln;
+        if (loaded.inputCurrency is CryptoCurrency) {
+          nextInput = CryptoCurrency.btcln;
+        }
+      } else if (!isCurrentRequestLightning && loaded.isLightning) {
+        if (loaded.tokenCurrency == CryptoCurrency.btcln) {
+          nextToken = null;
+          clearToken = true;
+        }
+        if (loaded.inputCurrency == CryptoCurrency.btcln) {
+          nextInput = addressService.walletCurrency;
+        }
+      }
+
       emit(
         loaded.copyWith(
           addressType: event.option,
           addressEntry: newAddress,
           paymentUri: newUri,
+          tokenCurrency: nextToken,
+          clearTokenCurrency: clearToken,
+          inputCurrency: nextInput,
+          useSatoshi: addressService.useSatoshi(nextInput),
           isSilentPayments: addressService.isSilentPayments,
-          isLightning: newUri is LightningPaymentRequest,
+          isLightning: isCurrentRequestLightning,
           isAutoGenerateSubaddressEnabled: addressService.isAutoGenerateSubaddressEnabled,
           walletType: addressService.walletType,
         ),
