@@ -78,7 +78,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                     spacing: 12,
                     children: [
                       if (widget.showTokenPicker) ...[
-                        const Text("Token"),
+                        Text(S.of(context).token),
                         GestureDetector(
                           onTap: widget.onTokenPickerTap,
                           child: Container(
@@ -201,8 +201,9 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                       NewPrimaryButton(
                         text: S.of(context).continue_text,
                         onPressed: () {
-                          if (double.tryParse(_amountController.text) != null) {
-                            widget.onAmountSubmitted(_amountController.text);
+                          final raw = _amountController.text.trim();
+                          if (raw.isNotEmpty) {
+                            widget.onAmountSubmitted(raw);
                           }
                           Navigator.of(context).pop();
                         },

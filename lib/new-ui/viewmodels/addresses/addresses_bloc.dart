@@ -24,12 +24,17 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     on<ActiveAddressSet>(_onActiveAddressSet);
     on<AddressHideToggled>(_onHideToggled);
     on<AddressLabelSet>(_onLabelSet);
-    on<AddressAdded>(_onAddressAdded);
+    on<AddressAdded>(_onAddressAdded, transformer: droppable());
     on<AddressDeleted>(_onDeleted);
     on<HiddenModeToggled>(_onHiddenModeToggled);
+    on<AddressListRefreshed>(_onListRefreshed);
     on<_WalletChanged>(_onWalletChanged);
 
-    _walletSub = activeWalletService.walletChanges.listen((_) => add(const _WalletChanged()));
+    _walletSub = activeWalletService.walletChanges.listen((_) {
+      if (!isClosed) {
+        add(const _WalletChanged());
+      }
+    });
 
     add(AddressesOpened(showHidden: showHidden));
   }
@@ -47,6 +52,10 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
 
   Future<void> _onOpened(AddressesOpened event, Emitter<AddressesState> emit) async {
     emit(const AddressesLoading());
+    await Future<void>.delayed(Duration.zero);
+    if (isClosed) {
+      return;
+    }
     try {
       emit(_buildLoaded(showHidden: event.showHidden));
     } catch (e) {
@@ -64,62 +73,95 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
   }
 
   Future<void> _onActiveAddressSet(ActiveAddressSet event, Emitter<AddressesState> emit) async {
-    final loaded = state;
-    if (loaded is! AddressesLoaded) {
+    final initial = state;
+    if (initial is! AddressesLoaded) {
       return;
     }
 
-    await addressService.setActiveAddress(event.address);
-    if (state case final AddressesLoaded loaded) {
+    try {
+      await addressService.setActiveAddress(event.address);
+    } catch (e) {
+      printV("AddressesBloc setActiveAddress failed: $e");
+      return;
+    }
+    if (state case final AddressesLoaded loaded when loaded.walletType == initial.walletType) {
       emit(loaded.copyWith(activeAddress: addressService.currentAddress));
     }
   }
 
   Future<void> _onHideToggled(AddressHideToggled event, Emitter<AddressesState> emit) async {
-    final loaded = state;
-    if (loaded is! AddressesLoaded) {
+    final initial = state;
+    if (initial is! AddressesLoaded) {
       return;
     }
 
-    await addressService.setHidden(event.address, hidden: event.hidden);
-    if (state case final AddressesLoaded loaded) {
-      emit(loaded.copyWith(groups: addressService.computeAddressList()));
+    try {
+      await addressService.setHidden(event.address, hidden: event.hidden);
+    } catch (e) {
+      printV("AddressesBloc setHidden failed: $e");
+      return;
     }
+    await _yieldAndRefreshGroups(emit, initial.walletType);
   }
 
   Future<void> _onLabelSet(AddressLabelSet event, Emitter<AddressesState> emit) async {
-    final loaded = state;
-    if (loaded is! AddressesLoaded) {
+    final initial = state;
+    if (initial is! AddressesLoaded) {
       return;
     }
 
-    await addressService.setLabel(event.address, event.label);
-    if (state case final AddressesLoaded loaded) {
-      emit(loaded.copyWith(groups: addressService.computeAddressList()));
+    try {
+      await addressService.setLabel(event.address, event.label);
+    } catch (e) {
+      printV("AddressesBloc setLabel failed: $e");
+      return;
     }
+    await _yieldAndRefreshGroups(emit, initial.walletType);
   }
 
   Future<void> _onAddressAdded(AddressAdded event, Emitter<AddressesState> emit) async {
-    final loaded = state;
-    if (loaded is! AddressesLoaded) {
+    final initial = state;
+    if (initial is! AddressesLoaded) {
       return;
     }
 
-    await addressService.addManualAddress(event.label);
-    if (state case final AddressesLoaded loaded) {
-      emit(loaded.copyWith(groups: addressService.computeAddressList()));
+    try {
+      await addressService.addManualAddress(event.label);
+    } catch (e) {
+      printV("AddressesBloc addManualAddress failed: $e");
+      return;
     }
+    await _yieldAndRefreshGroups(emit, initial.walletType);
   }
 
   Future<void> _onDeleted(AddressDeleted event, Emitter<AddressesState> emit) async {
-    final loaded = state;
-    if (loaded is! AddressesLoaded) {
+    final initial = state;
+    if (initial is! AddressesLoaded) {
       return;
     }
 
-    await addressService.deleteSilentPaymentAddress(event.address);
-    if (state case final AddressesLoaded loaded) {
-      emit(loaded.copyWith(groups: addressService.computeAddressList()));
+    try {
+      await addressService.deleteSilentPaymentAddress(event.address);
+    } catch (e) {
+      printV("AddressesBloc deleteSilentPaymentAddress failed: $e");
+      return;
+    }
+    await _yieldAndRefreshGroups(emit, initial.walletType);
+  }
+
+  Future<void> _yieldAndRefreshGroups(
+    Emitter<AddressesState> emit,
+    WalletType expectedWalletType,
+  ) async {
+    await Future<void>.delayed(Duration.zero);
+    if (isClosed) {
+      return;
+    }
+    if (state case final AddressesLoaded loaded when loaded.walletType == expectedWalletType) {
+      emit(loaded.copyWith(
+        groups: addressService.computeAddressList(),
+        activeAddress: addressService.currentAddress,
+      ));
     }
   }
 
@@ -132,6 +174,17 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
     emit(loaded.copyWith(showHidden: !loaded.showHidden));
+  }
+
+  Future<void> _onListRefreshed(
+    AddressListRefreshed event,
+    Emitter<AddressesState> emit,
+  ) async {
+    final loaded = state;
+    if (loaded is! AddressesLoaded) {
+      return;
+    }
+    emit(loaded.copyWith(groups: addressService.computeAddressList()));
   }
 
   Future<void> _onWalletChanged(_WalletChanged event, Emitter<AddressesState> emit) async {
@@ -152,5 +205,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
             const {WalletType.monero, WalletType.wownero}.contains(addressService.walletType),
         hasBalance: addressService.isBalanceAvailable,
         hasReceived: addressService.isReceivedAvailable,
+        canSetLabel: addressService.canSetLabel,
+        isSilentPayments: addressService.isSilentPayments,
       );
 }

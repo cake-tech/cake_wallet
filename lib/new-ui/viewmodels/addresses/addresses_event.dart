@@ -52,6 +52,10 @@ final class HiddenModeToggled extends AddressesEvent {
   const HiddenModeToggled();
 }
 
+final class AddressListRefreshed extends AddressesEvent {
+  const AddressListRefreshed();
+}
+
 final class _WalletChanged extends AddressesEvent {
   const _WalletChanged();
 }

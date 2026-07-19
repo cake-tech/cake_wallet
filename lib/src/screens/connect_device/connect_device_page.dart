@@ -194,7 +194,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   String _getDeviceTileLeading(HardwareWalletDeviceType deviceType) {
-    printV(deviceType);
     switch (deviceType) {
       case HardwareWalletDeviceType.ledgerNanoX:
         return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";

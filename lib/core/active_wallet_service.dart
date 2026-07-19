@@ -20,7 +20,17 @@ class ActiveWalletService {
   final StreamController<WalletBase> _controller = StreamController<WalletBase>.broadcast();
   late final mobx.ReactionDisposer _disposeReaction;
 
-  WalletBase get wallet => _appStore.wallet!;
+  WalletBase get wallet {
+    final w = _appStore.wallet;
+    if (w == null) {
+      throw StateError(
+        "No wallet is active yet",
+      );
+    }
+    return w;
+  }
+
+  bool get hasWallet => _appStore.wallet != null;
 
   Stream<WalletBase> get walletChanges => _controller.stream;
 

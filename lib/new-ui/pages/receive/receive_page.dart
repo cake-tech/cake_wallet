@@ -286,11 +286,8 @@ class _LoadedWidget extends StatelessWidget {
   }
 
   String _cryptoSymbol(ReceiveLoaded state) {
-    final c = state.tokenCurrency ?? state.inputCurrency;
-    if (c is CryptoCurrency) {
-      return c.title;
-    }
-    return c.name.toUpperCase();
+    final currency = state.tokenCurrency ?? state.walletCurrency;
+    return currency.title;
   }
 
   String _fiatSymbol(ReceiveLoaded state) => state.fiatEquivalent?.currency.name ?? "";
@@ -306,15 +303,14 @@ class _LoadedWidget extends StatelessWidget {
   }
 
   void _onCopy(BuildContext context, ReceiveLoaded state) {
-    if (state.hasPayjoin) {
-      showModalBottomSheet<void>(
-        isScrollControlled: true,
-        context: context,
-        builder: (_) => PayjoinCopyModal(uri: state.paymentUri),
-      );
+    if (!state.hasPayjoin) {
       return;
     }
-    Clipboard.setData(ClipboardData(text: _copyText(state)));
+    showModalBottomSheet<void>(
+      isScrollControlled: true,
+      context: context,
+      builder: (_) => PayjoinCopyModal(uri: state.paymentUri),
+    );
   }
 
   String _copyText(ReceiveLoaded state) =>
@@ -333,28 +329,45 @@ class _LoadedWidget extends StatelessWidget {
     );
   }
 
-  Future<void> _showAmountModal(BuildContext context, ReceiveLoaded state) async {
+  Future<void> _showAmountModal(BuildContext context, ReceiveLoaded initialState) async {
     final bloc = context.read<ReceiveBloc>();
-    final displayCrypto = state.tokenCurrency ?? state.walletCurrency;
-    final initialAmount = state.inputCurrency is FiatCurrency
-        ? state.fiatEquivalent?.toStringWithPrecision() ?? ""
-        : state.requestedAmount?.toStringWithPrecision() ?? "";
+    final initialAmount = initialState.inputCurrency is FiatCurrency
+        ? initialState.fiatEquivalent?.toStringWithPrecision() ?? ""
+        : initialState.requestedAmount?.toStringWithPrecision() ?? "";
 
     await showMaterialModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(80),
-      builder: (_) => ReceiveAmountModal(
-        initialAmount: initialAmount,
-        selectedCurrencySymbol: _currencySymbol(state.inputCurrency),
-        selectedCurrencyDecimals: state.useSatoshi ? 0 : state.inputCurrency.decimals,
-        useSatoshi: state.useSatoshi,
-        showTokenPicker: state.hasTokensList,
-        tokenIconPath: displayCrypto.iconPath ?? "",
-        tokenTitle: displayCrypto.title,
-        onAmountSubmitted: (raw) => bloc.add(AmountChanged(raw)),
-        onCurrencyPickerTap: () => _pickInputCurrency(context, state, bloc),
-        onTokenPickerTap: () => _pickToken(context, state, bloc),
+      builder: (_) => BlocProvider<ReceiveBloc>.value(
+        value: bloc,
+        child: BlocBuilder<ReceiveBloc, ReceiveState>(
+          buildWhen: (a, b) => b is ReceiveLoaded,
+          builder: (context, state) {
+            if (state is! ReceiveLoaded) {
+              return const SizedBox.shrink();
+            }
+            final displayCrypto = state.tokenCurrency ?? state.walletCurrency;
+            final modalKey = ValueKey<String>(state.tokenCurrency?.title ?? "wallet");
+            final displayInitialAmount = state.inputCurrency is FiatCurrency
+                ? state.fiatEquivalent?.toStringWithPrecision() ?? ""
+                : state.requestedAmount?.toStringWithPrecision() ?? "";
+            return ReceiveAmountModal(
+              key: modalKey,
+              initialAmount:
+                  displayInitialAmount.isEmpty ? initialAmount : displayInitialAmount,
+              selectedCurrencySymbol: _currencySymbol(state.inputCurrency),
+              selectedCurrencyDecimals: state.useSatoshi ? 0 : state.inputCurrency.decimals,
+              useSatoshi: state.useSatoshi,
+              showTokenPicker: state.hasTokensList,
+              tokenIconPath: displayCrypto.iconPath ?? "",
+              tokenTitle: displayCrypto.title,
+              onAmountSubmitted: (raw) => bloc.add(AmountChanged(raw)),
+              onCurrencyPickerTap: () => _pickInputCurrency(context, state, bloc),
+              onTokenPickerTap: () => _pickToken(context, state, bloc),
+            );
+          },
+        ),
       ),
     );
   }

@@ -26,10 +26,7 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controller.text = widget.initialLabel;
-    });
+    _controller = TextEditingController(text: widget.initialLabel);
   }
 
   @override

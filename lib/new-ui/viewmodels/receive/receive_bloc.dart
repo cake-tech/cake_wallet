@@ -27,7 +27,8 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     required this.activeWalletService,
     bool lightningMode = false,
     CryptoCurrency? initialToken,
-  }) : super(const ReceiveLoading()) {
+  })  : _lightningMode = lightningMode,
+        super(const ReceiveLoading()) {
     on<ReceiveOpened>(_onOpened, transformer: restartable());
     on<AmountChanged>(_onAmountChanged, transformer: restartable());
     on<InputCurrencySelected>(_onInputCurrencySelected, transformer: restartable());
@@ -41,10 +42,21 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     on<_FiatRateChanged>(_onFiatRateChanged);
     on<_PayjoinEndpointChanged>(_onPayjoinEndpointChanged);
 
-    _walletSub = activeWalletService.walletChanges.listen((_) => add(const _WalletChanged()));
-    _rateSub = fiatRateService.rateChanges.listen((_) => add(const _FiatRateChanged()));
-    _payjoinSub =
-        addressService.payjoinEndpointChanges.listen((_) => add(const _PayjoinEndpointChanged()));
+    _walletSub = activeWalletService.walletChanges.listen((_) {
+      if (!isClosed) {
+        add(const _WalletChanged());
+      }
+    });
+    _rateSub = fiatRateService.rateChanges.listen((_) {
+      if (!isClosed) {
+        add(const _FiatRateChanged());
+      }
+    });
+    _payjoinSub = addressService.payjoinEndpointChanges.listen((_) {
+      if (!isClosed) {
+        add(const _PayjoinEndpointChanged());
+      }
+    });
 
     add(ReceiveOpened(lightningMode: lightningMode, initialToken: initialToken));
   }
@@ -52,6 +64,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   final AddressService addressService;
   final FiatRateService fiatRateService;
   final ActiveWalletService activeWalletService;
+  bool _lightningMode;
 
   late final StreamSubscription<WalletBase> _walletSub;
   late final StreamSubscription<void> _rateSub;
@@ -67,13 +80,14 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
   Future<void> _onOpened(ReceiveOpened event, Emitter<ReceiveState> emit) async {
     emit(const ReceiveLoading());
+    _lightningMode = event.lightningMode;
 
     try {
-      await addressService.applyOpenDefaults(lightningMode: event.lightningMode);
+      await addressService.applyOpenDefaults(lightningMode: _lightningMode);
       addressService.applyAutoGenerateOverride();
 
       final effectiveInitialToken =
-          event.lightningMode ? CryptoCurrency.btcln : event.initialToken;
+          _lightningMode ? CryptoCurrency.btcln : event.initialToken;
       emit(_buildLoaded(initialToken: effectiveInitialToken));
     } catch (e) {
       printV("ReceiveBloc _onOpened failed: $e");
@@ -106,7 +120,9 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           return;
         }
         requestedAmount = fiatRateService.convertFromFiat(fiatMoney, receiveCrypto);
-        fiatEquivalent = fiatMoney;
+        if (requestedAmount != null) {
+          fiatEquivalent = fiatMoney;
+        }
       }
     } else {
       final canonical = addressService.canonicalCryptoAmount(raw, receiveCrypto);
@@ -135,12 +151,12 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           rawAmount: rawCryptoForUri,
           token: loaded.tokenCurrency,
         );
-        if (state case final ReceiveLoaded loaded) {
+        if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
           emit(loaded.copyWith(paymentUri: uri, fetchingInvoice: false));
         }
       } catch (e) {
         printV("ReceiveBloc lightning invoice fetch failed: $e");
-        if (state case final ReceiveLoaded loaded) {
+        if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
           emit(loaded.copyWith(fetchingInvoice: false));
         }
       }
@@ -165,13 +181,13 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     InputCurrencySelected event,
     Emitter<ReceiveState> emit,
   ) async {
-    final loaded = state;
-    if (loaded is! ReceiveLoaded) {
+    final initial = state;
+    if (initial is! ReceiveLoaded) {
       return;
     }
 
     emit(
-      loaded.copyWith(
+      initial.copyWith(
         inputCurrency: event.currency,
         useSatoshi: addressService.useSatoshi(event.currency),
       ),
@@ -179,12 +195,13 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
     if (event.currency is FiatCurrency && event.currency != fiatRateService.defaultFiat) {
       await fiatRateService.ensureRateFor(
-        _receiveCryptoCurrency(loaded),
+        _receiveCryptoCurrency(initial),
         event.currency as FiatCurrency,
       );
     }
 
-    if (state case final ReceiveLoaded loaded when loaded.requestedAmount != null) {
+    if (state case final ReceiveLoaded loaded
+        when loaded.walletType == initial.walletType && loaded.requestedAmount != null) {
       final displayFiat = event.currency is FiatCurrency
           ? event.currency as FiatCurrency
           : fiatRateService.defaultFiat;
@@ -205,13 +222,11 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     final token = _resolveTokenCurrency(event.token);
     final receiveCrypto = token ?? addressService.walletCurrency;
 
-    final uri = addressService.buildPaymentUri(
-      rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
-      token: token,
-    );
-
     final newInputCurrency =
         loaded.inputCurrency is CryptoCurrency ? receiveCrypto : loaded.inputCurrency;
+
+    final uri = addressService.buildPaymentUri(rawAmount: "", token: token);
+
     emit(
       loaded.copyWith(
         tokenCurrency: token,
@@ -219,16 +234,22 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         inputCurrency: newInputCurrency,
         useSatoshi: addressService.useSatoshi(newInputCurrency),
         paymentUri: uri,
+        clearRequestedAmount: true,
+        clearFiatEquivalent: true,
       ),
     );
+
+    if (newInputCurrency is FiatCurrency) {
+      await fiatRateService.ensureRateFor(receiveCrypto, newInputCurrency);
+    }
   }
 
   Future<void> _onAddressTypeSelected(
     AddressTypeSelected event,
     Emitter<ReceiveState> emit,
   ) async {
-    final loaded = state;
-    if (loaded is! ReceiveLoaded) {
+    final initial = state;
+    if (initial is! ReceiveLoaded) {
       return;
     }
 
@@ -236,9 +257,14 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       return;
     }
 
-    await addressService.setAddressType(event.option);
+    try {
+      await addressService.setAddressType(event.option);
+    } catch (e) {
+      printV("ReceiveBloc setAddressType failed: $e");
+      return;
+    }
 
-    if (state case final ReceiveLoaded loaded) {
+    if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
       final newAddress = _currentAddressEntry();
       final newUri = addressService.buildPaymentUri(
         rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
@@ -259,16 +285,16 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   }
 
   Future<void> _onAddressRotated(AddressRotated event, Emitter<ReceiveState> emit) async {
-    final loaded = state;
-    if (loaded is! ReceiveLoaded) {
+    final initial = state;
+    if (initial is! ReceiveLoaded) {
       return;
     }
 
-    emit(loaded.copyWith(isRotatingAddress: true));
+    emit(initial.copyWith(isRotatingAddress: true));
 
     try {
       await addressService.rotateAddress();
-      if (state case final ReceiveLoaded loaded) {
+      if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
         emit(
           loaded.copyWith(
             addressEntry: _currentAddressEntry(),
@@ -282,32 +308,42 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       }
     } catch (e) {
       printV("ReceiveBloc rotate failed: $e");
-      if (state case final ReceiveLoaded loaded) {
+      if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
         emit(loaded.copyWith(isRotatingAddress: false));
       }
     }
   }
 
   Future<void> _onLabelSubmitted(LabelSubmitted event, Emitter<ReceiveState> emit) async {
-    final loaded = state;
-    if (loaded is! ReceiveLoaded) {
+    final initial = state;
+    if (initial is! ReceiveLoaded) {
       return;
     }
 
-    await addressService.setLabel(loaded.addressEntry.address, event.label);
-    if (state case final ReceiveLoaded loaded) {
+    try {
+      await addressService.setLabel(initial.addressEntry.address, event.label);
+    } catch (e) {
+      printV("ReceiveBloc setLabel failed: $e");
+      return;
+    }
+    if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
       emit(loaded.copyWith(addressEntry: _currentAddressEntry()));
     }
   }
 
   Future<void> _onInfoboxDismissed(InfoboxDismissed event, Emitter<ReceiveState> emit) async {
-    final loaded = state;
-    if (loaded is! ReceiveLoaded || loaded.infoboxDismissed) {
+    final initial = state;
+    if (initial is! ReceiveLoaded || initial.infoboxDismissed) {
       return;
     }
 
-    await addressService.dismissInfobox();
-    if (state case final ReceiveLoaded loaded) {
+    try {
+      await addressService.dismissInfobox();
+    } catch (e) {
+      printV("ReceiveBloc dismissInfobox failed: $e");
+      return;
+    }
+    if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
       emit(loaded.copyWith(infoboxDismissed: true));
     }
   }
@@ -335,8 +371,14 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   Future<void> _onWalletChanged(_WalletChanged event, Emitter<ReceiveState> emit) async {
     emit(const ReceiveLoading());
     try {
+      if (addressService.walletType != WalletType.bitcoin) {
+        _lightningMode = false;
+      }
+      await addressService.applyOpenDefaults(lightningMode: _lightningMode);
       addressService.applyAutoGenerateOverride();
-      emit(_buildLoaded());
+
+      final effectiveInitialToken = _lightningMode ? CryptoCurrency.btcln : null;
+      emit(_buildLoaded(initialToken: effectiveInitialToken));
     } catch (e) {
       printV("ReceiveBloc _onWalletChanged failed: $e");
       emit(const ReceiveFailure(ReceiveFailureCode.addressListUnavailable));
@@ -345,14 +387,32 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
   Future<void> _onFiatRateChanged(_FiatRateChanged event, Emitter<ReceiveState> emit) async {
     final loaded = state;
-    if (loaded is! ReceiveLoaded || loaded.requestedAmount == null) {
+    if (loaded is! ReceiveLoaded) {
+      return;
+    }
+    if (loaded.inputCurrency is FiatCurrency && loaded.fiatEquivalent != null) {
+      final receiveCrypto = _receiveCryptoCurrency(loaded);
+      final newCrypto = fiatRateService.convertFromFiat(loaded.fiatEquivalent!, receiveCrypto);
+      final rawCryptoForUri = newCrypto?.toStringWithPrecision() ?? "";
+      final uri = addressService.buildPaymentUri(
+        rawAmount: rawCryptoForUri,
+        token: loaded.tokenCurrency,
+      );
+      emit(
+        loaded.copyWith(
+          requestedAmount: newCrypto,
+          clearRequestedAmount: newCrypto == null,
+          paymentUri: uri,
+        ),
+      );
       return;
     }
 
-    final displayFiat = loaded.inputCurrency is FiatCurrency
-        ? loaded.inputCurrency as FiatCurrency
-        : fiatRateService.defaultFiat;
-    final newFiat = fiatRateService.convertToFiat(loaded.requestedAmount!, displayFiat);
+    if (loaded.requestedAmount == null) {
+      return;
+    }
+    final newFiat =
+        fiatRateService.convertToFiat(loaded.requestedAmount!, fiatRateService.defaultFiat);
     emit(loaded.copyWith(fiatEquivalent: newFiat, clearFiatEquivalent: newFiat == null));
   }
 
@@ -366,12 +426,11 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     }
 
     final endpoint = addressService.payjoinEndpoint;
-    emit(
-      loaded.copyWith(
-        payjoinEndpoint: endpoint.isEmpty ? null : endpoint,
-        clearPayjoinEndpoint: endpoint.isEmpty,
-      ),
-    );
+    if (endpoint.isEmpty) {
+      emit(loaded.copyWith(clearPayjoinEndpoint: true));
+    } else {
+      emit(loaded.copyWith(payjoinEndpoint: endpoint));
+    }
   }
 
   ReceiveLoaded _buildLoaded({CryptoCurrency? initialToken}) {
@@ -414,7 +473,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     final entries = addressService.computeAddressList().expand((g) => g.entries);
     return entries.firstWhere(
       (e) => e.address == current,
-      orElse: () => AddressEntry(address: current, isPrimary: true),
+      orElse: () => AddressEntry(address: current),
     );
   }
 

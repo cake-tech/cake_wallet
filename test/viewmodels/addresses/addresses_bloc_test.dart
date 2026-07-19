@@ -50,6 +50,8 @@ void main() {
     AddressAccount? currentAccount,
     WalletType walletType = WalletType.bitcoin,
     bool isAutoGenerateSubaddressEnabled = false,
+    bool canSetLabel = true,
+    bool isSilentPayments = false,
   }) {
     when(() => addressService.computeAddressList()).thenReturn(groups);
     when(() => addressService.currentAddress).thenReturn(currentAddress);
@@ -61,6 +63,8 @@ void main() {
     ).thenReturn(isAutoGenerateSubaddressEnabled);
     when(() => addressService.isBalanceAvailable).thenReturn(false);
     when(() => addressService.isReceivedAvailable).thenReturn(false);
+    when(() => addressService.canSetLabel).thenReturn(canSetLabel);
+    when(() => addressService.isSilentPayments).thenReturn(isSilentPayments);
     when(() => activeWalletService.walletChanges).thenAnswer((_) => walletChangesController.stream);
   }
 
@@ -73,6 +77,9 @@ void main() {
   tearDown(() async {
     await walletChangesController.close();
   });
+
+  Future<void> waitForLoaded(AddressesBloc bloc) =>
+      bloc.stream.firstWhere((s) => s is AddressesLoaded).then((_) {});
 
   group("initialization", () {
     blocTest<AddressesBloc, AddressesState>(
@@ -112,7 +119,10 @@ void main() {
         ],
       ),
       build: buildBloc,
-      act: (bloc) => bloc.add(const SearchTermEntered("alpha")),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const SearchTermEntered("alpha"));
+      },
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
         final state = bloc.state as AddressesLoaded;
@@ -160,7 +170,10 @@ void main() {
         when(() => addressService.setActiveAddress(any())).thenAnswer((_) async {});
       },
       build: buildBloc,
-      act: (bloc) => bloc.add(const ActiveAddressSet("addr2")),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const ActiveAddressSet("addr2"));
+      },
       wait: const Duration(milliseconds: 20),
       verify: (_) {
         verify(() => addressService.setActiveAddress("addr2")).called(1);
@@ -175,7 +188,10 @@ void main() {
             .thenAnswer((_) async {});
       },
       build: buildBloc,
-      act: (bloc) => bloc.add(const AddressHideToggled("addr1", hidden: true)),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const AddressHideToggled("addr1", hidden: true));
+      },
       wait: const Duration(milliseconds: 20),
       verify: (_) {
         verify(() => addressService.setHidden("addr1", hidden: true)).called(1);
@@ -189,7 +205,10 @@ void main() {
         when(() => addressService.setLabel(any(), any())).thenAnswer((_) async {});
       },
       build: buildBloc,
-      act: (bloc) => bloc.add(const AddressLabelSet("addr1", "Donations")),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const AddressLabelSet("addr1", "Donations"));
+      },
       wait: const Duration(milliseconds: 20),
       verify: (_) {
         verify(() => addressService.setLabel("addr1", "Donations")).called(1);
@@ -203,8 +222,32 @@ void main() {
         when(() => addressService.addManualAddress(any())).thenAnswer((_) async {});
       },
       build: buildBloc,
-      act: (bloc) => bloc.add(const AddressAdded("Savings")),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const AddressAdded("Savings"));
+      },
       wait: const Duration(milliseconds: 20),
+      verify: (_) {
+        verify(() => addressService.addManualAddress("Savings")).called(1);
+      },
+    );
+
+    blocTest<AddressesBloc, AddressesState>(
+      "AddressAdded is droppable: rapid taps add once",
+      setUp: () {
+        wireDefaults();
+        final completer = Completer<void>();
+        when(() => addressService.addManualAddress(any())).thenAnswer((_) => completer.future);
+        Future.delayed(const Duration(milliseconds: 20), completer.complete);
+      },
+      build: buildBloc,
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc
+          ..add(const AddressAdded("Savings"))
+          ..add(const AddressAdded("Savings"));
+      },
+      wait: const Duration(milliseconds: 100),
       verify: (_) {
         verify(() => addressService.addManualAddress("Savings")).called(1);
       },
@@ -217,7 +260,10 @@ void main() {
         when(() => addressService.deleteSilentPaymentAddress(any())).thenAnswer((_) async {});
       },
       build: buildBloc,
-      act: (bloc) => bloc.add(const AddressDeleted("sp1addr")),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const AddressDeleted("sp1addr"));
+      },
       wait: const Duration(milliseconds: 20),
       verify: (_) {
         verify(() => addressService.deleteSilentPaymentAddress("sp1addr")).called(1);
@@ -228,7 +274,10 @@ void main() {
       "HiddenModeToggled flips the flag",
       setUp: wireDefaults,
       build: buildBloc,
-      act: (bloc) => bloc.add(const HiddenModeToggled()),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const HiddenModeToggled());
+      },
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
         final state = bloc.state as AddressesLoaded;
@@ -253,13 +302,18 @@ void main() {
         when(() => addressService.isAutoGenerateSubaddressEnabled).thenReturn(false);
         when(() => addressService.isBalanceAvailable).thenReturn(false);
         when(() => addressService.isReceivedAvailable).thenReturn(false);
+        when(() => addressService.canSetLabel).thenReturn(true);
+        when(() => addressService.isSilentPayments).thenReturn(false);
         when(() => addressService.setHidden(any(), hidden: any(named: "hidden")))
             .thenAnswer((_) async {});
         when(() => activeWalletService.walletChanges)
             .thenAnswer((_) => walletChangesController.stream);
       },
       build: buildBloc,
-      act: (bloc) => bloc.add(const AddressHideToggled("addr1", hidden: true)),
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const AddressHideToggled("addr1", hidden: true));
+      },
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
         final state = bloc.state as AddressesLoaded;

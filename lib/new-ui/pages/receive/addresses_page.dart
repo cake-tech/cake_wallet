@@ -102,14 +102,32 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
   void initState() {
     super.initState();
     _searchController = TextEditingController(text: widget.state.searchTerm)
-      ..addListener(() {
-        context.read<AddressesBloc>().add(SearchTermEntered(_searchController.text));
-      });
+      ..addListener(_onSearchChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _LoadedWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.state.searchTerm != _searchController.text) {
+      _searchController.value = TextEditingValue(
+        text: widget.state.searchTerm,
+        selection: TextSelection.collapsed(offset: widget.state.searchTerm.length),
+      );
+    }
+  }
+
+  void _onSearchChanged() {
+    if (!mounted) {
+      return;
+    }
+    context.read<AddressesBloc>().add(SearchTermEntered(_searchController.text));
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
     super.dispose();
   }
 
@@ -120,7 +138,6 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
     final state = widget.state;
     final title = state.showHidden ? S.of(context).hidden_addresses : S.of(context).addresses;
     final groups = state.displayableGroups;
-    final entries = groups.expand((g) => g.entries).toList();
 
     return Column(
       spacing: 12,
@@ -145,49 +162,20 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
+                          if (!_isPicker && state.showAddManualAddresses)
+                            const _AddManualAddressButton(),
                           if (!_isPicker) const _ShowHiddenButton(),
                         ],
                       ),
                     ),
-                  SliverPadding(
-                    padding: const EdgeInsets.only(bottom: 64),
-                    sliver: SliverList.separated(
-                      itemCount: entries.length,
-                      itemBuilder: (context, index) {
-                        final entry = entries[index];
-                        return _AddressRow(
-                          entry: entry,
-                          selected: entry.address == state.activeAddress && !_isPicker,
-                          first: state.showHidden && index == 0,
-                          last: index == entries.length - 1,
-                          walletType: state.walletType,
-                          hasBalance: state.hasBalance,
-                          hasReceived: state.hasReceived,
-                          isPicker: _isPicker,
-                          onSelect: () {
-                            if (_isPicker) {
-                              widget.onSelect!(entry.address);
-                            } else {
-                              context
-                                  .read<AddressesBloc>()
-                                  .add(ActiveAddressSet(entry.address));
-                            }
-                          },
-                          onLabelChanged: () {},
-                          onAddressHidden: () => context
-                              .read<AddressesBloc>()
-                              .add(AddressHideToggled(entry.address, hidden: !entry.isHidden)),
-                        );
-                      },
-                      separatorBuilder: (_, __) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Container(
-                          height: 1,
-                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                        ),
-                      ),
+                  for (var i = 0; i < groups.length; i++)
+                    _GroupSection(
+                      group: groups[i],
+                      state: state,
+                      isLast: i == groups.length - 1,
+                      isPicker: _isPicker,
+                      onEntrySelected: _handleEntrySelected,
                     ),
-                  ),
                   const SliverToBoxAdapter(child: SizedBox(height: 72)),
                 ],
               ),
@@ -203,6 +191,149 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
       ],
     );
   }
+
+  void _handleEntrySelected(BuildContext context, String address) {
+    if (_isPicker) {
+      widget.onSelect!(address);
+    } else {
+      context.read<AddressesBloc>().add(ActiveAddressSet(address));
+    }
+  }
+}
+
+class _GroupSection extends StatelessWidget {
+  const _GroupSection({
+    required this.group,
+    required this.state,
+    required this.isLast,
+    required this.isPicker,
+    required this.onEntrySelected,
+  });
+
+  final AddressGroup group;
+  final AddressesLoaded state;
+  final bool isLast;
+  final bool isPicker;
+  final void Function(BuildContext context, String address) onEntrySelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (group.entries.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+    return SliverMainAxisGroup(
+      slivers: [
+        if (group.header != null)
+          SliverToBoxAdapter(child: _GroupHeader(header: group.header!)),
+        SliverPadding(
+          padding: EdgeInsets.only(bottom: isLast ? 64 : 12),
+          sliver: SliverList.separated(
+            itemCount: group.entries.length,
+            itemBuilder: (context, index) {
+              final entry = group.entries[index];
+              return _AddressRow(
+                entry: entry,
+                selected: entry.address == state.activeAddress && !isPicker,
+                first: index == 0,
+                last: index == group.entries.length - 1,
+                walletType: state.walletType,
+                hasBalance: state.hasBalance,
+                hasReceived: state.hasReceived,
+                canSetLabel: state.canSetLabel,
+                canDelete: state.isSilentPayments && !entry.isOneTimeReceiveAddress,
+                isPicker: isPicker,
+                onSelect: () => onEntrySelected(context, entry.address),
+                onLabelChanged: () {},
+                onAddressHidden: () => context
+                    .read<AddressesBloc>()
+                    .add(AddressHideToggled(entry.address, hidden: !entry.isHidden)),
+              );
+            },
+            separatorBuilder: (_, __) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                height: 1,
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GroupHeader extends StatelessWidget {
+  const _GroupHeader({required this.header});
+
+  final AddressGroupHeader header;
+
+  String _title(BuildContext context) => switch (header) {
+        SilentPaymentsReceivedHeader() => S.of(context).received,
+        RegularAddressesHeader() => S.of(context).addresses,
+        HiddenAddressesHeader() => S.of(context).hidden_addresses,
+        AccountsHeader() => S.of(context).accounts,
+      };
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            _title(context),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+}
+
+class _AddManualAddressButton extends StatelessWidget {
+  const _AddManualAddressButton();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Material(
+          child: InkWell(
+            onTap: () {
+              final bloc = context.read<AddressesBloc>();
+              showPopUp<String>(
+                context: context,
+                builder: (_) => _AddressLabelInputPopup(
+                  initialLabel: "",
+                  onSaved: (value) => bloc.add(AddressAdded(value)),
+                ),
+              );
+            },
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).add_address),
+                    Icon(
+                      Icons.add,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class _TopBar extends StatelessWidget {
@@ -282,6 +413,9 @@ class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
       _designDisposer = reaction<CardDesign?>(
         (_) => dashboardViewModel.cardDesigns.isNotEmpty
             ? dashboardViewModel.cardDesigns.first
@@ -385,8 +519,12 @@ class _ShowHiddenButton extends StatelessWidget {
           children: [
             Material(
               child: InkWell(
-                onTap: () =>
-                    Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: true),
+                onTap: () async {
+                  final bloc = context.read<AddressesBloc>();
+                  await Navigator.of(context)
+                      .pushNamed(Routes.receiveAddresses, arguments: true);
+                  bloc.add(const AddressListRefreshed());
+                },
                 child: Container(
                   height: 48,
                   decoration: BoxDecoration(
@@ -427,6 +565,8 @@ class _AddressRow extends StatelessWidget {
     required this.walletType,
     required this.hasBalance,
     required this.hasReceived,
+    required this.canSetLabel,
+    required this.canDelete,
     required this.isPicker,
     required this.onSelect,
     required this.onLabelChanged,
@@ -440,6 +580,8 @@ class _AddressRow extends StatelessWidget {
   final WalletType walletType;
   final bool hasBalance;
   final bool hasReceived;
+  final bool canSetLabel;
+  final bool canDelete;
   final bool isPicker;
   final VoidCallback onSelect;
   final VoidCallback onLabelChanged;
@@ -534,27 +676,26 @@ class _AddressRow extends StatelessWidget {
             : LongPressPopupBuilder(
                 popup: LongPressMenu(
                   items: [
-                    LongPressMenuItem(
-                      label: S.of(context).set_label,
-                      iconPath: "assets/new-ui/address_set_label.svg",
-                      onSelected: () async {
-                        Navigator.of(context, rootNavigator: true).pop();
-                        final res = await showPopUp<String>(
-                          context: context,
-                          builder: (context) => _AddressLabelInputPopup(
-                            initialLabel: entry.label ?? "",
-                            onSaved: (label) {
-                              context
-                                  .read<AddressesBloc>()
-                                  .add(AddressLabelSet(entry.address, label));
-                            },
-                          ),
-                        );
-                        if (res != null) {
-                          onLabelChanged();
-                        }
-                      },
-                    ),
+                    if (canSetLabel)
+                      LongPressMenuItem(
+                        label: S.of(context).set_label,
+                        iconPath: "assets/new-ui/address_set_label.svg",
+                        onSelected: () async {
+                          final bloc = context.read<AddressesBloc>();
+                          Navigator.of(context, rootNavigator: true).pop();
+                          final res = await showPopUp<String>(
+                            context: context,
+                            builder: (_) => _AddressLabelInputPopup(
+                              initialLabel: entry.label ?? "",
+                              onSaved: (label) =>
+                                  bloc.add(AddressLabelSet(entry.address, label)),
+                            ),
+                          );
+                          if (res != null) {
+                            onLabelChanged();
+                          }
+                        },
+                      ),
                     LongPressMenuItem(
                       label: entry.isHidden
                           ? S.of(context).unhide_address
@@ -566,8 +707,19 @@ class _AddressRow extends StatelessWidget {
                       },
                       color: Theme.of(context).colorScheme.error,
                     ),
+                    if (canDelete)
+                      LongPressMenuItem(
+                        label: S.of(context).delete,
+                        iconPath: "assets/new-ui/address_hide.svg",
+                        onSelected: () {
+                          final bloc = context.read<AddressesBloc>();
+                          Navigator.of(context, rootNavigator: true).pop();
+                          bloc.add(AddressDeleted(entry.address));
+                        },
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     LongPressMenuItem(
-                      label: "Info",
+                      label: S.of(context).show_details,
                       iconPath: "assets/images/info_icon.svg",
                       onSelected: () async {
                         Navigator.of(context, rootNavigator: true).pop();
@@ -603,12 +755,13 @@ class _AddressLabelInputPopupState extends State<_AddressLabelInputPopup> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    _controller = TextEditingController(text: widget.initialLabel);
     _focusNode = FocusNode();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
       _focusNode.requestFocus();
-      _controller.text = widget.initialLabel;
     });
   }
 
@@ -673,9 +826,9 @@ class _AddressInfoPopup extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Column(
                   children: [
-                    Text("Index: ${entry.id ?? 0}"),
+                    Text("${S.of(context).address_index}: ${entry.id ?? 0}"),
                     const SizedBox(height: 16),
-                    Text("Derivation Path: ${entry.derivationPath ?? ""}"),
+                    Text("${S.of(context).derivationpath}: ${entry.derivationPath ?? ""}"),
                   ],
                 ),
               ),
@@ -684,4 +837,3 @@ class _AddressInfoPopup extends StatelessWidget {
         ),
       );
 }
-

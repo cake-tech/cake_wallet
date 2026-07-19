@@ -23,6 +23,8 @@ final class AddressesLoaded extends AddressesState {
     required this.showAddManualAddresses,
     required this.hasBalance,
     required this.hasReceived,
+    required this.canSetLabel,
+    required this.isSilentPayments,
   });
 
   final List<AddressGroup> groups;
@@ -35,6 +37,8 @@ final class AddressesLoaded extends AddressesState {
   final bool showAddManualAddresses;
   final bool hasBalance;
   final bool hasReceived;
+  final bool canSetLabel;
+  final bool isSilentPayments;
 
   List<AddressGroup> get displayableGroups {
     final term = searchTerm.toLowerCase();
@@ -69,6 +73,8 @@ final class AddressesLoaded extends AddressesState {
     bool? showAddManualAddresses,
     bool? hasBalance,
     bool? hasReceived,
+    bool? canSetLabel,
+    bool? isSilentPayments,
   }) => AddressesLoaded(
       groups: groups ?? this.groups,
       activeAddress: activeAddress ?? this.activeAddress,
@@ -80,6 +86,8 @@ final class AddressesLoaded extends AddressesState {
       showAddManualAddresses: showAddManualAddresses ?? this.showAddManualAddresses,
       hasBalance: hasBalance ?? this.hasBalance,
       hasReceived: hasReceived ?? this.hasReceived,
+      canSetLabel: canSetLabel ?? this.canSetLabel,
+      isSilentPayments: isSilentPayments ?? this.isSilentPayments,
     );
 
   @override
@@ -94,6 +102,8 @@ final class AddressesLoaded extends AddressesState {
         showAddManualAddresses,
         hasBalance,
         hasReceived,
+        canSetLabel,
+        isSilentPayments,
       ];
 }
 

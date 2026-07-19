@@ -34,6 +34,8 @@ class _FakeMoney extends Fake implements Money {}
 
 class _FakeCurrency extends Fake implements Currency {}
 
+class _FakeWalletBase extends Fake implements WalletBase {}
+
 const _btcAddress = AddressEntry(address: "bc1qtestaddress", isPrimary: true);
 final _btcUri = BitcoinURI(address: _btcAddress.address, amount: "");
 
@@ -306,6 +308,8 @@ void main() {
   });
 
   group("address type", () {
+    late Completer<void> setTypeCompleter;
+
     blocTest<ReceiveBloc, ReceiveState>(
       "delegates to service.setAddressType and refreshes state",
       setUp: () {
@@ -331,6 +335,46 @@ void main() {
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
         verifyNever(() => addressService.setAddressType(ReceivePageOption.anonPayInvoice));
+      },
+    );
+
+    blocTest<ReceiveBloc, ReceiveState>(
+      "setAddressType failure keeps the bloc in Loaded",
+      setUp: () {
+        wireDefaults();
+        when(() => addressService.setAddressType(any())).thenThrow(Exception("boom"));
+      },
+      build: buildBloc,
+      act: (bloc) => bloc.add(const AddressTypeSelected(ReceivePageOption.mainnet)),
+      wait: const Duration(milliseconds: 20),
+      verify: (bloc) {
+        expect(bloc.state, isA<ReceiveLoaded>());
+      },
+    );
+
+    blocTest<ReceiveBloc, ReceiveState>(
+      "wallet change during setAddressType suppresses the stale emit",
+      setUp: () {
+        wireDefaults();
+        setTypeCompleter = Completer<void>();
+        when(() => addressService.setAddressType(any()))
+            .thenAnswer((_) => setTypeCompleter.future);
+      },
+      build: buildBloc,
+      act: (bloc) async {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        bloc.add(const AddressTypeSelected(ReceivePageOption.mainnet));
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        when(() => addressService.walletType).thenReturn(WalletType.monero);
+        walletChangesController.add(_FakeWalletBase());
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        setTypeCompleter.complete();
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      },
+      verify: (bloc) {
+        final state = bloc.state as ReceiveLoaded;
+        expect(state.walletType, WalletType.monero);
+        expect(state.addressType, isNull);
       },
     );
   });

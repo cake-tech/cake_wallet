@@ -40,7 +40,10 @@ class FiatRateService {
 
   double? rateFor(CryptoCurrency crypto, FiatCurrency fiat) {
     if (fiat == _settingsStore.fiatCurrency) {
-      return _fiatConversionStore.prices[crypto];
+      final live = _fiatConversionStore.prices[crypto];
+      if (live != null) {
+        return live;
+      }
     }
     return _customRates[crypto]?[fiat];
   }
@@ -62,8 +65,10 @@ class FiatRateService {
     }
   }
 
+  bool get _isFiatDisabled => _settingsStore.fiatApiMode == FiatApiMode.disabled;
+
   Money? convertToFiat(Money amount, FiatCurrency to) {
-    if (amount.currency is! CryptoCurrency) {
+    if (_isFiatDisabled || amount.currency is! CryptoCurrency) {
       return null;
     }
     final rate = rateFor(amount.currency as CryptoCurrency, to);
@@ -76,7 +81,7 @@ class FiatRateService {
   }
 
   Money? convertFromFiat(Money fiatAmount, CryptoCurrency to) {
-    if (fiatAmount.currency is! FiatCurrency) {
+    if (_isFiatDisabled || fiatAmount.currency is! FiatCurrency) {
       return null;
     }
     final rate = rateFor(to, fiatAmount.currency as FiatCurrency);

@@ -89,7 +89,7 @@ class AddressService {
     if (type == WalletType.tron) {
       return _singleAddressGroup(tron!.getAddress(wallet));
     }
-    if (type == WalletType.nano) {
+    if (type == WalletType.nano || type == WalletType.banano) {
       return _singleAddressGroup(wallet.walletAddresses.address);
     }
     if (type == WalletType.zano) {
@@ -163,18 +163,20 @@ class AddressService {
 
     var entries = bitcoin!.getSubAddresses(w).map(_electrumEntry).toList();
 
-    // mweb can generate 1000+ derived addresses, we show up to the last
-    // one with a tx count, plus 20 more
-    if (w.type == WalletType.litecoin && entries.length >= 1000) {
+    if (w.type == WalletType.litecoin && entries.length >= _mwebTruncationThreshold) {
       var index = entries.lastIndexWhere((e) => (e.txCount ?? 0) > 0);
       if (index == -1) {
         index = 0;
       }
-      entries = entries.sublist(0, index + 20);
+      final upperBound = index + _mwebTruncationTrailingBuffer;
+      entries = entries.sublist(0, upperBound < entries.length ? upperBound : entries.length);
     }
 
     return [AddressGroup(entries: entries)];
   }
+
+  static const _mwebTruncationThreshold = 1000;
+  static const _mwebTruncationTrailingBuffer = 20;
 
   AddressEntry _electrumEntry(ElectrumSubAddress addr, {bool isOneTimeReceiveAddress = false}) {
     final w = wallet;
@@ -242,58 +244,71 @@ class AddressService {
   }
 
   Future<void> rotateAddress() async {
-    await _generateNewAddress("");
-    final entries = computeAddressList().expand((g) => g.entries).toList();
-    if (entries.isNotEmpty) {
-      wallet.walletAddresses.address = entries.last.address;
+    final newAddress = await _generateNewAddress("");
+    if (newAddress == null || newAddress.isEmpty) {
+      return;
     }
+    wallet.walletAddresses.address = newAddress;
   }
 
   Future<void> addManualAddress(String label) => _generateNewAddress(label);
 
-  Future<void> _generateNewAddress(String label) async {
+  Future<String?> _generateNewAddress(String label) async {
     final type = wallet.type;
 
     if (_isElectrumType(type)) {
       await bitcoin!.generateNewAddress(wallet, label);
       await wallet.save();
-      return;
+      if (bitcoin!.hasSelectedSilentPayments(wallet)) {
+        final mains = bitcoin!.getSilentPaymentAddresses(wallet).toList();
+        return mains.isNotEmpty ? mains.last.address : null;
+      }
+      final subAddresses = bitcoin!.getSubAddresses(wallet).toList();
+      return subAddresses.isNotEmpty ? subAddresses.last.address : null;
     }
 
     if (type == WalletType.decred) {
       await decred!.generateNewAddress(wallet, label);
       await wallet.save();
-      return;
+      final addressInfos = decred!.getAddressInfos(wallet).toList();
+      return addressInfos.isNotEmpty ? addressInfos.last.address : null;
     }
 
     if (type == WalletType.monero) {
+      final accountIndex = monero!.getCurrentAccount(wallet).id;
       await monero!.getSubaddressList(wallet).addSubaddress(
             wallet,
-            accountIndex: monero!.getCurrentAccount(wallet).id,
+            accountIndex: accountIndex,
             label: label,
           );
       final subaddresses = monero!.getSubaddressList(wallet).subaddresses;
       if (subaddresses.isEmpty) {
-        return;
+        return null;
       }
-      wallet.walletAddresses.manualAddresses.add(subaddresses.first.address);
+      final newAddress = subaddresses.reduce((a, b) => a.id > b.id ? a : b).address;
+      wallet.walletAddresses.manualAddresses.add(newAddress);
       await wallet.save();
-      return;
+      return newAddress;
     }
 
     if (type == WalletType.wownero) {
+      final accountIndex = wownero!.getCurrentAccount(wallet).id;
       await wownero!.getSubaddressList(wallet).addSubaddress(
             wallet,
-            accountIndex: wownero!.getCurrentAccount(wallet).id,
+            accountIndex: accountIndex,
             label: label,
           );
       final subaddresses = wownero!.getSubaddressList(wallet).subaddresses;
       if (subaddresses.isEmpty) {
-        return;
+        return null;
       }
-      wallet.walletAddresses.manualAddresses.add(subaddresses.first.address);
+      final newAddress = subaddresses.reduce((a, b) => a.id > b.id ? a : b).address;
+      wallet.walletAddresses.manualAddresses.add(newAddress);
       await wallet.save();
+      return newAddress;
     }
+
+    return null;
   }
 
   Future<void> setLabel(String address, String label) async {
@@ -337,6 +352,14 @@ class AddressService {
     }
   }
 
+  bool get canSetLabel {
+    final type = wallet.type;
+    return _isElectrumType(type) ||
+        type == WalletType.decred ||
+        type == WalletType.monero ||
+        type == WalletType.wownero;
+  }
+
   int? _entryIdFor(String address) {
     for (final group in computeAddressList()) {
       for (final entry in group.entries) {
@@ -356,25 +379,20 @@ class AddressService {
     }
 
     await wallet.walletAddresses.saveAddressesInBox();
-
-    if (wallet.type == WalletType.monero) {
-      await monero!
-          .getSubaddressList(wallet)
-          .update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
-    }
-
-    if (wallet.type == WalletType.wownero) {
-      wownero!
-          .getSubaddressList(wallet)
-          .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
-    }
   }
 
   Future<void> deleteSilentPaymentAddress(String address) async {
     if (wallet.type != WalletType.bitcoin) {
       return;
     }
+    final wasActive = wallet.walletAddresses.address == address;
     bitcoin!.deleteSilentPaymentAddress(wallet, address);
+    if (wasActive) {
+      final mains = bitcoin!.getSilentPaymentAddresses(wallet).toList();
+      if (mains.isNotEmpty) {
+        wallet.walletAddresses.address = mains.first.address;
+      }
+    }
   }
 
   ReceivePageOption? get selectedAddressType {
@@ -534,11 +552,16 @@ class AddressService {
   }
 
   Future<void> applyOpenDefaults({required bool lightningMode}) async {
+    if (bitcoin == null || wallet.type != WalletType.bitcoin) {
+      return;
+    }
     if (lightningMode) {
       await setAddressType(bitcoin!.getBitcoinLightningReceivePageOption());
       return;
     }
-    if (wallet.type == WalletType.bitcoin) {
+    final current = bitcoin!.getSelectedAddressType(wallet);
+    final lightning = bitcoin!.getBitcoinLightningReceivePageOption();
+    if (current == lightning) {
       await setAddressType(bitcoin!.getBitcoinSegwitPageOption());
     }
   }
