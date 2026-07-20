@@ -205,20 +205,20 @@ class _NewSendPageState extends State<NewSendPage> {
     super.initState();
     _addInputControllers();
 
-    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, ((bool all) {
+    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, (all) {
       if (all) {
         widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = false;
         _amountControllers[_selectedOutput].text = S.current.all;
       }
-    }));
+    });
 
-    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].address, ((address) {
+    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].address, (address) {
       if (_addressControllers[_selectedOutput].text != address) {
         _addressControllers[_selectedOutput].text = address;
       }
-    }));
+    });
 
-    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].memo, (String memo) {
+    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].memo, (memo) {
       if (memo != _memoControllers[_selectedOutput].text) {
         _memoControllers[_selectedOutput].text = memo;
       }
@@ -479,14 +479,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       ),
                                       FiatAmountBar(
                                         fiatInputMode: output.isFiatEntry,
-                                        onSwitchButtonPressed: () {
-                                          widget.sendViewModel.outputs[_selectedOutput]
-                                              .isFiatEntry = !output.isFiatEntry;
-                                          _amountControllers[_selectedOutput].text =
-                                              output.isFiatEntry
-                                                  ? output.fiatAmount
-                                                  : output.displayCryptoAmount;
-                                        },
+                                        onSwitchButtonPressed: _onFiatSwitchPressed,
                                         fiatAmount: _wrapAmount(output.roundedFiatAmount(6), 20),
                                         cryptoAmount:
                                             _wrapAmount(output.roundedCryptoAmount(6), 20),
@@ -650,6 +643,14 @@ class _NewSendPageState extends State<NewSendPage> {
     });
   }
 
+  void _onFiatSwitchPressed() {
+    final output = widget.sendViewModel.outputs[_selectedOutput];
+    widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = !output.isFiatEntry;
+
+    final amount = output.isFiatEntry ? output.fiatAmount : output.displayCryptoAmount;
+    _amountControllers[_selectedOutput].text = amount.startsWith("<") ? "0" : amount;
+  }
+
   void _setOutput(int index) {
     setState(() {
       _selectedOutput = index;
@@ -685,7 +686,9 @@ class _NewSendPageState extends State<NewSendPage> {
           output.sendAll = false;
         }
 
-        if (S.current.all.contains(amount)) return;
+        if (S.current.all.contains(amount)) {
+          return;
+        }
 
         final cAmount = widget.sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
             output.cryptoAmount, widget.sendViewModel.selectedCryptoCurrency);
