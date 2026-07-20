@@ -93,51 +93,6 @@ class EthereumURI extends PaymentURI {
   }
 }
 
-class BaseURI extends PaymentURI {
-  BaseURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'base:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class ArbitrumURI extends PaymentURI {
-  ArbitrumURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'arbitrum:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class BSCURI extends PaymentURI {
-  BSCURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'bsc:$address';
-
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
 class BitcoinCashURI extends PaymentURI {
   BitcoinCashURI({required super.amount, required super.address});
 
@@ -159,21 +114,6 @@ class NanoURI extends PaymentURI {
   @override
   String toString() {
     var base = 'nano:$address';
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
-    }
-
-    return base;
-  }
-}
-
-class PolygonURI extends PaymentURI {
-  PolygonURI({required super.amount, required super.address});
-
-  @override
-  String toString() {
-    var base = 'polygon:$address';
-
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
@@ -309,9 +249,6 @@ class ZcashURI extends PaymentURI {
 }
 
 class ERC681URI extends PaymentURI {
-  final int chainId;
-  final String? contractAddress;
-
   ERC681URI({
     required this.chainId,
     required super.address,
@@ -319,37 +256,63 @@ class ERC681URI extends PaymentURI {
     required this.contractAddress,
   });
 
+  factory ERC681URI.fromUri(Uri uri) {
+    final (isContract, targetAddress) = _getTargetAddress(uri.path);
+    final chainId = _getChainID(uri.path);
+
+    final address = isContract ? uri.queryParameters["address"] ?? "" : targetAddress;
+    final amountParam = isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
+
+    var formatedAmount = "";
+
+    if (amountParam != null) {
+      final normalized = _normalizeToIntegerWei(amountParam);
+      formatedAmount = formatFixed(BigInt.parse(normalized), 18);
+    } else {
+      formatedAmount = uri.queryParameters["amount"] ?? "";
+    }
+
+    return ERC681URI(
+      chainId: chainId,
+      address: address,
+      amount: formatedAmount,
+      contractAddress: isContract ? targetAddress : null,
+    );
+  }
+
+  final int chainId;
+  final String? contractAddress;
+
   @override
   String toString() {
-    var uri = 'ethereum:';
+    var uri = "ethereum:";
 
     final targetAddress = contractAddress ?? address;
     uri += targetAddress;
 
     if (chainId != 1) {
-      uri += '@$chainId';
+      uri += "@$chainId";
     }
 
     if (contractAddress != null) {
-      uri += '/transfer';
+      uri += "/transfer";
     }
 
     final params = <String, String>{};
 
     if (contractAddress != null) {
-      params['address'] = address;
+      params["address"] = address;
       if (amount.isNotEmpty) {
-        params['uint256'] = _formatAmountForERC20(amount);
+        params["uint256"] = _formatAmountForERC20(amount);
       }
     } else {
       if (amount.isNotEmpty) {
-        params['value'] = _formatAmountForNative(amount);
+        params["value"] = _formatAmountForNative(amount);
       }
     }
 
     if (params.isNotEmpty) {
-      uri += '?';
-      uri += params.entries.map((e) => '${e.key}=${e.value}').join('&');
+      uri += "?${params.entries.map((e) => "${e.key}=${e.value}").join("&")}";
     }
 
     return uri;
@@ -382,40 +345,13 @@ class ERC681URI extends PaymentURI {
     }
   }
 
-  factory ERC681URI.fromUri(Uri uri) {
-    final (isContract, targetAddress) = _getTargetAddress(uri.path);
-    final chainId = _getChainID(uri.path);
-
-    final address = isContract ? uri.queryParameters["address"] ?? '' : targetAddress;
-    final amountParam = isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
-
-    var formatedAmount = "";
-
-    if (amountParam != null) {
-      final normalized = _normalizeToIntegerWei(amountParam);
-      formatedAmount = formatFixed(BigInt.parse(normalized), 18);
-    } else {
-      formatedAmount = uri.queryParameters["amount"] ?? "";
-    }
-
-    return ERC681URI(
-      chainId: chainId,
-      address: address,
-      amount: formatedAmount,
-      contractAddress: isContract ? targetAddress : null,
-    );
-  }
-
-  static int _getChainID(String path) {
-    return int.parse(RegExp(
-          r'@\d*',
-        ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
-        "1");
-  }
+  static int _getChainID(String path) => int.parse(
+        RegExp(r"@\d*").firstMatch(path)?.group(0)?.replaceAll("@", "") ?? "1",
+      );
 
   static (bool, String) _getTargetAddress(String path) {
     final targetAddress =
-        RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false).firstMatch(path)!.group(0)!;
+        RegExp(r"^(0x)?[0-9a-f]{40}", caseSensitive: false).firstMatch(path)!.group(0)!;
     return (path.contains("/"), targetAddress);
   }
 

@@ -41,20 +41,10 @@ abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  PaymentURI getPaymentUri(String amount) {
-    switch (_selectedChainId) {
-      case 1:
-        return EthereumURI(amount: amount, address: address);
-      case 137:
-        return PolygonURI(amount: amount, address: address);
-      case 8453:
-        return BaseURI(amount: amount, address: address);
-      case 42161:
-        return ArbitrumURI(amount: amount, address: address);
-      case 56:
-        return BSCURI(amount: amount, address: address);
-      default:
-        return EthereumURI(amount: amount, address: address);
-    }
-  }
+  PaymentURI getPaymentUri(String amount) => ERC681URI(
+        address: address,
+        amount: amount,
+        chainId: _selectedChainId,
+        contractAddress: null,
+      );
 }
