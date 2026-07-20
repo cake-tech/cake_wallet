@@ -120,7 +120,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 : Theme.of(context).colorScheme.surfaceContainer,
                           ),
                           child: Padding(
-                            padding: constEdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.max,

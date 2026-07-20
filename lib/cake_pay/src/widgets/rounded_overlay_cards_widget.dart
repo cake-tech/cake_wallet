@@ -18,7 +18,7 @@ class RoundedOverlayCards extends StatelessWidget {
           BorderRadius.only(bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
       child: Container(
         decoration: BoxDecoration(
-            borderRadius: constBorderRadius.only(
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(24),
               bottomRight: Radius.circular(24),
             ),

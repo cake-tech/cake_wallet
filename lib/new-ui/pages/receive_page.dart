@@ -205,7 +205,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               },
               trailingWidget: Observer(
                 builder: (_) => AnimatedSwitcher(
-                  duration: constDuration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   child: _largeQrMode ||
                           widget.addressListViewModel.hasAddressRotation
                               /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
@@ -220,8 +220,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           icon: _largeQrMode
                               ? const Icon(Icons.share)
                               : widget.addressListViewModel.isRotatingAddress
-                                  ? constCupertinoActivityIndicator()
-                                  : constIcon(Icons.refresh),
+                                  ? const CupertinoActivityIndicator()
+                                  : const Icon(Icons.refresh),
                           onPressed: () {
                             if (_largeQrMode) {
                               ShareUtil.share(

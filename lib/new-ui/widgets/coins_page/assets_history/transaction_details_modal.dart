@@ -67,7 +67,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                 children: [
                   ModalTopBar(
                     title: S.of(context).transaction,
-                    leadingIcon: constIcon(Icons.close),
+                    leadingIcon: const Icon(Icons.close),
                   onLeadingPressed: Navigator.of(context).pop,
                 ),
                 Expanded(
@@ -92,7 +92,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                               data: ClipboardData(
                                 text: widget.transactionDetailsViewModel.transactionCopyAmount,),
                           builder: (context, copied) => AnimatedSwitcher(
-                            duration: constDuration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 300),
                             child: Text(
                               key: ValueKey(copied),
                               copied

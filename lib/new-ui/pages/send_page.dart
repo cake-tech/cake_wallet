@@ -325,7 +325,7 @@ class _NewSendPageState extends State<NewSendPage> {
                       ModalTopBar(
                         title: widget.mode.title,
                         subtitle: widget.mode.description,
-                        leadingIcon: constIcon(Icons.close),
+                        leadingIcon: const Icon(Icons.close),
                     onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                     trailingWidget: Observer(
                       builder: (_) => Row(
