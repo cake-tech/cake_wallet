@@ -1,22 +1,19 @@
-import 'package:cw_core/crypto_currency.dart';
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 
 class TradeRequest {
   TradeRequest(
-      {required this.fromCurrency,
-      required this.toCurrency,
-      required this.toAddress,
-      required this.refundAddress,
-      required this.fromAmount,
-      this.toAmount = '',
+      {required this.refundAddress,
+      required this.payoutAddress,
+      required this.depositAmount,
+      required this.payoutAmount,
       this.toAddressExtraId = '',
       this.isFixedRate = false});
 
-  final CryptoCurrency fromCurrency;
-  final CryptoCurrency toCurrency;
-  final String toAddress;
-  final String refundAddress;
-  final String fromAmount;
-  final String toAmount;
+  final SwapAddress refundAddress;
+  final SwapAddress payoutAddress;
+  final SwapAmount depositAmount;
+  final SwapAmount payoutAmount;
   final String toAddressExtraId;
   final bool isFixedRate;
 }

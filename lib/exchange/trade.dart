@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/format_amount.dart';
@@ -13,25 +14,25 @@ class Trade {
   Trade({
     this.internalId = 0,
     required this.id,
-    required this.amount,
+    // required this.amount,
     ExchangeProviderDescription? provider,
     this.from,
     this.to,
     TradeState? state,
-    this.receiveAmount,
+    // this.receiveAmount,
     this.createdAt,
     this.expiredAt,
-    this.inputAddress,
+    // this.inputAddress,
     this.extraId,
     this.outputTransaction,
-    this.refundAddress,
+    // required this.refundAddress,
     this.walletId,
     this.payoutAddress,
     this.toAddressExtraId,
     this.password,
     this.providerId,
-    this.providerName,
-    this.fromWalletAddress,
+    // this.providerName,
+    // this.fromWalletAddress,
     this.memo,
     this.fee,
     this.txId,
@@ -39,18 +40,15 @@ class Trade {
     this.isSendAll,
     this.router,
     // The following fields are used for SwapXyz trades only
-    this.needToRegisterInSwapXyz,
-    this.sourceTokenAddress,
-    this.sourceTokenDecimals,
-    this.routerData,
-    this.routerValue,
-    this.routerChainId,
-    this.sourceTokenAmountRaw,
-    this.requiresTokenApproval,
-    this.chainId,
+    // this.needToRegisterInSwapXyz,
+    // this.sourceTokenAddress,
+    // this.sourceTokenDecimals,
+    // this.routerData,
+    // this.routerValue,
+    // this.routerChainId,
+    // this.sourceTokenAmountRaw,
+    // this.requiresTokenApproval,
   }) {
-    if (provider != null) providerRaw = provider.raw;
-    if (state != null) stateRaw = state.raw;
   }
 
   static const tableName = 'Trade';
@@ -65,26 +63,31 @@ class Trade {
 
   String id;
 
-  int providerRaw = 0;
+  // int providerRaw = 0;
+  //
+  // ExchangeProviderDescription get provider =>
+  //     ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  ExchangeProviderDescription get provider =>
-      ExchangeProviderDescription.deserialize(raw: providerRaw);
+  ExchangeProviderDescription provider;
 
   CryptoCurrency? from;
   CryptoCurrency? to;
 
-  String stateRaw = '';
+  // String stateRaw = '';
 
-  TradeState get state => TradeState.deserialize(raw: stateRaw);
+  final TradeState state;
 
   DateTime? createdAt;
   DateTime? expiredAt;
-  String amount;
-  String? receiveAmount;
-  String? inputAddress;
+  // String amount;
+  // String receiveAmount;
+  // String? inputAddress;
+  final Money depositAmount;
+  final Money payoutAmount;
+  final String fundingAddress;
   String? extraId;
   String? outputTransaction;
-  String? refundAddress;
+  // String refundAddress;
   String? walletId;
   String? payoutAddress;
 
@@ -92,8 +95,8 @@ class Trade {
   String? toAddressExtraId;
   String? password;
   String? providerId;
-  String? providerName;
-  String? fromWalletAddress;
+  // String? providerName;
+  // String? fromWalletAddress;
   String? memo;
   String? txId;
   bool? isRefund;
@@ -101,14 +104,14 @@ class Trade {
   String? router;
 
   // The following fields are used for SwapXyz trades only
-  bool? needToRegisterInSwapXyz;
-  String? sourceTokenAddress;
-  int? sourceTokenDecimals;
-  String? routerData;
-  String? routerValue;
-  int? routerChainId;
-  String? sourceTokenAmountRaw;
-  bool? requiresTokenApproval;
+  // bool? needToRegisterInSwapXyz;
+  // String? sourceTokenAddress;
+  // int? sourceTokenDecimals;
+  // String? routerData;
+  // String? routerValue;
+  // int? routerChainId;
+  // String? sourceTokenAmountRaw;
+  // bool? requiresTokenApproval;
 
   int? chainId;
   double? fee;
@@ -191,8 +194,7 @@ class Trade {
     if (updated.txId != null) txId = updated.txId;
   }
 
-  Map<String, dynamic> toSqliteMap() {
-    return <String, dynamic>{
+  Map<String, dynamic> toSqliteMap() => {
       selfIdColumn: internalId,
       'id': id,
       'providerRaw': providerRaw,
@@ -246,7 +248,6 @@ class Trade {
       'chainId': chainId,
       'fee': fee,
     };
-  }
 
   factory Trade.fromSqliteRow(Map<String, dynamic> row) {
     final trade = Trade(
@@ -266,7 +267,7 @@ class Trade {
       inputAddress: row['inputAddress'] as String?,
       extraId: row['extraId'] as String?,
       outputTransaction: row['outputTransaction'] as String?,
-      refundAddress: row['refundAddress'] as String?,
+      refundAddress: row['refundAddress'] as String,
       walletId: row['walletId'] as String?,
       payoutAddress: row['payoutAddress'] as String?,
       toAddressExtraId: row['toAddressExtraId'] as String?,
@@ -319,7 +320,4 @@ class Trade {
       chainIconPath: row['${prefix}ChainIconPath'] as String?,
     );
   }
-
-  String amountFormatted() => formatAmount(amount);
-  String receiveAmountFormatted() => formatAmount(receiveAmount ?? '');
 }
