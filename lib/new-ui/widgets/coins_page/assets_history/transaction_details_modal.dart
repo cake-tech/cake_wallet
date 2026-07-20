@@ -276,6 +276,6 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
         for (final line in lines)
           AddressFormatter.buildSegmentedAddress(address: line, evenTextStyle: style),
       ],
-    );
-  }
+     );
+   }
 }

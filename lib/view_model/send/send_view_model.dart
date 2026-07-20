@@ -1715,8 +1715,54 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
 
+  /// True when the current form has a non-empty `pj=` endpoint that will be
+  /// used at commit time. Drives the "Payjoin enabled" indicator on the send
+  /// form. False for non-Bitcoin wallets or when the user opted out.
+  @computed
+  bool get hasActivePayjoin =>
+      wallet.type == WalletType.bitcoin &&
+      usePayjoin &&
+      payjoinUri != null &&
+      payjoinUri!.isNotEmpty;
+
+  /// Clears [payjoinUri] so the eventual commit path sends a regular tx
+  /// instead of a payjoin. Does not affect the underlying address/amount.
+  @action
+  void optOutPayjoin() {
+    payjoinUri = null;
+  }
+
+  /// Toggle handler for the send form's "Use Payjoin" switch. When turning
+  /// off, clears the active [payjoinUri]. When turning on, no-ops (the URI
+  /// is re-populated only by a fresh scan/paste via [setPayjoinUri]).
+  @action
+  void setPayjoinEnabled(bool enabled) {
+    if (!enabled) {
+      payjoinUri = null;
+    }
+  }
+
   @observable
   String? payjoinUri;
+
+  /// Sets [payjoinUri] from a scanned/pasted BIP21 URI, silently stripping
+  /// the `pj=` parameter when it resolves to a receiver endpoint owned by
+  /// the current wallet. A self-addressed payjoin would be rejected by
+  /// BIP78's `checkInputsNotOwned` anyway, so we downgrade to a regular
+  /// self-send up-front — the send form's label and the eventual commit
+  /// path then both treat it as a normal tx.
+  @action
+  void setPayjoinUri(String? uri) {
+    if (uri != null &&
+        uri.isNotEmpty &&
+        wallet.type == WalletType.bitcoin &&
+        bitcoin!.isSelfSendPayjoinUri(wallet, uri)) {
+      printV('Stripping self-addressed payjoin URI: $uri');
+      payjoinUri = null;
+      return;
+    }
+    payjoinUri = uri;
+  }
 
   @action
   Future<void> fetchTokenForContractAddress(String contractAddress,

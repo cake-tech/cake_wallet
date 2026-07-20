@@ -293,6 +293,7 @@ abstract class Bitcoin {
   Future<void> fallbackBroadcastPayjoin(Object wallet, String sessionId);
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
+  bool isSelfSendPayjoinUri(Object wallet, String? pjUriString);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);

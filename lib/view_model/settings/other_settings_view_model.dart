@@ -191,13 +191,19 @@ abstract class OtherSettingsViewModelBase with Store {
 
     buf.writeln('=== Payjoin Export ===');
     buf.writeln('Wallet: ${_wallet.name} (${walletType})');
+    buf.writeln('Wallet ID: ${_wallet.id}');
     buf.writeln('Generated: ${DateTime.now().toIso8601String()}');
     buf.writeln('');
 
     try {
       final box = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
-      final sessions = box.values.where((s) => s.walletId == _wallet.id).toList();
+      final allSessions = box.values.toList();
+      final sessions = allSessions.where((s) => s.walletId == _wallet.id).toList();
+      buf.writeln('Total sessions in Hive box: ${allSessions.length}');
+      buf.writeln('Sessions for this wallet: ${sessions.length}');
+      buf.writeln('Sessions for other wallets: ${allSessions.length - sessions.length}');
       if (sessions.isNotEmpty) {
+        buf.writeln('');
         buf.writeln('--- Session Data ---');
         for (final session in sessions) {
           buf.writeln('');
@@ -205,6 +211,8 @@ abstract class OtherSettingsViewModelBase with Store {
               'Direction: ${session.isSenderSession ? "Sender (outgoing)" : "Receiver (incoming)"}');
           buf.writeln('Status: ${session.status}');
           buf.writeln('URI: ${session.pjUri ?? "-"}');
+          buf.writeln('Receiver: ${session.receiver ?? "-"}');
+          buf.writeln('Sender: ${session.sender ?? "-"}');
           buf.writeln('Amount: ${session.rawAmount ?? "-"}');
           buf.writeln('TxID: ${session.txId ?? "-"}');
           buf.writeln('Used Fallback: ${session.usedFallback}');
