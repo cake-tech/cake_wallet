@@ -93,29 +93,8 @@ class PayjoinManager {
 
   Future<void> resumeSessions() async {
     final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
-    final now = DateTime.now();
 
     for (final session in allSessions) {
-      final expiresAt = session.expiresAt;
-      if (expiresAt != null && now.isAfter(expiresAt)) {
-        final id = session.isSenderSession ? session.pjUri : session.receiver;
-        if (id == null) continue;
-        writePayjoinLog(
-            "Session($id) expired on resume (expired at ${session.expiresAt})");
-        if (session.isSenderSession) {
-          await _payjoinStorage.markSenderSessionUnrecoverable(
-            id,
-            'Session expired before completing',
-          );
-        } else {
-          await _payjoinStorage.markReceiverSessionUnrecoverable(
-            id,
-            'Session expired before completing',
-          );
-        }
-        continue;
-      }
-
       if (session.isSenderSession) {
         await _resumeSenderSession(session.pjUri ?? '');
       } else {
@@ -212,6 +191,15 @@ class PayjoinManager {
         writePayjoinLog("Receiver($sessionId) resume: ${state.runtimeType}");
       }
       _maybeResumeReceiverWorker(sessionId);
+    } on pj.ReceiverReplayException catch (e) {
+      if (e.isExpired()) {
+        await _payjoinStorage.markReceiverSessionUnrecoverable(
+          sessionId,
+          'Session expired before completing',
+        );
+      } else {
+        writePayjoinLog("[ERROR] Resume receiver($sessionId) $e");
+      }
     } catch (e) {
       writePayjoinLog("[ERROR] Resume receiver($sessionId) $e");
     }
@@ -303,6 +291,15 @@ class PayjoinManager {
         writePayjoinLog("Sender($pjUri) resume: ${state.runtimeType}");
       }
       _maybeResumeSenderWorker(pjUri);
+    } on pj.SenderReplayException catch (e) {
+      if (e.isExpired()) {
+        await _payjoinStorage.markSenderSessionUnrecoverable(
+          pjUri,
+          'Session expired before completing',
+        );
+      } else {
+        writePayjoinLog("[ERROR] Resume sender($pjUri) $e");
+      }
     } catch (e) {
       writePayjoinLog("[ERROR] Resume sender($pjUri) $e");
     }
@@ -325,19 +322,6 @@ class PayjoinManager {
       networkFeesSatPerVb: networkFeesSatPerVb,
       recipientAddress: recipientAddress,
     );
-
-    // Store sender-side expiry parsed from BIP21.
-    final expiryParam = Uri.tryParse(pjUrl)?.queryParameters['pj_expiry'];
-    if (expiryParam != null) {
-      final expirySecs = int.tryParse(expiryParam);
-      if (expirySecs != null) {
-        final session = _payjoinStorage.getSessionByEndpoint(pjUri);
-        if (session != null) {
-          session.expiresAt = DateTime.fromMillisecondsSinceEpoch(expirySecs * 1000);
-          await session.save();
-        }
-      }
-    }
 
     final senderWorker = PayjoinSenderWorker(
       mailroomManager: _mailroomManager,
@@ -478,20 +462,6 @@ class PayjoinManager {
           recipientAddress: shouldSaveRecipientAddress ? address : null,
         );
 
-        // Store session expiry parsed from BIP21.
-        final uriString = pjUri.asString();
-        final expiryParam = Uri.tryParse(uriString)?.queryParameters['pj_expiry'];
-        if (expiryParam != null) {
-          final expirySecs = int.tryParse(expiryParam);
-          if (expirySecs != null) {
-            final session = _payjoinStorage.getReceiverSession(pjEndpoint);
-            if (session != null) {
-              session.expiresAt = DateTime.fromMillisecondsSinceEpoch(expirySecs * 1000);
-              await session.save();
-            }
-          }
-        }
-
         return pjEndpoint;
       } catch (e) {
         // Key fetch burned every relay against this directory, or a
@@ -591,10 +561,13 @@ class PayjoinManager {
     }
   }
 
-  void cancelReceiver(String pjEndpoint) {
+  Future<void> cancelReceiver(String pjEndpoint) async {
     final worker = _runningReceivers.remove(pjEndpoint);
     worker?.cancel();
     worker?.dispose();
+    // Persist the fallback tx (when the session progressed far enough) so
+    // the user can still broadcast it after cancellation.
+    await _tryExtractReceiverFallback(pjEndpoint);
     _payjoinStorage.markReceiverSessionUnrecoverable(pjEndpoint, 'Cancelled');
     writePayjoinLog("Receiver($pjEndpoint) Cancelled");
   }
@@ -661,6 +634,15 @@ class PayjoinManager {
         await session.save();
       }
       _payjoinStorage.markReceiverSessionComplete(endpoint, txId, netAmount);
+    } on pj.ReceiverReplayException catch (e) {
+      if (e.isExpired()) {
+        await _payjoinStorage.markReceiverSessionUnrecoverable(
+          endpoint,
+          'Session expired before completing',
+        );
+      } else {
+        writePayjoinLog("[ERROR] Receiver($endpoint) $e");
+      }
     } catch (e) {
       writePayjoinLog("[ERROR] Receiver($endpoint) $e");
       // Don't mark unrecoverable: same rationale as spawnReceiver — a
@@ -725,6 +707,11 @@ class PayjoinManager {
       await _payjoinStorage.markSenderSessionUnrecoverable(
         endpoint,
         'Session cancelled; broadcast the fallback transaction',
+      );
+    } on pj.SenderReplayException catch (e) {
+      await _payjoinStorage.markSenderSessionUnrecoverable(
+        endpoint,
+        e.isExpired() ? 'Session expired before completing' : e.toString(),
       );
     } catch (e, s) {
       writePayjoinLog("[ERROR] Sender($endpoint) $e\n$s");
@@ -897,7 +884,7 @@ class PayjoinManager {
       await _payjoinStorage.markSenderSessionFallback(endpoint);
       cancelSender(endpoint);
     } else {
-      cancelReceiver(endpoint);
+      await cancelReceiver(endpoint);
     }
 
     try {
