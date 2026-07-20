@@ -37,8 +37,20 @@ class PayjoinSenderWorker {
   final http.Client client = ProxyWrapper().getHttpIOClient();
   final pj.JsonSenderSessionPersister? _persister;
   bool _cancelled = false;
+  bool _disposed = false;
 
+  /// Signals the polling loops to stop at the next iteration. Does not release
+  /// resources — call [dispose] for that.
   void cancel() => _cancelled = true;
+
+  /// Releases the underlying HTTP client (sockets, TLS state). Idempotent.
+  /// Safe to call from any terminal path; the polling loops will throw on the
+  /// next iteration if [cancel] has also been called.
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    client.close();
+  }
 
   Future<String> run(
     String psbtBase64,
@@ -191,6 +203,7 @@ class PayjoinSenderWorker {
   ) async {
     var consecutiveFailures = 0;
     while (true) {
+      if (_cancelled) throw PayjoinSenderCancelledException();
       final relay = _mailroomManager.chooseRelay();
       // FFI/protocol errors raised while building the request are NOT relay
       // problems — propagate them so the caller sees the real cause instead
@@ -220,11 +233,16 @@ class PayjoinSenderWorker {
         printV('[pjSender] relay $relay returned HTTP ${response.statusCode}');
         _mailroomManager.addFailedRelay(relay);
       } on SocketException catch (e) {
+        // A cancel disposes the HTTP client mid-request, surfacing as a
+        // transport error. Don't poison the shared relay pool for other
+        // sessions — exit as a cancellation instead.
+        if (_cancelled) throw PayjoinSenderCancelledException();
         printV('[pjSender] relay $relay socket error: $e');
         _mailroomManager.addFailedRelay(relay);
       } on http.ClientException catch (e) {
         // Transport-layer failure (DNS, connection reset, TLS handshake,
         // etc.). Transient — try the next relay.
+        if (_cancelled) throw PayjoinSenderCancelledException();
         printV('[pjSender] relay $relay transport error: $e');
         _mailroomManager.addFailedRelay(relay);
       }

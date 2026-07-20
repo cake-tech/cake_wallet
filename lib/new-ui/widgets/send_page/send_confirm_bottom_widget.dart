@@ -49,7 +49,7 @@ class SendConfirmBottomWidget extends StatelessWidget {
             onConfirmed: () {
               sendViewModel.commitTransaction(context);
             },
-            swiperText: sendViewModel.payjoinUri != null
+            swiperText: sendViewModel.hasActivePayjoin
                 ? "${S.of(context).send_payjoin}"
                 : "${S.of(context).swipe_to_send}",
             accessibleNavigationModeButtonText: S.of(context).send);

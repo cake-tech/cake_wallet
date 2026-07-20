@@ -437,6 +437,7 @@ class PayjoinReceiverWorker {
   ) async {
     var consecutiveFailures = 0;
     while (true) {
+      if (_cancelled) throw CancelException();
       final relay = _mailroomManager.chooseRelay();
       // FFI/protocol errors raised while building the request are NOT relay
       // problems — propagate them so the caller sees the real cause instead
@@ -466,11 +467,16 @@ class PayjoinReceiverWorker {
         printV('[pjReceiver] relay $relay returned HTTP ${response.statusCode}');
         _mailroomManager.addFailedRelay(relay);
       } on SocketException catch (e) {
+        // A cancel disposes the HTTP client mid-request, surfacing as a
+        // transport error. Don't poison the shared relay pool for other
+        // sessions — exit as a cancellation instead.
+        if (_cancelled) throw CancelException();
         printV('[pjReceiver] relay $relay socket error: $e');
         _mailroomManager.addFailedRelay(relay);
       } on http.ClientException catch (e) {
         // Transport-layer failure (DNS, connection reset, TLS handshake,
         // etc.). Transient — try the next relay.
+        if (_cancelled) throw CancelException();
         printV('[pjReceiver] relay $relay transport error: $e');
         _mailroomManager.addFailedRelay(relay);
       }
