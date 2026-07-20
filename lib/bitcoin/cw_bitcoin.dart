@@ -833,6 +833,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  bool isSelfSendPayjoinUri(Object wallet, String? pjUriString) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) return false;
+    return _wallet.payjoinManager.isSelfSendPayjoinUri(pjUriString);
+  }
+
+  @override
   Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false}) async {
     final _wallet = wallet as ElectrumWallet;
     final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
@@ -860,6 +867,9 @@ class CWBitcoin extends Bitcoin {
     if (sessionId.startsWith('pj_send_')) {
       final pjUri = sessionId.substring('pj_send_'.length);
       await pm.fallbackBroadcast(pjUri);
+    } else if (sessionId.startsWith('pj_recv_')) {
+      final endpoint = sessionId.substring('pj_recv_'.length);
+      await pm.fallbackBroadcast(endpoint);
     }
   }
 
