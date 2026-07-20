@@ -1,18 +1,15 @@
-import 'dart:developer';
+import "dart:developer";
 
-import 'package:cw_core/payment_uris.dart';
-import 'package:cw_core/wallet_addresses.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:mobx/mobx.dart';
+import "package:cw_core/payment_uris.dart";
+import "package:cw_core/wallet_addresses.dart";
+import "package:mobx/mobx.dart";
 
-part 'evm_chain_wallet_addresses.g.dart';
+part "evm_chain_wallet_addresses.g.dart";
 
 class EVMChainWalletAddresses = EVMChainWalletAddressesBase with _$EVMChainWalletAddresses;
 
 abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
-  EVMChainWalletAddressesBase(WalletInfo walletInfo, this._selectedChainId)
-      : address = '',
-        super(walletInfo);
+  EVMChainWalletAddressesBase(super.walletInfo, this._selectedChainId) : address = "";
 
   @override
   @observable
@@ -33,7 +30,7 @@ abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
-      addressesMap[address] = '';
+      addressesMap[address] = "";
       await saveAddressesInBox();
     } catch (e) {
       log(e.toString());
