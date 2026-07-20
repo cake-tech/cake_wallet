@@ -80,7 +80,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                               ],
                               controller: widget.amountController,
                               decoration: InputDecoration(
-                                hintText: widget.maxDecimals > 0 ? "0" : "0.00",
+                                hintText: widget.maxDecimals == 0 ? "0" : "0.00",
                                 errorMaxLines: 3,
                               ),
                               onChanged: state.didChange,
