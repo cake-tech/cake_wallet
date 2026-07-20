@@ -37,8 +37,20 @@ class PayjoinSenderWorker {
   final http.Client client = ProxyWrapper().getHttpIOClient();
   final pj.JsonSenderSessionPersister? _persister;
   bool _cancelled = false;
+  bool _disposed = false;
 
+  /// Signals the polling loops to stop at the next iteration. Does not release
+  /// resources — call [dispose] for that.
   void cancel() => _cancelled = true;
+
+  /// Releases the underlying HTTP client (sockets, TLS state). Idempotent.
+  /// Safe to call from any terminal path; the polling loops will throw on the
+  /// next iteration if [cancel] has also been called.
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    client.close();
+  }
 
   Future<String> run(
     String psbtBase64,
