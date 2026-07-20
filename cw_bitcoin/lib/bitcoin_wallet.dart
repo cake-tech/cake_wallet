@@ -336,7 +336,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
-    payjoinManager.cleanupSessions();
     await lightningWallet?.close();
     super.close(shouldCleanup: shouldCleanup);
   }
@@ -534,6 +533,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
+    // Defensive: the send view model should have already stripped self-send
+    // payjoin URIs at scan time via SendViewModel.setPayjoinUri. Keep this
+    // check as a backstop in case a self-send URI reaches here directly.
+    if (payjoinUri != null && payjoinManager.isSelfSendPayjoinUri(payjoinUri)) {
+      printV('Stripping self-addressed payjoin at createTransaction ($payjoinUri)');
+      if (!tx.shouldCommitUR()) return tx;
+    }
     if (payjoinUri == null && !tx.shouldCommitUR()) return tx;
 
     final transaction = await buildPsbt(

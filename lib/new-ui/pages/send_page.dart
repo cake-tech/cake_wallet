@@ -45,6 +45,8 @@ import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
+import "package:cake_wallet/src/widgets/standard_switch.dart";
+import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
@@ -520,6 +522,39 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 ),
                                               ),
                                           ],
+                                        ),
+                                      if (widget.sendViewModel.hasActivePayjoin)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: Row(
+                                            children: [
+                                              CakeImageWidget(
+                                                imageUrl: "assets/new-ui/payjoin.svg",
+                                                width: 16,
+                                                height: 16,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  S.of(context).payjoin_use_for_tx,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: Theme.of(context)
+                                                        .primaryTextTheme
+                                                        .bodySmall
+                                                        ?.color
+                                                        ?.withOpacity(0.8),
+                                                  ),
+                                                ),
+                                              ),
+                                              StandardSwitch(
+                                                value: true,
+                                                onTapped: () => widget
+                                                    .sendViewModel
+                                                    .setPayjoinEnabled(false),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1170,7 +1205,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
   void _applyPaymentRequest(PaymentRequest paymentRequest, {String? amountOverride}) {
     if (widget.sendViewModel.usePayjoin) {
-      widget.sendViewModel.payjoinUri = paymentRequest.pjUri;
+      widget.sendViewModel.setPayjoinUri(paymentRequest.pjUri);
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     final amountToApply = amountOverride ?? paymentRequest.amount;
