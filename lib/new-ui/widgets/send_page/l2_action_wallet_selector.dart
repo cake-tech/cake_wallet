@@ -1,41 +1,41 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/main.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/l2_send_external_modal.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
-import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/main.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/l2_send_external_modal.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
+import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
+import "package:cake_wallet/view_model/send/send_view_model.dart";
+import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
-enum l2actions { deposit, withdraw }
+enum L2Actions { deposit, withdraw }
 
 class L2ActionWalletSelector extends StatefulWidget {
   const L2ActionWalletSelector({
-    super.key,
     required this.showOtherWallets,
     required this.sendViewModel,
     required this.action,
     required this.onSendInitiated,
     required this.contactListViewModel,
     required this.walletSwitcherViewModel,
+    super.key,
   });
 
   final bool showOtherWallets;
   final SendViewModel sendViewModel;
-  final l2actions action;
+  final L2Actions action;
   final VoidCallback onSendInitiated;
   final ContactListViewModel contactListViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
@@ -56,12 +56,18 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
     super.initState();
     if (widget.showOtherWallets) {
       () async {
-        items.addAll((await WalletInfo.getAll()).where((item) =>
-            item.type == widget.sendViewModel.walletType && item.hardwareWalletType == null));
+        items.addAll(
+          (await WalletInfo.getAll()).where(
+            (item) =>
+                item.type == widget.sendViewModel.walletType && item.hardwareWalletType == null,
+          ),
+        );
         items.sort((a, b) {
-          if (a.name == widget.sendViewModel.wallet.name)
+          if (a.name == widget.sendViewModel.wallet.name) {
             return -1;
-          else if (b.name == widget.sendViewModel.wallet.name) return 1;
+          } else if (b.name == widget.sendViewModel.wallet.name) {
+            return 1;
+          }
           return 0;
         });
         setState(() {});
@@ -80,16 +86,16 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
-          title: widget.action == l2actions.deposit
+          title: widget.action == L2Actions.deposit
               ? "${S.of(context).send_from}..."
               : "${S.of(context).receive_to}...",
-          leadingIcon: Icon(Icons.arrow_back_ios_new),
+          leadingIcon: const Icon(Icons.arrow_back_ios_new),
           onLeadingPressed: Navigator.of(context).pop,
         ),
         Flexible(
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 spacing: 12,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,29 +129,17 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                           itemBuilder: (context, index) {
                             final item = items[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(vertical: 4),
                               child: WalletRow(
                                 currencyIconPath: getCryptoCurrencyIconForWalletListItem(item.type),
                                 walletName: item.name,
                                 isCurrent: item.name == widget.sendViewModel.wallet.name,
                                 isSelected: _selectedWalletIndex == index && !textEntered,
-                                onTap: () async {
+                                onTap: () {
                                   setState(() {
                                     addressController.text = "";
                                     _selectedWalletIndex = index;
                                   });
-                                  // if (widget.action == l2actions.withdraw) {
-                                  //   widget.sendViewModel.outputs.first.address = item.address;
-                                  //   widget.onSendInitiated();
-                                  // } else if (widget.action == l2actions.deposit) {
-                                  //   setState(() {
-                                  //     loadingWalletName = item.name;
-                                  //   });
-                                  //   await _handleChangeWallet(item);
-                                  //   widget.onSendInitiated();
-                                  //   setState(() {
-                                  //     loadingWalletName = null;
-                                  //   });
                                 },
                               ),
                             );
@@ -198,7 +192,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                         //     ),
                         //   ),
                         // ),
-                        if (widget.action == l2actions.withdraw)
+                        if (widget.action == L2Actions.withdraw)
                           Row(
                             children: [
                               Flexible(
@@ -215,12 +209,12 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                   Column(
                     spacing: 8,
                     children: [
-                      if (widget.action == l2actions.deposit && widget.showOtherWallets) ...[
+                      if (widget.action == L2Actions.deposit && widget.showOtherWallets) ...[
                         Container(
                           height: 1,
                           color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(64),
                         ),
-                        SizedBox(),
+                        const SizedBox(),
                         Container(
                           height: 52,
                           decoration: BoxDecoration(
@@ -232,7 +226,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
-                              onTap: () async {
+                              onTap: () {
                                 Navigator.of(context, rootNavigator: true).pop();
                                 showCupertinoModalBottomSheet(
                                   context: navigatorKey.currentContext ?? context,
@@ -246,7 +240,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                                 );
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   spacing: 10,
@@ -275,19 +269,22 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                         onPressed: () async {
                           if (widget.sendViewModel.wallet.type == WalletType.bitcoin ||
                               widget.sendViewModel.wallet.type == WalletType.litecoin) {
-                            if (widget.action == l2actions.withdraw) {
+                            if (widget.action == L2Actions.withdraw) {
                               widget.sendViewModel.outputs.first.address =
                                   bitcoin!.getUnusedSegwitAddress(widget.sendViewModel.wallet)!;
                             }
 
                             if (widget.showOtherWallets) {
-                              if (widget.action == l2actions.deposit) {
+                              if (widget.action == L2Actions.deposit) {
                                 await _handleChangeWallet(items[_selectedWalletIndex]);
                               } else {
-                                widget.sendViewModel.outputs.first.address =
-                                    addressController.text.isNotEmpty
-                                        ? addressController.text
-                                        : items[_selectedWalletIndex].address;
+                                if (items[_selectedWalletIndex].name !=
+                                    widget.sendViewModel.wallet.name) {
+                                  widget.sendViewModel.outputs.first.address =
+                                      addressController.text.isNotEmpty
+                                          ? addressController.text
+                                          : items[_selectedWalletIndex].address;
+                                }
                               }
                             }
                             widget.onSendInitiated();
@@ -298,7 +295,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                         textColor: Theme.of(context).colorScheme.onPrimary,
                         isLoading: _isLoading,
                       ),
-                      SizedBox()
+                      const SizedBox()
                     ],
                   ),
                 ],
@@ -339,13 +336,13 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
 
 class WalletRow extends StatelessWidget {
   const WalletRow({
-    super.key,
     required this.currencyIconPath,
     required this.walletName,
     required this.onTap,
     this.isLoading = false,
     this.isCurrent = false,
     this.isSelected,
+    super.key,
   });
 
   final String currencyIconPath;
@@ -370,7 +367,7 @@ class WalletRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

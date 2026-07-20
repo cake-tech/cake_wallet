@@ -513,7 +513,8 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                               showModalBottomSheet(
                                   isScrollControlled: true,
                                   context: context,
-                                  builder: (context) => page);
+                                  builder: (context) =>
+                                      FractionallySizedBox(heightFactor: 0.9, child: page));
                             }),
                     ],
                   ),

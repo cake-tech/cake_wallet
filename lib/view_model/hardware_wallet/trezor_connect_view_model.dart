@@ -84,6 +84,10 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   @override
   @observable
+  bool isConnecting = false;
+
+  @override
+  @observable
   bool isBleEnabled = false;
 
   @override
@@ -112,7 +116,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (!Platform.isIOS) await trezorUSB.stopScanning();
   }
 
-  bool _isConnecting = false;
   sdk.TrezorClient? _client;
 
   Completer<String?>? _pinCompleter;
@@ -123,11 +126,12 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   void setParingPin(String pin) => _pinCompleter?.complete(pin);
 
   @override
+  @action
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type,
       [bool isRetry = false]) async {
     if (!(device is TrezorHardwareWalletDevice)) return false;
-    if (_isConnecting) return false;
-    _isConnecting = true;
+    if (isConnecting) return false;
+    isConnecting = true;
     paringState = TrezorParingState.initial;
 
     try {
@@ -182,7 +186,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       printV(e);
       return false;
     } finally {
-      _isConnecting = false;
+      isConnecting = false;
     }
   }
 
