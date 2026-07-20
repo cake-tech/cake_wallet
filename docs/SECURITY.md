@@ -69,7 +69,30 @@ failed/incorrect transaction.
 
 **Out of scope:** issues in third-party services, exchange/swap providers, or
 nodes we do not operate; reports generated solely by automated scanners without a
-demonstrated impact; and social-engineering or physical attacks.
+demonstrated impact; low-severity or informational issues on our marketing and
+landing websites (for example reflected or self-XSS, missing security headers,
+clickjacking on pages with no sensitive actions, or SPF/DMARC and cookie-flag
+nitpicks) that do not affect the app or user funds; and social-engineering or
+physical attacks.
+
+## Rewards
+
+At our **sole discretion**, we may offer a reward for a valid report. To be
+eligible, a report must:
+
+- be submitted **privately** through one of the channels above (a GitHub private
+  security advisory or `security@cakewallet.com`) — anything disclosed publicly or
+  sent through other channels is not eligible; and
+- identify a genuine vulnerability with real impact on users — typically loss of
+  funds, exposure of keys or seeds, a privacy leak, or a failed or incorrect
+  transaction.
+
+Trivial or low-impact findings are **not** eligible — for example, reflected XSS
+or other low-severity issues on our marketing websites, missing security headers,
+hardening or best-practice suggestions, automated-scanner output without a working
+proof of concept, or already-known issues. There is no fixed bounty and no
+guaranteed payout; whether a report qualifies, and any amount, are determined
+solely by Cake Labs LLC.
 
 ## Supported versions
 
