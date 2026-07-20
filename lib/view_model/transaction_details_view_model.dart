@@ -285,6 +285,20 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
   }
 
+  final TransactionInfo transactionInfo;
+  final Box<TransactionDescription> transactionDescriptionBox;
+  final WalletBase wallet;
+  final SendViewModel sendViewModel;
+  final AppStore _appStore;
+
+  final List<TransactionDetailsListItem> items;
+  final List<TransactionDetailsListItem> rbfListItems;
+  bool showRecipientAddress;
+  bool isRecipientAddressShown;
+  int newFee;
+  String? rawTransaction;
+  TransactionPriority? transactionPriority;
+
   void updateNote(String note) {
     final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
     final description = transactionDescriptionBox.values.firstWhere(
@@ -308,20 +322,6 @@ abstract class TransactionDetailsViewModelBase with Store {
     );
     return description?.transactionNote ?? "";
   }
-
-  final TransactionInfo transactionInfo;
-  final Box<TransactionDescription> transactionDescriptionBox;
-  final WalletBase wallet;
-  final SendViewModel sendViewModel;
-  final AppStore _appStore;
-
-  final List<TransactionDetailsListItem> items;
-  final List<TransactionDetailsListItem> rbfListItems;
-  bool showRecipientAddress;
-  bool isRecipientAddressShown;
-  int newFee;
-  String? rawTransaction;
-  TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
     if (isEVMCompatibleChain(wallet.type)) {
