@@ -1536,7 +1536,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           inputOrdering: BitcoinOrdering.shuffle,
-          outputOrdering: BitcoinOrdering.none,
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       }
@@ -1594,6 +1594,7 @@ abstract class ElectrumWalletBase
         isSendAll: estimatedTx.isSendAll,
         hasTaprootInputs: hasTaprootInputs,
         utxos: estimatedTx.utxos,
+        derivedOutputs: updatedOutputs,
         publicKeys: estimatedTx.publicKeys,
         isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
@@ -2297,7 +2298,7 @@ abstract class ElectrumWalletBase
         network: network,
         memo: memo,
         inputOrdering: BitcoinOrdering.shuffle,
-        outputOrdering: BitcoinOrdering.none,
+        outputOrdering: BitcoinOrdering.shuffle,
         enableRBF: true,
       );
 
