@@ -64,6 +64,7 @@ import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/lnurl.dart";
+import "package:cw_core/payment_uris.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -272,15 +273,17 @@ class _NewSendPageState extends State<NewSendPage> {
               final String uri;
               if (scheme.isEmpty || scheme == "lightning") {
                 uri = paymentRequest.address;
+              } else if (scheme == "ethereum") {
+                uri = ERC681URI(
+                  address: paymentRequest.address,
+                  amount: paymentRequest.amount,
+                  contractAddress: paymentRequest.contractAddress,
+                  chainId: paymentRequest.chainId ?? 1,
+                ).toString();
               } else {
-                final chainSuffix = (scheme == "ethereum" &&
-                        paymentRequest.chainId != null &&
-                        paymentRequest.chainId != 1)
-                    ? "@${paymentRequest.chainId}"
-                    : "";
                 final amount =
                     paymentRequest.amount.isNotEmpty ? "?amount=${paymentRequest.amount}" : "";
-                uri = "${paymentRequest.scheme}:${paymentRequest.address}$chainSuffix$amount";
+                uri = "${paymentRequest.scheme}:${paymentRequest.address}$amount";
               }
               _handlePaymentFlow(uri, paymentRequest);
             }
@@ -1271,6 +1274,22 @@ class _NewSendPageState extends State<NewSendPage> {
     await _completeWalletSwitch(destinationWalletInfo, result, paymentRequest);
   }
 
+  Future<void> _applyPaymentSelectingCurrency(
+    PaymentRequest paymentRequest,
+    CryptoCurrency? fallbackCurrency,
+  ) async {
+    final contract = paymentRequest.contractAddress;
+    if (contract != null && contract.isNotEmpty) {
+      await widget.sendViewModel.fetchTokenForContractAddress(contract);
+    } else if (fallbackCurrency != null) {
+      widget.sendViewModel.setSelectedCryptoCurrency(fallbackCurrency.title);
+    }
+    if (!mounted) {
+      return;
+    }
+    _applyPaymentRequest(paymentRequest);
+  }
+
   Future<void> _completeWalletSwitch(
     WalletInfo wallet,
     PaymentFlowResult result,
@@ -1330,19 +1349,10 @@ class _NewSendPageState extends State<NewSendPage> {
     if (!mounted) {
       return;
     }
-    final contract = paymentRequest.contractAddress;
-    if (contract != null && contract.isNotEmpty) {
-      await widget.sendViewModel.fetchTokenForContractAddress(contract);
-    } else {
-      final detectedCurrency = result.addressDetectionResult?.detectedCurrency;
-      if (detectedCurrency != null) {
-        widget.sendViewModel.setSelectedCryptoCurrency(detectedCurrency.title);
-      }
-    }
-    if (!mounted) {
-      return;
-    }
-    _applyPaymentRequest(paymentRequest);
+    await _applyPaymentSelectingCurrency(
+      paymentRequest,
+      result.addressDetectionResult?.detectedCurrency,
+    );
   }
 
   Future<void> _showEvmNetworkPicker(
@@ -1403,8 +1413,7 @@ class _NewSendPageState extends State<NewSendPage> {
     final currentChainId =
         isEVMCompatibleChain(currentType) ? evm!.getChainIdByWalletType(currentType) : null;
     if (currentChainId != null && target.chainId == currentChainId) {
-      widget.sendViewModel.setSelectedCryptoCurrency(target.currency.title);
-      _applyPaymentRequest(paymentRequest);
+      await _applyPaymentSelectingCurrency(paymentRequest, target.currency);
       return;
     }
 
