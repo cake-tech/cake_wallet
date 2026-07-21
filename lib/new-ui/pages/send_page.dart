@@ -230,7 +230,8 @@ class _NewSendPageState extends State<NewSendPage> {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
       // _memoControllers[0].text = widget.initialPaymentRequest!.note;
-      widget.sendViewModel.outputs.first.note = widget.initialPaymentRequest!.note;
+      _applyNote(widget.initialPaymentRequest!.note, 0);
+
       final contractAddress = widget.initialPaymentRequest!.contractAddress;
       if (contractAddress != null && contractAddress.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1254,7 +1255,7 @@ class _NewSendPageState extends State<NewSendPage> {
     }
     // _memoControllers[_selectedOutput].text = paymentRequest.note;
 
-    widget.sendViewModel.outputs[_selectedOutput].note = widget.initialPaymentRequest!.note;
+    _applyNote(paymentRequest.note, _selectedOutput);
   }
 
   Future<void> _handleSwapFlow(
@@ -1394,6 +1395,15 @@ class _NewSendPageState extends State<NewSendPage> {
 
   String _wrapAmount(String amount, int maxChars) {
     return amount.length <= maxChars ? amount : "${amount.substring(0, maxChars - 3)}...";
+  }
+
+  // TODO: make a separate variable for memo in payment request model
+  void _applyNote(String note, int selectedOutput) {
+    if (widget.sendViewModel.hasMemos && note.length <= widget.sendViewModel.maxMemoLength) {
+      widget.sendViewModel.outputs[selectedOutput].memo = note;
+    } else {
+      widget.sendViewModel.outputs[selectedOutput].note = note;
+    }
   }
 }
 
