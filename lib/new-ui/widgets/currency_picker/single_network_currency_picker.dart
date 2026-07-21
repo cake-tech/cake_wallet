@@ -1,17 +1,20 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
-import 'package:cake_wallet/reactions/wallet_utils.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
 
 class SingleNetworkCurrencyPicker extends StatefulWidget {
-  const SingleNetworkCurrencyPicker({super.key, required this.args});
+  const SingleNetworkCurrencyPicker({
+    required this.args,
+    super.key,
+  });
 
   final CurrencyPickerArgs args;
 
@@ -58,16 +61,21 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     final native = walletTypeToCryptoCurrency(_network);
     final query = _searchController.text.trim();
     final tokens = _args.items
-        .where((c) => c != native)
-        .where((c) => cryptoCurrencyOrTokenToWalletType(c) == _network)
-        .where((c) => currencyMatchesQuery(c, query))
+        .where(
+          (c) =>
+              c != native &&
+              cryptoCurrencyOrTokenToWalletType(c) == _network &&
+              currencyMatchesQuery(c, query),
+        )
         .toList();
 
     final insertOrder = {for (var i = 0; i < tokens.length; i++) tokens[i]: i};
     tokens.sort((a, b) {
       final av = _fiatValueFor(a);
       final bv = _fiatValueFor(b);
-      if (bv != av) return bv.compareTo(av);
+      if (bv != av) {
+        return bv.compareTo(av);
+      }
       return (insertOrder[a] ?? 0).compareTo(insertOrder[b] ?? 0);
     });
     final nativeMatches = currencyMatchesQuery(native, query);
@@ -167,7 +175,7 @@ class _BalanceTrailing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final amount = balance?.amount ?? '—';
+    final amount = balance?.amount ?? "—";
     final fiat = balance?.fiat;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,

@@ -1,15 +1,12 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_graphics/vector_graphics.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:flutter/material.dart";
 
 class SwapFromNetworkPage extends StatelessWidget {
   const SwapFromNetworkPage({
-    super.key,
     required this.title,
     required this.primaryButtonText,
     required this.destinationNetworkName,
@@ -17,6 +14,7 @@ class SwapFromNetworkPage extends StatelessWidget {
     required this.currentNetworkName,
     required this.currentNetworkIconPath,
     required this.onProceed,
+    super.key,
     this.primaryHasSwapIcon = false,
   });
 
@@ -32,13 +30,13 @@ class SwapFromNetworkPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colors.surface,
-      body: SafeArea(
+    return Material(
+      color: colors.surface,
+      child: SafeArea(
         child: Column(
           children: [
             ModalTopBar(
-              title: '',
+              title: "",
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: () => Navigator.of(context).maybePop(),
               trailingIcon: const Icon(Icons.close),
@@ -81,7 +79,10 @@ class SwapFromNetworkPage extends StatelessWidget {
                         title,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: -0.1),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -0.1,
+                            ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -108,8 +109,8 @@ class SwapFromNetworkPage extends StatelessWidget {
                   NewPrimaryButton(
                     onPressed: onProceed,
                     image: primaryHasSwapIcon
-                        ? SvgPicture(
-                            AssetBytesLoader('assets/new-ui/swap_arrows.svg.vec'),
+                        ? CakeImageWidget(
+                            imageUrl: "assets/new-ui/swap_arrows.svg",
                             width: 24,
                             height: 24,
                             colorFilter: ColorFilter.mode(colors.onPrimary, BlendMode.srcIn),

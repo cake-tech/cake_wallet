@@ -1,18 +1,18 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
 
 class SwitchNetworkWalletPage extends StatelessWidget {
   const SwitchNetworkWalletPage({
-    super.key,
     required this.wallets,
     required this.networkName,
     required this.destinationIconPath,
+    super.key,
   });
 
   final String networkName;
@@ -24,8 +24,7 @@ class SwitchNetworkWalletPage extends StatelessWidget {
     required String networkName,
     required String targetIconPath,
     required List<WalletInfo> wallets,
-  }) {
-    return Navigator.of(context).push<WalletInfo>(
+  }) => Navigator.of(context).push<WalletInfo>(
       CupertinoPageRoute(
         builder: (_) => SwitchNetworkWalletPage(
           networkName: networkName,
@@ -34,19 +33,18 @@ class SwitchNetworkWalletPage extends StatelessWidget {
         ),
       ),
     );
-  }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colors.surface,
-      body: SafeArea(
+    return Material(
+      color: colors.surface,
+      child: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ModalTopBar(
-              title: '',
+              title: "",
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: () => Navigator.of(context).maybePop(),
             ),
