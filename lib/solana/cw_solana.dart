@@ -166,7 +166,7 @@ class CWSolana extends Solana {
   }
 
   @override
-  Money? getEstimateFees(WalletBase wallet) => (wallet as SolanaWallet).estimatedFee;
+  CryptoMoney? getEstimateFees(WalletBase wallet) => (wallet as SolanaWallet).estimatedFee;
 
   @override
   List<SPLToken> getDefaultSPLTokens() => DefaultSPLTokens().initialSPLTokens;
@@ -193,8 +193,8 @@ class CWSolana extends Solana {
     String base64Transaction,
     String requestId,
     String destinationAddress,
-    Money amount,
-    Money fee,
+    CryptoMoney amount,
+    CryptoMoney fee,
   ) async {
     final solanaWallet = wallet as SolanaWallet;
     final privateKey = solanaWallet.solanaPrivateKey;
@@ -425,9 +425,9 @@ class CWSolana extends Solana {
     required String from,
     String? tokenSymbol,
     required TransactionDirection direction,
-    required Money amount,
+    required CryptoMoney amount,
     required bool isPending,
-    required Money fee,
+    required CryptoMoney fee,
   }) =>
       SolanaTransactionInfo(
         id: id,

@@ -1,24 +1,25 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
+import "dart:async";
+import "dart:convert";
+import "dart:developer";
 
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_tron/default_tron_tokens.dart';
-import 'package:cw_tron/pending_tron_transaction.dart';
-import 'package:cw_tron/tron_abi.dart';
-import 'package:cw_tron/tron_balance.dart';
-import 'package:cw_tron/tron_http_provider.dart';
-import 'package:cw_core/tron_token.dart';
-import 'package:cw_tron/tron_transaction_model.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import '.secrets.g.dart' as secrets;
-import 'package:on_chain/on_chain.dart';
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/node.dart";
+import "package:cw_core/tron_token.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:cw_tron/default_tron_tokens.dart";
+import "package:cw_tron/pending_tron_transaction.dart";
+import "package:cw_tron/tron_abi.dart";
+import "package:cw_tron/tron_balance.dart";
+import "package:cw_tron/tron_http_provider.dart";
+import "package:cw_tron/tron_transaction_model.dart";
+import "package:flutter/foundation.dart";
+import "package:flutter/services.dart";
+import "package:on_chain/on_chain.dart";
+
+import ".secrets.g.dart" as secrets;
 
 class TronClient {
   late final client = ProxyWrapper().getHttpIOClient();
@@ -268,7 +269,7 @@ class TronClient {
   Future<PendingTronTransaction> signTransaction({
     required TronPrivateKey ownerPrivKey,
     required String toAddress,
-    required Money amount,
+    required CryptoMoney amount,
     required BigInt tronBalance,
     required bool sendAll,
   }) async {
@@ -280,7 +281,7 @@ class TronClient {
 
     final isNativeTransaction = amount.currency == CryptoCurrency.trx;
 
-    Money totalAmount;
+    CryptoMoney totalAmount;
     TransactionRaw rawTransaction;
     if (isNativeTransaction) {
       if (sendAll) {
@@ -328,11 +329,12 @@ class TronClient {
         );
 
     return PendingTronTransaction(
-        signedTransaction: signature,
-        amount: totalAmount,
-        fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
-        sendTransaction: sendTx,
-        id: rawTransaction.txID);
+      signedTransaction: signature,
+      amount: totalAmount,
+      fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
+      sendTransaction: sendTx,
+      id: rawTransaction.txID,
+    );
   }
 
   Future<TransactionRaw> _signNativeTransaction(
@@ -449,8 +451,12 @@ class TronClient {
     }
   }
 
-  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress,
-      {bool throwOnError = false, required Currency currency}) async {
+  Future<TronBalance> fetchTronTokenBalances(
+    String userAddress,
+    String contractAddress, {
+    bool throwOnError = false,
+    required CryptoCurrency currency,
+  }) async {
     try {
       final ownerAddress = TronAddress(userAddress);
 

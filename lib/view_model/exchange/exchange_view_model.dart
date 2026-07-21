@@ -17,7 +17,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -358,7 +358,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   ExchangeTradeState tradeState;
 
   @observable
-  Money? _depositAmount;
+  CryptoMoney? _depositAmount;
 
   @computed
   bool get hasDepositAmount => _depositAmount != null;
@@ -371,7 +371,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   String get depositAmountCanonical => _depositAmount == null ? "0.0" : _depositAmount.toString();
 
   @observable
-  Money? _receiveAmount;
+  CryptoMoney? _receiveAmount;
 
   @computed
   String get receiveAmount =>

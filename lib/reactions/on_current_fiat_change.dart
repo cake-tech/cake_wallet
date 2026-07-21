@@ -4,7 +4,7 @@ import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 
 ReactionDisposer? _onCurrentFiatCurrencyChangeDisposer;
 

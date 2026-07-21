@@ -13,7 +13,7 @@ import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
+import "package:cw_core/currency/currency.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
@@ -343,18 +343,13 @@ class _TokenSelectionContentState extends State<_TokenSelectionContent> {
 
       await showPopUp<void>(
         context: context,
-        builder: (BuildContext context) {
-          return CurrencyPicker(
+        builder: (context) => CurrencyPicker(
             selectedAtIndex: selectedIndex >= 0 ? selectedIndex : 0,
             items: availableTokens.cast<Currency>(),
             hintText: S.current.add_token,
-            onItemSelected: (Currency currency) {
-              setState(() {
-                selectedToken = currency as CryptoCurrency;
-              });
-            },
-          );
-        },
+            onItemSelected: (currency) =>
+                setState(() => selectedToken = currency as CryptoCurrency),
+          ),
       );
     } catch (e) {
       printV('Error showing token selection: $e');

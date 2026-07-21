@@ -1,18 +1,18 @@
-import 'package:cake_wallet/core/amount_validator.dart';
-import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cw_core/currency.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/address_text_field.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
+import "package:cake_wallet/core/amount_validator.dart";
+import "package:cake_wallet/entities/contact_base.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart";
+import "package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart";
+import "package:cake_wallet/src/widgets/address_text_field.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/base_text_form_field.dart";
+import "package:cake_wallet/utils/payment_request.dart";
+import "package:cake_wallet/utils/show_bar.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class ExchangeCard<T extends Currency> extends StatefulWidget {
   ExchangeCard({

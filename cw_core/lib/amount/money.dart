@@ -1,24 +1,25 @@
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/format_fixed.dart';
-import 'package:cw_core/parse_fixed.dart';
+import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:cw_core/format_fixed.dart";
+import "package:cw_core/parse_fixed.dart";
 
-class Money implements Comparable<Money> {
-  final BigInt amount;
-  final Currency currency;
+typedef FiatMoney = Money<FiatCurrency>;
+typedef CryptoMoney = Money<CryptoCurrency>;
 
+class Money<T extends Currency> implements Comparable<Money> {
   const Money(this.amount, this.currency);
 
-  factory Money.zero(Currency currency) => Money(BigInt.zero, currency);
+  factory Money.zero(T currency) => Money(BigInt.zero, currency);
 
-  factory Money.fromInt(int amount, Currency currency) => Money(BigInt.from(amount), currency);
+  factory Money.fromInt(int amount, T currency) => Money(BigInt.from(amount), currency);
 
   /// Parse the [source] and turn it into [Money]
   ///
   /// Throws a [FormatException] if the [source] is not a valid decimal or
   /// not in canonical representation or if it is a decimal when [isBaseUnit]
-  factory Money.parse(source, Currency currency, {bool isBaseUnit = false}) {
+  factory Money.parse(source, T currency, {bool isBaseUnit = false}) {
     final amount = isBaseUnit
         ? BigInt.parse(source.toString())
         : parseFixed(source.toString(), currency.decimals);
@@ -26,11 +27,14 @@ class Money implements Comparable<Money> {
     return Money(amount, currency);
   }
 
+  final BigInt amount;
+  final T currency;
+
   /// Parse the [source] and turn it into [Money] if possible
   ///
   /// As [parse] except that this method returns `null` if the input is not
   /// valid or if it is a decimal when [isBaseUnit]
-  static Money? tryParse(source, Currency currency, {bool isBaseUnit = false}) {
+  static Money<T>? tryParse<T extends Currency>(source, T currency, {bool isBaseUnit = false}) {
     final amount = isBaseUnit
         ? BigInt.tryParse(source.toString())
         : tryParseFixed(source.toString(), currency.decimals);
@@ -71,7 +75,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator <(Money other) {
+  bool operator <(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     return amount < other.amount;
@@ -81,7 +85,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator <=(Money other) {
+  bool operator <=(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     return amount <= other.amount;
@@ -91,7 +95,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator >(Money other) {
+  bool operator >(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     return amount > other.amount;
@@ -101,7 +105,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator >=(Money other) {
+  bool operator >=(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     return amount >= other.amount;
@@ -111,20 +115,20 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands must be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  Money operator +(Money other) {
+  Money<T> operator +(Money<T> other) {
     _assertSameCurrency(other);
 
     return _withAmount(amount + other.amount);
   }
 
   /// unary minus operator.
-  Money operator -() => _withAmount(-amount);
+  Money<T> operator -() => _withAmount(-amount);
 
   /// Subtracts the amount of [other] from this amount.
   ///
   /// Both operands must be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  Money operator -(Money other) {
+  Money<T> operator -(Money<T> other) {
     _assertSameCurrency(other);
 
     return _withAmount(amount - other.amount);
@@ -133,13 +137,15 @@ class Money implements Comparable<Money> {
   /// Returns [Money] multiplied by [other].
   ///
   /// The result is again [Money].
-  Money operator *(BigInt other) => _withAmount(amount * other);
+  Money<T> operator *(BigInt other) => _withAmount(amount * other);
 
   /// Returns [Money] divided by [other].
   ///
   /// The result is again [Money].
-  Money operator /(BigInt other) {
-    if (other == BigInt.zero) throw Exception('Division by zero.');
+  Money<T> operator /(BigInt other) {
+    if (other == BigInt.zero) {
+      throw Exception("Division by zero.");
+    }
 
     final neg = (amount.isNegative) ^ (other.isNegative);
     final A = amount.abs();
@@ -160,29 +166,36 @@ class Money implements Comparable<Money> {
   ///
   /// If just [currency] is provided and the decimals missmatch
   /// the amount will be transformed to keep its canonical representation
-  Money copyWith({BigInt? amount, Currency? currency}) {
+  Money<T> copyWith({BigInt? amount, T? currency}) {
     if (currency != null && amount == null && currency.decimals != this.currency.decimals) {
       return Money(
-          _transformAmount(this.amount, this.currency.decimals, currency.decimals), currency);
+        _transformAmount(this.amount, this.currency.decimals, currency.decimals),
+        currency,
+      );
     }
 
     return Money(amount ?? this.amount, currency ?? this.currency);
   }
 
   /// Creates new instance with the same currency and given [amount].
-  Money _withAmount(BigInt amount) => Money(amount, currency);
+  Money<T> _withAmount(BigInt amount) => Money(amount, currency);
 
   void _assertSameCurrency(Money other, [String? message]) {
-    if (currency != other.currency)
+    if (currency != other.currency) {
       throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
+    }
   }
 
   BigInt _transformAmount(BigInt source, int sourceDecimals, int targetDecimals) {
-    if (sourceDecimals == targetDecimals) return source;
+    if (sourceDecimals == targetDecimals) {
+      return source;
+    }
 
     if (sourceDecimals > targetDecimals) {
       return parseFixed(
-          formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals), targetDecimals);
+        formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals),
+        targetDecimals,
+      );
     } else {
       return parseFixed(formatFixed(source, sourceDecimals), targetDecimals);
     }
@@ -198,18 +211,30 @@ class Money implements Comparable<Money> {
   @override
   String toString() => formatFixed(amount, currency.decimals);
 
-  String toStringWithSymbol(
-          {int? fractionalDigits, bool trimZeros = true, bool useBaseUnit = false}) =>
+  String toStringWithSymbol({
+    int? fractionalDigits,
+    bool trimZeros = true,
+    bool useBaseUnit = false,
+  }) =>
       "${toStringWithPrecision(fractionalDigits: fractionalDigits, trimZeros: trimZeros, useBaseUnit: useBaseUnit)} ${_getSymbol(useBaseUnit)}";
 
-  String toStringWithPrecision(
-          {int? fractionalDigits, bool trimZeros = true, bool useBaseUnit = false}) =>
-      formatFixed(amount, useBaseUnit ? 0 : currency.decimals,
-          fractionalDigits: fractionalDigits, trimZeros: trimZeros);
+  String toStringWithPrecision({
+    int? fractionalDigits,
+    bool trimZeros = true,
+    bool useBaseUnit = false,
+  }) =>
+      formatFixed(
+        amount,
+        useBaseUnit ? 0 : currency.decimals,
+        fractionalDigits: fractionalDigits,
+        trimZeros: trimZeros,
+      );
 
   // To Override the symbol with the ticker of the base unit
   String _getSymbol(bool useBaseUnit) {
-    if (useBaseUnit && [CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) return "sats";
+    if (useBaseUnit && [CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) {
+      return "sats";
+    }
     return currency.symbol;
   }
 }

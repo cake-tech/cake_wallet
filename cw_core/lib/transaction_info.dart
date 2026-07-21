@@ -6,8 +6,8 @@ import 'package:cw_core/keyable.dart';
 abstract class TransactionInfo extends Object with Keyable {
   late String id;
   late String txHash = id;
-  late Money amount;
-  Money? fee;
+  late CryptoMoney amount;
+  CryptoMoney? fee;
   late TransactionDirection direction;
   late bool isPending;
   late DateTime date;

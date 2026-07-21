@@ -72,7 +72,7 @@ abstract class ZcashWalletBase
 
   static const int _autoShieldMinSweep = 30000;
 
-  Money _feeFromTxPlan(
+  CryptoMoney _feeFromTxPlan(
     final zkool_pay.PcztPackage txPlan,
     final TransactionPriority priority,
     final int tryReduceFeeAmount, {

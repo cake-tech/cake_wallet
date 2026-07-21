@@ -16,10 +16,10 @@ class PendingSolanaTransaction with PendingTransaction {
   });
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
 
   @override
-  final Money fee;
+  final CryptoMoney fee;
 
   @override
   String get amountFormatted {

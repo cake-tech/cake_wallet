@@ -1,7 +1,7 @@
 import 'package:cw_core/amount/exchange_rate.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
+import 'package:cw_core/currency/currency.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,32 +1,32 @@
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/core/utilities.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/parse_fixed.dart';
-import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/entities/calculate_fiat_amount.dart";
+import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
+import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
+import "package:cake_wallet/view_model/send/send_view_model_state.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:cw_core/parse_fixed.dart";
+import "package:cw_core/pending_transaction.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:mobx/mobx.dart";
 
-part 'deuro_view_model.g.dart';
+part "deuro_view_model.g.dart";
 
 class DEuroViewModel = DEuroViewModelBase with _$DEuroViewModel;
 
 abstract class DEuroViewModelBase with Store {
   final AppStore _appStore;
 
-  static Money get MIN_ACCRUED_INTEREST =>
+  static CryptoMoney get MIN_ACCRUED_INTEREST =>
       Money(BigInt.parse("1000000000000"), CryptoCurrency.deuro);
 
-  static Money get ZERO => Money.zero(CryptoCurrency.deuro);
+  static CryptoMoney get ZERO => Money.zero(CryptoCurrency.deuro);
 
   DEuroViewModelBase(
       this._appStore, this.balanceViewModel, this._settingsStore, this._fiatConversationStore,
@@ -75,7 +75,7 @@ abstract class DEuroViewModelBase with Store {
   }
 
   @computed
-  Money get accountBalance {
+  CryptoMoney get accountBalance {
     final dEuroKey = balanceViewModel.balances.keys
         .firstWhereOrNull((e) => e.title == CryptoCurrency.deuro.title);
     if (dEuroKey == null) return ZERO;
@@ -83,13 +83,13 @@ abstract class DEuroViewModelBase with Store {
   }
 
   @observable
-  Money savingsBalance = ZERO;
+  CryptoMoney savingsBalance = ZERO;
 
   @computed
   String get fiatSavingsBalanceFormated => _getDEuroFiatAmount(savingsBalance);
 
   @observable
-  Money? savingsBalanceV1 = null;
+  CryptoMoney? savingsBalanceV1 = null;
 
   @computed
   String get fiatSavingsBalanceV1Formated => _getDEuroFiatAmount(savingsBalanceV1);
@@ -101,7 +101,7 @@ abstract class DEuroViewModelBase with Store {
   String interestRateFormated = "0";
 
   @observable
-  Money accruedInterest = ZERO;
+  CryptoMoney accruedInterest = ZERO;
 
   @computed
   String get accruedInterestFormated => accruedInterest.toStringWithPrecision(fractionalDigits: 6);

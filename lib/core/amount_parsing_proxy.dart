@@ -1,15 +1,15 @@
-import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/utils/print_verbose.dart";
 
 class AmountParsingProxy {
-  final BitcoinAmountDisplayMode displayMode;
-
   const AmountParsingProxy(this.displayMode);
+
+  final BitcoinAmountDisplayMode displayMode;
 
   /// [getCryptoInputAmount] turns the input [amount] into the canonical representation of [cryptoCurrency]
   String getCanonicalCryptoAmount(String amount, CryptoCurrency cryptoCurrency) {
@@ -58,11 +58,11 @@ class AmountParsingProxy {
       amount.toStringWithSymbol(useBaseUnit: useSatoshi(amount.currency), fractionalDigits: 8);
 
   /// [parseCryptoString] turns the the display representation [string] into `Money` with [cryptoCurrency]
-  Money parseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
+  CryptoMoney parseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
       Money.parse(amount, cryptoCurrency, isBaseUnit: useSatoshi(cryptoCurrency));
 
   /// [tryParseCryptoString] tries to turn the display representation [string] into `Money` with [cryptoCurrency]
-  Money? tryParseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
+  CryptoMoney? tryParseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
       Money.tryParse(amount, cryptoCurrency, isBaseUnit: useSatoshi(cryptoCurrency));
 
   /// [getCryptoSymbol] returns the correct Symbol related to the presentation

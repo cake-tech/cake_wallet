@@ -93,10 +93,10 @@ abstract class TronWalletBase
   WalletAddresses walletAddresses;
 
   @observable
-  Money? nativeTxEstimatedFee;
+  CryptoMoney? nativeTxEstimatedFee;
 
   @observable
-  Money? trc20EstimatedFee;
+  CryptoMoney? trc20EstimatedFee;
 
   @override
   @observable

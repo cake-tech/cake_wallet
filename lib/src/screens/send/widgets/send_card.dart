@@ -20,7 +20,6 @@ import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -972,7 +971,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       if (all) cryptoAmountController.text = S.current.all;
     });
 
-    reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) async {
+    reaction((_) => sendViewModel.selectedCryptoCurrency, (currency) async {
       if (output.sendAll) {
         output.setSendAll(await sendViewModel.sendingBalance);
       }
@@ -1133,8 +1132,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
         items: sendViewModel.currencies,
         hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) async {
-          final selectedCurrency = sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency);
+        onItemSelected: (cur) async {
+          final selectedCurrency = sendViewModel.selectedCryptoCurrency = cur as CryptoCurrency;
           await output.calculateEstimatedFee();
           return selectedCurrency;
         },

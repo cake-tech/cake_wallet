@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class TradePair<T, U> {

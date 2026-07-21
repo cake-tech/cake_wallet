@@ -114,8 +114,10 @@ abstract class OutputBase with Store {
   String? stealthAddress;
 
   @computed
-  Money get cryptoAmountMoney {
-    if (cryptoAmount.isEmpty) return Money.zero(cryptoCurrencyHandler());
+  CryptoMoney get cryptoAmountMoney {
+    if (cryptoAmount.isEmpty) {
+      return Money.zero(cryptoCurrencyHandler());
+    }
 
     try {
       return cryptoCurrencyHandler().parseAmount(cryptoAmount.sanitized());
@@ -125,7 +127,7 @@ abstract class OutputBase with Store {
   }
 
   @observable
-  Money estimatedFee;
+  CryptoMoney estimatedFee;
 
   @action
   Future<void> calculateEstimatedFee() async {

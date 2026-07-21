@@ -1,17 +1,16 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
+import "dart:async";
+import "dart:io";
+import "dart:typed_data";
 
-import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:breez_sdk_spark_flutter/breez_sdk_spark.dart";
+import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
+import "package:cw_bitcoin/electrum_transaction_info.dart";
+import "package:cw_bitcoin/lightning/pending_lightning_transaction.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/transaction_direction.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_type.dart";
 
 bool _breezSdkSparkLibUninitialized = true;
 Stream<LogEntry>? _logStream;
@@ -41,7 +40,7 @@ class LightningWallet {
 
   static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
-  Currency get currency => CryptoCurrency.btcln;
+  CryptoCurrency get currency => CryptoCurrency.btcln;
 
   BreezSdk get sdk => _sdk!;
 
@@ -149,10 +148,12 @@ class LightningWallet {
           request: ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress())))
       .paymentRequest;
 
-  Future<Money> getBalance() async {
+  Future<CryptoMoney> getBalance() async {
     try {
-      return Money((await sdk.getInfo(request: GetInfoRequest(ensureSynced: true))).balanceSats,
-          CryptoCurrency.btcln);
+      return Money(
+        (await sdk.getInfo(request: const GetInfoRequest(ensureSynced: true))).balanceSats,
+        CryptoCurrency.btcln,
+      );
     } on SdkError_Generic catch (_) {
     } on SdkError_NetworkError catch (_) {}
 

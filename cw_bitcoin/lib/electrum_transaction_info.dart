@@ -32,8 +32,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.type, {
     required String id,
     int? height,
-    required Money amount,
-    Money? fee,
+    required CryptoMoney amount,
+    CryptoMoney? fee,
     List<String>? inputAddresses,
     List<String>? outputAddresses,
     required TransactionDirection direction,

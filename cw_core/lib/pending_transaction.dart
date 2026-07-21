@@ -10,8 +10,8 @@ class PendingChange {
 mixin PendingTransaction {
   String get id;
 
-  Money get amount;
-  Money get fee;
+  CryptoMoney get amount;
+  CryptoMoney get fee;
 
   String get amountFormatted;
   String get feeFormatted => fee.toStringWithSymbol(fractionalDigits: 8);
