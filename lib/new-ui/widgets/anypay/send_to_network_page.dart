@@ -1,21 +1,19 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_graphics/vector_graphics.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:flutter/material.dart";
 
 class SendToNetworkPage extends StatelessWidget {
   const SendToNetworkPage({
-    super.key,
     required this.title,
     required this.destinationNetworkName,
     required this.destinationIconPath,
     required this.currentNetworkName,
     required this.onSwitchWallet,
     required this.onSwap,
+    super.key,
   });
 
   final String title;
@@ -28,13 +26,13 @@ class SendToNetworkPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colors.surface,
-      body: SafeArea(
+    return Material(
+      color: colors.surface,
+      child: SafeArea(
         child: Column(
           children: [
             ModalTopBar(
-              title: '',
+              title: "",
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               onLeadingPressed: () => Navigator.of(context).maybePop(),
               trailingIcon: const Icon(Icons.close),
@@ -59,7 +57,10 @@ class SendToNetworkPage extends StatelessWidget {
                         title,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 20, fontWeight: FontWeight.w500, letterSpacing: -0.1),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -0.1,
+                            ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -85,8 +86,8 @@ class SendToNetworkPage extends StatelessWidget {
                 children: [
                   NewPrimaryButton(
                     onPressed: onSwitchWallet,
-                    image: SvgPicture(
-                      AssetBytesLoader('assets/new-ui/wallet_filled.svg.vec'),
+                    image: CakeImageWidget(
+                      imageUrl: "assets/new-ui/wallet_filled.svg",
                       width: 24,
                       height: 24,
                       colorFilter: ColorFilter.mode(colors.onPrimary, BlendMode.srcIn),
@@ -98,8 +99,8 @@ class SendToNetworkPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   NewPrimaryButton(
                     onPressed: onSwap,
-                    image: SvgPicture(
-                      AssetBytesLoader('assets/new-ui/swap_arrows.svg.vec'),
+                    image: CakeImageWidget(
+                      imageUrl: "assets/new-ui/swap_arrows.svg",
                       width: 24,
                       height: 24,
                       colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),

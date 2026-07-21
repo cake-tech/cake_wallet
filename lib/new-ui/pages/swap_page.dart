@@ -836,9 +836,12 @@ class SwapProviderPreview extends StatelessWidget {
   final ExchangeViewModel exchangeViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(builder: (_) {
-      if (exchangeViewModel.depositAmount.isEmpty) return SizedBox.shrink();
+  Widget build(BuildContext context) => Observer(builder: (_) {
+      final isFetchingDeposit =
+          exchangeViewModel.isFixedRateMode && exchangeViewModel.receiveAmount.isNotEmpty;
+      if (exchangeViewModel.depositAmount.isEmpty && !isFetchingDeposit) {
+        return const SizedBox.shrink();
+      }
 
       final provider = exchangeViewModel.forcedProvider ?? exchangeViewModel.providerDisplay;
       final rate = exchangeViewModel.forcedProvider == null
@@ -906,7 +909,6 @@ class SwapProviderPreview extends StatelessWidget {
         ),
       );
     });
-  }
 }
 
 class SwapAmountBox extends StatefulWidget {
@@ -1119,36 +1121,43 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           children: [
                             Flexible(
                               child: IntrinsicWidth(
-                                child: TextFormField(
-                                  keyboardType: TextInputType.numberWithOptions(
-                                    signed: false,
-                                    decimal: !widget.useBaseUnit,
-                                  ),
-                                  validator: _fiatInputMode ? null : widget.currencyValueValidator,
-                                  controller:
-                                      _fiatInputMode ? fiatAmountController : amountController,
-                                  focusNode: amountFocusNode,
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.zero,
-                                    isDense: true,
-                                    hintText: "0",
-                                    fillColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    focusedBorder: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    DecimalInputFormatter(
-                                      maxDecimals:
-                                          widget.useBaseUnit ? 0 : widget.currency.decimals,
+                                child: Observer(builder: (_) {
+                                  final showFetching = !widget.isReceiverCard &&
+                                      widget.exchangeViewModel.isFixedRateMode &&
+                                      widget.exchangeViewModel.receiveAmount.isNotEmpty &&
+                                      widget.exchangeViewModel.depositAmount.isEmpty;
+                                  return TextFormField(
+                                    keyboardType: TextInputType.numberWithOptions(
+                                      signed: false,
+                                      decimal: !widget.useBaseUnit,
                                     ),
-                                  ],
-                                ),
+                                    validator:
+                                        _fiatInputMode ? null : widget.currencyValueValidator,
+                                    controller:
+                                        _fiatInputMode ? fiatAmountController : amountController,
+                                    focusNode: amountFocusNode,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.zero,
+                                      isDense: true,
+                                      hintText: showFetching ? S.of(context).fetching : "0",
+                                      fillColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      focusedBorder: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                    ),
+                                    inputFormatters: <TextInputFormatter>[
+                                      DecimalInputFormatter(
+                                        maxDecimals:
+                                            widget.useBaseUnit ? 0 : widget.currency.decimals,
+                                      ),
+                                    ],
+                                  );
+                                }),
                               ),
                             ),
                             if (_fiatInputMode)

@@ -17,6 +17,7 @@ import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/widgets/animated_dropdown.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/evm_address_detected_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/send_to_network_page.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/swap_from_network_page.dart";
@@ -485,6 +486,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                               selectedCurrency:
                                                   widget.sendViewModel.selectedCryptoCurrency,
                                             ),
+                                            if (widget.sendViewModel.isEVMWallet &&
+                                                _hasEvmRecipient(output))
+                                              RecipientNetworkSelector(
+                                                wallet: widget.sendViewModel.wallet,
+                                                onTap: _presentRecipientNetworkPicker,
+                                              ),
                                           ],
                                         ),
                                       Column(
