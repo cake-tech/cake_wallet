@@ -90,7 +90,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
       addressesMap.clear();
       addressInfos.clear();
 
-      accountList.accounts.forEach((account) async {
+      for (final account in accountList.accounts) {
         await _subaddressList.update(accountIndex: account.id);
         _subaddressList.subaddresses.forEach((subaddress) {
           addressesMap[subaddress.address] = subaddress.label;
@@ -102,7 +102,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
               address: subaddress.address,
               label: subaddress.label));
         });
-      });
+      }
 
       await saveAddressesInBox();
     } catch (e) {

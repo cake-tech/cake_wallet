@@ -31,6 +31,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     this.hasTaprootInputs = false,
     this.isMweb = false,
     this.utxos = const [],
+    this.derivedOutputs = const [],
     this.publicKeys,
     this.commitOverride,
     this.unsignedPsbt,
@@ -47,6 +48,9 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool hasTaprootInputs;
   final bool isViewOnly;
   List<UtxoWithAddress> utxos;
+
+  final List<BitcoinOutput> derivedOutputs;
+
   bool isMweb;
   String? changeAddressOverride;
   String? idOverride;
@@ -78,6 +82,13 @@ class PendingBitcoinTransaction with PendingTransaction {
   List<TxOutput> get outputs => _tx.outputs;
 
   bool get hasSilentPayment => _tx.hasSilentPayment;
+
+  List<String?> get stealthAddresses => derivedOutputs
+      .where((out) => !out.isChange)
+      .map((out) => out.isSilentPayment
+          ? out.address.toAddress(network ?? BitcoinNetwork.mainnet)
+          : null)
+      .toList();
 
   PendingChange? get change {
     try {
