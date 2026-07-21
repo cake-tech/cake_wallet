@@ -166,12 +166,15 @@ class CWEVM extends EVM {
           amount: amount,
           fee: fee,
           tokenSymbol: tokenSymbol,
+          exponent: exponent,
           direction: direction,
           isPending: isPending,
           date: date,
           confirmations: confirmations,
           to: to,
           from: from,
+          evmSignatureName: evmSignatureName,
+          contractAddress: contractAddress,
           chainId: chainId);
 
   @override

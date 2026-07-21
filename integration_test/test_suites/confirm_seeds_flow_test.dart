@@ -26,7 +26,7 @@ void main() {
     (tester) async {
       // Store the original FlutterError.onError handler
       final originalOnError = FlutterError.onError;
-      
+
       FlutterError.onError = (FlutterErrorDetails details) {
         debugPrint('FlutterError caught: ${details.exception}');
       };
