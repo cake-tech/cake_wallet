@@ -4,7 +4,6 @@ import "dart:io";
 import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
-import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
@@ -43,7 +42,7 @@ class ConnectDevicePage extends BasePage {
   ConnectDevicePage(ConnectDevicePageParams params, this.hardwareWalletVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
-        allowChangeWallet = params.allowChangeWallet,
+        allowChangeWallet = params.allowChangeWallet || params.isReconnect,
         isReconnect = params.isReconnect;
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
@@ -57,43 +56,7 @@ class ConnectDevicePage extends BasePage {
       : S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget? leading(BuildContext context) {
-    if (!isReconnect) {
-      return super.leading(context);
-    }
-
-    return MergeSemantics(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 4.0),
-        child: ButtonTheme(
-          minWidth: double.minPositive,
-          child: Semantics(
-            label: S.of(context).seed_alert_back,
-            child: ModernButton(
-              size: 37,
-              icon: Icon(CupertinoIcons.back),
-              iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              onPressed: () => _onReconnectBack(context),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _onReconnectBack(BuildContext context) {
-    final navigator = Navigator.of(context);
-    if (navigator.canPop()) {
-      navigator.pop();
-      return;
-    }
-
-    navigator.pushNamed(
-      Routes.walletList,
-      arguments: (BuildContext context) =>
-          Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
-    );
-  }
+  Widget? leading(BuildContext context) => !isReconnect ? super.leading(context) : null;
 
   @override
   Widget body(BuildContext context) => PopScope(
