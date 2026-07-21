@@ -1,6 +1,6 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:cw_core/utils/proxy_wrapper.dart';
+import "package:cw_core/utils/proxy_wrapper.dart";
 
 Future<String?> getBolt11FromLightingAddress(String lightningAddress, {int amount = 0}) async {
   try {
@@ -31,28 +31,34 @@ Uri getURlOfLightningAddress(String lightningAddress) {
 }
 
 class _LNURLPResponseDTO {
+  const _LNURLPResponseDTO(
+    this.callback,
+    this.maxSendable,
+    this.minSendable,
+    this.tag,
+    this.metadata,
+  );
+
+  factory _LNURLPResponseDTO.fromJson(Map<String, dynamic> map) => _LNURLPResponseDTO(
+        map["callback"] as String,
+        map["maxSendable"] as int,
+        map["minSendable"] as int,
+        map["tag"] as String,
+        map["metadata"] as String,
+      );
+
   final String callback;
   final int maxSendable;
   final int minSendable;
   final String tag;
   final String metadata;
-
-  const _LNURLPResponseDTO(
-      this.callback, this.maxSendable, this.minSendable, this.tag, this.metadata);
-
-  static _LNURLPResponseDTO fromJson(Map<String, dynamic> map) => _LNURLPResponseDTO(
-      map["callback"] as String,
-      map["maxSendable"] as int,
-      map["minSendable"] as int,
-      map["tag"] as String,
-      map["metadata"] as String);
 }
 
 class _LNURLPCallbackResponseDTO {
-  final String pr;
-
   const _LNURLPCallbackResponseDTO(this.pr);
 
-  static _LNURLPCallbackResponseDTO fromJson(Map<String, dynamic> map) =>
+  factory _LNURLPCallbackResponseDTO.fromJson(Map<String, dynamic> map) =>
       _LNURLPCallbackResponseDTO(map["pr"] as String);
+
+  final String pr;
 }

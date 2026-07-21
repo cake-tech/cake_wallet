@@ -31,18 +31,36 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
     await _load();
   }
 
+  Future<void> _saveQueue = Future.value();
+
   @override
-  Future<void> save() async {
-    try {
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-      final path = '$dirPath/$transactionsHistoryFileName';
-      final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
-      final data = json.encode({'transactions': transactionMaps});
-      await encryptionFileUtils.write(path: path, password: _password, data: data);
-    } catch (e, s) {
-      printV('Error while saving solana transaction history: ${e.toString()}');
-      printV(s);
-    }
+  Future<void> save() => saveAndConfirm();
+
+  Future<bool> saveAndConfirm() {
+    final write = _saveQueue.then((_) async {
+      try {
+        await _write();
+
+        return true;
+      } catch (e, s) {
+        printV('Error while saving solana transaction history: ${e.toString()}');
+        printV(s);
+
+        return false;
+      }
+    });
+
+    _saveQueue = write;
+
+    return write;
+  }
+
+  Future<void> _write() async {
+    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+    final path = '$dirPath/$transactionsHistoryFileName';
+    final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
+    final data = json.encode({'transactions': transactionMaps});
+    await encryptionFileUtils.write(path: path, password: _password, data: data);
   }
 
   @override
