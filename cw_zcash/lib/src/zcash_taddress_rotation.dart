@@ -415,6 +415,7 @@ class ZcashTaddressRotation {
             srcPools: 1,
             recipientPaysFee: true,
             smartTransparent: false,
+            mode: 0,
           ),
           c: coin,
         );

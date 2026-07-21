@@ -222,6 +222,13 @@ class ZkoolTx {
   }
 
   static Uint8List _txidFromJson(final dynamic raw) {
+    return _bytesFromJson(raw, fieldName: "txid");
+  }
+
+  static Uint8List _bytesFromJson(final dynamic raw, {required final String fieldName}) {
+    if (raw == null) {
+      return Uint8List(0);
+    }
     if (raw is Uint8List) {
       return raw;
     }
@@ -231,7 +238,7 @@ class ZkoolTx {
     if (raw is String) {
       return base64.decode(raw);
     }
-    throw FormatException("Invalid txid in ZkoolTx json: $raw");
+    throw FormatException("Invalid $fieldName in ZkoolTx json: $raw");
   }
 
   static List<T> _listFromJson<T>(final dynamic raw, final T Function(Map<String, dynamic>) parse) {
@@ -257,6 +264,7 @@ class ZkoolTx {
         tpe: txJson["tpe"] == null ? null : _asInt(txJson["tpe"]),
         zsaValue: _asInt(txJson["zsaValue"]),
         assetDisplay: txJson["assetDisplay"] as String? ?? "",
+        isUserMemo: txJson["isUserMemo"] as bool? ?? false,
       ),
       zkool_account.TxAccount(
         id: _asInt(txAccountJson["id"]),
@@ -304,6 +312,7 @@ class ZkoolTx {
             pool: _asInt(a["pool"]),
             output: a["output"] == null ? null : _asInt(a["output"]),
             memo: a["memo"] as String?,
+            memoBytes: _bytesFromJson(a["memoBytes"], fieldName: "memoBytes"),
           ),
         ),
       ),

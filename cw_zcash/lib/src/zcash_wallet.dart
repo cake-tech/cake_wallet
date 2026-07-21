@@ -469,6 +469,7 @@ abstract class ZcashWalletBase
               srcPools: 7,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
+              mode: 0,
             ),
             c: coin,
           );
@@ -1134,6 +1135,7 @@ abstract class ZcashWalletBase
             srcPools: 3,
             recipientPaysFee: true,
             smartTransparent: false,
+            mode: 0,
           ),
           c: coin,
         );
