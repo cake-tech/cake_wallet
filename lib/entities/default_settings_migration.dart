@@ -607,7 +607,7 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 68:
-          _changeDefaultNode(
+          await _changeDefaultNode(
             sharedPreferences: sharedPreferences,
             type: WalletType.tron,
             newDefaultUri: tronDefaultNodeUri,
@@ -617,6 +617,15 @@ Future<void> defaultSettingsMigration(
               'tron-rpc.publicnode.com:443',
               'api.trongrid.io',
             ],
+          );
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.monero,
+            newDefaultUri: newCakeWalletMoneroUri,
+            currentNodePreferenceKey: PreferencesKey.currentNodeIdKey,
+            useSSL: true,
+            trusted: true,
+            oldUri: ['nodes.hashvault.pro:18081'],
           );
           break;
         default:
