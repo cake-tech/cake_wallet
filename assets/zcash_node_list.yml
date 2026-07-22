@@ -11,8 +11,9 @@
   isEnabledForAutoSwitching: true
   label: "Zec.rocks"
 -
-  uri: 2c4whzg26j6hgjh22rxynj3oig4gm22ga7x74weclujywxye23v3u5id.onion:9067
+  uri: cakezecgh6enylxz3yya52pu4rq3bojy7zfhvnegqkq4qbbpzderjiqd.onion:9067
   useSSL: false
+  isOfficial: true
   label: "Cake Wallet (Tor)"
 -
   uri: bvp2l442g5ogma7rywzahm7eqyhpp3g26n3gvvxeioqn5csio2ir6myd.onion:9067
