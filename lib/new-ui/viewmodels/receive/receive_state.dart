@@ -38,6 +38,7 @@ final class ReceiveLoaded extends ReceiveState {
     required this.walletType,
     required this.walletCurrency,
     required this.hasTokensList,
+    this.isChangingAddressType = false,
   });
 
   final AddressEntry addressEntry;
@@ -55,6 +56,7 @@ final class ReceiveLoaded extends ReceiveState {
   final String? payjoinEndpoint;
   final bool fetchingInvoice;
   final bool isRotatingAddress;
+  final bool isChangingAddressType;
 
   final PaymentURI paymentUri;
 
@@ -113,6 +115,7 @@ final class ReceiveLoaded extends ReceiveState {
     bool clearPayjoinEndpoint = false,
     bool? fetchingInvoice,
     bool? isRotatingAddress,
+    bool? isChangingAddressType,
     PaymentURI? paymentUri,
     bool? hasAccounts,
     String? accountLabel,
@@ -141,6 +144,7 @@ final class ReceiveLoaded extends ReceiveState {
         payjoinEndpoint: clearPayjoinEndpoint ? null : (payjoinEndpoint ?? this.payjoinEndpoint),
         fetchingInvoice: fetchingInvoice ?? this.fetchingInvoice,
         isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
+        isChangingAddressType: isChangingAddressType ?? this.isChangingAddressType,
         paymentUri: paymentUri ?? this.paymentUri,
         hasAccounts: hasAccounts ?? this.hasAccounts,
         accountLabel: clearAccountLabel ? null : (accountLabel ?? this.accountLabel),
@@ -172,6 +176,7 @@ final class ReceiveLoaded extends ReceiveState {
         payjoinEndpoint,
         fetchingInvoice,
         isRotatingAddress,
+        isChangingAddressType,
         paymentUri.toString(),
         hasAccounts,
         accountLabel,

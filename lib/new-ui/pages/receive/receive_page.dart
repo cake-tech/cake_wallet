@@ -229,6 +229,7 @@ class _LoadedWidget extends StatelessWidget {
                   walletType: state.walletType,
                   largeQrMode: largeQrMode,
                   onTap: () => _showAddressTypePicker(context, state),
+                  isLoading: state.isChangingAddressType,
                 ),
               ReceiveAddressWidget(
                 address: state.addressEntry.address,

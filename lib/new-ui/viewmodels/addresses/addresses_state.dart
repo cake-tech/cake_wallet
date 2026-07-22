@@ -25,6 +25,7 @@ final class AddressesLoaded extends AddressesState {
     required this.hasReceived,
     required this.canSetLabel,
     required this.isSilentPayments,
+    this.isSaving = false,
   });
 
   final List<AddressGroup> groups;
@@ -39,6 +40,7 @@ final class AddressesLoaded extends AddressesState {
   final bool hasReceived;
   final bool canSetLabel;
   final bool isSilentPayments;
+  final bool isSaving;
 
   List<AddressGroup> get displayableGroups {
     final term = searchTerm.toLowerCase();
@@ -75,20 +77,22 @@ final class AddressesLoaded extends AddressesState {
     bool? hasReceived,
     bool? canSetLabel,
     bool? isSilentPayments,
+    bool? isSaving,
   }) => AddressesLoaded(
-      groups: groups ?? this.groups,
-      activeAddress: activeAddress ?? this.activeAddress,
-      searchTerm: searchTerm ?? this.searchTerm,
-      showHidden: showHidden ?? this.showHidden,
-      hasAccounts: hasAccounts ?? this.hasAccounts,
-      currentAccount: clearAccount ? null : (currentAccount ?? this.currentAccount),
-      walletType: walletType ?? this.walletType,
-      showAddManualAddresses: showAddManualAddresses ?? this.showAddManualAddresses,
-      hasBalance: hasBalance ?? this.hasBalance,
-      hasReceived: hasReceived ?? this.hasReceived,
-      canSetLabel: canSetLabel ?? this.canSetLabel,
-      isSilentPayments: isSilentPayments ?? this.isSilentPayments,
-    );
+        groups: groups ?? this.groups,
+        activeAddress: activeAddress ?? this.activeAddress,
+        searchTerm: searchTerm ?? this.searchTerm,
+        showHidden: showHidden ?? this.showHidden,
+        hasAccounts: hasAccounts ?? this.hasAccounts,
+        currentAccount: clearAccount ? null : (currentAccount ?? this.currentAccount),
+        walletType: walletType ?? this.walletType,
+        showAddManualAddresses: showAddManualAddresses ?? this.showAddManualAddresses,
+        hasBalance: hasBalance ?? this.hasBalance,
+        hasReceived: hasReceived ?? this.hasReceived,
+        canSetLabel: canSetLabel ?? this.canSetLabel,
+        isSilentPayments: isSilentPayments ?? this.isSilentPayments,
+        isSaving: isSaving ?? this.isSaving,
+      );
 
   @override
   List<Object?> get props => [
@@ -104,6 +108,7 @@ final class AddressesLoaded extends AddressesState {
         hasReceived,
         canSetLabel,
         isSilentPayments,
+        isSaving,
       ];
 }
 

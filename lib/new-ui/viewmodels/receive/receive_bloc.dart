@@ -255,10 +255,14 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       return;
     }
 
+    emit(initial.copyWith(isChangingAddressType: true));
     try {
       await addressService.setAddressType(event.option);
     } catch (e) {
       printV("ReceiveBloc setAddressType failed: $e");
+      if (state case final ReceiveLoaded loaded when loaded.walletType == initial.walletType) {
+        emit(loaded.copyWith(isChangingAddressType: false));
+      }
       return;
     }
 
@@ -302,6 +306,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           isLightning: isCurrentRequestLightning,
           isAutoGenerateSubaddressEnabled: addressService.isAutoGenerateSubaddressEnabled,
           walletType: addressService.walletType,
+          isChangingAddressType: false,
         ),
       );
     }

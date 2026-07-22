@@ -2,6 +2,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 
 class ReceiveAddressTypeDisplay extends StatelessWidget {
@@ -10,6 +11,7 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
     required this.walletType,
     required this.largeQrMode,
     required this.onTap,
+    this.isLoading = false,
     super.key,
   });
 
@@ -17,6 +19,7 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
   final WalletType walletType;
   final bool largeQrMode;
   final VoidCallback onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -68,16 +71,21 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(999999),
               ),
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onTap,
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-              ),
+              child: isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: CupertinoActivityIndicator(radius: 7),
+                    )
+                  : IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: onTap,
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
             ),
         ],
       ),

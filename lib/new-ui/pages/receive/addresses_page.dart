@@ -20,6 +20,7 @@ import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -191,6 +192,15 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                   child: _AddressSearchBox(controller: _searchController),
                 ),
               ),
+              if (state.isSaving)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: ColoredBox(
+                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.35),
+                      child: const Center(child: CupertinoActivityIndicator(radius: 14)),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

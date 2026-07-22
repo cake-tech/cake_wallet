@@ -95,10 +95,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
+    emit(initial.copyWith(isSaving: true));
     try {
       await addressService.setHidden(event.address, hidden: event.hidden);
     } catch (e) {
       printV("AddressesBloc setHidden failed: $e");
+      _clearSavingState(emit, initial.walletType);
       return;
     }
     await _yieldAndRefreshGroups(emit, initial.walletType);
@@ -110,10 +112,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
+    emit(initial.copyWith(isSaving: true));
     try {
       await addressService.setLabel(event.address, event.label);
     } catch (e) {
       printV("AddressesBloc setLabel failed: $e");
+      _clearSavingState(emit, initial.walletType);
       return;
     }
     await _yieldAndRefreshGroups(emit, initial.walletType);
@@ -125,10 +129,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
+    emit(initial.copyWith(isSaving: true));
     try {
       await addressService.addManualAddress(event.label);
     } catch (e) {
       printV("AddressesBloc addManualAddress failed: $e");
+      _clearSavingState(emit, initial.walletType);
       return;
     }
     await _yieldAndRefreshGroups(emit, initial.walletType);
@@ -149,6 +155,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     await _yieldAndRefreshGroups(emit, initial.walletType);
   }
 
+  void _clearSavingState(Emitter<AddressesState> emit, WalletType expectedWalletType) {
+    if (state case final AddressesLoaded loaded when loaded.walletType == expectedWalletType) {
+      emit(loaded.copyWith(isSaving: false));
+    }
+  }
+
   Future<void> _yieldAndRefreshGroups(
     Emitter<AddressesState> emit,
     WalletType expectedWalletType,
@@ -162,6 +174,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
         loaded.copyWith(
           groups: addressService.computeAddressList(),
           activeAddress: addressService.currentAddress,
+          isSaving: false,
         ),
       );
     }
