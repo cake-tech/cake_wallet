@@ -15,7 +15,3 @@
   useSSL: false
   isOfficial: true
   label: "Cake Wallet (Tor)"
--
-  uri: bvp2l442g5ogma7rywzahm7eqyhpp3g26n3gvvxeioqn5csio2ir6myd.onion:9067
-  useSSL: false
-  label: "Cake Wallet (Tor #2)"
