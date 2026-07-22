@@ -38,7 +38,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     on<LabelSubmitted>(_onLabelSubmitted);
     on<InfoboxDismissed>(_onInfoboxDismissed);
     on<AddressesPageClosed>(_onAddressesPageClosed);
-    on<_WalletChanged>(_onWalletChanged);
+    on<_WalletChanged>(_onWalletChanged, transformer: restartable());
     on<_FiatRateChanged>(_onFiatRateChanged);
     on<_PayjoinEndpointChanged>(_onPayjoinEndpointChanged);
 

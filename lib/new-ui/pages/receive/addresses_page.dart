@@ -14,6 +14,7 @@ import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/debounce.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart";
@@ -97,6 +98,7 @@ class _LoadedWidget extends StatefulWidget {
 
 class _LoadedWidgetState extends State<_LoadedWidget> {
   late final TextEditingController _searchController;
+  final _searchDebounce = Debounce(const Duration(milliseconds: 200));
 
   @override
   void initState() {
@@ -117,10 +119,13 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
   }
 
   void _onSearchChanged() {
-    if (!mounted) {
-      return;
-    }
-    context.read<AddressesBloc>().add(SearchTermEntered(_searchController.text));
+    final term = _searchController.text;
+    _searchDebounce.run(() {
+      if (!mounted) {
+        return;
+      }
+      context.read<AddressesBloc>().add(SearchTermEntered(term));
+    });
   }
 
   @override

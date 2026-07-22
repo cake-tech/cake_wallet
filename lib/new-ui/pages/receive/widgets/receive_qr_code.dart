@@ -3,6 +3,7 @@ import "dart:math";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/receive/widgets/qr_image.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 
 class ReceiveQrCode extends StatelessWidget {
@@ -13,6 +14,7 @@ class ReceiveQrCode extends StatelessWidget {
     required this.largeQrMode,
     required this.isLightMode,
     required this.onTap,
+    this.isFetching = false,
     super.key,
   });
 
@@ -22,6 +24,7 @@ class ReceiveQrCode extends StatelessWidget {
   final bool largeQrMode;
   final bool isLightMode;
   final VoidCallback onTap;
+  final bool isFetching;
 
   static const double largeQrModeBottomPadding = 140;
   static const Duration animDuration = Duration(milliseconds: 500);
@@ -87,10 +90,20 @@ class ReceiveQrCode extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: QrImage(
-                          data: qrData,
-                          size: resolvedSize,
-                          embeddedImagePath: embeddedIconAsset,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AnimatedOpacity(
+                              duration: animDuration,
+                              opacity: isFetching ? 0.35 : 1,
+                              child: QrImage(
+                                data: qrData,
+                                size: resolvedSize,
+                                embeddedImagePath: embeddedIconAsset,
+                              ),
+                            ),
+                            if (isFetching) const CupertinoActivityIndicator(radius: 14),
+                          ],
                         ),
                       ),
                     ),

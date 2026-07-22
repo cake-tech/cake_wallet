@@ -28,7 +28,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     on<AddressDeleted>(_onDeleted);
     on<HiddenModeToggled>(_onHiddenModeToggled);
     on<AddressListRefreshed>(_onListRefreshed);
-    on<_WalletChanged>(_onWalletChanged);
+    on<_WalletChanged>(_onWalletChanged, transformer: restartable());
 
     _walletSub = activeWalletService.walletChanges.listen((_) {
       if (!isClosed) {
@@ -158,10 +158,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
     if (state case final AddressesLoaded loaded when loaded.walletType == expectedWalletType) {
-      emit(loaded.copyWith(
-        groups: addressService.computeAddressList(),
-        activeAddress: addressService.currentAddress,
-      ));
+      emit(
+        loaded.copyWith(
+          groups: addressService.computeAddressList(),
+          activeAddress: addressService.currentAddress,
+        ),
+      );
     }
   }
 

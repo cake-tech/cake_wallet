@@ -216,6 +216,7 @@ class _LoadedWidget extends StatelessWidget {
                 largeQrMode: largeQrMode,
                 isLightMode: !getIt.get<ThemeStore>().currentTheme.isDark,
                 onTap: onQrTap,
+                isFetching: state.fetchingInvoice,
               ),
               if (state.tokenCurrency != null)
                 ReceiveTokenDisplay(
