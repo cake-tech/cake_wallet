@@ -83,6 +83,25 @@ class PayjoinServerListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateServer(PayjoinServer server, String newUrl) {
+    final list = server.type == PayjoinServerType.relay ? relays : directories;
+    final trimmed = newUrl.trim();
+    if (trimmed.isEmpty || server.url == trimmed) return;
+    if (list.any((s) => s.url == trimmed)) return;
+    final index = list.indexOf(server);
+    if (index == -1) return;
+    list[index] = PayjoinServer(
+      url: trimmed,
+      type: server.type,
+      isDefault: false,
+    );
+    if (server.isDefault) {
+      _saveDefaultRemoved(server);
+    }
+    _save();
+    notifyListeners();
+  }
+
   void removeServer(PayjoinServer server) {
     final list = server.type == PayjoinServerType.relay ? relays : directories;
     list.remove(server);
