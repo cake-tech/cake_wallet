@@ -1527,7 +1527,9 @@ abstract class ElectrumWalletBase
           fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
-          outputOrdering: BitcoinOrdering.none,
+          // Shuffle so the change output isn't placed deterministically last
+          // (privacy fingerprint). Change is found by isChange, not position.
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       } else {
