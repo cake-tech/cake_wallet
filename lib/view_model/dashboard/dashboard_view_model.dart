@@ -809,6 +809,10 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
 
   @computed
+  bool get hasPayjoin =>
+      wallet.type == WalletType.bitcoin && wallet.hasPayjoinSupport && DeviceInfo.instance.isMobile;
+
+  @computed
   bool get hasWalletConnect =>
       isWalletConnectCompatibleChain(wallet.type) && !wallet.isHardwareWallet;
 

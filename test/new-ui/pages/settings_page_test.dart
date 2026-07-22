@@ -72,6 +72,7 @@ void main() {
     when(() => dashboardViewModel.hasSilentPayments).thenReturn(false);
     when(() => dashboardViewModel.hasMweb).thenReturn(false);
     when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
+    when(() => dashboardViewModel.hasPayjoin).thenReturn(false);
     when(() => wallet.hasAccountsSupport).thenReturn(false);
     when(() => wallet.hasCoinControl).thenReturn(false);
     when(() => wallet.name).thenReturn("My Cake Wallet");
@@ -160,6 +161,7 @@ void main() {
     when(() => wallet.type).thenReturn(WalletType.bitcoin);
     when(() => wallet.hasCoinControl).thenReturn(true);
     when(() => dashboardViewModel.hasLightning).thenReturn(true);
+    when(() => dashboardViewModel.hasPayjoin).thenReturn(true);
 
     final sections = const WalletSettingsResolver().resolveSections(dashboardViewModel);
     final routes = sections.expand((section) => section).map((item) => item.route);
@@ -167,6 +169,7 @@ void main() {
     expect(routes, contains(Routes.manageNodes));
     expect(routes, contains(Routes.unspentCoinsList));
     expect(routes, contains(Routes.lightningUsernamePage));
+    expect(routes, contains(Routes.payjoinSettings));
     expect(routes, isNot(contains(Routes.walletAccountsPage)));
     expect(routes, isNot(contains(Routes.silentPaymentsSettings)));
   });

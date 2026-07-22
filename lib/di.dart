@@ -130,6 +130,8 @@ import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_logs_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/new-ui/pages/wallet_accounts_page.dart';
@@ -240,6 +242,7 @@ import 'package:cake_wallet/view_model/settings/connection_sync_view_model.dart'
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/payjoin_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_model.dart';
@@ -971,6 +974,9 @@ Future<void> setup({
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory(() =>
+      PayjoinSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
+
   getIt.registerFactory(
       () => MwebSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
@@ -1091,6 +1097,10 @@ Future<void> setup({
       () => SilentPaymentsSettingsPage(getIt.get<SilentPaymentsSettingsViewModel>()));
 
   getIt.registerFactory(() => SilentPaymentsLogPage(getIt.get<SilentPaymentsSettingsViewModel>()));
+
+  getIt.registerFactory(() => PayjoinSettingsPage(getIt.get<PayjoinSettingsViewModel>()));
+
+  getIt.registerFactory(() => PayjoinLogPage(getIt.get<PayjoinSettingsViewModel>()));
 
   getIt.registerFactory(() => MwebSettingsPage(getIt.get<MwebSettingsViewModel>()));
 

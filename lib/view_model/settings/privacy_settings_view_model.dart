@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -20,9 +19,6 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
-
-  @computed
-  bool get isBitcoin => _wallet.type == WalletType.bitcoin;
 
   @computed
   bool get hasSilentPaymentsScanning => _wallet.hasSilentPaymentsScanning;
@@ -102,12 +98,6 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
   @computed
-  bool get usePayjoin => _settingsStore.usePayjoin;
-
-  @computed
-  bool get canUsePayjoin => _wallet.hasPayjoinSupport && DeviceInfo.instance.isMobile;
-
-  @computed
   bool get canUseLightning => _wallet.hasLightningSupport;
 
   @computed
@@ -135,12 +125,6 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;
-
-  @action
-  void setUsePayjoin(bool value) {
-    _settingsStore.usePayjoin = value;
-    bitcoin!.updatePayjoinState(_wallet, value);
-  }
 
   @action
   void setUseLightning(bool value) => bitcoin!.updateUseLightning(_wallet, value);
