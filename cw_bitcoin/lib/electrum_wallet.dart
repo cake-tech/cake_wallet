@@ -18,7 +18,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -27,25 +26,20 @@ import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -57,7 +51,6 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
@@ -1536,7 +1529,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           inputOrdering: BitcoinOrdering.shuffle,
-          outputOrdering: BitcoinOrdering.none,
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       }
@@ -1594,6 +1587,7 @@ abstract class ElectrumWalletBase
         isSendAll: estimatedTx.isSendAll,
         hasTaprootInputs: hasTaprootInputs,
         utxos: estimatedTx.utxos,
+        derivedOutputs: updatedOutputs,
         publicKeys: estimatedTx.publicKeys,
         isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
@@ -1983,8 +1977,12 @@ abstract class ElectrumWalletBase
   @action
   Future<void> addCoinInfo(BitcoinUnspent coin) async {
     // Check if the coin is already in the unspentCoinsInfo for the wallet
-    final existingCoinInfo = unspentCoinsInfo.values
-        .firstWhereOrNull((element) => element.walletId == walletInfo.id && element == coin);
+    final existingCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
+      (element) =>
+          element.walletId == walletInfo.id &&
+          element.hash == coin.hash &&
+          element.vout == coin.vout,
+    );
 
     if (existingCoinInfo == null) {
       final newInfo = UnspentCoinsInfo(
@@ -2297,7 +2295,7 @@ abstract class ElectrumWalletBase
         network: network,
         memo: memo,
         inputOrdering: BitcoinOrdering.shuffle,
-        outputOrdering: BitcoinOrdering.none,
+        outputOrdering: BitcoinOrdering.shuffle,
         enableRBF: true,
       );
 
@@ -3680,7 +3678,6 @@ abstract class ElectrumWalletBase
           syncStatus = ConnectingSyncStatus();
         }
         break;
-      default:
     }
   }
 
