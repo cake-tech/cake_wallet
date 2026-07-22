@@ -1,9 +1,10 @@
 import 'package:cake_wallet/entities/payjoin/payjoin_server.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
+import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart' show NodeSpeed;
 import 'package:cake_wallet/view_model/payjoin/payjoin_server_list_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -130,6 +131,7 @@ class _ManagePayjoinServersBodyState
                 return _PayjoinServerRow(
                   server: server,
                   onDelete: () => vm.removeServer(server),
+                  onEdit: (s) => _showServerDialog(context, editing: s),
                 );
               },
             ),
@@ -139,78 +141,120 @@ class _ManagePayjoinServersBodyState
     );
   }
 
-  void _showAddDialog(BuildContext context) {
-    final urlController = TextEditingController();
-    PayjoinServerType selectedType = PayjoinServerType.relay;
+  void _showAddDialog(BuildContext context) => _showServerDialog(context);
+
+  void _showServerDialog(
+    BuildContext context, {
+    PayjoinServer? editing,
+  }) {
+    final vm = context.read<PayjoinServerListViewModel>();
 
     showDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: Text('Add Server'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: urlController,
-                decoration: InputDecoration(
-                  hintText: 'https://example.com',
-                  labelText: 'Server URL',
-                ),
-                autofocus: true,
+      builder: (_) => _PayjoinServerDialog(
+        editing: editing,
+        viewModel: vm,
+      ),
+    );
+  }
+}
+
+class _PayjoinServerDialog extends StatefulWidget {
+  const _PayjoinServerDialog({
+    required this.viewModel,
+    this.editing,
+  });
+
+  final PayjoinServer? editing;
+  final PayjoinServerListViewModel viewModel;
+
+  @override
+  State<_PayjoinServerDialog> createState() => _PayjoinServerDialogState();
+}
+
+class _PayjoinServerDialogState extends State<_PayjoinServerDialog> {
+  late final TextEditingController _urlController;
+  late PayjoinServerType _selectedType;
+
+  @override
+  void initState() {
+    super.initState();
+    _urlController = TextEditingController(text: widget.editing?.url);
+    _selectedType = widget.editing?.type ?? PayjoinServerType.relay;
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.editing == null ? 'Add Server' : 'Edit Server'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _urlController,
+            decoration: InputDecoration(
+              hintText: 'https://example.com',
+              labelText: 'Server URL',
+            ),
+            autofocus: true,
+          ),
+          SizedBox(height: 16),
+          SegmentedButton<PayjoinServerType>(
+            segments: const [
+              ButtonSegment(
+                value: PayjoinServerType.relay,
+                label: Text('OHTTP Relay'),
               ),
-              SizedBox(height: 16),
-              DropdownButtonFormField<PayjoinServerType>(
-                value: selectedType,
-                decoration: InputDecoration(labelText: 'Type'),
-                items: [
-                  DropdownMenuItem(
-                    value: PayjoinServerType.relay,
-                    child: Text('OHTTP Relay'),
-                  ),
-                  DropdownMenuItem(
-                    value: PayjoinServerType.directory,
-                    child: Text('Payjoin Directory'),
-                  ),
-                ],
-                onChanged: (v) {
-                  if (v != null) {
-                    setDialogState(() => selectedType = v);
-                  }
-                },
+              ButtonSegment(
+                value: PayjoinServerType.directory,
+                label: Text('Payjoin Directory'),
               ),
             ],
+            selected: {_selectedType},
+            onSelectionChanged: (Set<PayjoinServerType> selected) {
+              setState(() => _selectedType = selected.first);
+            },
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                final url = urlController.text.trim();
-                if (url.isNotEmpty) {
-                  final vm = context.read<PayjoinServerListViewModel>();
-                  vm.addServer(url, selectedType);
-                  Navigator.of(ctx).pop();
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
-        ),
+        ],
       ),
-    ).whenComplete(urlController.dispose);
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final url = _urlController.text.trim();
+            if (url.isEmpty) return;
+            if (widget.editing == null) {
+              widget.viewModel.addServer(url, _selectedType);
+            } else {
+              widget.viewModel.updateServer(widget.editing!, url);
+            }
+            Navigator.of(context).pop();
+          },
+          child: Text(widget.editing == null ? 'Add' : 'Save'),
+        ),
+      ],
+    );
   }
 }
 
 class _PayjoinServerRow extends StatelessWidget {
   final PayjoinServer server;
   final VoidCallback onDelete;
+  final void Function(PayjoinServer) onEdit;
 
   const _PayjoinServerRow({
     required this.server,
     required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -218,26 +262,26 @@ class _PayjoinServerRow extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onLongPress: () => _confirmDelete(context),
+        onLongPress: () => _showActions(context),
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
           child: Row(
             spacing: 12,
-            children: [
-              NodeIndicator(isLive: server.isLive),
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2,
+                  spacing: 4,
                   children: [
                     Text(
                       server.label,
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 12),
                     ),
                     Text(
                       server.url,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -245,36 +289,88 @@ class _PayjoinServerRow extends StatelessWidget {
                   ],
                 ),
               ),
-              if (server.isDefault)
-                Padding(
-                  padding: EdgeInsets.only(right: 4),
-                  child: Text(
-                    'Default',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              if (server.isTesting)
-                SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CupertinoActivityIndicator(),
-                ),
-              GestureDetector(
-                onTap: () => _confirmDelete(context),
-                child: Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: Icon(
-                    Icons.remove_circle_outline,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-              ),
+              _buildTrailing(context),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrailing(BuildContext context) {
+    return Row(
+      children: [
+        _buildSpeedBadge(context),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _showActions(context),
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8.0, left: 12.0),
+            child: CakeImageWidget(
+              imageUrl: 'assets/new-ui/3dots_vertical.svg',
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.onSurfaceVariant,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSpeedBadge(BuildContext context) {
+    if (server.isTesting) {
+      return SizedBox(
+        width: 24,
+        height: 24,
+        child: CupertinoActivityIndicator(),
+      );
+    }
+    final speed = server.isLive ? NodeSpeed.fast : NodeSpeed.disconnected;
+    return CakeImageWidget(
+      imageUrl: Theme.of(context).brightness == Brightness.dark
+          ? speed.darkIconPath
+          : speed.iconPath,
+      width: 24,
+      height: 24,
+    );
+  }
+
+  void _showActions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.edit_outlined),
+              title: Text('Edit'),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                onEdit(server);
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.delete_outline,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(
+                'Remove',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                _confirmDelete(context);
+              },
+            ),
+          ],
         ),
       ),
     );
