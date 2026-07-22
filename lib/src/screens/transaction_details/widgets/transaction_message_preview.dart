@@ -1,13 +1,13 @@
-import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/clickable_message_text.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/widgets/clickable_message_text.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:flutter/material.dart";
 
 /// Shows a truncated preview of a transaction message. Tapping it opens a
 /// scrollable dialog with the full message where any URLs are clickable.
 class TransactionMessagePreview extends StatelessWidget {
-  const TransactionMessagePreview({super.key, required this.message});
+  const TransactionMessagePreview({required this.message, super.key});
 
   final String message;
 
@@ -16,7 +16,7 @@ class TransactionMessagePreview extends StatelessWidget {
   bool get _isTruncated => message.characters.length > previewCharLimit;
 
   String get _preview => _isTruncated
-      ? '${message.characters.take(previewCharLimit).toString().trimRight()}…'
+      ? "${message.characters.take(previewCharLimit).toString().trimRight()}…"
       : message;
 
   void _showFullMessage(BuildContext context) {

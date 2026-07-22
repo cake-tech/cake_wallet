@@ -1,16 +1,16 @@
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import "package:flutter/gestures.dart";
+import "package:flutter/material.dart";
+import "package:url_launcher/url_launcher.dart";
 
 /// Renders arbitrary text and turns any http(s) URL it contains into a link
 /// that opens in the external browser. Used to display a payer's free-form
 /// LNURL message where embedded links must be tappable.
 class ClickableMessageText extends StatefulWidget {
   const ClickableMessageText({
-    super.key,
     required this.text,
     required this.textStyle,
     this.linkStyle,
+    super.key,
   });
 
   final String text;
@@ -22,7 +22,7 @@ class ClickableMessageText extends StatefulWidget {
 }
 
 class _ClickableMessageTextState extends State<ClickableMessageText> {
-  static final RegExp _linkRegExp = RegExp(r'(https?:\/\/[^\s]+)');
+  static final RegExp _linkRegExp = RegExp(r"(https?:\/\/[^\s]+)");
   static const String _trailingPunctuation = '.,;:!?)]}"\'';
 
   final List<TapGestureRecognizer> _recognizers = [];
@@ -52,7 +52,9 @@ class _ClickableMessageTextState extends State<ClickableMessageText> {
 
   Future<void> _launch(String url) async {
     final uri = Uri.tryParse(url);
-    if (uri == null) return;
+    if (uri == null) {
+      return;
+    }
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
@@ -68,7 +70,9 @@ class _ClickableMessageTextState extends State<ClickableMessageText> {
 
     for (final match in _linkRegExp.allMatches(text)) {
       if (match.start > previousEnd) {
-        spans.add(TextSpan(text: text.substring(previousEnd, match.start), style: widget.textStyle));
+        spans.add(
+          TextSpan(text: text.substring(previousEnd, match.start), style: widget.textStyle),
+        );
       }
 
       final matched = text.substring(match.start, match.end);
@@ -79,11 +83,9 @@ class _ClickableMessageTextState extends State<ClickableMessageText> {
       final recognizer = TapGestureRecognizer()..onTap = () => _launch(url);
       _recognizers.add(recognizer);
 
-      spans.add(TextSpan(
-        text: url,
-        style: widget.linkStyle ?? widget.textStyle,
-        recognizer: recognizer,
-      ));
+      spans.add(
+        TextSpan(text: url, style: widget.linkStyle ?? widget.textStyle, recognizer: recognizer),
+      );
 
       if (trailing.isNotEmpty) {
         spans.add(TextSpan(text: trailing, style: widget.textStyle));
