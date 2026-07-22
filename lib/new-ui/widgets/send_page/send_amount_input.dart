@@ -1,22 +1,22 @@
-import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/decimal_input_formatter.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/utils/decimal_input_formatter.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class NewSendAmountInput extends StatefulWidget {
-  const NewSendAmountInput(
-      {super.key,
-      required this.currency,
-      required this.maxDecimals,
-      required this.hasPicker,
-      required this.onPickerClicked,
-      required this.currencyIconPath,
-      required this.amountController,
-      this.validator,
-      });
+  const NewSendAmountInput({
+    required this.currency,
+    required this.maxDecimals,
+    required this.hasPicker,
+    required this.onPickerClicked,
+    required this.currencyIconPath,
+    required this.amountController,
+    super.key,
+    this.validator,
+  });
 
   final String currency;
   final String currencyIconPath;
@@ -35,32 +35,34 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
 
   @override
   void initState() {
-    widget.amountController.addListener(()=>formFieldKey.currentState?.didChange(widget.amountController.text));
+    widget.amountController
+        .addListener(() => formFieldKey.currentState?.didChange(widget.amountController.text));
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FormField<String>(
-      key: formFieldKey,
-      initialValue: widget.amountController.text,
-      validator: widget.validator,
-      builder: (state) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
+  Widget build(BuildContext context) => FormField<String>(
+        key: formFieldKey,
+        initialValue: widget.amountController.text,
+        validator: widget.validator,
+        builder: (state) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
               decoration: BoxDecoration(
-                  color: widget.hasPicker
-                      ? Theme.of(context).colorScheme.surfaceContainerHigh
-                      : Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(18)),
+                color: widget.hasPicker
+                    ? Theme.of(context).colorScheme.surfaceContainerHigh
+                    : Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(18),
+              ),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.horizontal(left: Radius.circular(18))),
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(18)),
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
                         spacing: 8,
@@ -71,82 +73,94 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 signed: false,
                                 decimal: widget.maxDecimals > 0,
                               ),
+                              autocorrect: false,
+                              enableSuggestions: false,
                               inputFormatters: <TextInputFormatter>[
                                 DecimalInputFormatter(maxDecimals: widget.maxDecimals),
                               ],
                               controller: widget.amountController,
                               decoration: InputDecoration(
-                                hintText: widget.maxDecimals > 0 ? "0" : "0.00",
+                                hintText: widget.maxDecimals == 0 ? "0" : "0.00",
                                 errorMaxLines: 3,
                               ),
                               onChanged: state.didChange,
                             ),
                           ),
                           FloatingIconButton(
-                              iconPath: "assets/new-ui/paste.svg",
-                              onPressed: () async {
-                                final data = await Clipboard.getData(Clipboard.kTextPlain);
-                                if (data != null && data.text != null) {
-                                  widget.amountController.text = data.text!;
-                                }
-                              }),
+                            iconPath: "assets/new-ui/paste.svg",
+                            onPressed: () async {
+                              final data = await Clipboard.getData(Clipboard.kTextPlain);
+                              if (data != null && data.text != null) {
+                                final text = data.text!;
+                                widget.amountController.value = TextEditingValue(
+                                  text: text,
+                                  selection: TextSelection.collapsed(offset: text.length),
+                                );
+                              }
+                            },
+                          ),
                         ],
                       ),
                     ),
                   ),
                   IntrinsicWidth(
                     child: Observer(
-                      builder: (_) {
-                        return GestureDetector(
-                          onTap: widget.onPickerClicked,
-                          child: Container(
-                              alignment: Alignment.center,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(18),
-                                    bottomRight: Radius.circular(18)),
-                                color: widget.hasPicker
-                                    ? Theme.of(context).colorScheme.surfaceContainerHigh
-                                    : Theme.of(context).colorScheme.surfaceContainer,
-                              ),
-                              child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.max,
-                                    spacing: 8,
-                                    children: [
-                                      if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                        TokenImageWidget(imageUrl: widget.currencyIconPath, size: 24),
-                                      Text(widget.currency),
-                                      if (widget.hasPicker)
-                                        CakeImageWidget(imageUrl:
-                                          "assets/new-ui/chooser.svg",
-                                          width: 12,
-                                          height: 12,
-                                          colorFilter: ColorFilter.mode(
-                                              Theme.of(context).colorScheme.primary,
-                                              BlendMode.srcIn),
-                                        )
-                                    ],
-                                  ))),
-                        );
-                      },
+                      builder: (_) => GestureDetector(
+                        onTap: widget.onPickerClicked,
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(18),
+                              bottomRight: Radius.circular(18),
+                            ),
+                            color: widget.hasPicker
+                                ? Theme.of(context).colorScheme.surfaceContainerHigh
+                                : Theme.of(context).colorScheme.surfaceContainer,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              spacing: 8,
+                              children: [
+                                if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
+                                  TokenImageWidget(
+                                    imageUrl: widget.currencyIconPath,
+                                    size: 24,
+                                  ),
+                                Text(widget.currency),
+                                if (widget.hasPicker)
+                                  CakeImageWidget(
+                                    imageUrl: "assets/new-ui/chooser.svg",
+                                    width: 12,
+                                    height: 12,
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.primary,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
-              )),
-          if (state.hasError)
-            Padding(
-              padding: EdgeInsets.only(top: 6, left: 8),
-              child: Text(
-                state.errorText!,
-                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
               ),
-            )
-        ],
-      ),
-    );
-  }
+            ),
+            if (state.hasError)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, left: 8),
+                child: Text(
+                  state.errorText!,
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+          ],
+        ),
+      );
 }

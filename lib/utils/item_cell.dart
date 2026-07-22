@@ -7,9 +7,7 @@ import 'package:cw_core/keyable.dart';
 // class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 
 class ItemCell<Item> with Keyable {
-  ItemCell(this.value, {
-    required this.isSelectedBuilder,
-    required dynamic key}) {
+  ItemCell(this.value, {required this.isSelectedBuilder, required dynamic key}) {
     keyIndex = key;
   }
 

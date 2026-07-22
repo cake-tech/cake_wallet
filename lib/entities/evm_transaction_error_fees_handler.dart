@@ -54,7 +54,9 @@ class EVMTransactionErrorFeesHandler {
       // Pattern 2: "balance X, queued cost Y, tx cost Z, overshot W" format (most specific)
       ErrorPattern(
         name: 'balance_queued_txcost_overshot',
-        regex: RegExp(r'balance\s+(\d+),\s*queued\s+cost\s+(\d+),\s*tx\s+cost\s+(\d+),\s*overshot\s+(\d+)', caseSensitive: false),
+        regex: RegExp(
+            r'balance\s+(\d+),\s*queued\s+cost\s+(\d+),\s*tx\s+cost\s+(\d+),\s*overshot\s+(\d+)',
+            caseSensitive: false),
         extractor: (match) => {
           'balance': match.group(1)!,
           'txCost': match.group(3)!, // Skip queued cost, use tx cost
@@ -70,7 +72,8 @@ class EVMTransactionErrorFeesHandler {
       // Pattern 3: "balance X, tx cost Y, overshot Z" format
       ErrorPattern(
         name: 'balance_txcost_overshot',
-        regex: RegExp(r'balance\s+(\d+),\s*tx\s+cost\s+(\d+),\s*overshot\s+(\d+)', caseSensitive: false),
+        regex: RegExp(r'balance\s+(\d+),\s*tx\s+cost\s+(\d+),\s*overshot\s+(\d+)',
+            caseSensitive: false),
         extractor: (match) => {
           'balance': match.group(1)!,
           'txCost': match.group(2)!,
@@ -86,7 +89,8 @@ class EVMTransactionErrorFeesHandler {
       // Pattern 4: Individual field matching (legacy fallback)
       ErrorPattern(
         name: 'individual_fields',
-        regex: RegExp(r'balance\s+(\d+).*tx\s+cost\s+(\d+).*overshot\s+(\d+)', caseSensitive: false),
+        regex:
+            RegExp(r'balance\s+(\d+).*tx\s+cost\s+(\d+).*overshot\s+(\d+)', caseSensitive: false),
         extractor: (match) => {
           'balance': match.group(1)!,
           'txCost': match.group(2)!,
@@ -102,7 +106,8 @@ class EVMTransactionErrorFeesHandler {
       // Pattern 5: Generic "insufficient funds for gas * price + value" (least specific - must be last)
       ErrorPattern(
         name: 'generic_insufficient_funds',
-        regex: RegExp(r'insufficient\s+funds\s+for\s+gas\s*\*\s*price\s*\+\s*value', caseSensitive: false),
+        regex: RegExp(r'insufficient\s+funds\s+for\s+gas\s*\*\s*price\s*\+\s*value',
+            caseSensitive: false),
         extractor: (match) => {
           'balance': '0', // We don't have specific values, so use 0
           'txCost': '0',
@@ -142,9 +147,8 @@ class EVMTransactionErrorFeesHandler {
     final txCostWei = BigInt.parse(values['txCostWei']!);
     final overshotWei = BigInt.parse(values['overshotWei']!);
 
-    final isGenericError = balanceWei == BigInt.zero && 
-                          txCostWei == BigInt.zero && 
-                          overshotWei == BigInt.zero;
+    final isGenericError =
+        balanceWei == BigInt.zero && txCostWei == BigInt.zero && overshotWei == BigInt.zero;
 
     if (isGenericError) {
       return genericInsufficientFunds();

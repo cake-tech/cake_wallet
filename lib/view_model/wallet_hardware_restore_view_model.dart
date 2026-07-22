@@ -6,13 +6,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -26,14 +26,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
   int _nextIndex = 0;
 
-  WalletHardwareRestoreViewModelBase(
-      this.hardwareWalletVM,
-      AppStore appStore,
-      WalletCreationService walletCreationService,
-      SeedSettingsViewModel seedSettingsViewModel,
+  WalletHardwareRestoreViewModelBase(this.hardwareWalletVM, AppStore appStore,
+      WalletCreationService walletCreationService, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
-      : super(appStore, walletCreationService, seedSettingsViewModel,
-            type: type, isRecovery: true);
+      : super(appStore, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true);
 
   @observable
   String name = "";
@@ -47,6 +43,8 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @observable
   String? error = null;
 
+  bool get passphraseAvailable => hardwareWalletVM.hardwareWalletType == HardwareWalletType.trezor;
+
   // @observable
   ObservableList<HardwareAccountData> availableAccounts = ObservableList();
 
@@ -54,8 +52,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
       final service = await hardwareWalletVM.getHardwareWalletService(type);
-      final accounts = await service
-          .getAvailableAccounts(index: _nextIndex, limit: limit);
+      final accounts = await service.getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
       _nextIndex += limit;
@@ -74,8 +71,8 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     switch (type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        credentials =
-            bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
+        credentials = bitcoin!
+            .createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -92,6 +89,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           hardwareWalletService: hardwareWalletVM.getHardwareWalletService(type),
           password: password,
           height: _options['height'] as int? ?? 0,
+          passphrase: _options['passphrase'] as String?,
         );
       default:
         throw Exception('Unexpected type: ${type.toString()}');

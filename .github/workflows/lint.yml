@@ -1,0 +1,115 @@
+name: Lint
+
+on: [pull_request]
+
+defaults:
+  run:
+    shell: bash
+jobs:
+#  lint:
+#    runs-on: [Linux, amd64, android]
+#    container:
+#      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+#      env:
+#        STORE_PASS: test@cake_wallet
+#        KEY_PASS: test@cake_wallet
+#        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+#        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+#        ANDROID_AVD_HOME: /root/.android/avd
+#      volumes:
+#        - /opt/cw_cache_android/root/.cache:/root/.cache
+#        - /opt/cw_cache_android/root/.android/avd/:/root/.android/avd
+#        - /opt/cw_cache_android/root/.ccache:/root/.ccache
+#        - /opt/cw_cache_android/root/.pub-cache/:/root/.pub-cache
+#        - /opt/cw_cache_android/root/.gradle/:/root/.gradle
+#        - /opt/cw_cache_android/root/.android/:/root/.android
+#        - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
+#        - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
+#        - /dev/kvm:/dev/kvm
+#        - /var/run/docker.sock:/var/run/docker.sock
+#    strategy:
+#      matrix:
+#        api-level: [ 29 ]
+#
+#    steps:
+#      - name: Fix github actions messing up $HOME...
+#        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: ${{ inputs.ref }}
+#
+#      - name: configure git
+#        run: |
+#          git config --global --add safe.directory '*'
+#          git config --global user.email "ci@cakewallet.com"
+#          git config --global user.name "CakeWallet CI"
+#
+#      - name: Fetch prebuilt Torch
+#        run: |
+#          set -x -e
+#          pushd scripts
+#            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz -O torch_dart.tar.gz
+#            rm -rf torch_dart
+#            mkdir torch_dart
+#            pushd torch_dart
+#              tar -xzf ../torch_dart.tar.gz
+#            popd
+#            rm ./torch_dart.tar.gz
+#          popd
+#
+#      - name: Fetch prebuilt Reown
+#        run: |
+#          set -x -e
+#          pushd scripts
+#            # cleaning
+#            rm -rf reown_flutter
+#            rm -f reown_flutter.tar.gz
+#
+#            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+#            mkdir reown_flutter
+#            pushd reown_flutter
+#              tar -xzf ../reown_flutter.tar.gz
+#            popd
+#            rm ./reown_flutter.tar.gz
+#          popd
+#
+#      - name: Build Bitbox Flutter
+#        run: |
+#          set -x -e
+#          pushd scripts
+#            ./build_bitbox_flutter.sh
+#          popd
+#
+#      - name: Prepare Zcash
+#        run: |
+#          set -x -e
+#          scripts/prepare_zcash.sh
+#
+#      - name: Execute Build and Setup Commands
+#        run: |
+#          pushd scripts/android
+#            source ./app_env.sh cakewallet
+#            export GITHUB_HUH=yeah
+#            ./app_config.sh
+#          popd
+#
+#      - name: Install Flutter dependencies
+#        run: |
+#          flutter pub get
+#
+#      - name: Build generated code
+#        run: |
+#          flutter --version
+#          flutter clean
+#          rm -rf .dart_tool
+#          rm pubspec.lock
+#          flutter pub get
+#          ./model_generator.sh async
+#
+#      - name: Generate localization
+#        run: |
+#          dart run tool/generate_localization.dart
+#
+#      - name: Lint
+#        run: |
+#          ABORT_ON_CHANGE=yeah scripts/lint.sh

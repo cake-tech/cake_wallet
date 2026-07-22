@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/amount/money_double.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/node.dart';
@@ -31,14 +32,29 @@ class TransactionFetchResult {
   });
 }
 
+class TransactionSyncResult {
+  final List<SolanaTransactionModel> transactions;
+  final String? newestSignature;
+
+  TransactionSyncResult({
+    required this.transactions,
+    this.newestSignature,
+  });
+}
+
 class SolanaWalletClient {
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
   static Money minValidAmount = Money.parse("0.00000003", CryptoCurrency.sol);
+
+  static const int _signaturePageSize = 1000;
+
   late final client = ProxyWrapper().getHttpIOClient();
   SolanaRPC? _provider;
+  bool _isStopped = false;
 
   bool connect(Node node) {
     try {
+      _isStopped = false;
       String formattedUrl;
       String protocolUsed = node.isSSL ? "https" : "http";
 
@@ -492,7 +508,8 @@ class SolanaWalletClient {
                 outgoingAmount = diff.toDouble();
                 outgoingMintAddress = mint;
                 final token = await getTokenInfo(mint);
-                outgoingToken = token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
+                outgoingToken =
+                    token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
                 outgoingFrom = walletAddress;
                 // We find the intermediate account
                 if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
@@ -623,8 +640,6 @@ class SolanaWalletClient {
               incomingAmount = diff.toDouble();
               incomingMintAddress = mint;
               final token = await getTokenInfo(mint);
-              printV(token?.symbol);
-              printV(token?.decimals);
               incomingToken = token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
               incomingTo = walletAddress;
               // We find the intermediate account
@@ -654,7 +669,7 @@ class SolanaWalletClient {
         from: outgoingFrom,
         to: outgoingTo,
         id: outgoingId,
-        amount: Money.parse(outgoingAmount.toStringAsFixed(outgoingToken.decimals), outgoingToken),
+        amount: outgoingAmount.toMoney(outgoingToken),
         programId: outgoingMintAddress == null
             ? SystemProgramConst.programId.address
             : SPLTokenProgramConst.tokenProgramId.address,
@@ -672,7 +687,7 @@ class SolanaWalletClient {
         from: incomingFrom,
         to: incomingTo,
         id: incomingId,
-        amount: Money.parse(incomingAmount.toStringAsFixed(incomingToken.decimals), incomingToken),
+        amount: incomingAmount.toMoney(incomingToken),
         programId: incomingMintAddress == null
             ? SystemProgramConst.programId.address
             : SPLTokenProgramConst.tokenProgramId.address,
@@ -869,8 +884,7 @@ class SolanaWalletClient {
       from: sender,
       to: receiver,
       id: signature,
-      amount: Money.parse(amount.toStringAsFixed((splToken ?? CryptoCurrency.sol).decimals),
-          splToken ?? CryptoCurrency.sol),
+      amount: amount.toMoney(splToken ?? CryptoCurrency.sol),
       programId: SPLTokenProgramConst.tokenProgramId.address,
       blockTimeInInt: blockTime?.toInt() ?? 0,
       fee: Money.fromInt(fee, CryptoCurrency.sol),
@@ -949,27 +963,67 @@ class SolanaWalletClient {
     return mints.toList();
   }
 
-  /// Load the Address's transactions into the account
-  Future<List<SolanaTransactionModel>> fetchTransactions(
+  Future<List<Map<String, dynamic>>> _getAllSignaturesSinceLastFetch(
+    SolAddress address,
+    String? until,
+    Commitment? commitment,
+  ) async {
+    final signatures = <Map<String, dynamic>>[];
+    String? before;
+
+    while (true) {
+      final currentPageSignatureResults = await _provider!.request(
+        SolanaRPCGetSignaturesForAddress(
+          account: address,
+          commitment: commitment,
+          until: until,
+          before: before,
+          limit: _signaturePageSize,
+        ),
+      );
+
+      if (currentPageSignatureResults.isEmpty) break;
+
+      signatures.addAll(currentPageSignatureResults);
+
+      if (currentPageSignatureResults.length < _signaturePageSize) break;
+
+      if (until == null) break;
+
+      final lastSignatureOnPage = currentPageSignatureResults.last['signature'] as String;
+
+      if (lastSignatureOnPage == before) break;
+
+      before = lastSignatureOnPage;
+    }
+
+    return signatures;
+  }
+
+  Future<TransactionSyncResult> fetchTransactions(
     SolAddress address, {
     SPLToken? splToken,
     Commitment? commitment,
     SolAddress? walletAddress,
+    String? untilSignature,
     required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
-    List<SolanaTransactionModel> transactions = [];
+    final transactions = <SolanaTransactionModel>[];
+
     try {
-      final signatures = await _provider!.request(
-        SolanaRPCGetSignaturesForAddress(
-          account: address,
-          commitment: commitment,
-        ),
-      );
+      final signatures =
+          await _getAllSignaturesSinceLastFetch(address, untilSignature, commitment);
+
+      if (signatures.isEmpty) return TransactionSyncResult(transactions: transactions);
 
       // The maximum concurrent batch size.
       const int batchSize = 10;
 
+      bool hasFailures = false;
+
       for (int i = 0; i < signatures.length; i += batchSize) {
+        if (_isStopped) return TransactionSyncResult(transactions: transactions);
+
         final batch = signatures.skip(i).take(batchSize).toList();
 
         final batchResponses = await Future.wait(batch.map((signature) async {
@@ -983,6 +1037,7 @@ class SolanaWalletClient {
               ),
             );
           } catch (e) {
+            hasFailures = true;
             return null;
           }
         }));
@@ -997,16 +1052,16 @@ class SolanaWalletClient {
 
         final parsedTransactionsLists = await Future.wait(parsedTransactionsFutures);
 
-        // We flatten the list of lists into a single list
+        final batchTransactions = <SolanaTransactionModel>[];
         for (final parsedList in parsedTransactionsLists) {
           if (parsedList != null) {
-            transactions.addAll(parsedList);
+            batchTransactions.addAll(parsedList);
           }
         }
 
-        // Only update UI if we have new valid transactions
-        if (transactions.isNotEmpty) {
-          onUpdate(List<SolanaTransactionModel>.from(transactions));
+        if (batchTransactions.isNotEmpty) {
+          transactions.addAll(batchTransactions);
+          onUpdate(batchTransactions);
         }
 
         if (i + batchSize < signatures.length) {
@@ -1014,38 +1069,53 @@ class SolanaWalletClient {
         }
       }
 
-      return transactions;
+      return TransactionSyncResult(
+        transactions: transactions,
+        newestSignature: hasFailures ? null : signatures.first['signature'] as String,
+      );
     } catch (err, s) {
       printV('Error fetching transactions: $err \n$s');
-      return [];
+      return TransactionSyncResult(transactions: transactions);
     }
   }
 
-  Future<List<SolanaTransactionModel>> getSPLTokenTransfers({
+  final Map<String, ProgramDerivedAddress> associatedTokenAccountCache = {};
+
+  Future<TransactionSyncResult> getSPLTokenTransfers({
     required String mintAddress,
     required SPLToken splToken,
     required SolanaPrivateKey privateKey,
+    String? untilSignature,
     required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
-    ProgramDerivedAddress? associatedTokenAccount;
     final ownerWalletAddress = privateKey.publicKey().toAddress();
-    try {
-      associatedTokenAccount = await _getOrCreateAssociatedTokenAccount(
-        payerPrivateKey: privateKey,
-        mintAddress: SolAddress(mintAddress),
-        ownerAddress: ownerWalletAddress,
-        shouldCreateATA: false,
-      );
-    } catch (e, s) {
-      printV('$e \n $s');
-    }
 
-    if (associatedTokenAccount == null) return [];
+    var associatedTokenAccount = associatedTokenAccountCache[mintAddress];
+
+    if (associatedTokenAccount == null) {
+      try {
+        associatedTokenAccount = await _getOrCreateAssociatedTokenAccount(
+          payerPrivateKey: privateKey,
+          mintAddress: SolAddress(mintAddress),
+          ownerAddress: ownerWalletAddress,
+          shouldCreateATA: false,
+        );
+      } catch (e, s) {
+        printV('$e \n $s');
+      }
+
+      if (associatedTokenAccount == null) {
+        return TransactionSyncResult(transactions: <SolanaTransactionModel>[]);
+      }
+
+      associatedTokenAccountCache[mintAddress] = associatedTokenAccount;
+    }
 
     return fetchTransactions(
       associatedTokenAccount.address,
       splToken: splToken,
       walletAddress: ownerWalletAddress,
+      untilSignature: untilSignature,
       onUpdate: onUpdate,
     );
   }
@@ -1053,16 +1123,9 @@ class SolanaWalletClient {
   final Map<String, SPLToken?> tokenInfoCache = {};
 
   Future<SPLToken?> getTokenInfo(String mintAddress) async {
-    if (tokenInfoCache.containsKey(mintAddress)) {
-      printV("Cached");
-      return tokenInfoCache[mintAddress];
-    } else {
-      final token = await fetchSPLTokenInfo(mintAddress);
-      if (token != null) {
-        tokenInfoCache[mintAddress] = token;
-      }
-      return token;
-    }
+    if (tokenInfoCache.containsKey(mintAddress)) return tokenInfoCache[mintAddress];
+
+    return tokenInfoCache[mintAddress] = await fetchSPLTokenInfo(mintAddress);
   }
 
   Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
@@ -1137,7 +1200,7 @@ class SolanaWalletClient {
     }
   }
 
-  void stop() {}
+  void stop() => _isStopped = true;
 
   SolanaRPC? get getSolanaProvider => _provider;
 
@@ -1745,10 +1808,8 @@ class SolanaWalletClient {
     return transaction.serializeString();
   }
 
-  Future<String> sendTransaction({
-    required String serializedTransaction,
-    required Commitment commitment
-  }) =>
+  Future<String> sendTransaction(
+          {required String serializedTransaction, required Commitment commitment}) =>
       _provider!.request(
         SolanaRPCSendTransaction(
           encodedTransaction: serializedTransaction,

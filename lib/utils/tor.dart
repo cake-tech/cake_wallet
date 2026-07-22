@@ -59,13 +59,13 @@ Future<BuildContext> showFullscreenDialog(BuildContext context) async {
       builder: (context) {
         dialogContext = context;
         return PopScope(
-        canPop: false,
-        child: Container(
-          color: Colors.transparent,
-          child: Center(
-            child: CircularProgressIndicator(
-              color: Colors.white,
-            ),
+          canPop: false,
+          child: Container(
+            color: Colors.transparent,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
             ),
           ),
         );

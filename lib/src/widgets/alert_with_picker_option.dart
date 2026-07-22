@@ -48,7 +48,6 @@ class AlertWithPickerOption extends BaseAlertDialog {
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                 
                 color: Theme.of(context).colorScheme.onSurface,
                 decoration: TextDecoration.none,
               ),

@@ -20,9 +20,9 @@ class WellKnownRecord {
   static const _jsonLocation = {CryptoCurrency.nano: 'nano-currency'};
 
   static Future<WellKnownRecord?> fetch(
-      String username,
-      CryptoCurrency currency,
-      ) async {
+    String username,
+    CryptoCurrency currency,
+  ) async {
     final location = _jsonLocation[currency];
     if (location == null) {
       printV('well-known: unsupported coin $currency');

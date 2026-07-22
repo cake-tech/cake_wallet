@@ -99,7 +99,7 @@ class WalletRestorePage extends BasePage {
                   children: [
                     Observer(
                       builder: (context) {
-                        return walletRestoreViewModel.mode == WalletRestoreMode.seed
+                        return walletRestoreViewModel.passphraseAvailable
                             ? StandardCheckbox(
                                 captionColor: Theme.of(context).colorScheme.onSecondaryContainer,
                                 value: walletRestoreViewModel.hasPassphrase,
@@ -298,8 +298,7 @@ class WalletRestorePage extends BasePage {
         "m/49'/0'/0'",
       };
 
-      final shouldSkipChooseDerivationScreen =
-          derivationPathsWithHistory.isNotEmpty &&
+      final shouldSkipChooseDerivationScreen = derivationPathsWithHistory.isNotEmpty &&
           derivationPathsWithHistory.every(scanDerivationPaths.contains);
 
       if (derivationsWithHistory > 1 && !shouldSkipChooseDerivationScreen) {
@@ -537,7 +536,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
       },
       onViewKeyEntered: (bool entered) {
         if (widget.walletRestoreViewModel.onlyViewKeyRestore ||
-        walletRestoreViewModel.type == WalletType.litecoin) {
+            walletRestoreViewModel.type == WalletType.litecoin) {
           walletRestoreViewModel.isButtonEnabled = entered;
         }
       },

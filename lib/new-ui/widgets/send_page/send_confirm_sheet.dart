@@ -27,7 +27,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class SendConfirmSheet extends StatefulWidget {
-  const SendConfirmSheet({super.key, required this.sendViewModel, this.isPage = false, this.title, this.iconPath});
+  const SendConfirmSheet(
+      {super.key, required this.sendViewModel, this.isPage = false, this.title, this.iconPath});
 
   final SendViewModel sendViewModel;
   final bool isPage;
@@ -43,8 +44,8 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
 
   void initState() {
     super.initState();
-    reaction((_)=>widget.sendViewModel.state, (state){
-      if(state is TransactionCommitted) {
+    reaction((_) => widget.sendViewModel.state, (state) {
+      if (state is TransactionCommitted) {
         setState(() {
           _committed = true;
         });
@@ -62,57 +63,55 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
         }
       },
       child: SafeArea(
-        bottom:false,
+        bottom: false,
         minimum: widget.isPage ? EdgeInsets.zero : EdgeInsets.only(top: 64),
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
-          child: SafeArea(
-            child:                             Observer(
-              builder: (_) {
-                return AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  alignment: Alignment.topCenter,
-                  clipBehavior: Clip.hardEdge,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Align(
-                        alignment: Alignment.topCenter,
-                        heightFactor: _committed ? 0.0 : 1.0,
-                        child: AnimatedSlide(
-                          offset: _committed ? const Offset(-1, 0) : Offset.zero,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                          child: SendTransactionDetails(
-                            sendViewModel: widget.sendViewModel,
-                            isPage: widget.isPage,
-                            title: widget.title,
-                            iconPath: widget.iconPath,
-                          ),
+          child: SafeArea(child: Observer(
+            builder: (_) {
+              return AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.topCenter,
+                clipBehavior: Clip.hardEdge,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      heightFactor: _committed ? 0.0 : 1.0,
+                      child: AnimatedSlide(
+                        offset: _committed ? const Offset(-1, 0) : Offset.zero,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        child: SendTransactionDetails(
+                          sendViewModel: widget.sendViewModel,
+                          isPage: widget.isPage,
+                          title: widget.title,
+                          iconPath: widget.iconPath,
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topCenter,
-                        heightFactor: _committed ? 1.0 : 0.0,
-                        child: AnimatedSlide(
-                          offset: _committed ? Offset.zero : const Offset(1, 0),
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                          child: TransactionCommitedScreen(
-                            sendViewModel: widget.sendViewModel,
-                          ),
+                    ),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      heightFactor: _committed ? 1.0 : 0.0,
+                      child: AnimatedSlide(
+                        offset: _committed ? Offset.zero : const Offset(1, 0),
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        child: TransactionCommitedScreen(
+                          sendViewModel: widget.sendViewModel,
                         ),
                       ),
-                    ],
-                  ),
-                );
-              },
-            )
-          ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          )),
         ),
       ),
     );
@@ -120,13 +119,13 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
 }
 
 class SendTransactionDetails extends StatelessWidget {
-  const SendTransactionDetails({super.key, required this.sendViewModel, required this.isPage, this.title, this.iconPath});
+  const SendTransactionDetails(
+      {super.key, required this.sendViewModel, required this.isPage, this.title, this.iconPath});
 
   final SendViewModel sendViewModel;
   final bool isPage;
   final String? title;
   final String? iconPath;
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,8 +143,8 @@ class SendTransactionDetails extends StatelessWidget {
                   spacing: 8,
                   children: [
                     if (resolvedIconPath.toLowerCase().endsWith(".svg"))
-                      CakeImageWidget(imageUrl:
-                        resolvedIconPath,
+                      CakeImageWidget(
+                        imageUrl: resolvedIconPath,
                         width: 28,
                         height: 28,
                       )
@@ -164,7 +163,9 @@ class SendTransactionDetails extends StatelessWidget {
                 trailingIcon: Icon(Icons.close),
                 onTrailingPressed: Navigator.of(context).maybePop,
               ),
-              isPage ? Expanded(child: _buildMainContent(context)) : Flexible(child: _buildMainContent(context))
+              isPage
+                  ? Expanded(child: _buildMainContent(context))
+                  : Flexible(child: _buildMainContent(context))
             ]);
       },
     );
@@ -176,8 +177,7 @@ class SendTransactionDetails extends StatelessWidget {
   Money sumByMoney<T>(List<T> list, Money Function(T) picker, CryptoCurrency currency) =>
       list.map(picker).fold(Money.zero(currency), (a, b) => a + b);
 
-  String sumStr<T>(List<T> list, double Function(T) picker) =>
-      sumBy(list, picker).toString();
+  String sumStr<T>(List<T> list, double Function(T) picker) => sumBy(list, picker).toString();
 
   String sumWithUnit<T>(List<T> list, double Function(T) picker, String unit, {int? decimals}) {
     final str = sumStr(list, picker);
@@ -227,14 +227,17 @@ class SendTransactionDetails extends StatelessWidget {
               decimals: 2)
           : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
-    final showAddress = !sendViewModel.outputs.any((e) =>
-        RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
-        RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
-        (e.isParsedAddress &&
-            e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency] != null &&
-            e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!.isNotEmpty &&
-            RegExp(AddressValidator.lnurlMatcher)
-                .hasMatch(e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!.toLowerCase())));
+      final showAddress = !sendViewModel.outputs.any((e) =>
+          RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
+          RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
+          (e.isParsedAddress &&
+              e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency] !=
+                  null &&
+              e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!
+                  .isNotEmpty &&
+              RegExp(AddressValidator.lnurlMatcher).hasMatch(e
+                  .parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!
+                  .toLowerCase())));
 
       final outputs = sendViewModel.outputs;
 
@@ -426,7 +429,7 @@ class SendTransactionDetails extends StatelessWidget {
   String formatAmount(String amount) {
     try {
       return amount.withMaxDecimals(8);
-    } catch(e) {
+    } catch (e) {
       return amount;
     }
   }
@@ -452,7 +455,9 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          SizedBox(height: 12,),
+          SizedBox(
+            height: 12,
+          ),
           Text(
             S.of(context).transaction_sent_new,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
@@ -508,7 +513,8 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                               showModalBottomSheet(
                                   isScrollControlled: true,
                                   context: context,
-                                  builder: (context) => page);
+                                  builder: (context) =>
+                                      FractionallySizedBox(heightFactor: 0.9, child: page));
                             }),
                     ],
                   ),
@@ -517,7 +523,9 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                     text: S.of(context).done,
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary),
-                SizedBox(height: 12,)
+                SizedBox(
+                  height: 12,
+                )
               ],
             ),
           ),

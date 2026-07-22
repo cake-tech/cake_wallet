@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:collection/collection.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -14,10 +13,13 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/solana_mnemonics.dart';
 import 'package:cw_solana/solana_wallet.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
-    SolanaRestoreWalletFromSeedCredentials, SolanaRestoreWalletFromPrivateKey, SolanaNewWalletCredentials> {
+class SolanaWalletService extends WalletService<
+    SolanaNewWalletCredentials,
+    SolanaRestoreWalletFromSeedCredentials,
+    SolanaRestoreWalletFromPrivateKey,
+    SolanaNewWalletCredentials> {
   SolanaWalletService(this.isDirect);
 
   final bool isDirect;
@@ -95,6 +97,11 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       throw Exception('Wallet not found');
     }
     await WalletInfo.delete(walletInfo);
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in prefs.getKeys().where(
+            (k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
+      await prefs.remove(key);
+    }
   }
 
   @override
@@ -139,30 +146,8 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet = await SolanaWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
-  }
-
-  @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+      restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

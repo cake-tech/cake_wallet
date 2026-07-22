@@ -26,8 +26,8 @@ class WalletConnectTile extends StatelessWidget {
               child: Text(
                 S.current.walletConnect,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
               ),
             ),
             Image.asset(

@@ -3,7 +3,8 @@ import 'package:mobx/mobx.dart';
 
 part 'send_network_requests_view_model.g.dart';
 
-class SendNetworkRequestsViewModel = SendNetworkRequestsViewModelBase with _$SendNetworkRequestsViewModel;
+class SendNetworkRequestsViewModel = SendNetworkRequestsViewModelBase
+    with _$SendNetworkRequestsViewModel;
 
 abstract class SendNetworkRequestsViewModelBase with Store {
   @observable
@@ -13,4 +14,4 @@ abstract class SendNetworkRequestsViewModelBase with Store {
   Future<void> loadLogs() async {
     logs = MemoryProxyLogger.logs;
   }
-} 
+}

@@ -64,7 +64,9 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
   @override
   Widget build(BuildContext context) {
-    final currency = widget.isSelectingReceiver ? widget.exchangeViewModel.receiveCurrency : widget.exchangeViewModel.depositCurrency;
+    final currency = widget.isSelectingReceiver
+        ? widget.exchangeViewModel.receiveCurrency
+        : widget.exchangeViewModel.depositCurrency;
 
     if (!_itemsLoaded) return SizedBox.shrink();
     return Container(
@@ -76,7 +78,9 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ModalTopBar(
-                title: widget.isSelectingReceiver ? "${S.of(context).receive_to}..." : "${S.of(context).send_from}...",
+                title: widget.isSelectingReceiver
+                    ? "${S.of(context).receive_to}..."
+                    : "${S.of(context).send_from}...",
                 leadingIcon: Icon(Icons.close),
                 onLeadingPressed: Navigator.of(context).pop,
               ),
@@ -90,46 +94,47 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ))
                       : ListView.builder(
-                    padding: EdgeInsets.only(bottom: 12),
-                    shrinkWrap: true,
+                          padding: EdgeInsets.only(bottom: 12),
+                          shrinkWrap: true,
                           controller: ModalScrollController.of(context),
                           itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final item = items[index];
+                          itemBuilder: (context, index) {
+                            final item = items[index];
 
-                      late final bool selected;
-                      if (widget.isSelectingReceiver) {
-                        selected = widget.exchangeViewModel.receiveAddress == item.address;
-                      } else {
-                        selected = widget.exchangeViewModel.wallet.name == item.name &&
-                            !widget.exchangeViewModel.isSendFromExternal;
-                      }
+                            late final bool selected;
+                            if (widget.isSelectingReceiver) {
+                              selected = widget.exchangeViewModel.receiveAddress == item.address;
+                            } else {
+                              selected = widget.exchangeViewModel.wallet.name == item.name &&
+                                  !widget.exchangeViewModel.isSendFromExternal;
+                            }
 
-                      final String currencyIconPath = getCryptoCurrencyIconForWalletListItem(item.type);
+                            final String currencyIconPath =
+                                getCryptoCurrencyIconForWalletListItem(item.type);
 
                             final bool hasAccounts =
                                 item.type == WalletType.monero && widget.isSelectingReceiver;
 
                             List<WalletInfoAddressInfo>? accounts =
-                          hasAccounts ? this.accounts[item.id] : null;
+                                hasAccounts ? this.accounts[item.id] : null;
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: SwapAddressSelectionModalRow(
-                          wallet: item,
-                          iconPath: currencyIconPath,
-                          isSelected: selected,
-                          accounts: accounts,
-                          onAddressChosen: (address, accountName) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6.0),
+                              child: SwapAddressSelectionModalRow(
+                                wallet: item,
+                                iconPath: currencyIconPath,
+                                isSelected: selected,
+                                accounts: accounts,
+                                onAddressChosen: (address, accountName) {
                                   Navigator.of(context).pop(SwapAddressSelectionResult(
                                       address: address,
                                       walletInfo: item,
                                       accountName: accountName));
                                 },
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ),
               Container(
@@ -137,7 +142,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0,vertical: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18),
                 child: !widget.isSelectingReceiver
                     ? GestureDetector(
                         behavior: HitTestBehavior.opaque,
@@ -153,7 +158,8 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 10,
                             children: [
-                              CakeImageWidget(imageUrl:"assets/new-ui/send_from_external.svg",
+                              CakeImageWidget(
+                                  imageUrl: "assets/new-ui/send_from_external.svg",
                                   colorFilter: ColorFilter.mode(
                                       Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
                               Text(S.of(context).send_from_external,
@@ -169,9 +175,11 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                         children: [
                           Flexible(
                             child: NewSendAddressInput(
-                                addressController: addressController,
-                                selectedCurrency: widget.exchangeViewModel.receiveCurrency,
-                                onEditingComplete: () {}, bottomPadding: true,),
+                              addressController: addressController,
+                              selectedCurrency: widget.exchangeViewModel.receiveCurrency,
+                              onEditingComplete: () {},
+                              bottomPadding: true,
+                            ),
                           ),
                           AnimatedScale(
                             alignment: Alignment.centerLeft,
@@ -183,7 +191,8 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                                 SizedBox(width: textEntered ? 8 : 0),
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.of(context).pop(SwapAddressSelectionResult(address:addressController.text));
+                                    Navigator.of(context).pop(SwapAddressSelectionResult(
+                                        address: addressController.text));
                                   },
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
@@ -272,8 +281,8 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                             duration: Duration(milliseconds: 200),
                             curve: Curves.easeOutCubic,
                             turns: _isExpanded ? 0 : 0.5,
-                            child:CakeImageWidget(imageUrl:
-                              "assets/new-ui/dropdown_arrow.svg",
+                            child: CakeImageWidget(
+                              imageUrl: "assets/new-ui/dropdown_arrow.svg",
                               colorFilter: ColorFilter.mode(
                                   Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
                             ))
@@ -316,8 +325,8 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                                 child: Row(
                                   spacing: 12,
                                   children: [
-                                    CakeImageWidget(imageUrl:
-                                      "assets/new-ui/account.svg",
+                                    CakeImageWidget(
+                                      imageUrl: "assets/new-ui/account.svg",
                                       colorFilter: ColorFilter.mode(
                                           Theme.of(context).colorScheme.onSurfaceVariant,
                                           BlendMode.srcIn),

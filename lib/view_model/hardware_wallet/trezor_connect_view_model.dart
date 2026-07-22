@@ -84,6 +84,10 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   @override
   @observable
+  bool isConnecting = false;
+
+  @override
+  @observable
   bool isBleEnabled = false;
 
   @override
@@ -112,7 +116,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (!Platform.isIOS) await trezorUSB.stopScanning();
   }
 
-  bool _isConnecting = false;
   sdk.TrezorClient? _client;
 
   Completer<String?>? _pinCompleter;
@@ -123,11 +126,12 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   void setParingPin(String pin) => _pinCompleter?.complete(pin);
 
   @override
+  @action
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type,
       [bool isRetry = false]) async {
     if (!(device is TrezorHardwareWalletDevice)) return false;
-    if (_isConnecting) return false;
-    _isConnecting = true;
+    if (isConnecting) return false;
+    isConnecting = true;
     paringState = TrezorParingState.initial;
 
     try {
@@ -142,12 +146,10 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
           isDismissible: false,
           enableDrag: false,
           useSafeArea: true,
-          builder: (context) =>
-              HardwareWalletProceedOnDeviceSheet(
-                hardwareWalletType: hardwareWalletType,
-                trezorConnectVM: this,
-                onRetry: () => connectDevice(device, type, true)
-              ),
+          builder: (context) => HardwareWalletProceedOnDeviceSheet(
+              hardwareWalletType: hardwareWalletType,
+              trezorConnectVM: this,
+              onRetry: () => connectDevice(device, type, true)),
         );
       }
 
@@ -184,7 +186,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       printV(e);
       return false;
     } finally {
-      _isConnecting = false;
+      isConnecting = false;
     }
   }
 
@@ -234,7 +236,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   }
 }
 
-
 abstract class TrezorParingState {
   static TrezorParingState initial = InitialTrezorParingState();
   static TrezorParingState enterPin = EnterPinTrezorParingState();
@@ -243,11 +244,11 @@ abstract class TrezorParingState {
   static TrezorParingState fail(String message) => FailTrezorParingState(message);
 }
 
-class InitialTrezorParingState  extends TrezorParingState {}
+class InitialTrezorParingState extends TrezorParingState {}
 
-class EnterPinTrezorParingState  extends TrezorParingState {}
+class EnterPinTrezorParingState extends TrezorParingState {}
 
-class VerifyingPinTrezorParingState  extends TrezorParingState {}
+class VerifyingPinTrezorParingState extends TrezorParingState {}
 
 class SuccessTrezorParingState extends TrezorParingState {}
 

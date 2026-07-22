@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -258,7 +257,7 @@ abstract class TronWalletBase
     nativeTxEstimatedFee = Money.fromInt(nativeFee, currency);
 
     final trc20Fee = await _getTrc20TxFee();
-    trc20EstimatedFee =  Money.fromInt(trc20Fee, currency);
+    trc20EstimatedFee = Money.fromInt(trc20Fee, currency);
 
     log('Native Estimated Fee: $nativeTxEstimatedFee');
     log('TRC20 Estimated Fee: $trc20EstimatedFee');
@@ -326,8 +325,8 @@ abstract class TronWalletBase
     var totalAmount = Money.zero(transactionCurrency);
     var shouldSendAll = false;
     if (hasMultiDestination) {
-        // Tron does not have multi Destination right now
-        throw TronTransactionCreationException(transactionCurrency);
+      // Tron does not have multi Destination right now
+      throw TronTransactionCreationException(transactionCurrency);
     } else {
       final output = outputs.first;
 
@@ -402,11 +401,13 @@ abstract class TronWalletBase
             '';
 
         final decimals = (await _client.getTokenDetail(
-          contract,
-          "decimals",
-          ownerAddress,
-          tokenAddress,
-        ) as BigInt?)?.toInt() ?? txCurrency.decimals;
+              contract,
+              "decimals",
+              ownerAddress,
+              tokenAddress,
+            ) as BigInt?)
+                ?.toInt() ??
+            txCurrency.decimals;
 
         txCurrency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
       }
@@ -578,11 +579,8 @@ abstract class TronWalletBase
     await tronTokensBox.put(newToken.contractAddress, newToken);
 
     if (newToken.enabled) {
-      balance[newToken] = await _client.fetchTronTokenBalances(
-        _tronAddress,
-        newToken.contractAddress,
-        currency: token
-      );
+      balance[newToken] = await _client
+          .fetchTronTokenBalances(_tronAddress, newToken.contractAddress, currency: token);
     } else {
       balance.remove(newToken);
     }
@@ -606,30 +604,6 @@ abstract class TronWalletBase
 
   Future<TronToken?> getTronToken(String contractAddress) async =>
       await _client.getTronToken(contractAddress, _tronAddress);
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    const transactionHistoryFileNameForWallet = 'tron_transactions.json';
-
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
 
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {

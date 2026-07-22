@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
@@ -562,8 +561,7 @@ abstract class EVMChainWalletBase
     'distribution',
   ];
 
-  static final _suspiciousWordPattern =
-      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
+  static final _suspiciousWordPattern = RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
 
   static const _knownNonEvmNativeSymbols = {
     'ICP',
@@ -631,8 +629,7 @@ abstract class EVMChainWalletBase
     final prefs = await sharedPrefs.future;
     if (prefs.getBool(_scamCheckDoneKey) == true) return;
 
-    final whitelistLower =
-        getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
+    final whitelistLower = getDefaultTokenContractAddresses.map((a) => a.toLowerCase()).toSet();
     final defaultSymbolsUpper =
         EVMChainDefaultTokens.getDefaultTokenSymbols(selectedChainId).toSet();
 
@@ -1317,23 +1314,18 @@ abstract class EVMChainWalletBase
       } else if (newTxInfo.direction == TransactionDirection.incoming &&
           existingTxInfo.direction == TransactionDirection.outgoing) {
         result[transactionModel.hash] = newTxInfo;
-      } 
-      
-      else if (newTxInfo.direction == TransactionDirection.outgoing &&
+      } else if (newTxInfo.direction == TransactionDirection.outgoing &&
           existingTxInfo.direction == TransactionDirection.outgoing &&
           _hasEvmTokenContractAddress(newTxInfo) &&
           !_hasEvmTokenContractAddress(existingTxInfo)) {
         result[transactionModel.hash] = newTxInfo;
-      }
-
-      else if (existingTxInfo.isPending) {
+      } else if (existingTxInfo.isPending) {
         result[transactionModel.hash] = newTxInfo;
       }
     }
 
     return result;
   }
-
 
   bool _hasEvmTokenContractAddress(EVMChainTransactionInfo info) {
     final c = info.contractAddress;
@@ -1701,30 +1693,6 @@ abstract class EVMChainWalletBase
       encryptionFileUtils: encryptionFileUtils,
       initialChainId: initialChainIdForWallet,
     );
-  }
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final transactionHistoryFileNameForWallet = getTransactionHistoryFileName();
-
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
   }
 
   void _setTransactionUpdateTimer() {

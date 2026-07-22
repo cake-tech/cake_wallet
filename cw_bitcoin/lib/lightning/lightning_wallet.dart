@@ -90,8 +90,7 @@ class LightningWallet {
           lnurlDomain: lnurlDomain,
           apiKey: apiKey,
           privateEnabledDefault: true,
-          maxDepositClaimFee: MaxFee.rate(satPerVbyte: BigInt.from(5))
-      );
+          maxDepositClaimFee: MaxFee.rate(satPerVbyte: BigInt.from(5)));
 
       final connectRequest = ConnectRequest(
         config: config,
@@ -105,8 +104,7 @@ class LightningWallet {
       _logStream ??= initLogging().asBroadcastStream();
 
       try {
-        final logFile = File("$appPath/lightning.log")
-          ..createSync();
+        final logFile = File("$appPath/lightning.log")..createSync();
         _subscribeToLogStream(logFile);
       } catch (e) {
         printV(e);
@@ -198,15 +196,17 @@ class LightningWallet {
     }
   }
 
-  Future<PendingLightningTransaction> createTransaction(
-      String address, BigInt? amountSats, BitcoinTransactionPriority? priority, bool feesIncluded) async {
+  Future<PendingLightningTransaction> createTransaction(String address, BigInt? amountSats,
+      BitcoinTransactionPriority? priority, bool feesIncluded) async {
     final inputType = await sdk.parse(input: address);
 
     final feePolicy = feesIncluded ? FeePolicy.feesIncluded : FeePolicy.feesExcluded;
 
     if (inputType is InputType_Bolt11Invoice) {
       final request = PrepareSendPaymentRequest(
-          paymentRequest: inputType.field0.invoice.bolt11, amount: amountSats, feePolicy: feePolicy);
+          paymentRequest: inputType.field0.invoice.bolt11,
+          amount: amountSats,
+          feePolicy: feePolicy);
       final prepareResponse = await sdk.prepareSendPayment(request: request);
 
       final paymentMethod = prepareResponse.paymentMethod;
@@ -392,14 +392,16 @@ class LightningWallet {
     return _getElectrumTransactionInfoFromPayment(response.payment);
   }
 
-  Future<String> refundDeposit(String txId, int vout, String destinationAddress,
-      BigInt feeRate) async {
-    final response = await sdk.refundDeposit(request: RefundDepositRequest(
-      txid: txId,
-      vout: vout,
-      destinationAddress: destinationAddress,
-      fee: Fee.rate(satPerVbyte: feeRate),
-    ),);
+  Future<String> refundDeposit(
+      String txId, int vout, String destinationAddress, BigInt feeRate) async {
+    final response = await sdk.refundDeposit(
+      request: RefundDepositRequest(
+        txid: txId,
+        vout: vout,
+        destinationAddress: destinationAddress,
+        fee: Fee.rate(satPerVbyte: feeRate),
+      ),
+    );
 
     return response.txHex;
   }

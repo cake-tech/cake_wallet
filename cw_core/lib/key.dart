@@ -16,7 +16,8 @@ List<String> extractKeys(String key) {
   return [_key, iv];
 }
 
-Future<String> encode({required encrypt.Key key, required encrypt.IV iv, required String data}) async {
+Future<String> encode(
+    {required encrypt.Key key, required encrypt.IV iv, required String data}) async {
   final encrypter = encrypt.Encrypter(encrypt.Salsa20(key));
   final encrypted = encrypter.encrypt(data, iv: iv);
 

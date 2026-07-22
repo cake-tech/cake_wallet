@@ -70,6 +70,23 @@ abstract class TradeFilterStoreBase with Store {
   bool displayNearIntents;
 
   @computed
+  int get enabledProvidersCount => [
+        displayChangeNow,
+        displaySideShift,
+        displaySimpleSwap,
+        displayTrocador,
+        displayExolix,
+        displayChainflip,
+        displayThorChain,
+        displayLetsExchange,
+        displayStealthEx,
+        displayXOSwap,
+        displaySwapTrade,
+        displaySwapXyz,
+        displayNearIntents
+      ].where((item) => item).length;
+
+  @computed
   bool get displayAllTrades =>
       displayChangeNow &&
       displaySideShift &&
@@ -172,12 +189,12 @@ abstract class TradeFilterStoreBase with Store {
   }
 
   List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
-    final _trades = trades
-        .where((item) {
-          final isSameChain = item.trade.chainId != null ? item.trade.chainId == wallet.chainId : true; // returning default as true here so it falls back to the default checks if there's no chainId
-          return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet) && isSameChain;
-        })
-        .toList();
+    final _trades = trades.where((item) {
+      final isSameChain = item.trade.chainId != null
+          ? item.trade.chainId == wallet.chainId
+          : true; // returning default as true here so it falls back to the default checks if there's no chainId
+      return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet) && isSameChain;
+    }).toList();
     final needToFilter = !displayAllTrades;
 
     return needToFilter
@@ -200,12 +217,14 @@ abstract class TradeFilterStoreBase with Store {
                     item.trade.provider == ExchangeProviderDescription.thorChain) ||
                 (displayLetsExchange &&
                     item.trade.provider == ExchangeProviderDescription.letsExchange) ||
-                (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx) ||
+                (displayStealthEx &&
+                    item.trade.provider == ExchangeProviderDescription.stealthEx) ||
                 (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap) ||
-                (displaySwapTrade && item.trade.provider == ExchangeProviderDescription.swapTrade) ||
-                  (displaySwapXyz &&
-                    item.trade.provider == ExchangeProviderDescription.swapsXyz) ||
-                    (displayNearIntents && item.trade.provider == ExchangeProviderDescription.nearIntents))
+                (displaySwapTrade &&
+                    item.trade.provider == ExchangeProviderDescription.swapTrade) ||
+                (displaySwapXyz && item.trade.provider == ExchangeProviderDescription.swapsXyz) ||
+                (displayNearIntents &&
+                    item.trade.provider == ExchangeProviderDescription.nearIntents))
             .toList()
         : _trades;
   }

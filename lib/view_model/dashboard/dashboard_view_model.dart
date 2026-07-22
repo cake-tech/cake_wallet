@@ -6,6 +6,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -95,111 +96,8 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
-        filterItems = {
-          S.current.transactions: [
-            FilterItem(
-                value: () => transactionFilterStore.displayAll,
-                caption: S.current.all_transactions,
-                onChanged: transactionFilterStore.toggleAll),
-            FilterItem(
-                value: () => transactionFilterStore.displayIncoming,
-                caption: S.current.incoming,
-                onChanged: transactionFilterStore.toggleIncoming),
-            FilterItem(
-                value: () => transactionFilterStore.displayOutgoing,
-                caption: S.current.outgoing,
-                onChanged: transactionFilterStore.toggleOutgoing),
-            if (appStore.wallet!.type == WalletType.bitcoin)
-              FilterItem(
-                value: () => transactionFilterStore.displaySilentPayments,
-                caption: S.current.silent_payments,
-                onChanged: transactionFilterStore.toggleSilentPayments,
-              ),
-            // FilterItem(
-            //     value: () => false,
-            //     caption: S.current.transactions_by_date,
-            //     onChanged: null),
-          ],
-          'Orders': [
-            FilterItem(
-                value: () => orderFilterStore.displayCakePay,
-                caption: 'Cake Pay',
-                onChanged: () =>
-                    orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
-          ],
-          S.current.trades: [
-            FilterItem(
-                value: () => tradeFilterStore.displayAllTrades,
-                caption: S.current.all_trades,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
-            FilterItem(
-                value: () => tradeFilterStore.displayChangeNow,
-                caption: ExchangeProviderDescription.changeNow.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySideShift,
-                caption: ExchangeProviderDescription.sideShift.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySimpleSwap,
-                caption: ExchangeProviderDescription.simpleSwap.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
-            FilterItem(
-                value: () => tradeFilterStore.displayTrocador,
-                caption: ExchangeProviderDescription.trocador.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
-            FilterItem(
-                value: () => tradeFilterStore.displayExolix,
-                caption: ExchangeProviderDescription.exolix.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
-            FilterItem(
-                value: () => tradeFilterStore.displayChainflip,
-                caption: ExchangeProviderDescription.chainflip.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
-            FilterItem(
-                value: () => tradeFilterStore.displayThorChain,
-                caption: ExchangeProviderDescription.thorChain.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
-            FilterItem(
-                value: () => tradeFilterStore.displayLetsExchange,
-                caption: ExchangeProviderDescription.letsExchange.title,
-                onChanged: () => tradeFilterStore
-                    .toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
-            FilterItem(
-                value: () => tradeFilterStore.displayStealthEx,
-                caption: ExchangeProviderDescription.stealthEx.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
-            FilterItem(
-                value: () => tradeFilterStore.displayXOSwap,
-                caption: ExchangeProviderDescription.xoSwap.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySwapTrade,
-                caption: ExchangeProviderDescription.swapTrade.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
-            FilterItem(
-                value: () => tradeFilterStore.displaySwapXyz,
-                caption: ExchangeProviderDescription.swapsXyz.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
-            FilterItem(
-                value: () => tradeFilterStore.displayNearIntents,
-                caption: ExchangeProviderDescription.nearIntents.title,
-                onChanged: () => tradeFilterStore
-                    .toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
-          ]
-        },
+        filterItems = [],
+        exchangeFilterItems = [],
         subname = '',
         name = appStore.wallet!.name,
         type = appStore.wallet!.type,
@@ -219,6 +117,8 @@ abstract class DashboardViewModelBase with Store {
     unawaited(isBatteryOptimizationEnabled());
     unawaited(_loadConstraints());
     final _wallet = wallet;
+
+    loadFilterItems();
 
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
@@ -327,9 +227,10 @@ abstract class DashboardViewModelBase with Store {
                   1;
         } catch (_) {}
       } else {
-        confirmations = appStore.wallet!.transactionHistory.transactions.values
-            .map((item) => item.isPending)
-            .fold(0, (val, pending) => pending ? val + 1 : val);
+        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
+            .where((item) => item.isPending)
+            .length;
+        confirmations = pendingCount + 1;
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);
@@ -350,6 +251,105 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
 
     tradeMonitor.monitorActiveTrades(wallet.id);
+  }
+
+  void loadFilterItems() {
+    filterItems = [
+      // FilterItem(
+      //     value: () => transactionFilterStore.displayAll,
+      //     caption: S.current.all_transactions,
+      //     onChanged: transactionFilterStore.toggleAll),
+      FilterItem(
+          value: () => transactionFilterStore.displayOutgoing,
+          caption: S.current.send,
+          onChanged: transactionFilterStore.toggleOutgoing),
+      FilterItem(
+          value: () => transactionFilterStore.displayIncoming,
+          caption: S.current.receive,
+          onChanged: transactionFilterStore.toggleIncoming),
+      if (appStore.wallet!.type == WalletType.bitcoin)
+        FilterItem(
+          value: () => transactionFilterStore.displaySilentPayments,
+          caption: S.current.silent_payments,
+          onChanged: transactionFilterStore.toggleSilentPayments,
+        ),
+      SwapFilterItem(
+          enabledProviders: () => tradeFilterStore.enabledProvidersCount,
+          allEnabled: () => tradeFilterStore.displayAllTrades,
+          value: () => tradeFilterStore.enabledProvidersCount > 0,
+          onChanged: () => tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
+      FilterItem(
+          value: () => orderFilterStore.displayCakePay,
+          caption: 'Cake Pay',
+          onChanged: () => orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
+    ];
+    exchangeFilterItems = [
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.changeNow,
+          value: () => tradeFilterStore.displayChangeNow,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.sideShift,
+          value: () => tradeFilterStore.displaySideShift,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.simpleSwap,
+          value: () => tradeFilterStore.displaySimpleSwap,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.trocador,
+          value: () => tradeFilterStore.displayTrocador,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.exolix,
+          value: () => tradeFilterStore.displayExolix,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.chainflip,
+          value: () => tradeFilterStore.displayChainflip,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.thorChain,
+          value: () => tradeFilterStore.displayThorChain,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.letsExchange,
+          value: () => tradeFilterStore.displayLetsExchange,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.stealthEx,
+          value: () => tradeFilterStore.displayStealthEx,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.xoSwap,
+          value: () => tradeFilterStore.displayXOSwap,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.swapTrade,
+          value: () => tradeFilterStore.displaySwapTrade,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.swapsXyz,
+          value: () => tradeFilterStore.displaySwapXyz,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.nearIntents,
+          value: () => tradeFilterStore.displayNearIntents,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+    ];
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
@@ -398,11 +398,25 @@ abstract class DashboardViewModelBase with Store {
   }
 
   bool showBridge(CryptoCurrency currency) {
-    if(!isEVMCompatibleChain(wallet.type)) return false;
+    if (!isEVMCompatibleChain(wallet.type)) return false;
 
-    if(evm!.isUSDT0Token(wallet, currency)) return true;
+    if (evm!.isUSDT0Token(wallet, currency)) return true;
 
     return false;
+  }
+
+  @action
+  void changeAllFilterItems(bool value) {
+    for (final item in filterItems) {
+      if (item.value() != value) {
+        item.onChanged();
+      }
+    }
+    for (final item in exchangeFilterItems) {
+      if (item.value() != value) {
+        item.onChanged();
+      }
+    }
   }
 
   @action
@@ -495,7 +509,8 @@ abstract class DashboardViewModelBase with Store {
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
       // TODO(malik) update this in a saner way during the vm refactor
-      String _txIdentityString(String txHash, TransactionDirection direction) => "${txHash}_$direction";
+      String _txIdentityString(String txHash, TransactionDirection direction) =>
+          "${txHash}_$direction";
       String _txIdentityStringConfirmations(
               String txHash, TransactionDirection direction, int confirmations, bool isPending) =>
           "${txHash}_${direction}_${confirmations}_$isPending";
@@ -524,7 +539,8 @@ abstract class DashboardViewModelBase with Store {
           .toSet();
 
       transactions.removeWhere(
-        (item) => newKeys.contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
+        (item) => newKeys
+            .contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
       );
 
       transactions.addAll(newTransactions);
@@ -666,7 +682,9 @@ abstract class DashboardViewModelBase with Store {
       }).toList();
 
   @computed
-  bool get shouldShowBalanceHiddenMessage => balanceDisplayMode == BalanceDisplayMode.hiddenBalance && appStore.settingsStore.balanceHideCounter < 10;
+  bool get shouldShowBalanceHiddenMessage =>
+      balanceDisplayMode == BalanceDisplayMode.hiddenBalance &&
+      appStore.settingsStore.balanceHideCounter < 10;
 
   @computed
   List<OrderListItem> get orders =>
@@ -714,6 +732,12 @@ abstract class DashboardViewModelBase with Store {
 
     return formattedItemsList(_items);
   }
+
+  static const shortHistoryLength = 3;
+
+  @computed
+  List<ActionListItem> get itemsShort =>
+      items.where((item) => item is! DateSectionItem).take(shortHistoryLength).toList();
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
@@ -783,7 +807,7 @@ abstract class DashboardViewModelBase with Store {
       // if (wallet.seed == "") "wallet seed is empty",
       // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
       //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-        // "primary address is invalid, you won't be able to receive / spend funds",
+      // "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }
@@ -1123,7 +1147,11 @@ abstract class DashboardViewModelBase with Store {
 
   PayjoinTransactionsStore payjoinTransactionsStore;
 
-  Map<String, List<FilterItem>> filterItems;
+  // Map<String, List<FilterItem>> filterItems;
+
+  List<FilterItem> filterItems;
+
+  List<FilterItem> exchangeFilterItems;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
@@ -1234,6 +1262,7 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    loadFilterItems();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
@@ -1303,9 +1332,10 @@ abstract class DashboardViewModelBase with Store {
                   1;
         } catch (_) {}
       } else {
-        confirmations = appStore.wallet!.transactionHistory.transactions.values
-            .map((item) => item.isPending)
-            .fold(0, (val, pending) => pending ? val + 1 : val);
+        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
+            .where((item) => item.isPending)
+            .length;
+        confirmations = pendingCount + 1;
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);

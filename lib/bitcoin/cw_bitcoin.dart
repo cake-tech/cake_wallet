@@ -177,7 +177,7 @@ class CWBitcoin extends Bitcoin {
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
+        .map<ElectrumSubAddress>((addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
             address: addr.address,
@@ -185,7 +185,7 @@ class CWBitcoin extends Bitcoin {
             balance: addr.balance,
             isChange: addr.isHidden,
             isLegacyDerivation: addr.isLegacyDerivation,
-        derivationPath: addr.derivationPath))
+            derivationPath: addr.derivationPath))
         .toList();
   }
 
@@ -206,10 +206,8 @@ class CWBitcoin extends Bitcoin {
         return estimatedTx.amount;
       }
 
-
       if (wallet.type == WalletType.dogecoin) {
-        final dogeAddr =
-        sk.getPublic().toP2pkhAddress();
+        final dogeAddr = sk.getPublic().toP2pkhAddress();
         final estimatedTx = await electrumWallet.estimateSendAllTx(
           [BitcoinOutput(address: dogeAddr, value: BigInt.zero)],
           getFeeRate(wallet, priority as BitcoinTransactionPriority),
@@ -276,14 +274,13 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource,
-      Box<PayjoinSession> payjoinSessionSource,
-      bool isDirect) {
+  WalletService createBitcoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource,
+      Box<PayjoinSession> payjoinSessionSource, bool isDirect) {
     return BitcoinWalletService(unspentCoinSource, payjoinSessionSource, isDirect);
   }
 
-  WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+  WalletService createLitecoinWalletService(
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
     return LitecoinWalletService(unspentCoinSource, isDirect);
   }
 
@@ -340,7 +337,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  BitcoinReceivePageOption getBitcoinLightningReceivePageOption() => BitcoinReceivePageOption.lightning;
+  BitcoinReceivePageOption getBitcoinLightningReceivePageOption() =>
+      BitcoinReceivePageOption.lightning;
   @override
   BitcoinReceivePageOption getBitcoinSegwitPageOption() => BitcoinReceivePageOption.p2wpkh;
   @override
@@ -689,28 +687,20 @@ class CWBitcoin extends Bitcoin {
   }
 
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
-    if (pendingTransaction is PendingLightningTransaction) return outputs;
-
-    final pendingTx = pendingTransaction as PendingBitcoinTransaction;
-
-    if (!pendingTx.hasSilentPayment) {
+    if (pendingTransaction is! PendingBitcoinTransaction || !pendingTransaction.hasSilentPayment) {
       return outputs;
     }
 
-    final updatedOutputs = outputs.map((output) {
-      try {
-        final pendingOut = pendingTx.outputs[outputs.indexOf(output)];
-        final updatedOutput = output;
+    final stealthAddresses = pendingTransaction.stealthAddresses;
+    if (stealthAddresses.length != outputs.length) {
+      printV("well, that shouldn't happen");
+      return outputs;
+    }
 
-        updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
-            .toAddress(BitcoinNetwork.mainnet);
-        return updatedOutput;
-      } catch (_) {}
-
-      return output;
-    }).toList();
-
-    return updatedOutputs;
+    for (var i = 0; i < outputs.length; i++) {
+      outputs[i].stealthAddress = stealthAddresses[i];
+    }
+    return outputs;
   }
 
   @override
@@ -839,9 +829,11 @@ class CWBitcoin extends Bitcoin {
     final addresses = <String>[];
 
     if (bitcoinTx.unspents == null || bitcoinTx.unspents!.isEmpty) {
-      if(bitcoinTx.outputAddresses == null) return null;
-      for(final addr in bitcoinTx.outputAddresses!) {
-        if(bitcoinWallet.walletAddresses.allAddresses.firstWhereOrNull((item)=>item.address==addr) != null) {
+      if (bitcoinTx.outputAddresses == null) return null;
+      for (final addr in bitcoinTx.outputAddresses!) {
+        if (bitcoinWallet.walletAddresses.allAddresses
+                .firstWhereOrNull((item) => item.address == addr) !=
+            null) {
           addresses.add(addr);
         }
       }
@@ -850,12 +842,12 @@ class CWBitcoin extends Bitcoin {
 
     final labels = <String>[];
     try {
-          bitcoinTx.unspents!.forEach((unspent) {
-            addresses.add(bitcoinWallet.walletAddresses.silentAddresses
-                .firstWhere((address) => address.silentPaymentTweak == unspent.silentPaymentLabel)
-                .address);
-          });
-     } catch (e) {}
+      bitcoinTx.unspents!.forEach((unspent) {
+        addresses.add(bitcoinWallet.walletAddresses.silentAddresses
+            .firstWhere((address) => address.silentPaymentTweak == unspent.silentPaymentLabel)
+            .address);
+      });
+    } catch (e) {}
 
     return addresses;
   }

@@ -66,12 +66,12 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
     final moneroWallet = _wallet as MoneroWallet;
     final subAddresses = moneroWallet.walletAddresses.subaddressList.subaddresses
         .map((sub) => Subaddress(
-          id: sub.id,
-          address: sub.address,
-          label: sub.label,
-          received: sub.balance??"unknown",
-          txCount: sub.txCount??0,
-        ))
+              id: sub.id,
+              address: sub.address,
+              label: sub.label,
+              received: sub.balance ?? "unknown",
+              txCount: sub.txCount ?? 0,
+            ))
         .toList();
     return ObservableList<Subaddress>.of(subAddresses);
   }
@@ -91,14 +91,13 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   @override
   Future<List<Subaddress>> getAll(Object wallet) async {
     final moneroWallet = wallet as MoneroWallet;
-    return (await moneroWallet.walletAddresses.subaddressList
-        .getAll())
+    return (await moneroWallet.walletAddresses.subaddressList.getAll())
         .map((sub) => Subaddress(
-          id: sub.id,
-          label: sub.label,
-          address: sub.address,
-          txCount: sub.txCount??0,
-          received: sub.balance??'unknown'))
+            id: sub.id,
+            label: sub.label,
+            address: sub.address,
+            txCount: sub.txCount ?? 0,
+            received: sub.balance ?? 'unknown'))
         .toList();
   }
 
@@ -237,12 +236,14 @@ class CWMonero extends Monero {
     required String password,
     required int height,
     required HardwareWalletService hardwareWalletService,
+    required String? passphrase,
   }) =>
       MoneroRestoreWalletFromHardwareCredentials(
         name: name,
         password: password,
         height: height,
         hardwareWalletService: hardwareWalletService,
+        passphrase: passphrase,
       );
 
   @override
@@ -253,7 +254,11 @@ class CWMonero extends Monero {
           required int height,
           required String mnemonic}) =>
       MoneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
+          name: name,
+          password: password,
+          passphrase: passphrase,
+          height: height,
+          mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({
@@ -397,7 +402,6 @@ class CWMonero extends Monero {
     return moneroWallet.importKeyImagesUR(ur);
   }
 
-
   @override
   Future<bool> commitTransactionUR(Object wallet, String ur) {
     final moneroWallet = wallet as MoneroWallet;
@@ -432,6 +436,9 @@ class CWMonero extends Monero {
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) => gLedger = connection;
 
   @override
+  bool hasGlobalLedgerConnection() => gLedger != null;
+
+  @override
   String? getLastLedgerCommand() => latestLedgerCommand;
 
   @override
@@ -439,7 +446,6 @@ class CWMonero extends Monero {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.trezorService = service as MoneroTrezorService;
   }
-
 
   @override
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>

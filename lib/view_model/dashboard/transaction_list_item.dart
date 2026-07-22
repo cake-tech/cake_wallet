@@ -51,18 +51,22 @@ class TransactionListItem extends ActionListItem with Keyable {
           .withLocalSeperator(_appStore.settingsStore.languageCode);
     }
 
-    return transaction.amount.toStringWithSymbol();
+    return transaction.amount.toStringWithSymbol(fractionalDigits: 8);
   }
 
   String get formattedTitle {
-
     if (balanceViewModel.wallet.type == WalletType.bitcoin &&
         transaction.additionalInfo['hasMissingInputTx'] == true) {
       return 'Transaction has missing data';
     }
 
-    if (transaction.additionalInfo['autoShield'] == true) {
-      return "Autoshield";
+    if (transaction.additionalInfo['isAutoShield'] == true) {
+      if (transaction.isPending) {
+        final status = formattedStatus;
+        final baseString = S.current.shielding;
+        return status.isNotEmpty ? "$baseString $status" : "$baseString...";
+      }
+      return S.current.shielding;
     }
     if (transaction.isPending) {
       final status = formattedStatus;
@@ -90,8 +94,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.litecoin:
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
         bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
-        if(isPegOut || fromPegOut)
-          return 6;
+        if (isPegOut || fromPegOut) return 6;
       default:
         return 0;
     }
@@ -197,7 +200,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.decred:
       case WalletType.zcash:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: transaction.amount.toDouble(),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
       case WalletType.ethereum:
@@ -208,15 +211,15 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = assetOfTransaction;
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: transaction.amount.toDouble(),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
       case WalletType.solana:
-        final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final asset = assetOfTransaction;
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: transaction.amount.toDouble(),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -224,7 +227,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: transaction.amount.toDouble(),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -236,7 +239,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         }
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: transaction.amount.toDouble(),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;

@@ -40,12 +40,11 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
               widget.title,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontSize: 18,
-                 
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
           ),
         Padding(

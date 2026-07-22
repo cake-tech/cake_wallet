@@ -17,7 +17,8 @@ class SelectButton extends StatelessWidget {
     this.deviceConnectionTypes,
     this.borderRadius,
     this.padding,
-    super.key, this.center = false,
+    super.key,
+    this.center = false,
   });
 
   final Widget? image;
@@ -38,7 +39,10 @@ class SelectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = color ?? (isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer);
+    final backgroundColor = color ??
+        (isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.surfaceContainer);
     final effectiveTextColor = textColor ??
         (isSelected
             ? Theme.of(context).colorScheme.onPrimary
@@ -81,24 +85,24 @@ class SelectButton extends StatelessWidget {
                 mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  if(!center) SizedBox(width:16),
+                  if (!center) SizedBox(width: 16),
                   image ?? Offstage(),
                   Padding(
                     padding: image != null ? EdgeInsets.only(left: 14) : EdgeInsets.only(left: 0),
                     child: Text(
                       text,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: textSize,
-                        fontWeight: FontWeight.w500,
-                        color: effectiveTextColor,
-                      ),
+                            fontSize: textSize,
+                            fontWeight: FontWeight.w500,
+                            color: effectiveTextColor,
+                          ),
                     ),
                   )
                 ],
               ),
             ),
             ...trailingIcons,
-            if(!center) SizedBox(width:16),
+            if (!center) SizedBox(width: 16),
           ],
         ),
       ),

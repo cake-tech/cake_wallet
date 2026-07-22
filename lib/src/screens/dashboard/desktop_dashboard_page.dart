@@ -121,7 +121,7 @@ class DesktopDashboardPage extends StatelessWidget {
     if (affectedWalletNames.isNotEmpty) {
       Future<void>.delayed(
         Duration(seconds: 1),
-            () {
+        () {
           showPopUp<void>(
             context: context,
             builder: (BuildContext context) {

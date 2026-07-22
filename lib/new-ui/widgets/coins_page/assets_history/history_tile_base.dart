@@ -87,7 +87,7 @@ class HistoryTileBase extends StatelessWidget {
               bottomLeft: Radius.circular(roundedBottom ? 22 : 0),
               bottomRight: Radius.circular(roundedBottom ? 22 : 0),
             )),
-            color: Theme.of(context).colorScheme.onInverseSurface,
+            color: Theme.of(context).colorScheme.surfaceContainer,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -109,24 +109,25 @@ class HistoryTileBase extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(right: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if(title != null)
-                            Text(title!,
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
-                            else if(titleWidget != null) titleWidget!,
+                            if (title != null)
+                              Text(title!,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
+                            else if (titleWidget != null)
+                              titleWidget!,
                             Text(date,
                                 style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
                             if (amount != null)
                               Text(amount!,
                                   style: TextStyle(
@@ -141,22 +142,24 @@ class HistoryTileBase extends StatelessWidget {
                             else if (amountFiatWidget != null)
                               amountFiatWidget!
                           ],
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ),
-        if(bottomSeparator) Container(
-          color: Theme.of(context).colorScheme.onInverseSurface,
-          child: Padding(
-            padding: EdgeInsets.only(left: 56, right: 16),
-            child: Container(height: 1, color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175)),
-          ),
-        )
+        if (bottomSeparator)
+          Container(
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            child: Padding(
+              padding: EdgeInsets.only(left: 56, right: 16),
+              child: Container(
+                  height: 1, color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175)),
+            ),
+          )
       ],
     );
   }

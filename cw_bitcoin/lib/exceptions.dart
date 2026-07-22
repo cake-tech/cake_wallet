@@ -30,7 +30,7 @@ class BitcoinTransactionCommitFailed extends TransactionCommitFailed {
 
   @override
   String toString() {
-    return errorMessage??"unknown error";
+    return errorMessage ?? "unknown error";
   }
 }
 

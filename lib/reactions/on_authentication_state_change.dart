@@ -25,8 +25,7 @@ import 'package:rxdart/subjects.dart';
 ReactionDisposer? _onAuthenticationStateChange;
 
 dynamic loginError;
-StreamController<dynamic> authenticatedErrorStreamController =
-    BehaviorSubject<dynamic>();
+StreamController<dynamic> authenticatedErrorStreamController = BehaviorSubject<dynamic>();
 
 void startAuthenticationStateChange(
   AuthenticationStore authenticationStore,
@@ -76,6 +75,23 @@ void startAuthenticationStateChange(
                 );
                 return;
               }
+
+              ledgerVM.suppressMoneroReconnectPrompt = true;
+
+              if (!monero!.hasGlobalLedgerConnection()) {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (context) => AlertWithOneAction(
+                    alertTitle: "Unexpected Error",
+                    alertContent:
+                        "Unexpected Error while trying to connect to the device (has no global LedgerConnection)",
+                    buttonText: S.of(context).try_again,
+                    buttonAction: Navigator.of(context).pop,
+                  ),
+                );
+                return;
+              }
+
               showPopUp<void>(
                 context: context,
                 builder: (context) => AlertWithOneAction(
@@ -86,14 +102,17 @@ void startAuthenticationStateChange(
                   buttonAction: () => Navigator.of(context).pop(),
                 ),
               );
-              bool tryOpening = true;
+
+              var isConnected = false;
+              var tryOpening = true;
               while (tryOpening) {
                 try {
                   await loadCurrentWallet();
+                  isConnected = true;
                   tryOpening = false;
                 } on Exception catch (e) {
                   final ledgerErrorMessage = ledgerVM.interpretErrorCode(e.toString());
-                  if (ledgerErrorMessage != null) {
+                  if (ledgerErrorMessage != null && context.mounted) {
                     await showPopUp<void>(
                       context: context,
                       builder: (context) => AlertWithTwoActions(
@@ -117,16 +136,17 @@ void startAuthenticationStateChange(
               }
 
               getIt.get<BottomSheetService>().showNext();
-              await navigatorKey.currentState!
-                  .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+              if (isConnected) {
+                ledgerVM.suppressMoneroReconnectPrompt = false;
+                await navigatorKey.currentState!
+                    .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+              }
             },
             allowChangeWallet: true,
           ),
         );
-
-        // await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.connectDevices, (route) => false, arguments: ConnectDevicePageParams(walletType: walletType, onConnectDevice: onConnectDevice));
       } else {
-        navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final linkViewModel = getIt.get<LinkViewModel>();

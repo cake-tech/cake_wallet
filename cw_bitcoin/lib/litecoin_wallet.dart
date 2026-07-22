@@ -175,7 +175,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   bool get hasRescan => true;
 
-
   final String? scanSecretOverride;
   final String? spendPubkeyOverride;
   List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
@@ -232,8 +231,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  WalletKeysData get walletKeysData =>
-      WalletKeysData(mnemonic: seed, xPub: xpub, passphrase: passphrase, scanSecret: scanSecretOverride, spendPubkey: spendPubkeyOverride);
+  WalletKeysData get walletKeysData => WalletKeysData(
+      mnemonic: seed,
+      xPub: xpub,
+      passphrase: passphrase,
+      scanSecret: scanSecretOverride,
+      spendPubkey: spendPubkeyOverride);
 
   static Future<LitecoinWallet> open({
     required String name,
@@ -497,22 +500,25 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    // rename the hive box:
-    final oldBoxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-    final newBoxName = "${newWalletName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+  static Future<void> copyMwebBox({
+    required String fromName,
+    required String toName,
+  }) async {
+    final oldBoxName = "${fromName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final newBoxName = "${toName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    if (oldBoxName == newBoxName) return;
 
     final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
-    mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
+    final newBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
-      final value = oldBox.get(key);
-      await oldBox.delete(key);
-      await mwebUtxosBox.put(key, value!);
+      await newBox.put(key, oldBox.get(key)!);
     }
-    oldBox.deleteFromDisk();
+  }
 
-    await super.renameWalletFiles(newWalletName);
+  static Future<void> deleteMwebBox(String name) async {
+    final boxName = "${name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final box = await CakeHive.openBox<MwebUtxo>(boxName);
+    await box.deleteFromDisk();
   }
 
   @action
@@ -1103,15 +1109,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     for (final utxo in transaction.utxos) {
       if (utxo.utxo.scriptType != SegwitAddresType.mweb) {
         inputs.add(utxo.utxo.toInput());
-        txouts.add(TxOut(value: Int64(utxo.utxo.value.toInt()),
-                         pkScript: utxo.ownerDetails.address.toScriptPubKey().toBytes()));
+        txouts.add(TxOut(
+            value: Int64(utxo.utxo.value.toInt()),
+            pkScript: utxo.ownerDetails.address.toScriptPubKey().toBytes()));
       }
     }
     var resp = await CwMweb.psbtCreate(PsbtCreateRequest(
-      rawTx: inputs.isEmpty ? null : BtcTransaction(
-        inputs: inputs,
-        outputs: isMweb ? [] : transaction.outputs,
-      ).toBytes(),
+      rawTx: inputs.isEmpty
+          ? null
+          : BtcTransaction(
+              inputs: inputs,
+              outputs: isMweb ? [] : transaction.outputs,
+            ).toBytes(),
       witnessUtxo: txouts,
     ));
     for (final utxo in transaction.utxos) {
@@ -1124,17 +1133,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         ));
       }
     }
-    if (isMweb) for (final output in transaction.outputs) {
-      var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
-      if (output.scriptPubKey.getAddressType() == SegwitAddresType.mweb) {
-        address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
+    if (isMweb)
+      for (final output in transaction.outputs) {
+        var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
+        if (output.scriptPubKey.getAddressType() == SegwitAddresType.mweb) {
+          address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
+        }
+        resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
+          psbtB64: resp.psbtB64,
+          recipient: PsbtRecipient(address: address, value: Int64(output.amount.toInt())),
+          feeRatePerKb: Int64.parseInt(transaction.feeRate) * 1000,
+        ));
       }
-      resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
-        psbtB64: resp.psbtB64,
-        recipient: PsbtRecipient(address: address, value: Int64(output.amount.toInt())),
-        feeRatePerKb: Int64.parseInt(transaction.feeRate) * 1000,
-      ));
-    }
     return base64.decode(resp.psbtB64);
   }
 
@@ -1200,7 +1210,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       for (final utxo in tx.utxos) {
         if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
           hasMwebInput = true;
-
         } else {
           // check if any of the inputs of this transaction are hog-ex:
           // this list is only non-mweb inputs:
@@ -1253,9 +1262,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             final utxo = unspentCoins
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
             final key = generateECPrivate(
-                hd: utxo.bitcoinAddressRecord.isHidden
-                    ? sideHd
-                    : mainHd,
+                hd: utxo.bitcoinAddressRecord.isHidden ? sideHd : mainHd,
                 index: utxo.bitcoinAddressRecord.index,
                 network: network);
             final digest = tx2.getTransactionSegwitDigit(
@@ -1281,8 +1288,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  void addTransactionListener(PendingBitcoinTransaction tx,
-    List<String> inputAddresses, bool isPegIn, bool isPegOut) {
+  void addTransactionListener(
+      PendingBitcoinTransaction tx, List<String> inputAddresses, bool isPegIn, bool isPegOut) {
     tx.addListener((transaction) async {
       final addresses = <String>{};
       transaction.inputAddresses?.addAll(inputAddresses);
@@ -1572,7 +1579,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         rawTx: rawTx,
         ownerDetails: utxo.ownerDetails,
         ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        ownerMasterFingerprint:masterFingerprint,
+        ownerMasterFingerprint: masterFingerprint,
         ownerPublicKey: publicKeyAndDerivationPath.publicKey,
       ));
     }

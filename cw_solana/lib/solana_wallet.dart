@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -89,6 +88,8 @@ abstract class SolanaWalletBase
 
   Timer? _transactionsUpdateTimer;
 
+  Future<void>? _currentRefresh;
+
   late final Box<SPLToken> splTokensBox;
 
   @override
@@ -164,12 +165,9 @@ abstract class SolanaWalletBase
     final prefs = await _sharedPrefs.future;
     if (prefs.getBool(_scamCheckDoneKey) == true) return;
 
-    final defaultMints =
-        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
-    final defaultSymbolsUpper = DefaultSPLTokens()
-        .initialSPLTokens
-        .map((t) => t.symbol.toUpperCase())
-        .toSet();
+    final defaultMints = DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultSymbolsUpper =
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.symbol.toUpperCase()).toSet();
 
     for (final token in splTokensBox.values) {
       final suspicious = isTokenPropertiesSuspicious(
@@ -325,6 +323,33 @@ abstract class SolanaWalletBase
     ]);
   }
 
+  static const _nativeSource = 'native';
+
+  String _lastSyncedSignatureKey(String source) =>
+      'solana_last_synced_signature_${walletInfo.name}_$source';
+
+  Future<String?> _lastSyncedSignature(String source) async {
+    if (transactionHistory.transactions.isEmpty) return null;
+
+    final prefs = await _sharedPrefs.future;
+
+    return prefs.getString(_lastSyncedSignatureKey(source));
+  }
+
+  Future<void> _saveLastSyncedSignature(String source, String? signature) async {
+    if (signature == null) return;
+
+    final prefs = await _sharedPrefs.future;
+
+    await prefs.setString(_lastSyncedSignatureKey(source), signature);
+  }
+
+  Future<void> _clearLastSyncedSignature(String source) async {
+    final prefs = await _sharedPrefs.future;
+
+    await prefs.remove(_lastSyncedSignatureKey(source));
+  }
+
   /// Polls for a specific transaction by signature with exponential backoff
   /// I'm using this in case we make the call to fetch the transaction and it has not finished its confirmations on the solana network and been indexed by the node networks we use.
   Future<void> pollForTransaction({
@@ -369,20 +394,34 @@ abstract class SolanaWalletBase
     await updateTransactionsHistory();
   }
 
-  void updateTransactions(List<SolanaTransactionModel> updatedTx) {
-    addTransactionsToTransactionHistory(updatedTx);
-  }
+  void updateTransactions(List<SolanaTransactionModel> updatedTx) => _addTransactions(updatedTx);
 
   /// Fetches the native SOL transactions linked to the wallet Public Key
   Future<void> _updateNativeSOLTransactions() async {
-    final transactions =
-        await _client.fetchTransactions(_solanaPublicKey.toAddress(), onUpdate: updateTransactions);
+    final result = await _client.fetchTransactions(
+      _solanaPublicKey.toAddress(),
+      untilSignature: await _lastSyncedSignature(_nativeSource),
+      onUpdate: updateTransactions,
+    );
 
-    await addTransactionsToTransactionHistory(transactions);
+    await _updateStateWhenSyncForTheSourceEnds(_nativeSource, result);
+  }
+
+  Future<void> _updateStateWhenSyncForTheSourceEnds(
+    String source,
+    TransactionSyncResult result,
+  ) async {
+    if (result.transactions.isNotEmpty) {
+      final isSaved = await transactionHistory.saveAndConfirm();
+
+      if (!isSaved) return;
+    }
+
+    await _saveLastSyncedSignature(source, result.newestSignature);
   }
 
   Future<void> updateSPLTokenTransactions({List<String>? specificMints}) async {
-    final allTokens = balance.keys.whereType<SPLToken>().toList(growable: false);
+    final allTokens = splTokensBox.values.where((t) => t.enabled).toList(growable: false);
 
     // Filter to specific mints if provided
     final tokens = specificMints != null
@@ -398,30 +437,28 @@ abstract class SolanaWalletBase
         i,
         i + batchSize > tokens.length ? tokens.length : i + batchSize,
       );
-      final results = await Future.wait(
+
+      await Future.wait(
         batch.map((token) async {
           try {
-            return await _client.getSPLTokenTransfers(
+            final result = await _client.getSPLTokenTransfers(
               mintAddress: token.mintAddress,
               splToken: token,
               privateKey: _solanaPrivateKey,
+              untilSignature: await _lastSyncedSignature(token.mintAddress),
               onUpdate: updateTransactions,
             );
-          } catch (_) {
-            return <SolanaTransactionModel>[];
+
+            await _updateStateWhenSyncForTheSourceEnds(token.mintAddress, result);
+          } catch (e) {
+            printV('Error fetching spl token (${token.symbol}) transfers ${e.toString()}');
           }
         }),
       );
-
-      for (final list in results) {
-        await addTransactionsToTransactionHistory(list);
-      }
     }
   }
 
-  Future<void> addTransactionsToTransactionHistory(
-    List<SolanaTransactionModel> transactions,
-  ) async {
+  void _addTransactions(List<SolanaTransactionModel> transactions) {
     final Map<String, SolanaTransactionInfo> result = {};
 
     for (var transactionModel in transactions) {
@@ -440,6 +477,12 @@ abstract class SolanaWalletBase
     }
 
     transactionHistory.addMany(result);
+  }
+
+  Future<void> addTransactionsToTransactionHistory(
+    List<SolanaTransactionModel> transactions,
+  ) async {
+    _addTransactions(transactions);
 
     await transactionHistory.save();
   }
@@ -460,6 +503,17 @@ abstract class SolanaWalletBase
     await transactionHistory.save();
   }
 
+  // we want to handle the case where multiple refresh triggers (our users can swipe down
+  // multiple times), so we track the currrent refresh and join it instead of starting
+  // another one
+  Future<void> _refresh() {
+    return _currentRefresh ??= Future.wait([
+      updateTokenBalance(),
+      updateTransactionsHistory(),
+      _getEstimatedFees(),
+    ]).whenComplete(() => _currentRefresh = null);
+  }
+
   @action
   @override
   Future<void> startSync() async {
@@ -473,12 +527,7 @@ abstract class SolanaWalletBase
         return;
       }
 
-      await Future.wait([
-        updateTokenBalance(),
-        _updateNativeSOLTransactions(),
-        updateSPLTokenTransactions(),
-        _getEstimatedFees(),
-      ]);
+      await _refresh();
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -630,6 +679,14 @@ abstract class SolanaWalletBase
 
   List<SPLToken> get splTokenCurrencies => splTokensBox.values.toList();
 
+  SPLToken? splTokenBySymbol(String symbol) {
+    for (final token in splTokensBox.values) {
+      if (token.symbol == symbol) return token;
+    }
+
+    return null;
+  }
+
   void addInitialTokens() {
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
@@ -721,8 +778,7 @@ abstract class SolanaWalletBase
     'distribution',
   ];
 
-  static final _suspiciousWordPattern =
-      RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
+  static final _suspiciousWordPattern = RegExp(r'\b(bot|claim|reward)\b', caseSensitive: false);
 
   static const _knownNonSolanaNativeSymbols = {
     'BTC',
@@ -759,13 +815,10 @@ abstract class SolanaWalletBase
     Set<String>? cachedDefaultMints,
     Set<String>? cachedDefaultSymbolsUpper,
   }) {
-    final defaultMints = cachedDefaultMints ??
-        DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
+    final defaultMints =
+        cachedDefaultMints ?? DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
     final defaultSymbolsUpper = cachedDefaultSymbolsUpper ??
-        DefaultSPLTokens()
-            .initialSPLTokens
-            .map((t) => t.symbol.toUpperCase())
-            .toSet();
+        DefaultSPLTokens().initialSPLTokens.map((t) => t.symbol.toUpperCase()).toSet();
 
     final isTokenWhitelisted = defaultMints.contains(token.mintAddress);
 
@@ -800,7 +853,8 @@ abstract class SolanaWalletBase
 
     if (token.enabled) {
       final tokenBalance = await _client.getSplTokenBalance(token, solanaAddress) ??
-          balance[token] ?? SolanaBalance.zero(token);
+          balance[token] ??
+          SolanaBalance.zero(token);
 
       balance[token] = tokenBalance;
     } else {
@@ -809,12 +863,27 @@ abstract class SolanaWalletBase
   }
 
   Future<void> deleteSPLToken(SPLToken token) async {
+    final sources = <String>{token.mintAddress};
+
+    if (token.symbol == CryptoCurrency.sol.symbol) {
+      sources.add(_nativeSource);
+    }
+
     if (splTokensBox.isOpen) {
+      sources.addAll(splTokensBox.values
+          .where((t) => t.symbol == token.symbol)
+          .map((t) => t.mintAddress));
+
       await splTokensBox.delete(token.mintAddress);
     }
 
     balance.remove(token);
     await _removeTokenTransactionsInHistory(token);
+
+    for (final source in sources) {
+      await _clearLastSyncedSignature(source);
+    }
+
     updateTokenBalance();
   }
 
@@ -833,38 +902,17 @@ abstract class SolanaWalletBase
     }
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
-
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      updateTokenBalance();
-      _updateNativeSOLTransactions();
-      updateSPLTokenTransactions();
-      _getEstimatedFees();
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+      try {
+        await _refresh();
+      } catch (e) {
+        printV('Error on periodic solana refresh: $e');
+      }
     });
   }
 

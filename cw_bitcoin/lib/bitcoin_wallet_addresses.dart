@@ -124,7 +124,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   Future<PaymentURI> getPaymentRequestUri(String amount) async {
     if (addressPageType is LightningAddressType && lightningWallet != null) {
-      final amountSats = amount.isNotEmpty ? parseFixed(amount, 8) : null;
+      final amountSats = amount.isNotEmpty ? tryParseFixed(amount, 8) : null;
       final lnUrl = getLnurlOfLightningAddress(address);
       if (amountSats == null) {
         return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
@@ -137,7 +137,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @override
-  bool containsAddress(String address) => super.containsAddress(address) || address == lightningAddress;
+  bool containsAddress(String address) =>
+      super.containsAddress(address) || address == lightningAddress;
 
   @override
   String get addressForBuy {
@@ -153,12 +154,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   String get addressForExchange {
-
     final current = getFreshAddress();
     final availableReceiveAddresses = receiveAddresses.where((element) =>
-        !element.isUsed &&
-            !element.isHidden &&
-            !hiddenAddresses.contains(element.address));
+        !element.isUsed && !element.isHidden && !hiddenAddresses.contains(element.address));
 
     final bool isSilentPaymentsPage = addressPageType == SilentPaymentsAddresType.p2sp;
     final bool isLightningPage = addressPageType == LightningAddressType.p2l;

@@ -14,7 +14,6 @@ import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
-import 'package:hive/hive.dart';
 
 class TronWalletService extends WalletService<
     TronNewWalletCredentials,
@@ -132,29 +131,6 @@ class TronWalletService extends WalletService<
     await wallet.save();
 
     return wallet;
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet = await TronWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
   }
 
   @override

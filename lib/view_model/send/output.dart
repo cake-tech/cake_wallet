@@ -21,6 +21,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -37,8 +38,7 @@ class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
   OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
-      :
-        key = UniqueKey(),
+      : key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
         cryptoFullBalance = '',
@@ -51,12 +51,12 @@ abstract class OutputBase with Store {
         parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
     autorun((_) {
       final status = _wallet.syncStatus;
-      printV("Sync status changed to $status. Recalculating fees");
-
+      if (status is! SyncedSyncStatus) {
+        return;
+      }
       calculateEstimatedFee();
     });
   }
-
 
   Key key;
 
@@ -97,7 +97,6 @@ abstract class OutputBase with Store {
 
   @observable
   String extractedAddress;
-
 
   @computed
   bool get isParsedAddress =>
@@ -172,9 +171,11 @@ abstract class OutputBase with Store {
           break;
         case WalletType.tron:
           if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
-            estimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? Money.zero(CryptoCurrency.trx);
+            estimatedFee =
+                tron!.getTronNativeEstimatedFee(_wallet) ?? Money.zero(CryptoCurrency.trx);
           } else {
-            estimatedFee = tron!.getTronTRC20EstimatedFee(_wallet) ?? Money.zero(CryptoCurrency.trx);
+            estimatedFee =
+                tron!.getTronTRC20EstimatedFee(_wallet) ?? Money.zero(CryptoCurrency.trx);
           }
           break;
 
@@ -200,7 +201,8 @@ abstract class OutputBase with Store {
               ? evm!.getEVMNativeEstimatedFee(_wallet)
               : evm!.getEVMERC20EstimatedFee(_wallet);
 
-          estimatedFee = Money(BigInt.parse(fee ?? '0.0'), walletTypeToCryptoCurrency(_wallet.type));
+          estimatedFee =
+              Money(BigInt.parse(fee ?? '0.0'), walletTypeToCryptoCurrency(_wallet.type));
           break;
 
         /// end EVMs
@@ -293,6 +295,7 @@ abstract class OutputBase with Store {
   }
 
   @action
+
   /// [setCryptoAmount] always takes in the canonical representation eg. Bitcoin and not Sats
   void setCryptoAmount(String amount) {
     if (amount.toUpperCase() != S.current.all) sendAll = false;

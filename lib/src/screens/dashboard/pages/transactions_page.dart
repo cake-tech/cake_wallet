@@ -66,8 +66,7 @@ class TransactionsPage extends StatelessWidget {
             }),
             HeaderRow(
               dashboardViewModel: dashboardViewModel,
-              onExportCsv: () =>
-                  CsvExportService().exportToCsv(dashboardViewModel.items, context),
+              onExportCsv: () => CsvExportService().exportToCsv(dashboardViewModel.items, context),
               key: ValueKey('transactions_page_header_row_key'),
             ),
             Expanded(
@@ -112,7 +111,7 @@ class TransactionsPage extends StatelessWidget {
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                  isShield: transaction.additionalInfo['autoShield'] == true,
+                                  isShield: transaction.additionalInfo['isAutoShield'] == true,
                                   direction: transaction.direction,
                                   formattedDate: DateFormat('HH:mm').format(transaction.date),
                                   formattedAmount: item.formattedCryptoAmount,
@@ -159,7 +158,8 @@ class TransactionsPage extends StatelessWidget {
                                 currency: "BTC",
                                 state: item.status,
                                 amount: dashboardViewModel.appStore.amountParsingProxy
-                                    .getDisplayCryptoString(session.amount.toInt(), CryptoCurrency.btc),
+                                    .getDisplayCryptoString(
+                                        session.amount.toInt(), CryptoCurrency.btc),
                                 createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
                                 isSending: session.isSenderSession,
                               );
@@ -168,8 +168,7 @@ class TransactionsPage extends StatelessWidget {
                             if (item is TradeListItem) {
                               final trade = item.trade;
 
-                              final tradeFrom =
-                                  trade.from;
+                              final tradeFrom = trade.from;
 
                               final tradeTo = trade.to;
 

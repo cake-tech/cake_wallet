@@ -159,11 +159,6 @@ jobs:
       - name: Generate localization
         run: |
           dart run tool/generate_localization.dart
-      - name: Workaround zcash
-        run: |
-          mkdir -p scripts/zcash_lib/assets/
-          touch scripts/zcash_lib/assets/sapling-spend.params
-          touch scripts/zcash_lib/assets/sapling-output.params
       - name: Build linux
         run: |
           flutter build linux --dart-define=hasDevOptions=true --release
@@ -179,9 +174,6 @@ jobs:
         with:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
           name: cakewallet_linux
-      - name: Verify lint
-        run: |
-          exec env ABORT_ON_CHANGE=true ./scripts/lint.sh
 
       - name: Prepare virtual desktop
         if: ${{ contains(env.message, 'run tests') }}
