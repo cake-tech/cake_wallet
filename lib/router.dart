@@ -108,6 +108,8 @@ import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_logs_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
@@ -576,6 +578,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.silentPaymentsLogs:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<SilentPaymentsLogPage>(),
+      );
+
+    case Routes.payjoinSettings:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<PayjoinSettingsPage>(),
+      );
+
+    case Routes.payjoinLogs:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<PayjoinLogPage>(),
       );
 
     case Routes.mwebSettings:

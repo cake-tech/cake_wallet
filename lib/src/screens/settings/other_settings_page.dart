@@ -156,10 +156,6 @@ class OtherSettingsPage extends BasePage {
                 keyValue: "export_lightning_logs",
                 label: S.of(context).export_lightning_logs,
                 onTap: () => onExportLNLog(context)),
-            ListItemRegularRow(
-                keyValue: "export_payjoin_logs",
-                label: S.of(context).export_payjoin_logs,
-                onTap: () => onExportPJLog(context)),
           ],
         "dev": FeatureFlag.hasDevOptions == false
             ? []
@@ -240,11 +236,4 @@ class OtherSettingsPage extends BasePage {
     }
   }
 
-  Future<void> onExportPJLog(BuildContext context) async {
-    final file = await _otherSettingsViewModel.getPayjoinLog();
-
-    if (file != null) {
-      await ShareUtil.shareFile(filePath: file.path, fileName: "Payjoin_export.txt", context: context);
-    }
-  }
 }
