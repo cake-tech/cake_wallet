@@ -42,7 +42,7 @@ class ConnectDevicePage extends BasePage {
   ConnectDevicePage(ConnectDevicePageParams params, this.hardwareWalletVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
-        allowChangeWallet = params.allowChangeWallet,
+        allowChangeWallet = params.allowChangeWallet || params.isReconnect,
         isReconnect = params.isReconnect;
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;

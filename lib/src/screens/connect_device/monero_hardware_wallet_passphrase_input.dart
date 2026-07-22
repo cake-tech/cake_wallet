@@ -34,6 +34,8 @@ class MoneroHardwareWalletPassphraseInputModal extends StatelessWidget {
                       BaseTextFormField(
                         controller: controller,
                         hintText: S.of(context).passphrase_raw,
+                        autocorrect: false,
+                        enableSuggestions: false,
                       ),
                       const SizedBox(),
                       NewPrimaryButton(

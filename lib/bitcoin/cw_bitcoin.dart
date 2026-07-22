@@ -668,28 +668,20 @@ class CWBitcoin extends Bitcoin {
   }
 
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
-    if (pendingTransaction is PendingLightningTransaction) return outputs;
-
-    final pendingTx = pendingTransaction as PendingBitcoinTransaction;
-
-    if (!pendingTx.hasSilentPayment) {
+    if (pendingTransaction is! PendingBitcoinTransaction || !pendingTransaction.hasSilentPayment) {
       return outputs;
     }
 
-    final updatedOutputs = outputs.map((output) {
-      try {
-        final pendingOut = pendingTx.outputs[outputs.indexOf(output)];
-        final updatedOutput = output;
+    final stealthAddresses = pendingTransaction.stealthAddresses;
+    if (stealthAddresses.length != outputs.length) {
+      printV("well, that shouldn't happen");
+      return outputs;
+    }
 
-        updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
-            .toAddress(BitcoinNetwork.mainnet);
-        return updatedOutput;
-      } catch (_) {}
-
-      return output;
-    }).toList();
-
-    return updatedOutputs;
+    for (var i = 0; i < outputs.length; i++) {
+      outputs[i].stealthAddress = stealthAddresses[i];
+    }
+    return outputs;
   }
 
   @override
