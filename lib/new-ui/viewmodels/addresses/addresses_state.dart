@@ -18,7 +18,6 @@ final class AddressesLoaded extends AddressesState {
     required this.searchTerm,
     required this.showHidden,
     required this.hasAccounts,
-    required this.currentAccount,
     required this.walletType,
     required this.showAddManualAddresses,
     required this.hasBalance,
@@ -33,7 +32,6 @@ final class AddressesLoaded extends AddressesState {
   final String searchTerm;
   final bool showHidden;
   final bool hasAccounts;
-  final AddressAccount? currentAccount;
   final WalletType walletType;
   final bool showAddManualAddresses;
   final bool hasBalance;
@@ -69,8 +67,6 @@ final class AddressesLoaded extends AddressesState {
     String? searchTerm,
     bool? showHidden,
     bool? hasAccounts,
-    AddressAccount? currentAccount,
-    bool clearAccount = false,
     WalletType? walletType,
     bool? showAddManualAddresses,
     bool? hasBalance,
@@ -84,7 +80,6 @@ final class AddressesLoaded extends AddressesState {
         searchTerm: searchTerm ?? this.searchTerm,
         showHidden: showHidden ?? this.showHidden,
         hasAccounts: hasAccounts ?? this.hasAccounts,
-        currentAccount: clearAccount ? null : (currentAccount ?? this.currentAccount),
         walletType: walletType ?? this.walletType,
         showAddManualAddresses: showAddManualAddresses ?? this.showAddManualAddresses,
         hasBalance: hasBalance ?? this.hasBalance,
@@ -101,7 +96,6 @@ final class AddressesLoaded extends AddressesState {
         searchTerm,
         showHidden,
         hasAccounts,
-        currentAccount,
         walletType,
         showAddManualAddresses,
         hasBalance,

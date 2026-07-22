@@ -26,7 +26,6 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     on<AddressLabelSet>(_onLabelSet);
     on<AddressAdded>(_onAddressAdded, transformer: droppable());
     on<AddressDeleted>(_onDeleted);
-    on<HiddenModeToggled>(_onHiddenModeToggled);
     on<AddressListRefreshed>(_onListRefreshed);
     on<_WalletChanged>(_onWalletChanged, transformer: restartable());
 
@@ -146,10 +145,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
+    emit(initial.copyWith(isSaving: true));
     try {
       await addressService.deleteSilentPaymentAddress(event.address);
     } catch (e) {
       printV("AddressesBloc deleteSilentPaymentAddress failed: $e");
+      _clearSavingState(emit, initial.walletType);
       return;
     }
     await _yieldAndRefreshGroups(emit, initial.walletType);
@@ -180,17 +181,6 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     }
   }
 
-  Future<void> _onHiddenModeToggled(
-    HiddenModeToggled event,
-    Emitter<AddressesState> emit,
-  ) async {
-    final loaded = state;
-    if (loaded is! AddressesLoaded) {
-      return;
-    }
-    emit(loaded.copyWith(showHidden: !loaded.showHidden));
-  }
-
   Future<void> _onListRefreshed(
     AddressListRefreshed event,
     Emitter<AddressesState> emit,
@@ -214,7 +204,6 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
         searchTerm: "",
         showHidden: showHidden,
         hasAccounts: addressService.hasAccounts,
-        currentAccount: addressService.currentAccount,
         walletType: addressService.walletType,
         showAddManualAddresses: !addressService.isAutoGenerateSubaddressEnabled ||
             const {WalletType.monero, WalletType.wownero}.contains(addressService.walletType),

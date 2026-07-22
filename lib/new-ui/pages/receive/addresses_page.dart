@@ -131,6 +131,7 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
 
   @override
   void dispose() {
+    _searchDebounce.cancel();
     _searchController
       ..removeListener(_onSearchChanged)
       ..dispose();

@@ -48,10 +48,6 @@ final class AddressDeleted extends AddressesEvent {
   final String address;
 }
 
-final class HiddenModeToggled extends AddressesEvent {
-  const HiddenModeToggled();
-}
-
 final class AddressListRefreshed extends AddressesEvent {
   const AddressListRefreshed();
 }

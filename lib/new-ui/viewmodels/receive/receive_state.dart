@@ -26,12 +26,8 @@ final class ReceiveLoaded extends ReceiveState {
     required this.fetchingInvoice,
     required this.isRotatingAddress,
     required this.paymentUri,
-    required this.hasAccounts,
-    required this.accountLabel,
     required this.isSilentPayments,
     required this.isLightning,
-    required this.isBitcoinViewOnly,
-    required this.isAutoGenerateSubaddressEnabled,
     required this.autoGenerateSubaddressStatus,
     required this.isZCashTransparent,
     required this.useSatoshi,
@@ -60,12 +56,8 @@ final class ReceiveLoaded extends ReceiveState {
 
   final PaymentURI paymentUri;
 
-  final bool hasAccounts;
-  final String? accountLabel;
   final bool isSilentPayments;
   final bool isLightning;
-  final bool isBitcoinViewOnly;
-  final bool isAutoGenerateSubaddressEnabled;
   final AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
   final bool isZCashTransparent;
   final bool useSatoshi;
@@ -117,13 +109,8 @@ final class ReceiveLoaded extends ReceiveState {
     bool? isRotatingAddress,
     bool? isChangingAddressType,
     PaymentURI? paymentUri,
-    bool? hasAccounts,
-    String? accountLabel,
-    bool clearAccountLabel = false,
     bool? isSilentPayments,
     bool? isLightning,
-    bool? isBitcoinViewOnly,
-    bool? isAutoGenerateSubaddressEnabled,
     AutoGenerateSubaddressStatus? autoGenerateSubaddressStatus,
     bool? isZCashTransparent,
     bool? useSatoshi,
@@ -146,13 +133,8 @@ final class ReceiveLoaded extends ReceiveState {
         isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
         isChangingAddressType: isChangingAddressType ?? this.isChangingAddressType,
         paymentUri: paymentUri ?? this.paymentUri,
-        hasAccounts: hasAccounts ?? this.hasAccounts,
-        accountLabel: clearAccountLabel ? null : (accountLabel ?? this.accountLabel),
         isSilentPayments: isSilentPayments ?? this.isSilentPayments,
         isLightning: isLightning ?? this.isLightning,
-        isBitcoinViewOnly: isBitcoinViewOnly ?? this.isBitcoinViewOnly,
-        isAutoGenerateSubaddressEnabled:
-            isAutoGenerateSubaddressEnabled ?? this.isAutoGenerateSubaddressEnabled,
         autoGenerateSubaddressStatus:
             autoGenerateSubaddressStatus ?? this.autoGenerateSubaddressStatus,
         isZCashTransparent: isZCashTransparent ?? this.isZCashTransparent,
@@ -178,12 +160,8 @@ final class ReceiveLoaded extends ReceiveState {
         isRotatingAddress,
         isChangingAddressType,
         paymentUri.toString(),
-        hasAccounts,
-        accountLabel,
         isSilentPayments,
         isLightning,
-        isBitcoinViewOnly,
-        isAutoGenerateSubaddressEnabled,
         autoGenerateSubaddressStatus,
         isZCashTransparent,
         useSatoshi,

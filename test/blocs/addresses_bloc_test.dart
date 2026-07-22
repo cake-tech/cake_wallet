@@ -271,21 +271,6 @@ void main() {
     );
 
     blocTest<AddressesBloc, AddressesState>(
-      "HiddenModeToggled flips the flag",
-      setUp: wireDefaults,
-      build: buildBloc,
-      act: (bloc) async {
-        await waitForLoaded(bloc);
-        bloc.add(const HiddenModeToggled());
-      },
-      wait: const Duration(milliseconds: 20),
-      verify: (bloc) {
-        final state = bloc.state as AddressesLoaded;
-        expect(state.showHidden, isTrue);
-      },
-    );
-
-    blocTest<AddressesBloc, AddressesState>(
       "AddressHideToggled re-emits with fresh groups from service",
       setUp: () {
         var call = 0;
