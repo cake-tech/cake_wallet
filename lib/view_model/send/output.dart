@@ -2,8 +2,6 @@ import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
-import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
@@ -123,6 +121,19 @@ abstract class OutputBase with Store {
       return cryptoCurrencyHandler().parseAmount(cryptoAmount.sanitized());
     } catch (e) {
       return Money.zero(cryptoCurrencyHandler());
+    }
+  }
+
+  @computed
+  FiatMoney get fiatAmountMoney {
+    if (cryptoAmount.isEmpty) {
+      return Money.zero(_settingsStore.fiatCurrency);
+    }
+
+    try {
+      return _settingsStore.fiatCurrency.parseAmount(fiatAmount.sanitized());
+    } catch (e) {
+      return Money.zero(_settingsStore.fiatCurrency);
     }
   }
 

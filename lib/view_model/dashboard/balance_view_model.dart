@@ -37,6 +37,7 @@ class BalanceRecord {
     required this.exchangeRate,
     required this.availableBalance,
     required this.additionalBalance,
+    required this.secondExchangeRate,
     required this.secondAvailableBalance,
     required this.secondAdditionalBalance,
     required this.frozenBalance,
@@ -49,6 +50,7 @@ class BalanceRecord {
 
   final Balance raw;
   final ExchangeRate? exchangeRate;
+  final ExchangeRate? secondExchangeRate;
 
   Money? get fiatAvailableBalanceRaw => exchangeRate?.convert(raw.available);
 
@@ -56,12 +58,13 @@ class BalanceRecord {
 
   String get fiatFrozenBalanceRaw =>
       exchangeRate?.convert(raw.frozen ?? Money.zero(asset)).toString() ?? "";
-
   Money? get fiatSecondAvailableBalanceRaw =>
-      raw.secondAvailable != null ? exchangeRate?.convert(raw.secondAvailable!) : null;
+      raw.secondAvailable != null ? secondExchangeRate?.convert(raw.secondAvailable!) : null;
 
   String get fiatSecondAdditionalBalanceRaw =>
-      exchangeRate?.convert(raw.secondUnavailable ?? Money.zero(secondAsset)).toString() ?? "";
+      secondExchangeRate?.convert(raw.secondUnavailable ?? Money.zero(secondAsset)).toString() ??
+          "";
+
 
   final String additionalBalance;
   final String availableBalance;
@@ -83,7 +86,7 @@ class BalanceRecord {
       : null;
 
   String get fiatAvailableBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw.toString())}" : "";
+      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw?.toString() ?? "")}" : "";
 
   String get fiatAdditionalBalance =>
       fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAdditionalBalanceRaw)}" : "";
@@ -274,6 +277,7 @@ abstract class BalanceViewModelBase with Store {
           BalanceRecord(
             raw: value,
             exchangeRate: null,
+            secondExchangeRate: null,
             availableBalance: '●●●●●●',
             additionalBalance: '',
             frozenBalance: '',
@@ -292,6 +296,8 @@ abstract class BalanceViewModelBase with Store {
 
       final exchangeRate =
           ExchangeRate(base: key, quote: price.toMoney(settingsStore.fiatCurrency));
+      final secondExchangeRate =
+          ExchangeRate(base: secondAsset, quote: price.toMoney(settingsStore.fiatCurrency));
 
       return MapEntry(
         key,
@@ -301,6 +307,7 @@ abstract class BalanceViewModelBase with Store {
           availableBalance: _getFormattedCryptoAmount(value.available),
           additionalBalance: _getFormattedCryptoAmount(value.unavailable),
           frozenBalance: _getFormattedCryptoAmount(value.frozen),
+          secondExchangeRate: secondExchangeRate,
           secondAvailableBalance: _getFormattedCryptoAmount(value.secondAvailable),
           secondAdditionalBalance: _getFormattedCryptoAmount(value.secondUnavailable),
           asset: key,

@@ -3,6 +3,7 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/transaction_details/address_list_item.dart";
@@ -94,18 +95,23 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                               ),
                               builder: (context, copied) => AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 300),
-                                child: Text(
-                                  key: ValueKey(copied),
-                                  copied
-                                      ? S.of(context).copied
-                                      : widget.transactionDetailsViewModel.transactionAmount,
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    color: copied
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                ),
+                                child: copied
+                                    ? Text(
+                                        S.of(context).copied,
+                                        key: const ValueKey("transaction_details_amount"),
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      )
+                                    : MoneyText(
+                                        widget.transactionDetailsViewModel.transactionInfo.amount,
+                                        key: const ValueKey("transaction_details_amount"),
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),

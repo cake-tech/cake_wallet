@@ -18,6 +18,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
+import "package:cw_core/currency/currency.dart";
 import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -232,22 +233,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  String get pendingTransactionFiatAmount {
-    if (pendingTransaction == null) return '0.00';
+  Money<Currency> get pendingTransactionFiatAmount {
+    if (pendingTransaction == null) {
+      return Money.zero(fiatCurrency);
+    }
 
     try {
       final selectedCurrency = selectedCryptoCurrency == CryptoCurrency.btcln
           ? CryptoCurrency.btc
           : selectedCryptoCurrency;
-      var currency = _fiatConversationStore.prices.keys
+      final currency = _fiatConversationStore.prices.keys
           .firstWhere((k) => k.titleAndTagEqual(selectedCurrency));
 
-      final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[currency],
-          cryptoAmount: pendingTransaction!.amountFormatted);
-      return fiat;
+      final price = _fiatConversationStore.prices[currency];
+      final rate =
+          _fiatConversationStore.getExchangeRate(selectedCryptoCurrency, fiatCurrency, price);
+      return rate.convert(pendingTransaction!.amount);
     } catch (_) {
-      return '0.00';
+      return Money.zero(fiatCurrency);
     }
   }
 
@@ -264,20 +267,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  String get pendingTransactionFeeFiatAmount {
+  Money<Currency> get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
         final currency = pendingTransactionFeeCurrency(walletType);
-        final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[currency]!,
-          cryptoAmount: pendingTransaction!.feeFormattedValue,
-        );
-        return fiat;
+        final price = _fiatConversationStore.prices[currency];
+        final rate = _fiatConversationStore.getExchangeRate(currency, fiatCurrency, price);
+        return rate.convert(pendingTransaction!.fee);
       } else {
-        return '0.00';
+        return Money.zero(fiatCurrency);
       }
     } catch (_) {
-      return '0.00';
+      return Money.zero(fiatCurrency);
     }
   }
 
@@ -395,11 +396,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
+      isFiatDisabled ? "" : pendingTransactionFiatAmount.toStringWithSymbol();
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
+      isFiatDisabled ? "" : pendingTransactionFeeFiatAmount.toStringWithSymbol();
 
   @computed
   bool get isReadyForSend =>

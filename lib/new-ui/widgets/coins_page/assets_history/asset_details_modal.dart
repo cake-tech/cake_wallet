@@ -8,6 +8,7 @@ import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -133,20 +134,22 @@ class AssetDetailsModal extends StatelessWidget {
                                   color: Theme.of(context).colorScheme.onSurface),
                             ),
                             if (asset != null)
-                              Container(
-                                decoration: BoxDecoration(
+                                Container(
+                                  decoration: BoxDecoration(
                                     color: Theme.of(context).colorScheme.surfaceContainer,
-                                    borderRadius: BorderRadius.circular(999999999)),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-                                  child: Text(
-                                    asset?.title ?? "",
-                                    style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    borderRadius: BorderRadius.circular(999999999),
                                   ),
-                                ),
-                              )
-                          ],
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    child: CurrencySymbolText(
+                                      asset!,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                            ],
                         ),
                         if (subtitle.isNotEmpty)
                           Row(
@@ -191,14 +194,14 @@ class AssetDetailsModal extends StatelessWidget {
                           style: const TextStyle(fontSize: 28),
                           showSymbol: false,
                         ),
-                        Text(
-                            amount.currency.symbol,
-                            style: TextStyle(
-                              fontSize: 28,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                        CurrencySymbolText(
+                          amount.currency,
+                          style: TextStyle(
+                            fontSize: 28,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                        ],
+                        ),
+                      ],
                     ),
                     if (fiatAmount != null)
                       MoneyText(

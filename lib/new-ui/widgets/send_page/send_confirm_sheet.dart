@@ -8,6 +8,8 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
@@ -21,6 +23,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency/currency.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -171,59 +174,52 @@ class SendTransactionDetails extends StatelessWidget {
     );
   }
 
-  double sumBy<T>(List<T> list, double Function(T) picker) =>
-      list.map(picker).fold(0.0, (a, b) => a + b);
-
-  Money sumByMoney<T>(List<T> list, Money Function(T) picker, CryptoCurrency currency) =>
+  Money sumByMoney<T>(List<T> list, Money Function(T) picker, Currency currency) =>
       list.map(picker).fold(Money.zero(currency), (a, b) => a + b);
-
-  String sumStr<T>(List<T> list, double Function(T) picker) => sumBy(list, picker).toString();
-
-  String sumWithUnit<T>(List<T> list, double Function(T) picker, String unit, {int? decimals}) {
-    final str = sumStr(list, picker);
-    return "${decimals == null ? str : str.withDecimals(decimals)} $unit";
-  }
 
   Widget _buildMainContent(BuildContext context) {
     return Observer(builder: (context) {
       final transaction = sendViewModel.pendingTransaction;
 
-      final currencySymbol =
-          sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.selectedCryptoCurrency);
+      final amount = transaction == null
+          ? sumByMoney(
+              sendViewModel.outputs,
+              (o) {
+                if (o.sendAll) {
+                  return sendViewModel.balance;
+                }
 
-      final amount = (transaction == null)
-          ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(sendViewModel.outputs, (o) {
-              final zero = Money.zero(sendViewModel.selectedCryptoCurrency);
-              if (o.sendAll)
-                return sendViewModel.balance;
-
-              return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ?? zero;
-            }, sendViewModel.selectedCryptoCurrency))
-          : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount);
+                return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ??
+                    Money.zero(sendViewModel.selectedCryptoCurrency);
+              },
+              sendViewModel.selectedCryptoCurrency,
+            )
+          : transaction.amount;
 
       final fee = (transaction == null)
-          ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(
-              sendViewModel.outputs,
-              (o) => o.estimatedFee,
-              sendViewModel.currency,
-            ))
-          : sendViewModel.amountParsingProxy.asDisplayString(transaction.fee);
+          ? sumByMoney(sendViewModel.outputs, (o) => o.estimatedFee, sendViewModel.currency)
+          : transaction.fee;
 
       final fiatAmount = (transaction == null)
-          ? sumWithUnit(
+          ? sumByMoney(
               sendViewModel.outputs,
-              (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
-              sendViewModel.fiatCurrency.title,
-              decimals: 2)
-          : sendViewModel.pendingTransactionFiatAmountFormatted;
+              (o) =>
+                  sendViewModel.fiatCurrency.tryParseAmount(o.fiatAmount.replaceAll(",", "")) ??
+                  Money.zero(sendViewModel.fiatCurrency),
+              sendViewModel.fiatCurrency,
+            )
+          : sendViewModel.pendingTransactionFiatAmount;
 
       final fiatFee = (transaction == null)
-          ? sumWithUnit(
+          ? sumByMoney(
               sendViewModel.outputs,
-              (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
-              sendViewModel.fiatCurrency.title,
-              decimals: 2)
-          : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
+              (o) =>
+                  sendViewModel.fiatCurrency
+                      .tryParseAmount(o.estimatedFeeFiatAmount.replaceAll(",", "")) ??
+                  Money.zero(sendViewModel.fiatCurrency),
+              sendViewModel.fiatCurrency,
+            )
+          : sendViewModel.pendingTransactionFeeFiatAmount;
 
       final showAddress = !sendViewModel.outputs.any((e) =>
           RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
@@ -241,7 +237,7 @@ class SendTransactionDetails extends StatelessWidget {
 
       return SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -255,23 +251,29 @@ class SendTransactionDetails extends StatelessWidget {
                     spacing: 4,
                     children: [
                       Flexible(
-                        child: Text(
+                        child: MoneyText(
                           amount,
+                          showSymbol: false,
                           style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurface),
+                            fontSize: 36,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ),
-                      Text(currencySymbol,
-                          style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant))
+                      CurrencySymbolText(
+                        sendViewModel.selectedCryptoCurrency,
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ],
                   ),
-                  Text(
+                  MoneyText(
                     fiatAmount,
+                    trimZeros: false,
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
@@ -279,7 +281,7 @@ class SendTransactionDetails extends StatelessWidget {
                   ),
                 ],
               ),
-              if (outputs.length >= 1 &&
+              if (outputs.isNotEmpty &&
                   (outputs.first.extractedAddress.isNotEmpty || outputs.first.address.isNotEmpty) &&
                   showAddress)
                 Column(
@@ -321,10 +323,8 @@ class SendTransactionDetails extends StatelessWidget {
                                         address: item.isParsedAddress
                                             ? item.extractedAddress
                                             : item.address,
-                                        amount:
-                                            "${item.roundedCryptoAmount(8).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currency.title}",
-                                        fiatAmount:
-                                            "${item.fiatAmount.withDecimals(2).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.fiatCurrency.title}",
+                                        amount: item.cryptoAmountMoney,
+                                        fiatAmount: item.fiatAmountMoney,
                                       ),
                                       if (item != outputs.last)
                                         Container(
@@ -360,18 +360,22 @@ class SendTransactionDetails extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
+                              MoneyText(
+                                fee,
                                 style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                               ),
-                              Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant))
+                              MoneyText(
+                                fiatFee,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              )
                             ],
                           )
                         ],
@@ -584,17 +588,18 @@ class TransactionCommittedScreenActionButton extends StatelessWidget {
 }
 
 class MultiSendAddressPreview extends StatefulWidget {
-  const MultiSendAddressPreview(
-      {super.key,
-      required this.index,
-      required this.address,
-      required this.amount,
-      required this.fiatAmount});
+  const MultiSendAddressPreview({
+    required this.index,
+    required this.address,
+    required this.amount,
+    required this.fiatAmount,
+    super.key,
+  });
 
   final int index;
   final String address;
-  final String amount;
-  final String fiatAmount;
+  final Money amount;
+  final Money? fiatAmount;
 
   @override
   State<MultiSendAddressPreview> createState() => _MultiSendAddressPreviewState();
@@ -643,9 +648,10 @@ class _MultiSendAddressPreviewState extends State<MultiSendAddressPreview> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(widget.amount),
-              Text(
+              MoneyText(widget.amount),
+              MoneyText.optional(
                 widget.fiatAmount,
+                trimZeros: false,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               )
             ],
