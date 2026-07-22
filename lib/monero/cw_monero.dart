@@ -236,12 +236,14 @@ class CWMonero extends Monero {
     required String password,
     required int height,
     required HardwareWalletService hardwareWalletService,
+    required String? passphrase,
   }) =>
       MoneroRestoreWalletFromHardwareCredentials(
         name: name,
         password: password,
         height: height,
         hardwareWalletService: hardwareWalletService,
+        passphrase: passphrase,
       );
 
   @override
@@ -432,6 +434,9 @@ class CWMonero extends Monero {
 
   @override
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) => gLedger = connection;
+
+  @override
+  bool hasGlobalLedgerConnection() => gLedger != null;
 
   @override
   String? getLastLedgerCommand() => latestLedgerCommand;

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -128,8 +127,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
     unspentCoinsListViewModel
-        .initialSetup()
-        .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
+        .initialSetup();
+        // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
 
     reaction((_) {
       if (isEVMCompatibleChain(wallet.type)) {
@@ -1121,6 +1120,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // it is required because evm, solana and tron don't actually save the transaction info when you send something.
       // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
       if (isEVMWallet) {
+        final selectedToken = evm!.getERC20Currencies(wallet).firstWhereOrNull(
+              (token) => token.title.toUpperCase() == selectedCryptoCurrency.title.toUpperCase(),
+            );
+
         wallet.transactionHistory.addOne(evm!.getTransactionInfo(
           id: pendingTransaction!.evmTxHashFromRawHex!,
           height: 0,
@@ -1132,6 +1135,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           date: DateTime.now(),
           confirmations: 0,
           chainId: wallet.chainId ?? 0,
+          contractAddress: selectedToken?.contractAddress,
         ));
       }
 
