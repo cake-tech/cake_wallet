@@ -112,6 +112,8 @@ class Routes {
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
+  static const payjoinSettings = '/payjoin_settings';
+  static const payjoinLogs = '/payjoin_logs';
   static const managePayjoinServers = '/manage_payjoin_servers';
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';

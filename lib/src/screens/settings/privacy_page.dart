@@ -58,14 +58,6 @@ class PrivacyPage extends BasePage {
                         onChanged: (val) {
                           _privacySettingsViewModel.setShouldSaveRecipientAddress(val);
                         }),
-                    if (_privacySettingsViewModel.canUsePayjoin)
-                      ListItemToggle(
-                          keyValue: "use_payjoin",
-                          label: S.of(context).use_payjoin,
-                          value: _privacySettingsViewModel.usePayjoin,
-                          onChanged: (val) {
-                            _privacySettingsViewModel.setUsePayjoin(val);
-                          }),
                     if (_privacySettingsViewModel.canUseLightning)
                       ListItemToggle(
                           keyValue: "enable_lightning",
@@ -97,6 +89,13 @@ class PrivacyPage extends BasePage {
                           onTap: () => Navigator.of(context).pushNamed(Routes.unspentCoinsList,
                               arguments:
                                   CoinControlPageArgs(canEdit: false, coinTypeToSpendFrom: null))),
+                    if (_privacySettingsViewModel.isBitcoin)
+                      ListItemRegularRow(
+                          iconPath: "assets/new-ui/settings_row_icons/payjoin.svg",
+                          keyValue: "payjoin_servers",
+                          label: "Payjoin",
+                          onTap: () =>
+                              Navigator.of(context).pushNamed(Routes.payjoinSettings)),
                   ],
                 }),
               ],
