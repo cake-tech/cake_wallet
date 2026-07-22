@@ -3,26 +3,29 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/zano/zano.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/zano/zano.dart';
+import "package:cw_core/amount/exchange_rate.dart";
+import 'package:cw_core/amount/money.dart';
+import "package:cw_core/amount/money_double.dart";
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency/currency.dart";
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -31,16 +34,12 @@ part 'balance_view_model.g.dart';
 class BalanceRecord {
   const BalanceRecord({
     required this.raw,
+    required this.exchangeRate,
     required this.availableBalance,
     required this.additionalBalance,
     required this.secondAvailableBalance,
     required this.secondAdditionalBalance,
     required this.frozenBalance,
-    required this.fiatAvailableBalanceRaw,
-    required this.fiatAdditionalBalanceRaw,
-    required this.fiatFrozenBalanceRaw,
-    required this.fiatSecondAvailableBalanceRaw,
-    required this.fiatSecondAdditionalBalanceRaw,
     required this.asset,
     required this.secondAsset,
     required this.fiatCurrency,
@@ -49,12 +48,20 @@ class BalanceRecord {
   });
 
   final Balance raw;
+  final ExchangeRate? exchangeRate;
 
-  final String fiatAvailableBalanceRaw;
-  final String fiatAdditionalBalanceRaw;
-  final String fiatFrozenBalanceRaw;
-  final String fiatSecondAvailableBalanceRaw;
-  final String fiatSecondAdditionalBalanceRaw;
+  Money? get fiatAvailableBalanceRaw => exchangeRate?.convert(raw.available);
+
+  String get fiatAdditionalBalanceRaw => exchangeRate?.convert(raw.unavailable).toString() ?? "";
+
+  String get fiatFrozenBalanceRaw =>
+      exchangeRate?.convert(raw.frozen ?? Money.zero(asset)).toString() ?? "";
+
+  Money? get fiatSecondAvailableBalanceRaw =>
+      raw.secondAvailable != null ? exchangeRate?.convert(raw.secondAvailable!) : null;
+
+  String get fiatSecondAdditionalBalanceRaw =>
+      exchangeRate?.convert(raw.secondUnavailable ?? Money.zero(secondAsset)).toString() ?? "";
 
   final String additionalBalance;
   final String availableBalance;
@@ -67,20 +74,16 @@ class BalanceRecord {
   final String formattedAssetTitle;
   final String? languageCode;
 
-  String get combinedAvailableBalance =>
-      (raw.available + (raw.secondAvailable ?? Money.zero(raw.available.currency)))
-          .toString()
-          .withMaxDecimals(8);
+  Money get combinedAvailableBalance =>
+      raw.available + (raw.secondAvailable ?? Money.zero(raw.available.currency));
 
-  String get combinedFiatAvailableBalance => fiatCurrency != null
-      ? "$fiatCurrency " +
-          _withLocalSeperator(((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
-                  (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
-              .toStringAsFixed(2))
-      : "";
+  Money? get combinedFiatAvailableBalance => fiatCurrency != null
+      ? (fiatAvailableBalanceRaw ?? Money.zero(fiatCurrency!)) +
+          (fiatSecondAvailableBalanceRaw ?? Money.zero(fiatCurrency!))
+      : null;
 
   String get fiatAvailableBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw)}" : "";
+      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw.toString())}" : "";
 
   String get fiatAdditionalBalance =>
       fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAdditionalBalanceRaw)}" : "";
@@ -89,7 +92,7 @@ class BalanceRecord {
       fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatFrozenBalanceRaw)}" : "";
 
   String get fiatSecondAvailableBalance => fiatCurrency != null
-      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAvailableBalanceRaw)}"
+      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAvailableBalanceRaw.toString())}"
       : "";
 
   String get fiatSecondAdditionalBalance => fiatCurrency != null
@@ -270,16 +273,12 @@ abstract class BalanceViewModelBase with Store {
           key,
           BalanceRecord(
             raw: value,
+            exchangeRate: null,
             availableBalance: '●●●●●●',
             additionalBalance: '',
             frozenBalance: '',
             secondAvailableBalance: '●●●●●●',
             secondAdditionalBalance: '●●●●●●',
-            fiatAdditionalBalanceRaw: '●●●●●',
-            fiatAvailableBalanceRaw: '●●●●●',
-            fiatFrozenBalanceRaw: '',
-            fiatSecondAvailableBalanceRaw: '●●●●●',
-            fiatSecondAdditionalBalanceRaw: '●●●●●',
             asset: key,
             secondAsset: secondAsset,
             fiatCurrency: isFiatDisabled ? null : fiatCurrency,
@@ -291,40 +290,19 @@ abstract class BalanceViewModelBase with Store {
           ? 0.0
           : fiatConversionStore.prices[key == CryptoCurrency.btcln ? CryptoCurrency.btc : key] ?? 0;
 
-      // if (price == null) {
-      //   throw Exception('Price is null for: $key');
-      // }
-
-      final availableFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.available);
-
-      final additionalFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.unavailable);
-
-      final frozenFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.frozen);
-
-      final secondAvailableFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.secondAvailable);
-
-      final secondAdditionalFiatBalance = isFiatDisabled
-          ? ''
-          : _getFiatBalance(price: price, cryptoAmount: value.secondUnavailable);
+      final exchangeRate =
+          ExchangeRate(base: key, quote: price.toMoney(settingsStore.fiatCurrency));
 
       return MapEntry(
         key,
         BalanceRecord(
           raw: value,
+          exchangeRate: isFiatDisabled ? null : exchangeRate,
           availableBalance: _getFormattedCryptoAmount(value.available),
-          fiatAvailableBalanceRaw: availableFiatBalance,
           additionalBalance: _getFormattedCryptoAmount(value.unavailable),
-          fiatAdditionalBalanceRaw: additionalFiatBalance,
           frozenBalance: _getFormattedCryptoAmount(value.frozen),
-          fiatFrozenBalanceRaw: frozenFiatBalance,
           secondAvailableBalance: _getFormattedCryptoAmount(value.secondAvailable),
-          fiatSecondAvailableBalanceRaw: secondAvailableFiatBalance,
           secondAdditionalBalance: _getFormattedCryptoAmount(value.secondUnavailable),
-          fiatSecondAdditionalBalanceRaw: secondAdditionalFiatBalance,
           asset: key,
           secondAsset: secondAsset,
           fiatCurrency: isFiatDisabled ? null : settingsStore.fiatCurrency,
@@ -487,21 +465,16 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  String get combinedFiatBalance {
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return "●●●●●";
-    }
-
-    double ret = 0.0;
+  Money<Currency> get combinedFiatBalance {
+    Money ret = Money.zero(settingsStore.fiatCurrency);
     for (final curr in wallet.balance.keys) {
       final record = wallet.balance[curr]!;
       final available = record.available - (record.secondAvailable ?? Money.zero(curr));
       final price = fiatConversionStore.prices[curr] ?? 0;
-      ret += double.tryParse(calculateFiatAmount(price: price, cryptoAmount: available.toString())
-              .replaceAll(",", "")) ??
-          0;
+      final exchangeRate = fiatConversionStore.getExchangeRate(curr, settingsStore.fiatCurrency, price);
+      ret += exchangeRate.convert(available);
     }
-    return ret.toStringAsFixed(2).withLocalSeperator(settingsStore.languageCode);
+    return ret;
   }
 
   Balance _currencyBalance(CryptoCurrency cryptoCurrency) {

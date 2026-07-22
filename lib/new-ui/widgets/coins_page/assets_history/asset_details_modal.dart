@@ -1,48 +1,49 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/modal_navigator.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
-import 'package:cake_wallet/new-ui/pages/receive_page.dart';
-import 'package:cake_wallet/new-ui/pages/send_page.dart';
-import 'package:cake_wallet/new-ui/pages/swap_page.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
-import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/modal_navigator.dart";
+import "package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart";
+import "package:cake_wallet/new-ui/pages/receive_page.dart";
+import "package:cake_wallet/new-ui/pages/send_page.dart";
+import "package:cake_wallet/new-ui/pages/swap_page.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/utils/payment_request.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/unspent_coin_type.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:flutter/material.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 enum AssetDetailsModalModes { normal, ltcTransparent, ltcPrivate }
 
 class AssetDetailsModal extends StatelessWidget {
-  const AssetDetailsModal(
-      {super.key,
-      required this.title,
-      required this.chainTitle,
-      required this.subtitle,
-      required this.amount,
-      required this.currencyTitle,
-      required this.fiatAmount,
-      required this.iconPath,
-      required this.chainIconPath,
-      required this.mode,
-      required this.wallet,
-      required this.showSwap,
-      required this.showBridgeButton,
-      this.asset});
+  const AssetDetailsModal({
+    required this.title,
+    required this.chainTitle,
+    required this.subtitle,
+    required this.amount,
+    required this.fiatAmount,
+    required this.iconPath,
+    required this.chainIconPath,
+    required this.mode,
+    required this.wallet,
+    required this.showSwap,
+    required this.showBridgeButton,
+    this.asset,
+    super.key,
+  });
 
   final String title;
   final CryptoCurrency? asset;
   final String chainTitle;
   final String subtitle;
-  final String amount;
-  final String currencyTitle;
-  final String fiatAmount;
+  final Money amount;
+  final Money? fiatAmount;
   final String iconPath;
   final String chainIconPath;
   final WalletBase wallet;
@@ -51,19 +52,18 @@ class AssetDetailsModal extends StatelessWidget {
   final AssetDetailsModalModes mode;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ModalTopBar(
             title: "",
-            trailingIcon: Icon(Icons.close),
+            trailingIcon: const Icon(Icons.close),
             onTrailingPressed: Navigator.of(context).pop,
-            padding: EdgeInsets.only(top: 12, right: 18),
+            padding: const EdgeInsets.only(top: 12, right: 18),
           ),
           SafeArea(
             child: Column(
@@ -186,24 +186,32 @@ class AssetDetailsModal extends StatelessWidget {
                       spacing: 4,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        MoneyText(
                           amount,
-                          style: TextStyle(fontSize: 28),
+                          style: const TextStyle(fontSize: 28),
+                          showSymbol: false,
                         ),
-                        Text(currencyTitle,
+                        Text(
+                            amount.currency.symbol,
                             style: TextStyle(
-                                fontSize: 28,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant))
-                      ],
+                              fontSize: 28,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                     ),
-                    Text(
-                      fiatAmount,
-                      style: TextStyle(
-                          fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    )
+                    if (fiatAmount != null)
+                      MoneyText(
+                        fiatAmount!,
+                        trimZeros: false,
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                   ],
                 ),
-                SizedBox(),
+                const SizedBox(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 20,
@@ -264,14 +272,13 @@ class AssetDetailsModal extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox()
+                const SizedBox()
               ],
             ),
           )
         ],
       ),
     );
-  }
 
   UnspentCoinType get unspentCoinType {
     switch (mode) {

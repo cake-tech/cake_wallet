@@ -342,7 +342,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  void setCurrentAccount(Object wallet, int id, String label, String? balance) {
+  void setCurrentAccount(Object wallet, int id, String label, Money? balance) {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.account =
         monero_account.Account(id: id, label: label, balance: balance);

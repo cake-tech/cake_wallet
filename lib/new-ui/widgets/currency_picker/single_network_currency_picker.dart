@@ -4,7 +4,9 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import 'package:cake_wallet/reactions/wallet_utils.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -41,7 +43,8 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     Navigator.of(context).maybePop();
   }
 
-  double _fiatValueFor(CryptoCurrency c) => _args.balanceByAsset?[c]?.fiatValue ?? 0;
+  Money _fiatValueFor(CryptoCurrency c) =>
+      _args.balanceByAsset?[c]?.fiat ?? Money.zero(_args.fiatCurrency);
 
   @override
   Widget build(BuildContext context) {
@@ -129,32 +132,32 @@ class _BalanceTrailing extends StatelessWidget {
   final CurrencyPickerBalance? balance;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final amount = balance?.amount ?? '—';
-    final fiat = balance?.fiat;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          amount,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-        ),
-        if (fiat != null && fiat.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Text(
-              fiat,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w400,
-                    color: colors.onSurfaceVariant,
-                  ),
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (balance?.amount != null)
+            MoneyText(
+              balance!.amount,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
-          ),
-      ],
-    );
-  }
+          if (balance?.amount == null)
+            Text(
+              "-",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+            ),
+          if (balance?.fiat != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: MoneyText(
+                balance!.fiat!,
+                trimZeros: false,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
+        ],
+      );
 }

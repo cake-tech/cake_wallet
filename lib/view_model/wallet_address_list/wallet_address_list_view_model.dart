@@ -1,5 +1,4 @@
 import "dart:core";
-import "dart:developer" as dev;
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/address_resolver/yat/yat_store.dart";
@@ -28,6 +27,8 @@ import "package:cake_wallet/view_model/wallet_address_list/wallet_address_util.d
 import "package:cake_wallet/wownero/wownero.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:cake_wallet/zcash/zcash.dart";
+import "package:cw_core/amount/exchange_rate.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency/currency.dart";
 import "package:cw_core/currency/fiat_currency.dart";
@@ -36,6 +37,7 @@ import "package:cw_core/erc20_token.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:mobx/mobx.dart";
 
@@ -70,7 +72,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   final FiatConversionStore fiatConversionStore;
   final AppStore _appStore;
 
-  double? _fiatRate;
+  ExchangeRate? _fiatRate;
 
   List<Currency> get currencies => [tokenCurrency ?? wallet.currency, ...FiatCurrency.all];
 
@@ -80,15 +82,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   CryptoCurrency? tokenCurrency;
 
   @computed
+  bool get showTokenCurrencyLabel => tokenCurrency != null && tokenCurrency != CryptoCurrency.btcln;
+
+  @computed
   String get cryptoCurrencySymbol => _appStore.amountParsingProxy.getCryptoSymbol(
-        tokenCurrency ??
-            (selectedCurrency is CryptoCurrency
-                ? selectedCurrency as CryptoCurrency
-                : wallet.currency),
+        tokenCurrency ?? wallet.currency,
       );
 
   void setTokenCurrency(Currency curr) {
-    if (curr == wallet.currency || curr == CryptoCurrency.btcln) {
+    _amount = null;
+
+    if (curr == wallet.currency) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;
       return;
@@ -134,22 +138,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   int get tokenCurrencyIndex => tokenCurrency == null ? 0 : tokenCurrencies.indexOf(tokenCurrency!);
 
   @observable
-  String _amount = "";
+  Money<Currency>? _amount;
 
   @computed
-  String get displayAmount => _appStore.amountParsingProxy.getDisplayCryptoAmount(
-        _amount,
-        tokenCurrency ??
-            (selectedCurrency is CryptoCurrency
-                ? selectedCurrency as CryptoCurrency
-                : wallet.currency),
-      );
+  Money? get displayAmount => _amount;
 
   // NOT PRECISE! just for display purposes.
   @computed
-  String get fiatAmount {
-    if (_amount.isEmpty) {
-      return "";
+  Money? get fiatAmount {
+    if (_amount == null) {
+      return null;
     }
 
     var cryptoCurrency = tokenCurrency ?? wallet.currency;
@@ -161,20 +159,33 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return selectedCurrencyFiatAmount;
     }
 
-    if (!fiatConversionStore.prices.containsKey(cryptoCurrency)) {
-      return "";
+    try {
+      final price = fiatConversionStore.prices[cryptoCurrency];
+      if (price == null) {
+        return null;
+      }
+      return fiatConversionStore
+          .getExchangeRate(
+        tokenCurrency ?? wallet.currency,
+        fiatCurrency,
+        price,
+      )
+          .convert(_amount!);
+    } catch (_) {
+      return null;
     }
-    final amount = double.tryParse(_amount) ?? 0;
-    return (amount * fiatConversionStore.prices[cryptoCurrency]!).toStringAsFixed(2);
   }
 
   @computed
-  String get selectedCurrencyFiatAmount {
-    if (_fiatRate == null) {
-      return "";
+  Money? get selectedCurrencyFiatAmount {
+    try {
+      if (_fiatRate == null || _amount == null) {
+        return null;
+      }
+      return _fiatRate!.convert(_amount!);
+    } catch (_) {
+      return null;
     }
-    final amount = double.tryParse(_amount) ?? 0;
-    return (amount * _fiatRate!).toStringAsFixed(2);
   }
 
   @action
@@ -221,20 +232,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return ERC681URI(
         chainId: wallet.chainId ?? 1,
         address: wallet.walletAddresses.address,
-        amount: _amount,
+        amount: _amount.toString(),
         contractAddress: (tokenCurrency! as Erc20Token).contractAddress,
       );
     }
     if (tokenCurrency is TronToken && wallet.type == WalletType.tron) {
       return TronURI(
-        amount: _amount,
+        amount: _amount.toString(),
         address: wallet.walletAddresses.address,
         contractAddress: (tokenCurrency! as TronToken).contractAddress,
       );
     }
     if (tokenCurrency is SPLToken && wallet.type == WalletType.solana) {
       return SolanaURI(
-        amount: _amount,
+        amount: _amount.toString(),
         address: wallet.walletAddresses.address,
         contractAddress: (tokenCurrency! as SPLToken).mintAddress,
       );
@@ -242,7 +253,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (isLightning && _lnPaymentRequest != null) {
       return _lnPaymentRequest!;
     }
-    return wallet.walletAddresses.getPaymentUri(_amount);
+    return wallet.walletAddresses.getPaymentUri(_amount.toString());
   }
 
   bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
@@ -709,17 +720,21 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @action
   void selectCurrency(Currency currency) {
     selectedCurrency = currency;
+    _amount = null;
 
     if (currency is FiatCurrency && _appStore.settingsStore.fiatCurrency != currency) {
-      final cryptoCurrency = wallet.currency;
+      final cryptoCurrency = tokenCurrency ??
+          (selectedCurrency is CryptoCurrency
+              ? selectedCurrency as CryptoCurrency
+              : wallet.currency);
 
-      dev.log("Requesting Fiat rate for $cryptoCurrency-$currency");
-      FiatConversionService.fetchPrice(
+      printV("Requesting Fiat rate for $cryptoCurrency-$currency");
+      FiatConversionService.fetchExchangeRate(
         crypto: cryptoCurrency,
         fiat: currency,
         torOnly: _appStore.settingsStore.fiatApiMode == FiatApiMode.torOnly,
       ).then((value) {
-        dev.log("Received Fiat rate 1 $cryptoCurrency = $value $currency");
+        printV("Received Fiat rate 1 $cryptoCurrency = $value $currency");
         _fiatRate = value;
         _convertAmountToCrypto();
       });
@@ -729,14 +744,18 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @action
   void changeAmount(String amount) {
     if (selectedCurrency is FiatCurrency) {
-      _amount = amount;
+      _amount = selectedCurrency.parseAmount(amount);
       _convertAmountToCrypto();
     } else if (selectedCurrency is CryptoCurrency) {
-      _amount = _appStore.amountParsingProxy
-          .getCanonicalCryptoAmount(amount, selectedCurrency as CryptoCurrency);
+      _amount = selectedCurrency.parseAmount(
+        _appStore.amountParsingProxy
+            .getCanonicalCryptoAmount(amount, selectedCurrency as CryptoCurrency),
+      );
     }
     if (isLightning) {
-      wallet.walletAddresses.getPaymentRequestUri(_amount).then((uri) => _lnPaymentRequest = uri);
+      wallet.walletAddresses
+          .getPaymentRequestUri(_amount.toString())
+          .then((uri) => _lnPaymentRequest = uri);
     }
   }
 
@@ -751,21 +770,28 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (cryptoCurrency == CryptoCurrency.btcln) {
       cryptoCurrency = CryptoCurrency.btc;
     }
-    final fiatRate = _fiatRate ?? (fiatConversionStore.prices[cryptoCurrency] ?? 0.0);
-
-    if (fiatRate <= 0.0) {
-      dev.log("Invalid Fiat Rate $fiatRate");
-      _amount = "";
-      return;
-    }
+    final fiatRate = _fiatRate ??
+        fiatConversionStore.getExchangeRate(
+          tokenCurrency ??
+              (selectedCurrency is CryptoCurrency
+                  ? selectedCurrency as CryptoCurrency
+                  : wallet.currency),
+          fiatCurrency,
+          fiatConversionStore.prices[cryptoCurrency],
+        );
 
     try {
-      final crypto = (double.parse(_amount.replaceAll(",", ".")) / fiatRate).toStringAsFixed(8);
+      final crypto = fiatRate.convert(_amount!);
       if (_amount != crypto) {
         _amount = crypto;
       }
     } catch (e) {
-      _amount = "";
+      _amount = Money.zero(
+        tokenCurrency ??
+            (selectedCurrency is CryptoCurrency
+                ? selectedCurrency as CryptoCurrency
+                : wallet.currency),
+      );
     }
   }
 

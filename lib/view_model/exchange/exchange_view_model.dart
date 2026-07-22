@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:math' show min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -242,7 +241,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
         final balance = wallet.balance[depositCurrency];
         if (balance != null) {
-          depositAvailableAmount = _appStore.amountParsingProxy.asDisplayString(balance.available);
+          depositAvailableAmount = balance.available;
           return false;
         }
         return true;
@@ -256,16 +255,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       );
       final balanceForCurrency = balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
       if (depositCurrency == currency && balanceForCurrency != null) {
-        depositAvailableAmount =
-            _appStore.amountParsingProxy.asDisplayStringWithSymbol(balanceForCurrency.available);
+        depositAvailableAmount = balanceForCurrency.available;
       }
     } else {
       final currency = depositCurrency;
       final sendingBalance = Money.fromInt(
-          await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any), currency);
-      final amount = _appStore.amountParsingProxy.asDisplayStringWithSymbol(sendingBalance);
+        await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any),
+        currency,
+      );
       if (depositCurrency == currency) {
-        depositAvailableAmount = amount;
+        depositAvailableAmount = sendingBalance;
       }
     }
   }
@@ -495,7 +494,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets;
 
   @computed
-  String? get balanceDisplay {
+  CryptoMoney? get balanceDisplay {
     CryptoCurrency? balanceCurrency;
     if (isEVMCompatibleChain(wallet.type) ||
         wallet.type == WalletType.solana ||
@@ -509,8 +508,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       balanceCurrency = depositCurrency;
     }
     final bal = balanceCurrency != null ? wallet.balance[balanceCurrency]?.available : null;
-    if (bal == null) return null;
-    return amountParsingProxy.asDisplayString(bal);
+
+    return bal;
   }
 
   //* Still open to further optimize these checks
@@ -1370,8 +1369,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       final amount = depositCurrency == CryptoCurrency.btcln
           // FIXME amount estimation is broken/impossible for ln, konsti suggested this
-          ? (amountParsingProxy.parseCryptoString(depositAvailableAmount, depositCurrency) -
-              Money.fromInt(10, depositCurrency))
+          ? (depositAvailableAmount - Money.fromInt(10, depositCurrency))
           : await bitcoin!.estimateFakeSendAllTxAmount(
               wallet,
               priority,
@@ -1443,7 +1441,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @observable
-  String depositAvailableAmount = "";
+  late CryptoMoney depositAvailableAmount = Money.zero(depositCurrency);
 
   @action
   void reverseSwapDirection() {

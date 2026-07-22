@@ -1265,6 +1265,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         recentsSource: RecentsSource.trades,
         onSelected: widget.onCurrencySelected,
         symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
+        fiatCurrency: widget.exchangeViewModel.fiat,
       ),
     );
   }

@@ -24,7 +24,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AccountCustomizerListItem {
@@ -100,8 +99,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           card: BalanceCard(
             accountName: accounts[index].label,
             accountIndex: accounts[index].id,
-            balance: accounts[index].balance ?? "0.00",
-            accountBalance: accounts[index].balance ?? "0.00",
+            balance: accounts[index].balance?.toStringWithPrecision(fractionalDigits: 8) ?? "0.00",
+            accountBalance: accounts[index].balance?.toStringWithPrecision(fractionalDigits: 2) ?? "0.00",
             designSwitchDuration: Duration.zero,
             assetName: widget.accountListViewModel.currency.title,
             onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
@@ -372,8 +371,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           card: BalanceCard(
             accountName: accounts[i].label,
             accountIndex: accounts[i].id,
-            balance: accounts[i].balance ?? "0.00",
-            accountBalance: accounts[i].balance ?? "0.00",
+            balance: accounts[i].balance?.toStringWithPrecision(fractionalDigits: 8) ?? "0.00",
+            accountBalance: accounts[i].balance?.toStringWithPrecision(fractionalDigits: 2, trimZeros: false) ?? "0.00",
             assetName: widget.accountListViewModel.currency.title,
             selected: true,
             designSwitchDuration: Duration(milliseconds: 200),

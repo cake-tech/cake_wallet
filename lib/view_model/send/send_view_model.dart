@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -329,22 +328,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance {
-    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
-      return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (walletType == WalletType.litecoin &&
-        coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
-      return balanceViewModel.balances.values.first.availableBalance;
+  CryptoMoney get balance {
+    if (walletType == WalletType.litecoin) {
+      final balance = balanceViewModel.balances.values.first;
+
+      if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+        return balance.raw.secondAvailable ?? Money.zero(balance.secondAsset);
+      } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+        return balance.raw.available;
+      }
     }
 
     // Handle case where balance might not be available yet (e.g., during chain switch)
     final balanceForCurrency = wallet.balance[selectedCryptoCurrency];
-    if (balanceForCurrency == null) {
-      return _appStore.amountParsingProxy.asDisplayString(Money.zero(selectedCryptoCurrency));
-    }
-    return _appStore.amountParsingProxy
-        .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
+
+    return balanceForCurrency?.available ?? Money.zero(selectedCryptoCurrency);
   }
+
+  @computed
+  String get balanceString => _appStore.amountParsingProxy.asDisplayString(balance);
 
   @action
   Future<void> updateSendingBalance() async {
@@ -370,7 +372,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
-        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
+        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balanceString;
         return _appStore.amountParsingProxy.getDisplayCryptoString(
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
             walletTypeToCryptoCurrency(walletType));
@@ -384,7 +386,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
         return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
       default:
-        return balance;
+        return balanceString;
     }
   }
 

@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import "package:intl/intl.dart";
 
 double cryptoAmountToDouble({required num amount, required num divider}) => amount / divider;
 
@@ -31,7 +31,7 @@ extension MaxDecimals on String {
     if (parts[1].length > decimals) {
       parts[1] = parts[1].substring(0, decimals);
     } else {
-      parts[1] = parts[1].padRight(decimals, '0');
+      parts[1] = parts[1].padRight(decimals, "0");
     }
 
     return parts.join(".");
@@ -59,7 +59,9 @@ extension MaxDecimals on String {
 
       if ([">", "<"].contains(parts.first)) {
         final result = [parts.first, parts[1].withLocalSeperator(locale)];
-        if (parts.length > 2) result.addAll(parts.sublist(2));
+        if (parts.length > 2) {
+          result.addAll(parts.sublist(2));
+        }
 
         return result.join(" ");
       }
@@ -69,7 +71,9 @@ extension MaxDecimals on String {
 
     final formater = NumberFormat("#,###", locale);
     final parts = replaceAll(",", "").split(".");
-    if (parts.first.contains("< 0")) parts.first = "0";
+    if (parts.first.contains("< 0")) {
+      parts.first = "0";
+    }
 
     return [formater.format(int.tryParse(parts.first) ?? 0), ...parts.sublist(1)]
         .join(formater.symbols.DECIMAL_SEP);

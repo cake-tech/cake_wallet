@@ -372,7 +372,7 @@ class Account {
   Account({required this.id, required this.label, this.balance});
   final int id;
   final String label;
-  final String? balance;
+  final Money? balance;
 }
 
 class Subaddress {
@@ -392,15 +392,15 @@ class Subaddress {
 class MoneroBalance extends Balance {
   MoneroBalance({
     required this.fullBalance,
-    required Money unlockedBalance,
-    Money? frozen,
+    required CryptoMoney unlockedBalance,
+    CryptoMoney? frozen,
   }) : super(
           unlockedBalance,
           fullBalance - unlockedBalance,
           frozen: frozen ?? Money.zero(CryptoCurrency.xmr),
         );
 
-  final Money fullBalance;
+  final CryptoMoney fullBalance;
 }
 
 abstract class MoneroWalletDetails {
@@ -467,7 +467,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   Account getCurrentAccount(Object wallet);
   void monerocCheck();
   bool isViewOnly();
-  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+  void setCurrentAccount(Object wallet, int id, String label, Money? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
@@ -578,7 +578,7 @@ class Account {
   Account({required this.id, required this.label, this.balance});
   final int id;
   final String label;
-  final String? balance;
+  final Money? balance;
 }
 
 class Subaddress {
@@ -594,15 +594,15 @@ class Subaddress {
 class WowneroBalance extends Balance {
   WowneroBalance({
     required this.fullBalance,
-    required Money unlockedBalance,
-    Money? frozen,
+    required CryptoMoney unlockedBalance,
+    CryptoMoney? frozen,
   }) : super(
           unlockedBalance,
           fullBalance - unlockedBalance,
           frozen: frozen ?? Money.zero(CryptoCurrency.wow),
         );
 
-  final Money fullBalance;
+  final CryptoMoney fullBalance;
 }
 
 abstract class WowneroWalletDetails {
@@ -658,7 +658,7 @@ abstract class Wownero {
   double formatterWowneroAmountToDouble({required int amount});
   int formatterWowneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
-  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+  void setCurrentAccount(Object wallet, int id, String label, Money? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
@@ -766,38 +766,28 @@ abstract class BitcoinCash {
 Future<void> generateNano(bool hasImplementation) async {
   final outputFile = File(nanoOutputPath);
   const nanoCommonHeaders = """
-import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/nano_account.dart';
-import 'package:cw_core/account.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/output_info.dart';
-import 'package:cw_core/nano_account_info_response.dart';
-import 'package:cw_core/n2_node.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:mobx/mobx.dart';
-import 'package:hive/hive.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/nano_account.dart";
+import "package:cw_core/account.dart";
+import "package:cw_core/node.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/output_info.dart";
+import "package:cw_core/nano_account_info_response.dart";
+import "package:cw_core/n2_node.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:mobx/mobx.dart";
+import "package:cake_wallet/view_model/send/output.dart";
 """;
   const nanoCWHeaders = """
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
-import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 // needed for nano_util:
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:convert/convert.dart';
-import "package:ed25519_hd_key/ed25519_hd_key.dart";
-import 'package:libcrypto/libcrypto.dart';
-import 'package:nanodart/nanodart.dart' as ND;
 import 'package:nanoutil/nanoutil.dart';
 """;
   const nanoCwPart = "part 'cw_nano.dart';";
@@ -807,7 +797,7 @@ abstract class Nano {
 
   Account getCurrentAccount(Object wallet);
 
-  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+  void setCurrentAccount(Object wallet, int id, String label, Money? balance);
 
   WalletService createNanoWalletService(bool isDirect);
 
@@ -909,7 +899,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency/currency.dart';
+import "package:cw_core/currency/fiat_currency.dart";
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/transaction_info.dart';

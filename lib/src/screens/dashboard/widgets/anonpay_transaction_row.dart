@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AnonpayTransactionRow extends StatelessWidget {
-  AnonpayTransactionRow({
+  const AnonpayTransactionRow({
     required this.provider,
     required this.createdAt,
     required this.currency,

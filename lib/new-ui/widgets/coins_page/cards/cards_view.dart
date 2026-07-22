@@ -126,12 +126,12 @@ class _CardsViewState extends State<CardsView> {
                 walletBalance = '●●●●●●';
                 walletFiatBalance = '●●●●●●';
               } else {
-                walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
-                walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+                walletBalance = walletBalanceRecord?.combinedAvailableBalance.toStringWithPrecision(fractionalDigits: 8) ?? "0";
+                walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance?.toStringWithPrecision(fractionalDigits: 2) ?? "0.00";
               }
             } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
               walletBalance = "";
-              walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
+              walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance.toStringWithPrecision(fractionalDigits: 2);
             } else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
               walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
@@ -155,7 +155,7 @@ class _CardsViewState extends State<CardsView> {
               accountBalance = "";
             } else {
               accountName = account.label;
-              accountBalance = account.balance ?? "0.00";
+              accountBalance = account.balance?.toStringWithPrecision(fractionalDigits: 2, trimZeros: false) ?? "0.00";
             }
 
             final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance

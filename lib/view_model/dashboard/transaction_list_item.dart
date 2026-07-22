@@ -1,21 +1,23 @@
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cw_core/currency/fiat_currency.dart';
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/zano/zano.dart';
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
-import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cw_core/keyable.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cake_wallet/entities/balance_display_mode.dart";
+import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/reactions/wallet_connect.dart";
+import "package:cake_wallet/solana/solana.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/tron/tron.dart";
+import "package:cake_wallet/view_model/dashboard/action_list_item.dart";
+import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
+import "package:cake_wallet/zano/zano.dart";
+import "package:cw_core/amount/exchange_rate.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/amount/money_double.dart";
+import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:cw_core/keyable.dart";
+import "package:cw_core/transaction_direction.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/wallet_type.dart";
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem({
@@ -44,7 +46,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.tron;
 
   String get formattedCryptoAmount {
-    if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
+    if (displayMode == BalanceDisplayMode.hiddenBalance) return "---";
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
       return _appStore.amountParsingProxy
           .asDisplayStringWithSymbol(transaction.amount)
@@ -56,11 +58,11 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   String get formattedTitle {
     if (balanceViewModel.wallet.type == WalletType.bitcoin &&
-        transaction.additionalInfo['hasMissingInputTx'] == true) {
-      return 'Transaction has missing data';
+        transaction.additionalInfo["hasMissingInputTx"] == true) {
+      return "Transaction has missing data";
     }
 
-    if (transaction.additionalInfo['isAutoShield'] == true) {
+    if (transaction.additionalInfo["isAutoShield"] == true) {
       if (transaction.isPending) {
         final status = formattedStatus;
         final baseString = S.current.shielding;
@@ -107,19 +109,19 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.haven:
       case WalletType.zano:
         if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
-          return ' (${transaction.confirmations}/10)';
+          return " (${transaction.confirmations}/10)";
         }
         break;
       case WalletType.wownero:
         if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
-          return ' (${transaction.confirmations}/3)';
+          return " (${transaction.confirmations}/3)";
         }
         break;
       case WalletType.litecoin:
         bool isPegIn = (transaction.additionalInfo["isPegIn"] as bool?) ?? false;
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
         bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
-        String str = '';
+        String str = "";
         if (transaction.confirmations <= 0) {
           str = S.current.pending;
         }
@@ -136,10 +138,10 @@ class TransactionListItem extends ActionListItem with Keyable {
         }
         return str;
       default:
-        return '';
+        return "";
     }
 
-    return '';
+    return "";
   }
 
   String get formattedStatus {
@@ -157,10 +159,10 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedType {
-    if (transaction.evmSignatureName == 'approval') {
-      return ' (${transaction.evmSignatureName})';
+    if (transaction.evmSignatureName == "approval") {
+      return " (${transaction.evmSignatureName})";
     }
-    return '';
+    return "";
   }
 
   CryptoCurrency? get assetOfTransaction {
@@ -186,8 +188,8 @@ class TransactionListItem extends ActionListItem with Keyable {
     return null;
   }
 
-  String get formattedFiatAmount {
-    var amount = '';
+  Money get fiatAmount {
+    ExchangeRate? exchangeRate;
 
     switch (balanceViewModel.wallet.type) {
       case WalletType.monero:
@@ -199,49 +201,42 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.nano:
       case WalletType.decred:
       case WalletType.zcash:
-        amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
-          price: price,
-        ).withLocalSeperator(_appStore.settingsStore.languageCode);
+        exchangeRate = ExchangeRate(
+          base: transaction.amount.currency,
+          quote: price.toMoney(fiatCurrency),
+        );
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
-        final asset = assetOfTransaction;
-        final price = balanceViewModel.fiatConversionStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
-          price: price,
-        ).withLocalSeperator(_appStore.settingsStore.languageCode);
-        break;
       case WalletType.solana:
         final asset = assetOfTransaction;
-        final price = balanceViewModel.fiatConversionStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
-          price: price,
-        ).withLocalSeperator(_appStore.settingsStore.languageCode);
+        if (asset != null) {
+          final price = balanceViewModel.fiatConversionStore.prices[asset];
+          exchangeRate = ExchangeRate(
+            base: asset,
+            quote: price?.toMoney(fiatCurrency) ?? Money.zero(fiatCurrency),
+          );
+        }
         break;
       case WalletType.tron:
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
-          price: price,
-        ).withLocalSeperator(_appStore.settingsStore.languageCode);
+        exchangeRate = ExchangeRate(
+          base: asset,
+          quote: price?.toMoney(fiatCurrency) ?? Money.zero(fiatCurrency),
+        );
         break;
       case WalletType.zano:
         final asset = zano!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        if (asset == null) {
-          amount = "0.00";
-          break;
+        if (asset != null) {
+          final price = balanceViewModel.fiatConversionStore.prices[asset];
+          exchangeRate = ExchangeRate(
+            base: asset,
+            quote: price?.toMoney(fiatCurrency) ?? Money.zero(fiatCurrency),
+          );
         }
-        final price = balanceViewModel.fiatConversionStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
-          price: price,
-        ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
       case WalletType.none:
       case WalletType.banano:
@@ -249,10 +244,13 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
     }
 
-    transaction.changeFiatAmount(amount);
-    return displayMode == BalanceDisplayMode.hiddenBalance
-        ? '---'
-        : fiatCurrency.title + ' ' + transaction.fiatAmount();
+    try {
+      final amount = exchangeRate?.convert(transaction.amount) ?? Money.zero(fiatCurrency);
+      transaction.changeFiatAmount(amount.toString());
+      return amount;
+    } catch (_) {
+      return Money.zero(fiatCurrency);
+    }
   }
 
   @override

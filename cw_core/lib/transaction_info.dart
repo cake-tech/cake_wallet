@@ -26,6 +26,6 @@ abstract class TransactionInfo extends Object with Keyable {
   Map<String, dynamic> additionalInfo = {};
 
   String? _fiatAmount;
-  String fiatAmount() => _fiatAmount ?? '';
+  String fiatAmount() => _fiatAmount ?? "";
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }

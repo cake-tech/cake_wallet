@@ -1,27 +1,30 @@
-import 'dart:math' show min;
+import "dart:math" show min;
 
-import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
-import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart";
+import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
 
 class AssetTile extends StatelessWidget {
-  const AssetTile(
-      {super.key,
-      required this.balance,
-      required this.chainIconPath,
-      this.showSecondary = false,
-      this.showBridgeButton = false,
-      this.title,
-      this.trailingText,
-      this.modalMode = AssetDetailsModalModes.normal,
-      required this.wallet,
-      required this.showSwap,
-      required this.isFirst,
-      required this.isLast});
+  const AssetTile({
+    required this.balance,
+    required this.chainIconPath,
+    required this.wallet,
+    required this.showSwap,
+    required this.isFirst,
+    required this.isLast,
+    this.showSecondary = false,
+    this.showBridgeButton = false,
+    this.title,
+    this.trailingText,
+    this.modalMode = AssetDetailsModalModes.normal,
+    super.key,
+  });
 
   final BalanceRecord balance;
   final bool showSecondary;
@@ -39,30 +42,31 @@ class AssetTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconPath = balance.asset.iconPath ?? "";
 
+    final fiatAmount =
+        showSecondary ? balance.fiatSecondAvailableBalanceRaw : balance.fiatAvailableBalanceRaw;
+
     return GestureDetector(
       onTap: () {
         showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (context) {
-              return AssetDetailsModal(
-                showSwap: showSwap,
-                showBridgeButton: showBridgeButton,
-                asset: balance.asset,
-                title: title ?? balance.asset.fullName ?? balance.asset.name,
-                chainTitle: "",
-                subtitle: trailingText ?? _getChainTitle(),
-                amount: showSecondary ? balance.secondAvailableBalance : balance.availableBalance,
-                currencyTitle: balance.asset.title,
-                fiatAmount: showSecondary
-                    ? balance.fiatSecondAvailableBalance
-                    : balance.fiatAvailableBalance,
-                iconPath: balance.asset.iconPath ?? "",
-                chainIconPath: chainIconPath,
-                mode: modalMode,
-                wallet: wallet,
-              );
-            });
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => AssetDetailsModal(
+            showSwap: showSwap,
+            showBridgeButton: showBridgeButton,
+            asset: balance.asset,
+            title: title ?? balance.asset.fullName ?? balance.asset.name,
+            chainTitle: "",
+            subtitle: trailingText ?? _getChainTitle(),
+            amount: showSecondary
+                ? balance.raw.secondAvailable ?? Money.zero(balance.raw.available.currency)
+                : balance.raw.available,
+            fiatAmount: fiatAmount,
+            iconPath: balance.asset.iconPath ?? "",
+            chainIconPath: chainIconPath,
+            mode: modalMode,
+            wallet: wallet,
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -151,12 +155,12 @@ class AssetTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(
-                  showSecondary ? balance.fiatSecondAvailableBalance : balance.fiatAvailableBalance,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
+                if (fiatAmount != null)
+                  MoneyText(
+                    fiatAmount,
+                    trimZeros: false,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   ),
-                ),
               ],
             ),
           ),

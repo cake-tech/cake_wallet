@@ -1,10 +1,9 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HistoryTile extends StatelessWidget {
   const HistoryTile({
@@ -25,8 +24,8 @@ class HistoryTile extends StatelessWidget {
 
   final String title;
   final String date;
-  final String amount;
-  final String amountFiat;
+  final Money amount;
+  final Money amountFiat;
   final bool roundedTop;
   final bool roundedBottom;
   final bool bottomSeparator;
@@ -136,18 +135,16 @@ class HistoryTile extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return HistoryTileBase(
-      title: title,
-      date: date,
-      amount: amount,
-      amountFiat: amountFiat,
-      leadingIcon: _getLeadingIcon(context),
-      primaryTextColor: _getPrimaryTextColor(),
-      roundedTop: roundedTop,
-      roundedBottom: roundedBottom,
-      bottomSeparator: bottomSeparator,
-      asset: asset,
-    );
-  }
+  Widget build(BuildContext context) => HistoryTileBase(
+        title: title,
+        date: date,
+        amount: amount,
+        amountFiat: amountFiat,
+        leadingIcon: _getLeadingIcon(context),
+        primaryTextColor: _getPrimaryTextColor(),
+        roundedTop: roundedTop,
+        roundedBottom: roundedBottom,
+        bottomSeparator: bottomSeparator,
+        asset: asset,
+      );
 }

@@ -1,5 +1,7 @@
 import 'package:cake_wallet/evm/evm.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency/fiat_currency.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -45,27 +47,28 @@ void appendEvmDefaultTokens(List<CryptoCurrency> into) {
 }
 
 class CurrencyPickerBalance {
-  const CurrencyPickerBalance({required this.amount, this.fiat, this.fiatValue});
+  const CurrencyPickerBalance({required this.amount, this.fiat});
 
-  final String amount;
-  final String? fiat;
-  final double? fiatValue;
+  final Money amount;
+  final Money? fiat;
 }
 
 enum RecentsSource { none, trades, orders }
 
 class CurrencyPickerArgs {
   const CurrencyPickerArgs({
-    this.selected,
     required this.items,
-    this.balanceByAsset,
-    this.filterByNetwork,
+    required this.fiatCurrency,
     required this.onSelected,
     required this.symbolResolver,
+    this.selected,
+    this.balanceByAsset,
+    this.filterByNetwork,
     this.recentsSource = RecentsSource.none,
   });
 
   final CryptoCurrency? selected;
+  final FiatCurrency fiatCurrency;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
   final void Function(CryptoCurrency) onSelected;

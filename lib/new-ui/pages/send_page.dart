@@ -915,19 +915,18 @@ class _NewSendPageState extends State<NewSendPage> {
       return;
     }
 
-    final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
     final balanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
-          amount: "${r.availableBalance} ${r.asset.title}",
-          fiat: isFiatDisabled ? null : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
-          fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
+          amount: r.raw.available,
+          fiat: r.fiatAvailableBalanceRaw,
         ),
     };
 
     CurrencyPickerSheet.show(
       context: context,
       args: CurrencyPickerArgs(
+        fiatCurrency: widget.sendViewModel.fiatCurrency,
         items: widget.sendViewModel.currencies,
         selected: widget.sendViewModel.selectedCryptoCurrency,
         filterByNetwork: widget.sendViewModel.walletType,

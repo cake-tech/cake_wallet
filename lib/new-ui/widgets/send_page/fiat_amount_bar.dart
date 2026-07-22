@@ -1,5 +1,7 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/material.dart";
 
@@ -28,7 +30,7 @@ class FiatAmountBar extends StatelessWidget {
   final String fiatAmount;
   final String cryptoCurrencySymbol;
   final String fiatCurrencySymbol;
-  final String? allAmount;
+  final Money? allAmount;
   final Color? foregroundElementColor;
   final Color? textColor;
   final Color? allAmountColor;
@@ -59,7 +61,7 @@ class FiatAmountBar extends StatelessWidget {
               ),
             ],
           ),
-          if (allAmount != null && allAmount!.isNotEmpty)
+          if (allAmount != null)
             Row(
               spacing: 8,
               children: [
@@ -79,8 +81,10 @@ class FiatAmountBar extends StatelessWidget {
                       onTap: onAllButtonPressed,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: Text(
-                          _formatAmount(allAmount!),
+                        child: MoneyText(
+                          allAmount!,
+                          fractionalDigits: 8,
+                          showSymbol: false,
                           style: TextStyle(
                             color: allAmountTextColor ?? Theme.of(context).colorScheme.primary,
                           ),
@@ -93,12 +97,4 @@ class FiatAmountBar extends StatelessWidget {
             ),
         ],
       );
-
-  String _formatAmount(String amount) {
-    try {
-      return double.parse(amount).toStringAsPrecision(8).replaceFirst(RegExp(r"\.?0+$"), "");
-    } catch (e) {
-      return amount;
-    }
-  }
 }

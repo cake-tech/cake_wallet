@@ -539,6 +539,7 @@ class BuySellPage extends BasePage {
         recentsSource: RecentsSource.orders,
         onSelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
         symbolResolver: buySellViewModel.amountParsingProxy.getCryptoSymbol,
+        fiatCurrency: buySellViewModel.fiatCurrency,
       ),
     );
   }

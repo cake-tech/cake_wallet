@@ -720,7 +720,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                 return Text(
                                   hidden
                                       ? S.of(context).show_balance_send_page
-                                      : (snapshot.data ?? sendViewModel.balance),
+                                      : (snapshot.data ?? sendViewModel.balanceString),
                                   // default to balance while loading
                                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                         fontWeight: FontWeight.w600,
