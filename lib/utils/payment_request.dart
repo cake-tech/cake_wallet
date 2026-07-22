@@ -22,7 +22,11 @@ class PaymentRequest {
     try {
       return PaymentRequest.fromBolt11(input);
     } catch (_) {
-      return PaymentRequest.fromUri(Uri.parse(input));
+      try {
+        return PaymentRequest.fromUri(Uri.parse(input));
+      } catch (_) {
+        return PaymentRequest(input, '', '', '', null);
+      }
     }
   }
 

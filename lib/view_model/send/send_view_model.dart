@@ -139,9 +139,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return null;
     }, (_) async {
       // When chain changes, update currencies and selected currency
+      final selectionAtChainChange = selectedCryptoCurrency;
       await Future.delayed(const Duration(milliseconds: 100));
       currencies = wallet.balance.keys.toList();
-      selectedCryptoCurrency = wallet.currency;
+      if (selectedCryptoCurrency == selectionAtChainChange) {
+        selectedCryptoCurrency = wallet.currency;
+      }
       updateSendingBalance();
     });
   }
