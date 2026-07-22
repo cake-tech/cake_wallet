@@ -61,6 +61,11 @@ class ListItemStyleWrapper extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                       onTap: onTap,
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      splashFactory: NoSplash.splashFactory,
                       child: Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: height == null ? 11 : 0),

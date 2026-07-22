@@ -46,8 +46,7 @@ class NewListSections extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String headerText, List<ListItem> items, BuildContext context) {
-    return Column(
+  Widget _buildSection(String headerText, List<ListItem> items, BuildContext context) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showHeader && headerText.isNotEmpty && items.length > 0) ...[
@@ -61,7 +60,6 @@ class NewListSections extends StatelessWidget {
           _withSectionFlags(items[index], index, items.length),
       ],
     );
-  }
 
   Widget _withSectionFlags(ListItem item, int index, int length) {
     final isFirst = index == 0;
@@ -113,6 +111,8 @@ class NewListSections extends StatelessWidget {
         iconColor: item.iconColor,
         trailingTextPadding: item.trailingTextPadding,
         mainPadding: item.mainPadding,
+        isSelected: item.isSelected,
+        selectedIconColor: item.selectedIconColor
       );
     }
 

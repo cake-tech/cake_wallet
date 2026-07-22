@@ -1,31 +1,30 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
-import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
-import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/wallet_types.g.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/hardware/device_connection_type.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-
-import 'omnichain_manage_networks.dart';
+import "package:cake_wallet/core/new_wallet_type_arguments.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart";
+import "package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/base_page.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/image_widgets/icon_claster_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/src/widgets/primary_button.dart";
+import "package:cake_wallet/wallet_types.g.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/hardware/device_connection_type.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class NewChainSelectionPage extends BasePage {
   NewChainSelectionPage({
@@ -35,7 +34,7 @@ class NewChainSelectionPage extends BasePage {
   final NewWalletTypeArguments newWalletTypeArguments;
 
   @override
-  String get title => S.current.new_wallet;
+  String get title => "Wallet Networks";
 
   @override
   Widget body(BuildContext context) {
@@ -46,7 +45,7 @@ class NewChainSelectionPage extends BasePage {
               element,
               newWalletTypeArguments.hardwareWalletType!,
               Platform.isIOS,
-            ).isNotEmpty)
+            ).isNotEmpty,)
         .toList();
 
     return BlocProvider(
@@ -64,7 +63,7 @@ class NewChainSelectionPage extends BasePage {
 }
 
 class NewChainSelectionPageBody extends StatefulWidget {
-  NewChainSelectionPageBody({
+  const NewChainSelectionPageBody({
     required this.isCreate,
     required this.availableWalletTypes,
     this.onTypeSelected,
@@ -83,230 +82,375 @@ class NewChainSelectionPageBody extends StatefulWidget {
 }
 
 class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
-  _NewChainSelectionPageBodyState() : types = const [];
+  OmniChainNetworksMode _mode = OmniChainNetworksMode.allNetworks;
 
-  final TextEditingController _searchController = TextEditingController();
+  List<WalletType> get _types => widget.availableWalletTypes;
 
-  List<WalletType> types;
-  List<WalletType> filteredTypes = [];
+  bool get _isCustomizing => _mode == OmniChainNetworksMode.customize;
 
   @override
   void initState() {
     super.initState();
-
-    types = widget.availableWalletTypes;
-
-    filteredTypes = context.read<OmniChainWalletBloc>().popularWalletTypes(types);
-
-    _searchController.addListener(() {
-      setState(() {
-        final query = _searchController.text.toLowerCase();
-
-        filteredTypes = query.isEmpty
-            ? context.read<OmniChainWalletBloc>().popularWalletTypes(types)
-            : types
-                .where((type) => walletTypeToDisplayName(type).toLowerCase().contains(query))
-                .toList();
-      });
-    });
+    context.read<OmniChainWalletBloc>().add(OmniChainWalletTypesSelected());
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void _onModeSelected(OmniChainNetworksMode mode) {
+    setState(() => _mode = mode);
+
+    switch (mode) {
+      case OmniChainNetworksMode.allNetworks:
+        context.read<OmniChainWalletBloc>().add(OmniChainWalletTypesSelected());
+        break;
+      case OmniChainNetworksMode.customize:
+        break;
+    }
+  }
+
+  void _continue() {
+    Navigator.of(context).pushNamed(
+      Routes.newChainCustomizationPage,
+      arguments: context.read<OmniChainWalletBloc>(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocBuilder<OmniChainWalletBloc, OmniChainWalletState>(
       builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(height: 24),
-              CakeImageWidget(
-                imageUrl: 'assets/new-ui/wallet_add_dark.svg',
-                height: 100,
-                width: 90,
-              ),
-              SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Text(
-                  'Select networks to enable on your new wallet.You will still be able to change them later',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-              ),
-              SizedBox(height: 24),
-              NewListSections(
-                sections: {
-                  '': [
-                    ListItemRegularRow(
-                      keyValue: 'all_chains',
-                      onTap: () {
-                        final bloc = context.read<OmniChainWalletBloc>();
+        final canContinue =
+            _mode == OmniChainNetworksMode.allNetworks || (_isCustomizing && state.hasAnySelected);
 
-                        showCupertinoModalBottomSheet(
-                          context: context,
-                          barrierColor: Colors.black.withAlpha(85),
-                          builder: (_) => FractionallySizedBox(
-                            child: Material(
-                              child: OmniChainManageNetworksPage(
-                                availableNetworks: types,
-                                selectedNetworks: Set<WalletType>.from(bloc.state.selectedTypes),
-                                onChanged: (selectedTypes) {
-                                  bloc.add(
-                                    OmniChainWalletTypesSelectionChanged(selectedTypes),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      label: 'All chains',
-                      trailingText: '${types.length} items',
-                      iconPath: 'assets/new-ui/chains.svg',
-                      trailingTextPadding: const EdgeInsets.only(right: 24.0),
-                      mainPadding: const EdgeInsets.symmetric(vertical: 6),
-                    ),
-                  ]
-                },
-              ),
-              SizedBox(height: 46),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 112),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.edit,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "Custom Selection",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                  const Center(
+                    child: IconCluster(
+                      iconPaths: [
+                        "assets/new-ui/bitcoin_cleanup_outline.svg",
+                        "assets/new-ui/monero_cleanup.svg",
+                        "assets/new-ui/ethereum_cleanup_outline.svg",
+                        "assets/new-ui/more_networks_outline.svg",
+                      ],
+                      itemSize: 48,
+                      spacing: 8,
+                    ),
                   ),
-                  Row(
-                    spacing: 20,
-                    children: [
-                      GestureDetector(
-                        onTap: () =>
-                            context.read<OmniChainWalletBloc>().add(OmniChainWalletTypesSelected()),
-                        child: Text(
-                          S.of(context).select_all,
-                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                        ),
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      "What networks do you want to use on this wallet?",
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: theme.colorScheme.onSurface,
                       ),
-                      GestureDetector(
-                        onTap: () => context
-                            .read<OmniChainWalletBloc>()
-                            .add(OmniChainWalletTypesDeselected()),
-                        child: Text(
-                          S.of(context).unselect_all,
-                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                        ),
-                      )
-                    ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _HowToChangeNetworksLink(
+                    onTap: () => OmniChainHowToChangeNetworksSheet.show(context),
+                  ),
+                  const SizedBox(height: 24),
+                  OmniChainNetworksModeSelector(
+                    selectedMode: _mode,
+                    onModeSelected: _onModeSelected,
+                  ),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    alignment: Alignment.topCenter,
+                    child: _isCustomizing
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: OmniChainNetworksList(
+                              types: _types,
+                              state: state,
+                            ),
+                          )
+                        : const SizedBox(width: double.infinity),
                   ),
                 ],
               ),
-              SizedBox(height: 24),
-              Expanded(
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 112),
-                      child: NewListSections(
-                        showHeader: true,
-                        sections: {
-                          'Popular': [
-                            ...filteredTypes.map(
-                              (type) => ListItemCheckbox(
-                                keyValue: 'new_wallet_${type.name}_button_key',
-                                iconPath: getCryptoCurrencyIconForWalletListItem(type),
-                                label: walletTypeToString(type),
-                                subtitle: walletTypeToDescription(type).isEmpty
-                                    ? null
-                                    : walletTypeToDescription(type),
-                                value: state.isSelected(type),
-                                onChanged: (bool value) => context.read<OmniChainWalletBloc>().add(
-                                      OmniChainWalletTypeToggled(
-                                        type: type,
-                                        isSelected: value,
-                                      ),
-                                    ),
-                              ),
-                            ),
-                          ]
-                        },
-                      ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SafeArea(
+                top: false,
+                child: FloatingBlurWrapper(
+                  child: PrimaryButton(
+                    key: const ValueKey("new_wallet_continue_button_key"),
+                    borderRadius: BorderRadius.circular(999999),
+                    onPressed: _continue,
+                    text: S.of(context).continue_text,
+                    color: theme.colorScheme.primary,
+                    textColor: theme.colorScheme.onPrimary,
+                    isDisabled: !canContinue,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _HowToChangeNetworksLink extends StatelessWidget {
+  const _HowToChangeNetworksLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      key: const ValueKey("omnichain_how_to_change_networks_key"),
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "How to change Network",
+            style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary),
+          ),
+          const SizedBox(width: 6),
+          Icon(Icons.info_outline, size: 16, color: theme.colorScheme.primary),
+        ],
+      ),
+    );
+  }
+}
+
+enum OmniChainNetworksMode {
+  allNetworks,
+  customize,
+}
+
+class OmniChainNetworksModeSelector extends StatelessWidget {
+  const OmniChainNetworksModeSelector({
+    required this.selectedMode,
+    required this.onModeSelected,
+  });
+
+  final OmniChainNetworksMode selectedMode;
+  final ValueChanged<OmniChainNetworksMode> onModeSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return NewListSections(
+      sections: {
+        "": [
+          ListItemRegularRow(
+            keyValue: "omnichain_all_networks_option",
+            onTap: () => onModeSelected(OmniChainNetworksMode.allNetworks),
+            label: "All Networks",
+            subtitle: "Recommended",
+            iconPath: "assets/new-ui/chains.svg",
+            iconColor: theme.colorScheme.onSurfaceVariant,
+            showArrow: false,
+            isSelected: selectedMode == OmniChainNetworksMode.allNetworks,
+            selectedIconColor: theme.colorScheme.primary,
+            mainPadding: const EdgeInsets.symmetric(vertical: 6),
+          ),
+          ListItemRegularRow(
+            keyValue: "omnichain_customize_option",
+            onTap: () => onModeSelected(OmniChainNetworksMode.customize),
+            label: "Customize",
+            iconPath: "assets/new-ui/pencil.svg",
+            iconColor: theme.colorScheme.onSurfaceVariant,
+            showArrow: false,
+            isSelected: selectedMode == OmniChainNetworksMode.customize,
+            selectedIconColor: theme.colorScheme.primary,
+            mainPadding: const EdgeInsets.symmetric(vertical: 6),
+          ),
+        ]
+      },
+    );
+  }
+}
+
+class OmniChainNetworksList extends StatelessWidget {
+  const OmniChainNetworksList({
+    required this.types,
+    required this.state,
+    this.sectionTitle = "Networks",
+  });
+
+  final List<WalletType> types;
+  final OmniChainWalletState state;
+  final String sectionTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bloc = context.read<OmniChainWalletBloc>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              sectionTitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Row(
+              spacing: 20,
+              children: [
+                GestureDetector(
+                  key: const ValueKey("omnichain_select_all_key"),
+                  onTap: () => bloc.add(OmniChainWalletTypesSelected()),
+                  child: Text(
+                    S.of(context).select_all,
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
+                ),
+                GestureDetector(
+                  key: const ValueKey("omnichain_unselect_all_key"),
+                  onTap: () => bloc.add(OmniChainWalletTypesDeselected()),
+                  child: Text(
+                    S.of(context).unselect_all,
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        NewListSections(
+          sections: {
+            "": [
+              ...types.map(
+                (type) => ListItemCheckbox(
+                  keyValue: "new_wallet_${type.name}_button_key",
+                  iconPath: getCryptoCurrencyIconForWalletListItem(type),
+                  label: walletTypeToString(type),
+                  subtitle:
+                      walletTypeToDescription(type).isEmpty ? null : walletTypeToDescription(type),
+                  value: state.isSelected(type),
+                  onChanged: (value) => bloc.add(
+                    OmniChainWalletTypeToggled(type: type, isSelected: value),
+                  ),
+                ),
+              ),
+            ],
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class OmniChainHowToChangeNetworksSheet extends StatelessWidget {
+  const OmniChainHowToChangeNetworksSheet({super.key});
+
+  static Future<void> show(BuildContext context) => showCupertinoModalBottomSheet<void>(
+        context: context,
+        barrierColor: Colors.black.withAlpha(85),
+        builder: (_) => const Material(
+          child: OmniChainHowToChangeNetworksSheet(),
+        ),
+      );
+
+  static const _paragraphs = [
+    "You can find the Network Selector on the top left corner of your wallet's homescreen.",
+    "That way, you can easily change networks without having to navigate to a different tab on Cake Wallet.",
+    "If you are familiar with Wallet Groups, this is an improved navigation for them.",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ModalTopBar(
+          title: "How to Change Network",
+          leadingIcon: const Icon(Icons.arrow_back_ios_new),
+          onLeadingPressed: Navigator.of(context).pop,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const FrameIconWidget(iconSize: 84),
+              const SizedBox(height: 36),
+              ..._paragraphs.map(
+                (paragraph) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    paragraph,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface,
                     ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: SafeArea(
-                        top: false,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
-                          ),
-                          child: FloatingBlurWrapper(
-                            horizontalPadding: 0.0,
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  flex: 5,
-                                  fit: FlexFit.tight,
-                                  child: NewSearchBar(controller: _searchController),
-                                ),
-                                const SizedBox(width: 12),
-                                Flexible(
-                                  flex: 2,
-                                  fit: FlexFit.tight,
-                                  child: PrimaryButton(
-                                    key: const ValueKey('new_wallet_continue_button_key'),
-                                    borderRadius: BorderRadius.circular(999999),
-                                    height: 40,
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                        Routes.newChainCustomizationPage,
-                                        arguments: context.read<OmniChainWalletBloc>(),
-                                      );
-                                    },
-                                    text: S.of(context).continue_text,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    textColor: Theme.of(context).colorScheme.onPrimary,
-                                    isDisabled: !state.hasAnySelected,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
           ),
-        );
-      },
+        ),
+      ],
+    );
+  }
+}
+
+class FrameIconWidget extends StatelessWidget {
+  const FrameIconWidget({
+    super.key,
+    this.iconSize = 48,
+  });
+
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CakeImageWidget(
+              imageUrl: "assets/new-ui/frame_icon.svg",
+              height: iconSize,
+              width: iconSize,
+            ),
+            const SizedBox(width: 12),
+            Icon(
+              Icons.keyboard_arrow_down,
+              size: 20,
+              color: theme.colorScheme.primary,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

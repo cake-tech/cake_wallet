@@ -24,6 +24,8 @@ class ListItemRegularRow extends ListItem {
     this.iconColor,
     this.trailingTextPadding,
     this.mainPadding,
+    this.isSelected,
+    this.selectedIconColor,
   });
 
   final String? subtitle;
@@ -45,4 +47,6 @@ class ListItemRegularRow extends ListItem {
   final Color? iconColor;
   final EdgeInsets? trailingTextPadding;
   final EdgeInsets? mainPadding;
+  final bool? isSelected;
+  final Color? selectedIconColor;
 }

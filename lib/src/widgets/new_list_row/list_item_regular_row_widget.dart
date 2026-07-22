@@ -30,7 +30,10 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.leadingIconErrorWidget,
       this.leadingIconSize,
       this.badgeIconSize,
-      this.iconColor});
+      this.iconColor,
+      this.isSelected,
+      this.selectedIconColor,
+      });
 
   final String keyValue;
   final String label;
@@ -55,6 +58,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final bool? isSelected;
+  final Color? selectedIconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +72,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
     return CopyWrapper(
       data: copyableText != null ? ClipboardData(text: copyableText!) : null,
       builder: (context, copied) => AnimatedSwitcher(
-        duration: Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 150),
         child: ListItemStyleWrapper(
             key: ValueKey(copied),
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
@@ -120,6 +125,19 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         Expanded(
                           child: Row(
                             children: [
+                              if (isSelected != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 12.0),
+                                  child: AnimatedOpacity(
+                                    duration: const Duration(milliseconds: 150),
+                                    opacity: isSelected! ? 1 : 0,
+                                    child: Icon(
+                                      Icons.check,
+                                      size: 18,
+                                      color: selectedIconColor ?? theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
                               if (iconPath != null)
                                 Padding(
                                   padding: const EdgeInsets.only(
