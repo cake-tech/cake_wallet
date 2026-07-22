@@ -23,6 +23,7 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
+import "package:cake_wallet/new-ui/widgets/money/money_settings_provider.dart";
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/router.dart' as Router;
@@ -426,7 +427,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               debugShowCheckedModeBanner: false,
               builder: (context, child) => MediaQuery(
                   data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-                  child: child!),
+                  child: MoneySettingsProvider(settingsStore: settingsStore, child: child!),
+              ),
               theme: theme,
               darkTheme: darkTheme,
               themeMode: themeMode,
