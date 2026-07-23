@@ -212,4 +212,6 @@ class Money implements Comparable<Money> {
     if (useBaseUnit && [CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) return "sats";
     return currency.symbol;
   }
+
+  String get serialized => "${currency.serialized}:${amount.toString}";
 }

@@ -1,6 +1,28 @@
-part of 'rate_cubit.dart';
+part of "rate_cubit.dart";
 
 @immutable
-sealed class RateState {}
+sealed class RateState {
 
-final class RateInitial extends RateState {}
+  const RateState(this.from, this.to);
+
+  final Currency? from;
+  final Currency? to;
+
+}
+
+final class RatesLoading extends RateState {
+  const RatesLoading(super.from, super.to);
+}
+
+final class RatesLoaded extends RateState {
+  RatesLoaded(super.from, super.to, this.rates) {
+    if(rates.isEmpty) {
+      throw ArgumentError("cannot create RatesLoaded with no rates, please use RatesLoadFailed or RatesNotFound instead");
+    }
+  }
+
+  final List<ProviderRate> rates;
+
+  Money get minLimit => rates.map((r) => r.limits.min).min;
+  Money get maxLimit => rates.map((r) => r.limits.max).max;
+}

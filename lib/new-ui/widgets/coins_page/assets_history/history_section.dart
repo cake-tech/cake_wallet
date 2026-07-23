@@ -122,26 +122,24 @@ class HistorySection extends StatelessWidget {
                             );
                           } else if (item is TradeListItem) {
                             final trade = item.trade;
-                            final tradeFrom = trade.from;
-                            final tradeTo = trade.to;
 
                             return GestureDetector(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.tradeDetails, arguments: trade),
                               child: HistoryTradeTile(
-                                from: tradeFrom,
-                                to: tradeTo,
+                                from: trade.depositAmount.currency as CryptoCurrency,
+                                to: trade.payoutAmount.currency as CryptoCurrency,
                                 provider: trade.provider,
                                 date: _formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
                                 amount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.amountFormatted(),
+                                    : trade.depositAmount.toStringWithSymbol(),
                                 receiveAmount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.receiveAmountFormatted(),
+                                    : trade.payoutAmount.toStringWithSymbol(),
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,

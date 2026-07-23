@@ -32,6 +32,71 @@ void main() {
     });
   });
 
+  group('fromAmounts', () {
+    test('derives rate from amounts: 10 BTC for 100 ETH is 1 BTC = 10 ETH', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse('10', CryptoCurrency.btc),
+        Money.parse('100', CryptoCurrency.eth),
+      );
+
+      expect(rate.base, CryptoCurrency.btc);
+      expect(rate.quote, Money.parse('10', CryptoCurrency.eth));
+    });
+
+    test('derived rate converts the from amount back into the to amount', () {
+      final from = Money.parse('0.5', CryptoCurrency.btc);
+      final to = Money.parse('30000.00', EUR);
+      final rate = ExchangeRate.fromAmounts(from, to);
+
+      expect(rate.quote, Money.parse('60000.00', EUR));
+      expect(rate.convert(from), to);
+    });
+
+    test('base currency without decimal places: 500 JPY for 5 EUR', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.fromInt(500, JPY),
+        Money.parse('5.00', EUR),
+      );
+
+      expect(rate.quote, Money.parse('0.01', EUR));
+    });
+
+    test('quote is rounded to the smallest unit of the to currency', () {
+      // 3 BTC for 1 EUR: 1 BTC = 0.333... EUR, rounded down to cents.
+      final roundedDown = ExchangeRate.fromAmounts(
+        Money.parse('3', CryptoCurrency.btc),
+        Money.parse('1.00', EUR),
+      );
+      expect(roundedDown.quote, Money.parse('0.33', EUR));
+
+      // 2 BTC for 0.01 EUR: 1 BTC = 0.005 EUR, half rounds away from zero.
+      final roundedUp = ExchangeRate.fromAmounts(
+        Money.parse('2', CryptoCurrency.btc),
+        Money.parse('0.01', EUR),
+      );
+      expect(roundedUp.quote, Money.parse('0.01', EUR));
+    });
+
+    test('zero to amount gives a zero rate', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse('1', CryptoCurrency.btc),
+        Money.zero(EUR),
+      );
+
+      expect(rate.quote, Money.zero(EUR));
+    });
+
+    test('throws on a zero from amount', () {
+      expect(
+        () => ExchangeRate.fromAmounts(
+          Money.zero(CryptoCurrency.btc),
+          Money.parse('1.00', EUR),
+        ),
+        throwsArgumentError,
+      );
+    });
+  });
+
   group('Edge Cases', () {
     final rate = ExchangeRate(
       base: CryptoCurrency.btc,
@@ -134,6 +199,9 @@ class FiatCurrency implements Currency {
 
   @override
   String? get tag => throw UnimplementedError();
+
+  @override
+  String get serialized => "fiat.$symbol";
 
   @override
   Money parseAmount(String value) => Money.parse(value, this);

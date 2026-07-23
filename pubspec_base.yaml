@@ -9,7 +9,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
       ref: cake-4.0.2
-      version: 4.0.2
+      
   shared_preferences: 2.5.3
   # provider: ^6.0.3
   rxdart: ^0.28.0
@@ -87,7 +87,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
-      version: 1.0.0
+      
   flutter_plugin_android_lifecycle: 2.0.23
   path_provider_android: ^2.2.1
   shared_preferences_android: ^2.4.8
@@ -164,6 +164,7 @@ dependencies:
     path: ./scripts/torch_dart
   quick_actions: ^1.1.0
   fl_chart: ^0.70.2
+  json_annotation: 4.12.0
 
 dev_dependencies:
   flutter_test:
@@ -171,6 +172,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.4
+  json_serializable: 6.14.0
   build_runner: ^2.15.0
   logging: ^1.2.0
   mobx_codegen: ^2.7.7
@@ -182,7 +184,7 @@ dev_dependencies:
   translator:
     git:
       url: https://github.com/cake-tech/google-translator.git
-      version: 1.0.0
+      
   msix: ^3.16.9
 
 dependency_overrides:
@@ -214,7 +216,7 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
       ref: cake-4.0.2
-      version: 4.0.2
+      
   file_picker:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git

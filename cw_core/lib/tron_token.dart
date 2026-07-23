@@ -85,4 +85,7 @@ class TronToken extends CryptoCurrency with HiveObjectMixin {
 
   @override
   int get hashCode => contractAddress.hashCode;
+
+  @override
+  String get serialized => "trx.$contractAddress";
 }

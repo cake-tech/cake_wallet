@@ -1,41 +1,39 @@
-import 'package:cake_wallet/core/utilities.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
-import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
-import 'package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currencies_with_memo.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/swap_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart";
+import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
+import "package:cake_wallet/view_model/send/send_view_model_state.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currencies_with_memo.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class SwapConfirmSheet extends StatefulWidget {
   const SwapConfirmSheet(
       {super.key,
-      required this.exchangeViewModel,
-      required this.exchangeTradeViewModel,
-      required this.receiveAmount});
+        required this.bloc,});
 
-  final ExchangeViewModel exchangeViewModel;
-  final ExchangeTradeViewModel exchangeTradeViewModel;
-  final String receiveAmount;
+
+  final SwapBloc bloc;
 
   @override
   State<SwapConfirmSheet> createState() => _SwapConfirmSheetState();
@@ -43,43 +41,27 @@ class SwapConfirmSheet extends StatefulWidget {
 
 class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
   void beginSend() async {
-    final sendVM = widget.exchangeTradeViewModel.sendViewModel;
+    // final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
-    if (sendVM.wallet.isHardwareWallet) {
-      if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
-        await Navigator.of(context).pushNamed(Routes.connectDevices,
-            arguments: ConnectDevicePageParams(
-              walletType: sendVM.walletType,
-              hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (context, _) {
-                sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-                Navigator.of(context).pop();
-              },
-            ));
-      } else {
-        sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-      }
-    }
+    // if (sendVM.wallet.isHardwareWallet) {
+    //   if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
+    //     await Navigator.of(context).pushNamed(Routes.connectDevices,
+    //         arguments: ConnectDevicePageParams(
+    //           walletType: sendVM.walletType,
+    //           hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
+    //           onConnectDevice: (context, _) {
+    //             sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+    //             Navigator.of(context).pop();
+    //           },
+    //         ));
+    //   } else {
+    //     sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+    //   }
+    // }
 
-    widget.exchangeTradeViewModel.confirmSending();
+    // widget.exchangeTradeViewModel.confirmSending();
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    if (!widget.exchangeViewModel.isSendFromExternal) {
-      beginSend();
-    }
-
-    reaction((context) => widget.exchangeTradeViewModel.sendViewModel.state, (state) {
-      if (state is TransactionCommitted) {
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) Navigator.of(context).pop();
-        });
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +115,6 @@ class SwapTransactionDetails extends StatelessWidget {
       required this.exchangeTradeViewModel,
       required this.receiveAmount});
 
-  final ExchangeViewModel exchangeViewModel;
-  final ExchangeTradeViewModel exchangeTradeViewModel;
   final String receiveAmount;
 
   @override
@@ -204,7 +184,7 @@ class SwapTransactionDetails extends StatelessWidget {
                           trailingText: exchangeViewModel.receiveAddressDisplayName ??
                               middleTruncate(
                                   exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8)),
-                      if ((exchangeTradeViewModel.trade.toAddressExtraId ?? '').isNotEmpty)
+                      if ((exchangeTradeViewModel.trade.toAddressExtraId ?? "").isNotEmpty)
                         ListItemRegularRow(
                           keyValue: "receive memo",
                           showArrow: false,

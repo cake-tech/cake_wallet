@@ -16,24 +16,27 @@ abstract class SwapStateWithInputs extends SwapState {
 
   SwapAmount get payoutAmount;
 
-  SwapAddress get refundAddress;
+  SwapSource get source;
 
   SwapAddress? get payoutAddress;
 
   bool get isFixedRate;
 
-  bool get isExternalSend => refundAddress is! CurrentSwapAddress;
+  bool get isExternalSend => source is ExternalSwapSource;
+
+  List<ExchangeProviderDescription> get usableProviders;
 }
 
 final class SwapInputState extends SwapStateWithInputs {
   const SwapInputState({
     required this.depositAmount,
     required this.payoutAmount,
-    required this.refundAddress,
+    required this.source,
     required this.payoutAddress,
     required this.isFixedRate,
     required this.availableProviders,
     required this.enabledProviders,
+    required this.forceDecentralizedProviders,
     this.forcedProvider,
   });
 
@@ -42,7 +45,7 @@ final class SwapInputState extends SwapStateWithInputs {
   @override
   final SwapAmount payoutAmount;
   @override
-  final SwapAddress refundAddress;
+  final SwapSource source;
   @override
   final SwapAddress? payoutAddress;
   @override
@@ -51,13 +54,42 @@ final class SwapInputState extends SwapStateWithInputs {
   final List<ExchangeProviderDescription> availableProviders;
   final List<ExchangeProviderDescription> enabledProviders;
   final ExchangeProviderDescription? forcedProvider;
+  final bool forceDecentralizedProviders;
 
+  @override
   List<ExchangeProviderDescription> get usableProviders =>
-      forcedProvider != null ? [forcedProvider!] : enabledProviders;
+      forcedProvider != null ? [forcedProvider!] : enabledProviders.where((item) => !forceDecentralizedProviders || !item.isCentralized).toList();
+
+  SwapInputState copyWith({
+    SwapAmount? depositAmount,
+    SwapAmount? payoutAmount,
+    SwapSource? source,
+    SwapAddress? payoutAddress,
+    bool? isFixedRate,
+    List<ExchangeProviderDescription>? availableProviders,
+    List<ExchangeProviderDescription>? enabledProviders,
+    ExchangeProviderDescription? forcedProvider,
+    bool? forceDecentralizedProviders,
+  }) =>
+      SwapInputState(
+        depositAmount: depositAmount ?? this.depositAmount,
+        payoutAmount: payoutAmount ?? this.payoutAmount,
+        source: source ?? this.source,
+        payoutAddress: payoutAddress ?? this.payoutAddress,
+        isFixedRate: isFixedRate ?? this.isFixedRate,
+        availableProviders: availableProviders ?? this.availableProviders,
+        enabledProviders: enabledProviders ?? this.enabledProviders,
+        forcedProvider: forcedProvider ?? this.forcedProvider,
+        forceDecentralizedProviders: forceDecentralizedProviders ?? this.forceDecentralizedProviders
+      );
 }
 
 final class SwapStateCreating extends SwapStateWithInputs {
-  const SwapStateCreating({required this.selectedProvider, required this.request});
+  const SwapStateCreating({
+    required this.selectedProvider,
+    required this.source,
+    required this.request,
+  });
 
   final TradeRequest request;
 
@@ -70,35 +102,35 @@ final class SwapStateCreating extends SwapStateWithInputs {
   SwapAmount get payoutAmount => request.payoutAmount;
 
   @override
-  SwapAddress get refundAddress => request.refundAddress;
+  final SwapSource source;
 
   @override
   SwapAddress get payoutAddress => request.payoutAddress;
 
   @override
   bool get isFixedRate => request.isFixedRate;
+
+  @override
+  List<ExchangeProviderDescription> get usableProviders => [selectedProvider];
+
+  SwapStateCreating copyWith({
+    ExchangeProviderDescription? selectedProvider,
+    TradeRequest? request,
+    SwapSource? source,
+  }) =>
+      SwapStateCreating(
+        selectedProvider: selectedProvider ?? this.selectedProvider,
+        request: request ?? this.request,
+        source: source ?? this.source,
+      );
 }
 
-final class SwapStateWithTrade extends SwapStateWithInputs {
-  SwapStateWithTrade({required this.trade});
+abstract class SwapStateWithTrade extends SwapState {
+  const SwapStateWithTrade({required this.trade});
 
   final Trade trade;
+}
 
-
-
-  @override
-  SwapAmount get depositAmount => trade.depositAmount;
-
-  @override
-  SwapAmount get payoutAmount => trade.payoutAmount;
-
-  @override
-  SwapAddress get refundAddress => trade.refundAddress;
-
-  @override
-  SwapAddress get payoutAddress => trade.payoutAddress;
-
-  @override
-  bool get isFixedRate => true;
-
+final class SwapCreated extends SwapStateWithTrade {
+  const SwapCreated({required super.trade});
 }

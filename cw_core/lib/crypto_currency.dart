@@ -1152,4 +1152,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   /// Format the raw amount into its decimal representation eg. turn Sats into Bitcoin
   String formatAmount(BigInt amount, {int? fractionalDigits, bool trimZeros = true}) =>
       formatFixed(amount, decimals, fractionalDigits: fractionalDigits, trimZeros: trimZeros);
+
+  @override
+  String get serialized => tag == null ? "crypto.$symbol" : "crypto.$symbol.$tag";
 }

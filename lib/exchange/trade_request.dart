@@ -2,15 +2,16 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 
 class TradeRequest {
-  TradeRequest(
-      {required this.refundAddress,
-      required this.payoutAddress,
-      required this.depositAmount,
-      required this.payoutAmount,
-      this.toAddressExtraId = '',
-      this.isFixedRate = false});
+  TradeRequest({
+    required this.refundAddress,
+    required this.payoutAddress,
+    required this.depositAmount,
+    required this.payoutAmount,
+    required this.isFixedRate,
+    this.toAddressExtraId = "",
+  });
 
-  final SwapAddress refundAddress;
+  final String refundAddress;
   final SwapAddress payoutAddress;
   final SwapAmount depositAmount;
   final SwapAmount payoutAmount;

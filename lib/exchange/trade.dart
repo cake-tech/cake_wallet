@@ -12,44 +12,30 @@ import 'package:sqflite/sqflite.dart';
 
 class Trade {
   Trade({
+    required this.state,
+    required this.depositAmount,
+    required this.payoutAmount,
+    required this.fundingAddress,
     this.internalId = 0,
     required this.id,
-    // required this.amount,
-    ExchangeProviderDescription? provider,
-    this.from,
-    this.to,
-    TradeState? state,
-    // this.receiveAmount,
+    required this.provider,
     this.createdAt,
     this.expiredAt,
-    // this.inputAddress,
     this.extraId,
     this.outputTransaction,
-    // required this.refundAddress,
     this.walletId,
-    this.payoutAddress,
+    required this.payoutAddress,
+    required this.refundAddress,
     this.toAddressExtraId,
     this.password,
     this.providerId,
-    // this.providerName,
-    // this.fromWalletAddress,
     this.memo,
     this.fee,
     this.txId,
     this.isRefund,
     this.isSendAll,
     this.router,
-    // The following fields are used for SwapXyz trades only
-    // this.needToRegisterInSwapXyz,
-    // this.sourceTokenAddress,
-    // this.sourceTokenDecimals,
-    // this.routerData,
-    // this.routerValue,
-    // this.routerChainId,
-    // this.sourceTokenAmountRaw,
-    // this.requiresTokenApproval,
-  }) {
-  }
+  });
 
   static const tableName = 'Trade';
   static const selfIdColumn = 'tradeId';
@@ -63,55 +49,36 @@ class Trade {
 
   String id;
 
-  // int providerRaw = 0;
-  //
-  // ExchangeProviderDescription get provider =>
-  //     ExchangeProviderDescription.deserialize(raw: providerRaw);
-
-  ExchangeProviderDescription provider;
-
-  CryptoCurrency? from;
-  CryptoCurrency? to;
-
-  // String stateRaw = '';
+  final ExchangeProviderDescription provider;
 
   final TradeState state;
 
   DateTime? createdAt;
   DateTime? expiredAt;
-  // String amount;
-  // String receiveAmount;
-  // String? inputAddress;
   final Money depositAmount;
   final Money payoutAmount;
   final String fundingAddress;
   String? extraId;
   String? outputTransaction;
-  // String refundAddress;
   String? walletId;
-  String? payoutAddress;
+  final String refundAddress;
+  final String payoutAddress;
 
   // holds the receive address memo or destination tag that was passed for this trade
   String? toAddressExtraId;
   String? password;
   String? providerId;
-  // String? providerName;
-  // String? fromWalletAddress;
   String? memo;
   String? txId;
   bool? isRefund;
   bool? isSendAll;
   String? router;
 
-  // The following fields are used for SwapXyz trades only
-  // bool? needToRegisterInSwapXyz;
-  // String? sourceTokenAddress;
-  // int? sourceTokenDecimals;
-  // String? routerData;
-  // String? routerValue;
-  // int? routerChainId;
-  // String? sourceTokenAmountRaw;
-  // bool? requiresTokenApproval;
+  Future<void> migrateDbFromRetardedVibecodedSlop() async {
+
+  }
+
+
 
   int? chainId;
   double? fee;
@@ -170,81 +137,27 @@ class Trade {
     return rows;
   }
 
-  // ── SQLite serialization ─────────────────────────────
-  void mergeFindTradeByIdResult(Trade updated) {
-    if (updated.stateRaw.isNotEmpty) stateRaw = updated.stateRaw;
-    if (createdAt == null && updated.createdAt != null) {
-      createdAt = updated.createdAt;
-    }
-    if (updated.expiredAt != null) expiredAt = updated.expiredAt;
-    if (updated.isRefund != null) isRefund = updated.isRefund;
-
-    if (updated.receiveAmount != null) receiveAmount = updated.receiveAmount;
-    if (updated.inputAddress != null) inputAddress = updated.inputAddress;
-    if (updated.extraId != null) extraId = updated.extraId;
-    if (updated.outputTransaction != null) {
-      outputTransaction = updated.outputTransaction;
-    }
-    if (updated.refundAddress != null) refundAddress = updated.refundAddress;
-    if (updated.payoutAddress != null) payoutAddress = updated.payoutAddress;
-    if (updated.password != null) password = updated.password;
-    if (updated.providerId != null) providerId = updated.providerId;
-    if (updated.providerName != null) providerName = updated.providerName;
-    if (updated.memo != null) memo = updated.memo;
-    if (updated.txId != null) txId = updated.txId;
-  }
-
   Map<String, dynamic> toSqliteMap() => {
       selfIdColumn: internalId,
       'id': id,
-      'providerRaw': providerRaw,
-      'fromTitle': from?.title,
-      'fromName': from?.name,
-      'fromTag': from?.tag,
-      'fromFullName': from?.fullName,
-      'fromDecimals': from?.decimals,
-      'fromRaw': from?.raw,
-      'fromIconPath': from?.iconPath,
-      'fromFlatIconPath': from?.flatIconPath,
-      'fromChainIconPath': from?.chainIconPath,
-      'toTitle': to?.title,
-      'toName': to?.name,
-      'toTag': to?.tag,
-      'toFullName': to?.fullName,
-      'toDecimals': to?.decimals,
-      'toRaw': to?.raw,
-      'toIconPath': to?.iconPath,
-      'toFlatIconPath': to?.flatIconPath,
-      'toChainIconPath': to?.chainIconPath,
-      'stateRaw': stateRaw,
+      'providerRaw': provider.raw,
+    "payoutAmount": payoutAmount.serialized,
+    "depositAmount": depositAmount.serialized,
+      'stateRaw': state.raw,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'expiredAt': expiredAt?.millisecondsSinceEpoch,
-      'amount': amount,
-      'receiveAmount': receiveAmount,
-      'inputAddress': inputAddress,
       'extraId': extraId,
       'outputTransaction': outputTransaction,
-      'refundAddress': refundAddress,
       'walletId': walletId,
       'payoutAddress': payoutAddress,
       'toAddressExtraId': toAddressExtraId,
       'password': password,
       'providerId': providerId,
-      'providerName': providerName,
-      'fromWalletAddress': fromWalletAddress,
       'memo': memo,
       'txId': txId,
       'isRefund': isRefund == true ? 1 : 0,
       'isSendAll': isSendAll == true ? 1 : 0,
       'router': router,
-      'needToRegisterInSwapXyz': needToRegisterInSwapXyz == true ? 1 : 0,
-      'sourceTokenAddress': sourceTokenAddress,
-      'sourceTokenDecimals': sourceTokenDecimals,
-      'routerData': routerData,
-      'routerValue': routerValue,
-      'routerChainId': routerChainId,
-      'sourceTokenAmountRaw': sourceTokenAmountRaw,
-      'requiresTokenApproval': requiresTokenApproval == true ? 1 : 0,
       'chainId': chainId,
       'fee': fee,
     };
@@ -252,8 +165,6 @@ class Trade {
   factory Trade.fromSqliteRow(Map<String, dynamic> row) {
     final trade = Trade(
       id: row['id'] as String? ?? '',
-      amount: row['amount'] as String? ?? '',
-      receiveAmount: row['receiveAmount'] as String?,
       createdAt: row['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(
               row['createdAt'] as int,
@@ -281,43 +192,43 @@ class Trade {
       isRefund: (row['isRefund'] as int?) == 1,
       isSendAll: (row['isSendAll'] as int?) == 1,
       router: row['router'] as String?,
-      from: _currencyFromRow(row, 'from'),
-      to: _currencyFromRow(row, 'to'),
-      needToRegisterInSwapXyz: (row['needToRegisterInSwapXyz'] as int?) == 1,
-      sourceTokenAddress: row['sourceTokenAddress'] as String?,
-      sourceTokenDecimals: row['sourceTokenDecimals'] as int?,
-      routerData: row['routerData'] as String?,
-      routerValue: row['routerValue'] as String?,
-      routerChainId: row['routerChainId'] as int?,
-      sourceTokenAmountRaw: row['sourceTokenAmountRaw'] as String?,
-      requiresTokenApproval: (row['requiresTokenApproval'] as int?) == 1,
-      chainId: row['chainId'] as int?,
+      // from: _currencyFromRow(row, 'from'),
+      // to: _currencyFromRow(row, 'to'),
+      // needToRegisterInSwapXyz: (row['needToRegisterInSwapXyz'] as int?) == 1,
+      // sourceTokenAddress: row['sourceTokenAddress'] as String?,
+      // sourceTokenDecimals: row['sourceTokenDecimals'] as int?,
+      // routerData: row['routerData'] as String?,
+      // routerValue: row['routerValue'] as String?,
+      // routerChainId: row['routerChainId'] as int?,
+      // sourceTokenAmountRaw: row['sourceTokenAmountRaw'] as String?,
+      // requiresTokenApproval: (row['requiresTokenApproval'] as int?) == 1,
+      // chainId: row['chainId'] as int?,
     );
     trade.internalId = row[selfIdColumn] as int? ?? 0;
-    trade.providerRaw = row['providerRaw'] as int? ?? 0;
-    trade.stateRaw = row['stateRaw'] as String? ?? '';
+    // trade.providerRaw = row['providerRaw'] as int? ?? 0;
+    // trade.stateRaw = row['stateRaw'] as String? ?? '';
     return trade;
   }
 
-  static CryptoCurrency? _currencyFromRow(Map<String, dynamic> row, String prefix) {
-    final title = row['${prefix}Title'] as String?;
-    if (title == null || title.isEmpty) return null;
-
-    final tag = row['${prefix}Tag'] as String?;
-
-    final live = CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
-    if (live != null) return live;
-
-    return CryptoCurrency(
-      title: title,
-      name: row['${prefix}Name'] as String? ?? '',
-      tag: tag,
-      fullName: row['${prefix}FullName'] as String?,
-      decimals: row['${prefix}Decimals'] as int? ?? 1,
-      raw: row['${prefix}Raw'] as int? ?? -1,
-      iconPath: row['${prefix}IconPath'] as String?,
-      flatIconPath: row['${prefix}FlatIconPath'] as String?,
-      chainIconPath: row['${prefix}ChainIconPath'] as String?,
-    );
-  }
+  // static CryptoCurrency? _currencyFromRow(Map<String, dynamic> row, String prefix) {
+  //   final title = row['${prefix}Title'] as String?;
+  //   if (title == null || title.isEmpty) return null;
+  //
+  //   final tag = row['${prefix}Tag'] as String?;
+  //
+  //   final live = CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
+  //   if (live != null) return live;
+  //
+  //   return CryptoCurrency(
+  //     title: title,
+  //     name: row['${prefix}Name'] as String? ?? '',
+  //     tag: tag,
+  //     fullName: row['${prefix}FullName'] as String?,
+  //     decimals: row['${prefix}Decimals'] as int? ?? 1,
+  //     raw: row['${prefix}Raw'] as int? ?? -1,
+  //     iconPath: row['${prefix}IconPath'] as String?,
+  //     flatIconPath: row['${prefix}FlatIconPath'] as String?,
+  //     chainIconPath: row['${prefix}ChainIconPath'] as String?,
+  //   );
+  // }
 }

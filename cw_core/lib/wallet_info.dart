@@ -644,10 +644,12 @@ class WalletInfo {
     );
     return List.generate(list.length, (index) => WalletInfo.fromJson(list[index]));
   }
-
+  
   static Future<List<WalletInfo>> getAll() async {
     return selectList('', []);
   }
+  
+  static Future<List<WalletInfo>> getAllForType(WalletType type) => selectList("type = ?", [type.index]);
 
   static Future<WalletInfo?> get(String name, WalletType type) async {
     final list = await selectList('name = ? AND type = ?', [name, type.index]);
