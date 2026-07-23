@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -148,19 +149,14 @@ class _CardsViewState extends State<CardsView> {
             else
               cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
 
-            final String accountName;
-            final String accountBalance;
-            if (account == null) {
-              accountName = "";
-              accountBalance = "";
-            } else {
-              accountName = account.label;
-              accountBalance = account.balance?.toStringWithPrecision(fractionalDigits: 2, trimZeros: false) ?? "0.00";
-            }
+            final accountBalance = account != null
+                ? account.balance ?? Money.zero(widget.dashboardViewModel.wallet.currency)
+                : null;
 
-            final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
-                ? ""
-                : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
+            final asset = walletBalanceRecord?.asset ??
+                (widget.lightningMode
+                    ? CryptoCurrency.btcln
+                    : widget.dashboardViewModel.wallet.currency);
 
             final List<BalanceCardAction> actions = widget.lightningMode
                 ? [
@@ -188,14 +184,16 @@ class _CardsViewState extends State<CardsView> {
 
             return BalanceCard(
               width: effectiveCardWidth,
-              accountName: accountName,
+              accountName: account?.label ?? "",
               accountBalance: accountBalance,
-              designSwitchDuration: Duration(milliseconds: 150),
-              assetName: assetName,
+              designSwitchDuration: const Duration(milliseconds: 150),
+              assetName: asset.symbol,
+              asset: asset,
               capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
               fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                   widget.dashboardViewModel.settingsStore.fiatCurrency.title,
+              fiatCurrency: walletBalanceRecord?.fiatCurrency ?? widget.dashboardViewModel.settingsStore.fiatCurrency,
               fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
               fiatBalance: walletFiatBalance,
               selected: _selectedIndex == visualIndex,
