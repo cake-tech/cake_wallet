@@ -12,7 +12,7 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
-import "package:cake_wallet/new-ui/widgets/money/currency_symbol.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";

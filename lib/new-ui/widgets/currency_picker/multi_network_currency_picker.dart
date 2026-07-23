@@ -9,7 +9,7 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_searc
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/pill_grid.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/select_network_page.dart';
-import "package:cake_wallet/new-ui/widgets/money/currency_symbol.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';

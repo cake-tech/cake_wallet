@@ -1,5 +1,5 @@
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
-import "package:cake_wallet/new-ui/widgets/money/currency_symbol.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 
