@@ -71,7 +71,7 @@ Future<void> migrateOldSqliteToZkool2({required final String walletName}) async 
     if (ya.idAccount != walletId) {
       continue;
     }
-    printV("migrating account: ${ya.name}");
+    printV("migrating account: ${ya.name} - ${walletName}");
     int birthHeight = await ZcashHeight.getBlockHeightByTime(DateTime(2026, 1, 1));
 
     final accTxs = await migrateDb.rawQuery(
@@ -83,12 +83,12 @@ Future<void> migrateOldSqliteToZkool2({required final String walletName}) async 
     }
 
     final accountId = await ZcashWalletBase.restoreZcashWalletFromSeed(
-      name: ya.name,
+      name: walletName,
       seed: ya.zkoolSeed.seed,
       passphrase: ya.zkoolSeed.passphrase,
       birthHeight: birthHeight,
     );
-    await ZcashWalletBase.saveAccountId(ya.name, accountId);
+    await ZcashWalletBase.saveAccountId(walletName, accountId);
     return;
   }
 
