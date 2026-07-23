@@ -110,6 +110,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @observable
   WalletRestoreMode mode;
 
+  @computed
+  bool get passphraseAvailable =>
+      mode == WalletRestoreMode.seed || hardwareWalletType == HardwareWalletType.trezor;
+
   @observable
   bool hasPassphrase;
 

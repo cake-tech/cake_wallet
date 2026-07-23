@@ -125,7 +125,7 @@ dependencies:
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: 0ccfbe26298e8974dfd4e891f34719c8348562f9
+      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
@@ -201,14 +201,8 @@ dependency_overrides:
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
-      url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: 7bcb00380783f8611f68f5cd63fec96261fea2c2
-  ledger_usb_plus:
-    git:
-      # url: https://github.com/konstantinullrich/ledger-usb-plus
-      # ref: dad482c847c0d0eedceabbb40d3478e64b65e630
-      url: https://github.com/cake-tech/ledger-usb-plus
-      ref: 734c3d6f8267ba52ad73b6e1e78e570c07298890
+      url: https://github.com/vespr-wallet/ledger-flutter-plus
+      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart.git
@@ -231,7 +225,7 @@ dependency_overrides:
   universal_ble:
     git:
       url: https://github.com/cake-tech/universal_ble.git
-      ref: f7044558ad111a156987614971e08c583c80175c
+      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -275,8 +269,6 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
-    - scripts/zcash_lib/assets/sapling-spend.params
-    - scripts/zcash_lib/assets/sapling-output.params
     - assets/new-ui/
     - assets/new-ui/icons/
     - assets/new-ui/hero/

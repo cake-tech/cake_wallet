@@ -15,22 +15,23 @@ class RoundedOverlayCards extends StatelessWidget {
 
     return ClipRRect(
       borderRadius:
-          BorderRadius.only(bottomLeft: Radius.circular(25.0), bottomRight: Radius.circular(25.0)),
+          BorderRadius.only(bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
       child: Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(24),
               bottomRight: Radius.circular(24),
             ),
-            color: Theme.of(context).colorScheme.surfaceContainer),
+            color: Theme.of(context).colorScheme.surfaceContainer,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(25.0),
-                  bottomRight: Radius.circular(25.0),
+                  bottomLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
                 ),
                 child: Container(
                   decoration: BoxDecoration(
