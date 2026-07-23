@@ -1320,7 +1320,7 @@ Future<void> setup({
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
         return dogecoin!.createDogeCoinWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+            _unspentCoinsInfoSource, isDirect: SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);

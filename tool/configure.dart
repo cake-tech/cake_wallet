@@ -1310,19 +1310,30 @@ import "package:cw_core/wallet_service.dart";
 import "package:hive/hive.dart";
 """;
   const dogecoinCWHeaders = """
-import "package:cw_dogecoin/cw_dogecoin.dart"';
+import "package:cw_dogecoin/cw_dogecoin.dart";
 """;
   const dogecoinCwPart = "part \"cw_dogecoin.dart\";";
   const dogecoinContent = """
 abstract class DogeCoin {
+  WalletService createDogeCoinWalletService(
+    Box<UnspentCoinsInfo> unspentCoinSource, {
+    required bool isDirect,
+  });
 
-  WalletService createDogeCoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletCredentials createDogeCoinNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
+    String? mnemonic,
+  });
 
-  WalletCredentials createDogeCoinNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
-
-  WalletCredentials createDogeCoinRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password, String? passphrase});
+  WalletCredentials createDogeCoinRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    String? passphrase,
+  });
 
   TransactionPriority deserializeDogeCoinTransactionPriority(int raw);
 
