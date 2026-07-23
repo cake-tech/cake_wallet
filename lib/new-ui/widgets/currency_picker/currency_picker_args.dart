@@ -60,7 +60,6 @@ class CurrencyPickerArgs {
     required this.items,
     required this.fiatCurrency,
     required this.onSelected,
-    required this.symbolResolver,
     this.selected,
     this.balanceByAsset,
     this.filterByNetwork,
@@ -72,7 +71,6 @@ class CurrencyPickerArgs {
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
   final void Function(CryptoCurrency) onSelected;
-  final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final RecentsSource recentsSource;
 

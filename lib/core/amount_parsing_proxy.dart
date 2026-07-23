@@ -57,10 +57,6 @@ class AmountParsingProxy {
   String asDisplayStringWithSymbol(Money amount) =>
       amount.toStringWithSymbol(useBaseUnit: useSatoshi(amount.currency), fractionalDigits: 8);
 
-  /// [parseCryptoString] turns the the display representation [string] into `Money` with [cryptoCurrency]
-  CryptoMoney parseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
-      Money.parse(amount, cryptoCurrency, isBaseUnit: useSatoshi(cryptoCurrency));
-
   /// [tryParseCryptoString] tries to turn the display representation [string] into `Money` with [cryptoCurrency]
   CryptoMoney? tryParseCryptoString(String amount, CryptoCurrency cryptoCurrency) =>
       Money.tryParse(amount, cryptoCurrency, isBaseUnit: useSatoshi(cryptoCurrency));

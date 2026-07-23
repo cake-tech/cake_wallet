@@ -252,7 +252,6 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
         items: items,
         selected: widget.walletAddressListViewModel.tokenCurrency,
         onSelected: widget.walletAddressListViewModel.setTokenCurrency,
-        symbolResolver: widget.walletAddressListViewModel.amountParsingProxy.getCryptoSymbol,
         fiatCurrency: widget.walletAddressListViewModel.fiatCurrency,
       ),
     );

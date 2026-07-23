@@ -24,7 +24,7 @@ class FiatAmountBar extends StatelessWidget {
   final VoidCallback? onAllButtonPressed;
 
   final Money cryptoAmount;
-  final Money fiatAmount;
+  final Money? fiatAmount;
   final Money? allAmount;
   final Color? foregroundElementColor;
   final Color? textColor;
@@ -35,25 +35,29 @@ class FiatAmountBar extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            spacing: 8,
-            children: [
-              ModernButton.svg(
-                backgroundColor: foregroundElementColor,
-                size: 28,
-                svgPath: "assets/new-ui/switch.svg",
-                iconSize: 18,
-                onPressed: onSwitchButtonPressed,
-              ),
-              GestureDetector(
-                onTap: onSwitchButtonPressed,
-                child: MoneyText(
-                  fiatInputMode ? cryptoAmount : fiatAmount,
-                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+          if (fiatAmount != null)
+            Row(
+              spacing: 8,
+              children: [
+                ModernButton.svg(
+                  backgroundColor: foregroundElementColor,
+                  size: 28,
+                  svgPath: "assets/new-ui/switch.svg",
+                  iconSize: 18,
+                  onPressed: onSwitchButtonPressed,
                 ),
-              ),
-            ],
-          ),
+                GestureDetector(
+                  onTap: onSwitchButtonPressed,
+                  child: MoneyText(
+                    fiatInputMode ? cryptoAmount : fiatAmount!,
+                    trimZeros: fiatInputMode,
+                    style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                  ),
+                ),
+              ],
+            )
+          else
+            const SizedBox.shrink(),
           if (allAmount != null)
             Row(
               spacing: 8,
