@@ -1555,11 +1555,18 @@ abstract class EVMChainWalletBase
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
-      try {
-        iconPath = CryptoCurrency.all
-            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-            .iconPath;
-      } catch (_) {}
+      iconPath = EVMChainDefaultTokens.getDefaultIconPathByAddress(
+        selectedChainId,
+        token.contractAddress,
+      );
+
+      if (iconPath == null || iconPath.isEmpty) {
+        try {
+          iconPath = CryptoCurrency.all
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+              .iconPath;
+        } catch (_) {}
+      }
     } else if (!token.isPotentialScam) {
       iconPath = token.iconPath;
     }
