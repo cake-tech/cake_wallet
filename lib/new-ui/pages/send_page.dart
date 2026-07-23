@@ -504,15 +504,9 @@ class _NewSendPageState extends State<NewSendPage> {
                                           FiatAmountBar(
                                             fiatInputMode: output.isFiatEntry,
                                             onSwitchButtonPressed: _onFiatSwitchPressed,
-                                            fiatAmount:
-                                                _wrapAmount(output.roundedFiatAmount(6), 20),
-                                            cryptoAmount:
-                                                _wrapAmount(output.roundedCryptoAmount(6), 20),
+                                            fiatAmount: output.fiatAmountMoney,
+                                            cryptoAmount: output.cryptoAmountMoney,
                                             allAmount: widget.sendViewModel.balance,
-                                            cryptoCurrencySymbol:
-                                                widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                            fiatCurrencySymbol:
-                                                widget.sendViewModel.fiatCurrency.symbol,
                                             onAllButtonPressed: () async {
                                               output.setSendAll(
                                                 await widget.sendViewModel.sendingBalance,
@@ -688,8 +682,9 @@ class _NewSendPageState extends State<NewSendPage> {
     final output = widget.sendViewModel.outputs[_selectedOutput];
     widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = !output.isFiatEntry;
 
-    final amount = output.isFiatEntry ? output.fiatAmount : output.displayCryptoAmount;
-    _amountControllers[_selectedOutput].text = amount.startsWith("<") ? "0" : amount;
+    _amountControllers[_selectedOutput].text = output.isFiatEntry
+        ? output.fiatAmountMoney.toString()
+        : output.cryptoAmountMoney.toString();
   }
 
   void _setOutput(int index) {
@@ -931,7 +926,6 @@ class _NewSendPageState extends State<NewSendPage> {
         selected: widget.sendViewModel.selectedCryptoCurrency,
         filterByNetwork: widget.sendViewModel.walletType,
         balanceByAsset: balanceByAsset,
-        symbolResolver: widget.sendViewModel.amountParsingProxy.getCryptoSymbol,
         onSelected: (currency) {
           widget.sendViewModel.selectedCryptoCurrency = currency;
           output.calculateEstimatedFee();
@@ -1456,9 +1450,6 @@ class _NewSendPageState extends State<NewSendPage> {
       },
     );
   }
-
-  String _wrapAmount(String amount, int maxChars) =>
-      amount.length <= maxChars ? amount : "${amount.substring(0, maxChars - 3)}...";
 
   // TODO: make a separate variable for memo in payment request model
   void _applyNote(String note, int selectedOutput) {

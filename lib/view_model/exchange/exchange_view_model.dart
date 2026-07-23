@@ -16,6 +16,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import "package:cw_core/currency/currency.dart";
 import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -657,74 +658,49 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @computed
-  String get depositAmountFiatFormatted {
-    var amount = '0.00';
-    try {
-      if (_depositAmount != null) {
-        if (fiatConversionStore.prices[depositCurrency] == null) return '';
+  String get receiveAmountFiat => receiveMoneyFiat?.toString() ?? "";
 
-        amount = calculateFiatAmount(
-          price: fiatConversionStore.prices[depositCurrency]!,
-          cryptoAmount: _depositAmount.toString(),
-        );
-      }
-    } catch (_) {
-      log('Error calculating deposit amount fiat formatted: $_');
+  @computed
+  Money<Currency>? get receiveMoneyFiat {
+    if (isFiatDisabled) {
+      return null;
     }
-    return isFiatDisabled ? '' : '$amount';
+
+    if (_receiveAmount == null) {
+      return Money.zero(fiat);
+    }
+
+    try {
+      final price = fiatConversionStore.prices[receiveCurrency];
+      final rate = fiatConversionStore.getExchangeRate(receiveCurrency, fiat, price);
+      return rate.convert(_receiveAmount!);
+    } catch (e) {
+      log("Error calculating receive amount fiat formatted: $e");
+    }
+    return Money.zero(fiat);
   }
 
   @computed
-  String get receiveAmountFiat {
-    var amount = '';
-    try {
-      if (_receiveAmount != null) {
-        if (fiatConversionStore.prices[receiveCurrency] == null) return '';
-
-        amount = calculateFiatAmount(
-            price: fiatConversionStore.prices[receiveCurrency]!,
-            cryptoAmount: _receiveAmount.toString(),
-            raw: true);
-      }
-    } catch (_) {
-      log('Error calculating receive amount fiat formatted: $_');
-    }
-    return amount;
-  }
+  String get depositAmountFiat => depositMoneyFiat?.toString() ?? "";
 
   @computed
-  String get depositAmountFiat {
-    var amount = '';
+  Money<Currency>? get depositMoneyFiat {
+    if (isFiatDisabled) {
+      return null;
+    }
+
+    if (_depositAmount == null) {
+      return Money.zero(fiat);
+    }
+
     try {
-      if (_depositAmount != null) {
-        if (fiatConversionStore.prices[depositCurrency] == null) return '';
-
-        amount = calculateFiatAmount(
-          price: fiatConversionStore.prices[depositCurrency]!,
-          cryptoAmount: _depositAmount.toString(),
-          raw: true,
-        );
-      }
-    } catch (_) {
-      log('Error calculating deposit amount fiat formatted: $_');
+      final price = fiatConversionStore.prices[depositCurrency];
+      final rate = fiatConversionStore.getExchangeRate(depositCurrency, fiat, price);
+      return rate.convert(_depositAmount!);
+    } catch (e) {
+      log("Error calculating deposit amount fiat formatted: $e");
     }
-    return amount;
-  }
-
-  String roundedReceiveAmountFiat(int digits) {
-    if (receiveAmountFiat.split(".").last.length <= digits) {
-      return receiveAmountFiat;
-    }
-
-    return double.tryParse(receiveAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
-  }
-
-  String roundedDepositAmountFiat(int digits) {
-    if (depositAmountFiat.split(".").last.length <= digits) {
-      return depositAmountFiat;
-    }
-
-    return double.tryParse(depositAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
+    return Money.zero(fiat);
   }
 
   @action

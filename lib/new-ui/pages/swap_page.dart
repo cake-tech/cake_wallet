@@ -12,6 +12,7 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
@@ -893,11 +894,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyToShow = (widget.currency is CryptoCurrency)
-        ? widget.exchangeViewModel.amountParsingProxy
-            .getCryptoSymbol(widget.currency as CryptoCurrency)
-        : widget.currency.name.toUpperCase();
-
     final chainIconPath = (widget.currency is CryptoCurrency)
         ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
         : null;
@@ -950,7 +946,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                     color: Theme.of(context).colorScheme.onSurface,
                                     fontWeight: FontWeight.w400,
                                   ),
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     contentPadding: EdgeInsets.zero,
                                     isDense: true,
                                     hintText: "0",
@@ -970,8 +966,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             ),
                             if (_fiatInputMode)
                               Center(
-                                child: Text(
-                                  widget.exchangeViewModel.fiat.title,
+                                child: CurrencySymbolText(
+                                  widget.exchangeViewModel.fiat,
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -999,12 +995,12 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   height: 28,
                                 ),
                                 const SizedBox(width: 10),
-                                Text(
-                                  currencyToShow,
+                                CurrencySymbolText(
+                                  widget.currency,
                                   textAlign: TextAlign.center,
                                 ),
                                 if (chainIconPath != null && chainIconPath.isNotEmpty) ...[
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   CakeImageWidget(
                                     imageUrl: chainIconPath,
                                     width: 12,
@@ -1080,14 +1076,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         });
                         widget.allAmount?.call();
                       },
+                      // ToDo
                       cryptoAmount: widget.isReceiverCard
-                          ? widget.exchangeViewModel.roundedReceiveAmount(6)
-                          : widget.exchangeViewModel.roundedDepositAmount(6),
+                          ? widget.exchangeViewModel.receiveMoney
+                          : widget.exchangeViewModel.depositMoney,
                       fiatAmount: widget.isReceiverCard
-                          ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
-                          : widget.exchangeViewModel.roundedDepositAmountFiat(6),
-                      cryptoCurrencySymbol: currencyToShow,
-                      fiatCurrencySymbol: widget.exchangeViewModel.fiat.symbol,
+                          ? widget.exchangeViewModel.receiveMoneyFiat
+                          : widget.exchangeViewModel.depositMoneyFiat,
                     );
                   },
                 ),
@@ -1264,7 +1259,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         selected: selected,
         recentsSource: RecentsSource.trades,
         onSelected: widget.onCurrencySelected,
-        symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
         fiatCurrency: widget.exchangeViewModel.fiat,
       ),
     );
