@@ -86,7 +86,7 @@ class BalanceRecord {
       : null;
 
   String get fiatAvailableBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw?.toString() ?? "")}" : "";
+      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw?.toStringWithPrecision(trimZeros: false) ?? "")}" : "";
 
   String get fiatAdditionalBalance =>
       fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAdditionalBalanceRaw)}" : "";
@@ -95,7 +95,7 @@ class BalanceRecord {
       fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatFrozenBalanceRaw)}" : "";
 
   String get fiatSecondAvailableBalance => fiatCurrency != null
-      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAvailableBalanceRaw.toString())}"
+      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAvailableBalanceRaw?.toStringWithPrecision(trimZeros: false) ?? "")}"
       : "";
 
   String get fiatSecondAdditionalBalance => fiatCurrency != null
