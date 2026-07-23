@@ -18,10 +18,10 @@ dependencies:
   path: any
   flat_buffers: any
   zkool:
-    path: ../../zkool2
-    # git:
-    #   url: https://github.com/cake-tech/zkool2.git
-    #   ref: 49d4b8c58a58eb548a938a5fe9f796cba8e14218
+    # path: ../../zkool2
+    git:
+      url: https://github.com/cake-tech/zkool2.git
+      ref: 49d4b8c58a58eb548a938a5fe9f796cba8e14218
 
   path_provider: any
   sqflite_common_ffi: any

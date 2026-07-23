@@ -22,6 +22,7 @@ import 'package:cw_zcash/src/zcash_wallet.dart';
 import 'package:cw_zcash/src/zcash_wallet_service.dart';
 import 'package:cw_zcash/src/zkool_compat.dart';
 import 'package:cw_zcash/src/zkooltx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:zkool/src/rust/api/account.dart' as zkool_account;
 import 'package:zkool/src/rust/api/coin.dart' as zkool_coin;
 import 'package:zkool/src/rust/api/sync.dart' as zkool_sync;
@@ -34,6 +35,9 @@ class ZcashTaddressRotation {
   static bool _isStarted = false;
   static zkool_coin.Coin get c => ZcashWalletBase.c;
   static const int _sweepThreshold = 30000;
+  static const int _ironwoodSweepThreshold = 45000;
+  static const int _minTransparentNote = 5000;
+  static const int _sweepPrepareRetries = 12;
   static const int _lookahead = 5;
   // Matches transparentLimit in ZcashWalletBase._oneshotSync.
   static const int _transparentSyncLimit = 100;
@@ -301,6 +305,59 @@ class ZcashTaddressRotation {
     );
   }
 
+  static Future<List<BigInt>> _rotationTransparentNoteValues(final int rotationAccount) async {
+    return ZcashWalletBase.runWithCoin(
+      accountId: rotationAccount,
+      func: (final coin) async {
+        final notes = await zkool_account.listNotes(c: coin);
+        return [
+          for (final note in notes)
+            if (note.pool == 0 &&
+                !note.locked &&
+                note.value >= BigInt.from(_minTransparentNote))
+              note.value,
+        ];
+      },
+    );
+  }
+
+  static BigInt _sweepMinAmount({required final bool ironwood}) =>
+      BigInt.from(ironwood ? _ironwoodSweepThreshold : _sweepThreshold);
+
+  static Future<String?> _broadcastRotationSweep({
+    required final int rotationAccount,
+    required final String toAddress,
+    required final bool ironwood,
+    required final BigInt amount,
+  }) async {
+    return ZcashWalletBase.runWithCoin(
+      accountId: rotationAccount,
+      func: (final coin) async {
+        final tx = await zkool_pay.prepare(
+          recipients: [
+            zkool_paydart.Recipient(
+              assetBase: zecBase,
+              address: toAddress,
+              amount: amount,
+              pools: ironwood ? ironwoodPoolMask : null,
+            ),
+          ],
+          options: zkool_pay.PaymentOptions(
+            srcPools: 1,
+            recipientPaysFee: true,
+            smartTransparent: true,
+            mode: 0,
+          ),
+          c: coin,
+        );
+        final height = await zkool_network.getCurrentHeight(c: coin);
+        final signTx = await zkool_pay.signTransaction(pczt: tx, c: coin);
+        final txBytes = await zkool_pay.extractTransaction(package: signTx);
+        return zkool_pay.broadcastTransaction(height: height, txBytes: txBytes, c: coin);
+      },
+    );
+  }
+
   static Future<List<ZkoolTx>> _loadTxHistory(final int accountId) async {
     return ZcashWalletBase.runWithCoin(
       accountId: accountId,
@@ -371,6 +428,21 @@ class ZcashTaddressRotation {
     await _ensurePoolScanned(rotationAccount);
     await _refreshWalletAddresses(cId);
 
+    final ironwood = await ZcashWalletBase.runWithCoin(
+      accountId: cId,
+      func: (final coin) async {
+        final height = await zkool_network.getCurrentHeight(c: coin);
+        final active = await zkool_network.isIronwoodActive(c: coin);
+        printV("rotation sweep chain height=$height ironwood=$active");
+        return active;
+      },
+    );
+    final wallet = ZcashWalletBase.walletsByAccountId[cId];
+    if (wallet != null) {
+      ironwoodActive = ironwood;
+      runInAction(() => wallet.walletAddresses.setIronwoodActive(ironwood));
+    }
+
     BigInt transparentBal = BigInt.zero;
     try {
       transparentBal = await _rotationTransparentBalance(rotationAccount);
@@ -380,7 +452,26 @@ class ZcashTaddressRotation {
       return;
     }
 
-    if (transparentBal < BigInt.from(_sweepThreshold)) {
+    final noteValues = await _rotationTransparentNoteValues(rotationAccount);
+    final noteSum = noteValues.fold<BigInt>(BigInt.zero, (final sum, final v) => sum + v);
+    final maxNote = noteValues.isEmpty
+        ? BigInt.zero
+        : noteValues.reduce((final a, final b) => a > b ? a : b);
+    printV(
+      "rotation transparent notes: count=${noteValues.length} sum=$noteSum max=$maxNote",
+    );
+
+    if (noteSum == BigInt.zero) {
+      if (transparentBal > BigInt.zero) {
+        printV("rotation sweep waiting for transparent note index (balance=$transparentBal)");
+      }
+      await updateCache(mainAccountId: cId);
+      await _refreshWalletAfterRotationChange(cId);
+      return;
+    }
+
+    final minSweep = _sweepMinAmount(ironwood: ironwood);
+    if (noteSum < minSweep) {
       await updateCache(mainAccountId: cId);
       await _refreshWalletAfterRotationChange(cId);
       return;
@@ -404,40 +495,38 @@ class ZcashTaddressRotation {
         return orchard;
       },
     );
-    ironwoodActive = await ZcashWalletBase.runWithCoin(
-      accountId: cId,
-      func: (final coin) => zkool_network.isIronwoodActive(c: coin),
-    );
-    final result = await ZcashWalletBase.runWithCoin(
-      accountId: rotationAccount,
-      func: (final coin) async {
-        final tx = await zkool_pay.prepare(
-          recipients: [
-            zkool_paydart.Recipient(
-              assetBase: zecBase,
-              address: toAddress,
-              amount: transparentBal,
-              pools: shieldedRecipientPools,
-            ),
-          ],
-          options: zkool_pay.PaymentOptions(
-            srcPools: 1,
-            recipientPaysFee: true,
-            smartTransparent: false,
-            mode: 0,
-          ),
-          c: coin,
+
+    String? result;
+    Object? lastError;
+    for (var attempt = 0; attempt < _sweepPrepareRetries; attempt++) {
+      try {
+        result = await _broadcastRotationSweep(
+          rotationAccount: rotationAccount,
+          toAddress: toAddress,
+          ironwood: ironwood,
+          amount: noteSum,
         );
-        final height = await zkool_network.getCurrentHeight(c: coin);
-        final signTx = await zkool_pay.signTransaction(pczt: tx, c: coin);
-        final txBytes = await zkool_pay.extractTransaction(package: signTx);
-        return zkool_pay.broadcastTransaction(height: height, txBytes: txBytes, c: coin);
-      },
-    );
-    printV("rotation sweep broadcast: $result");
-    if (result.isEmpty) {
-      throw Exception("rotation sweep broadcast failed");
+        break;
+      } catch (e) {
+        lastError = e;
+        final message = e.toString();
+        if (!message.contains('No feasible note selection')) {
+          rethrow;
+        }
+      }
     }
+
+    if (result == null || result.isEmpty) {
+      printV(
+        "rotation sweep deferred: no shieldable t-address group yet "
+        "(${noteValues.length} notes, max=$maxNote, ironwood=$ironwood): $lastError",
+      );
+      await updateCache(mainAccountId: cId);
+      await _refreshWalletAfterRotationChange(cId);
+      return;
+    }
+
+    printV("rotation sweep broadcast: $result");
 
     await ZcashWalletService.addShieldedTx(result);
     _lastSweepBroadcastAt[cId] = DateTime.now();

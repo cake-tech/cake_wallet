@@ -1,6 +1,5 @@
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_zcash/src/zkool_compat.dart';
 
 enum ZcashAddressType {
   transparent,
@@ -61,11 +60,11 @@ class ZcashReceivePageOption implements ReceivePageOption {
   static const _shieldedOrchardIcon =
       "assets/new-ui/address-type-picker-icons/zec/shielded.svg";
 
-  static ZcashReceivePageOption shieldedOrchard() {
+  static ZcashReceivePageOption shieldedOrchard({final bool ironwood = false}) {
     return ZcashReceivePageOption._(
       ZcashAddressType.shieldedOrchard,
       "Shielded",
-      description: ironwoodActive ? "Default (Ironwood)" : "Default (Orchard)",
+      description: ironwood ? "Default (Ironwood)" : "Default (Orchard)",
       iconPath: _shieldedOrchardIcon,
       isCommon: true,
     );
@@ -84,13 +83,15 @@ class ZcashReceivePageOption implements ReceivePageOption {
     return value;
   }
 
-  static List<ZcashReceivePageOption> get allOptions => [
-        shieldedOrchard(),
+  static List<ZcashReceivePageOption> allOptionsFor({final bool ironwood = false}) => [
+        shieldedOrchard(ironwood: ironwood),
         shieldedSapling,
         unified,
         transparentRotated,
         transparent,
       ];
+
+  static List<ZcashReceivePageOption> get allOptions => allOptionsFor();
 
   ZcashAddressType toType() {
     return type;

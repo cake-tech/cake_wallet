@@ -23,6 +23,7 @@ import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_mempool.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
+import 'package:cw_zcash/src/zcash_network.dart';
 import 'package:cw_zcash/src/zkool_compat.dart';
 import 'package:cw_zcash/src/zkooltx.dart';
 import 'package:mobx/mobx.dart';
@@ -148,6 +149,7 @@ abstract class ZcashWalletBase
       c = c.setLwd(url: lwdUrl, serverType: 0);
       syncStatus = ConnectedSyncStatus();
       unawaited(ZcashMempoolService.instance.ensureRunning(c));
+      unawaited(_updateIronwoodActive());
       _ensureSyncLoopRunning();
       unawaited(_refreshSyncStatus());
       unawaited(_oneshotSync());
@@ -1135,7 +1137,7 @@ abstract class ZcashWalletBase
               assetBase: zecBase,
               address: walletAddresses.orchardAddress!,
               amount: sweepable,
-              pools: shieldedRecipientPools,
+              pools: ironwoodActive ? ironwoodPoolMask : null,
             ),
           ],
           options: zkool_pay.PaymentOptions(
@@ -1222,27 +1224,55 @@ abstract class ZcashWalletBase
     await _refreshBalance(runAutoShield: false, runIronwoodMigrate: false);
   }
 
+  Future<void> _updateIronwoodActive() async {
+    bool? active;
+    try {
+      active = await runWithCoin(
+        accountId: accountId,
+        func: (final coin) => zkool_network.isIronwoodActive(c: coin),
+      );
+    } catch (e) {
+      printV("isIronwoodActive: $e");
+    }
+
+    if (active == null && networkFor(walletInfo) == ZcashNetwork.regtest) {
+      try {
+        final height = await runWithCoin(
+          accountId: accountId,
+          func: (final coin) => zkool_network.getCurrentHeight(c: coin),
+        );
+        active = height >= ZcashNetwork.regtestNu63Height;
+        printV("regtest ironwood inferred from height $height: $active");
+      } catch (e) {
+        printV("regtest height check failed: $e");
+      }
+    }
+
+    if (active == null) {
+      return;
+    }
+
+    ironwoodActive = active;
+    runInAction(() => walletAddresses.setIronwoodActive(active!));
+    printV("ironwoodActive=$active (account $accountId)");
+  }
+
   Future<void> _refreshBalance({
     required final bool runAutoShield,
     final bool runIronwoodMigrate = true,
   }) async {
     try {
+      await _updateIronwoodActive();
       final bal = await runWithCoin(
         accountId: accountId,
-        func: (coin) async {
-          ironwoodActive = await zkool_network.isIronwoodActive(c: coin);
-          return zkool_sync.balance(c: coin);
-        },
+        func: (final coin) async => zkool_sync.balance(c: coin),
       );
 
       // 0 - transparent, 1 - sapling, 2 - orchard, 3 - ironwood
-      final confirmedTotal = bal.field0.reduce((final a, final b) => a + b);
-
-      // int knownOutPending = 0;
-      // ZcashWalletBase.temporarySentTx[accountId]?.forEach((final sTx) {
-      //   knownOutPending += sTx.value; // it's negative
-      // });
-      final confirmedSpendable = confirmedTotal - bal.field0[0];
+      final transparent = bal.field0[0];
+      final sapling = bal.field0.length > 1 ? bal.field0[1] : BigInt.zero;
+      final orchard = bal.field0.length > 2 ? bal.field0[2] : BigInt.zero;
+      final ironwood = bal.field0.length > 3 ? bal.field0[3] : BigInt.zero;
 
       if (runAutoShield) {
         await _autoShield();
@@ -1251,9 +1281,20 @@ abstract class ZcashWalletBase
         await _ironwoodMigrate();
       }
 
+      // After NU6.3, Orchard notes are migrated to Ironwood - show them as unconfirmed.
+      final BigInt availableAmount;
+      final BigInt unavailableAmount;
+      if (ironwoodActive == true && orchard > BigInt.zero) {
+        availableAmount = sapling + ironwood;
+        unavailableAmount = transparent + orchard;
+      } else {
+        availableAmount = sapling + orchard + ironwood;
+        unavailableAmount = transparent;
+      }
+
       balance[CryptoCurrency.zec] = ZcashBalance(
-        Money(confirmedSpendable, currency),
-        Money(confirmedTotal - confirmedSpendable, currency),
+        Money(availableAmount, currency),
+        Money(unavailableAmount, currency),
         frozen: Money.zero(currency),
       );
     } catch (e, stackTrace) {
@@ -1281,7 +1322,9 @@ abstract class ZcashWalletBase
   late ZcashWalletAddresses walletAddresses = ZcashWalletAddresses(accountId, walletInfo);
 
   static Future<ZcashWallet> create(final WalletCredentials credentials) async {
-    await $init();
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
     final newWalletCredentials = credentials as ZcashNewWalletCredentials;
 
     String mnemonic;
@@ -1292,7 +1335,7 @@ abstract class ZcashWalletBase
       mnemonic = bip39.generateMnemonic(strength: strength);
     }
 
-    final birthHeight = await ZcashHeight.getBlockHeightByTime(DateTime.now());
+    final birthHeight = await birthHeightForNetwork(network);
 
     final accountId = await restoreZcashWalletFromSeed(
       name: credentials.name,
@@ -1311,7 +1354,9 @@ abstract class ZcashWalletBase
   }
 
   static Future<ZcashWallet> restore(final WalletCredentials credentials) async {
-    await $init();
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
     final fromSeedCredentials = credentials as ZcashFromSeedWalletCredentials;
     final String? seed = fromSeedCredentials.seed;
     if (seed == null || seed.isEmpty) {
@@ -1335,7 +1380,9 @@ abstract class ZcashWalletBase
   }
 
   static Future<ZcashWallet> restoreKeys(final WalletCredentials credentials) async {
-    await $init();
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
     final fromKeysCredentials = credentials as ZcashFromKeysWalletCredentials;
     final String? keys = fromKeysCredentials.privateKey;
     if (keys == null || keys.isEmpty) {
@@ -1369,7 +1416,8 @@ abstract class ZcashWalletBase
     required final String password,
     required final WalletInfo walletInfo,
   }) async {
-    await $init();
+    final network = networkFor(walletInfo);
+    await $init(network: network);
     // if (password.isNotEmpty) {
     //   setDbPasswd(coin, password);
     // }
@@ -1449,9 +1497,32 @@ abstract class ZcashWalletBase
 
   static WalletType get _type => WalletType.zcash;
 
-  static Future<String> getDbDataPath() async {
+  static ZcashNetwork networkFor(final WalletInfo? walletInfo) =>
+      ZcashNetwork.fromName(walletInfo?.network ?? ZcashNetwork.mainnet.value);
+
+  static ZcashNetwork networkForCredentials(final WalletCredentials credentials) {
+    if (credentials is ZcashNewWalletCredentials) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
+    if (credentials is ZcashFromSeedWalletCredentials) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
+    if (credentials is ZcashFromKeysWalletCredentials) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
+    return ZcashNetwork.mainnet;
+  }
+
+  static Future<int> birthHeightForNetwork(final ZcashNetwork network) async {
+    if (network != ZcashNetwork.mainnet) {
+      return 1;
+    }
+    return ZcashHeight.getBlockHeightByTime(DateTime.now());
+  }
+
+  static Future<String> getDbDataPath({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
     final pathForWalletType = await pathForWalletTypeDir(type: _type);
-    final dbDataPath = "${pathForWalletType}/zec.v2.db";
+    final dbDataPath = "${pathForWalletType}/${network.dbFileName}";
     if (!Directory(pathForWalletType).existsSync()) {
       Directory(pathForWalletType).createSync(recursive: true);
     }
@@ -1468,6 +1539,8 @@ abstract class ZcashWalletBase
   }
 
   static bool _initialized = false;
+  static bool _rustInitialized = false;
+  static ZcashNetwork? _activeNetwork;
 
   static void unlockDatabase(final String password) {
     _password = password;
@@ -1476,22 +1549,25 @@ abstract class ZcashWalletBase
   static var c = zkool_coin.Coin();
 
   static String? _password;
-  static Future<void> $init() async {
-    if (_initialized) return;
-    _initialized = true;
-    printV(r".$init()");
-    await zkool_frb.RustLib.init();
+  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+    if (!_rustInitialized) {
+      await zkool_frb.RustLib.init();
+      _rustInitialized = true;
+    }
+    if (_initialized && _activeNetwork == network) {
+      return;
+    }
+    printV(r".$init($network)");
     ZcashMempoolService.instance.onAccountsUpdated = (final accountIds) {
       for (final accountId in accountIds) {
         unawaited(refreshWalletForAccount(accountId));
       }
     };
-    final dbFile = File(await getDbDataPath());
+    final dbFile = File(await getDbDataPath(network: network));
     final ywalletDbFile = File(await getDbDataPathLegacyYwallet());
     await zkool_network.initDatadir(directory: dbFile.parent.path);
-    // c = await c.openDatabase(dbFilepath: dbFile.path, password: 'cw_zcash_migration');
     c = await c.openDatabase(dbFilepath: dbFile.path, password: null);
-    printV("initWallet");
+    printV("initWallet: ${dbFile.path}");
     if (_password == null) {
       throw Exception("Zcash wallet locked! Please contact support");
     }
@@ -1502,6 +1578,7 @@ abstract class ZcashWalletBase
       //TODO(mrcyjanek): migrate to zkool
     }
 
+    _activeNetwork = network;
     _initialized = true;
   }
 
