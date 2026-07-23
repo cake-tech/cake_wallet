@@ -61,7 +61,6 @@ class DEuroSavingsPage extends BasePage {
                       savingsBalance: _dEuroViewModel.savingsBalance,
                       fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalance,
                       currency: CryptoCurrency.deuro,
-                      fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
                       onAddSavingsPressed: () => _onSavingsAdd(context),
                       onRemoveSavingsPressed: () => _onSavingsRemove(context),
                       onApproveSavingsPressed: () => _onApproval(context),

@@ -54,7 +54,6 @@ class InterestCardWidget extends StatelessWidget {
                     amount: accruedInterest,
                     fiatAmount: fiatAccruedInterest,
                     currency: CryptoCurrency.deuro,
-                    fiatCurrency: fiatCurrency,
                     hideSymbol: false,
                     onTooltipPressed: onTooltipPressed,
                   ),
