@@ -69,6 +69,7 @@ class MoneyText extends StatelessWidget {
               textScaler: textScaler,
               maxLines: maxLines,
               semanticsLabel: semanticsLabel,
+              semanticsIdentifier: semanticsIdentifier,
               textWidthBasis: textWidthBasis,
               textHeightBehavior: textHeightBehavior,
               selectionColor: selectionColor,
