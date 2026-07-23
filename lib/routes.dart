@@ -51,10 +51,10 @@ class Routes {
   static const rescan = '/rescan';
   static const faq = '/faq';
   static const newWalletType = '/new_wallet_type';
-  static const newChainSelectionPage = '/new_chain_selection_page';
-  static const newChainCustomizationPage = '/new_chain_customization_page';
-  static const newOmniChainOpenNetworkPage = '/new_omnichain_open_network_page';
-  static const newOmniChainSummaryPage = '/new_omnichain_summary_page';
+  static const walletCreationTypeSelectionPage = "/wallet_creation_type_selection_page";
+  static const walletCreationDetailsPage = "/wallet_creation_details_page";
+  static const walletCreationSuccessPage = "/wallet_creation_success_page";
+  static const walletCreationOpeningPage = "/wallet_creation_opening_page";
   static const omniChainChangeNetworkPage = '/omni_chain_change_network_page';
   static const sendTemplate = '/send_template';
   static const exchangeTemplate = '/exchange_template';

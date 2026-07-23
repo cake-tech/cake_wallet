@@ -60,6 +60,10 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_details_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_opening_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_success_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_type_selection_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
@@ -319,11 +323,6 @@ import 'package:trezor_connect/trezor_connect.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
-import 'new-ui/pages/omnichain_wallet/new_omnichain_customization_page.dart';
-import 'new-ui/pages/omnichain_wallet/new_omnichain_open_network_page.dart';
-import 'new-ui/pages/omnichain_wallet/new_omnichain_selection_page.dart';
-import 'new-ui/pages/omnichain_wallet/new_omnichain_summary_page.dart';
-import 'new-ui/pages/omnichain_wallet/omnichain_change_network_page.dart';
 import 'new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
@@ -1447,6 +1446,19 @@ Future<void> setup({
     );
   });
 
+  getIt.registerFactoryParam<WalletCreationTypeSelectionPage, NewWalletTypeArguments, void>(
+          (newWalletTypeArguments, _) => WalletCreationTypeSelectionPage(
+          newWalletTypeArguments: newWalletTypeArguments,
+        ),);
+
+  getIt.registerFactory<WalletCreationDetailsPage>(WalletCreationDetailsPage.new);
+
+  getIt.registerFactory<WalletCreationSuccessPage>(WalletCreationSuccessPage.new);
+
+  getIt.registerFactory<WalletCreationOpeningPage>(WalletCreationOpeningPage.new);
+
+
+
   getIt.registerFactoryParam<NewWalletTypePage, NewWalletTypeArguments, void>(
       (newWalletTypeArguments, _) {
     return NewWalletTypePage(
@@ -1454,18 +1466,6 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactoryParam<NewChainSelectionPage, NewWalletTypeArguments, void>(
-      (newWalletTypeArguments, _) {
-    return NewChainSelectionPage(
-      newWalletTypeArguments: newWalletTypeArguments,
-    );
-  });
-
-  getIt.registerFactory<NewChainCustomizationPage>(() => NewChainCustomizationPage());
-
-  getIt.registerFactory<NewOmnichainOpenNetworkPage>(() => NewOmnichainOpenNetworkPage());
-
-  getIt.registerFactory<NewOmnichainSummaryPage>(() => NewOmnichainSummaryPage());
 
   getIt.registerFactory<PreSeedPage>(() => PreSeedPage());
 

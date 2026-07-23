@@ -26,8 +26,8 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
-class NewChainSelectionPage extends BasePage {
-  NewChainSelectionPage({
+class WalletCreationTypeSelectionPage extends BasePage {
+  WalletCreationTypeSelectionPage({
     required this.newWalletTypeArguments,
   });
 
@@ -39,13 +39,15 @@ class NewChainSelectionPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final flowWalletTypes = availableWalletTypes
-        .where((element) =>
-            newWalletTypeArguments.hardwareWalletType == null ||
-            DeviceConnectionType.supportedConnectionTypes(
-              element,
-              newWalletTypeArguments.hardwareWalletType!,
-              Platform.isIOS,
-            ).isNotEmpty,)
+        .where(
+          (element) =>
+              newWalletTypeArguments.hardwareWalletType == null ||
+              DeviceConnectionType.supportedConnectionTypes(
+                element,
+                newWalletTypeArguments.hardwareWalletType!,
+                Platform.isIOS,
+              ).isNotEmpty,
+        )
         .toList();
 
     return BlocProvider(
@@ -53,7 +55,7 @@ class NewChainSelectionPage extends BasePage {
         allWalletTypes: flowWalletTypes.toSet(),
         creationService: getIt.get<OmniChainWalletCreationService>(),
       ),
-      child: NewChainSelectionPageBody(
+      child: WalletCreationTypeSelectionPageBody(
         isCreate: newWalletTypeArguments.isCreate,
         hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
         availableWalletTypes: flowWalletTypes,
@@ -62,8 +64,8 @@ class NewChainSelectionPage extends BasePage {
   }
 }
 
-class NewChainSelectionPageBody extends StatefulWidget {
-  const NewChainSelectionPageBody({
+class WalletCreationTypeSelectionPageBody extends StatefulWidget {
+  const WalletCreationTypeSelectionPageBody({
     required this.isCreate,
     required this.availableWalletTypes,
     this.onTypeSelected,
@@ -78,15 +80,18 @@ class NewChainSelectionPageBody extends StatefulWidget {
   bool get isHardwareWallet => hardwareWalletType != null;
 
   @override
-  State<NewChainSelectionPageBody> createState() => _NewChainSelectionPageBodyState();
+  State<WalletCreationTypeSelectionPageBody> createState() =>
+      _WalletCreationTypeSelectionPageBodyState();
 }
 
-class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
+class _WalletCreationTypeSelectionPageBodyState extends State<WalletCreationTypeSelectionPageBody> {
   OmniChainNetworksMode _mode = OmniChainNetworksMode.allNetworks;
 
   List<WalletType> get _types => widget.availableWalletTypes;
 
   bool get _isCustomizing => _mode == OmniChainNetworksMode.customize;
+
+  OmniChainWalletBloc get _bloc => context.read<OmniChainWalletBloc>();
 
   @override
   void initState() {
@@ -106,10 +111,19 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
     }
   }
 
+  void _onTypeToggled(WalletType type, bool isSelected) =>
+      _bloc.add(OmniChainWalletTypeToggled(type: type, isSelected: isSelected));
+
+  void _onSelectAll() => _bloc.add(OmniChainWalletTypesSelected());
+
+  void _onUnselectAll() => _bloc.add(OmniChainWalletTypesDeselected());
+
   void _continue() {
+    _bloc.add(OmniChainWalletChainSelectionConfirmed());
+
     Navigator.of(context).pushNamed(
-      Routes.newChainCustomizationPage,
-      arguments: context.read<OmniChainWalletBloc>(),
+      Routes.walletCreationDetailsPage,
+      arguments: _bloc,
     );
   }
 
@@ -117,8 +131,11 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocBuilder<OmniChainWalletBloc, OmniChainWalletState>(
-      builder: (context, state) {
+    return BlocBuilder<OmniChainWalletBloc, WalletCreationState>(
+      buildWhen: (_, current) => current is WalletCreationChainSelection,
+      builder: (context, rawState) {
+        final state = rawState as WalletCreationChainSelection;
+
         final canContinue =
             _mode == OmniChainNetworksMode.allNetworks || (_isCustomizing && state.hasAnySelected);
 
@@ -171,7 +188,10 @@ class _NewChainSelectionPageBodyState extends State<NewChainSelectionPageBody> {
                             padding: const EdgeInsets.only(top: 24),
                             child: OmniChainNetworksList(
                               types: _types,
-                              state: state,
+                              isSelected: state.isSelected,
+                              onTypeToggled: _onTypeToggled,
+                              onSelectAll: _onSelectAll,
+                              onUnselectAll: _onUnselectAll,
                             ),
                           )
                         : const SizedBox(width: double.infinity),
@@ -284,18 +304,23 @@ class OmniChainNetworksModeSelector extends StatelessWidget {
 class OmniChainNetworksList extends StatelessWidget {
   const OmniChainNetworksList({
     required this.types,
-    required this.state,
+    required this.isSelected,
+    required this.onTypeToggled,
+    this.onSelectAll,
+    this.onUnselectAll,
     this.sectionTitle = "Networks",
   });
 
   final List<WalletType> types;
-  final OmniChainWalletState state;
+  final bool Function(WalletType type) isSelected;
+  final void Function(WalletType type, bool isSelected) onTypeToggled;
+  final VoidCallback? onSelectAll;
+  final VoidCallback? onUnselectAll;
   final String sectionTitle;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bloc = context.read<OmniChainWalletBloc>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -313,22 +338,24 @@ class OmniChainNetworksList extends StatelessWidget {
             Row(
               spacing: 20,
               children: [
-                GestureDetector(
-                  key: const ValueKey("omnichain_select_all_key"),
-                  onTap: () => bloc.add(OmniChainWalletTypesSelected()),
-                  child: Text(
-                    S.of(context).select_all,
-                    style: TextStyle(color: theme.colorScheme.primary),
+                if (onSelectAll != null)
+                  GestureDetector(
+                    key: const ValueKey("omnichain_select_all_key"),
+                    onTap: onSelectAll,
+                    child: Text(
+                      S.of(context).select_all,
+                      style: TextStyle(color: theme.colorScheme.primary),
+                    ),
                   ),
-                ),
-                GestureDetector(
-                  key: const ValueKey("omnichain_unselect_all_key"),
-                  onTap: () => bloc.add(OmniChainWalletTypesDeselected()),
-                  child: Text(
-                    S.of(context).unselect_all,
-                    style: TextStyle(color: theme.colorScheme.primary),
+                if (onUnselectAll != null)
+                  GestureDetector(
+                    key: const ValueKey("omnichain_unselect_all_key"),
+                    onTap: onUnselectAll,
+                    child: Text(
+                      S.of(context).unselect_all,
+                      style: TextStyle(color: theme.colorScheme.primary),
+                    ),
                   ),
-                ),
               ],
             ),
           ],
@@ -344,10 +371,8 @@ class OmniChainNetworksList extends StatelessWidget {
                   label: walletTypeToString(type),
                   subtitle:
                       walletTypeToDescription(type).isEmpty ? null : walletTypeToDescription(type),
-                  value: state.isSelected(type),
-                  onChanged: (value) => bloc.add(
-                    OmniChainWalletTypeToggled(type: type, isSelected: value),
-                  ),
+                  value: isSelected(type),
+                  onChanged: (value) => onTypeToggled(type, value),
                 ),
               ),
             ],

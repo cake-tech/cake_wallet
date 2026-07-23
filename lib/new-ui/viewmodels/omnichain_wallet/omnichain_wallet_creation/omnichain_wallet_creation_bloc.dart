@@ -1,35 +1,43 @@
-import 'package:bloc/bloc.dart';
-import 'package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart';
-import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
-import 'package:cw_core/generate_name.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/reactions/wallet_utils.dart';
+import "package:bloc/bloc.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart";
+import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart";
+import "package:cw_core/generate_name.dart";
+import "package:cw_core/wallet_type.dart";
 
-class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletState> {
+class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState> {
   OmniChainWalletBloc({
     required Set<WalletType> allWalletTypes,
     required this.creationService,
-  }) : super(OmniChainWalletState(allWalletTypes: allWalletTypes)) {
+  }) : super(WalletCreationChainSelection(allWalletTypes: allWalletTypes)) {
     on<OmniChainWalletTypeToggled>(_onWalletTypeToggled);
-    on<OmniChainWalletPrimaryTypeSelected>(_onPrimaryTypeSelected);
     on<OmniChainWalletTypesDeselected>(_onWalletTypesDeselected);
     on<OmniChainWalletTypesSelected>(_onWalletTypesSelected);
+    on<OmniChainWalletChainSelectionConfirmed>(_onChainSelectionConfirmed);
     on<OmniChainWalletGroupNameChanged>(_onGroupNameChanged);
     on<OmniChainWalletGroupNameGenerated>(_onGroupNameGenerated);
+    on<OmniChainWalletCredentialsSubmitted>(_onCredentialsSubmitted);
+    on<OmniChainWalletSummaryConfirmed>(_onSummaryConfirmed);
+    on<OmniChainWalletPrimaryTypeSelected>(_onPrimaryTypeSelected);
     on<OmniChainWalletGroupCreateRequested>(_onGroupCreateRequested);
-    on<OmniChainWalletTypesSelectionChanged>(_onWalletTypesSelectionChanged);
   }
 
   final OmniChainWalletCreationService creationService;
 
-  void _onWalletTypeToggled(OmniChainWalletTypeToggled event, Emitter<OmniChainWalletState> emit) {
-    final updatedSelectedTypes = Set<WalletType>.from(state.selectedTypes);
-    final isBip39Type = isBIP39Wallet(event.type);
+  // ---- Step 1: chain selection ----
+
+  void _onWalletTypeToggled(OmniChainWalletTypeToggled event, Emitter<WalletCreationState> emit) {
+    final current = state;
+    if (current is! WalletCreationChainSelection) {
+      return;
+    }
+
+    final updatedSelectedTypes = Set<WalletType>.from(current.selectedTypes);
 
     if (event.isSelected) {
-      if (isBip39Type) {
+      if (isBIP39Wallet(event.type)) {
         updatedSelectedTypes.removeWhere((type) => !isBIP39Wallet(type));
         updatedSelectedTypes.add(event.type);
       } else {
@@ -41,52 +49,155 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
       updatedSelectedTypes.remove(event.type);
     }
 
-    emit(state.copyWith(
-      selectedTypes: updatedSelectedTypes,
-      primaryType: updatedSelectedTypes.contains(state.primaryType) ? state.primaryType : null,
-    ));
-  }
-
-  void _onPrimaryTypeSelected(
-      OmniChainWalletPrimaryTypeSelected event, Emitter<OmniChainWalletState> emit) {
-    if (!state.selectedTypes.contains(event.type)) return;
-
-    emit(state.copyWith(primaryType: event.type));
+    emit(current.copyWith(selectedTypes: updatedSelectedTypes));
   }
 
   void _onWalletTypesDeselected(
-      OmniChainWalletTypesDeselected event, Emitter<OmniChainWalletState> emit) {
-    emit(state.copyWith(
-      selectedTypes: <WalletType>{},
-      primaryType: null,
-    ));
+    OmniChainWalletTypesDeselected event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+    if (current is! WalletCreationChainSelection) {
+      return;
+    }
+
+    emit(current.copyWith(selectedTypes: <WalletType>{}));
   }
 
   void _onWalletTypesSelected(
-      OmniChainWalletTypesSelected event, Emitter<OmniChainWalletState> emit) {
-    emit(state.copyWith(
-      selectedTypes: state.allWalletTypes.where((type) => isBIP39Wallet(type)).toSet(),
-      primaryType:
-          state.primaryType != null && isBIP39Wallet(state.primaryType!) ? state.primaryType : null,
-    ));
+      OmniChainWalletTypesSelected event, Emitter<WalletCreationState> emit) {
+    final current = state;
+    if (current is! WalletCreationChainSelection) {
+      return;
+    }
+
+    emit(
+      current.copyWith(
+        selectedTypes: current.allWalletTypes.where(isBIP39Wallet).toSet(),
+      ),
+    );
   }
 
-  void _onWalletTypesSelectionChanged(
-    OmniChainWalletTypesSelectionChanged event,
-    Emitter<OmniChainWalletState> emit,
+  void _onChainSelectionConfirmed(
+    OmniChainWalletChainSelectionConfirmed event,
+    Emitter<WalletCreationState> emit,
   ) {
-    final selectedTypes = Set<WalletType>.from(event.selectedTypes);
-    final nonBip39Types = selectedTypes.where((type) => !isBIP39Wallet(type)).toList();
+    final current = state;
+    if (current is! WalletCreationChainSelection || !current.hasAnySelected) return;
 
-    final normalizedSelectedTypes = nonBip39Types.isNotEmpty
-        ? <WalletType>{nonBip39Types.last}
-        : selectedTypes.where((type) => isBIP39Wallet(type)).toSet();
-
-    emit(state.copyWith(
-      selectedTypes: normalizedSelectedTypes,
-      primaryType: normalizedSelectedTypes.contains(state.primaryType) ? state.primaryType : null,
+    emit(WalletCreationCustomization(
+      selectedTypes: Set<WalletType>.unmodifiable(current.selectedTypes),
     ));
   }
+
+  // ---- Step 2: customization ----
+
+  void _onGroupNameChanged(
+    OmniChainWalletGroupNameChanged event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+    if (current is! WalletCreationCustomization) return;
+
+    final groupName = event.groupName.trim();
+
+    emit(current.copyWith(
+      groupName: groupName,
+      groupNameError: _validateGroupName(groupName),
+    ));
+  }
+
+  Future<void> _onGroupNameGenerated(
+    OmniChainWalletGroupNameGenerated event,
+    Emitter<WalletCreationState> emit,
+  ) async {
+    if (state is! WalletCreationCustomization) return;
+
+    final groupName = await generateName();
+
+    final current = state;
+    if (current is! WalletCreationCustomization) return;
+
+    emit(current.copyWith(
+      groupName: groupName,
+      groupNameError: _validateGroupName(groupName),
+    ));
+  }
+
+  void _onCredentialsSubmitted(
+    OmniChainWalletCredentialsSubmitted event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+    if (current is! WalletCreationCustomization || !current.canContinue) return;
+
+    emit(WalletCreationSummary(
+      selectedTypes: current.selectedTypes,
+      groupName: current.groupName,
+      providedPassphrase: current.providedPassphrase,
+    ));
+  }
+
+  // ---- Step 3: summary ----
+
+  void _onSummaryConfirmed(
+    OmniChainWalletSummaryConfirmed event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+    if (current is! WalletCreationSummary) return;
+
+    final singleType = current.selectedTypes.length == 1 ? current.selectedTypes.first : null;
+
+    emit(WalletCreationOpeningNetwork(
+      selectedTypes: current.selectedTypes,
+      groupName: current.groupName,
+      primaryType: singleType,
+      providedPassphrase: current.providedPassphrase,
+    ));
+
+    if (singleType != null) {
+      add(OmniChainWalletGroupCreateRequested());
+    }
+  }
+
+  // ---- Step 4: opening network / creation ----
+
+  void _onPrimaryTypeSelected(
+      OmniChainWalletPrimaryTypeSelected event, Emitter<WalletCreationState> emit) {
+    final current = state;
+    if (current is! WalletCreationOpeningNetwork) return;
+    if (!current.selectedTypes.contains(event.type)) return;
+
+    emit(current.copyWith(primaryType: event.type, creationError: null));
+  }
+
+  Future<void> _onGroupCreateRequested(
+    OmniChainWalletGroupCreateRequested event,
+    Emitter<WalletCreationState> emit,
+  ) async {
+    final current = state;
+    if (current is! WalletCreationOpeningNetwork || !current.canCreate) return;
+
+    emit(WalletCreationCreating(request: current));
+
+    try {
+      await creationService.createGroup(
+        request: OmniChainCreateGroupRequest(
+          selectedTypes: current.selectedTypes,
+          primaryType: current.primaryType!,
+          groupName: current.groupName,
+          passphrase: current.providedPassphrase,
+        ),
+      );
+
+      emit(WalletCreated(groupName: current.groupName));
+    } catch (e) {
+      emit(current.copyWith(creationError: e.toString()));
+    }
+  }
+
+  // ---- Helpers ----
 
   String? _validateGroupName(String groupName) {
     final trimmedGroupName = groupName.trim();
@@ -107,70 +218,4 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, OmniChainWalletStat
 
     return null;
   }
-
-  void _onGroupNameChanged(
-    OmniChainWalletGroupNameChanged event,
-    Emitter<OmniChainWalletState> emit,
-  ) {
-    final groupName = event.groupName.trim();
-
-    emit(state.copyWith(
-      groupName: groupName,
-      groupNameError: _validateGroupName(groupName),
-    ));
-  }
-
-  Future<void> _onGroupNameGenerated(
-    OmniChainWalletGroupNameGenerated event,
-    Emitter<OmniChainWalletState> emit,
-  ) async {
-    final groupName = await generateName();
-
-    emit(state.copyWith(
-      groupName: groupName,
-      groupNameError: _validateGroupName(groupName),
-    ));
-  }
-
-  Future<void> _onGroupCreateRequested(
-    OmniChainWalletGroupCreateRequested event,
-    Emitter<OmniChainWalletState> emit,
-  ) async {
-    try {
-      final primaryType = state.primaryType;
-      if (primaryType == null) throw Exception('Primary wallet type is not selected');
-
-      final createGroupRequest = OmniChainCreateGroupRequest(
-        selectedTypes: state.selectedTypes,
-        primaryType: primaryType,
-        groupName: state.groupName,
-        mnemonic: state.providedMnemonic,
-        passphrase: state.providedPassphrase,
-      );
-
-      await creationService.createGroup(request: createGroupRequest);
-
-      emit(state.copyWith(
-        groupNameError: null,
-        groupCreated: true,
-      ));
-    } catch (e) {
-      emit(state.copyWith(groupNameError: e.toString()));
-    }
-  }
-
-  List<WalletType> popularWalletTypes([Iterable<WalletType>? types]) {
-    return (types ?? state.allWalletTypes).where((type) => _popularTypes.contains(type)).toList();
-  }
-
-  static const _popularTypes = {
-    WalletType.monero,
-    WalletType.bitcoin,
-    WalletType.ethereum,
-    WalletType.solana,
-    WalletType.zcash,
-    WalletType.base,
-    WalletType.arbitrum,
-    WalletType.bsc,
-  };
 }

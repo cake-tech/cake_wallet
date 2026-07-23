@@ -15,24 +15,24 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class NewOmnichainOpenNetworkPage extends BasePage {
-  NewOmnichainOpenNetworkPage();
+class WalletCreationOpeningPage extends BasePage {
+  WalletCreationOpeningPage();
 
   @override
   String get title => S.current.new_wallet;
 
   @override
-  Widget body(BuildContext context) => const NewOmnichainOpenNetworkPageBody();
+  Widget body(BuildContext context) => const WalletCreationOpeningPageBody();
 }
 
-class NewOmnichainOpenNetworkPageBody extends StatefulWidget {
-  const NewOmnichainOpenNetworkPageBody({super.key});
+class WalletCreationOpeningPageBody extends StatefulWidget {
+  const WalletCreationOpeningPageBody({super.key});
 
   @override
-  State<NewOmnichainOpenNetworkPageBody> createState() => _NewOmnichainOpenNetworkPageBodyState();
+  State<WalletCreationOpeningPageBody> createState() => _WalletCreationOpeningPageBodyState();
 }
 
-class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetworkPageBody> {
+class _WalletCreationOpeningPageBodyState extends State<WalletCreationOpeningPageBody> {
   final TextEditingController _searchController = TextEditingController();
 
   List<WalletType> filteredTypes = [];
@@ -41,7 +41,11 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
   void initState() {
     super.initState();
 
-    final selectedTypes = context.read<OmniChainWalletBloc>().state.selectedTypes.toList();
+    final blocState = context.read<OmniChainWalletBloc>().state;
+    final selectedTypes = switch (blocState) {
+      WalletCreationOpeningNetwork(:final selectedTypes) => selectedTypes.toList(),
+      _ => <WalletType>[],
+    };
 
     filteredTypes = selectedTypes;
 
@@ -63,10 +67,17 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<OmniChainWalletBloc, OmniChainWalletState>(
-      listener: (context, state) {},
+  Widget build(BuildContext context) => BlocBuilder<OmniChainWalletBloc, WalletCreationState>(
+
       builder: (context, state) {
+        final isCreating = state is WalletCreationCreating;
+
+        final groupName = switch (state) {
+          WalletCreationOpeningNetwork(:final groupName) => groupName,
+          WalletCreationCreating(:final request) => request.groupName,
+          _ => "",
+        };
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
@@ -82,11 +93,11 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    state.groupName.isEmpty ? 'Shopping Wallet' : state.groupName,
+                    groupName.isEmpty ? 'Shopping Wallet' : groupName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -95,8 +106,8 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                 'Select a Network to Open',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 24),
               Expanded(
@@ -109,12 +120,14 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                         sections: {
                           '': [
                             ...filteredTypes.map(
-                              (type) => ListItemRegularRow(
+                                  (type) => ListItemRegularRow(
                                 keyValue: 'open_network_${type.name}_button_key',
                                 label: walletTypeToDisplayName(type),
                                 showArrow: false,
                                 iconPath: getCryptoCurrencyIconForWalletListItem(type),
-                                onTap: () {
+                                onTap: isCreating
+                                    ? null
+                                    : () {
                                   final bloc = context.read<OmniChainWalletBloc>();
                                   bloc.add(OmniChainWalletPrimaryTypeSelected(type));
                                   bloc.add(OmniChainWalletGroupCreateRequested());
@@ -142,17 +155,17 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
                                   fit: FlexFit.tight,
                                   child: NewSearchBar(controller: _searchController),
                                 ),
-                                const SizedBox(width: 12),
-                                Flexible(
-                                    flex: 2,
-                                    fit: FlexFit.tight,
-                                    child: NewElevatedButton(
-                                      key: const ValueKey('new_wallet_manage_button_key'),
-                                      onPressed: () {
-                                        // TODO: manage networks action
-                                      },
-                                      buttonText: 'Manage',
-                                    )),
+                                // const SizedBox(width: 12),
+                                // Flexible(
+                                //     flex: 2,
+                                //     fit: FlexFit.tight,
+                                //     child: NewElevatedButton(
+                                //       key: const ValueKey('new_wallet_manage_button_key'),
+                                //       onPressed: () {
+                                //         // TODO: manage networks action
+                                //       },
+                                //       buttonText: 'Manage',
+                                //     )),
                               ],
                             ),
                           ),
@@ -167,5 +180,4 @@ class _NewOmnichainOpenNetworkPageBodyState extends State<NewOmnichainOpenNetwor
         );
       },
     );
-  }
 }

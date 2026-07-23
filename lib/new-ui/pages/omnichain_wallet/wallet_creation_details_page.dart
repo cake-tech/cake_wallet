@@ -1,33 +1,33 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/base_page.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart";
+import "package:cake_wallet/src/widgets/primary_button.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-class NewChainCustomizationPage extends BasePage {
-  NewChainCustomizationPage();
+class WalletCreationDetailsPage extends BasePage {
+  WalletCreationDetailsPage();
 
   @override
   String get title => S.current.new_wallet;
 
   @override
-  Widget body(BuildContext context) => NewChainCustomizationPageBody();
+  Widget body(BuildContext context) => const WalletCreationDetailsPageBody();
 }
 
-class NewChainCustomizationPageBody extends StatefulWidget {
-  const NewChainCustomizationPageBody({super.key});
+class WalletCreationDetailsPageBody extends StatefulWidget {
+  const WalletCreationDetailsPageBody({super.key});
 
   @override
-  State<NewChainCustomizationPageBody> createState() => _NewChainCustomizationPageBodyState();
+  State<WalletCreationDetailsPageBody> createState() => _WalletCreationDetailsPageBodyState();
 }
 
-class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPageBody> {
+class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPageBody> {
   final TextEditingController _walletNameController = TextEditingController();
 
   @override
@@ -53,16 +53,24 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide.none,
     );
-    return BlocConsumer<OmniChainWalletBloc, OmniChainWalletState>(
+    return BlocConsumer<OmniChainWalletBloc, WalletCreationState>(
+      listenWhen: (_, current) => current is WalletCreationCustomization,
       listener: (context, state) {
-        if (_walletNameController.text == state.groupName) return;
+        final groupName = (state as WalletCreationCustomization).groupName;
 
-        _walletNameController.text = state.groupName;
+        if (_walletNameController.text == groupName) {
+          return;
+        }
+
+        _walletNameController.text = groupName;
         _walletNameController.selection = TextSelection.fromPosition(
-          TextPosition(offset: state.groupName.length),
+          TextPosition(offset: groupName.length),
         );
       },
-      builder: (context, state) {
+      buildWhen: (_, current) => current is WalletCreationCustomization,
+      builder: (context, rawState) {
+        if (rawState is! WalletCreationCustomization) return const SizedBox.shrink();
+        final state = rawState;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
@@ -109,7 +117,7 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
               ),
               const SizedBox(height: 28),
               Text(
-                'Choose the name and icon for your wallet',
+                "Choose the name and icon for your wallet",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -117,9 +125,9 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
               ),
               const SizedBox(height: 32),
               ListItemTextFieldWidget(
-                keyValue: 'new_chain_customization_page_wallet_name_row_key',
+                keyValue: "new_chain_customization_page_wallet_name_row_key",
                 controller: _walletNameController,
-                label: 'Wallet Name',
+                label: "Wallet Name",
                 isFirstInSection: true,
                 isLastInSection: true,
                 height: 60,
@@ -141,12 +149,12 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
                             OmniChainWalletGroupNameGenerated(),
                           );
                     },
-                    child: SizedBox(
+                    child: const SizedBox(
                       width: 36,
                       height: 36,
                       child: Center(
                         child: CakeImageWidget(
-                          imageUrl: 'assets/new-ui/random_icon.svg',
+                          imageUrl: "assets/new-ui/random_icon.svg",
                           width: 18,
                           height: 18,
                         ),
@@ -191,13 +199,15 @@ class _NewChainCustomizationPageBodyState extends State<NewChainCustomizationPag
               ),
               const Spacer(flex: 3),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: PrimaryButton(
-                  key: const ValueKey('new_wallet_customization_continue_button_key'),
+                  key: const ValueKey("new_wallet_customization_continue_button_key"),
                   onPressed: () {
+                    final bloc = context.read<OmniChainWalletBloc>();
+                    bloc.add(OmniChainWalletCredentialsSubmitted());
                     Navigator.of(context).pushNamed(
-                      Routes.newOmniChainSummaryPage,
-                      arguments: context.read<OmniChainWalletBloc>(),
+                      Routes.walletCreationSuccessPage,
+                      arguments: bloc,
                     );
                   },
                   borderRadius: BorderRadius.circular(999999),
