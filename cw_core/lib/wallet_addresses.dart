@@ -71,6 +71,9 @@ abstract class WalletAddresses {
   Future<void> saveAddressesInBox() async {
     try {
       walletInfo.address = address;
+      if (walletInfo.internalId <= 0) {
+        await walletInfo.save();
+      }
       // TODO: check if it will affect the performance of each wallet
       await walletInfo.setAddresses(addressesMap);
       await walletInfo.setAddressInfos(addressInfos);

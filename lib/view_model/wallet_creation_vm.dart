@@ -124,7 +124,6 @@ abstract class WalletCreationVMBase with Store {
 
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
 
-      await credentials.walletInfo!.save();
       final WalletBase wallet;
       try {
         wallet = await process(credentials);
