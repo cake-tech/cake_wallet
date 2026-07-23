@@ -399,17 +399,26 @@ class ZcashTaddressRotation {
         final addrs = await zkool_account.getAddresses(c: coin, uaPools: 7);
         final orchard = addrs.oaddr;
         if (orchard == null || orchard.isEmpty) {
-          throw Exception('Orchard address unavailable for rotation sweep');
+          throw Exception('Shielded address unavailable for rotation sweep');
         }
         return orchard;
       },
+    );
+    ironwoodActive = await ZcashWalletBase.runWithCoin(
+      accountId: cId,
+      func: (final coin) => zkool_network.isIronwoodActive(c: coin),
     );
     final result = await ZcashWalletBase.runWithCoin(
       accountId: rotationAccount,
       func: (final coin) async {
         final tx = await zkool_pay.prepare(
           recipients: [
-            zkool_paydart.Recipient(assetBase: zecBase, address: toAddress, amount: transparentBal),
+            zkool_paydart.Recipient(
+              assetBase: zecBase,
+              address: toAddress,
+              amount: transparentBal,
+              pools: shieldedRecipientPools,
+            ),
           ],
           options: zkool_pay.PaymentOptions(
             srcPools: 1,

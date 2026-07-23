@@ -270,7 +270,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   @override
   List<ReceivePageOption> get receivePageOptions {
     return [
-      ...ZcashReceivePageOption.all,
+      ...ZcashReceivePageOption.allOptions,
       ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet),
     ];
   }

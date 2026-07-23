@@ -32,6 +32,7 @@ import 'package:zkool/src/rust/api/coin.dart' as zkool_coin;
 import 'package:zkool/src/rust/api/mempool.dart' as zkool_mempool;
 import 'package:zkool/src/rust/api/sync.dart' as zkool_sync;
 import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
+import 'package:zkool/src/rust/api/migrate.dart' as zkool_migrate;
 import 'package:zkool/src/rust/api/network.dart' as zkool_network;
 import 'package:zkool/src/rust/pay.dart' as zkool_paydart;
 import 'package:zkool/src/rust/frb_generated.dart' as zkool_frb;
@@ -1082,6 +1083,8 @@ abstract class ZcashWalletBase
 
   static final autoShieldMutex = Mutex();
   static DateTime? _lastAutoShieldAt;
+  static final ironwoodMigrateMutex = Mutex();
+  static DateTime? _lastIronwoodMigrateAt;
   Future<void> _autoShield() async {
     if (_lastAutoShieldAt != null &&
         _lastAutoShieldAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
@@ -1109,6 +1112,9 @@ abstract class ZcashWalletBase
         final List<zkool_account.TxNote> txNotes = [];
         for (int i = 0; i < _notes.length; i++) {
           final note = _notes[i];
+          if (note.pool < 0 || note.pool >= NotePool.values.length) {
+            continue;
+          }
           final noteType = NotePool.values[note.pool];
           if ([NotePool.sapling, NotePool.transparent].contains(noteType)) {
             txNotes.add(note);
@@ -1129,6 +1135,7 @@ abstract class ZcashWalletBase
               assetBase: zecBase,
               address: walletAddresses.orchardAddress!,
               amount: sweepable,
+              pools: shieldedRecipientPools,
             ),
           ],
           options: zkool_pay.PaymentOptions(
@@ -1158,19 +1165,77 @@ abstract class ZcashWalletBase
     _lastAutoShieldAt = DateTime.now();
     printV("shielded: $txId");
     await updateTransactions();
-    await _refreshBalance(runAutoShield: false);
+    await _refreshBalance(runAutoShield: false, runIronwoodMigrate: false);
   }
 
-  Future<void> _refreshBalance({required final bool runAutoShield}) async {
+  Future<void> _ironwoodMigrate() async {
+    if (_lastIronwoodMigrateAt != null &&
+        _lastIronwoodMigrateAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
+      return;
+    }
+    try {
+      await ironwoodMigrateMutex.acquire();
+      await _$ironwoodMigrate();
+    } catch (e, s) {
+      printV("ironwood migration failed: $e");
+      s.toString().split("\n").forEach(printV);
+    } finally {
+      ironwoodMigrateMutex.release();
+    }
+  }
+
+  Future<void> _$ironwoodMigrate() async {
+    if (syncStatus is! SyncedSyncStatus) {
+      return;
+    }
+    final event = await runWithCoin(
+      accountId: accountId,
+      func: (coin) async {
+        if (!await zkool_network.isIronwoodActive(c: coin)) {
+          return null;
+        }
+        final bal = await zkool_sync.balance(c: coin);
+        if (bal.field0.length <= 2 || bal.field0[2] <= BigInt.zero) {
+          return null;
+        }
+        return zkool_migrate.stepMigration(c: coin);
+      },
+    );
+    if (event == null) {
+      return;
+    }
+    switch (event) {
+      case zkool_migrate.MigrationEvent_Complete():
+      case zkool_migrate.MigrationEvent_NothingToDo():
+        return;
+      case zkool_migrate.MigrationEvent_SplitComplete(:final fee):
+        printV("ironwood split step complete, fee: $fee");
+      case zkool_migrate.MigrationEvent_MigrateComplete(:final fee):
+        printV("ironwood migrate step complete, fee: $fee");
+      case zkool_migrate.MigrationEvent_Error(:final message):
+        printV("ironwood migration error: $message");
+        return;
+    }
+
+    _lastIronwoodMigrateAt = DateTime.now();
+    await updateTransactions();
+    await _refreshBalance(runAutoShield: false, runIronwoodMigrate: false);
+  }
+
+  Future<void> _refreshBalance({
+    required final bool runAutoShield,
+    final bool runIronwoodMigrate = true,
+  }) async {
     try {
       final bal = await runWithCoin(
         accountId: accountId,
-        func: (coin) => zkool_sync.balance(c: coin),
+        func: (coin) async {
+          ironwoodActive = await zkool_network.isIronwoodActive(c: coin);
+          return zkool_sync.balance(c: coin);
+        },
       );
 
-      // 0 - transparent
-      // 1 - sapling
-      // 2 - orchard
+      // 0 - transparent, 1 - sapling, 2 - orchard, 3 - ironwood
       final confirmedTotal = bal.field0.reduce((final a, final b) => a + b);
 
       // int knownOutPending = 0;
@@ -1181,6 +1246,9 @@ abstract class ZcashWalletBase
 
       if (runAutoShield) {
         await _autoShield();
+      }
+      if (runIronwoodMigrate) {
+        await _ironwoodMigrate();
       }
 
       balance[CryptoCurrency.zec] = ZcashBalance(

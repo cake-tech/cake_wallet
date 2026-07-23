@@ -172,18 +172,7 @@ class CWZcash extends Zcash {
 
   @override
   dynamic getZcashAddressType(ReceivePageOption option) {
-    switch (option) {
-      case ZcashReceivePageOption.unified:
-        return ZcashAddressType.unifiedType;
-      case ZcashReceivePageOption.transparent:
-        return ZcashAddressType.transparent;
-      case ZcashReceivePageOption.shieldedSapling:
-        return ZcashAddressType.shieldedSapling;
-      case ZcashReceivePageOption.shieldedOrchard:
-        return ZcashAddressType.shieldedOrchard;
-      default:
-        throw Exception("Unknown ReceivePageOption!");
-    }
+    return (option as ZcashReceivePageOption).toType();
   }
 
   @override
