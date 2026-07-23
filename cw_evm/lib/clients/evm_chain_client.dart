@@ -541,20 +541,33 @@ class EVMChainClient {
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+    Erc20Token? moralisToken;
+
     try {
-      final token = await getErc20TokenFromMoralis(contractAddress, chainName);
-
-      if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
-      }
-
-      return token;
+      moralisToken = await getErc20TokenFromMoralis(contractAddress, chainName);
     } catch (e) {
-      try {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
-      } catch (e) {
-        return null;
+      printV("Could not fetch token metadata from Moralis: $e");
+    }
+
+    try {
+      final nodeToken = await getErcTokenInfoFromNode(contractAddress, chainName);
+
+      if (nodeToken == null || nodeToken.symbol.isEmpty) {
+        return moralisToken;
       }
+
+      final moralisName = moralisToken?.name ?? '';
+
+      return Erc20Token(
+        name: moralisName.isNotEmpty ? moralisName : nodeToken.name,
+        symbol: nodeToken.symbol,
+        contractAddress: contractAddress,
+        decimal: nodeToken.decimal,
+        iconPath: moralisToken?.iconPath,
+      );
+    } catch (e) {
+      printV("Could not fetch token info from the node: $e");
+      return moralisToken;
     }
   }
 
@@ -603,10 +616,11 @@ class EVMChainClient {
     final name = await erc20.name();
     final symbol = await erc20.symbol();
     final decimal = await erc20.decimals();
+    final filteredSymbol = symbol.replaceFirst(RegExp(r"^\$"), "");
 
     return Erc20Token(
       name: name,
-      symbol: symbol,
+      symbol: filteredSymbol,
       contractAddress: contractAddress,
       decimal: decimal.toInt(),
     );
