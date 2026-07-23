@@ -215,8 +215,19 @@ class Money<T extends Currency> implements Comparable<Money> {
     int? fractionalDigits,
     bool trimZeros = true,
     bool useBaseUnit = false,
+    bool withSymbolPrefix = false,
   }) =>
-      "${toStringWithPrecision(fractionalDigits: fractionalDigits, trimZeros: trimZeros, useBaseUnit: useBaseUnit)} ${_getSymbol(useBaseUnit)}";
+      withSymbolPrefix
+          ? "${_getSymbol(useBaseUnit)} ${toStringWithPrecision(
+              fractionalDigits: fractionalDigits,
+              trimZeros: trimZeros,
+              useBaseUnit: useBaseUnit,
+            )}"
+          : "${toStringWithPrecision(
+              fractionalDigits: fractionalDigits,
+              trimZeros: trimZeros,
+              useBaseUnit: useBaseUnit,
+            )} ${_getSymbol(useBaseUnit)}";
 
   String toStringWithPrecision({
     int? fractionalDigits,

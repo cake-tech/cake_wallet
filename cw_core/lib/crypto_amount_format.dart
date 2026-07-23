@@ -57,7 +57,7 @@ extension MaxDecimals on String {
     if (contains(" ")) {
       final parts = split(" ");
 
-      if ([">", "<"].contains(parts.first)) {
+      if (double.tryParse(parts.first) == null) {
         final result = [parts.first, parts[1].withLocalSeperator(locale)];
         if (parts.length > 2) {
           result.addAll(parts.sublist(2));

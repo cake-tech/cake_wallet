@@ -27,6 +27,7 @@ class MoneyText extends StatelessWidget {
     this.useBaseUnit,
     this.fractionalDigits = 8,
     this.showSymbol = true,
+    this.withSymbolPrefix = false,
     this.trimZeros = true,
   });
 
@@ -53,6 +54,7 @@ class MoneyText extends StatelessWidget {
     bool? useBaseUnit,
     int fractionalDigits = 8,
     bool showSymbol = true,
+    bool withSymbolPrefix = false,
     bool trimZeros = true,
   }) =>
       amount != null
@@ -77,6 +79,7 @@ class MoneyText extends StatelessWidget {
               useBaseUnit: useBaseUnit,
               fractionalDigits: fractionalDigits,
               showSymbol: showSymbol,
+              withSymbolPrefix: withSymbolPrefix,
               trimZeros: trimZeros,
             )
           : const SizedBox.shrink();
@@ -207,6 +210,9 @@ class MoneyText extends StatelessWidget {
   /// Show the currency symbol
   final bool showSymbol;
 
+  /// Prefix the amount with the currency symbol if [showSymbol] is true
+  final bool withSymbolPrefix;
+
   /// Trim the zeros at the end of an amount
   final bool trimZeros;
 
@@ -220,6 +226,7 @@ class MoneyText extends StatelessWidget {
                           fractionalDigits: fractionalDigits,
                           trimZeros: trimZeros,
                           useBaseUnit: useBaseUnit ?? state.useBaseUnit(amount.currency),
+                          withSymbolPrefix: withSymbolPrefix,
                         )
                       : amount.toStringWithPrecision(
                           fractionalDigits: fractionalDigits,

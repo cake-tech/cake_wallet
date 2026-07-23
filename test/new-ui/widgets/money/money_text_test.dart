@@ -48,10 +48,10 @@ final _btclnAmount = Money.fromInt(12345678, CryptoCurrency.btcln); // 0.1234567
 const _hidden = "●●●●●●";
 
 Future<FakeMoneySettingsCubit> _pump(
-  WidgetTester tester,
-  Widget child,
-  MoneySettingsState state,
-) async {
+    WidgetTester tester,
+    Widget child,
+    MoneySettingsState state,
+    ) async {
   final cubit = FakeMoneySettingsCubit(state);
   addTearDown(cubit.close);
   await tester.pumpWidget(
@@ -107,6 +107,60 @@ void main() {
 
       expect(find.text("0.12345678"), findsOneWidget);
       expect(find.text("0.12345678 BTC"), findsNothing);
+    });
+  });
+
+  group("withSymbolPrefix", () {
+    test("defaults to false on the constructor", () {
+      expect(MoneyText(_btc012).withSymbolPrefix, false);
+    });
+
+    test("defaults to false via optional", () {
+      expect((MoneyText.optional(_btc012) as MoneyText).withSymbolPrefix, false);
+    });
+
+    testWidgets("ignored when showSymbol is false", (tester) async {
+      await _pump(
+        tester,
+        MoneyText(_btc012, showSymbol: false, withSymbolPrefix: true),
+        _visibleBtc,
+      );
+
+      expect(find.text("0.12345678"), findsOneWidget);
+      expect(find.text("BTC 0.12345678"), findsNothing);
+      expect(find.text("0.12345678 BTC"), findsNothing);
+    });
+
+    testWidgets("prefixes the symbol before the amount", (tester) async {
+      await _pump(tester, MoneyText(_btc012, withSymbolPrefix: true), _visibleBtc);
+
+      expect(find.text("BTC 0.12345678"), findsOneWidget);
+    });
+
+    testWidgets("prefixed amount is still localized (en_US grouping)", (tester) async {
+      await _pump(tester, MoneyText(_btcGrouping, withSymbolPrefix: true), _visibleBtc);
+
+      expect(find.text("BTC 1,234.5"), findsOneWidget);
+    });
+
+    testWidgets("prefixed amount respects an explicit de_DE locale", (tester) async {
+      await _pump(
+        tester,
+        MoneyText(_btcGrouping, withSymbolPrefix: true, locale: const Locale("de", "DE")),
+        _visibleBtc,
+      );
+
+      expect(find.text("BTC 1.234,5"), findsOneWidget);
+    });
+
+    testWidgets("prefixes the base-unit ticker (sats)", (tester) async {
+      await _pump(
+        tester,
+        MoneyText(_btc012, withSymbolPrefix: true, useBaseUnit: true),
+        _visibleBtc,
+      );
+
+      expect(find.text("sats 12,345,678"), findsOneWidget);
     });
   });
 
@@ -256,6 +310,7 @@ void main() {
         trimZeros: false,
         isHiddenAmount: true,
         useBaseUnit: true,
+        withSymbolPrefix: true,
       ) as MoneyText;
 
       expect(widget.showSymbol, false);
@@ -263,6 +318,7 @@ void main() {
       expect(widget.trimZeros, false);
       expect(widget.isHiddenAmount, true);
       expect(widget.useBaseUnit, true);
+      expect(widget.withSymbolPrefix, true);
     });
 
     testWidgets("renders identically to a direct MoneyText", (tester) async {
@@ -274,7 +330,7 @@ void main() {
 
     test(
       "forwards semanticsIdentifier to MoneyText",
-      () {
+          () {
         final widget = MoneyText.optional(_btc012, semanticsIdentifier: "sid") as MoneyText;
 
         expect(widget.semanticsIdentifier, "sid");
