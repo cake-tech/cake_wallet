@@ -243,11 +243,8 @@ class _NewHomePageState extends State<NewHomePage> {
             rootPage: BlocProvider(
               create: (context) => bloc,
               child: Material(
-                  child: CardCustomizer(
-                cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                    widget.dashboardViewModel.wallet.currency.name,
-                cryptoName: widget.dashboardViewModel.wallet.currency.name,
-              )),
+                  child: CardCustomizer(crypto: widget.dashboardViewModel.wallet.currency),
+              ),
             ));
       },
     );

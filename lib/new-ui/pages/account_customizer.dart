@@ -16,6 +16,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/generate_name.dart';
@@ -95,14 +96,16 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
         break;
       }
 
+      final cryptoCurrency = widget.accountListViewModel.currency;
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[index].label,
             accountIndex: accounts[index].id,
             balance: accounts[index].balance?.toStringWithPrecision(fractionalDigits: 8) ?? "0.00",
-            accountBalance: accounts[index].balance?.toStringWithPrecision(fractionalDigits: 2) ?? "0.00",
+            accountBalance: accounts[index].balance ?? Money.zero(cryptoCurrency),
             designSwitchDuration: Duration.zero,
             assetName: widget.accountListViewModel.currency.title,
+            asset: widget.accountListViewModel.currency,
             onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
             selected: i == accounts.length - 1,
             width: cardWidth,
@@ -281,9 +284,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           create: (context) => bloc,
           child: Material(
             child: CardCustomizer(
-              cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                  widget.dashboardViewModel.wallet.currency.name,
-              cryptoName: widget.dashboardViewModel.wallet.currency.name,
+              crypto: widget.dashboardViewModel.wallet.currency,
             ),
           ),
         );
@@ -314,6 +315,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             accountIndex: _items[i].card.accountIndex,
             accountBalance: _items[i].card.accountBalance,
             assetName: _items[i].card.assetName,
+            asset: _items[i].card.asset,
+            fiatCurrency: _items[i].card.fiatCurrency,
             designSwitchDuration: _items[i].card.designSwitchDuration,
             onCustomizeTapped: (i == _items.length - 1) ? _openCardCustomizer : null,
             selected: i == _items.length - 1,
@@ -366,23 +369,28 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     _items.clear();
 
     final accounts = widget.accountListViewModel.accounts;
+    final cryptoCurrency = widget.accountListViewModel.currency;
     for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
-      _items.add(AccountCustomizerListItem(
+      _items.add(
+        AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[i].label,
             accountIndex: accounts[i].id,
             balance: accounts[i].balance?.toStringWithPrecision(fractionalDigits: 8) ?? "0.00",
-            accountBalance: accounts[i].balance?.toStringWithPrecision(fractionalDigits: 2, trimZeros: false) ?? "0.00",
+            accountBalance: accounts[i].balance ?? Money.zero(cryptoCurrency),
             assetName: widget.accountListViewModel.currency.title,
+            asset: cryptoCurrency,
             selected: true,
-            designSwitchDuration: Duration(milliseconds: 200),
+            designSwitchDuration: const Duration(milliseconds: 200),
             width: cardWidth,
             design: i >= widget.dashboardViewModel.cardDesigns.length
                 ? CardDesign.genericDefault
                 : widget.dashboardViewModel.cardDesigns[i],
           ),
           order: i,
-          accountListItem: accounts[i]));
+          accountListItem: accounts[i],
+        ),
+      );
     }
 
     saveCardOrder();

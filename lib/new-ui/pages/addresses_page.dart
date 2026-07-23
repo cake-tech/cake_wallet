@@ -264,6 +264,7 @@ class AccountPreviewHeader extends StatelessWidget {
               children: [
                 Observer(
                   builder: (_) => BalanceCard(
+                    asset: dashboardViewModel.wallet.currency,
                       borderRadius: 5, width: 50, design: design ?? CardDesign.genericDefault),
                 ),
                 Column(
