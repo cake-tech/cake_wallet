@@ -34,3 +34,11 @@
   label: "StormyCloud"
   uri: xmr.stormycloud.org:18089
   useSSL: true
+-
+  label: "Wagyu"
+  uri: node.wagyu.xyz:18089
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  label: "Wagyu (Onion)"
+  uri: 6zf55wrcl3k7i7hn4i7dgvupd5nqaieiehm2m5srlvflxz4zb2i7zgid.onion:18089
