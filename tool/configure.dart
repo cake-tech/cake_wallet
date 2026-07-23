@@ -1302,12 +1302,12 @@ abstract class Decred {
 Future<void> generateDogecoin(bool hasImplementation) async {
   final outputFile = File(dogecoinOutputPath);
   const dogecoinCommonHeaders = """
-import "package:cw_core/transaction_priority.dart"';
-import "package:cw_core/unspent_coins_info.dart"';
-import "package:cw_core/wallet_credentials.dart"';
-import "package:cw_core/wallet_info.dart"';
-import "package:cw_core/wallet_service.dart"';
-import "package:hive/hive.dart"';
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:hive/hive.dart";
 """;
   const dogecoinCWHeaders = """
 import "package:cw_dogecoin/cw_dogecoin.dart"';
