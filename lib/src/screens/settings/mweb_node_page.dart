@@ -1,7 +1,7 @@
 import 'package:cake_wallet/core/node_address_validator.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';

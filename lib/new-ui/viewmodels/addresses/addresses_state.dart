@@ -74,7 +74,8 @@ final class AddressesLoaded extends AddressesState {
     bool? canSetLabel,
     bool? isSilentPayments,
     bool? isSaving,
-  }) => AddressesLoaded(
+  }) =>
+      AddressesLoaded(
         groups: groups ?? this.groups,
         activeAddress: activeAddress ?? this.activeAddress,
         searchTerm: searchTerm ?? this.searchTerm,

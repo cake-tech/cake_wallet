@@ -51,7 +51,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
 
   Future<void> _onOpened(AddressesOpened event, Emitter<AddressesState> emit) async {
     emit(const AddressesLoading());
-    await Future<void>.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     if (isClosed) {
       return;
     }
@@ -166,7 +166,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     Emitter<AddressesState> emit,
     WalletType expectedWalletType,
   ) async {
-    await Future<void>.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     if (isClosed) {
       return;
     }

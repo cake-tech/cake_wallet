@@ -9,7 +9,7 @@ import "package:cake_wallet/new-ui/long_press_popup.dart";
 import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";

@@ -1,5 +1,5 @@
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/rounded_checkbox.dart";
 import "package:cake_wallet/src/widgets/section_divider.dart";
