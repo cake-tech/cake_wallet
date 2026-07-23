@@ -659,8 +659,8 @@ class ExchangePage extends BasePage {
     final parsedAddresses = await adrResService.resolve(
         query: domain, wallet: exchangeViewModel.wallet, currency: currency);
     return parsedAddresses.isNotEmpty
-        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
-        : '';
+        ? (parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? domain)
+        : domain;
   }
 
   void _showFeeAlert(BuildContext context) async {
