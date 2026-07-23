@@ -2,7 +2,6 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/material.dart";
 
 class FiatAmountBar extends StatelessWidget {
@@ -11,8 +10,6 @@ class FiatAmountBar extends StatelessWidget {
     required this.onSwitchButtonPressed,
     required this.cryptoAmount,
     required this.fiatAmount,
-    required this.cryptoCurrencySymbol,
-    required this.fiatCurrencySymbol,
     super.key,
     this.onAllButtonPressed,
     this.allAmount,
@@ -26,10 +23,8 @@ class FiatAmountBar extends StatelessWidget {
   final VoidCallback onSwitchButtonPressed;
   final VoidCallback? onAllButtonPressed;
 
-  final String cryptoAmount;
-  final String fiatAmount;
-  final String cryptoCurrencySymbol;
-  final String fiatCurrencySymbol;
+  final Money cryptoAmount;
+  final Money fiatAmount;
   final Money? allAmount;
   final Color? foregroundElementColor;
   final Color? textColor;
@@ -52,10 +47,8 @@ class FiatAmountBar extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: onSwitchButtonPressed,
-                child: Text(
-                  fiatInputMode
-                      ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount.withMaxDecimals(8)} $cryptoCurrencySymbol"
-                      : "${fiatAmount.isEmpty ? "0" : fiatAmount} $fiatCurrencySymbol",
+                child: MoneyText(
+                  fiatInputMode ? cryptoAmount : fiatAmount,
                   style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
                 ),
               ),

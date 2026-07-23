@@ -1,23 +1,24 @@
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/integrations/deuro/widgets/numpad.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:flutter/material.dart';
+import "package:auto_size_text/auto_size_text.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/src/screens/integrations/deuro/widgets/numpad.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/primary_button.dart";
+import "package:cw_core/amount/money.dart";
+import "package:flutter/material.dart";
 
 class SavingsEditSheet extends BaseBottomSheet {
-  final Money? balance;
-  final String? balanceTitle;
-
   const SavingsEditSheet({
     required super.titleText,
+    required super.footerType,
+    required super.maxHeight,
     super.titleIconPath,
     this.balance,
     this.balanceTitle,
-    required super.footerType,
-    required super.maxHeight,
   });
+
+  final Money? balance;
+  final String? balanceTitle;
 
   @override
   Widget contentWidget(BuildContext context) => SizedBox(
@@ -28,14 +29,14 @@ class SavingsEditSheet extends BaseBottomSheet {
         ),
       );
 
-  Widget footerWidget(BuildContext context) => SizedBox.shrink();
+  Widget footerWidget(BuildContext context) => const SizedBox.shrink();
 }
 
 class _SavingsEditBody extends StatefulWidget {
+  const _SavingsEditBody({this.balance, this.balanceTitle});
+
   final Money? balance;
   final String? balanceTitle;
-
-  const _SavingsEditBody({this.balance, this.balanceTitle});
 
   @override
   State<StatefulWidget> createState() => _SavingsEditBodyState();
@@ -54,7 +55,7 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
     super.dispose();
   }
 
-  String amount = '0';
+  String amount = "0";
   bool isValid = false;
   final FocusNode _numpadFocusNode = FocusNode();
 
@@ -64,12 +65,12 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
       });
 
   void _onNumberPressed(int i) => setState(() {
-        amount = amount == '0' ? i.toString() : '${amount}${i}';
+        amount = amount == "0" ? i.toString() : "${amount}${i}";
         isValid = _validate();
       });
 
   void _onDeletePressed() => setState(() {
-        amount = amount.length > 1 ? amount.substring(0, amount.length - 1) : '0';
+        amount = amount.length > 1 ? amount.substring(0, amount.length - 1) : "0";
         isValid = _validate();
       });
 
@@ -89,64 +90,67 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
 
   @override
   Widget build(BuildContext context) => SafeArea(
-        child: Column(children: [
-          Expanded(
+        child: Column(
+          children: [
+            Expanded(
               child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 26, right: 26, top: 10),
-              child: AutoSizeText(
-                "${amount.toString()} dEuro",
-                maxLines: 1,
-                maxFontSize: 32,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 32,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                textAlign: TextAlign.center,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 26, right: 26, top: 10),
+                  child: AutoSizeText(
+                    "${amount.toString()} dEuro",
+                    maxLines: 1,
+                    maxFontSize: 32,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 32,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ),
-          )),
-          if (widget.balance != null && widget.balanceTitle != null) ...[
-            Divider(),
-            AssetBalanceRow(
-              title: widget.balanceTitle!,
-              amount: widget.balance!.toStringWithSymbol(fractionalDigits: 6),
-              onAllPressed: _onPressedAll,
+            if (widget.balance != null && widget.balanceTitle != null) ...[
+              const Divider(),
+              AssetBalanceRow(
+                title: widget.balanceTitle!,
+                amount: widget.balance!,
+                onAllPressed: _onPressedAll,
+              ),
+            ],
+            NumberPad(
+              focusNode: _numpadFocusNode,
+              onNumberPressed: _onNumberPressed,
+              onDeletePressed: _onDeletePressed,
+              onDecimalPressed: _onDecimalPressed,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: LoadingPrimaryButton(
+                onPressed: () => Navigator.pop(context, amount),
+                text: S.of(context).confirm,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                isLoading: false,
+                isDisabled: !isValid,
+              ),
             ),
           ],
-          NumberPad(
-            focusNode: _numpadFocusNode,
-            onNumberPressed: _onNumberPressed,
-            onDeletePressed: _onDeletePressed,
-            onDecimalPressed: _onDecimalPressed,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: LoadingPrimaryButton(
-              onPressed: () => Navigator.pop(context, amount),
-              text: S.of(context).confirm,
-              color: Theme.of(context).colorScheme.primary,
-              textColor: Theme.of(context).colorScheme.onPrimary,
-              isLoading: false,
-              isDisabled: !isValid,
-            ),
-          )
-        ]),
+        ),
       );
 }
 
 class AssetBalanceRow extends StatelessWidget {
-  final String title;
-  final String amount;
-  final VoidCallback onAllPressed;
-
   const AssetBalanceRow({
-    super.key,
     required this.title,
     required this.amount,
     required this.onAllPressed,
+    super.key,
   });
+
+  final String title;
+  final Money amount;
+  final VoidCallback onAllPressed;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -169,8 +173,8 @@ class AssetBalanceRow extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 6),
-                AutoSizeText(
+                const SizedBox(height: 6),
+                MoneyText(
                   amount,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
@@ -191,7 +195,7 @@ class AssetBalanceRow extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       color: Theme.of(context).colorScheme.surfaceContainer,
                     ),
-                    padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+                    padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
                     child: Text(
                       S.of(context).all,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(

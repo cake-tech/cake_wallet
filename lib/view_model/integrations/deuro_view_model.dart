@@ -1,17 +1,17 @@
+import "dart:async";
+
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/core/utilities.dart";
-import "package:cake_wallet/entities/calculate_fiat_amount.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
-import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
 import "package:cw_core/currency/fiat_currency.dart";
-import "package:cw_core/parse_fixed.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:mobx/mobx.dart";
@@ -21,64 +21,67 @@ part "deuro_view_model.g.dart";
 class DEuroViewModel = DEuroViewModelBase with _$DEuroViewModel;
 
 abstract class DEuroViewModelBase with Store {
-  final AppStore _appStore;
+  DEuroViewModelBase(
+      this._appStore,
+      this.balanceViewModel,
+      this._fiatConversationStore, [
+        this.hardwareWalletViewModel,
+      ]) {
+    reloadInterestRate();
+    reloadSavingsUserData();
+  }
 
   static CryptoMoney get MIN_ACCRUED_INTEREST =>
       Money(BigInt.parse("1000000000000"), CryptoCurrency.deuro);
 
   static CryptoMoney get ZERO => Money.zero(CryptoCurrency.deuro);
 
-  DEuroViewModelBase(
-      this._appStore, this.balanceViewModel, this._settingsStore, this._fiatConversationStore,
-      [this.hardwareWalletViewModel]) {
-    reloadInterestRate();
-    reloadSavingsUserData();
-  }
-
+  final AppStore _appStore;
   final BalanceViewModel balanceViewModel;
   final HardwareWalletViewModel? hardwareWalletViewModel;
-  final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
 
-  WalletBase get wallet => this._appStore.wallet!;
+  WalletBase get wallet => _appStore.wallet!;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
 
   @computed
-  bool get isFistTime => _settingsStore.shouldShowDEuroDisclaimer;
+  bool get isFistTime => _appStore.settingsStore.shouldShowDEuroDisclaimer;
 
   @action
-  void acceptDisclaimer() => _settingsStore.shouldShowDEuroDisclaimer = false;
+  void acceptDisclaimer() => _appStore.settingsStore.shouldShowDEuroDisclaimer = false;
 
-  FiatCurrency get fiat => _settingsStore.fiatCurrency;
-
-  @computed
-  String get pendingTransactionFiatAmountFormatted {
-    final amount = transaction == null ? "0.00" : _getDEuroFiatAmount(transaction!.amount);
-    return isFiatDisabled ? "" : "$amount ${fiat.symbol}";
-  }
+  FiatCurrency get fiat => _appStore.settingsStore.fiatCurrency;
 
   @computed
-  String get pendingTransactionFeeFiatAmountFormatted {
-    var amount = "0.00";
+  Money<Currency>? get pendingTransactionFiatAmount =>
+      isFiatDisabled ? null : _getDEuroFiatAmount(transaction?.amount);
+
+  @computed
+  Money<Currency>? get pendingTransactionFeeFiatAmount {
+    if (isFiatDisabled) {
+      return null;
+    }
+
     try {
       if (transaction != null) {
-        final feeCurrency = CryptoCurrency.eth;
-        amount = calculateFiatAmount(
-          price: _fiatConversationStore.prices[feeCurrency]!,
-          cryptoAmount: transaction!.feeFormattedValue,
-        );
+        const feeCurrency = CryptoCurrency.eth;
+        final price = _fiatConversationStore.prices[feeCurrency];
+        final rate = _fiatConversationStore.getExchangeRate(feeCurrency, fiat, price);
+        return rate.convert(transaction!.fee);
       }
     } catch (_) {}
-    return isFiatDisabled ? "" : "$amount ${fiat.symbol}";
+    return Money.zero(fiat);
   }
 
   @computed
   CryptoMoney get accountBalance {
     final dEuroKey = balanceViewModel.balances.keys
         .firstWhereOrNull((e) => e.title == CryptoCurrency.deuro.title);
-    if (dEuroKey == null) return ZERO;
+    if (dEuroKey == null) {
+      return ZERO;
+    }
     return wallet.balance[dEuroKey]?.available ?? ZERO;
   }
 
@@ -86,13 +89,13 @@ abstract class DEuroViewModelBase with Store {
   CryptoMoney savingsBalance = ZERO;
 
   @computed
-  String get fiatSavingsBalanceFormated => _getDEuroFiatAmount(savingsBalance);
+  Money<Currency> get fiatSavingsBalance => _getDEuroFiatAmount(savingsBalance);
 
   @observable
-  CryptoMoney? savingsBalanceV1 = null;
+  CryptoMoney? savingsBalanceV1;
 
   @computed
-  String get fiatSavingsBalanceV1Formated => _getDEuroFiatAmount(savingsBalanceV1);
+  Money<Currency> get fiatSavingsBalanceV1 => _getDEuroFiatAmount(savingsBalanceV1);
 
   @observable
   ExecutionState state = InitialExecutionState();
@@ -104,10 +107,7 @@ abstract class DEuroViewModelBase with Store {
   CryptoMoney accruedInterest = ZERO;
 
   @computed
-  String get accruedInterestFormated => accruedInterest.toStringWithPrecision(fractionalDigits: 6);
-
-  @computed
-  String get fiatAccruedInterestFormated => _getDEuroFiatAmount(accruedInterest);
+  Money<Currency> get fiatAccruedInterest => _getDEuroFiatAmount(accruedInterest);
 
   @observable
   BigInt approvedTokens = BigInt.zero;
@@ -125,10 +125,10 @@ abstract class DEuroViewModelBase with Store {
   DEuroActionType actionType = DEuroActionType.none;
 
   @observable
-  PendingTransaction? transaction = null;
+  PendingTransaction? transaction;
 
   @observable
-  PendingTransaction? approvalTransaction = null;
+  PendingTransaction? approvalTransaction;
 
   @action
   Future<void> reloadSavingsUserData() async {
@@ -160,7 +160,9 @@ abstract class DEuroViewModelBase with Store {
       state = TransactionCommitting();
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final approval = await evm!.enableDEuroSaving(_appStore.wallet!, priority);
-      if (approval == null) throw Exception("DEuro saving not available");
+      if (approval == null) {
+        throw Exception("DEuro saving not available");
+      }
 
       approvalTransaction = approval;
       state = InitialExecutionState();
@@ -170,26 +172,22 @@ abstract class DEuroViewModelBase with Store {
   }
 
   @action
-  Future<void> prepareSavingsEdit(String amountRaw, bool isAdding) async {
+  Future<void> prepareSavingsEdit(Money amount, {required bool isAdding}) async {
     try {
       state = TransactionCommitting();
 
-      if (amountRaw.isEmpty || amountRaw.trim().isEmpty) {
-        throw Exception("Invalid amount: amount cannot be empty");
-      }
-
-      final amount = tryParseFixed(amountRaw, 18);
-
-      if (amount == BigInt.zero || amount == null) {
+      if (amount.isZero) {
         throw Exception("Invalid amount: amount cannot be zero");
       }
 
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       actionType = isAdding ? DEuroActionType.deposit : DEuroActionType.withdraw;
       final tx = await (isAdding
-          ? evm!.addDEuroSaving(_appStore.wallet!, amount, priority)
-          : evm!.removeDEuroSaving(_appStore.wallet!, amount, priority));
-      if (tx == null) throw Exception("DEuro saving not available");
+          ? evm!.addDEuroSaving(_appStore.wallet!, amount.amount, priority)
+          : evm!.removeDEuroSaving(_appStore.wallet!, amount.amount, priority));
+      if (tx == null) {
+        throw Exception("DEuro saving not available");
+      }
 
       transaction = tx;
       state = InitialExecutionState();
@@ -205,7 +203,9 @@ abstract class DEuroViewModelBase with Store {
       actionType = DEuroActionType.withdraw;
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final tx = await evm!.withdrawDEuroSavingV1(_appStore.wallet!, priority);
-      if (tx == null) throw Exception("DEuro saving not available");
+      if (tx == null) {
+        throw Exception("DEuro saving not available");
+      }
 
       transaction = tx;
       state = InitialExecutionState();
@@ -220,13 +220,7 @@ abstract class DEuroViewModelBase with Store {
       return;
     }
 
-    final formatted = accruedInterestFormated;
-    if (formatted.isEmpty || formatted == "0.000000") {
-      state = FailureState("Invalid accrued interest amount");
-      return;
-    }
-
-    await prepareSavingsEdit(formatted, false);
+    await prepareSavingsEdit(accruedInterest, isAdding: false);
   }
 
   Future<void> prepareReinvestInterest() async {
@@ -235,7 +229,9 @@ abstract class DEuroViewModelBase with Store {
       actionType = DEuroActionType.reinvest;
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final tx = await evm!.reinvestDEuroInterest(_appStore.wallet!, priority);
-      if (tx == null) throw Exception("DEuro saving not available");
+      if (tx == null) {
+        throw Exception("DEuro saving not available");
+      }
 
       transaction = tx;
       state = InitialExecutionState();
@@ -252,7 +248,7 @@ abstract class DEuroViewModelBase with Store {
         await transaction!.commit();
         transaction = null;
         actionType = DEuroActionType.none;
-        reloadSavingsUserData();
+        unawaited(reloadSavingsUserData());
         state = TransactionCommitted();
       } catch (e) {
         state = FailureState(e.toString());
@@ -267,7 +263,7 @@ abstract class DEuroViewModelBase with Store {
         state = TransactionCommitting();
         await approvalTransaction!.commit();
         approvalTransaction = null;
-        reloadSavingsUserData();
+        unawaited(reloadSavingsUserData());
         state = TransactionCommitted();
       } catch (e) {
         state = FailureState(e.toString());
@@ -283,21 +279,25 @@ abstract class DEuroViewModelBase with Store {
     state = InitialExecutionState();
   }
 
-  String _getDEuroFiatAmount(Money? amount) {
-    if (amount == null) return "0.00";
+  Money _getDEuroFiatAmount(Money? amount) {
+    if (amount == null) {
+      return Money.zero(fiat);
+    }
 
     try {
       var dEuro = CryptoCurrency.deuro;
       final keys = _fiatConversationStore.prices.keys.toList();
       for (final key in keys) {
-        if (key.title == "DEURO") dEuro = key;
+        if (key.title == "DEURO") {
+          dEuro = key;
+        }
       }
-      return calculateFiatAmount(
-        price: _fiatConversationStore.prices[dEuro]!,
-        cryptoAmount: amount.toStringWithPrecision(fractionalDigits: 6),
-      );
+      final price = _fiatConversationStore.prices[dEuro];
+      final rate = _fiatConversationStore.getExchangeRate(CryptoCurrency.deuro, fiat, price);
+
+      return rate.convert(amount);
     } catch (_) {
-      return "0.00";
+      return Money.zero(fiat);
     }
   }
 }

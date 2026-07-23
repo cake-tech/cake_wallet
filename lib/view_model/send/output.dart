@@ -18,6 +18,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency/fiat_currency.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -125,7 +126,7 @@ abstract class OutputBase with Store {
   }
 
   @computed
-  FiatMoney get fiatAmountMoney {
+  Money<FiatCurrency> get fiatAmountMoney {
     if (cryptoAmount.isEmpty) {
       return Money.zero(_settingsStore.fiatCurrency);
     }

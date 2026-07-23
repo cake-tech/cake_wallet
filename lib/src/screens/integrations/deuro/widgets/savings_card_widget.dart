@@ -1,17 +1,18 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cw_core/currency/fiat_currency.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/core/theme_extension.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import "package:auto_size_text/auto_size_text.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
 
 class SavingsCard extends StatelessWidget {
   const SavingsCard({
-    super.key,
     required this.interestRate,
     required this.savingsBalance,
     required this.currency,
@@ -19,22 +20,23 @@ class SavingsCard extends StatelessWidget {
     required this.onRemoveSavingsPressed,
     required this.onApproveSavingsPressed,
     required this.onTooltipPressed,
-    this.isEnabled = true,
-    this.isLoading = false,
+    super.key,
     this.fiatSavingsBalance,
     this.fiatCurrency,
     this.savingsBalanceV1,
     this.fiatSavingsBalanceV1,
     this.onWithdrawV1Pressed,
+    this.isEnabled = true,
+    this.isLoading = false,
   });
 
   final bool isEnabled;
   final bool isLoading;
   final String interestRate;
-  final String savingsBalance;
-  final String? fiatSavingsBalance;
-  final String? savingsBalanceV1;
-  final String? fiatSavingsBalanceV1;
+  final Money savingsBalance;
+  final Money? fiatSavingsBalance;
+  final Money? savingsBalanceV1;
+  final Money? fiatSavingsBalanceV1;
   final FiatCurrency? fiatCurrency;
   final CryptoCurrency currency;
   final VoidCallback? onWithdrawV1Pressed;
@@ -57,7 +59,7 @@ class SavingsCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Current APR', // ToDo: Localize
+                    "Current APR", // ToDo(Konsti): Localize
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
@@ -140,7 +142,7 @@ class SavingsCard extends StatelessWidget {
                                       child: getButton(
                                         context,
                                         label: S.of(context).deuro_savings_add,
-                                        imagePath: 'assets/images/received.png',
+                                        imagePath: "assets/images/received.png",
                                         onPressed: onAddSavingsPressed,
                                         backgroundColor: Theme.of(context).colorScheme.primary,
                                         color: Theme.of(context).colorScheme.onPrimary,
@@ -151,7 +153,7 @@ class SavingsCard extends StatelessWidget {
                                       child: getButton(
                                         context,
                                         label: S.of(context).deuro_savings_remove,
-                                        imagePath: 'assets/images/upload.png',
+                                        imagePath: "assets/images/upload.png",
                                         onPressed: onRemoveSavingsPressed,
                                         backgroundColor: Theme.of(context).colorScheme.surface,
                                         color: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -233,12 +235,12 @@ class SavingsCard extends StatelessWidget {
   static Widget getAssetBalanceRow(
     BuildContext context, {
     required String title,
-    required String amount,
+    required Money amount,
     required CryptoCurrency currency,
     bool hideSymbol = true,
     VoidCallback? onTooltipPressed,
     FiatCurrency? fiatCurrency,
-    String? fiatAmount,
+    Money? fiatAmount,
   }) =>
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -271,7 +273,7 @@ class SavingsCard extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 6),
-              AutoSizeText(
+              MoneyText(
                 amount,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,

@@ -367,6 +367,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _depositAmount == null ? "" : amountParsingProxy.asDisplayString(_depositAmount!);
 
   @computed
+  CryptoMoney get depositMoney => _depositAmount ?? Money.zero(depositCurrency);
+
+  @computed
   String get depositAmountCanonical => _depositAmount == null ? "0.0" : _depositAmount.toString();
 
   @observable
@@ -375,6 +378,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @computed
   String get receiveAmount =>
       _receiveAmount == null ? "" : amountParsingProxy.asDisplayString(_receiveAmount!);
+
+  @computed
+  CryptoMoney get receiveMoney => _receiveAmount ?? Money.zero(receiveCurrency);
 
   @action
   // only set canonical formated amounts here;
@@ -703,28 +709,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       log('Error calculating deposit amount fiat formatted: $_');
     }
     return amount;
-  }
-
-  String roundedDepositAmount(int digits) {
-    if (depositAmount.split(".").last.length <= digits) {
-      return depositAmount;
-    }
-    try {
-      return double.parse(depositAmount).toStringAsPrecision(digits);
-    } catch (e) {
-      return "0";
-    }
-  }
-
-  String roundedReceiveAmount(int digits) {
-    if (receiveAmount.split(".").last.length <= digits) {
-      return receiveAmount;
-    }
-    try {
-      return double.parse(receiveAmount).toStringAsPrecision(digits);
-    } catch (e) {
-      return "0";
-    }
   }
 
   String roundedReceiveAmountFiat(int digits) {

@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -299,15 +300,15 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             final amountValue = isSwapsXyz &&
                     isEVMWallet &&
                     !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
-                ? trade.amount
-                : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted;
+                ? trade.amountMoney
+                : widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amount;
 
             final fiatAmountValue = isSwapsXyz &&
                     isEVMWallet &&
                     !widget.exchangeTradeViewModel.isSwapsXYZCanSendFromExternal
                 ? widget.exchangeTradeViewModel.sendViewModel
                     .calculateTransactionFiatAmount(amountValue)
-                : widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted;
+                : widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmount;
 
             if (context.mounted) {
               final result = await showModalBottomSheet<bool>(
@@ -326,15 +327,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     titleIconPath: sendVM.selectedCryptoCurrency.iconPath,
                     currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                     amount: S.of(bottomSheetContext).send_amount,
-                    amountValue: sendVM.amountParsingProxy
-                        .getDisplayCryptoAmount(amountValue, sendVM.selectedCryptoCurrency),
+                    amountValue: amountValue ?? Money.zero(sendVM.selectedCryptoCurrency),
                     fiatAmountValue: fiatAmountValue,
                     fee: isEVMCompatibleChain(sendVM.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee
                         : S.of(bottomSheetContext).send_fee,
-                    feeValue: sendVM.amountParsingProxy
-                        .asDisplayStringWithSymbol(sendVM.pendingTransaction!.fee),
-                    feeFiatAmount: sendVM.pendingTransactionFeeFiatAmountFormatted,
+                    feeValue: sendVM.pendingTransaction!.fee,
+                    feeFiatAmount: sendVM.pendingTransactionFeeFiatAmount,
                     outputs: sendVM.outputs,
                     onSlideActionComplete: () async {
                       if (bottomSheetContext.mounted && Navigator.canPop(bottomSheetContext))
@@ -342,7 +341,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
                       sendVM.commitTransaction(context);
                     },
-                    amountParsingProxy: sendVM.amountParsingProxy,
                   );
                 },
               );

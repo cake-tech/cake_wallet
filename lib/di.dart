@@ -1726,7 +1726,6 @@ Future<void> setup({
   getIt.registerFactory(() => DEuroViewModel(
         getIt<AppStore>(),
         getIt<BalanceViewModel>(),
-        getIt<SettingsStore>(),
         getIt<FiatConversionStore>(),
         getIt.get<AppStore>().wallet!.isHardwareWallet
             ? getIt<HardwareWalletViewModel>(

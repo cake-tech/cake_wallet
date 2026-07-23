@@ -1,9 +1,10 @@
-import 'package:cw_core/currency/fiat_currency.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
-import 'package:cake_wallet/themes/core/theme_extension.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart";
+import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:flutter/material.dart";
 
 class InterestCardWidget extends StatelessWidget {
   const InterestCardWidget({
@@ -18,8 +19,8 @@ class InterestCardWidget extends StatelessWidget {
   });
 
   final String title;
-  final String accruedInterest;
-  final String? fiatAccruedInterest;
+  final Money accruedInterest;
+  final Money? fiatAccruedInterest;
   final FiatCurrency? fiatCurrency;
   final bool isEnabled;
   final VoidCallback onCollectInterest;
@@ -27,62 +28,69 @@ class InterestCardWidget extends StatelessWidget {
   final VoidCallback onTooltipPressed;
 
   @override
-  Widget build(BuildContext context) => Stack(children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 16),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            gradient: LinearGradient(
-              colors: [
-                context.customColors.cardGradientColorPrimary,
-                context.customColors.cardGradientColorSecondary,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+  Widget build(BuildContext context) => Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                colors: [
+                  context.customColors.cardGradientColorPrimary,
+                  context.customColors.cardGradientColorSecondary,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: [
-                SavingsCard.getAssetBalanceRow(context,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  SavingsCard.getAssetBalanceRow(
+                    context,
                     title: title,
                     amount: accruedInterest,
                     fiatAmount: fiatAccruedInterest,
                     currency: CryptoCurrency.deuro,
                     fiatCurrency: fiatCurrency,
                     hideSymbol: false,
-                    onTooltipPressed: onTooltipPressed),
-                SizedBox(height: 10),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Expanded(
-                    child: SavingsCard.getButton(
-                      context,
-                      imagePath: 'assets/images/collect_interest.png',
-                      label: S.of(context).deuro_collect_interest,
-                      onPressed: onCollectInterest,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      enabled: isEnabled,
-                    ),
+                    onTooltipPressed: onTooltipPressed,
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: SavingsCard.getButton(
-                      context,
-                      label: S.of(context).deuro_reinvest_interest,
-                      icon: Icons.account_balance_outlined,
-                      onPressed: onReinvestInterest,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
-                      enabled: isEnabled,
-                    ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: SavingsCard.getButton(
+                          context,
+                          imagePath: "assets/images/collect_interest.png",
+                          label: S.of(context).deuro_collect_interest,
+                          onPressed: onCollectInterest,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          enabled: isEnabled,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SavingsCard.getButton(
+                          context,
+                          label: S.of(context).deuro_reinvest_interest,
+                          icon: Icons.account_balance_outlined,
+                          onPressed: onReinvestInterest,
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          color: Theme.of(context).colorScheme.onSecondaryContainer,
+                          enabled: isEnabled,
+                        ),
+                      ),
+                    ],
                   ),
-                ]),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ]);
+        ],
+      );
 }

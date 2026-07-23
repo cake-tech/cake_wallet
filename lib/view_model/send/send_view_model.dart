@@ -14,7 +14,6 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
@@ -254,15 +253,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String calculateTransactionFiatAmount(String amountValue) {
+  Money calculateTransactionFiatAmount(Money? amount) {
+    if (amount == null) {
+      return Money.zero(fiatCurrency);
+    }
+
     try {
-      final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[_fiatConversationStore.prices.keys
-              .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency))],
-          cryptoAmount: amountValue);
-      return fiat;
+      final currency = pendingTransactionFeeCurrency(walletType);
+      final price = _fiatConversationStore.prices[_fiatConversationStore.prices.keys
+          .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency))];
+      final rate = _fiatConversationStore.getExchangeRate(currency, fiatCurrency, price);
+      return rate.convert(amount);
     } catch (_) {
-      return '0.00';
+      return Money.zero(fiatCurrency);
     }
   }
 
