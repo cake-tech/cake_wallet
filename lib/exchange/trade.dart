@@ -184,7 +184,7 @@ class Trade {
       toAddressExtraId: row['toAddressExtraId'] as String?,
       password: row['password'] as String?,
       providerId: row['providerId'] as String?,
-      providerName: row['providerName'] as String?,
+      state: TradeState.deserialize(raw: row["state"] as String),
       fromWalletAddress: row['fromWalletAddress'] as String?,
       memo: row['memo'] as String?,
       fee: row['fee'] as double?,

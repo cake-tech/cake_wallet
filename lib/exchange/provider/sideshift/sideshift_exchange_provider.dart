@@ -1,14 +1,20 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/provider/changenow/changenow_api_schema.dart";
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import "package:cake_wallet/exchange/provider/sideshift/sideshift_api_schema.dart";
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
+import "package:cw_core/amount/exchange_rate.dart";
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -54,12 +60,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode != 200) return false;
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    return responseJSON['createShift'] as bool;
+    final responseJSON = SideShiftPermissions.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    return responseJSON.createShift;
   }
 
   @override
-  Future<Limits?> fetchLimits(
+  Future<ExchangeLimits> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
@@ -86,122 +92,65 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min = double.tryParse(responseJSON['min'] as String? ?? '');
-    final max = double.tryParse(responseJSON['max'] as String? ?? '');
+    final responseJSON = SideShiftPair.fromJson(json.decode(response.body) as Map<String, dynamic>);
 
-    if (isFixedRateMode) {
-      final currentRate = double.parse(responseJSON['rate'] as String);
-      return Limits(
-        min: min != null ? (min * currentRate) : null,
-        max: max != null ? (max * currentRate) : null,
-      );
-    }
+    // FIXME: i have no idea why this was needed.
+    // limits are always for the deposit currency - doesn't matter if you use fixed rate or not.
+    // this api doesn't even check fixed rate.
+    // nonetheless this was added, perhaps to work around ui or api bugs.
+    // it'll be unit tested anyway
+    
+    // if (isFixedRateMode) {
+    //   final currentRate = double.parse(responseJSON['rate'] as String);
+    //   return Limits(
+    //     min: min != null ? (min * currentRate) : null,
+    //     max: max != null ? (max * currentRate) : null,
+    //   );
+    // }
 
-    return Limits(min: min, max: max);
+    return ExchangeLimits(
+      min: Money.tryParse(responseJSON.min, fromCurrency),
+          max: Money.tryParse(responseJSON.max, fromCurrency)
+    );
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
-    try {
-      if (amount == 0) return 0.0;
+  Future<ProviderRate> fetchRate(
+      {required Money from, required bool isFixedRate, required CryptoCurrency to}) async {
+    final fromCurrency = from.currency.symbol.toLowerCase();
+    final toCurrency = to.title.toLowerCase();
+    final depositNetwork = _networkFor(from.currency as CryptoCurrency);
+    final settleNetwork = _networkFor(to);
 
-      final fromCurrency = from.title.toLowerCase();
-      final toCurrency = to.title.toLowerCase();
-      final depositNetwork = _networkFor(from);
-      final settleNetwork = _networkFor(to);
+    final url =
+        "$apiBaseUrl$rangePath/$fromCurrency-$depositNetwork/$toCurrency-$settleNetwork?amount=${from
+        .amount.toString()}";
 
-      final url =
-          "$apiBaseUrl$rangePath/$fromCurrency-$depositNetwork/$toCurrency-$settleNetwork?amount=$amount";
+    final uri = Uri.parse(url);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
 
-      final uri = Uri.parse(url);
-      final response = await ProxyWrapper().get(clearnetUri: uri);
 
+    if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final error = responseJSON['error']['message'] as String;
 
-      if (response.statusCode == 500) {
-        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-        final error = responseJSON['error']['message'] as String;
-
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'fetchRate',
-          error: Exception('SideShift Internal Server Error: $error'),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': from.title,
-            'to': to.title,
-            'amount': amount,
-            'isFixedRateMode': isFixedRateMode,
-            'isReceiveAmount': isReceiveAmount,
-            'url': url,
-          },
-        );
-
-        throw Exception('SideShift Internal Server Error: $error');
-      }
-
-      if (response.statusCode != 200) {
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'fetchRate',
-          error: Exception('Unexpected http status: ${response.statusCode}'),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': from.title,
-            'to': to.title,
-            'amount': amount,
-            'isFixedRateMode': isFixedRateMode,
-            'isReceiveAmount': isReceiveAmount,
-            'url': url,
-          },
-        );
-
-        throw Exception('Unexpected http status: ${response.statusCode}');
-      }
-
-      final rate = double.parse(responseJSON['rate'] as String);
-
-      ExchangeProviderLogger.logSuccess(
-        provider: description,
-        function: 'fetchRate',
-        requestData: {
-          'from': from.title,
-          'to': to.title,
-          'amount': amount,
-          'isFixedRateMode': isFixedRateMode,
-          'isReceiveAmount': isReceiveAmount,
-          'url': url,
-        },
-        responseData: {
-          'rate': rate,
-          'statusCode': response.statusCode,
-        },
-      );
-
-      return rate;
-    } catch (e, s) {
-      ExchangeProviderLogger.logError(
-        provider: description,
-        function: 'fetchRate',
-        error: e,
-        stackTrace: s,
-        requestData: {
-          'from': from.title,
-          'to': to.title,
-          'amount': amount,
-          'isFixedRateMode': isFixedRateMode,
-          'isReceiveAmount': isReceiveAmount,
-        },
-      );
-      printV(e.toString());
-      return 0.00;
+      throw Exception('SideShift Internal Server Error: $error');
     }
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    }
+
+    final responseJSON = SideShiftPair.fromJson(json.decode(response.body) as Map<String, dynamic>);
+
+    return ProviderRate(provider: description,
+        rate: ExchangeRate(base: from.currency, quote: Money.parse(responseJSON.rate, to)),
+        limits: ExchangeLimits(
+          min: Money.tryParse(responseJSON.min, from.currency),
+          max: Money.tryParse(responseJSON.max, from.currency),
+        ));
+
+
   }
 
   @override
