@@ -101,10 +101,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           card: BalanceCard(
             accountName: accounts[index].label,
             accountIndex: accounts[index].id,
-            balance: accounts[index].balance?.toStringWithPrecision(fractionalDigits: 8) ?? "0.00",
+            balance: accounts[index].balance ?? Money.zero(cryptoCurrency),
             accountBalance: accounts[index].balance ?? Money.zero(cryptoCurrency),
             designSwitchDuration: Duration.zero,
-            assetName: widget.accountListViewModel.currency.title,
             asset: widget.accountListViewModel.currency,
             onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
             selected: i == accounts.length - 1,
@@ -279,16 +278,12 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     final bloc = getIt.get<CardCustomizerBloc>(param1: false);
 
     Navigator.of(context).push(CupertinoPageRoute(
-      builder: (context) {
-        return BlocProvider(
+      builder: (context) => BlocProvider(
           create: (context) => bloc,
-          child: Material(
-            child: CardCustomizer(
-              crypto: widget.dashboardViewModel.wallet.currency,
-            ),
+          child: const Material(
+            child: CardCustomizer(),
           ),
-        );
-      },
+        ),
     )).then((_) async {
       bloc.add(DesignSaved());
       await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
@@ -314,7 +309,6 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             balance: _items[i].card.balance,
             accountIndex: _items[i].card.accountIndex,
             accountBalance: _items[i].card.accountBalance,
-            assetName: _items[i].card.assetName,
             asset: _items[i].card.asset,
             fiatCurrency: _items[i].card.fiatCurrency,
             designSwitchDuration: _items[i].card.designSwitchDuration,
@@ -376,9 +370,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           card: BalanceCard(
             accountName: accounts[i].label,
             accountIndex: accounts[i].id,
-            balance: accounts[i].balance?.toStringWithPrecision(fractionalDigits: 8) ?? "0.00",
+            balance: accounts[i].balance ?? Money.zero(cryptoCurrency),
             accountBalance: accounts[i].balance ?? Money.zero(cryptoCurrency),
-            assetName: widget.accountListViewModel.currency.title,
             asset: cryptoCurrency,
             selected: true,
             designSwitchDuration: const Duration(milliseconds: 200),

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
@@ -36,74 +35,37 @@ class BalanceRecord {
     required this.raw,
     required this.exchangeRate,
     required this.availableBalance,
-    required this.additionalBalance,
-    required this.secondExchangeRate,
-    required this.secondAvailableBalance,
-    required this.secondAdditionalBalance,
-    required this.frozenBalance,
     required this.asset,
     required this.secondAsset,
     required this.fiatCurrency,
-    required this.formattedAssetTitle,
-    this.languageCode,
   });
 
   final Balance raw;
   final ExchangeRate? exchangeRate;
-  final ExchangeRate? secondExchangeRate;
-
-  Money? get fiatAvailableBalanceRaw => exchangeRate?.convert(raw.available);
-
-  String get fiatAdditionalBalanceRaw => exchangeRate?.convert(raw.unavailable).toString() ?? "";
-
-  String get fiatFrozenBalanceRaw =>
-      exchangeRate?.convert(raw.frozen ?? Money.zero(asset)).toString() ?? "";
-  Money? get fiatSecondAvailableBalanceRaw =>
-      raw.secondAvailable != null ? secondExchangeRate?.convert(raw.secondAvailable!) : null;
-
-  String get fiatSecondAdditionalBalanceRaw =>
-      secondExchangeRate?.convert(raw.secondUnavailable ?? Money.zero(secondAsset)).toString() ??
-          "";
-
-
-  final String additionalBalance;
   final String availableBalance;
-  final String frozenBalance;
-  final String secondAvailableBalance;
-  final String secondAdditionalBalance;
   final CryptoCurrency asset;
   final CryptoCurrency secondAsset;
   final FiatCurrency? fiatCurrency;
-  final String formattedAssetTitle;
-  final String? languageCode;
 
   Money get combinedAvailableBalance =>
       raw.available + (raw.secondAvailable ?? Money.zero(raw.available.currency));
+
+  Money? get fiatAvailableBalanceRaw => exchangeRate?.convert(raw.available);
+
+  Money? get fiatAdditionalBalanceRaw => exchangeRate?.convert(raw.unavailable);
+
+  Money? get fiatFrozenBalanceRaw => raw.frozen != null ? exchangeRate?.convert(raw.frozen!) : null;
+
+  Money? get fiatSecondAvailableBalanceRaw =>
+      raw.secondAvailable != null ? exchangeRate?.convert(raw.secondAvailable!) : null;
+
+  Money? get fiatSecondAdditionalBalanceRaw =>
+      raw.secondUnavailable != null ? exchangeRate?.convert(raw.secondUnavailable!) : null;
 
   Money? get combinedFiatAvailableBalance => fiatCurrency != null
       ? (fiatAvailableBalanceRaw ?? Money.zero(fiatCurrency!)) +
           (fiatSecondAvailableBalanceRaw ?? Money.zero(fiatCurrency!))
       : null;
-
-  String get fiatAvailableBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw?.toStringWithPrecision(trimZeros: false) ?? "")}" : "";
-
-  String get fiatAdditionalBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAdditionalBalanceRaw)}" : "";
-
-  String get fiatFrozenBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatFrozenBalanceRaw)}" : "";
-
-  String get fiatSecondAvailableBalance => fiatCurrency != null
-      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAvailableBalanceRaw?.toStringWithPrecision(trimZeros: false) ?? "")}"
-      : "";
-
-  String get fiatSecondAdditionalBalance => fiatCurrency != null
-      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAdditionalBalanceRaw)}"
-      : "";
-
-  String _withLocalSeperator(String rawAmount) =>
-      languageCode == null ? rawAmount : rawAmount.withLocalSeperator(languageCode);
 }
 
 class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
@@ -270,51 +232,23 @@ abstract class BalanceViewModelBase with Store {
     return wallet.balance.map((key, value) {
       var secondAsset = key == CryptoCurrency.ltc ? CryptoCurrency.ltcmweb : key;
 
-      if (displayMode == BalanceDisplayMode.hiddenBalance) {
-        final fiatCurrency = settingsStore.fiatCurrency;
-        return MapEntry(
-          key,
-          BalanceRecord(
-            raw: value,
-            exchangeRate: null,
-            secondExchangeRate: null,
-            availableBalance: '●●●●●●',
-            additionalBalance: '',
-            frozenBalance: '',
-            secondAvailableBalance: '●●●●●●',
-            secondAdditionalBalance: '●●●●●●',
-            asset: key,
-            secondAsset: secondAsset,
-            fiatCurrency: isFiatDisabled ? null : fiatCurrency,
-            formattedAssetTitle: _formatterAsset(key),
-          ),
-        );
-      }
       final price = key.isPotentialScam
           ? 0.0
           : fiatConversionStore.prices[key == CryptoCurrency.btcln ? CryptoCurrency.btc : key] ?? 0;
 
-      final exchangeRate =
-          ExchangeRate(base: key, quote: price.toMoney(settingsStore.fiatCurrency));
-      final secondExchangeRate =
-          ExchangeRate(base: secondAsset, quote: price.toMoney(settingsStore.fiatCurrency));
+      final exchangeRate = isFiatDisabled
+          ? null
+          : ExchangeRate(base: key, quote: price.toMoney(settingsStore.fiatCurrency));
 
       return MapEntry(
         key,
         BalanceRecord(
           raw: value,
-          exchangeRate: isFiatDisabled ? null : exchangeRate,
+          exchangeRate: exchangeRate,
           availableBalance: _getFormattedCryptoAmount(value.available),
-          additionalBalance: _getFormattedCryptoAmount(value.unavailable),
-          frozenBalance: _getFormattedCryptoAmount(value.frozen),
-          secondExchangeRate: secondExchangeRate,
-          secondAvailableBalance: _getFormattedCryptoAmount(value.secondAvailable),
-          secondAdditionalBalance: _getFormattedCryptoAmount(value.secondUnavailable),
           asset: key,
           secondAsset: secondAsset,
           fiatCurrency: isFiatDisabled ? null : settingsStore.fiatCurrency,
-          formattedAssetTitle: _formatterAsset(key),
-          languageCode: settingsStore.languageCode,
         ),
       );
     });
@@ -398,8 +332,8 @@ abstract class BalanceViewModelBase with Store {
         final aIsToken = a.asset is Erc20Token || a.asset is SPLToken;
         final bIsToken = b.asset is Erc20Token || b.asset is SPLToken;
 
-        final aHasBalance = (double.tryParse(a.availableBalance) ?? 0) > 0;
-        final bHasBalance = (double.tryParse(b.availableBalance) ?? 0) > 0;
+        final aHasBalance = !a.raw.available.isZero;
+        final bHasBalance = !b.raw.available.isZero;
 
         // Adding this so tokens with balance come before tokens without balance
         if (aIsToken && bIsToken) {
@@ -410,18 +344,15 @@ abstract class BalanceViewModelBase with Store {
 
       switch (sortBalanceBy) {
         case SortBalanceBy.FiatBalance:
-          final aFiatBalance = _getFiatBalance(
-              price: fiatConversionStore.prices[a.asset] ?? 0, cryptoAmount: a.raw.available);
-          final bFiatBalance = _getFiatBalance(
-              price: fiatConversionStore.prices[b.asset] ?? 0, cryptoAmount: b.raw.available);
+          final fiat = settingsStore.fiatCurrency;
+          final aFiatBalance = a.fiatAvailableBalanceRaw ?? Money.zero(fiat);
+          final bFiatBalance = b.fiatAvailableBalanceRaw ?? Money.zero(fiat);
 
-          return (double.tryParse(bFiatBalance) ?? 0)
-              .compareTo((double.tryParse(aFiatBalance)) ?? 0);
+          return aFiatBalance.compareTo(bFiatBalance);
         case SortBalanceBy.GrossBalance:
-          return (double.tryParse(b.availableBalance) ?? 0)
-              .compareTo(double.tryParse(a.availableBalance) ?? 0);
+          return b.raw.available.compareTo(a.raw.available);
         case SortBalanceBy.Alphabetical:
-          return a.asset.title.compareTo(b.asset.title);
+          return a.asset.symbol.compareTo(b.asset.symbol);
       }
     });
 
@@ -465,8 +396,9 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   bool get showCombinedBalance {
-    if (wallet.type == WalletType.bitcoin) return false;
-    if (balances.values.length == 1) return false;
+    if (wallet.type == WalletType.bitcoin || balances.values.length == 1) {
+      return false;
+    }
 
     return wallet.walletInfo.showCombinedBalance;
   }
@@ -523,24 +455,5 @@ abstract class BalanceViewModelBase with Store {
     } else {
       settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
     }
-  }
-
-  String _getFiatBalance({required double price, Money? cryptoAmount}) {
-    if (cryptoAmount == null) {
-      return '0.00';
-    }
-
-    return calculateFiatAmount(price: price, cryptoAmount: cryptoAmount.toString(), raw: true);
-  }
-
-  String _formatterAsset(CryptoCurrency asset) {
-    final assetString = asset.toString();
-    if (wallet.type == WalletType.haven &&
-        asset != CryptoCurrency.xhv &&
-        assetString[0].toUpperCase() == 'X') {
-      return assetString.replaceFirst('X', 'x');
-    }
-
-    return appStore.amountParsingProxy.getCryptoSymbol(asset);
   }
 }

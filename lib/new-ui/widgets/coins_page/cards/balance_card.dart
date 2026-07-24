@@ -29,14 +29,11 @@ class BalanceCard extends StatelessWidget {
     this.selected = false,
     this.accountName = "",
     this.accountBalance,
-    this.balance = "",
-    this.fiatBalance = "",
-    this.assetName = "",
-    this.fiatCurrencyTitle = "",
+    this.balance,
+    this.fiatBalance,
     this.fiatCurrency,
     this.designSwitchDuration = Duration.zero,
     this.actions = const [],
-    this.capitalizeAssetName = true,
     this.onCustomizeTapped,
     this.accountIndex,
     this.fiatFirst = false,
@@ -45,15 +42,12 @@ class BalanceCard extends StatelessWidget {
   final double width;
   final double borderRadius;
   final Gradient? gradient;
-  final String balance;
-  final String fiatBalance;
-  final String fiatCurrencyTitle;
+  final Money? balance;
+  final Money? fiatBalance;
   final String accountName;
   final Money? accountBalance;
   final bool fiatFirst;
   final int? accountIndex;
-  final bool capitalizeAssetName;
-  final String assetName;
   final CryptoCurrency asset;
   final FiatCurrency? fiatCurrency;
   final bool selected;
@@ -73,8 +67,8 @@ class BalanceCard extends StatelessWidget {
 
     final bool showText = accountBalance != null ||
         leadText.isNotEmpty ||
-        balance.isNotEmpty ||
-        fiatBalance.isNotEmpty;
+        balance != null ||
+        fiatBalance != null;
 
     final height = width * 0.62;
 
@@ -180,7 +174,7 @@ class BalanceCard extends StatelessWidget {
                           },
                           child: Row(
                             key: ValueKey("$balance ${resolvedCurrency.symbol.toUpperCase()}"),
-                            spacing: 8.0,
+                            spacing: 8,
                             children: [
                               AnimatedDefaultTextStyle(
                                 duration: designSwitchDuration,
@@ -188,8 +182,13 @@ class BalanceCard extends StatelessWidget {
                                     color: design.colors.textColor,
                                     fontSize: 28,
                                     fontWeight: FontWeight.w500,
-                                    letterSpacing: -0.4),
-                                child: Text(fiatFirst ? fiatBalance : balance),
+                                    letterSpacing: -0.4,
+                                ),
+                                child: MoneyText.optional(
+                                  fiatFirst ? fiatBalance : balance,
+                                  trimZeros: !fiatFirst,
+                                  showSymbol: false,
+                                ),
                               ),
                               AnimatedDefaultTextStyle(
                                 duration: designSwitchDuration,
@@ -221,9 +220,11 @@ class BalanceCard extends StatelessWidget {
                               ],
                             );
                           },
-                          child: Text(
-                            key: ValueKey(fiatFirst ? balance : fiatBalance),
-                            fiatFirst ? "$assetName $balance" : fiatBalance,
+                          child: MoneyText.optional(
+                            fiatFirst ? balance : fiatBalance,
+                            withSymbolPrefix: true,
+                            trimZeros: fiatFirst,
+                            key: const ValueKey("balance_card_sub_balance"),
                           ),
                         ),
                       ),

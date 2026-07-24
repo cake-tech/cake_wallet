@@ -1,20 +1,18 @@
-import 'dart:async';
-import 'dart:math';
+import "dart:async";
+import "dart:math";
 
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/card_design.dart';
-import "package:cw_core/crypto_currency.dart";
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/card_design.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
 class CardCustomizer extends StatefulWidget {
-  const CardCustomizer({required this.crypto, super.key});
-
-  final CryptoCurrency crypto;
+  const CardCustomizer({super.key});
 
   @override
   State<CardCustomizer> createState() => _CardCustomizerState();
@@ -35,12 +33,10 @@ class _CardCustomizerState extends State<CardCustomizer> {
       editEnabled = bloc.state.accountName.isNotEmpty;
       accountNameController.text = bloc.state.accountName;
     } else {
-      late final StreamSubscription sub;
+      late final StreamSubscription<CardCustomizerState> sub;
       sub = bloc.stream.listen((state) {
         if (state is! CardCustomizerNotLoaded) {
-          setState(() {
-            editEnabled = state.accountName.isNotEmpty;
-          });
+          setState(() => editEnabled = state.accountName.isNotEmpty);
           sub.cancel();
         }
       });
@@ -74,6 +70,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
       child: BlocBuilder<CardCustomizerBloc, CardCustomizerState>(
         builder: (context, state) {
           if (state is CardCustomizerNotLoaded) return SizedBox.shrink();
+          final cryptoCurrency = context.read<CardCustomizerBloc>().cryptoCurrency;
+
           return PopScope(
             child: SingleChildScrollView(
               child: SafeArea(
@@ -112,9 +110,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                       selected: true,
                       designSwitchDuration: Duration(milliseconds: 300),
                       accountName: editEnabled ? state.accountName : "",
-                      balance: "0.00",
-                      asset: widget.crypto,
-                      capitalizeAssetName: !state.displaySats,
+                      balance: Money.zero(cryptoCurrency),
+                      asset: cryptoCurrency,
                       design: state.selectedDesign,
                     ),
                     Padding(
@@ -175,7 +172,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                       borderRadius: 10,
                                                       selected: false,
                                                       designSwitchDuration: const Duration(milliseconds: 300),
-                                                      asset: widget.crypto,
+                                                      asset: cryptoCurrency,
                                                       design: _cardStylePreviewDesign(state, index),
                                                     ),
                                                   ),

@@ -119,23 +119,21 @@ class _CardsViewState extends State<CardsView> {
             final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
                 .getMainBalanceRecord(widget.lightningMode);
 
-            late final String walletBalance;
-            late final String walletFiatBalance;
+            Money? walletBalance;
+            Money? walletFiatBalance;
             if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-              if (widget.dashboardViewModel.balanceViewModel.displayMode ==
-                  BalanceDisplayMode.hiddenBalance) {
-                walletBalance = '●●●●●●';
-                walletFiatBalance = '●●●●●●';
-              } else {
-                walletBalance = walletBalanceRecord?.combinedAvailableBalance.toStringWithPrecision(fractionalDigits: 8) ?? "0";
-                walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance?.toStringWithPrecision(fractionalDigits: 2) ?? "0.00";
-              }
+              walletBalance = walletBalanceRecord?.combinedAvailableBalance ??
+                  Money.zero(widget.dashboardViewModel.wallet.currency);
+              walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ??
+                  Money.zero(widget.dashboardViewModel.settingsStore.fiatCurrency);
             } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
-              walletBalance = "";
-              walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance.toStringWithPrecision(fractionalDigits: 2);
+              walletBalance = null;
+              walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
             } else {
-              walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
+              walletBalance = walletBalanceRecord?.raw.available ??
+                  Money.zero(widget.dashboardViewModel.wallet.currency);
+              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalanceRaw ??
+                  Money.zero(widget.dashboardViewModel.settingsStore.fiatCurrency);
             }
 
             // the card designs is empty if widget gets built before it loads.
@@ -187,12 +185,8 @@ class _CardsViewState extends State<CardsView> {
               accountName: account?.label ?? "",
               accountBalance: accountBalance,
               designSwitchDuration: const Duration(milliseconds: 150),
-              assetName: asset.symbol,
               asset: asset,
-              capitalizeAssetName: _shouldCapitalizeAssetName(),
               balance: walletBalance,
-              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
-                  widget.dashboardViewModel.settingsStore.fiatCurrency.title,
               fiatCurrency: walletBalanceRecord?.fiatCurrency ?? widget.dashboardViewModel.settingsStore.fiatCurrency,
               fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
               fiatBalance: walletFiatBalance,
@@ -210,23 +204,6 @@ class _CardsViewState extends State<CardsView> {
   String get assetTitleFallback =>
       widget.dashboardViewModel.appStore.amountParsingProxy.getCryptoSymbol(
           widget.lightningMode ? CryptoCurrency.btcln : widget.dashboardViewModel.wallet.currency);
-
-  bool _shouldCapitalizeAssetName() {
-    if (widget.dashboardViewModel.wallet.type != WalletType.bitcoin) {
-      return true;
-    }
-
-    switch (widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi) {
-      case BitcoinAmountDisplayMode.satoshi:
-        return false;
-      case BitcoinAmountDisplayMode.satoshiForLightning:
-        return !widget.lightningMode;
-      case BitcoinAmountDisplayMode.bitcoin:
-        return true;
-      default:
-        return true;
-    }
-  }
 
   double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878,
       responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);

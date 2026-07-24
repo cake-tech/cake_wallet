@@ -17,6 +17,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +26,7 @@ import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewHomePage extends StatefulWidget {
-  NewHomePage({super.key, required this.dashboardViewModel, required this.nftViewModel});
+  const NewHomePage({required this.dashboardViewModel, required this.nftViewModel, super.key});
 
   final DashboardViewModel dashboardViewModel;
   final NFTViewModel nftViewModel;
@@ -229,24 +230,24 @@ class _NewHomePageState extends State<NewHomePage> {
     widget.dashboardViewModel.loadCardDesigns();
   }
 
-  void openCardCustomizer() async {
-    final bloc = getIt.get<CardCustomizerBloc>(
-        param1: _lightningMode,
-        param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
+  Future<void> openCardCustomizer() async {
+    final currency =
+      _lightningMode ? CryptoCurrency.btcln : widget.dashboardViewModel.wallet.currency;
+    final bloc = getIt<CardCustomizerBloc>(param1: currency);
+
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
-      builder: (context) {
-        return ModalNavigator(
-            parentContext: context,
-            heightMode: ModalHeightModes.fullScreen,
-            rootPage: BlocProvider(
-              create: (context) => bloc,
-              child: Material(
-                  child: CardCustomizer(crypto: widget.dashboardViewModel.wallet.currency),
-              ),
-            ));
-      },
+      builder: (context) => ModalNavigator(
+        parentContext: context,
+        heightMode: ModalHeightModes.fullScreen,
+        rootPage: BlocProvider(
+          create: (_) => bloc,
+          child: const Material(
+            child: CardCustomizer(),
+          ),
+        ),
+      ),
     );
     bloc.add(DesignSaved());
     await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
