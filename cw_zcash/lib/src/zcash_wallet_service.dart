@@ -37,9 +37,24 @@ class ZcashWalletService
   }
 
   static Set<String> autoshieldTx = {};
+  static final Map<String, BigInt> pendingOutgoingAmounts = {};
 
   static String normalizeTxId(final String txId) =>
       txId.replaceAll(RegExp(r'[^a-fA-F0-9]'), '').toLowerCase();
+
+  static void registerPendingOutgoingAmount(final String txId, final BigInt amount) {
+    if (amount <= BigInt.zero) {
+      return;
+    }
+    pendingOutgoingAmounts[normalizeTxId(txId)] = amount;
+  }
+
+  static BigInt? pendingOutgoingAmount(final String txId) =>
+      pendingOutgoingAmounts[normalizeTxId(txId)];
+
+  static void clearPendingOutgoingAmount(final String txId) {
+    pendingOutgoingAmounts.remove(normalizeTxId(txId));
+  }
 
   static bool isAutoshieldTx(final String txHash) => autoshieldTx.contains(normalizeTxId(txHash));
 

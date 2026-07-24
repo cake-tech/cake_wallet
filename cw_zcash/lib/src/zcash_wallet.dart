@@ -510,7 +510,7 @@ abstract class ZcashWalletBase
     final zkool_mempool.MempoolTx tx,
     final int accountId,
   ) {
-    final accountNotes = tx.notes.where((final n) => n.account == accountId);
+    final accountNotes = tx.notes.where((final n) => n.account == accountId).toList();
     final netValue = accountNotes.fold<BigInt>(
       BigInt.zero,
       (final sum, final note) => sum + BigInt.from(note.value),
@@ -518,6 +518,9 @@ abstract class ZcashWalletBase
     final direction = netValue >= BigInt.zero
         ? TransactionDirection.incoming
         : TransactionDirection.outgoing;
+    final displayAmount = direction == TransactionDirection.outgoing
+        ? _mempoolOutgoingAmount(tx.txid, netValue)
+        : netValue.abs();
     final memo = accountNotes
         .map((final n) => n.memo)
         .whereType<String>()
@@ -530,7 +533,7 @@ abstract class ZcashWalletBase
 
     final info = ZcashTransactionInfo(
       id: ZcashWalletService.normalizeTxId(tx.txid),
-      amount: Money(netValue.abs(), currency),
+      amount: Money(displayAmount, currency),
       fee: Money.zero(currency),
       direction: direction,
       isPending: true,
@@ -544,6 +547,28 @@ abstract class ZcashWalletBase
       info.outputAddresses = recipientAddresses;
     }
     return info;
+  }
+
+  BigInt _mempoolOutgoingAmount(final String txid, final BigInt netValue) {
+    final cached = ZcashWalletService.pendingOutgoingAmount(txid);
+    if (cached != null && cached > BigInt.zero) {
+      return cached;
+    }
+    return netValue.abs();
+  }
+
+  BigInt _outgoingDisplayAmount(final ZkoolTx tx) {
+    final external = tx.outputsWithAddress
+        .where((final o) => !_addressBelongsToWallet(o.address))
+        .fold(BigInt.zero, (final sum, final o) => sum + o.value);
+    if (external > BigInt.zero) {
+      return external;
+    }
+    final cached = ZcashWalletService.pendingOutgoingAmount(tx.txHash);
+    if (cached != null && cached > BigInt.zero) {
+      return cached;
+    }
+    return tx.value;
   }
 
   ZcashTransactionInfo _zcashInfoFromZkoolTx(
@@ -561,9 +586,11 @@ abstract class ZcashWalletBase
     final memo = extraMemo != null ? "${tx.memo ?? ''}\n$extraMemo".trim() : tx.memo;
     final direction = directionOverride ?? tx.direction;
     final recipientAddresses = _recipientAddresses(_paymentOutputAddresses(tx), direction);
+    final amount = amountOverride ??
+        (direction == TransactionDirection.outgoing ? _outgoingDisplayAmount(tx) : tx.value);
     final info = ZcashTransactionInfo(
       id: tx.txHash,
-      amount: Money(amountOverride ?? tx.value, currency),
+      amount: Money(amount, currency),
       fee: Money.zero(currency),
       direction: direction,
       isPending: tx.height == 0,
@@ -817,6 +844,9 @@ abstract class ZcashWalletBase
 
     final Map<String, ZcashTransactionInfo> splitEntries = {};
     for (final tx in txs) {
+      if (tx.height > 0) {
+        ZcashWalletService.clearPendingOutgoingAmount(tx.txHash);
+      }
       final isShield = _isShieldActionTx(tx, rotationSweepHashes: rotationSweepHashes);
       if (_shouldSplitAutoshieldTx(tx, isShield: isShield)) {
         byHash.remove(tx.txHash);
@@ -1111,21 +1141,17 @@ abstract class ZcashWalletBase
       accountId: accountId,
       func: (coin) async {
         final _notes = await zkool_account.listNotes(c: coin);
-        final List<zkool_account.TxNote> txNotes = [];
+        BigInt sweepable = BigInt.zero;
         for (int i = 0; i < _notes.length; i++) {
           final note = _notes[i];
           if (note.pool < 0 || note.pool >= NotePool.values.length) {
             continue;
           }
           final noteType = NotePool.values[note.pool];
-          if ([NotePool.sapling, NotePool.transparent].contains(noteType)) {
-            txNotes.add(note);
+          if (noteType == NotePool.transparent || noteType == NotePool.sapling) {
+            sweepable += note.value;
           }
         }
-
-        final sweepable = txNotes.isEmpty
-            ? BigInt.from(0)
-            : txNotes.map((final txn) => txn.value).reduce((final a, final b) => a + b);
 
         if (sweepable <= BigInt.from(_autoShieldMinSweep)) {
           return null;
