@@ -108,7 +108,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   Set<String> hiddenAddresses = {};
 
   Future<void> _initAddresses() async {
-    addressesMap = await walletInfo.getAddresses();
+    addressesMap = {};
     addressInfos = await walletInfo.getAddressInfos();
     usedAddresses = await walletInfo.getUsedAddresses();
     manualAddresses = await walletInfo.getManualAddresses();
@@ -236,7 +236,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       if (!isPlaceholderAddress(address)) {
         walletInfo.address = address;
       }
-      await walletInfo.setAddresses(addressesMap);
+      await walletInfo.setAddresses({});
       await walletInfo.setAddressInfos(addressInfos);
       await walletInfo.setUsedAddresses(usedAddresses.toList());
       await walletInfo.setHiddenAddresses(hiddenAddresses.toList());

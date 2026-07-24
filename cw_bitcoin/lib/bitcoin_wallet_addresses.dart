@@ -126,7 +126,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   Future<PaymentURI> getPaymentRequestUri(String amount) async {
     if (addressPageType is LightningAddressType && lightningWallet != null) {
-      final amountSats = amount.isNotEmpty ? parseFixed(amount, 8) : null;
+      final amountSats = amount.isNotEmpty ? tryParseFixed(amount, 8) : null;
       final lnUrl = getLnurlOfLightningAddress(address);
       if (amountSats == null) {
         return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
