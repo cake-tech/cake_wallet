@@ -19,9 +19,6 @@ enum TxType {
 
 enum NotePool { transparent, sapling, orchard, ironwood }
 
-bool _isShieldedPool(final int pool) =>
-    pool == NotePool.orchard.index || pool == NotePool.ironwood.index;
-
 class ZkoolTx {
   ZkoolTx(final zkool_account.Tx tx, final zkool_account.TxAccount txAccount)
     : this._tx = tx,
@@ -65,15 +62,31 @@ class ZkoolTx {
 
   BigInt get orchardReceived {
     final fromNotes = _txAccount.notes
-        .where((final n) => _isShieldedPool(n.pool))
+        .where((final n) => n.pool == NotePool.orchard.index)
         .fold(BigInt.zero, (final a, final n) => a + n.value);
     if (fromNotes > BigInt.zero) {
       return fromNotes;
     }
     return _txAccount.outputs
-        .where((final o) => _isShieldedPool(o.pool))
+        .where((final o) => o.pool == NotePool.orchard.index)
         .fold(BigInt.zero, (final a, final o) => a + o.value);
   }
+
+  BigInt get ironwoodReceived {
+    final fromNotes = _txAccount.notes
+        .where((final n) => n.pool == NotePool.ironwood.index)
+        .fold(BigInt.zero, (final a, final n) => a + n.value);
+    if (fromNotes > BigInt.zero) {
+      return fromNotes;
+    }
+    return _txAccount.outputs
+        .where((final o) => o.pool == NotePool.ironwood.index)
+        .fold(BigInt.zero, (final a, final o) => a + o.value);
+  }
+
+  BigInt get orchardSpent => _txAccount.spends
+      .where((final s) => s.pool == NotePool.orchard.index)
+      .fold(BigInt.zero, (final a, final s) => a + s.value);
 
   String get txHash {
     final reversed = Uint8List.fromList(_txAccount.txid.reversed.toList());

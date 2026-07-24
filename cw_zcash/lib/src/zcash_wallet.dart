@@ -506,21 +506,63 @@ abstract class ZcashWalletBase
 
   static const _dispPhrase = "Received to disposable address";
 
+  bool _isIronwoodMigrationTx(final ZkoolTx tx) {
+    if (tx.orchardSpent <= BigInt.zero) {
+      return false;
+    }
+    if (tx.ironwoodReceived > BigInt.zero) {
+      return true;
+    }
+    return tx.orchardReceived > BigInt.zero && tx.type == TxType.selfTransfer;
+  }
+
+  BigInt _migrationDisplayAmount(final ZkoolTx tx) {
+    if (tx.ironwoodReceived > BigInt.zero) {
+      return tx.ironwoodReceived;
+    }
+    return tx.orchardReceived;
+  }
+
+  ({BigInt amount})? _migrationInfoFromMempoolNotes(
+    final List<zkool_mempool.MempoolNote> notes,
+    final int accountId,
+  ) {
+    var orchardSpent = BigInt.zero;
+    var shieldedReceived = BigInt.zero;
+    for (final note in notes.where((final n) => n.account == accountId)) {
+      final value = BigInt.from(note.value);
+      if (value < BigInt.zero && note.pool == NotePool.orchard.index) {
+        orchardSpent += -value;
+      } else if (value > BigInt.zero &&
+          (note.pool == NotePool.orchard.index || note.pool == NotePool.ironwood.index)) {
+        shieldedReceived += value;
+      }
+    }
+    if (orchardSpent > BigInt.zero && shieldedReceived > BigInt.zero) {
+      return (amount: shieldedReceived);
+    }
+    return null;
+  }
+
   ZcashTransactionInfo _zcashInfoFromMempoolTx(
     final zkool_mempool.MempoolTx tx,
     final int accountId,
   ) {
     final accountNotes = tx.notes.where((final n) => n.account == accountId).toList();
+    final migration = _migrationInfoFromMempoolNotes(tx.notes, accountId);
     final netValue = accountNotes.fold<BigInt>(
       BigInt.zero,
       (final sum, final note) => sum + BigInt.from(note.value),
     );
-    final direction = netValue >= BigInt.zero
+    final direction = migration != null
+        ? TransactionDirection.outgoing
+        : netValue >= BigInt.zero
         ? TransactionDirection.incoming
         : TransactionDirection.outgoing;
-    final displayAmount = direction == TransactionDirection.outgoing
-        ? _mempoolOutgoingAmount(tx.txid, netValue)
-        : netValue.abs();
+    final displayAmount = migration?.amount ??
+        (direction == TransactionDirection.outgoing
+            ? _mempoolOutgoingAmount(tx.txid, netValue)
+            : netValue.abs());
     final memo = accountNotes
         .map((final n) => n.memo)
         .whereType<String>()
@@ -542,6 +584,7 @@ abstract class ZcashWalletBase
       confirmations: 0,
       to: recipientAddresses.isEmpty ? '' : recipientAddresses.first,
       memo: memo,
+      isIronwoodMigration: migration != null,
     );
     if (recipientAddresses.isNotEmpty) {
       info.outputAddresses = recipientAddresses;
@@ -584,10 +627,16 @@ abstract class ZcashWalletBase
         ? currentHeight - tx.height + 1
         : 0;
     final memo = extraMemo != null ? "${tx.memo ?? ''}\n$extraMemo".trim() : tx.memo;
-    final direction = directionOverride ?? tx.direction;
+    final isMigration = directionOverride == null && _isIronwoodMigrationTx(tx);
+    final direction = directionOverride ??
+        (isMigration ? TransactionDirection.outgoing : tx.direction);
     final recipientAddresses = _recipientAddresses(_paymentOutputAddresses(tx), direction);
     final amount = amountOverride ??
-        (direction == TransactionDirection.outgoing ? _outgoingDisplayAmount(tx) : tx.value);
+        (isMigration
+            ? _migrationDisplayAmount(tx)
+            : direction == TransactionDirection.outgoing
+            ? _outgoingDisplayAmount(tx)
+            : tx.value);
     final info = ZcashTransactionInfo(
       id: tx.txHash,
       amount: Money(amount, currency),
@@ -602,6 +651,7 @@ abstract class ZcashWalletBase
       txType: tx.type,
       isRotationReceive: isRotationReceive,
       isShieldAction: isShieldAction,
+      isIronwoodMigration: isMigration,
     );
     if (recipientAddresses.isNotEmpty) {
       info.outputAddresses = recipientAddresses;
@@ -658,6 +708,9 @@ abstract class ZcashWalletBase
       'tx_$txHash$suffix';
 
   static int _txDisplayPriority(final ZcashTransactionInfo info) {
+    if (info.additionalInfo['isIronwoodMigration'] == true) {
+      return 4;
+    }
     if (info.additionalInfo['isAutoShield'] == true) {
       return 3;
     }
@@ -681,7 +734,8 @@ abstract class ZcashWalletBase
       return;
     }
     if (infoPriority == existingPriority &&
-        info.additionalInfo['isAutoShield'] == true &&
+        (info.additionalInfo['isAutoShield'] == true ||
+            info.additionalInfo['isIronwoodMigration'] == true) &&
         info.direction == TransactionDirection.outgoing &&
         existing.direction == TransactionDirection.incoming) {
       byHash[hash] = info;
@@ -846,6 +900,7 @@ abstract class ZcashWalletBase
     for (final tx in txs) {
       if (tx.height > 0) {
         ZcashWalletService.clearPendingOutgoingAmount(tx.txHash);
+        ZcashMempoolService.instance.removeTx(tx.txHash);
       }
       final isShield = _isShieldActionTx(tx, rotationSweepHashes: rotationSweepHashes);
       if (_shouldSplitAutoshieldTx(tx, isShield: isShield)) {
@@ -868,10 +923,14 @@ abstract class ZcashWalletBase
       _offerTx(byHash, _zcashInfoFromZkoolTx(tx, currentHeight, isShieldAction: isShield));
     }
 
-    final knownHashes = {for (final tx in txs) tx.txHash, ...byHash.keys};
+    final knownHashes = {
+      for (final tx in txs) ZcashWalletService.normalizeTxId(tx.txHash),
+      for (final hash in byHash.keys) ZcashWalletService.normalizeTxId(hash),
+    };
     for (final mempoolTx in ZcashMempoolService.instance.txsForAccount(accountId)) {
       final hash = ZcashWalletService.normalizeTxId(mempoolTx.txid);
       if (knownHashes.contains(hash)) {
+        ZcashMempoolService.instance.removeTx(hash);
         continue;
       }
       final info = _zcashInfoFromMempoolTx(mempoolTx, accountId);
@@ -1032,31 +1091,36 @@ abstract class ZcashWalletBase
   }
 
   bool _isTransactionUpdating = false;
+  bool _transactionUpdateQueued = false;
 
   Future<void> updateTransactions() async {
+    if (_isTransactionUpdating) {
+      _transactionUpdateQueued = true;
+      return;
+    }
+
+    _isTransactionUpdating = true;
     try {
-      if (_isTransactionUpdating) {
-        return;
-      }
+      do {
+        _transactionUpdateQueued = false;
+        final transactions = await fetchTransactions();
 
-      _isTransactionUpdating = true;
-      final transactions = await fetchTransactions();
+        final currentIds = transactionHistory.transactions.keys.toSet();
+        final newIds = transactions.keys.toSet();
 
-      final currentIds = transactionHistory.transactions.keys.toSet();
-      final newIds = transactions.keys.toSet();
+        currentIds
+            .difference(newIds)
+            .forEach((final id) => transactionHistory.transactions.remove(id));
 
-      currentIds
-          .difference(newIds)
-          .forEach((final id) => transactionHistory.transactions.remove(id));
-
-      transactions.forEach((final key, final tx) {
-        transactionHistory.transactions[key] = tx;
-      });
-      await transactionHistory.save();
-      _isTransactionUpdating = false;
+        transactions.forEach((final key, final tx) {
+          transactionHistory.transactions[key] = tx;
+        });
+        await transactionHistory.save();
+      } while (_transactionUpdateQueued);
     } catch (e, stackTrace) {
       printV("Update transactions error: $e");
       printV("Stack trace: $stackTrace");
+    } finally {
       _isTransactionUpdating = false;
     }
   }
