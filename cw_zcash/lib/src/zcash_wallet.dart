@@ -466,10 +466,11 @@ abstract class ZcashWalletBase
       return await runWithCoin(
         accountId: accountId,
         func: (coin) async {
+          final ironwood = await zkool_network.isIronwoodActive(c: coin);
           final txPlan = await zkool_pay.prepare(
             recipients: recipients,
             options: zkool_pay.PaymentOptions(
-              srcPools: ironwoodActive ? 15 : 7,
+              srcPools: ironwood ? 15 : 7,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
               mode: 0,
@@ -1221,13 +1222,14 @@ abstract class ZcashWalletBase
           return null;
         }
 
+        final ironwood = await zkool_network.isIronwoodActive(c: coin);
         final txPlan = await zkool_pay.prepare(
           recipients: [
             zkool_paydart.Recipient(
               assetBase: zecBase,
               address: walletAddresses.orchardAddress!,
               amount: sweepable,
-              pools: ironwoodActive ? ironwoodPoolMask : null,
+              pools: ironwood ? ironwoodPoolMask : null,
             ),
           ],
           options: zkool_pay.PaymentOptions(
