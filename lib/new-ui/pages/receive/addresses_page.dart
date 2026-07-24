@@ -192,6 +192,8 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                         ],
                       ),
                     ),
+                  if (!state.showHidden && !state.hasHiddenAddresses)
+                    const SliverToBoxAdapter(child: SizedBox(height: 12)),
                   for (var i = 0; i < groups.length; i++)
                     _GroupSection(
                       group: groups[i],
@@ -270,12 +272,15 @@ class _GroupSection extends StatelessWidget {
               return _AddressRow(
                 entry: entry,
                 selected: entry.address == state.activeAddress && !isPicker,
-                first: isFirstGroup && index == 0 && state.showHidden,
+                first: isFirstGroup &&
+                    index == 0 &&
+                    (state.showHidden || !state.hasHiddenAddresses),
                 last: index == group.entries.length - 1,
                 walletType: state.walletType,
                 hasBalance: state.hasBalance,
                 hasReceived: state.hasReceived,
                 canSetLabel: state.canSetLabel,
+                canHide: state.canHide,
                 canDelete: state.isSilentPayments && !entry.isOneTimeReceiveAddress,
                 isPicker: isPicker,
                 onSelect: () => onEntrySelected(context, entry.address),
@@ -603,6 +608,7 @@ class _AddressRow extends StatelessWidget {
     required this.hasBalance,
     required this.hasReceived,
     required this.canSetLabel,
+    required this.canHide,
     required this.canDelete,
     required this.isPicker,
     required this.onSelect,
@@ -618,6 +624,7 @@ class _AddressRow extends StatelessWidget {
   final bool hasBalance;
   final bool hasReceived;
   final bool canSetLabel;
+  final bool canHide;
   final bool canDelete;
   final bool isPicker;
   final VoidCallback onSelect;
@@ -733,17 +740,18 @@ class _AddressRow extends StatelessWidget {
                           }
                         },
                       ),
-                    LongPressMenuItem(
-                      label: entry.isHidden
-                          ? S.of(context).unhide_address
-                          : S.of(context).hide_address,
-                      iconPath: "assets/new-ui/address_hide.svg",
-                      onSelected: () {
-                        Navigator.of(context, rootNavigator: true).pop();
-                        onAddressHidden();
-                      },
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                    if (canHide)
+                      LongPressMenuItem(
+                        label: entry.isHidden
+                            ? S.of(context).unhide_address
+                            : S.of(context).hide_address,
+                        iconPath: "assets/new-ui/address_hide.svg",
+                        onSelected: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          onAddressHidden();
+                        },
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     if (canDelete)
                       LongPressMenuItem(
                         label: S.of(context).delete,
@@ -862,10 +870,20 @@ class _AddressInfoPopup extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("${S.of(context).address_index}: ${entry.id?.toString() ?? ""}"),
-                    const SizedBox(height: 16),
-                    Text("${S.of(context).derivationpath}: ${entry.derivationPath ?? ""}"),
+                    if (entry.id != null)
+                      Text("${S.of(context).address_index}: ${entry.id}"),
+                    if (entry.id != null &&
+                        entry.derivationPath != null &&
+                        entry.derivationPath!.isNotEmpty)
+                      const SizedBox(height: 16),
+                    if (entry.derivationPath != null && entry.derivationPath!.isNotEmpty)
+                      Text("${S.of(context).derivationpath}: ${entry.derivationPath}"),
+                    if (entry.id == null &&
+                        (entry.derivationPath == null || entry.derivationPath!.isEmpty))
+                      Text(S.of(context).nothing_to_display),
                   ],
                 ),
               ),

@@ -27,6 +27,7 @@ final class AddressesLoaded extends AddressesState {
     required this.hasBalance,
     required this.hasReceived,
     required this.canSetLabel,
+    required this.canHide,
     required this.isSilentPayments,
     this.isSaving = false,
     this.failureCode,
@@ -46,6 +47,7 @@ final class AddressesLoaded extends AddressesState {
   final bool hasBalance;
   final bool hasReceived;
   final bool canSetLabel;
+  final bool canHide;
   final bool isSilentPayments;
   final bool isSaving;
   final AddressesFailureCode? failureCode;
@@ -86,6 +88,7 @@ final class AddressesLoaded extends AddressesState {
     bool? hasBalance,
     bool? hasReceived,
     bool? canSetLabel,
+    bool? canHide,
     bool? isSilentPayments,
     bool? isSaving,
     AddressesFailureCode? failureCode,
@@ -106,6 +109,7 @@ final class AddressesLoaded extends AddressesState {
         hasBalance: hasBalance ?? this.hasBalance,
         hasReceived: hasReceived ?? this.hasReceived,
         canSetLabel: canSetLabel ?? this.canSetLabel,
+        canHide: canHide ?? this.canHide,
         isSilentPayments: isSilentPayments ?? this.isSilentPayments,
         isSaving: isSaving ?? this.isSaving,
         failureCode: clearFailureCode ? null : (failureCode ?? this.failureCode),
@@ -127,6 +131,7 @@ final class AddressesLoaded extends AddressesState {
         hasBalance,
         hasReceived,
         canSetLabel,
+        canHide,
         isSilentPayments,
         isSaving,
         failureCode,

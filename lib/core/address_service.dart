@@ -65,8 +65,7 @@ class AddressService {
 
   bool get infoboxDismissed => wallet.walletInfo.receiveInfoboxDismissed;
 
-  bool get hasAccounts =>
-      const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
+  bool get hasAccounts => const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
 
   bool get hasHiddenAddresses => wallet.walletAddresses.hiddenAddresses.isNotEmpty;
 
@@ -224,6 +223,7 @@ class AddressService {
         .getAddressInfos(w)
         .map(
           (i) => AddressEntry(
+            id: i.mapKey,
             address: i.address,
             label: i.label,
             isHidden: w.walletAddresses.hiddenAddresses.contains(i.address),
@@ -299,8 +299,7 @@ class AddressService {
         return null;
       }
       final fresh = subs.where((s) => !beforeIds.contains(s.id)).firstOrNull;
-      final newAddress =
-          (fresh ?? subs.reduce((a, b) => a.id > b.id ? a : b)).address;
+      final newAddress = (fresh ?? subs.reduce((a, b) => a.id > b.id ? a : b)).address;
       wallet.walletAddresses.manualAddresses.add(newAddress);
       await wallet.save();
       return newAddress;
@@ -319,8 +318,7 @@ class AddressService {
         return null;
       }
       final fresh = subAddresses.where((s) => !beforeIds.contains(s.id)).firstOrNull;
-      final newAddress =
-          (fresh ?? subAddresses.reduce((a, b) => a.id > b.id ? a : b)).address;
+      final newAddress = (fresh ?? subAddresses.reduce((a, b) => a.id > b.id ? a : b)).address;
       wallet.walletAddresses.manualAddresses.add(newAddress);
       await wallet.save();
       return newAddress;
@@ -377,6 +375,8 @@ class AddressService {
         type == WalletType.monero ||
         type == WalletType.wownero;
   }
+
+  bool get canHide => wallet.type != WalletType.zcash;
 
   int? _entryIdFor(String address) {
     for (final group in computeAddressList()) {
@@ -589,12 +589,19 @@ class AddressService {
     if (bitcoin == null || wallet.type != WalletType.bitcoin) {
       return;
     }
-    if (lightningMode) {
-      await setAddressType(bitcoin!.getBitcoinLightningReceivePageOption());
-      return;
-    }
     final current = bitcoin!.getSelectedAddressType(wallet);
     final lightning = bitcoin!.getBitcoinLightningReceivePageOption();
+
+    if (lightningMode) {
+      if (current == lightning) {
+        return;
+      }
+      if (wallet.walletInfo.addressPageType == null) {
+        await setAddressType(lightning);
+      }
+      return;
+    }
+
     if (current == lightning) {
       await setAddressType(bitcoin!.getBitcoinSegwitPageOption());
     }

@@ -55,6 +55,7 @@ void main() {
     bool hasHiddenAddresses = false,
     bool isAutoGenerateSubaddressEnabled = false,
     bool canSetLabel = true,
+    bool canHide = true,
     bool isSilentPayments = false,
   }) {
     when(() => addressService.computeAddressList()).thenReturn(groups);
@@ -72,6 +73,7 @@ void main() {
     when(() => addressService.isBalanceAvailable).thenReturn(false);
     when(() => addressService.isReceivedAvailable).thenReturn(false);
     when(() => addressService.canSetLabel).thenReturn(canSetLabel);
+    when(() => addressService.canHide).thenReturn(canHide);
     when(() => addressService.isSilentPayments).thenReturn(isSilentPayments);
     when(() => activeWalletService.walletChanges).thenAnswer((_) => walletChangesController.stream);
   }
@@ -300,6 +302,7 @@ void main() {
         when(() => addressService.isBalanceAvailable).thenReturn(false);
         when(() => addressService.isReceivedAvailable).thenReturn(false);
         when(() => addressService.canSetLabel).thenReturn(true);
+        when(() => addressService.canHide).thenReturn(true);
         when(() => addressService.isSilentPayments).thenReturn(false);
         when(() => addressService.setHidden(any(), hidden: any(named: "hidden")))
             .thenAnswer((_) async {});

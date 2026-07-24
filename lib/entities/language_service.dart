@@ -1,6 +1,19 @@
-import 'package:cake_wallet/generated/locales.dart';
-import 'package:devicelocale/devicelocale.dart';
-import 'package:intl/intl.dart';
+import "package:cake_wallet/generated/locales.dart";
+import "package:devicelocale/devicelocale.dart";
+import "package:flutter/widgets.dart";
+import "package:intl/intl.dart";
+
+// This will turn stored language code into Flutter Locale. 
+// Some of our language codes uses an underscore (like "pt_BR") and this must be split into language 
+// and country subtags, if we pass the whole string as the languageCode, GlobalMaterialLocalizations 
+// would reject it as an invalid ISO 639-1 code and crash the app on locale switch
+Locale localeFromLanguageCode(String code) {
+  final parts = code.split("_");
+  if (parts.length == 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
+    return Locale(parts[0], parts[1]);
+  }
+  return Locale(code);
+}
 
 class LanguageService {
   static const Map<String, String> supportedLocales = {

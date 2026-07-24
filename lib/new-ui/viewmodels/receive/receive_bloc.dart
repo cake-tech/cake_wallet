@@ -517,10 +517,14 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     }
 
     final endpoint = addressService.payjoinEndpoint;
+    final uri = addressService.buildPaymentUri(
+      rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
+      token: loaded.tokenCurrency,
+    );
     if (endpoint.isEmpty) {
-      emit(loaded.copyWith(clearPayjoinEndpoint: true));
+      emit(loaded.copyWith(clearPayjoinEndpoint: true, paymentUri: uri));
     } else {
-      emit(loaded.copyWith(payjoinEndpoint: endpoint));
+      emit(loaded.copyWith(payjoinEndpoint: endpoint, paymentUri: uri));
     }
   }
 

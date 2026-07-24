@@ -458,7 +458,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
     case Routes.addressPage:
-      return handleRouteWithPlatformAwareness((context) => getIt.get<ReceivePage>(),
+      return handleRouteWithPlatformAwareness(
+          (context) => getIt.get<ReceivePage>(param1: false, param2: null),
           settings: settings);
 
     case Routes.transactionDetails:

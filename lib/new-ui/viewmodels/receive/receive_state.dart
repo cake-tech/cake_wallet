@@ -73,7 +73,10 @@ final class ReceiveLoaded extends ReceiveState {
   final ReceiveFailureCode? failureCode;
 
   bool get hasPayjoin =>
-      payjoinEndpoint != null && payjoinEndpoint!.isNotEmpty && !isSilentPayments && !isLightning;
+      walletType == WalletType.bitcoin &&
+      !isLightning &&
+      !isSilentPayments &&
+      paymentUri.toString().contains("pj=");
 
   bool get hasAddressList {
     if (isLightning) {

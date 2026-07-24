@@ -220,6 +220,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
         hasBalance: addressService.isBalanceAvailable,
         hasReceived: addressService.isReceivedAvailable,
         canSetLabel: addressService.canSetLabel,
+        canHide: addressService.canHide,
         isSilentPayments: addressService.isSilentPayments,
       );
 }
