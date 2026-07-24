@@ -469,7 +469,7 @@ abstract class ZcashWalletBase
           final txPlan = await zkool_pay.prepare(
             recipients: recipients,
             options: zkool_pay.PaymentOptions(
-              srcPools: 7,
+              srcPools: ironwoodActive ? 15 : 7,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
               mode: 0,
