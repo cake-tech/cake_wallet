@@ -314,7 +314,7 @@ class Quote extends SelectableOption {
         payout: _toDouble(json['amount']) ?? 0.0,
         paymentType: paymentType,
         recommendations: [],
-        provider: ProvidersHelper.getProviderByType(ProviderType.kriptonim),
+        provider: ProvidersHelper.getProviderByType(ProviderType.kryptonim),
         isBuyAction: isBuyAction,
         limits: Limits(min: minLimit, max: maxLimit));
   }
