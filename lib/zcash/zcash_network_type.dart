@@ -11,4 +11,7 @@ abstract final class ZcashNetworkType {
         regtest => 'Regtest',
         _ => 'Mainnet',
       };
+
+  static bool isDevNetwork(final String? network) =>
+      network?.toLowerCase() == 'testnet' || network?.toLowerCase() == 'regtest';
 }
