@@ -25,14 +25,13 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final walletTypeString = walletTypeToString(walletType);
     var text = selected.value;
-    if (largeQrMode && selected.addAddressWord) {
-      text += " Address";
-    }
 
-    if (text == "mainnet") {
+    if (selected == ReceivePageOption.mainnet) {
       text = largeQrMode
           ? "$walletTypeString ${S.of(context).address}"
-          : "$walletTypeString (Mainnet)";
+          : "$walletTypeString (${S.of(context).mainnet})";
+    } else if (largeQrMode && selected.addAddressWord) {
+      text = "$text ${S.of(context).address}";
     }
 
     var iconPath = selected.iconPath;

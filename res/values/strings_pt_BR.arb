@@ -1448,5 +1448,12 @@
   "wallet_balance": "Saldo da carteira",
   "wc_action_approve": "Aprovar",
   "wc_desc": "Conecte-se facilmente a DApps",
-  "yes_exit": "Sim. Sair"
+  "yes_exit": "Sim. Sair",
+  "add_address": "Adicionar endereço",
+  "address_index": "Índice",
+  "edit_label": "Editar rótulo",
+  "infobox_multichain_named": "Use este endereço para receber qualquer token ou item colecionável em ${chain}",
+  "mainnet": "Rede principal",
+  "nothing_to_display": "Nada para exibir",
+  "token": "Token"
 }

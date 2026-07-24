@@ -4,7 +4,6 @@ import "package:cake_wallet/core/address_types.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/long_press_popup.dart";
 import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
@@ -17,7 +16,6 @@ import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/utils/debounce.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/wownero/wownero.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -51,7 +49,20 @@ class _AddressesPageBody extends StatelessWidget {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        child: BlocBuilder<AddressesBloc, AddressesState>(
+        child: BlocConsumer<AddressesBloc, AddressesState>(
+          listenWhen: (previous, current) {
+            final prev = previous is AddressesLoaded ? previous.failureCode : null;
+            final curr = current is AddressesLoaded ? current.failureCode : null;
+            return curr != null && curr != prev;
+          },
+          listener: (context, state) {
+            if (state is! AddressesLoaded || state.failureCode == null) {
+              return;
+            }
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text(S.of(context).error_dialog_content)));
+          },
           builder: (context, state) => switch (state) {
             AddressesLoading() => const _LoadingWidget(),
             AddressesFailure() => const _FailureWidget(),
@@ -111,7 +122,8 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
   @override
   void didUpdateWidget(covariant _LoadedWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.state.searchTerm != _searchController.text) {
+    if (widget.state.walletId != oldWidget.state.walletId &&
+        widget.state.searchTerm != _searchController.text) {
       _searchController.value = TextEditingValue(
         text: widget.state.searchTerm,
         selection: TextSelection.collapsed(offset: widget.state.searchTerm.length),
@@ -161,7 +173,11 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                       child: Column(
                         spacing: 16,
                         children: [
-                          if (state.hasAccounts) const _AccountPreviewHeader(),
+                          if (state.hasAccounts)
+                            _AccountPreviewHeader(
+                              walletName: state.walletName,
+                              accountLabel: state.accountLabel,
+                            ),
                           Text(
                             S.of(context).long_press_edit_address,
                             style: TextStyle(
@@ -171,7 +187,8 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                           ),
                           if (!_isPicker && state.showAddManualAddresses)
                             const _AddManualAddressButton(),
-                          if (!_isPicker) const _ShowHiddenButton(),
+                          if (!_isPicker && state.hasHiddenAddresses)
+                            const _ShowHiddenButton(),
                         ],
                       ),
                     ),
@@ -417,7 +434,10 @@ class _AddressSearchBox extends StatelessWidget {
 }
 
 class _AccountPreviewHeader extends StatefulWidget {
-  const _AccountPreviewHeader();
+  const _AccountPreviewHeader({required this.walletName, required this.accountLabel});
+
+  final String walletName;
+  final String accountLabel;
 
   @override
   State<_AccountPreviewHeader> createState() => _AccountPreviewHeaderState();
@@ -483,16 +503,14 @@ class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        monero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                            wownero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                            "",
+                        widget.accountLabel,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Text(
-                        dashboardViewModel.wallet.name,
+                        widget.walletName,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,

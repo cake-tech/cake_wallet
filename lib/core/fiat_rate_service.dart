@@ -17,14 +17,21 @@ class FiatRateService {
   })  : _fiatConversionStore = fiatConversionStore,
         _settingsStore = settingsStore {
     _disposeReaction = mobx.autorun((_) {
-      _fiatConversionStore.prices.forEach((_, __) {});
-      _rateController.add(null);
+      for (final _ in _fiatConversionStore.prices.values) {}
+      _emitRateChanged();
     });
 
     _disposeFiatReaction = mobx.reaction(
       (_) => _settingsStore.fiatCurrency,
-      (_) => _rateController.add(null),
+      (_) => _emitRateChanged(),
     );
+  }
+
+  void _emitRateChanged() {
+    if (_rateController.isClosed) {
+      return;
+    }
+    _rateController.add(null);
   }
 
   final FiatConversionStore _fiatConversionStore;
@@ -83,7 +90,7 @@ class FiatRateService {
         torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
       );
       _customRates.putIfAbsent(crypto, () => {})[fiat] = value;
-      _rateController.add(null);
+      _emitRateChanged();
     } catch (e) {
       printV("failed to fetch fiat rate for $crypto/$fiat: $e");
     }

@@ -34,7 +34,7 @@ class ReceiveInfoBox extends StatelessWidget {
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
         return ReceiveInfoBox(
             iconPath: "",
-            message: "${S.current.infobox_multichain} ${walletTypeToString(type)}",
+            message: S.current.infobox_multichain_named(walletTypeToString(type)),
             onDismissed: onDismissed,
             bottomWidget: InfoboxCurrencyRow(
               currencies: supportedCurrencies ?? [],

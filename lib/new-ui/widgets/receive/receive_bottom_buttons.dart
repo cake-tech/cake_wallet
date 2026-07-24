@@ -59,6 +59,7 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                     ignoring: widget.copyData == null,
                     child: CopyWrapper(
                       data: widget.copyData,
+                      isSensitive: true,
                       builder: (context, copied) => AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         child: IgnorePointer(

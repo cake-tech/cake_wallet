@@ -457,10 +457,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
-    case Routes.receive:
-      return CupertinoPageRoute<void>(
-          builder: (context) => getIt.get<ReceivePage>(), settings: settings);
-
     case Routes.addressPage:
       return handleRouteWithPlatformAwareness((context) => getIt.get<ReceivePage>(),
           settings: settings);

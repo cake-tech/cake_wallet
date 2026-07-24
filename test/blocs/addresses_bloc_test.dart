@@ -49,6 +49,10 @@ void main() {
     bool hasAccounts = false,
     AddressAccount? currentAccount,
     WalletType walletType = WalletType.bitcoin,
+    String walletId = "wallet-a",
+    String walletName = "wallet-a",
+    String accountLabel = "",
+    bool hasHiddenAddresses = false,
     bool isAutoGenerateSubaddressEnabled = false,
     bool canSetLabel = true,
     bool isSilentPayments = false,
@@ -58,6 +62,10 @@ void main() {
     when(() => addressService.hasAccounts).thenReturn(hasAccounts);
     when(() => addressService.currentAccount).thenReturn(currentAccount);
     when(() => addressService.walletType).thenReturn(walletType);
+    when(() => addressService.walletId).thenReturn(walletId);
+    when(() => addressService.walletName).thenReturn(walletName);
+    when(() => addressService.accountLabel).thenReturn(accountLabel);
+    when(() => addressService.hasHiddenAddresses).thenReturn(hasHiddenAddresses);
     when(
       () => addressService.isAutoGenerateSubaddressEnabled,
     ).thenReturn(isAutoGenerateSubaddressEnabled);
@@ -284,6 +292,10 @@ void main() {
         when(() => addressService.hasAccounts).thenReturn(false);
         when(() => addressService.currentAccount).thenReturn(null);
         when(() => addressService.walletType).thenReturn(WalletType.bitcoin);
+        when(() => addressService.walletId).thenReturn("wallet-a");
+        when(() => addressService.walletName).thenReturn("wallet-a");
+        when(() => addressService.accountLabel).thenReturn("");
+        when(() => addressService.hasHiddenAddresses).thenReturn(false);
         when(() => addressService.isAutoGenerateSubaddressEnabled).thenReturn(false);
         when(() => addressService.isBalanceAvailable).thenReturn(false);
         when(() => addressService.isReceivedAvailable).thenReturn(false);

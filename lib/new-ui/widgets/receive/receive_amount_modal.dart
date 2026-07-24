@@ -51,6 +51,21 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     super.dispose();
   }
 
+  bool _isParseable(String raw) {
+    final normalized = raw.replaceAll(",", ".");
+    if (widget.useSatoshi) {
+      return BigInt.tryParse(normalized) != null;
+    }
+    return double.tryParse(normalized) != null;
+  }
+
+  String get _amountHint {
+    if (widget.useSatoshi || widget.selectedCurrencyDecimals <= 0) {
+      return "0";
+    }
+    return "0.${"0" * widget.selectedCurrencyDecimals}";
+  }
+
   @override
   Widget build(BuildContext context) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -145,7 +160,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 ],
                                 decoration: InputDecoration(
                                   hint: Text(
-                                    widget.useSatoshi ? "0" : "0.00000000",
+                                    _amountHint,
                                     textAlign: TextAlign.left,
                                     style: TextStyle(
                                       fontSize: 16,
@@ -202,7 +217,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                         text: S.of(context).continue_text,
                         onPressed: () {
                           final raw = _amountController.text.trim();
-                          if (raw.isNotEmpty) {
+                          if (raw.isEmpty || _isParseable(raw)) {
                             widget.onAmountSubmitted(raw);
                           }
                           Navigator.of(context).pop();

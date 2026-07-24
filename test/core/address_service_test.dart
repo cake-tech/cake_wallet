@@ -66,6 +66,7 @@ class _TestScope {
   }) : settings = _FakeSettingsStore(status: autoStatus) {
     walletInfo = _MockWalletInfo();
     when(() => walletInfo.type).thenReturn(walletType);
+    when(() => walletInfo.name).thenReturn("wallet-a");
     when(() => walletInfo.receiveInfoboxDismissed).thenReturn(infoboxDismissed);
     when(walletInfo.save).thenAnswer((_) async => 0);
 
@@ -79,6 +80,7 @@ class _TestScope {
 
     wallet = _MockWallet();
     when(() => wallet.type).thenReturn(walletType);
+    when(() => wallet.name).thenReturn("wallet-a");
     when(() => wallet.walletAddresses).thenReturn(walletAddresses);
     when(() => wallet.walletInfo).thenReturn(walletInfo);
     when(() => wallet.chainId).thenReturn(null);

@@ -1,7 +1,6 @@
 import "package:cake_wallet/anonpay/anonpay_donation_link_info.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
-import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_address_type_display.dart";
@@ -30,7 +29,6 @@ import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/utils/qr_util.dart";
 import "package:cake_wallet/utils/share_util.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -76,7 +74,20 @@ class _ReceivePageBodyState extends State<_ReceivePageBody> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
-          child: BlocBuilder<ReceiveBloc, ReceiveState>(
+          child: BlocConsumer<ReceiveBloc, ReceiveState>(
+            listenWhen: (previous, current) {
+              final prev = previous is ReceiveLoaded ? previous.failureCode : null;
+              final curr = current is ReceiveLoaded ? current.failureCode : null;
+              return curr != null && curr != prev;
+            },
+            listener: (context, state) {
+              if (state is! ReceiveLoaded || state.failureCode == null) {
+                return;
+              }
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(SnackBar(content: Text(S.of(context).error_dialog_content)));
+            },
             builder: (context, state) => switch (state) {
               ReceiveLoading() => const _LoadingWidget(),
               ReceiveFailure() => _FailureWidget(code: state.code),
@@ -131,7 +142,22 @@ class _FailureWidget extends StatelessWidget {
           onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
           onTrailingPressed: () {},
         ),
-        Expanded(child: Center(child: Text(message))),
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 16,
+              children: [
+                Text(message),
+                TextButton(
+                  onPressed: () =>
+                      context.read<ReceiveBloc>().add(const ReceiveOpened()),
+                  child: Text(S.of(context).try_again),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -202,10 +228,10 @@ class _LoadedWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               ReceiveAmountDisplay(
-                displayAmount: state.requestedAmount?.toStringWithPrecision() ?? "",
-                cryptoSymbol: _cryptoSymbol(state),
+                displayAmount: state.requestedAmountDisplay,
+                cryptoSymbol: state.receiveCryptoSymbol,
                 fiatAmount: state.fiatEquivalent?.toStringWithPrecision() ?? "",
-                fiatSymbol: _fiatSymbol(state),
+                fiatSymbol: state.fiatEquivalent?.currency.name ?? "",
                 showFiat: state.fiatEquivalent != null,
                 largeQrMode: largeQrMode,
               ),
@@ -254,8 +280,8 @@ class _LoadedWidget extends StatelessWidget {
                 onAccountsButtonPressed: () => _openAddressesPage(context, state),
               ),
               ReceiveLargeAmountPreview(
-                amount: state.requestedAmount?.toStringWithPrecision() ?? "",
-                currency: _cryptoSymbol(state),
+                amount: state.requestedAmountDisplay,
+                currency: state.receiveCryptoSymbol,
                 largeQrMode: largeQrMode,
               ),
               if (infobox != null && !state.isLightning)
@@ -286,13 +312,6 @@ class _LoadedWidget extends StatelessWidget {
     }
     return (option.description ?? "").toLowerCase().contains("mweb");
   }
-
-  String _cryptoSymbol(ReceiveLoaded state) {
-    final currency = state.tokenCurrency ?? state.walletCurrency;
-    return currency.title;
-  }
-
-  String _fiatSymbol(ReceiveLoaded state) => state.fiatEquivalent?.currency.name ?? "";
 
   String _qrEmbeddedIcon(ReceiveLoaded state) {
     if (state.tokenCurrency != null && state.tokenCurrency != CryptoCurrency.btcln) {
@@ -333,9 +352,7 @@ class _LoadedWidget extends StatelessWidget {
 
   Future<void> _showAmountModal(BuildContext context, ReceiveLoaded initialState) async {
     final bloc = context.read<ReceiveBloc>();
-    final initialAmount = initialState.inputCurrency is FiatCurrency
-        ? initialState.fiatEquivalent?.toStringWithPrecision() ?? ""
-        : initialState.requestedAmount?.toStringWithPrecision() ?? "";
+    final initialAmount = initialState.modalInitialAmount;
 
     await showMaterialModalBottomSheet<void>(
       context: context,
@@ -351,16 +368,14 @@ class _LoadedWidget extends StatelessWidget {
             }
             final displayCrypto = state.tokenCurrency ?? state.walletCurrency;
             final modalKey = ValueKey<String>(state.tokenCurrency?.title ?? "wallet");
-            final displayInitialAmount = state.inputCurrency is FiatCurrency
-                ? state.fiatEquivalent?.toStringWithPrecision() ?? ""
-                : state.requestedAmount?.toStringWithPrecision() ?? "";
+            final displayInitialAmount = state.modalInitialAmount;
             return ReceiveAmountModal(
               key: modalKey,
               initialAmount:
                   displayInitialAmount.isEmpty ? initialAmount : displayInitialAmount,
-              selectedCurrencySymbol: _currencySymbol(state.inputCurrency),
-              selectedCurrencyDecimals: state.useSatoshi ? 0 : state.inputCurrency.decimals,
-              useSatoshi: state.useSatoshi,
+              selectedCurrencySymbol: state.inputCurrencySymbol,
+              selectedCurrencyDecimals: state.inputUsesSats ? 0 : state.inputCurrency.decimals,
+              useSatoshi: state.inputUsesSats,
               showTokenPicker: state.hasTokensList,
               tokenIconPath: displayCrypto.iconPath ?? "",
               tokenTitle: displayCrypto.title,
@@ -372,13 +387,6 @@ class _LoadedWidget extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _currencySymbol(Currency c) {
-    if (c is CryptoCurrency) {
-      return c.title;
-    }
-    return c.name.toUpperCase();
   }
 
   Future<void> _pickInputCurrency(

@@ -30,11 +30,14 @@ final class ReceiveLoaded extends ReceiveState {
     required this.isLightning,
     required this.autoGenerateSubaddressStatus,
     required this.isZCashTransparent,
-    required this.useSatoshi,
+    required this.inputUsesSats,
+    required this.receiveUsesSats,
+    required this.walletId,
     required this.walletType,
     required this.walletCurrency,
     required this.hasTokensList,
     this.isChangingAddressType = false,
+    this.failureCode,
   });
 
   final AddressEntry addressEntry;
@@ -60,11 +63,14 @@ final class ReceiveLoaded extends ReceiveState {
   final bool isLightning;
   final AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
   final bool isZCashTransparent;
-  final bool useSatoshi;
+  final bool inputUsesSats;
+  final bool receiveUsesSats;
 
+  final String walletId;
   final WalletType walletType;
   final CryptoCurrency walletCurrency;
   final bool hasTokensList;
+  final ReceiveFailureCode? failureCode;
 
   bool get hasPayjoin =>
       payjoinEndpoint != null && payjoinEndpoint!.isNotEmpty && !isSilentPayments && !isLightning;
@@ -90,6 +96,39 @@ final class ReceiveLoaded extends ReceiveState {
 
   bool get hasAddressRotation => hasAddressList && walletType != WalletType.zcash;
 
+  String get requestedAmountDisplay {
+    final amount = requestedAmount;
+    if (amount == null) {
+      return "";
+    }
+    return amount.toStringWithPrecision(useBaseUnit: receiveUsesSats);
+  }
+
+  String get receiveCryptoSymbol => _cryptoSymbol(tokenCurrency ?? walletCurrency, receiveUsesSats);
+
+  String get inputCurrencySymbol {
+    final c = inputCurrency;
+    if (c is CryptoCurrency) {
+      return _cryptoSymbol(c, inputUsesSats);
+    }
+    return c.name.toUpperCase();
+  }
+
+  String get modalInitialAmount {
+    if (inputCurrency is FiatCurrency) {
+      return fiatEquivalent?.toStringWithPrecision() ?? "";
+    }
+    return requestedAmountDisplay;
+  }
+
+  static String _cryptoSymbol(CryptoCurrency c, bool useSats) {
+    if (useSats) {
+      return "sats";
+    }
+    final title = c.title;
+    return title.length <= 8 ? title : title.substring(0, 8);
+  }
+
   ReceiveLoaded copyWith({
     AddressEntry? addressEntry,
     ReceivePageOption? addressType,
@@ -113,10 +152,14 @@ final class ReceiveLoaded extends ReceiveState {
     bool? isLightning,
     AutoGenerateSubaddressStatus? autoGenerateSubaddressStatus,
     bool? isZCashTransparent,
-    bool? useSatoshi,
+    bool? inputUsesSats,
+    bool? receiveUsesSats,
+    String? walletId,
     WalletType? walletType,
     CryptoCurrency? walletCurrency,
     bool? hasTokensList,
+    ReceiveFailureCode? failureCode,
+    bool clearFailureCode = false,
   }) =>
       ReceiveLoaded(
         addressEntry: addressEntry ?? this.addressEntry,
@@ -138,10 +181,13 @@ final class ReceiveLoaded extends ReceiveState {
         autoGenerateSubaddressStatus:
             autoGenerateSubaddressStatus ?? this.autoGenerateSubaddressStatus,
         isZCashTransparent: isZCashTransparent ?? this.isZCashTransparent,
-        useSatoshi: useSatoshi ?? this.useSatoshi,
+        inputUsesSats: inputUsesSats ?? this.inputUsesSats,
+        receiveUsesSats: receiveUsesSats ?? this.receiveUsesSats,
+        walletId: walletId ?? this.walletId,
         walletType: walletType ?? this.walletType,
         walletCurrency: walletCurrency ?? this.walletCurrency,
         hasTokensList: hasTokensList ?? this.hasTokensList,
+        failureCode: clearFailureCode ? null : (failureCode ?? this.failureCode),
       );
 
   @override
@@ -164,10 +210,13 @@ final class ReceiveLoaded extends ReceiveState {
         isLightning,
         autoGenerateSubaddressStatus,
         isZCashTransparent,
-        useSatoshi,
+        inputUsesSats,
+        receiveUsesSats,
+        walletId,
         walletType,
         walletCurrency,
         hasTokensList,
+        failureCode,
       ];
 }
 

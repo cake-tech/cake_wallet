@@ -18,7 +18,6 @@ class Routes {
   static const transactionDetails = '/transaction_info';
   static const payjoinDetails = '/transaction_info/payjoin';
   static const bumpFeePage = '/bump_fee_page';
-  static const receive = '/receive';
   static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';

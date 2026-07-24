@@ -21,11 +21,11 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
   }) : super(const AddressesLoading()) {
     on<AddressesOpened>(_onOpened, transformer: restartable());
     on<SearchTermEntered>(_onSearch, transformer: restartable());
-    on<ActiveAddressSet>(_onActiveAddressSet);
-    on<AddressHideToggled>(_onHideToggled);
-    on<AddressLabelSet>(_onLabelSet);
+    on<ActiveAddressSet>(_onActiveAddressSet, transformer: sequential());
+    on<AddressHideToggled>(_onHideToggled, transformer: sequential());
+    on<AddressLabelSet>(_onLabelSet, transformer: sequential());
     on<AddressAdded>(_onAddressAdded, transformer: droppable());
-    on<AddressDeleted>(_onDeleted);
+    on<AddressDeleted>(_onDeleted, transformer: sequential());
     on<AddressListRefreshed>(_onListRefreshed);
     on<_WalletChanged>(_onWalletChanged, transformer: restartable());
 
@@ -51,10 +51,6 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
 
   Future<void> _onOpened(AddressesOpened event, Emitter<AddressesState> emit) async {
     emit(const AddressesLoading());
-    await Future.delayed(Duration.zero);
-    if (isClosed) {
-      return;
-    }
     try {
       emit(_buildLoaded(showHidden: event.showHidden));
     } catch (e) {
@@ -81,9 +77,13 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       await addressService.setActiveAddress(event.address);
     } catch (e) {
       printV("AddressesBloc setActiveAddress failed: $e");
+      _emitFailure(emit, initial.walletId);
       return;
     }
-    if (state case final AddressesLoaded loaded when loaded.walletType == initial.walletType) {
+    if (isClosed) {
+      return;
+    }
+    if (state case final AddressesLoaded loaded when loaded.walletId == initial.walletId) {
       emit(loaded.copyWith(activeAddress: addressService.currentAddress));
     }
   }
@@ -94,15 +94,15 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
-    emit(initial.copyWith(isSaving: true));
+    emit(initial.copyWith(isSaving: true, clearFailureCode: true));
     try {
       await addressService.setHidden(event.address, hidden: event.hidden);
     } catch (e) {
       printV("AddressesBloc setHidden failed: $e");
-      _clearSavingState(emit, initial.walletType);
+      _emitFailure(emit, initial.walletId);
       return;
     }
-    await _yieldAndRefreshGroups(emit, initial.walletType);
+    _refreshGroups(emit, initial.walletId);
   }
 
   Future<void> _onLabelSet(AddressLabelSet event, Emitter<AddressesState> emit) async {
@@ -111,15 +111,15 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
-    emit(initial.copyWith(isSaving: true));
+    emit(initial.copyWith(isSaving: true, clearFailureCode: true));
     try {
       await addressService.setLabel(event.address, event.label);
     } catch (e) {
       printV("AddressesBloc setLabel failed: $e");
-      _clearSavingState(emit, initial.walletType);
+      _emitFailure(emit, initial.walletId);
       return;
     }
-    await _yieldAndRefreshGroups(emit, initial.walletType);
+    _refreshGroups(emit, initial.walletId);
   }
 
   Future<void> _onAddressAdded(AddressAdded event, Emitter<AddressesState> emit) async {
@@ -128,15 +128,15 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
-    emit(initial.copyWith(isSaving: true));
+    emit(initial.copyWith(isSaving: true, clearFailureCode: true));
     try {
       await addressService.addManualAddress(event.label);
     } catch (e) {
       printV("AddressesBloc addManualAddress failed: $e");
-      _clearSavingState(emit, initial.walletType);
+      _emitFailure(emit, initial.walletId);
       return;
     }
-    await _yieldAndRefreshGroups(emit, initial.walletType);
+    _refreshGroups(emit, initial.walletId);
   }
 
   Future<void> _onDeleted(AddressDeleted event, Emitter<AddressesState> emit) async {
@@ -145,36 +145,40 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
-    emit(initial.copyWith(isSaving: true));
+    emit(initial.copyWith(isSaving: true, clearFailureCode: true));
     try {
       await addressService.deleteSilentPaymentAddress(event.address);
     } catch (e) {
       printV("AddressesBloc deleteSilentPaymentAddress failed: $e");
-      _clearSavingState(emit, initial.walletType);
+      _emitFailure(emit, initial.walletId);
       return;
     }
-    await _yieldAndRefreshGroups(emit, initial.walletType);
+    _refreshGroups(emit, initial.walletId);
   }
 
-  void _clearSavingState(Emitter<AddressesState> emit, WalletType expectedWalletType) {
-    if (state case final AddressesLoaded loaded when loaded.walletType == expectedWalletType) {
-      emit(loaded.copyWith(isSaving: false));
-    }
-  }
-
-  Future<void> _yieldAndRefreshGroups(
-    Emitter<AddressesState> emit,
-    WalletType expectedWalletType,
-  ) async {
-    await Future.delayed(Duration.zero);
+  void _emitFailure(Emitter<AddressesState> emit, String expectedWalletId) {
     if (isClosed) {
       return;
     }
-    if (state case final AddressesLoaded loaded when loaded.walletType == expectedWalletType) {
+    if (state case final AddressesLoaded loaded when loaded.walletId == expectedWalletId) {
+      emit(loaded.copyWith(
+        isSaving: false,
+        failureCode: AddressesFailureCode.saveFailed,
+      ));
+    }
+  }
+
+  void _refreshGroups(Emitter<AddressesState> emit, String expectedWalletId) {
+    if (isClosed) {
+      return;
+    }
+    if (state case final AddressesLoaded loaded when loaded.walletId == expectedWalletId) {
       emit(
         loaded.copyWith(
           groups: addressService.computeAddressList(),
           activeAddress: addressService.currentAddress,
+          hasHiddenAddresses: addressService.hasHiddenAddresses,
+          accountLabel: addressService.accountLabel,
           isSaving: false,
         ),
       );
@@ -189,13 +193,15 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     if (loaded is! AddressesLoaded) {
       return;
     }
-    emit(loaded.copyWith(groups: addressService.computeAddressList()));
+    emit(loaded.copyWith(
+      groups: addressService.computeAddressList(),
+      hasHiddenAddresses: addressService.hasHiddenAddresses,
+      accountLabel: addressService.accountLabel,
+    ));
   }
 
   Future<void> _onWalletChanged(_WalletChanged event, Emitter<AddressesState> emit) async {
-    final currentShowHidden =
-        state is AddressesLoaded ? (state as AddressesLoaded).showHidden : false;
-    add(AddressesOpened(showHidden: currentShowHidden));
+    add(const AddressesOpened(showHidden: false));
   }
 
   AddressesLoaded _buildLoaded({required bool showHidden}) => AddressesLoaded(
@@ -204,7 +210,11 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
         searchTerm: "",
         showHidden: showHidden,
         hasAccounts: addressService.hasAccounts,
+        walletId: addressService.walletId,
         walletType: addressService.walletType,
+        walletName: addressService.walletName,
+        accountLabel: addressService.accountLabel,
+        hasHiddenAddresses: addressService.hasHiddenAddresses,
         showAddManualAddresses: !addressService.isAutoGenerateSubaddressEnabled ||
             const {WalletType.monero, WalletType.wownero}.contains(addressService.walletType),
         hasBalance: addressService.isBalanceAvailable,

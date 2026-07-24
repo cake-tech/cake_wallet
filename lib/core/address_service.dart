@@ -52,11 +52,11 @@ class AddressService {
   WalletBase get wallet => _wallet();
   AmountParsingProxy get _amountParsingProxy => _amountParsingProxyGetter();
 
+  String get walletName => wallet.name;
   WalletType get walletType => wallet.type;
-
-  CryptoCurrency get walletCurrency => wallet.currency;
-
   int? get walletChainId => wallet.chainId;
+  String get walletId => wallet.walletInfo.name;
+  CryptoCurrency get walletCurrency => wallet.currency;
 
   List<CryptoCurrency> get receivableTokens =>
       wallet.balance.keys.whereType<CryptoCurrency>().toList();
@@ -67,6 +67,8 @@ class AddressService {
 
   bool get hasAccounts =>
       const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
+
+  bool get hasHiddenAddresses => wallet.walletAddresses.hiddenAddresses.isNotEmpty;
 
   List<AddressGroup> computeAddressList() {
     final type = wallet.type;
@@ -104,8 +106,6 @@ class AddressService {
 
     return const [];
   }
-
-  Future<List<AddressGroup>> fetchAddressList() async => computeAddressList();
 
   AddressGroup _moneroAddresses() {
     final w = wallet;
@@ -182,11 +182,12 @@ class AddressService {
     final w = wallet;
     final hidden =
         w.walletAddresses.hiddenAddresses.contains(addr.address) || addr.isLegacyDerivation;
+    final isPrimary = !isOneTimeReceiveAddress && addr.id == 0;
     return AddressEntry(
       id: addr.id,
       address: addr.address,
       label: addr.name,
-      isPrimary: addr.id == 0,
+      isPrimary: isPrimary,
       isChange: addr.isChange,
       txCount: addr.txCount,
       balance: _amountParsingProxy.getDisplayCryptoString(
@@ -257,35 +258,49 @@ class AddressService {
     final type = wallet.type;
 
     if (_isElectrumType(type)) {
+      final isSilentPayments = bitcoin!.hasSelectedSilentPayments(wallet);
+      final before = isSilentPayments
+          ? bitcoin!.getSilentPaymentAddresses(wallet).map((a) => a.address).toSet()
+          : bitcoin!.getSubAddresses(wallet).map((a) => a.address).toSet();
       await bitcoin!.generateNewAddress(wallet, label);
       await wallet.save();
-      if (bitcoin!.hasSelectedSilentPayments(wallet)) {
-        final mains = bitcoin!.getSilentPaymentAddresses(wallet).toList();
-        return mains.isNotEmpty ? mains.last.address : null;
+      final after = isSilentPayments
+          ? bitcoin!.getSilentPaymentAddresses(wallet).toList()
+          : bitcoin!.getSubAddresses(wallet).toList();
+      if (after.isEmpty) {
+        return null;
       }
-      final subAddresses = bitcoin!.getSubAddresses(wallet).toList();
-      return subAddresses.isNotEmpty ? subAddresses.last.address : null;
+      final fresh = after.where((a) => !before.contains(a.address)).firstOrNull;
+      return (fresh ?? after.last).address;
     }
 
     if (type == WalletType.decred) {
+      final before = decred!.getAddressInfos(wallet).map((a) => a.address).toSet();
       await decred!.generateNewAddress(wallet, label);
       await wallet.save();
-      final addressInfos = decred!.getAddressInfos(wallet).toList();
-      return addressInfos.isNotEmpty ? addressInfos.last.address : null;
+      final after = decred!.getAddressInfos(wallet).toList();
+      if (after.isEmpty) {
+        return null;
+      }
+      final fresh = after.where((a) => !before.contains(a.address)).firstOrNull;
+      return (fresh ?? after.last).address;
     }
 
     if (type == WalletType.monero) {
       final accountIndex = monero!.getCurrentAccount(wallet).id;
+      final beforeIds = monero!.getSubaddressList(wallet).subaddresses.map((s) => s.id).toSet();
       await monero!.getSubaddressList(wallet).addSubaddress(
             wallet,
             accountIndex: accountIndex,
             label: label,
           );
-      final subaddresses = monero!.getSubaddressList(wallet).subaddresses;
-      if (subaddresses.isEmpty) {
+      final subs = monero!.getSubaddressList(wallet).subaddresses;
+      if (subs.isEmpty) {
         return null;
       }
-      final newAddress = subaddresses.reduce((a, b) => a.id > b.id ? a : b).address;
+      final fresh = subs.where((s) => !beforeIds.contains(s.id)).firstOrNull;
+      final newAddress =
+          (fresh ?? subs.reduce((a, b) => a.id > b.id ? a : b)).address;
       wallet.walletAddresses.manualAddresses.add(newAddress);
       await wallet.save();
       return newAddress;
@@ -293,16 +308,19 @@ class AddressService {
 
     if (type == WalletType.wownero) {
       final accountIndex = wownero!.getCurrentAccount(wallet).id;
+      final beforeIds = wownero!.getSubaddressList(wallet).subaddresses.map((s) => s.id).toSet();
       await wownero!.getSubaddressList(wallet).addSubaddress(
             wallet,
             accountIndex: accountIndex,
             label: label,
           );
-      final subaddresses = wownero!.getSubaddressList(wallet).subaddresses;
-      if (subaddresses.isEmpty) {
+      final subAddresses = wownero!.getSubaddressList(wallet).subaddresses;
+      if (subAddresses.isEmpty) {
         return null;
       }
-      final newAddress = subaddresses.reduce((a, b) => a.id > b.id ? a : b).address;
+      final fresh = subAddresses.where((s) => !beforeIds.contains(s.id)).firstOrNull;
+      final newAddress =
+          (fresh ?? subAddresses.reduce((a, b) => a.id > b.id ? a : b)).address;
       wallet.walletAddresses.manualAddresses.add(newAddress);
       await wallet.save();
       return newAddress;
@@ -408,6 +426,7 @@ class AddressService {
         wallet.walletAddresses.address = mains.first.address;
       }
     }
+    await wallet.save();
   }
 
   ReceivePageOption? get selectedAddressType {
@@ -487,7 +506,7 @@ class AddressService {
     final WalletType type;
     try {
       type = wallet.type;
-    } catch (_) {
+    } on StateError {
       return;
     }
 
@@ -604,6 +623,8 @@ class AddressService {
 
   String canonicalCryptoAmount(String raw, CryptoCurrency currency) =>
       _amountParsingProxy.getCanonicalCryptoAmount(raw, currency);
+
+  String get accountLabel => currentAccount?.label ?? "";
 
   bool _isElectrumType(WalletType type) =>
       type == WalletType.bitcoin ||

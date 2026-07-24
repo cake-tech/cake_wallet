@@ -83,6 +83,8 @@ void main() {
     PaymentURI? initialUri,
   }) {
     when(() => addressService.walletType).thenReturn(walletType);
+    when(() => addressService.walletId).thenReturn("wallet-a");
+    when(() => addressService.walletName).thenReturn("wallet-a");
     when(() => addressService.walletCurrency).thenReturn(walletCurrency ?? CryptoCurrency.btc);
     when(() => addressService.walletChainId).thenReturn(null);
     when(() => addressService.receivableTokens).thenReturn(receivableTokens);
@@ -234,6 +236,36 @@ void main() {
       },
     );
 
+    // Regression: satoshiForLightning display mode + lightning token used to
+    // multiply the amount by 10^8 per modal round-trip because the BTCLN→BTC
+    // substitution in _receiveCryptoCurrency was applied before the sats
+    // check (useSatoshi(BTC) is false in that mode, but useSatoshi(BTCLN) is
+    // true). See bug where "1235" showed as "123500000000 sats".
+    blocTest<ReceiveBloc, ReceiveState>(
+      "lightning token in satoshi-for-lightning mode treats input as sats",
+      setUp: () {
+        wireDefaults();
+        when(() => addressService.useSatoshi(CryptoCurrency.btcln)).thenReturn(true);
+        when(() => addressService.useSatoshi(CryptoCurrency.btc)).thenReturn(false);
+        when(() => addressService.canonicalCryptoAmount("1235", CryptoCurrency.btcln))
+            .thenReturn("0.00001235");
+        when(() => addressService.canonicalCryptoAmount("1235", CryptoCurrency.btc))
+            .thenReturn("1235");
+        when(() => addressService.fetchPaymentRequestUri(
+              rawAmount: any(named: "rawAmount"),
+              token: any(named: "token"),
+            )).thenAnswer((_) async => _btcUri);
+      },
+      build: () => buildBloc(lightningMode: true, initialToken: CryptoCurrency.btcln),
+      act: (bloc) => bloc.add(const AmountChanged("1235")),
+      wait: const Duration(milliseconds: 50),
+      verify: (bloc) {
+        final state = bloc.state as ReceiveLoaded;
+        // 1235 sats = 1235 in the base-unit BigInt (BTC decimals=8, stored as sats).
+        expect(state.requestedAmount?.amount.toString(), "1235");
+      },
+    );
+
     blocTest<ReceiveBloc, ReceiveState>(
       "rapid changes end in the state for the last input (restartable)",
       setUp: () {
@@ -366,6 +398,7 @@ void main() {
         bloc.add(const AddressTypeSelected(ReceivePageOption.mainnet));
         await Future<void>.delayed(const Duration(milliseconds: 10));
         when(() => addressService.walletType).thenReturn(WalletType.monero);
+        when(() => addressService.walletId).thenReturn("wallet-b");
         walletChangesController.add(_FakeWalletBase());
         await Future<void>.delayed(const Duration(milliseconds: 10));
         setTypeCompleter.complete();
