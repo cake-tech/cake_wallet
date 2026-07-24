@@ -1,56 +1,49 @@
-import 'package:bitbox/bitbox.dart' as bitbox;
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_keys_file.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
+import "package:bitbox/bitbox.dart" as bitbox;
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:cw_bitcoin/bitcoin_address_record.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
+import "package:cw_bitcoin/electrum_balance.dart";
+import "package:cw_bitcoin/electrum_wallet.dart";
+import "package:cw_bitcoin/electrum_wallet_snapshot.dart";
+import "package:cw_bitcoin_cash/src/bitcoin_cash_address_utils.dart";
+import "package:cw_bitcoin_cash/src/bitcoin_cash_wallet_addresses.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_keys_file.dart";
+import "package:flutter/foundation.dart";
+import "package:hive/hive.dart";
+import "package:mobx/mobx.dart";
 
-import 'bitcoin_cash_base.dart';
-
-part 'bitcoin_cash_wallet.g.dart';
+part "bitcoin_cash_wallet.g.dart";
 
 class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
 abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   BitcoinCashWalletBase({
-    required String mnemonic,
-    required String password,
+    required String super.mnemonic,
+    required super.password,
     required WalletInfo walletInfo,
-    required DerivationInfo derivationInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Uint8List seedBytes,
-    required EncryptionFileUtils encryptionFileUtils,
-    String? passphrase,
+    required super.derivationInfo,
+    required super.unspentCoinsInfo,
+    required Uint8List super.seedBytes,
+    required super.encryptionFileUtils,
+    super.passphrase,
+    super.initialBalance,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            derivationInfo: derivationInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            network: BitcoinCashNetwork.mainnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.bch,
-            encryptionFileUtils: encryptionFileUtils,
-            passphrase: passphrase) {
+          walletInfo: walletInfo,
+          network: BitcoinCashNetwork.mainnet,
+          initialAddresses: initialAddresses,
+          currency: CryptoCurrency.bch,
+        ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -64,24 +57,24 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
     );
-    autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
-    });
+    autorun(
+      (_) => walletAddresses.isEnabledAutoGenerateSubaddress = isEnabledAutoGenerateSubaddress,
+    );
   }
 
-  static Future<BitcoinCashWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required EncryptionFileUtils encryptionFileUtils,
-      String? passphrase,
-      String? addressPageType,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int>? initialRegularAddressIndex,
-      Map<String, int>? initialChangeAddressIndex}) async {
-    return BitcoinCashWallet(
+  static Future<BitcoinCashWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  }) async => BitcoinCashWallet(
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
@@ -96,7 +89,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: passphrase,
     );
-  }
 
   static Future<BitcoinCashWallet> open({
     required String name,
@@ -107,7 +99,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
-    ElectrumWalletSnapshot? snp = null;
+    ElectrumWalletSnapshot? snp;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
@@ -118,7 +110,9 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         BitcoinCashNetwork.mainnet,
       );
     } catch (e) {
-      if (!hasKeysFile) rethrow;
+      if (!hasKeysFile) {
+        rethrow;
+      }
     }
 
     final WalletKeysData keysData;
@@ -164,7 +158,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         }
       }).toList(),
       initialBalance: snp?.balance,
-      seedBytes: await MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
+      seedBytes: MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
@@ -178,9 +172,10 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         Uint8List.fromList(hd.childKey(Bip32KeyIndex(index)).privateKey.raw),
       );
 
+  @override
   int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
-    int inputsCount = 0;
-    int totalValue = 0;
+    var inputsCount = 0;
+    var totalValue = 0;
 
     for (final input in unspentCoins) {
       if (input.isSending) {
@@ -192,7 +187,9 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    if (amount != null && totalValue < amount) return 0;
+    if (amount != null && totalValue < amount) {
+      return 0;
+    }
 
     final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
 
@@ -216,18 +213,18 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
+  Future<String> signMessage(String message, {String? address}) async {
     int? index;
     try {
       index = address != null
           ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
           : null;
     } catch (_) {}
-    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
-    final priv = ECPrivate.fromWif(
-      WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
+    final hd = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
+    final privateKey = ECPrivate.fromWif(
+      WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,
     );
-    return priv.signMessage(StringUtils.encode(message));
+    return privateKey.signMessage(StringUtils.encode(message));
   }
 }

@@ -1317,7 +1317,7 @@ Future<void> setup({
         return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+            _unspentCoinsInfoSource, isDirect: SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
         return dogecoin!.createDogeCoinWalletService(
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
