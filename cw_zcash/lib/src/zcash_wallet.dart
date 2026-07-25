@@ -507,63 +507,54 @@ abstract class ZcashWalletBase
 
   static const _dispPhrase = "Received to disposable address";
 
+  bool _hasExternalOutputs(final ZkoolTx tx) =>
+      tx.outputsWithAddress.any((final o) => !_addressBelongsToWallet(o.address));
+
   bool _isIronwoodMigrationTx(final ZkoolTx tx) {
-    if (tx.orchardSpent <= BigInt.zero) {
+    // zkool classifies migration as selfTransfer with fee-sized net value.
+    if (tx.type != TxType.selfTransfer) {
       return false;
     }
-    if (tx.ironwoodReceived > BigInt.zero) {
+    final orchardSpent = tx.orchardSpent;
+    final spentFromOrchard = orchardSpent > BigInt.zero ||
+        tx.spendPools.contains(NotePool.orchard.index);
+    if (!spentFromOrchard) {
+      return false;
+    }
+    if (tx.ironwoodReceived > BigInt.zero ||
+        tx.notePools.contains(NotePool.ironwood.index)) {
       return true;
     }
-    return tx.orchardReceived > BigInt.zero && tx.type == TxType.selfTransfer;
+    // Orchard → Orchard split step (SD notes created, all outputs are ours).
+    if (tx.orchardReceived > BigInt.zero && !_hasExternalOutputs(tx)) {
+      return true;
+    }
+    // Orchard → Ironwood before the IW note is attached to tx details.
+    return orchardSpent > tx.value;
   }
 
   BigInt _migrationDisplayAmount(final ZkoolTx tx) {
     if (tx.ironwoodReceived > BigInt.zero) {
       return tx.ironwoodReceived;
     }
-    return tx.orchardReceived;
-  }
-
-  ({BigInt amount})? _migrationInfoFromMempoolNotes(
-    final List<zkool_mempool.MempoolNote> notes,
-    final int accountId,
-  ) {
-    var orchardSpent = BigInt.zero;
-    var shieldedReceived = BigInt.zero;
-    for (final note in notes.where((final n) => n.account == accountId)) {
-      final value = BigInt.from(note.value);
-      if (value < BigInt.zero && note.pool == NotePool.orchard.index) {
-        orchardSpent += -value;
-      } else if (value > BigInt.zero &&
-          (note.pool == NotePool.orchard.index || note.pool == NotePool.ironwood.index)) {
-        shieldedReceived += value;
-      }
+    if (tx.orchardReceived > BigInt.zero) {
+      return tx.orchardReceived;
     }
-    if (orchardSpent > BigInt.zero && shieldedReceived > BigInt.zero) {
-      return (amount: shieldedReceived);
-    }
-    return null;
+    return tx.orchardSpent;
   }
 
   ZcashTransactionInfo _zcashInfoFromMempoolTx(
     final zkool_mempool.MempoolTx tx,
     final int accountId,
   ) {
-    final accountNotes = tx.notes.where((final n) => n.account == accountId).toList();
-    final migration = _migrationInfoFromMempoolNotes(tx.notes, accountId);
+    final accountNotes = tx.notes.where((final n) => n.account == accountId);
     final netValue = accountNotes.fold<BigInt>(
       BigInt.zero,
       (final sum, final note) => sum + BigInt.from(note.value),
     );
-    final direction = migration != null
-        ? TransactionDirection.outgoing
-        : netValue >= BigInt.zero
+    final direction = netValue >= BigInt.zero
         ? TransactionDirection.incoming
         : TransactionDirection.outgoing;
-    final displayAmount = migration?.amount ??
-        (direction == TransactionDirection.outgoing
-            ? _mempoolOutgoingAmount(tx.txid, netValue)
-            : netValue.abs());
     final memo = accountNotes
         .map((final n) => n.memo)
         .whereType<String>()
@@ -576,7 +567,7 @@ abstract class ZcashWalletBase
 
     final info = ZcashTransactionInfo(
       id: ZcashWalletService.normalizeTxId(tx.txid),
-      amount: Money(displayAmount, currency),
+      amount: Money(netValue.abs(), currency),
       fee: Money.zero(currency),
       direction: direction,
       isPending: true,
@@ -585,34 +576,11 @@ abstract class ZcashWalletBase
       confirmations: 0,
       to: recipientAddresses.isEmpty ? '' : recipientAddresses.first,
       memo: memo,
-      isIronwoodMigration: migration != null,
     );
     if (recipientAddresses.isNotEmpty) {
       info.outputAddresses = recipientAddresses;
     }
     return info;
-  }
-
-  BigInt _mempoolOutgoingAmount(final String txid, final BigInt netValue) {
-    final cached = ZcashWalletService.pendingOutgoingAmount(txid);
-    if (cached != null && cached > BigInt.zero) {
-      return cached;
-    }
-    return netValue.abs();
-  }
-
-  BigInt _outgoingDisplayAmount(final ZkoolTx tx) {
-    final external = tx.outputsWithAddress
-        .where((final o) => !_addressBelongsToWallet(o.address))
-        .fold(BigInt.zero, (final sum, final o) => sum + o.value);
-    if (external > BigInt.zero) {
-      return external;
-    }
-    final cached = ZcashWalletService.pendingOutgoingAmount(tx.txHash);
-    if (cached != null && cached > BigInt.zero) {
-      return cached;
-    }
-    return tx.value;
   }
 
   ZcashTransactionInfo _zcashInfoFromZkoolTx(
@@ -633,11 +601,7 @@ abstract class ZcashWalletBase
         (isMigration ? TransactionDirection.outgoing : tx.direction);
     final recipientAddresses = _recipientAddresses(_paymentOutputAddresses(tx), direction);
     final amount = amountOverride ??
-        (isMigration
-            ? _migrationDisplayAmount(tx)
-            : direction == TransactionDirection.outgoing
-            ? _outgoingDisplayAmount(tx)
-            : tx.value);
+        (isMigration ? _migrationDisplayAmount(tx) : tx.value);
     final info = ZcashTransactionInfo(
       id: tx.txHash,
       amount: Money(amount, currency),
@@ -900,7 +864,6 @@ abstract class ZcashWalletBase
     final Map<String, ZcashTransactionInfo> splitEntries = {};
     for (final tx in txs) {
       if (tx.height > 0) {
-        ZcashWalletService.clearPendingOutgoingAmount(tx.txHash);
         ZcashMempoolService.instance.removeTx(tx.txHash);
       }
       final isShield = _isShieldActionTx(tx, rotationSweepHashes: rotationSweepHashes);

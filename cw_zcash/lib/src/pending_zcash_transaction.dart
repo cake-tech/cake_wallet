@@ -63,7 +63,6 @@ class PendingZcashTransaction with PendingTransaction {
           throw TransactionCommitFailed(errorMessage: result);
         }
         _txId = txId;
-        ZcashWalletService.registerPendingOutgoingAmount(txId, amount.amount);
       },
     );
     await zcashWallet.updateTransactions();
