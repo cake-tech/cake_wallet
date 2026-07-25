@@ -105,6 +105,7 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
+    _balanceDisplayedForAccount = currentAccountIndex;
     _prepareHdForAccount(currentAccountIndex,
         currency); // Probably not needed as init will be called right after creating the wallet.
   }
@@ -314,6 +315,8 @@ abstract class ElectrumWalletBase
 
   bool _hasLoadedUnspents = false;
 
+  int? _balanceDisplayedForAccount;
+
   Future<List<int>> loadAccountIndexes() async {
     if (type != WalletType.bitcoin) return [0];
 
@@ -352,7 +355,7 @@ abstract class ElectrumWalletBase
     final fromUnspents = accountBalances[accountIndex];
     if (fromUnspents != null) return fromUnspents;
 
-    if (accountIndex == currentAccountIndex) {
+    if (accountIndex == currentAccountIndex && _balanceDisplayedForAccount == accountIndex) {
       return balance[currency] ?? _zeroBalance(currency);
     }
 
@@ -404,8 +407,11 @@ abstract class ElectrumWalletBase
       return;
     }
 
-    final newBalance = balanceForAccount(accountIndex ?? currentAccountIndex);
+    final targetAccountIndex = accountIndex ?? currentAccountIndex;
+    final newBalance = balanceForAccount(targetAccountIndex);
     final current = balance[currency];
+
+    final isSameAccount = _balanceDisplayedForAccount == targetAccountIndex;
 
     final newIsZero = newBalance.confirmed == Money.zero(currency) &&
         newBalance.unconfirmed == Money.zero(currency);
@@ -413,12 +419,13 @@ abstract class ElectrumWalletBase
         (current.confirmed != Money.zero(currency) ||
             current.unconfirmed != Money.zero(currency));
 
-    if (newIsZero && currentIsNonZero) {
+    if (isSameAccount && newIsZero && currentIsNonZero) {
       printV('_updateCurrentAccountBalance: skipping zero update to preserve existing balance');
       return;
     }
 
     balance[currency] = newBalance;
+    _balanceDisplayedForAccount = targetAccountIndex;
   }
 
   Set<String> get addressesSet => walletAddresses.allAddresses
@@ -2472,17 +2479,17 @@ abstract class ElectrumWalletBase
         feeRate: newFee.toString(),
         isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
-          transactionHistory.transactions.values.forEach((tx) {
-            if (tx.id == hash) {
-              tx.isReplaced = true;
-              tx.isPending = false;
-              transactionHistory.addOne(tx);
-            }
-          });
-          transactionHistory.addOne(transaction);
-          await updateBalance();
-          await updateAllUnspents();
+        transactionHistory.transactions.values.forEach((tx) {
+          if (tx.id == hash) {
+            tx.isReplaced = true;
+            tx.isPending = false;
+            transactionHistory.addOne(tx);
+          }
         });
+        transactionHistory.addOne(transaction);
+        await updateBalance();
+        await updateAllUnspents();
+      });
     } catch (e) {
       throw e;
     }
