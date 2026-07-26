@@ -36,7 +36,7 @@
   useSSL: true
 -
   label: "Wagyu"
-  uri: node.wagyu.xyz:18089
+  uri: node.wagyu.xyz:443
   useSSL: true
   isEnabledForAutoSwitching: true
 -
