@@ -97,6 +97,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
     ) as WalletAddressListItem?;
 
     reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
+      // The infobox depends on the selected address type, so the page has to be
+      // rebuilt when it changes.
+      if (mounted) setState(() {});
+
       if (widget.dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
@@ -179,6 +183,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
       autoGenerateSubaddressStatus: widget.lightningMode
           ? AutoGenerateSubaddressStatus.disabled
           : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus,
+      addressRotates: _selectedAddressRotates,
     );
 
     return Container(
@@ -349,6 +354,13 @@ class _NewReceivePageState extends State<NewReceivePage> {
       ),
     );
   }
+
+  /// Zcash is the only wallet type that also offers static address types, so
+  /// the rotation notice must not be shown for it unless the disposable
+  /// transparent type is the one currently selected.
+  bool get _selectedAddressRotates =>
+      widget.addressListViewModel.type != WalletType.zcash ||
+      zcash!.isRotatingAddressOption(widget.receiveOptionViewModel.selectedReceiveOption);
 
   void _showLabelModal() {
     showMaterialModalBottomSheet(

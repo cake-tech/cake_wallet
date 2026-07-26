@@ -1760,6 +1760,7 @@ abstract class Zcash {
   ReceivePageOption getSelectedAddressType(Object wallet);
   dynamic getZcashAddressType(ReceivePageOption option);
   bool hasSelectedTransparentAddress(Object wallet);
+  bool isRotatingAddressOption(ReceivePageOption option);
   Future<void> setAddressType(Object wallet, dynamic option);
   dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
