@@ -1529,6 +1529,7 @@ abstract class ElectrumWalletBase
           memo: estimatedTx.memo,
           // Shuffle so the change output isn't placed deterministically last
           // (privacy fingerprint). Change is found by isChange, not position.
+          inputOrdering: BitcoinOrdering.shuffle,
           outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
