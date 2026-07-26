@@ -53,6 +53,8 @@ class ElectrumClient {
   Timer? _aliveTimer;
   String unterminatedString;
 
+  Future<dynamic> _batchChain = Future<dynamic>.value();
+
   Uri? uri;
   bool? useSSL;
 
@@ -470,6 +472,17 @@ class ElectrumClient {
   }
 
   Future<List<dynamic>> callBatchWithTimeout({
+    required String method,
+    required List<List<Object>> paramsList,
+    int timeout = 10000,
+  }) {
+    final queued = _batchChain.then(
+            (_) => _sendBatchWithTimeout(method: method, paramsList: paramsList, timeout: timeout));
+    _batchChain = queued.then((_) {}, onError: (_) {});
+    return queued;
+  }
+
+  Future<List<dynamic>> _sendBatchWithTimeout({
     required String method,
     required List<List<Object>> paramsList,
     int timeout = 10000,
