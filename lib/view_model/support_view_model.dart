@@ -44,7 +44,7 @@ abstract class SupportViewModelBase with Store {
           LinkListItem(
               title: 'Telegram',
               icon: 'assets/images/Telegram.png',
-              linkTitle: 't.me/cakewallet',
+              linkTitle: 't.me/cakewalletannouncements',
               link: 'https://t.me/cakewalletannouncements'),
           LinkListItem(
               title: 'Telegram Support Bot',
@@ -75,7 +75,7 @@ abstract class SupportViewModelBase with Store {
               title: 'SwapTrade',
               icon: 'assets/images/swap_trade.png',
               linkTitle: 'help.swaptrade.io',
-              link: 'mailto:support@exolix.com'),
+              link: 'https://help.swaptrade.io/contact/'),
           LinkListItem(
               title: 'Trocador',
               icon: 'assets/images/trocador.png',
