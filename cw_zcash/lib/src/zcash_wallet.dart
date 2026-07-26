@@ -63,6 +63,15 @@ abstract class ZcashWalletBase
 
   int accountId;
 
+  final Map<String, BigInt> _pendingOutgoingAmounts = {};
+
+  void rememberPendingOutgoingAmount(final String txId, final Money amount) {
+    if (amount.isZero) {
+      return;
+    }
+    _pendingOutgoingAmounts[ZcashWalletService.normalizeTxId(txId)] = amount.amount;
+  }
+
   @override
   @observable
   SyncStatus syncStatus = NotConnectedSyncStatus();
@@ -548,13 +557,16 @@ abstract class ZcashWalletBase
     final int accountId,
   ) {
     final accountNotes = tx.notes.where((final n) => n.account == accountId);
+    final txHash = ZcashWalletService.normalizeTxId(tx.txid);
+    final pendingAmount = _pendingOutgoingAmounts[txHash];
     final netValue = accountNotes.fold<BigInt>(
       BigInt.zero,
       (final sum, final note) => sum + BigInt.from(note.value),
     );
-    final direction = netValue >= BigInt.zero
-        ? TransactionDirection.incoming
-        : TransactionDirection.outgoing;
+    final direction = pendingAmount != null || netValue < BigInt.zero
+        ? TransactionDirection.outgoing
+        : TransactionDirection.incoming;
+    final displayAmount = pendingAmount ?? netValue.abs();
     final memo = accountNotes
         .map((final n) => n.memo)
         .whereType<String>()
@@ -566,8 +578,8 @@ abstract class ZcashWalletBase
     );
 
     final info = ZcashTransactionInfo(
-      id: ZcashWalletService.normalizeTxId(tx.txid),
-      amount: Money(netValue.abs(), currency),
+      id: txHash,
+      amount: Money(displayAmount, currency),
       fee: Money.zero(currency),
       direction: direction,
       isPending: true,
@@ -863,6 +875,7 @@ abstract class ZcashWalletBase
 
     final Map<String, ZcashTransactionInfo> splitEntries = {};
     for (final tx in txs) {
+      _pendingOutgoingAmounts.remove(ZcashWalletService.normalizeTxId(tx.txHash));
       if (tx.height > 0) {
         ZcashMempoolService.instance.removeTx(tx.txHash);
       }
@@ -895,6 +908,7 @@ abstract class ZcashWalletBase
       final hash = ZcashWalletService.normalizeTxId(mempoolTx.txid);
       if (knownHashes.contains(hash)) {
         ZcashMempoolService.instance.removeTx(hash);
+        _pendingOutgoingAmounts.remove(hash);
         continue;
       }
       final info = _zcashInfoFromMempoolTx(mempoolTx, accountId);
