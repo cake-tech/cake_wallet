@@ -1,7 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 

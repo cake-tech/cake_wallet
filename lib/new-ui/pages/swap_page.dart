@@ -247,7 +247,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         }
         if (state is TradeIsCreatedSuccessfully) {
           if (widget.exchangeViewModel.tradeStarted) return;
-          final receiveAmount = widget.exchangeViewModel.receiveAmount;
+          final receiveAmount = widget.exchangeViewModel.receiveMoney;
           // FIXME we don't know why a reset is/was needed here, it messes up ui so i removed it
           // widget.exchangeViewModel.reset();
           // (widget.exchangeViewModel.tradesStore.trade?.provider ==

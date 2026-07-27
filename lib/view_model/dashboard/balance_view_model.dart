@@ -47,8 +47,7 @@ class BalanceRecord {
   final CryptoCurrency secondAsset;
   final FiatCurrency? fiatCurrency;
 
-  Money get combinedAvailableBalance =>
-      raw.available + (raw.secondAvailable ?? Money.zero(raw.available.currency));
+  Money get combinedAvailableBalance => raw.available + (raw.secondAvailable ?? Money.zero(asset));
 
   Money? get fiatAvailableBalanceRaw => exchangeRate?.convert(raw.available);
 

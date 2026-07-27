@@ -5,6 +5,8 @@ import "package:cw_core/currency/fiat_currency.dart";
 import "package:cw_core/format_fixed.dart";
 import "package:cw_core/parse_fixed.dart";
 
+export "money_local.dart";
+
 typedef FiatMoney = Money<FiatCurrency>;
 typedef CryptoMoney = Money<CryptoCurrency>;
 
@@ -27,9 +29,6 @@ class Money<T extends Currency> implements Comparable<Money> {
     return Money(amount, currency);
   }
 
-  final BigInt amount;
-  final T currency;
-
   /// Parse the [source] and turn it into [Money] if possible
   ///
   /// As [parse] except that this method returns `null` if the input is not
@@ -43,7 +42,7 @@ class Money<T extends Currency> implements Comparable<Money> {
   }
 
   final BigInt amount;
-  final Currency currency;
+  final T currency;
 
   /// Returns the sign of this [BigInt] amount.
   /// Returns 0 for zero, -1 for values less than zero and +1 for values
