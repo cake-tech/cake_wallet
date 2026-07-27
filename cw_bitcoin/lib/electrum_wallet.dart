@@ -2887,7 +2887,9 @@ abstract class ElectrumWalletBase
       info.id = hash;
 
       if (this is BitcoinWallet) {
-        final session = (this as BitcoinWallet).payjoinManager.sessionForTxId(hash);
+        final session = (this as BitcoinWallet)
+            .payjoinManager
+            .sessionForTxIdWithBackfill(hash, info.outputAddresses ?? const []);
         if (session != null) {
           if (session.isSenderSession) {
             info.amount = Money(session.amount, info.amount.currency);
@@ -3216,7 +3218,10 @@ abstract class ElectrumWalletBase
             }
 
             if (this is BitcoinWallet) {
-              final session = (this as BitcoinWallet).payjoinManager.sessionForTxId(txid);
+              final session = (this as BitcoinWallet)
+                  .payjoinManager
+                  .sessionForTxIdWithBackfill(
+                      txid, storedTx.outputAddresses ?? const []);
               if (session != null) {
                 if (session.isSenderSession) {
                   storedTx.amount = Money(session.amount, storedTx.amount.currency);
@@ -3681,7 +3686,9 @@ abstract class ElectrumWalletBase
           info.accountIndex = owner;
 
           if (this is BitcoinWallet) {
-            final session = (this as BitcoinWallet).payjoinManager.sessionForTxId(txId);
+            final session = (this as BitcoinWallet)
+                .payjoinManager
+                .sessionForTxIdWithBackfill(txId, info.outputAddresses ?? const []);
             if (session != null) {
               if (session.isSenderSession) {
                 info.amount = Money(session.amount, info.amount.currency);
