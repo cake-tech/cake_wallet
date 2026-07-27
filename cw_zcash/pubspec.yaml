@@ -21,7 +21,7 @@ dependencies:
     # path: ../../zkool2
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 97d18db966c061a536fa9056efb3756f4b9aa89d
+      ref: 6329d4aacb4568ee80ff84baba5ea93b07ae1013
 
   path_provider: any
   sqflite_common_ffi: any
