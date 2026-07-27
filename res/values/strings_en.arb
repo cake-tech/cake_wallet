@@ -947,7 +947,7 @@
   "seed_alert_yes": "Yes, I have",
   "seed_and_keys": "Seed & Keys",
   "seed_choose": "Choose seed language",
-  "seed_display_path": "Menu → Security and Backup → Show key/seeds",
+  "seed_display_path": "Settings → Wallet settings → Seed & Keys",
   "seed_hex_form": "Wallet seed (hex form)",
   "seed_key": "Seed key",
   "seed_language": "Seed language",
