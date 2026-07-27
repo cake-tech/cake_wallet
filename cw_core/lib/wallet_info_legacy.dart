@@ -274,7 +274,8 @@ class WalletInfo extends HiveObject {
         addressPageType,
         false,
         true,
-        null);
+        null)
+      ..network = network;
     final wiId = await walletInfo.save();
     for (final address in usedAddresses ?? <String>[]) {
       await newWi.WalletInfoAddress.insert(wiId, newWi.WalletInfoAddressType.used, address);

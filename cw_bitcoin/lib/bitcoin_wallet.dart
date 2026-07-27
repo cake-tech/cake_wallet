@@ -17,6 +17,7 @@ import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
+import 'package:cw_bitcoin/output_ordering.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -468,8 +469,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final masterFingerprint =
         await (hardwareWalletService as BitcoinHardwareWalletService).getMasterFingerprint();
 
+    final orderedOutputs = orderOutputs(outputs, outputOrdering);
+
     final psbt = await buildPsbt(
-      outputs: outputs,
+      outputs: orderedOutputs,
       fee: fee,
       network: network,
       utxos: utxos,
@@ -479,7 +482,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       memo: memo,
       enableRBF: enableRBF,
       inputOrdering: inputOrdering,
-      outputOrdering: outputOrdering,
+      // Already applied above; don't reorder again.
+      outputOrdering: BitcoinOrdering.none,
     );
 
     final psbtStr = base64Encode(psbt.serialize());

@@ -3,6 +3,7 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_zcash/cw_zcash.dart';
 import 'package:mobx/mobx.dart';
 
 part 'receive_option_view_model.g.dart';
@@ -18,7 +19,14 @@ abstract class ReceiveOptionViewModelBase with Store {
                     ? ReceivePageOption.testnet
                     : _wallet.type == WalletType.zcash
                         ? zcash!.getSelectedAddressType(_wallet)
-                        : ReceivePageOption.mainnet);
+                        : ReceivePageOption.mainnet) {
+    if (_wallet.type == WalletType.zcash) {
+      reaction<bool>(
+        (_) => (_wallet.walletAddresses as ZcashWalletAddresses).ironwoodActive,
+        (_) => _syncZcashShieldedLabel(),
+      );
+    }
+  }
 
   final WalletBase _wallet;
 
@@ -27,10 +35,21 @@ abstract class ReceiveOptionViewModelBase with Store {
   @observable
   ReceivePageOption selectedReceiveOption;
 
+  @computed
   List<ReceivePageOption> get options => _wallet.walletAddresses.receivePageOptions;
 
   String get walletTypeString => walletTypeToString(_wallet.type);
 
   @action
   void selectReceiveOption(ReceivePageOption option) => selectedReceiveOption = option;
+
+  @action
+  void _syncZcashShieldedLabel() {
+    for (final option in options) {
+      if (option.value == selectedReceiveOption.value) {
+        selectedReceiveOption = option;
+        return;
+      }
+    }
+  }
 }

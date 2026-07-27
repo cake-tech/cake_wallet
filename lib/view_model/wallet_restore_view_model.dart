@@ -109,6 +109,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @observable
   WalletRestoreMode mode;
 
+  @computed
+  bool get passphraseAvailable =>
+      mode == WalletRestoreMode.seed || hardwareWalletType == HardwareWalletType.trezor;
+
   @observable
   bool hasPassphrase;
 
@@ -221,6 +225,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             passphrase: passphrase,
             height: height,
+            network: zcashNetwork,
           );
         case WalletType.none:
         case WalletType.haven:

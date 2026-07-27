@@ -147,6 +147,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           passphrase: passphrase,
+          network: zcashNetwork,
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);

@@ -45,10 +45,15 @@ class MoneroNewWalletCredentials extends WalletCredentials {
 }
 
 class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
-  MoneroRestoreWalletFromHardwareCredentials(
-      {required String name, required this.hardwareWalletService, int height = 0, String? password})
-      : super(name: name, password: password, height: height);
-  HardwareWalletService hardwareWalletService;
+  MoneroRestoreWalletFromHardwareCredentials({
+    required String name,
+    required this.hardwareWalletService,
+    int height = 0,
+    String? password,
+    String? passphrase,
+  }) : super(name: name, password: password, height: height, passphrase: passphrase);
+
+  final HardwareWalletService hardwareWalletService;
 }
 
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -307,7 +312,13 @@ class MoneroWalletService extends WalletService<
           deviceName: 'Ledger',
         );
       } else if (credentials.hardwareWalletService case MoneroTrezorService service) {
-        final watchCredentials = await Trezor(service).getWatchCredentials();
+        final trezor = Trezor(service);
+
+        if (credentials.passphrase != null) {
+          await trezor.newPassphraseSession(credentials.passphrase);
+        }
+
+        final watchCredentials = await trezor.getWatchCredentials();
 
         monero_wallet_manager.restoreWalletFromKeys(
           path: path,
@@ -318,6 +329,10 @@ class MoneroWalletService extends WalletService<
           viewKey: watchCredentials.watchKey,
           spendKey: "",
         );
+
+        if (credentials.passphrase != null) {
+          monero_wallet_manager.storePassphrase(path: path, passphrase: credentials.passphrase!);
+        }
       }
 
       final wallet = MoneroWallet(
