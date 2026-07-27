@@ -8,24 +8,24 @@ import "package:flutter_bloc/flutter_bloc.dart";
 /// usersettings as a formated string of text with single style.
 class CurrencySymbolText extends StatelessWidget {
   const CurrencySymbolText(
-    this.currency, {
-    super.key,
-    this.style,
-    this.strutStyle,
-    this.textAlign,
-    this.textDirection,
-    this.locale,
-    this.softWrap,
-    this.overflow,
-    this.textScaler,
-    this.maxLines,
-    this.semanticsLabel,
-    this.semanticsIdentifier,
-    this.textWidthBasis,
-    this.textHeightBehavior,
-    this.selectionColor,
-    this.useBaseUnit,
-  });
+      this.currency, {
+        super.key,
+        this.style,
+        this.strutStyle,
+        this.textAlign,
+        this.textDirection,
+        this.locale,
+        this.softWrap,
+        this.overflow,
+        this.textScaler,
+        this.maxLines,
+        this.semanticsLabel,
+        this.semanticsIdentifier,
+        this.textWidthBasis,
+        this.textHeightBehavior,
+        this.selectionColor,
+        this.useBaseUnit,
+      });
 
   /// The currency to display.
   final Currency currency;
@@ -144,22 +144,22 @@ class CurrencySymbolText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<MoneySettingsCubit, MoneySettingsState>(
-        builder: (context, state) => Text(
-          state.getSymbol(currency, overrideSettings: useBaseUnit),
-          style: style,
-          strutStyle: strutStyle,
-          textAlign: textAlign,
-          textDirection: textDirection,
-          locale: locale,
-          softWrap: softWrap,
-          overflow: overflow,
-          textScaler: textScaler,
-          maxLines: maxLines,
-          semanticsLabel: semanticsLabel,
-          semanticsIdentifier: semanticsIdentifier,
-          textWidthBasis: textWidthBasis,
-          textHeightBehavior: textHeightBehavior,
-          selectionColor: selectionColor,
-        ),
-      );
+    builder: (context, state) => Text(
+      state.getSymbol(currency, overrideSettings: useBaseUnit),
+      style: style,
+      strutStyle: strutStyle,
+      textAlign: textAlign,
+      textDirection: textDirection,
+      locale: locale,
+      softWrap: softWrap,
+      overflow: overflow,
+      textScaler: textScaler,
+      maxLines: maxLines,
+      semanticsLabel: semanticsLabel,
+      semanticsIdentifier: semanticsIdentifier,
+      textWidthBasis: textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+      selectionColor: selectionColor,
+    ),
+  );
 }

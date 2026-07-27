@@ -42,6 +42,9 @@ class Money<T extends Currency> implements Comparable<Money> {
     return amount != null ? Money(amount, currency) : null;
   }
 
+  final BigInt amount;
+  final Currency currency;
+
   /// Returns the sign of this [BigInt] amount.
   /// Returns 0 for zero, -1 for values less than zero and +1 for values
   /// greater than zero.
@@ -216,18 +219,16 @@ class Money<T extends Currency> implements Comparable<Money> {
     bool trimZeros = true,
     bool useBaseUnit = false,
     bool withSymbolPrefix = false,
-  }) =>
-      withSymbolPrefix
-          ? "${_getSymbol(useBaseUnit)} ${toStringWithPrecision(
-              fractionalDigits: fractionalDigits,
-              trimZeros: trimZeros,
-              useBaseUnit: useBaseUnit,
-            )}"
-          : "${toStringWithPrecision(
-              fractionalDigits: fractionalDigits,
-              trimZeros: trimZeros,
-              useBaseUnit: useBaseUnit,
-            )} ${_getSymbol(useBaseUnit)}";
+  }) {
+    final amount = toStringWithPrecision(
+      fractionalDigits: fractionalDigits,
+      trimZeros: trimZeros,
+      useBaseUnit: useBaseUnit,
+    );
+    final symbol = getSymbol(useBaseUnit: useBaseUnit);
+
+    return withSymbolPrefix ? "$symbol $amount" : "$amount $symbol";
+  }
 
   String toStringWithPrecision({
     int? fractionalDigits,
@@ -242,7 +243,7 @@ class Money<T extends Currency> implements Comparable<Money> {
       );
 
   // To Override the symbol with the ticker of the base unit
-  String _getSymbol(bool useBaseUnit) {
+  String getSymbol({required bool useBaseUnit}) {
     if (useBaseUnit && [CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) {
       return "sats";
     }

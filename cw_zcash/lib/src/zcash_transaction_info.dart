@@ -20,6 +20,7 @@ class ZcashTransactionInfo extends TransactionInfo {
     final TxType? txType,
     final bool isRotationReceive = false,
     final bool isShieldAction = false,
+    final bool isIronwoodMigration = false,
   }) {
     this.id = id;
     this.amount = amount;
@@ -38,6 +39,7 @@ class ZcashTransactionInfo extends TransactionInfo {
     }
     additionalInfo['isRotationReceive'] = isRotationReceive;
     additionalInfo['isAutoShield'] = isShieldAction || ZcashWalletService.isAutoshieldTx(txHash);
+    additionalInfo['isIronwoodMigration'] = isIronwoodMigration;
 
     if (additionalInfo['isAutoShield'] == true) {
       additionalInfo['memo'] ??= '';

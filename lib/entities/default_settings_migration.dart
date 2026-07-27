@@ -628,6 +628,13 @@ Future<void> defaultSettingsMigration(
             oldUri: ['nodes.hashvault.pro:18081'],
           );
           break;
+        case 69:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Exolix",
+            enabled: false,
+          );
+          break;
         default:
           break;
       }

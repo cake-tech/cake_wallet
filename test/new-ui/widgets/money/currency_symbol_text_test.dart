@@ -33,10 +33,10 @@ const _lnSatoshiMode = MoneySettingsState(
 const _longSymbol = CryptoCurrency(title: "SUPERLONGTOKEN", name: "superlongtoken", decimals: 8);
 
 Future<FakeMoneySettingsCubit> _pump(
-  WidgetTester tester,
-  Widget child,
-  MoneySettingsState state,
-) async {
+    WidgetTester tester,
+    Widget child,
+    MoneySettingsState state,
+    ) async {
   final cubit = FakeMoneySettingsCubit(state);
   addTearDown(cubit.close);
   await tester.pumpWidget(

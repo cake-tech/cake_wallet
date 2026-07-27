@@ -1,3 +1,4 @@
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
@@ -221,19 +222,20 @@ class MoneyText extends StatelessWidget {
         builder: (context, state) => Text(
           isHiddenAmount ?? state.isHidden
               ? "●●●●●●"
-              : (showSymbol
-                      ? amount.toStringWithSymbol(
-                          fractionalDigits: fractionalDigits,
-                          trimZeros: trimZeros,
-                          useBaseUnit: useBaseUnit ?? state.useBaseUnit(amount.currency),
-                          withSymbolPrefix: withSymbolPrefix,
-                        )
-                      : amount.toStringWithPrecision(
-                          fractionalDigits: fractionalDigits,
-                          trimZeros: trimZeros,
-                          useBaseUnit: useBaseUnit ?? state.useBaseUnit(amount.currency),
-                        ))
-                  .withLocalSeperator((locale ?? Localizations.localeOf(context)).toString()),
+              : showSymbol
+                  ? amount.toLocalStringWithSymbol(
+                      fractionalDigits: fractionalDigits,
+                      trimZeros: trimZeros,
+                      useBaseUnit: useBaseUnit ?? state.useBaseUnit(amount.currency),
+                      withSymbolPrefix: withSymbolPrefix,
+                      locale: (locale ?? Localizations.localeOf(context)).toString(),
+                    )
+                  : amount.toLocalStringWithPrecision(
+                      fractionalDigits: fractionalDigits,
+                      trimZeros: trimZeros,
+                      useBaseUnit: useBaseUnit ?? state.useBaseUnit(amount.currency),
+                      locale: (locale ?? Localizations.localeOf(context)).toString(),
+                    ),
           style: style,
           strutStyle: strutStyle,
           textAlign: textAlign,
@@ -243,7 +245,9 @@ class MoneyText extends StatelessWidget {
           overflow: overflow,
           textScaler: textScaler,
           maxLines: maxLines,
-          semanticsLabel: semanticsLabel,
+          semanticsLabel: isHiddenAmount ?? state.isHidden
+              ? (semanticsLabel ?? S.of(context).amount_hidden)
+              : semanticsLabel,
           semanticsIdentifier: semanticsIdentifier,
           textWidthBasis: textWidthBasis,
           textHeightBehavior: textHeightBehavior,

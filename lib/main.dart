@@ -316,7 +316,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 68,
+    initialMigrationVersion: 69,
   );
 }
 
@@ -426,8 +426,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               builder: (context, child) => MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-                  child: MoneySettingsProvider(settingsStore: settingsStore, child: child!),
+                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+                child: MoneySettingsProvider(settingsStore: settingsStore, child: child!),
               ),
               theme: theme,
               darkTheme: darkTheme,

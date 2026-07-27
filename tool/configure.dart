@@ -1709,13 +1709,15 @@ abstract class Zcash {
       WalletInfo? walletInfo,
       String? password,
       String? mnemonic,
-      required String? passphrase});
+      required String? passphrase,
+      int network = 0});
   WalletCredentials createZcashRestoreWalletFromSeedCredentials(
       {required String name,
       required String mnemonic,
       required String password,
       String? passphrase,
-      required int? height});
+      required int? height,
+      int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password, required int height});
   String getAddress(WalletBase wallet);

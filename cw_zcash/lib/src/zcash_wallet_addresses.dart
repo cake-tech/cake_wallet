@@ -39,8 +39,24 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String? unifiedAddress;
 
+  @observable
+  bool ironwoodActive = false;
+
+  @action
+  void setIronwoodActive(final bool active) {
+    ironwoodActive = active;
+  }
+
   @override
   @computed
+  List<ReceivePageOption> get receivePageOptions {
+    return [
+      ...ZcashReceivePageOption.allOptionsFor(ironwood: ironwoodActive),
+      ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet),
+    ];
+  }
+
+  @override
   String get latestAddress {
     switch (addressPageType) {
       case ZcashAddressType.transparent:
@@ -108,7 +124,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   Set<String> hiddenAddresses = {};
 
   Future<void> _initAddresses() async {
-    addressesMap = await walletInfo.getAddresses();
+    addressesMap = {};
     addressInfos = await walletInfo.getAddressInfos();
     usedAddresses = await walletInfo.getUsedAddresses();
     manualAddresses = await walletInfo.getManualAddresses();
@@ -236,7 +252,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       if (!isPlaceholderAddress(address)) {
         walletInfo.address = address;
       }
-      await walletInfo.setAddresses(addressesMap);
+      await walletInfo.setAddresses({});
       await walletInfo.setAddressInfos(addressInfos);
       await walletInfo.setUsedAddresses(usedAddresses.toList());
       await walletInfo.setHiddenAddresses(hiddenAddresses.toList());
@@ -265,14 +281,6 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       return [];
     }
     return addressInfos[0] ?? [];
-  }
-
-  @override
-  List<ReceivePageOption> get receivePageOptions {
-    return [
-      ...ZcashReceivePageOption.all,
-      ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet),
-    ];
   }
 
   @override

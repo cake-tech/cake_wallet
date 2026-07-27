@@ -430,8 +430,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
     final parsedAddress = await widget.adrResService
         .resolve(query: domain, wallet: widget.exchangeViewModel.wallet, currency: currency);
     return parsedAddress.isNotEmpty
-        ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? ''
-        : '';
+        ? (parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? domain)
+        : domain;
   }
 
   void _showFeeAlert(BuildContext context) async {

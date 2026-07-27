@@ -10,18 +10,18 @@ import "package:mobx/mobx.dart";
 class MoneySettingsCubit extends Cubit<MoneySettingsState> {
   MoneySettingsCubit(SettingsStore _settingsStore)
       : super(
-          MoneySettingsState(
-            bitcoinAmountDisplayMode: _settingsStore.displayAmountsInSatoshi,
-            displayMode: _settingsStore.balanceDisplayMode,
-          ),
-        ) {
+    MoneySettingsState(
+      bitcoinAmountDisplayMode: _settingsStore.displayAmountsInSatoshi,
+      displayMode: _settingsStore.balanceDisplayMode,
+    ),
+  ) {
     _bitcoinAmountDisplayModeDisposer = reaction(
-      (_) => _settingsStore.displayAmountsInSatoshi,
-      (displayMode) => emit(state.copyWith(bitcoinAmountDisplayMode: displayMode)),
+          (_) => _settingsStore.displayAmountsInSatoshi,
+          (displayMode) => emit(state.copyWith(bitcoinAmountDisplayMode: displayMode)),
     );
     _displayModeDisposer = reaction(
-      (_) => _settingsStore.balanceDisplayMode,
-      (displayMode) => emit(state.copyWith(displayMode: displayMode)),
+          (_) => _settingsStore.balanceDisplayMode,
+          (displayMode) => emit(state.copyWith(displayMode: displayMode)),
     );
   }
 
@@ -50,8 +50,8 @@ class MoneySettingsState {
   bool useBaseUnit(Currency currency) =>
       ([CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency) &&
           bitcoinAmountDisplayMode == BitcoinAmountDisplayMode.satoshi) ||
-      (CryptoCurrency.btcln == currency &&
-          bitcoinAmountDisplayMode == BitcoinAmountDisplayMode.satoshiForLightning);
+          (CryptoCurrency.btcln == currency &&
+              bitcoinAmountDisplayMode == BitcoinAmountDisplayMode.satoshiForLightning);
 
   bool get isHidden => displayMode == BalanceDisplayMode.hiddenBalance;
 

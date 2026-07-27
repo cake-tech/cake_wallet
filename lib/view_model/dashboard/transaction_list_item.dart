@@ -62,6 +62,9 @@ class TransactionListItem extends ActionListItem with Keyable {
       return "Transaction has missing data";
     }
 
+    if (transaction.additionalInfo['isIronwoodMigration'] == true) {
+      return 'Migration';
+    }
     if (transaction.additionalInfo["isAutoShield"] == true) {
       if (transaction.isPending) {
         final status = formattedStatus;
