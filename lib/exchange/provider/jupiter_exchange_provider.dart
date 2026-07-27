@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
@@ -56,7 +58,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
 
     // Check if currency tag is SOL (indicating it's a Solana token)
     if (currency.tag != 'SOL') {
-      throw Exception('Unsupported currency: ${currency.title} (not a Solana token)');
+      throw BadCurrencyException('Unsupported currency: ${currency.title} (not a Solana token)', currency);
     }
 
     // Use solana proxy to get token address
@@ -67,11 +69,11 @@ class JupiterExchangeProvider extends ExchangeProvider {
         return solana!.getTokenAddress(currency);
       } catch (e) {
         printV('Error getting token address: $e');
-        throw Exception('Unsupported currency: ${currency.title} (mint address not found: $e)');
+        throw BadCurrencyException('Unsupported currency: ${currency.title} (mint address not found: $e)', currency);
       }
     }
 
-    throw Exception('Unsupported currency: ${currency.title} (Solana proxy not available)');
+    throw BadCurrencyException('Unsupported currency: ${currency.title} (Solana proxy not available)', currency);
   }
 
   @override
@@ -90,7 +92,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
     if (_isSolanaCurrency(from) && _isSolanaCurrency(to)) {
       return Limits(min: null, max: null);
     } else {
-      throw Exception('not supported');
+      throw BadCurrencyPairException('not supported', from, to);
     }
   }
 
@@ -326,11 +328,11 @@ class JupiterExchangeProvider extends ExchangeProvider {
       final totalFeeInSol = networkFeeInSol + integratorFeeInSol;
 
       if (transaction == null || transaction.isEmpty) {
-        throw Exception('No transaction returned from Jupiter order endpoint');
+        throw TradeNotCreatedException( description, description: 'No transaction returned from Jupiter order endpoint', );
       }
 
       if (requestId == null || requestId.isEmpty) {
-        throw Exception('No requestId returned from Jupiter order endpoint');
+        throw TradeNotCreatedException( description,description: 'No requestId returned from Jupiter order endpoint');
       }
 
       final receiveAmount = AmountConverter.fromBaseUnits(outAmount, request.toCurrency.decimals);
@@ -391,7 +393,8 @@ class JupiterExchangeProvider extends ExchangeProvider {
         },
       );
       printV('createTrade error: $e');
-      throw TradeNotCreatedException(description);
+      if(e is! ExchangeProviderResponseException) throw TradeNotCreatedException(description, description: e.toString());
+      rethrow;
     }
   }
 
@@ -421,14 +424,14 @@ class JupiterExchangeProvider extends ExchangeProvider {
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'executeSwap',
-          error: Exception('Failed to execute swap: ${response.statusCode} $errorBody'),
+          error: TradeExecutionException('Failed to execute swap: ${response.statusCode} $errorBody'),
           stackTrace: StackTrace.current,
           requestData: {
             'requestId': requestId,
             'hasSignedTransaction': signedTransaction.isNotEmpty,
           },
         );
-        throw Exception('Failed to execute swap: ${response.statusCode} $errorBody');
+        throw TradeExecutionException('Failed to execute swap: ${response.statusCode} $errorBody');
       }
 
       final executeData = json.decode(response.body) as Map<String, dynamic>;
@@ -455,6 +458,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
           'hasSignedTransaction': signedTransaction.isNotEmpty,
         },
       );
+      if(e is! ExchangeProviderResponseException) throw TradeExecutionException(e.toString());
       rethrow;
     }
   }
@@ -477,7 +481,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
     // - Poll /ultra/v1/execute with both signedTransaction and requestId
     //
     // For now, throw exception to indicate status must be checked on-chain
-    throw Exception(
+    throw ExchangeProviderResponseException(
         'Jupiter trade status must be checked on-chain using transaction signature (txId). '
         'After transaction is sent, txId will contain the signature for status checking.');
   }

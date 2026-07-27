@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 
@@ -25,7 +26,7 @@ class EVMChainTransactionPriority extends TransactionPriority {
         return fast;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for EVMChainTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for EVMChainTransactionPriority deserialize');
         }
         return medium;
     }

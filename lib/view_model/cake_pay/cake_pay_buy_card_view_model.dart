@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import "package:cake_wallet/cake_pay/src/services/cake_pay_exceptions.dart";
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
@@ -199,7 +200,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
           method: selectedPaymentMethod,
           order: order); // TODO should hande other currencies if added
       if (paymentData == null || order == null)
-        throw Exception('Payment data or order is not available.');
+        throw CakePayNoDataException('Payment data or order is not available.');
 
       await confirmSending(paymentData);
       expirationTime = order!.paymentData.expirationTime;
@@ -244,7 +245,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
   @action
   Future<void> simulatePayment() async {
     if (order == null) {
-      throw Exception('Order is not created yet.');
+      throw CakePayNoDataException('Order is not created yet.');
     }
 
     try {

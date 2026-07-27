@@ -32,6 +32,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -1094,15 +1095,15 @@ abstract class SettingsStoreBase with Store {
         }
       }
 
-      throw Exception('No node found for EVM wallet type with chainId: $chainId');
+      throw NodeLookupException('No node found for EVM wallet type with chainId: $chainId');
     }
 
     final node = nodes[walletType];
     if (node == null) {
-      throw Exception('No node found for wallet type: ${walletType.toString()}');
+      throw NodeLookupException('No node found for wallet type: ${walletType.toString()}');
     }
     if (node.type != walletType) {
-      throw Exception("Node is not valid for $walletType (found: ${node.type}");
+      throw NodeLookupException("Node is not valid for $walletType (found: ${node.type}");
     }
 
     return node;
@@ -1130,7 +1131,7 @@ abstract class SettingsStoreBase with Store {
     final node = powNodes[walletType];
 
     if (node == null) {
-      throw Exception('No pow node found for wallet type: ${walletType.toString()}');
+      throw NodeLookupException('No pow node found for wallet type: ${walletType.toString()}');
     }
 
     return node;

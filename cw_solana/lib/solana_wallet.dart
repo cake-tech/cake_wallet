@@ -5,6 +5,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -232,7 +233,7 @@ abstract class SolanaWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("Solana Node connection failed");
+        throw ConnectionException("Solana Node connection failed");
       }
 
       _setTransactionUpdateTimer();
@@ -265,8 +266,8 @@ abstract class SolanaWalletBase
         (currency) =>
             currency.title == credentials.currency.title &&
             currency.tag == credentials.currency.tag,
-        orElse: () => throw Exception(
-            'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+        orElse: () => throw BadCurrencyException(
+            'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.', credentials.currency));
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.available;
 

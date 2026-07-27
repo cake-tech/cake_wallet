@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
@@ -91,7 +92,7 @@ void createWallet(
 
   int status = newW.status();
   if (status != 0) {
-    throw WalletCreationException(message: newW.errorString());
+    throw WalletCreationException(newW.errorString());
   }
   newW.store(path: path);
   setupBackgroundSync(password, newW);
@@ -389,7 +390,7 @@ Future<void> loadWallet({required String path, required String password, int net
 
     if (deviceType == 1) {
       if (gLedger == null) {
-        throw Exception("Tried to open a ledger wallet with no ledger connected");
+       throw HardwareWalletNotConnectedException("Tried to open a ledger wallet with no ledger connected");
       }
       enableLedgerExchange(gLedger!);
     }

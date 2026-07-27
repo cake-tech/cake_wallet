@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/core/utilities.dart';
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/amount_converter.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -107,8 +109,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final destinationToken = currencyToNearAssetId(to, tokens);
 
     if (originToken == null || destinationToken == null) {
-      throw Exception(
-          'fetchLimits: unsupported currency pair: ${from.title} ${from.tag ?? ''} to ${to.title} ${to.tag ?? ''}');
+      throw BadCurrencyPairException(
+          'fetchLimits: unsupported currency pair: ${from.title} ${from.tag ?? ''} to ${to.title} ${to.tag ?? ''}', from, to);
     }
 
     return Limits(min: null, max: null);
@@ -128,7 +130,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
     try {
       if (originToken == null || destinationToken == null) {
-        throw Exception('fetchRate: Unsupported currency pair');
+        throw BadCurrencyPairException('fetchRate: Unsupported currency pair', from, to);
       }
 
       final formattedAmount = AmountConverter.toBaseUnits(
@@ -151,7 +153,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       );
 
       if (quote == null) {
-        throw Exception('fetchRate: Quote returned null');
+        throw ExchangeProviderResponseException('fetchRate: Quote returned null');
       }
 
       final q = quote['quote'] as Map<String, dynamic>;
@@ -214,7 +216,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final destinationToken = currencyToNearAssetId(request.toCurrency, tokens);
 
       if (originToken == null || destinationToken == null) {
-        throw Exception('Unsupported currency pair');
+        throw BadCurrencyPairException('Unsupported currency pair', request.fromCurrency, request.toCurrency);
       }
 
       final rawAmountStr = isFixedRateMode ? request.toAmount : request.fromAmount;
@@ -239,7 +241,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       );
 
       if (quote == null) {
-        throw Exception('Quote request failed');
+        throw ExchangeProviderResponseException('Quote request failed');
       }
 
       final quoteObj = quote['quote'] as Map<String, dynamic>;
@@ -248,7 +250,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final depositAmount = quoteObj['amountInFormatted'] as String?;
 
       if (depositAmount == null) {
-        throw Exception('Deposit amount is null in quote response');
+        throw ExchangeProviderResponseException('Deposit amount is null in quote response');
       }
 
       final quoteRequest = quote['quoteRequest'] as Map<String, dynamic>;
@@ -257,12 +259,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
       final fromCurrency = _nearAssetIdToCurrency(fromAssetId, tokens);
       if (fromCurrency == null) {
-        throw Exception('Failed to parse from currency from assetId: $fromAssetId');
+        throw CurrencyParseException('Failed to parse from currency from assetId: $fromAssetId');
       }
 
       final toCurrency = _nearAssetIdToCurrency(toAssetId, tokens);
       if (toCurrency == null) {
-        throw Exception('Failed to parse to currency from assetId: $toAssetId');
+        throw CurrencyParseException('Failed to parse to currency from assetId: $toAssetId');
       }
 
       final from =
@@ -340,8 +342,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
     if (response.statusCode != 200) {
-      throw Exception(
-        'Near Intents fetch trade failed: ${response.statusCode} ${response.body}',
+      throw ExchangeProviderResponseCodeException(
+        'Near Intents fetch trade failed: ${response.statusCode} ${response.body}', response.statusCode
       );
     }
 
@@ -600,7 +602,7 @@ class Token {
   factory Token.fromJson(Map<String, dynamic> json) {
     final decimals = json['decimals'] as int?;
     if (decimals == null) {
-      throw Exception('Token decimals is null for assetId: ${json['assetId']}');
+      throw ExchangeProviderResponseException('Token decimals is null for assetId: ${json['assetId']}');
     }
     return Token(
       assetId: json['assetId'] as String,

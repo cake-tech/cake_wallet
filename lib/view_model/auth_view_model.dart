@@ -105,15 +105,11 @@ abstract class AuthViewModelBase with Store {
 
   @action
   Future<void> biometricAuth() async {
-    try {
       if (await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated()) {
         state = ExecutedSuccessfullyState();
       } else {
-        throw Exception('Biometric authentication failed');
+        state = FailureState("Biometric authentication failed");
       }
-    } catch (e) {
-      state = FailureState(e.toString());
-    }
   }
 
   void _saveLastAuthTime(ExecutionState state) {

@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 
@@ -32,7 +33,7 @@ class MoneroTransactionPriority extends TransactionPriority {
         return fastest;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for MoneroTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for MoneroTransactionPriority deserialize');
         }
         return medium;
     }

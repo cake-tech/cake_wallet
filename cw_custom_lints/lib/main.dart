@@ -4,6 +4,7 @@ import "package:cw_custom_lints/http_force_proxy/http_force_proxy_rule.dart";
 import "package:cw_custom_lints/print_verbose/print_verbose_fix.dart";
 import "package:cw_custom_lints/print_verbose/print_verbose_rule.dart";
 import "package:cw_custom_lints/restricted_imports/restricted_imports_rule.dart";
+import "package:cw_custom_lints/use_cake_exception/use_cake_exception_rule.dart";
 
 final plugin = CwCustomLintsPlugin();
 
@@ -16,6 +17,7 @@ class CwCustomLintsPlugin extends Plugin {
     registry.registerWarningRule(PrintVerboseRule());
     registry.registerWarningRule(RestrictedImportsRule());
     registry.registerWarningRule(HttpForceProxyRule());
+    registry.registerWarningRule(UseCakeExceptionRule());
 
     registry.registerFixForRule(PrintVerboseRule.code, ReplaceWithPrintV.new);
   }

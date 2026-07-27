@@ -11,12 +11,17 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:mobx/mobx.dart';
 
 part 'deuro_view_model.g.dart';
+
+class DeuroException extends CakeException {
+  const DeuroException(super.message);
+}
 
 class DEuroViewModel = DEuroViewModelBase with _$DEuroViewModel;
 
@@ -160,7 +165,7 @@ abstract class DEuroViewModelBase with Store {
       state = TransactionCommitting();
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final approval = await evm!.enableDEuroSaving(_appStore.wallet!, priority);
-      if (approval == null) throw Exception("DEuro saving not available");
+      if (approval == null) throw DeuroException("DEuro saving not available");
 
       approvalTransaction = approval;
       state = InitialExecutionState();
@@ -175,13 +180,13 @@ abstract class DEuroViewModelBase with Store {
       state = TransactionCommitting();
 
       if (amountRaw.isEmpty || amountRaw.trim().isEmpty) {
-        throw Exception("Invalid amount: amount cannot be empty");
+        throw ArgumentError("Invalid amount: amount cannot be empty");
       }
 
       final amount = tryParseFixed(amountRaw, 18);
 
       if (amount == BigInt.zero || amount == null) {
-        throw Exception("Invalid amount: amount cannot be zero");
+        throw ArgumentError("Invalid amount: amount cannot be zero");
       }
 
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
@@ -189,7 +194,7 @@ abstract class DEuroViewModelBase with Store {
       final tx = await (isAdding
           ? evm!.addDEuroSaving(_appStore.wallet!, amount, priority)
           : evm!.removeDEuroSaving(_appStore.wallet!, amount, priority));
-      if (tx == null) throw Exception("DEuro saving not available");
+      if (tx == null) throw DeuroException("DEuro saving not available");
 
       transaction = tx;
       state = InitialExecutionState();
@@ -205,7 +210,7 @@ abstract class DEuroViewModelBase with Store {
       actionType = DEuroActionType.withdraw;
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final tx = await evm!.withdrawDEuroSavingV1(_appStore.wallet!, priority);
-      if (tx == null) throw Exception("DEuro saving not available");
+      if (tx == null) throw DeuroException("DEuro saving not available");
 
       transaction = tx;
       state = InitialExecutionState();
@@ -235,7 +240,7 @@ abstract class DEuroViewModelBase with Store {
       actionType = DEuroActionType.reinvest;
       final priority = _appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId)!;
       final tx = await evm!.reinvestDEuroInterest(_appStore.wallet!, priority);
-      if (tx == null) throw Exception("DEuro saving not available");
+      if (tx == null) throw DeuroException("DEuro saving not available");
 
       transaction = tx;
       state = InitialExecutionState();

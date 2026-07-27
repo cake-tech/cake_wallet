@@ -46,6 +46,7 @@ import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/amount/money_double.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -540,7 +541,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null) {
-      throw Exception('Unexpected type ${wallet.type.toString()}');
+      throw BadWalletTypeException('Unexpected type ${wallet.type.toString()}', wallet.type);
     }
 
     return priority;

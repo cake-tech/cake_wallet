@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -33,7 +34,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
 
     await copyWalletFilesTo(fromName: currentName, toName: newName, type: getType());

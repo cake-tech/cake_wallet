@@ -10,6 +10,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:cw_monero/api/get_all_unspent.dart';
+import "package:cw_monero/exceptions/monero_exceptions.dart";
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 import 'package:polyseed/polyseed.dart';
@@ -288,7 +289,7 @@ void setPasswordSync(String password) {
 
   final status = currentWallet!.status();
   if (status != 0) {
-    throw Exception(currentWallet!.errorString());
+    throw MoneroWalletException(currentWallet!.errorString());
   }
 }
 

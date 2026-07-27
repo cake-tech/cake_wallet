@@ -1,72 +1,107 @@
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 
-class TransactionWrongBalanceException implements Exception {
-  TransactionWrongBalanceException(this.currency, {this.amount});
+class TransactionWrongBalanceException extends TransactionGenerationException {
+  TransactionWrongBalanceException(this.currency, {this.amount}) : super( "wrong balance: ${currency.symbol} $amount");
+
 
   final CryptoCurrency currency;
   final int? amount;
 }
 
-class TransactionNoInputsException implements Exception {}
+class TransactionNoInputsException extends TransactionGenerationException {
 
-class TransactionNoFeeException implements Exception {}
+  TransactionNoInputsException() : super("Not enough inputs available. Please select more under Coin Control");
 
-class TransactionNoDustException implements Exception {}
+}
+class TransactionNoFeeException extends TransactionGenerationException {
+  TransactionNoFeeException() : super("cannot send with zero fee");
+}
 
-class TransactionNoDustOnChangeException implements Exception {
-  TransactionNoDustOnChangeException(this.max, this.min);
+class TransactionNoDustException extends TransactionGenerationException {
+  TransactionNoDustException()
+      : super("The transaction is rejected by sending an amount too small. Please try increasing the amount.");
+}
 
+class TransactionNoDustOnChangeException extends TransactionGenerationException {
   final String max;
   final String min;
+
+  TransactionNoDustOnChangeException(this.max, this.min)
+      : super("The transaction is rejected with this amount. With these coins you can send ${min} without change or ${max} that returns change.");
 }
 
-class TransactionCommitFailed implements Exception {
+class TransactionCommitFailed extends TransactionSendingException {
   final String? errorMessage;
 
-  TransactionCommitFailed({this.errorMessage});
-
-  @override
-  String toString() => errorMessage ?? "unknown error";
+  TransactionCommitFailed({this.errorMessage}) : super(errorMessage ?? "unknown error");
 }
 
-class TransactionCommitFailedDustChange implements Exception {}
+class TransactionCommitFailedDustChange extends TransactionSendingException {
+  TransactionCommitFailedDustChange()
+      : super("Transaction rejected by network rules, low change amount (dust). Try sending ALL or reducing the amount.");
+}
 
-class TransactionCommitFailedDustOutput implements Exception {}
+class TransactionCommitFailedDustOutput extends TransactionSendingException {
+  TransactionCommitFailedDustOutput()
+      : super("Transaction rejected by network rules, low output amount (dust). Please increase the amount.");
+}
 
-class TransactionCommitFailedDustOutputSendAll implements Exception {}
+class TransactionCommitFailedDustOutputSendAll extends TransactionSendingException {
+  TransactionCommitFailedDustOutputSendAll()
+      : super("Transaction rejected by network rules, low output amount (dust). Please check the balance of coins selected under Coin Control.");
+}
 
-class TransactionCommitFailedVoutNegative implements Exception {}
+class TransactionCommitFailedVoutNegative extends TransactionSendingException {
+  TransactionCommitFailedVoutNegative()
+      : super("Not enough balance to pay for this transaction's fees. Please check the balance of coins under Coin Control.");
+}
 
-class TransactionCommitFailedBIP68Final implements Exception {}
+class TransactionCommitFailedBIP68Final extends TransactionSendingException {
+  TransactionCommitFailedBIP68Final()
+      : super("Transaction has unconfirmed inputs and failed to replace by fee.");
+}
 
-class TransactionCommitFailedLessThanMin implements Exception {}
+class TransactionCommitFailedLessThanMin extends TransactionSendingException {
+  TransactionCommitFailedLessThanMin()
+      : super("Selected Fee is less than the minimum, please increase the fees to be able to send the transaction");
+}
 
-class TransactionInputNotSupported implements Exception {}
+class TransactionInputNotSupported extends TransactionSendingException {
+  TransactionInputNotSupported()
+      : super("You are using the wrong input type for this type of payment");
+}
 
-class SignNativeTokenTransactionRentException implements Exception {}
+class SignNativeTokenTransactionRentException extends TransactionGenerationException {
+  SignNativeTokenTransactionRentException()
+      : super("Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance or reduce the amount of SOL you are sending.");
+}
 
-class CreateAssociatedTokenAccountException implements Exception {
+class CreateAssociatedTokenAccountException extends CakeException {
   final String errorMessage;
 
-  CreateAssociatedTokenAccountException(this.errorMessage);
+  CreateAssociatedTokenAccountException(this.errorMessage)
+      : super("Error creating associated token account for receipient address. " + errorMessage);
 }
 
-class SignSPLTokenTransactionRentException implements Exception {}
-
-class NoAssociatedTokenAccountException implements Exception {}
-
-class RestoreFromSeedException implements Exception {
-  final String message;
-
-  RestoreFromSeedException(this.message);
+class SignSPLTokenTransactionRentException extends CakeException {
+  SignSPLTokenTransactionRentException()
+      : super("Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance.");
 }
 
-class WalletDeprecationException implements Exception {
+class NoAssociatedTokenAccountException extends CakeException {
+  NoAssociatedTokenAccountException()
+      : super("There is no associated token account for this address.");
+}
+
+class RestoreFromSeedException extends CakeException {
+  RestoreFromSeedException(String message) : super(message);
+}
+
+class WalletDeprecationException extends CakeException {
   final String seed;
   final CryptoCurrency curr;
 
-  @override
-  String toString() => "Wallet type no longer supported";
-
-  WalletDeprecationException({required this.seed, required this.curr});
+  WalletDeprecationException({required this.seed, required this.curr})
+      : super("Wallet type no longer supported");
 }

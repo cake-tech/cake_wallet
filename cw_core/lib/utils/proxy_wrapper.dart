@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_logger/abstract.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
@@ -213,7 +214,7 @@ class ProxyWrapper {
       }
     }
 
-    throw Exception("Unable to connect to server");
+    throw ConnectionException("Unable to connect to server");
   }
 
   Future<Response> post({
@@ -293,7 +294,7 @@ class ProxyWrapper {
       }
     }
 
-    throw Exception("Unable to connect to server");
+    throw ConnectionException("Unable to connect to server");
   }
 
   Future<Response> put({
@@ -360,7 +361,7 @@ class ProxyWrapper {
       }
     }
 
-    throw Exception("Unable to connect to server");
+    throw ConnectionException("Unable to connect to server");
   }
 
   Future<Response> delete({
@@ -432,7 +433,7 @@ class ProxyWrapper {
       }
     }
 
-    throw Exception("Unable to connect to server");
+    throw ConnectionException("Unable to connect to server");
   }
 }
 

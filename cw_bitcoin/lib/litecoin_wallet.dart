@@ -5,8 +5,10 @@ import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -648,7 +650,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await _utxoStream?.cancel();
     ResponseStream<Utxo>? responseStream = await CwMweb.utxos(req);
     if (responseStream == null) {
-      throw Exception("failed to get utxos stream!");
+      throw ElectrumResponseException("failed to get utxos stream!");
     }
     _utxoStream = responseStream.listen(
       (Utxo sUtxo) async {
@@ -1026,7 +1028,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool isMweb = spendsMweb || paysToMweb;
 
     if (isMweb && !mwebEnabled) {
-      throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+      throw ArgumentError("MWEB is not enabled! can't calculate fee without starting the mweb server!");
       // TODO: likely the change address is mweb and just not updated
     }
 
@@ -1220,7 +1222,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
           int confirmations = coin.confirmations ?? 0;
           if (confirmations < 6) {
-            throw Exception(
+            throw TransactionGenerationException(
                 "A transaction input is an MWEB peg-out and has less than 6 confirmations, please try again later.");
           }
         }
@@ -1283,7 +1285,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(s);
       if (e.toString().contains("commit failed")) {
         printV(e);
-        throw Exception("Transaction commit failed (no peers responded), please try again.");
+        throw TransactionSendingException("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
     }
@@ -1319,7 +1321,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    if (urCodes.isEmpty) throw ScanValueException("No QR code got scanned");
     bool isUr = urCodes.any((str) {
       return str.startsWith("ur:psbt/");
     });
@@ -1384,7 +1386,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(s);
       if (e.toString().contains("commit failed")) {
         printV(e);
-        throw Exception("Transaction commit failed (no peers responded), please try again.");
+        throw TransactionSendingException("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
     }

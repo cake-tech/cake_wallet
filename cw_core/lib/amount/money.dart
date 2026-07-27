@@ -139,7 +139,7 @@ class Money implements Comparable<Money> {
   ///
   /// The result is again [Money].
   Money operator /(BigInt other) {
-    if (other == BigInt.zero) throw Exception('Division by zero.');
+    if (other == BigInt.zero) throw ArgumentError('Division by zero.');
 
     final neg = (amount.isNegative) ^ (other.isNegative);
     final A = amount.abs();

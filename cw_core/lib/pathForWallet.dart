@@ -1,4 +1,5 @@
 import 'dart:io';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:path/path.dart' as p;
@@ -47,11 +48,11 @@ Future<void> copyWalletFilesTo({
   final typeRoot = await pathForWalletTypeDir(type: type);
   final sourceDir = Directory(p.join(typeRoot, fromName));
   if (!sourceDir.existsSync()) {
-    throw "Source wallet not found: $fromName $type";
+    throw WalletNotFoundException();
   }
 
   if (Directory(p.join(typeRoot, toName)).existsSync()) {
-    throw Exception('Cannot rename wallet: "$toName" already exists');
+    throw WalletOpenException('Cannot rename wallet: "$toName" already exists');
   }
 
   final destinationDir = Directory(p.join(typeRoot, toName));

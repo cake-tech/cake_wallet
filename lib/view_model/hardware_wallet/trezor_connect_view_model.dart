@@ -9,6 +9,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_sheet.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -231,7 +232,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type} for trezor');
+        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for trezor', wallet.type);
     }
   }
 }
