@@ -107,7 +107,7 @@ class TransactionListItem extends ActionListItem with Keyable {
           : S.current.sending;
       final payjoin = isPayjoin ? " Payjoin" : "";
       if (isPayjoin) {
-        return "$baseString$payjoin${status.isNotEmpty ? ' $status' : ''}";
+        return status.isNotEmpty ? "$baseString$payjoin $status" : "$baseString$payjoin...";
       }
       return status.isNotEmpty ? "$baseString $status" : "$baseString...";
     }

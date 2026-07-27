@@ -57,6 +57,25 @@ class PayjoinSenderWorker {
     return _runFresh(psbtBase64, pjUriString, minFeeRateSatPerKwu, persister);
   }
 
+  /// Resumes a sender session from its persisted event log. Used when the
+  /// worker is re-spawned after a wallet switch / app restart and the
+  /// original PSBT / BIP21 URI are no longer at hand (the replayed FFI
+  /// state contains everything needed to continue polling). Requires a
+  /// persister to have been supplied at construction time.
+  Future<String> resume() async {
+    if (_cancelled) throw PayjoinSenderCancelledException();
+    final persister = _persister;
+    if (persister == null) {
+      throw StateError('Cannot resume sender without a persister');
+    }
+    final events = persister.load();
+    if (events.isEmpty) {
+      throw StateError('Cannot resume sender: event log is empty');
+    }
+    printV('[pjSender] resuming from ${events.length} event(s)');
+    return _runFromReplay(persister);
+  }
+
   Future<String> _runFromReplay(
     pj.JsonSenderSessionPersister persister,
   ) async {
@@ -173,6 +192,10 @@ class PayjoinSenderWorker {
     var consecutiveFailures = 0;
     while (true) {
       final relay = _mailroomManager.chooseRelay();
+      // FFI/protocol errors raised while building the request are NOT relay
+      // problems — propagate them so the caller sees the real cause instead
+      // of cycling through every relay and throwing a misleading
+      // "No valid relays available" downstream.
       final reqCtx = buildRequest(relay);
       try {
         final response = await client.post(
@@ -181,15 +204,28 @@ class PayjoinSenderWorker {
           body: reqCtx.request.body,
         );
         if (response.statusCode >= 200 && response.statusCode < 300) {
+          // Successful round-trip: any previously-marked transient relay
+          // failures are obsolete, so reset the pool to give every relay a
+          // fresh chance on subsequent iterations.
+          _mailroomManager.clearFailedRelays();
           return PayjoinRelayResponse(
             bodyBytes: response.bodyBytes,
             ohttpCtx: reqCtx.ohttpCtx,
             requestUrl: reqCtx.request.url,
           );
         }
-        throw HttpException('HTTP ${response.statusCode}');
-      } catch (e) {
-        printV('[pjSender] relay $relay failed: $e');
+        // Non-2xx from the relay itself (OHTTP wraps the directory response,
+        // so the relay's status is its own). Mark this relay failed and try
+        // the next one.
+        printV('[pjSender] relay $relay returned HTTP ${response.statusCode}');
+        _mailroomManager.addFailedRelay(relay);
+      } on SocketException catch (e) {
+        printV('[pjSender] relay $relay socket error: $e');
+        _mailroomManager.addFailedRelay(relay);
+      } on http.ClientException catch (e) {
+        // Transport-layer failure (DNS, connection reset, TLS handshake,
+        // etc.). Transient — try the next relay.
+        printV('[pjSender] relay $relay transport error: $e');
         _mailroomManager.addFailedRelay(relay);
       }
       await Future.delayed(_nextBackoff(consecutiveFailures++));
