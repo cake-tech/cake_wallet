@@ -9,7 +9,7 @@ class PayjoinHistoryTile extends StatelessWidget {
     super.key,
     required this.createdAt,
     required this.amount,
-    required this.state,
+    this.amountFiat,
     required this.direction,
     required this.pending,
     required this.roundedTop,
@@ -19,7 +19,7 @@ class PayjoinHistoryTile extends StatelessWidget {
 
   final String createdAt;
   final String amount;
-  final String state;
+  final String? amountFiat;
   final TransactionDirection direction;
   final bool pending;
   final bool roundedTop;
@@ -38,15 +38,16 @@ class PayjoinHistoryTile extends StatelessWidget {
   }
 
   Widget _buildLeadingIcon(BuildContext context) {
-    final badgeColor = direction == TransactionDirection.outgoing
+    final iconColor = direction == TransactionDirection.outgoing
         ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
         : Colors.green;
     return Stack(
       children: [
         CakeImageWidget(
-          imageUrl: 'assets/new-ui/payjoin.svg',
+          imageUrl: _getDirectionIcon(),
           width: 34,
           height: 34,
+          colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
         ),
         Positioned(
           top: 20,
@@ -58,10 +59,9 @@ class PayjoinHistoryTile extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onInverseSurface,
                 shape: BoxShape.circle),
             child: CakeImageWidget(
-              imageUrl: _getDirectionIcon(),
+              imageUrl: 'assets/new-ui/payjoin.svg',
               height: 14,
               width: 14,
-              colorFilter: ColorFilter.mode(badgeColor, BlendMode.srcIn),
             ),
           ),
         ),
@@ -72,16 +72,15 @@ class PayjoinHistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isOutgoing = direction == TransactionDirection.outgoing;
+    final title = pending
+        ? (isOutgoing ? S.of(context).sending : S.of(context).receiving)
+        : (isOutgoing ? S.of(context).sent : S.of(context).received);
     return HistoryTileBase(
-      title:
-          "${isOutgoing ? S.of(context).outgoing : S.of(context).incoming} Payjoin",
+      title: pending ? "$title Payjoin..." : "$title Payjoin",
       date: createdAt,
       amount: amount,
       leadingIcon: _buildLeadingIcon(context),
-      primaryTextColor: isOutgoing
-          ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
-          : Theme.of(context).colorScheme.onSurface,
-      amountFiat: state,
+      amountFiat: amountFiat ?? '',
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,
       bottomSeparator: bottomSeparator,
