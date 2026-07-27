@@ -157,12 +157,10 @@ class IncompatibleBackupAppException implements InvalidBackupException {
   final String currentAppName;
 
   @override
-  String get message => toString();
+  String get message => "This backup was created in $sourceAppName and cannot be restored in $currentAppName.";
 
   @override
-  String toString() {
-    return 'This backup was created in $sourceAppName and cannot be restored in $currentAppName.';
-  }
+  String toString() => message;
 }
 
 class BackupServiceV3 extends $BackupService {
