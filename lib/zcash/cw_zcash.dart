@@ -208,6 +208,11 @@ class CWZcash extends Zcash {
 
   @override
   Future<void> rescanInternalChange(WalletBase wallet) async {}
+
+  @override
+  bool ironwoodActive(WalletAddresses walletAddresses) {
+    return (walletAddresses as ZcashWalletAddresses).ironwoodActive;
+  }
 }
 
 const wordList = [
