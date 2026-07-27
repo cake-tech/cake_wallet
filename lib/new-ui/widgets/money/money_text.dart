@@ -1,3 +1,4 @@
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
 import "package:cw_core/amount/money.dart";
 import "package:flutter/widgets.dart";
@@ -243,7 +244,9 @@ class MoneyText extends StatelessWidget {
           overflow: overflow,
           textScaler: textScaler,
           maxLines: maxLines,
-          semanticsLabel: semanticsLabel,
+          semanticsLabel: isHiddenAmount ?? state.isHidden
+              ? (semanticsLabel ?? S.of(context).amount_hidden)
+              : semanticsLabel,
           semanticsIdentifier: semanticsIdentifier,
           textWidthBasis: textWidthBasis,
           textHeightBehavior: textHeightBehavior,
