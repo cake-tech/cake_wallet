@@ -2692,9 +2692,12 @@ abstract class ElectrumWalletBase
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
         .toList();
-    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden == true).toList();
-    final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false).toList();
-    walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
+    final receiveStandard = getAddressBranchByType(hidden: false, legacy: false, type: type);
+    final changeStandard = getAddressBranchByType(hidden: true, legacy: false, type: type);
+    final receiveLegacy = getAddressBranchByType(hidden: false, legacy: true, type: type);
+    final changeLegacy = getAddressBranchByType(hidden: true, legacy: true, type: type);
+    walletAddresses.hiddenAddresses
+        .addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
     var shouldRescan = false;
@@ -2705,7 +2708,9 @@ abstract class ElectrumWalletBase
       if (result.hasHistory) {
         historiesWithDetails.addAll(result.transactions);
 
-        final matchedAddresses = addressRecord.isHidden ? hiddenAddresses : receiveAddresses;
+        final matchedAddresses = addressRecord.isHidden
+            ? (addressRecord.isLegacyDerivation ? changeLegacy : changeStandard)
+            : (addressRecord.isLegacyDerivation ? receiveLegacy : receiveStandard);
         final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
             matchedAddresses.length -
                 (addressRecord.isHidden
@@ -3205,6 +3210,14 @@ abstract class ElectrumWalletBase
       }
     }
   }
+
+  List<BitcoinAddressRecord> getAddressBranchByType(
+      {required bool hidden, required bool legacy, required BitcoinAddressType type}) =>
+      walletAddresses.allAddresses
+          .where((addr) =>
+      addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy)
+          .toList()
+        ..sort((a, b) => a.index.compareTo(b.index));
 
   int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
     for (int i = addresses.length - 1; i >= 0; i--) {
