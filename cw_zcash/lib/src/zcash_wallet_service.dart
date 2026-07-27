@@ -91,7 +91,11 @@ class ZcashWalletService
 
   @override
   Future<ZcashWallet> openWallet(final String name, final String password) async {
-    await ZcashWalletBase.$init();
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
     if (await isWalletExit(name)) {
       final path = (await pathForWallet(name: name, type: getType())) + ".v2";
       if (!File(path).existsSync()) {
@@ -100,10 +104,6 @@ class ZcashWalletService
     }
 
     await loadShieldTxs();
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
     try {
       final wallet = await ZcashWalletBase.open(
         name: name,

@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -10,8 +11,11 @@ const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
 
 class AddressValidator extends TextValidator {
-  AddressValidator({required CryptoCurrency type, bool isTestnet = false})
-      : super(
+  AddressValidator({
+    required CryptoCurrency type,
+    bool isTestnet = false,
+    String? network,
+  }) : super(
           errorMessage: S.current.error_text_address,
           useAdditionalValidation: [CryptoCurrency.btc, CryptoCurrency.ltc].contains(type)
               ? (String txt) {
@@ -32,7 +36,7 @@ class AddressValidator extends TextValidator {
               : type == CryptoCurrency.zano
                   ? zano?.validateAddress
                   : null,
-          pattern: getPattern(type, isTestnet: isTestnet),
+          pattern: getPattern(type, isTestnet: isTestnet, network: network),
           length: getLength(type),
         );
 
@@ -61,7 +65,7 @@ class AddressValidator extends TextValidator {
     CryptoCurrency.btcln,
   ];
 
-  static String getPattern(CryptoCurrency type, {bool isTestnet = false}) {
+  static String? getPattern(CryptoCurrency type, {bool isTestnet = false, String? network}) {
     var pattern = "";
     if (type is Erc20Token) {
       pattern = '0x[0-9a-zA-Z]+';
@@ -170,6 +174,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.hbar:
         pattern = '[0-9a-zA-Z.]+';
       case CryptoCurrency.zec:
+        if (ZcashNetworkType.isDevNetwork(network)) {
+          return null;
+        }
         pattern = '(?:'
             't1[0-9A-Za-z]{33}'
             '|t3[0-9A-Za-z]{33}'

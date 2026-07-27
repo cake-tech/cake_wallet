@@ -439,6 +439,9 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   String get formattedTitle {
+    if (transactionInfo.additionalInfo['isIronwoodMigration'] == true) {
+      return 'Migration';
+    }
     if (transactionInfo.additionalInfo['isAutoShield'] == true) {
       return S.current.shielding;
     }

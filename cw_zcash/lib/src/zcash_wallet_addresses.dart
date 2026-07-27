@@ -39,8 +39,24 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String? unifiedAddress;
 
+  @observable
+  bool ironwoodActive = false;
+
+  @action
+  void setIronwoodActive(final bool active) {
+    ironwoodActive = active;
+  }
+
   @override
   @computed
+  List<ReceivePageOption> get receivePageOptions {
+    return [
+      ...ZcashReceivePageOption.allOptionsFor(ironwood: ironwoodActive),
+      ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet),
+    ];
+  }
+
+  @override
   String get latestAddress {
     switch (addressPageType) {
       case ZcashAddressType.transparent:
@@ -265,14 +281,6 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       return [];
     }
     return addressInfos[0] ?? [];
-  }
-
-  @override
-  List<ReceivePageOption> get receivePageOptions {
-    return [
-      ...ZcashReceivePageOption.all,
-      ...ReceivePageOptions.where((final element) => element != ReceivePageOption.mainnet),
-    ];
   }
 
   @override
