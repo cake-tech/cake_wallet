@@ -1,27 +1,31 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/utils/address_formatter.dart';
-import 'package:cake_wallet/utils/clipboard_util.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/payment_uris.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart";
+import "package:cake_wallet/src/screens/receive/widgets/qr_image.dart";
+import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/clipboard_util.dart";
+import "package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/payment_uris.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class SwapSendExternalModal extends StatefulWidget {
-  const SwapSendExternalModal(
-      {super.key,
-      required this.amount,
-      required this.from,
-      required this.to,
-      required this.address,
-      required this.exchangeTradeViewModel});
+  const SwapSendExternalModal({
+    required this.amount,
+    required this.from,
+    required this.to,
+    required this.address,
+    required this.exchangeTradeViewModel,
+    super.key,
+  });
 
-  final String amount;
+  final Money amount;
   final ExchangeTradeViewModel exchangeTradeViewModel;
   final CryptoCurrency from;
   final CryptoCurrency to;
@@ -96,19 +100,21 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                               child: Row(
                                 spacing: 8,
                                 children: [
-                                  Text(
+                                  MoneyText(
                                     widget.amount,
                                     style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 16,
-                                        color: Theme.of(context).colorScheme.primary),
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
                                   ),
-                                  Text(
-                                    widget.from.title,
+                                  CurrencySymbolText(
+                                    widget.from,
                                     style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 16,
-                                        color: Theme.of(context).colorScheme.primary),
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
                                   ),
                                 ],
                               ),

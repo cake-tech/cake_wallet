@@ -270,16 +270,18 @@ class SwapTransactionDetails extends StatelessWidget {
 
   void _showExternalSendModal(BuildContext context) {
     if (context.mounted) {
+      final from = exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency;
+
       showMaterialModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return SwapSendExternalModal(
-                amount: exchangeTradeViewModel.trade.amount,
-                exchangeTradeViewModel: exchangeTradeViewModel,
-                from: exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency,
-                to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
-                address: exchangeTradeViewModel.trade.inputAddress ?? "");
-          });
+        context: context,
+        builder: (context) => SwapSendExternalModal(
+          amount: exchangeTradeViewModel.trade.amountMoney ?? Money.zero(from),
+          exchangeTradeViewModel: exchangeTradeViewModel,
+          from: from,
+          to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
+          address: exchangeTradeViewModel.trade.inputAddress ?? "",
+        ),
+      );
     }
   }
 }
