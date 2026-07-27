@@ -1,13 +1,12 @@
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/format_fixed.dart';
-import 'package:cw_core/parse_fixed.dart';
+import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
+import "package:cw_core/format_fixed.dart";
+import "package:cw_core/parse_fixed.dart";
+
+export "money_local.dart";
 
 class Money implements Comparable<Money> {
-  final BigInt amount;
-  final Currency currency;
-
   const Money(this.amount, this.currency);
 
   factory Money.zero(Currency currency) => Money(BigInt.zero, currency);
@@ -37,6 +36,9 @@ class Money implements Comparable<Money> {
 
     return amount != null ? Money(amount, currency) : null;
   }
+
+  final BigInt amount;
+  final Currency currency;
 
   /// Returns the sign of this [BigInt] amount.
   /// Returns 0 for zero, -1 for values less than zero and +1 for values
@@ -139,7 +141,9 @@ class Money implements Comparable<Money> {
   ///
   /// The result is again [Money].
   Money operator /(BigInt other) {
-    if (other == BigInt.zero) throw Exception('Division by zero.');
+    if (other == BigInt.zero) {
+      throw Exception("Division by zero.");
+    }
 
     final neg = (amount.isNegative) ^ (other.isNegative);
     final A = amount.abs();
@@ -163,7 +167,9 @@ class Money implements Comparable<Money> {
   Money copyWith({BigInt? amount, Currency? currency}) {
     if (currency != null && amount == null && currency.decimals != this.currency.decimals) {
       return Money(
-          _transformAmount(this.amount, this.currency.decimals, currency.decimals), currency);
+        _transformAmount(this.amount, this.currency.decimals, currency.decimals),
+        currency,
+      );
     }
 
     return Money(amount ?? this.amount, currency ?? this.currency);
@@ -173,16 +179,21 @@ class Money implements Comparable<Money> {
   Money _withAmount(BigInt amount) => Money(amount, currency);
 
   void _assertSameCurrency(Money other, [String? message]) {
-    if (currency != other.currency)
+    if (currency != other.currency) {
       throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
+    }
   }
 
   BigInt _transformAmount(BigInt source, int sourceDecimals, int targetDecimals) {
-    if (sourceDecimals == targetDecimals) return source;
+    if (sourceDecimals == targetDecimals) {
+      return source;
+    }
 
     if (sourceDecimals > targetDecimals) {
       return parseFixed(
-          formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals), targetDecimals);
+        formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals),
+        targetDecimals,
+      );
     } else {
       return parseFixed(formatFixed(source, sourceDecimals), targetDecimals);
     }
@@ -198,18 +209,39 @@ class Money implements Comparable<Money> {
   @override
   String toString() => formatFixed(amount, currency.decimals);
 
-  String toStringWithSymbol(
-          {int? fractionalDigits, bool trimZeros = true, bool useBaseUnit = false}) =>
-      "${toStringWithPrecision(fractionalDigits: fractionalDigits, trimZeros: trimZeros, useBaseUnit: useBaseUnit)} ${_getSymbol(useBaseUnit)}";
+  String toStringWithSymbol({
+    int? fractionalDigits,
+    bool trimZeros = true,
+    bool useBaseUnit = false,
+    bool withSymbolPrefix = false,
+  }) {
+    final amount = toStringWithPrecision(
+      fractionalDigits: fractionalDigits,
+      trimZeros: trimZeros,
+      useBaseUnit: useBaseUnit,
+    );
+    final symbol = getSymbol(useBaseUnit: useBaseUnit);
 
-  String toStringWithPrecision(
-          {int? fractionalDigits, bool trimZeros = true, bool useBaseUnit = false}) =>
-      formatFixed(amount, useBaseUnit ? 0 : currency.decimals,
-          fractionalDigits: fractionalDigits, trimZeros: trimZeros);
+    return withSymbolPrefix ? "$symbol $amount" : "$amount $symbol";
+  }
+
+  String toStringWithPrecision({
+    int? fractionalDigits,
+    bool trimZeros = true,
+    bool useBaseUnit = false,
+  }) =>
+      formatFixed(
+        amount,
+        useBaseUnit ? 0 : currency.decimals,
+        fractionalDigits: fractionalDigits,
+        trimZeros: trimZeros,
+      );
 
   // To Override the symbol with the ticker of the base unit
-  String _getSymbol(bool useBaseUnit) {
-    if (useBaseUnit && [CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) return "sats";
+  String getSymbol({required bool useBaseUnit}) {
+    if (useBaseUnit && [CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) {
+      return "sats";
+    }
     return currency.symbol;
   }
 }
