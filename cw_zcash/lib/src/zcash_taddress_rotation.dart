@@ -34,6 +34,7 @@ class ZcashTaddressRotation {
   static bool _isStarted = false;
   static zkool_coin.Coin get c => ZcashWalletBase.c;
   static const int _sweepThreshold = 30000;
+  static const int _minSpendableNote = 5000;
   static const int _lookahead = 5;
   // Matches transparentLimit in ZcashWalletBase._oneshotSync.
   static const int _transparentSyncLimit = 100;
@@ -407,18 +408,42 @@ class ZcashTaddressRotation {
     final result = await ZcashWalletBase.runWithCoin(
       accountId: rotationAccount,
       func: (final coin) async {
+        final height = await zkool_network.getCurrentHeight(c: coin);
+        final notes = await zkool_account.listNotes(c: coin);
+        var amount = BigInt.zero;
+        for (final note in notes) {
+          if (note.pool != NotePool.transparent.index || note.locked) {
+            continue;
+          }
+          if (note.value < BigInt.from(_minSpendableNote)) {
+            continue;
+          }
+          if (note.height > height) {
+            continue;
+          }
+          amount += note.value;
+        }
+        if (amount < BigInt.from(_sweepThreshold)) {
+          throw Exception('rotation sweep: insufficient spendable transparent notes');
+        }
+        final ironwood = await zkool_network.isIronwoodActive(c: coin);
         final tx = await zkool_pay.prepare(
           recipients: [
-            zkool_paydart.Recipient(assetBase: zecBase, address: toAddress, amount: transparentBal),
+            zkool_paydart.Recipient(
+              assetBase: zecBase,
+              address: toAddress,
+              amount: amount,
+              pools: ironwood ? ironwoodPoolMask : null,
+            ),
           ],
           options: zkool_pay.PaymentOptions(
             srcPools: 1,
             recipientPaysFee: true,
             smartTransparent: false,
+            mode: 0,
           ),
           c: coin,
         );
-        final height = await zkool_network.getCurrentHeight(c: coin);
         final signTx = await zkool_pay.signTransaction(pczt: tx, c: coin);
         final txBytes = await zkool_pay.extractTransaction(package: signTx);
         return zkool_pay.broadcastTransaction(height: height, txBytes: txBytes, c: coin);

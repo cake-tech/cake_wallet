@@ -316,6 +316,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   "type": _walletNewVM.type,
                   "useTestnet": _walletNewVM.useTestnet,
                   "toggleTestnet": _walletNewVM.toggleUseTestnet,
+                  "zcashNetwork": _walletNewVM.zcashNetwork,
+                  "setZcashNetwork": _walletNewVM.setZcashNetwork,
                   "isChildWallet": widget.isChildWallet,
                 });
               },

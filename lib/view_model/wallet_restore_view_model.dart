@@ -224,6 +224,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             passphrase: passphrase,
             height: height,
+            network: zcashNetwork,
           );
         case WalletType.none:
         case WalletType.haven:
