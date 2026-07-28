@@ -42,9 +42,8 @@ class EnsRecord {
       }
 
       final resolverEns = Ens(client: _client,address: resolverAddress).withName(name);
-      printV(resolverEns.nodeHash);
 
-      if (coinType == CoinType.ETH || coinType == CoinType.MATIC) {
+      if (coinType == CoinType.ETH) {
         return (await resolverEns.getAddress()).hex;
       } else {
         return await resolverEns.getCoinAddress(coinType);
@@ -63,7 +62,7 @@ class EnsRecord {
         CryptoCurrency.btc => CoinType.BTC,
         CryptoCurrency.ltc => CoinType.LTC,
         CryptoCurrency.eth => CoinType.ETH,
-        CryptoCurrency.matic => CoinType.MATIC,
+        CryptoCurrency.maticpoly => CoinType.MATIC,
         _ => null,
       };
 }
