@@ -1,25 +1,28 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
 
 class ReceiveInfoBox extends StatelessWidget {
-  ReceiveInfoBox(
-      {super.key,
-      required this.iconPath,
-      required this.message,
-      required this.onDismissed,
-      this.bottomWidget});
+  ReceiveInfoBox({
+    required this.iconPath,
+    required this.message,
+    required this.onDismissed,
+    this.bottomWidget,
+    super.key,
+  });
 
-  static ReceiveInfoBox? forWalletType(WalletType type,
-      {required VoidCallback onDismissed,
-      required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus,
-      List<CryptoCurrency>? supportedCurrencies}) {
+  static ReceiveInfoBox? forWalletType(
+    WalletType type, {
+    required VoidCallback onDismissed,
+    required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus,
+    List<CryptoCurrency>? supportedCurrencies,
+  }) {
     switch (type) {
       case WalletType.nano:
         return null;
@@ -31,18 +34,23 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.polygon:
       case WalletType.zano:
       case WalletType.bsc:
-        if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
+        if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) {
+          return null;
+        }
         return ReceiveInfoBox(
-            iconPath: "",
-            message: S.current.infobox_multichain_named(walletTypeToString(type)),
-            onDismissed: onDismissed,
-            bottomWidget: InfoboxCurrencyRow(
-              currencies: supportedCurrencies ?? [],
-              chainIconPath:
-                  "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
-            ));
+          iconPath: "",
+          message: S.current.infobox_multichain_named(walletTypeToString(type)),
+          onDismissed: onDismissed,
+          bottomWidget: InfoboxCurrencyRow(
+            currencies: supportedCurrencies ?? [],
+            chainIconPath:
+                "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
+          ),
+        );
       default:
-        if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
+        if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) {
+          return null;
+        }
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
           message: S.current.infobox_auto_address,
@@ -57,29 +65,31 @@ class ReceiveInfoBox extends StatelessWidget {
   final VoidCallback onDismissed;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Container(
-        decoration: BoxDecoration(
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: Container(
+          decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-              if (iconPath.isNotEmpty)
-                CakeImageWidget(
-                  imageUrl: iconPath,
-                  width: 16,
-                  height: 16,
-                  colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-                ),
-              Flexible(
-                child: Column(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                if (iconPath.isNotEmpty)
+                  CakeImageWidget(
+                    imageUrl: iconPath,
+                    width: 16,
+                    height: 16,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                Flexible(
+                  child: Column(
                     spacing: 10,
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -88,37 +98,44 @@ class ReceiveInfoBox extends StatelessWidget {
                       Text(
                         message,
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w300),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                        ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (bottomWidget != null) bottomWidget!,
                           GestureDetector(
-                              onTap: onDismissed,
-                              child: Text(
-                                S.of(context).dismiss,
-                                style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w300),
-                              )),
+                            onTap: onDismissed,
+                            child: Text(
+                              S.of(context).dismiss,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ),
                         ],
-                      )
-                    ]),
-              )
-            ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class InfoboxCurrencyRow extends StatelessWidget {
-  const InfoboxCurrencyRow({super.key, required this.currencies, required this.chainIconPath});
+  const InfoboxCurrencyRow({
+    required this.currencies,
+    required this.chainIconPath,
+    super.key,
+  });
 
   final String chainIconPath;
   final List<CryptoCurrency> currencies;
@@ -163,8 +180,9 @@ class InfoboxCurrencyRow extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(25),
-                      borderRadius: BorderRadius.circular(9999999)),
+                    color: Colors.white.withAlpha(25),
+                    borderRadius: BorderRadius.circular(9999999),
+                  ),
                   child: Icon(
                     Icons.add,
                     size: 16,
@@ -175,25 +193,29 @@ class InfoboxCurrencyRow extends StatelessWidget {
               ...currenciesLimited
                   .asMap()
                   .entries
-                  .map((entry) => Positioned(
-                        left: 16.0 * entry.key,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: Theme.of(context).colorScheme.surfaceContainer,
-                                  width: iconBorder),
-                              borderRadius: BorderRadius.circular(9999999)),
-                          child: TokenImageWidget(
-                            imageUrl: entry.value.iconPath ?? '',
-                            size: 24,
+                  .map(
+                    (entry) => Positioned(
+                      left: 16.0 * entry.key,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            width: iconBorder,
                           ),
+                          borderRadius: BorderRadius.circular(9999999),
                         ),
-                      ))
+                        child: TokenImageWidget(
+                          imageUrl: entry.value.iconPath ?? "",
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  )
                   .toList()
                   .reversed,
             ],
           ),
-        )
+        ),
       ],
     );
   }

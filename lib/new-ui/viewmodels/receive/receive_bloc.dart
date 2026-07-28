@@ -131,11 +131,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         }
       }
     } else {
-      // Use the input token currency for the sats check, not the BTCLN→BTC
-      // substituted receiveCrypto. Under `satoshiForLightning` display mode
-      // useSatoshi(BTCLN) is true but useSatoshi(BTC) is false, so passing BTC
-      // here would treat "1235" as 1235 BTC (123.5B sats) instead of 1235 sats
-      // and each modal round-trip would multiply the amount by 10^8.
       final inputCrypto = initial.tokenCurrency ?? addressService.walletCurrency;
       final canonical = addressService.canonicalCryptoAmount(raw, inputCrypto);
       requestedAmount = receiveCrypto.tryParseAmount(canonical);
@@ -175,10 +170,12 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           return;
         }
         if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
-          emit(loaded.copyWith(
-            fetchingInvoice: false,
-            failureCode: ReceiveFailureCode.invoiceFetchFailed,
-          ));
+          emit(
+            loaded.copyWith(
+              fetchingInvoice: false,
+              failureCode: ReceiveFailureCode.invoiceFetchFailed,
+            ),
+          );
         }
       }
     } else if (state case final ReceiveLoaded loaded) {
@@ -291,10 +288,12 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         return;
       }
       if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
-        emit(loaded.copyWith(
-          isChangingAddressType: false,
-          failureCode: ReceiveFailureCode.addressListUnavailable,
-        ));
+        emit(
+          loaded.copyWith(
+            isChangingAddressType: false,
+            failureCode: ReceiveFailureCode.addressListUnavailable,
+          ),
+        );
       }
       return;
     }
@@ -383,10 +382,12 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         return;
       }
       if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
-        emit(loaded.copyWith(
-          isRotatingAddress: false,
-          failureCode: ReceiveFailureCode.addressListUnavailable,
-        ));
+        emit(
+          loaded.copyWith(
+            isRotatingAddress: false,
+            failureCode: ReceiveFailureCode.addressListUnavailable,
+          ),
+        );
       }
     }
   }

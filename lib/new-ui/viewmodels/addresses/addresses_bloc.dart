@@ -161,10 +161,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
     if (state case final AddressesLoaded loaded when loaded.walletId == expectedWalletId) {
-      emit(loaded.copyWith(
-        isSaving: false,
-        failureCode: AddressesFailureCode.saveFailed,
-      ));
+      emit(
+        loaded.copyWith(
+          isSaving: false,
+          failureCode: AddressesFailureCode.saveFailed,
+        ),
+      );
     }
   }
 
@@ -193,11 +195,13 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     if (loaded is! AddressesLoaded) {
       return;
     }
-    emit(loaded.copyWith(
-      groups: addressService.computeAddressList(),
-      hasHiddenAddresses: addressService.hasHiddenAddresses,
-      accountLabel: addressService.accountLabel,
-    ));
+    emit(
+      loaded.copyWith(
+        groups: addressService.computeAddressList(),
+        hasHiddenAddresses: addressService.hasHiddenAddresses,
+        accountLabel: addressService.accountLabel,
+      ),
+    );
   }
 
   Future<void> _onWalletChanged(_WalletChanged event, Emitter<AddressesState> emit) async {
