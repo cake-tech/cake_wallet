@@ -1,37 +1,33 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import "package:cake_wallet/exchange/provider/changenow/changenow_api_schema.dart";
-import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/limits.dart';
+import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/sideshift/sideshift_api_schema.dart";
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
-import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
-import 'package:cake_wallet/exchange/trade_request.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/exchange/trade_not_created_exception.dart";
+import "package:cake_wallet/exchange/trade_not_found_exception.dart";
+import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/utils/exchange_provider_logger.dart';
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
 
 class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider();
 
   static const affiliateId = secrets.sideShiftAffiliateId;
-  static const apiBaseUrl = 'https://sideshift.ai/api';
-  static const rangePath = '/v2/pair';
-  static const orderPath = '/v2/shifts';
-  static const quotePath = '/v2/quotes';
-  static const permissionPath = '/v2/permissions';
+  static const apiBaseUrl = "https://sideshift.ai/api";
+  static const rangePath = "/v2/pair";
+  static const orderPath = "/v2/shifts";
+  static const quotePath = "/v2/quotes";
+  static const permissionPath = "/v2/permissions";
 
   @override
-  String get title => 'SideShift';
+  String get title => "SideShift";
 
   @override
   bool get isAvailable => true;
@@ -53,12 +49,14 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final error = responseJSON['error']['message'] as String;
+      final error = responseJSON["error"]["message"] as String;
 
-      throw Exception('$error');
+      throw Exception(error);
     }
 
-    if (response.statusCode != 200) return false;
+    if (response.statusCode != 200) {
+      return false;
+    }
 
     final responseJSON = SideShiftPermissions.fromJson(json.decode(response.body) as Map<String, dynamic>);
     return responseJSON.createShift;
@@ -83,13 +81,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final error = responseJSON['error']['message'] as String;
+      final error = responseJSON["error"]["message"] as String;
 
-      throw Exception('$error');
+      throw Exception("$error");
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw Exception("Unexpected http status: ${response.statusCode}");
     }
 
     final responseJSON = SideShiftPair.fromJson(json.decode(response.body) as Map<String, dynamic>);
@@ -132,13 +130,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final error = responseJSON['error']['message'] as String;
+      final error = responseJSON["error"]["message"] as String;
 
-      throw Exception('SideShift Internal Server Error: $error');
+      throw Exception("SideShift Internal Server Error: $error");
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw Exception("Unexpected http status: ${response.statusCode}");
     }
 
     final responseJSON = SideShiftPair.fromJson(json.decode(response.body) as Map<String, dynamic>);
@@ -156,140 +154,70 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> createTrade({
     required TradeRequest request,
-    required bool isFixedRateMode,
-    required bool isSendAll,
   }) async {
-    String url = '';
-    final body = {
-      'affiliateId': affiliateId,
-      'settleAddress': request.toAddress,
-      if (request.toAddressExtraId.isNotEmpty) 'settleMemo': request.toAddressExtraId,
-      'refundAddress': request.refundAddress,
-    };
+    String url = "";
 
-    if (isFixedRateMode) {
+    final body;
+
+    if(request.isFixedRate) {
       final quoteId = await _createQuote(request);
-      body['quoteId'] = quoteId;
-
-      url = apiBaseUrl + orderPath + '/fixed';
+      url = "$apiBaseUrl$orderPath/fixed";
+      body = SideShiftCreateFixedShiftRequest(settleAddress: request.payoutAddress.address,
+        affiliateId: affiliateId,
+        quoteId: quoteId,
+        refundAddress: request.refundAddress,
+        settleMemo: request.toAddressExtraId,
+      );
     } else {
-      url = apiBaseUrl + orderPath + '/variable';
-      body["depositCoin"] = _normalizeCurrency(request.fromCurrency);
-      body["settleCoin"] = _normalizeCurrency(request.toCurrency);
-      body["settleNetwork"] = _networkFor(request.toCurrency);
-      body["depositNetwork"] = _networkFor(request.fromCurrency);
+      url = "$apiBaseUrl$orderPath/variable";
+      body = SideShiftCreateVariableShiftRequest(settleAddress: request.payoutAddress.address,
+      affiliateId: affiliateId,
+      settleMemo: request.toAddressExtraId,
+      refundAddress: request.refundAddress,
+      depositCoin: _normalizeCurrency(request.depositAmount.currency),
+          settleCoin: _normalizeCurrency(request.payoutAmount.currency),
+          depositNetwork: _networkFor(request.depositAmount.currency),
+          settleNetwork: _networkFor(request.payoutAmount.currency),);
     }
-    final headers = {'Content-Type': 'application/json'};
+    final headers = {"Content-Type": "application/json"};
 
     final uri = Uri.parse(url);
     final response = await ProxyWrapper().post(
       clearnetUri: uri,
       headers: headers,
-      body: json.encode(body),
+      body: json.encode(body.toJson()),
     );
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-        final error = responseJSON['error']['message'] as String;
-
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'createTrade',
-          error: TradeNotCreatedException(description, description: error),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': request.fromCurrency.title,
-            'to': request.toCurrency.title,
-            'fromAmount': request.fromAmount,
-            'toAmount': request.toAmount,
-            'toAddress': request.toAddress,
-            'refundAddress': request.refundAddress,
-            'isFixedRateMode': isFixedRateMode,
-            'isSendAll': isSendAll,
-            'url': url,
-            'body': body,
-          },
-        );
+        final error = responseJSON["error"]["message"] as String;
 
         throw TradeNotCreatedException(description, description: error);
       }
 
-      ExchangeProviderLogger.logError(
-        provider: description,
-        function: 'createTrade',
-        error: TradeNotCreatedException(description),
-        stackTrace: StackTrace.current,
-        requestData: {
-          'from': request.fromCurrency.title,
-          'to': request.toCurrency.title,
-          'fromAmount': request.fromAmount,
-          'toAmount': request.toAmount,
-          'toAddress': request.toAddress,
-          'refundAddress': request.refundAddress,
-          'isFixedRateMode': isFixedRateMode,
-          'isSendAll': isSendAll,
-          'url': url,
-          'body': body,
-        },
-      );
-
       throw TradeNotCreatedException(description);
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final id = responseJSON['id'] as String;
-    final inputAddress = responseJSON['depositAddress'] as String;
-    final settleAddress = responseJSON['settleAddress'] as String;
-    final depositAmount = responseJSON['depositAmount'] as String?;
-    final depositMemo = responseJSON['depositMemo'] as String?;
-
-    ExchangeProviderLogger.logSuccess(
-      provider: description,
-      function: 'createTrade',
-      requestData: {
-        'from': request.fromCurrency.title,
-        'to': request.toCurrency.title,
-        'fromAmount': request.fromAmount,
-        'toAmount': request.toAmount,
-        'toAddress': request.toAddress,
-        'refundAddress': request.refundAddress,
-        'isFixedRateMode': isFixedRateMode,
-        'isSendAll': isSendAll,
-        'url': url,
-        'body': body,
-      },
-      responseData: {
-        'id': id,
-        'inputAddress': inputAddress,
-        'settleAddress': settleAddress,
-        'depositAmount': depositAmount,
-        'depositMemo': depositMemo,
-        'statusCode': response.statusCode,
-      },
-    );
+    final responseData = SideShiftShift.fromJson(json.decode(response.body) as Map<String, dynamic>);
 
     return Trade(
-      id: id,
+      id: responseData.id,
       provider: description,
-      from: request.fromCurrency,
-      to: request.toCurrency,
-      inputAddress: inputAddress,
-      refundAddress: settleAddress,
+      refundAddress: responseData.settleAddress,
       state: TradeState.created,
-      amount: depositAmount ?? request.fromAmount,
-      receiveAmount: request.toAmount,
-      payoutAddress: settleAddress,
       createdAt: DateTime.now(),
-      isSendAll: isSendAll,
-      extraId: depositMemo,
+      payoutAddress: responseData.settleAddress,
+      payoutAmount: Money.parse(responseData.settleAmount, request.payoutAmount.currency),
+      depositAmount: Money.parse(responseData.depositAmount, request.depositAmount.currency),
+      fundingAddress: responseData.depositAddress,
       toAddressExtraId: request.toAddressExtraId,
     );
   }
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final url = apiBaseUrl + orderPath + '/' + id;
+    final url = "$apiBaseUrl$orderPath/$id";
     final uri = Uri.parse(url);
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
@@ -299,73 +227,71 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final error = responseJSON['error']['message'] as String;
+      final error = responseJSON["error"]["message"] as String;
 
       throw TradeNotFoundException(id, provider: description, description: error);
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw Exception("Unexpected http status: ${response.statusCode}");
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final fromCurrency = responseJSON['depositCoin'] as String;
-    final fromNetwork = responseJSON['depositNetwork'] as String?;
-    final toCurrency = responseJSON['settleCoin'] as String;
-    final toNetwork = responseJSON['settleNetwork'] as String?;
-    final inputAddress = responseJSON['depositAddress'] as String;
-    final expectedSendAmount = responseJSON['depositAmount'] as String?;
-    final status = responseJSON['status'] as String?;
-    final settleAddress = responseJSON['settleAddress'] as String;
-    final isVariable = (responseJSON['type'] as String) == 'variable';
-    final expiredAtRaw = responseJSON['expiresAt'] as String;
-    final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
-    final depositMemo = responseJSON['depositMemo'] as String?;
+    final responseData = SideShiftShift.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    // final fromCurrency = responseJSON['depositCoin'] as String;
+    // final fromNetwork = responseJSON['depositNetwork'] as String?;
+    // final toCurrency = responseJSON['settleCoin'] as String;
+    // final toNetwork = responseJSON['settleNetwork'] as String?;
+    // final inputAddress = responseJSON['depositAddress'] as String;
+    // final expectedSendAmount = responseJSON['depositAmount'] as String?;
+    // final status = responseJSON['status'] as String?;
+    // final settleAddress = responseJSON['settleAddress'] as String;
+    // final isVariable = (responseJSON['type'] as String) == 'variable';
+    // final expiredAtRaw = responseJSON['expiresAt'] as String;
+    // final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
+    // final depositMemo = responseJSON['depositMemo'] as String?;
 
     final fromParsed = CryptoCurrency.safeParseCurrencyFromString(
-      fromCurrency,
-      tag: fromNetwork,
+      responseData.depositCoin,
+      tag: responseData.depositNetwork,
     );
     final toParsed = CryptoCurrency.safeParseCurrencyFromString(
-      toCurrency,
-      tag: toNetwork,
+      responseData.settleCoin,
+      tag: responseData.settleNetwork,
     );
     return Trade(
-      id: id,
-      from: fromParsed,
-      to: toParsed,
-      provider: description,
-      inputAddress: inputAddress,
-      amount: expectedSendAmount ?? '',
-      state: TradeState.deserialize(raw: status ?? 'created'),
-      expiredAt: expiredAt,
-      payoutAddress: settleAddress,
-      extraId: depositMemo,
+        id: id,
+        provider: description,
+        state: responseData.status ?? TradeState.created,
+        depositAmount: Money.parse(responseData.depositAmount, fromParsed!),
+        payoutAmount: Money.parse(responseData.settleAmount, toParsed!),
+        refundAddress: responseData.refundAddress ?? "",
+        payoutAddress: responseData.settleAddress,
+        fundingAddress: responseData.depositAddress
     );
   }
 
   Future<String> _createQuote(TradeRequest request) async {
-    final url = apiBaseUrl + quotePath;
-    final headers = {'Content-Type': 'application/json'};
-    final body = {
-      'depositCoin': _normalizeCurrency(request.fromCurrency),
-      'settleCoin': _normalizeCurrency(request.toCurrency),
-      'affiliateId': affiliateId,
-      'settleAmount': request.toAmount,
-      'settleNetwork': _networkFor(request.toCurrency),
-      'depositNetwork': _networkFor(request.fromCurrency),
-    };
+    const url = apiBaseUrl + quotePath;
+    final headers = {"Content-Type": "application/json"};
+    final body = SideShiftQuoteRequest(
+        depositCoin: _normalizeCurrency(request.depositAmount.currency),
+        settleCoin: _normalizeCurrency(request.payoutAmount.currency),
+        affiliateId: affiliateId,
+        settleAmount: request.payoutAmount.cryptoAmount.toString(),
+        settleNetwork: _networkFor(request.payoutAmount.currency),
+        depositNetwork: _networkFor(request.depositAmount.currency)
+    );
     final uri = Uri.parse(url);
     final response = await ProxyWrapper().post(
       clearnetUri: uri,
       headers: headers,
-      body: json.encode(body),
+      body: json.encode(body.toJson()),
     );
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-        final error = responseJSON['error']['message'] as String;
+        final error = responseJSON["error"]["message"] as String;
 
         throw TradeNotCreatedException(description, description: error);
       }
@@ -373,54 +299,42 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       throw TradeNotCreatedException(description);
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = SideShiftQuote.fromJson(json.decode(response.body) as Map<String, dynamic>);
 
-    return responseJSON['id'] as String;
+    return responseJSON.id;
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.usdcEPoly:
-        return 'usdc';
+        return "usdc";
       default:
         return currency.title.toLowerCase();
     }
   }
 
   String _networkFor(CryptoCurrency currency) =>
-      currency.tag != null ? _normalizeTag(currency.tag!) : 'mainnet';
+      currency.tag != null ? _normalizeTag(currency.tag!) : "mainnet";
 
   String _normalizeTag(String tag) {
     switch (tag) {
-      case 'ETH':
-        return 'ethereum';
-      case 'TRX':
-        return 'tron';
-      case 'LN':
-        return 'lightning';
-      case 'POL':
-        return 'polygon';
-      case 'ARB':
-        return 'arbitrum';
-      case 'ZEC':
-        return 'zcash';
-      case 'AVAXC':
-        return 'avax';
+      case "ETH":
+        return "ethereum";
+      case "TRX":
+        return "tron";
+      case "LN":
+        return "lightning";
+      case "POL":
+        return "polygon";
+      case "ARB":
+        return "arbitrum";
+      case "ZEC":
+        return "zcash";
+      case "AVAXC":
+        return "avax";
       default:
         return tag.toLowerCase();
     }
   }
 
-  String _normalizeNetworkType(String network) {
-    return switch (network) {
-      'ethereum' => 'ETH',
-      'tron' => 'TRX',
-      'lightning' => 'LN',
-      'polygon' => 'POL',
-      'arbitrum' => 'ARB',
-      'zcash' => 'ZEC',
-      'avax' => 'AVAXC',
-      _ => network,
-    };
-  }
 }

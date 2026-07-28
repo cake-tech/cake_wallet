@@ -1,5 +1,6 @@
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
+import "package:cw_core/crypto_currency.dart";
 
 class TradeRequest {
   TradeRequest({
@@ -17,4 +18,7 @@ class TradeRequest {
   final SwapAmount payoutAmount;
   final String toAddressExtraId;
   final bool isFixedRate;
+
+  CryptoCurrency get depositCurrency => depositAmount.currency;
+  CryptoCurrency get payoutCurrency => payoutAmount.currency;
 }

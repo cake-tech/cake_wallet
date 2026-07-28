@@ -4,12 +4,17 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import "package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart";
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
+import "package:cw_core/amount/exchange_rate.dart";
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -25,6 +30,8 @@ class JupiterExchangeProvider extends ExchangeProvider {
   static const _baseUrl = 'api.jup.ag';
   static const _orderPath = '/ultra/v1/order';
   static const _executePath = '/ultra/v1/execute';
+  static const _referralFee = secrets.jupiterReferralFeeBps;
+  static const _referralAccount = secrets.jupiterReferralAccount;
 
   // Wrapped SOL address (native SOL)
   static const _nativeSolMint = 'So11111111111111111111111111111111111111112';
@@ -39,7 +46,7 @@ class JupiterExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
-  bool get supportsFixedRate => false; // Jupiter doesn't support fixed rate
+  bool get supportsFixedRate => false;
 
   @override
   bool get supportsMemoOrDestinationTag => false;
@@ -51,31 +58,17 @@ class JupiterExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   String _getTokenMint(CryptoCurrency currency) {
-    // Handle native SOL
     if (currency == CryptoCurrency.sol) return _nativeSolMint;
 
-    // Check if currency tag is SOL (indicating it's a Solana token)
     if (currency.tag != 'SOL') {
       throw Exception('Unsupported currency: ${currency.title} (not a Solana token)');
     }
 
-    // Use solana proxy to get token address
-    // The proxy will handle both SPLToken instances and CryptoCurrency
-    // by searching through default tokens
-    if (solana != null) {
-      try {
-        return solana!.getTokenAddress(currency);
-      } catch (e) {
-        printV('Error getting token address: $e');
-        throw Exception('Unsupported currency: ${currency.title} (mint address not found: $e)');
-      }
-    }
-
-    throw Exception('Unsupported currency: ${currency.title} (Solana proxy not available)');
+    return solana!.getTokenAddress(currency);
   }
 
   @override
-  Future<Limits?> fetchLimits({
+  Future<ExchangeLimits> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
@@ -88,69 +81,37 @@ class JupiterExchangeProvider extends ExchangeProvider {
 
     // only return null for supported currencies
     if (_isSolanaCurrency(from) && _isSolanaCurrency(to)) {
-      return Limits(min: null, max: null);
+      return ExchangeLimits(min: null, max: null);
     } else {
       throw Exception('not supported');
     }
   }
 
-  Map<String, String> _getHeaders() {
-    final headers = <String, String>{};
-    final apiKey = secrets.jupiterApiKey;
-    if (apiKey.isNotEmpty) {
-      headers['x-api-key'] = apiKey;
-    }
+  Map<String, String> _getHeaders() => <String, String>{
+      "x-api-key": secrets.jupiterApiKey
+    };
 
-    return headers;
-  }
-
-  Map<String, String>? _getReferralFeeConfig() {
-    try {
-      final referralFeeBpsStr = secrets.jupiterReferralFeeBps;
-      final referralFeeBps = int.tryParse(referralFeeBpsStr) ?? 0;
-
-      final referralAccount = secrets.jupiterReferralAccount;
-
-      // Only enable if both are configured and valid
-      if (referralFeeBps <= 0 || referralFeeBps > 10000 || referralAccount.isEmpty) {
-        return null;
-      }
-
-      return {
-        'referralFee': referralFeeBps.toString(),
-        'referralAccount': referralAccount,
-      };
-    } catch (e) {
-      return null;
-    }
-  }
+  Map<String, String> _getReferralFeeConfig() =>  {
+    'referralFee': secrets.jupiterReferralFeeBps,
+    'referralAccount': secrets.jupiterReferralAccount,
+  };
 
   @override
-  Future<double> fetchRate({
-    required CryptoCurrency from,
+  Future<ProviderRate> fetchRate({
+    required Money from,
     required CryptoCurrency to,
-    required double amount,
-    required bool isFixedRateMode,
-    required bool isReceiveAmount,
+    required bool isFixedRate,
   }) async {
-    try {
       // must support both
-      if (!_isSolanaCurrency(from) || !_isSolanaCurrency(to)) {
-        return 0.0;
+      if (!_isSolanaCurrency(from.currency as CryptoCurrency) || !_isSolanaCurrency(to)) {
+        throw Exception("unsupported");
       }
-      final inputMint = _getTokenMint(from);
+      final inputMint = _getTokenMint(from.currency as CryptoCurrency);
       final outputMint = _getTokenMint(to);
 
-      final amountInBaseUnits = AmountConverter.toBaseUnits(amount.toString(), from.decimals);
-
-      final params = {
-        'inputMint': inputMint,
-        'outputMint': outputMint,
-        'amount': amountInBaseUnits,
-        // Note: taker is optional for quote-only requests
-      };
-
-      final uri = Uri.https(_baseUrl, _orderPath, params);
+      final params = JupiterOrderRequest(
+          inputMint: inputMint, outputMint: outputMint, amount: from.amount);
+      final uri = Uri.https(_baseUrl, _orderPath, params.toJson());
       final headers = _getHeaders();
 
       final response = await ProxyWrapper().get(
@@ -159,148 +120,54 @@ class JupiterExchangeProvider extends ExchangeProvider {
       );
 
       if (response.statusCode != 200) {
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'fetchRate',
-          error: Exception('Failed to fetch quote: ${response.statusCode}'),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': from.title,
-            'to': to.title,
-            'amount': amount,
-            'isFixedRateMode': isFixedRateMode,
-            'isReceiveAmount': isReceiveAmount,
-          },
-        );
-        return 0.0;
+        throw Exception("status code: ${response.statusCode}");
       }
 
-      final orderData = json.decode(response.body) as Map<String, dynamic>;
-      final outAmount = BigInt.parse(orderData['outAmount'] as String);
+      final orderData = JupiterOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
+      final outAmount = orderData.outAmount;
 
-      final outputAmount = AmountConverter.fromBaseUnits(outAmount.toString(), to.decimals);
+      return ProviderRate(provider: description, rate: ExchangeRate.fromAmounts(from, Money(outAmount, to)), limits: ExchangeLimits());
 
-      final rate = double.parse(outputAmount) / amount;
-
-      ExchangeProviderLogger.logSuccess(
-        provider: description,
-        function: 'fetchRate',
-        requestData: {
-          'from': from.title,
-          'to': to.title,
-          'amount': amount,
-          'isFixedRateMode': isFixedRateMode,
-          'isReceiveAmount': isReceiveAmount,
-        },
-        responseData: {
-          'rate': rate,
-          'outputAmount': outputAmount,
-        },
-      );
-
-      return rate;
-    } catch (e, s) {
-      ExchangeProviderLogger.logError(
-        provider: description,
-        function: 'fetchRate',
-        error: e,
-        stackTrace: s,
-        requestData: {
-          'from': from.title,
-          'to': to.title,
-          'amount': amount,
-          'isFixedRateMode': isFixedRateMode,
-          'isReceiveAmount': isReceiveAmount,
-        },
-      );
-      printV('fetchRate error: $e');
-      return 0.0;
-    }
   }
 
   @override
   Future<Trade> createTrade({
     required TradeRequest request,
-    required bool isFixedRateMode,
-    required bool isSendAll,
   }) async {
-    try {
       // must support both
-      if (!_isSolanaCurrency(request.fromCurrency) || !_isSolanaCurrency(request.toCurrency)) {
-        throw 'not supported currencies';
+      if (!_isSolanaCurrency(request.depositCurrency) || !_isSolanaCurrency(request.payoutCurrency)) {
+        throw Exception('not supported currencies');
       }
 
-      final inputMint = _getTokenMint(request.fromCurrency);
-      final outputMint = _getTokenMint(request.toCurrency);
+      final inputMint = _getTokenMint(request.depositCurrency);
+      final outputMint = _getTokenMint(request.payoutCurrency);
 
-      final amountInBaseUnits =
-          AmountConverter.toBaseUnits(request.fromAmount, request.fromCurrency.decimals);
 
-      final isInternalTransfer = request.refundAddress == request.toAddress;
+      final isInternalTransfer = request.refundAddress == request.payoutAddress.address;
 
-      final orderParams = <String, String>{
-        'inputMint': inputMint,
-        'outputMint': outputMint,
-        'amount': amountInBaseUnits,
-        'taker': request.refundAddress,
-        if (!isInternalTransfer) 'receiver': request.toAddress,
-      };
+      final orderParams = JupiterOrderRequest(
+        inputMint: inputMint,
+        outputMint: outputMint,
+        amount: request.depositAmount.cryptoAmount.amount,
+        taker: request.refundAddress,
+        receiver: isInternalTransfer ? null : request.payoutAddress.address,
+        referralFee: _referralFee,
+        referralAccount: _referralAccount,);
 
-      final referralFeeConfig = _getReferralFeeConfig();
-      if (referralFeeConfig != null) {
-        orderParams['referralFee'] = referralFeeConfig['referralFee']!;
-        orderParams['referralAccount'] = referralFeeConfig['referralAccount']!;
-      }
 
-      final orderUri = Uri.https(_baseUrl, _orderPath, orderParams);
+      final orderUri = Uri.https(_baseUrl, _orderPath, orderParams.toJson());
       final headers = _getHeaders();
 
       final orderResponse = await ProxyWrapper().get(clearnetUri: orderUri, headers: headers);
 
       if (orderResponse.statusCode != 200) {
-        final errorBody = orderResponse.body;
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'createTrade',
-          error: Exception('Failed to get order: ${orderResponse.statusCode} $errorBody'),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': request.fromCurrency.title,
-            'to': request.toCurrency.title,
-            'fromAmount': request.fromAmount,
-            'toAmount': request.toAmount,
-            'toAddress': request.toAddress,
-            'refundAddress': request.refundAddress,
-            'isFixedRateMode': isFixedRateMode,
-            'isSendAll': isSendAll,
-          },
-        );
-        throw TradeNotCreatedException(description);
+        throw TradeNotCreatedException(description, description: "status code: ${orderResponse.statusCode}");
       }
 
-      final orderData = json.decode(orderResponse.body) as Map<String, dynamic>;
+      final orderData = JupiterOrder.fromJson(json.decode(orderResponse.body) as Map<String, dynamic>);
 
-      // Check for errors in response
-      if (orderData.containsKey('errorCode') || orderData.containsKey('errorMessage')) {
-        final errorCode = orderData['errorCode'];
-        final errorMessage = orderData['errorMessage'] ?? 'Unknown error';
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'createTrade',
-          error: Exception('Order error: $errorCode - $errorMessage'),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': request.fromCurrency.title,
-            'to': request.toCurrency.title,
-            'fromAmount': request.fromAmount,
-            'toAmount': request.toAmount,
-            'toAddress': request.toAddress,
-            'refundAddress': request.refundAddress,
-            'isFixedRateMode': isFixedRateMode,
-            'isSendAll': isSendAll,
-          },
-        );
-        throw TradeNotCreatedException(description);
+      if (orderData.errorCode != null || orderData.errorMessage != null) {
+        throw TradeNotCreatedException(description, description: "error code: ${orderData.errorCode}, error message: ${orderData.errorMessage}");
       }
 
       // Extract response data
@@ -335,26 +202,6 @@ class JupiterExchangeProvider extends ExchangeProvider {
 
       final receiveAmount = AmountConverter.fromBaseUnits(outAmount, request.toCurrency.decimals);
 
-      ExchangeProviderLogger.logSuccess(
-        provider: description,
-        function: 'createTrade',
-        requestData: {
-          'from': request.fromCurrency.title,
-          'to': request.toCurrency.title,
-          'fromAmount': request.fromAmount,
-          'toAmount': request.toAmount,
-          'toAddress': request.toAddress,
-          'refundAddress': request.refundAddress,
-          'isFixedRateMode': isFixedRateMode,
-          'isSendAll': isSendAll,
-        },
-        responseData: {
-          'tradeId': requestId,
-          'receiveAmount': receiveAmount,
-          'hasTransaction': transaction.isNotEmpty,
-          'requestId': requestId,
-        },
-      );
 
       return Trade(
         id: requestId,
@@ -373,26 +220,6 @@ class JupiterExchangeProvider extends ExchangeProvider {
         routerValue: requestId,
         fee: totalFeeInSol,
       );
-    } catch (e, s) {
-      ExchangeProviderLogger.logError(
-        provider: description,
-        function: 'createTrade',
-        error: e,
-        stackTrace: s,
-        requestData: {
-          'from': request.fromCurrency.title,
-          'to': request.toCurrency.title,
-          'fromAmount': request.fromAmount,
-          'toAmount': request.toAmount,
-          'toAddress': request.toAddress,
-          'refundAddress': request.refundAddress,
-          'isFixedRateMode': isFixedRateMode,
-          'isSendAll': isSendAll,
-        },
-      );
-      printV('createTrade error: $e');
-      throw TradeNotCreatedException(description);
-    }
   }
 
   /// Executes a signed Jupiter swap transaction via Jupiter's /execute endpoint

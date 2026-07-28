@@ -1,14 +1,13 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/utils/currency_from_serialized.dart";
 import "package:cw_core/amount/money.dart";
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/db/sqlite.dart';
-import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/generate_name.dart';
-import 'package:sqflite/sqflite.dart';
+import "package:cw_core/db/sqlite.dart";
+import "package:cw_core/generate_name.dart";
+import "package:sqflite/sqflite.dart";
 
 class Trade {
   Trade({
@@ -16,16 +15,12 @@ class Trade {
     required this.depositAmount,
     required this.payoutAmount,
     required this.fundingAddress,
-    this.internalId = 0,
-    required this.id,
-    required this.provider,
+    required this.id, required this.provider, required this.payoutAddress, required this.refundAddress, this.internalId = 0,
     this.createdAt,
     this.expiredAt,
     this.extraId,
     this.outputTransaction,
     this.walletId,
-    required this.payoutAddress,
-    required this.refundAddress,
     this.toAddressExtraId,
     this.password,
     this.providerId,
@@ -37,11 +32,11 @@ class Trade {
     this.router,
   });
 
-  static const tableName = 'Trade';
-  static const selfIdColumn = 'tradeId';
+  static const tableName = "Trade";
+  static const selfIdColumn = "tradeId";
 
-  static const boxName = 'Trades';
-  static const boxKey = 'tradesBoxKey';
+  static const boxName = "Trades";
+  static const boxKey = "tradesBoxKey";
 
   static final StreamController<void> onChanged = StreamController<void>.broadcast();
 
@@ -74,17 +69,13 @@ class Trade {
   bool? isSendAll;
   String? router;
 
-  Future<void> migrateDbFromRetardedVibecodedSlop() async {
-
-  }
-
-
-
   int? chainId;
   double? fee;
 
   String get chainName {
-    if (chainId == null) return '';
+    if (chainId == null) {
+      return "";
+    }
 
     return evm!.getChainNameByChainId(chainId!).capitalized();
   }
@@ -108,29 +99,31 @@ class Trade {
   static Future<List<Trade>> getAll({String? orderBy}) async {
     final list = await db!.query(
       tableName,
-      orderBy: orderBy ?? 'createdAt DESC',
+      orderBy: orderBy ?? "createdAt DESC",
     );
-    return List.generate(
+    return Future.wait( List.generate(
       list.length,
       (i) => Trade.fromSqliteRow(list[i]),
-    );
+    ));
   }
 
   static Future<Trade?> getByTradeId(String id) async {
     final list = await db!.query(
       tableName,
-      where: 'id = ?',
+      where: "id = ?",
       whereArgs: [id],
       limit: 1,
     );
-    if (list.isEmpty) return null;
+    if (list.isEmpty) {
+      return null;
+    }
     return Trade.fromSqliteRow(list.first);
   }
 
   static Future<int> deleteTrade(Trade trade) async {
     final rows = await db!.delete(
       tableName,
-      where: '$selfIdColumn = ?',
+      where: "$selfIdColumn = ?",
       whereArgs: [trade.internalId],
     );
     onChanged.add(null);
@@ -139,59 +132,61 @@ class Trade {
 
   Map<String, dynamic> toSqliteMap() => {
       selfIdColumn: internalId,
-      'id': id,
-      'providerRaw': provider.raw,
+      "id": id,
+      "providerRaw": provider.raw,
     "payoutAmount": payoutAmount.serialized,
     "depositAmount": depositAmount.serialized,
-      'stateRaw': state.raw,
-      'createdAt': createdAt?.millisecondsSinceEpoch,
-      'expiredAt': expiredAt?.millisecondsSinceEpoch,
-      'extraId': extraId,
-      'outputTransaction': outputTransaction,
-      'walletId': walletId,
-      'payoutAddress': payoutAddress,
-      'toAddressExtraId': toAddressExtraId,
-      'password': password,
-      'providerId': providerId,
-      'memo': memo,
-      'txId': txId,
-      'isRefund': isRefund == true ? 1 : 0,
-      'isSendAll': isSendAll == true ? 1 : 0,
-      'router': router,
-      'chainId': chainId,
-      'fee': fee,
+      "stateRaw": state.raw,
+      "createdAt": createdAt?.millisecondsSinceEpoch,
+      "expiredAt": expiredAt?.millisecondsSinceEpoch,
+      "extraId": extraId,
+      "outputTransaction": outputTransaction,
+      "walletId": walletId,
+      "payoutAddress": payoutAddress,
+      "toAddressExtraId": toAddressExtraId,
+      "password": password,
+      "providerId": providerId,
+      "memo": memo,
+      "txId": txId,
+      "isRefund": isRefund == true ? 1 : 0,
+      "isSendAll": isSendAll == true ? 1 : 0,
+      "router": router,
+      "chainId": chainId,
+      "fee": fee,
     };
 
-  factory Trade.fromSqliteRow(Map<String, dynamic> row) {
+  static Future<Trade> fromSqliteRow(Map<String, dynamic> row) async {
     final trade = Trade(
-      id: row['id'] as String? ?? '',
-      createdAt: row['createdAt'] != null
+      id: row["id"] as String? ?? "",
+      createdAt: row["createdAt"] != null
           ? DateTime.fromMillisecondsSinceEpoch(
-              row['createdAt'] as int,
+              row["createdAt"] as int,
             )
           : null,
-      expiredAt: row['expiredAt'] != null
+      expiredAt: row["expiredAt"] != null
           ? DateTime.fromMillisecondsSinceEpoch(
-              row['expiredAt'] as int,
+              row["expiredAt"] as int,
             )
           : null,
-      inputAddress: row['inputAddress'] as String?,
-      extraId: row['extraId'] as String?,
-      outputTransaction: row['outputTransaction'] as String?,
-      refundAddress: row['refundAddress'] as String,
-      walletId: row['walletId'] as String?,
-      payoutAddress: row['payoutAddress'] as String?,
-      toAddressExtraId: row['toAddressExtraId'] as String?,
-      password: row['password'] as String?,
-      providerId: row['providerId'] as String?,
+      extraId: row["extraId"] as String?,
+      outputTransaction: row["outputTransaction"] as String?,
+      refundAddress: row["refundAddress"] as String,
+      walletId: row["walletId"] as String?,
+      payoutAddress: row["payoutAddress"] as String,
+      provider: ExchangeProviderDescription.deserialize(raw: row["provider"] as int),
+      toAddressExtraId: row["toAddressExtraId"] as String?,
+      password: row["password"] as String?,
+      providerId: row["providerId"] as String?,
       state: TradeState.deserialize(raw: row["state"] as String),
-      fromWalletAddress: row['fromWalletAddress'] as String?,
-      memo: row['memo'] as String?,
-      fee: row['fee'] as double?,
-      txId: row['txId'] as String?,
-      isRefund: (row['isRefund'] as int?) == 1,
-      isSendAll: (row['isSendAll'] as int?) == 1,
-      router: row['router'] as String?,
+      memo: row["memo"] as String?,
+      fee: row["fee"] as double?,
+      txId: row["txId"] as String?,
+      isRefund: (row["isRefund"] as int?) == 1,
+      isSendAll: (row["isSendAll"] as int?) == 1,
+      router: row["router"] as String?,
+      depositAmount: await moneyFromSerialized(row["depositAmount"] as String),
+      payoutAmount: await moneyFromSerialized(row["depositAmount"] as String),
+      fundingAddress: row["fundingAddress"] as String,
       // from: _currencyFromRow(row, 'from'),
       // to: _currencyFromRow(row, 'to'),
       // needToRegisterInSwapXyz: (row['needToRegisterInSwapXyz'] as int?) == 1,

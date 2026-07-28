@@ -4,14 +4,14 @@ import "package:cake_wallet/exchange/provider/chainflip/chainflip_exchange_provi
 import "package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/trocador_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/xoswap/xoswap_exchange_provider.dart";
 import "package:cake_wallet/store/settings_store.dart";
 
 class ExchangeProviderRegistry {
