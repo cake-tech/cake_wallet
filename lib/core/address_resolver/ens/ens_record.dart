@@ -43,7 +43,7 @@ class EnsRecord {
         return '';
       }
 
-      final resolver = Ens(client: ens.client, address: resolverAddress).withName(name);
+      final resolver = Ens(client: _client, address: resolverAddress).withName(name);
 
       if (coinType == CoinType.ETH || coinType == CoinType.MATIC) {
         return (await resolver.getAddress()).hex;
