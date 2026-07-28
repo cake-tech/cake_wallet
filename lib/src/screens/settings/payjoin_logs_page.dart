@@ -18,7 +18,7 @@ class PayjoinLogPage extends BasePage {
   final PayjoinSettingsViewModel _payjoinSettingsViewModel;
 
   @override
-  String get title => 'Payjoin Logs';
+  String get title => S.current.payjoin_logs;
 
   @override
   Widget body(BuildContext context) {
@@ -31,7 +31,7 @@ class PayjoinLogPage extends BasePage {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No payjoin logs found'));
+              return Center(child: Text(S.of(context).no_payjoin_logs_found));
             } else {
               return SingleChildScrollView(
                 controller: ModalScrollController.of(context),
@@ -111,7 +111,7 @@ class PayjoinLogPage extends BasePage {
     try {
       final file = await _payjoinSettingsViewModel.getPayjoinLogFile();
       String? outputFile = await FilePicker.platform.saveFile(
-          dialogTitle: 'Save Your File to desired location',
+          dialogTitle: S.current.save_your_file_to_desired_location,
           fileName: 'Payjoin_export.txt',
           lockParentWindow: true);
 
