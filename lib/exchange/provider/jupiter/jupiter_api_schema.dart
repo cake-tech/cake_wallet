@@ -182,6 +182,7 @@ class JupiterOrder {
     this.priceImpact,
     this.routePlan,
     this.transaction,
+    this.integratorFeeLamports,
     this.taker,
     this.router,
     this.mode,
@@ -260,6 +261,9 @@ class JupiterOrder {
 
   @JsonKey(name: "signatureFeeLamports")
   final int? signatureFeeLamports;
+  // api does not document this but we use it? idk brah
+  @JsonKey(name: "integratorFeeLamports")
+  final int? integratorFeeLamports;
   @JsonKey(name: "signatureFeePayer")
   final String? signatureFeePayer;
   @JsonKey(name: "prioritizationFeeLamports")
@@ -285,6 +289,12 @@ class JupiterOrder {
   final String? errorMessage;
   @JsonKey(name: "error")
   final String? error;
+
+  int get totalFee =>
+      (signatureFeeLamports ?? 0) +
+      (integratorFeeLamports ?? 0) +
+      (prioritizationFeeLamports ?? 0) +
+      (rentFeeLamports ?? 0);
 }
 
 

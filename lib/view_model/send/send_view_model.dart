@@ -27,9 +27,9 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -850,35 +850,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       // Jupiter (Solana) swap path
       if (walletType == WalletType.solana && trade != null && provider is JupiterExchangeProvider) {
-        final swapTransactionBase64 = trade.routerData;
-        final requestId = trade.routerValue;
-        if (swapTransactionBase64?.isNotEmpty == true &&
-            requestId?.isNotEmpty == true &&
-            solana != null) {
-          try {
-            final actualFee = trade.fee ?? 0.0005;
-            // Fallback to estimate if not available
-            final fee = actualFee > 0 ? actualFee : 0.0005;
 
-            final fromCurrency = trade.from ?? CryptoCurrency.sol;
-            final amount = Money.tryParse(trade.amount, fromCurrency) ?? Money.zero(fromCurrency);
-
-            pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
-              wallet,
-              swapTransactionBase64!,
-              requestId!,
-              trade.payoutAddress ?? '',
-              amount,
-              Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
-            );
-
-            state = ExecutedSuccessfullyState();
-            return pendingTransaction;
-          } catch (e, s) {
-            printV('Jupiter swap error: $e\n$s');
-            throw Exception('Failed to process Jupiter swap: $e');
-          }
-        }
       }
 
       // Regular flow

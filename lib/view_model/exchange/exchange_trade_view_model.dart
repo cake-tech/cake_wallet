@@ -10,8 +10,8 @@ import 'package:cake_wallet/exchange/provider/changenow/changenow_exchange_provi
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart';

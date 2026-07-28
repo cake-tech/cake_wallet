@@ -43,6 +43,63 @@ class ExolixExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async => true;
 
+  @override
+  Future<ExchangeLimits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode,
+  }) async {
+
+    final params = ExolixRateRequest(coinFrom: _normalizeCurrency(isFixedRateMode ? to : from),
+        coinTo:_normalizeCurrency(isFixedRateMode ? from : to),
+        networkFrom: _networkFor(isFixedRateMode ? to : from),
+        amount: "1",
+        networkTo: _networkFor(isFixedRateMode ? from : to),
+        rateType: isFixedRateMode ? .fixed : .float,
+        apiToken: apiKey);
+
+    final uri = Uri.https(apiBaseUrl, ratePath, params.toJson());
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+
+    if (response.statusCode == 200) {
+
+      final responseData = ExolixRateResponse.fromJson(
+          json.decode(response.body) as Map<String, dynamic>);
+      return ExchangeLimits(
+          min: Money.parse(responseData.minAmount, isFixedRateMode ? from : to),
+          max: Money.parse(responseData.maxAmount, isFixedRateMode ? from : to));
+
+    } else if (response.statusCode == 422) {
+      // HACK: exolix provides limits only if we ourselves supply an amount higher than minAmount.
+      // i found no better workaround
+      final errorResponse = json.decode(response.body) as Map<String, dynamic>;
+
+      if (errorResponse.containsKey("minAmount")) {
+        final paramsWithMin = ExolixRateRequest(coinFrom: params.coinFrom,
+            coinTo: params.coinTo,
+            networkFrom: params.networkFrom,
+            networkTo: params.networkTo,
+            rateType: params.rateType,
+            amount: errorResponse["minAmount"].toString(),
+            apiToken: apiKey);
+
+        final uri = Uri.https(apiBaseUrl, ratePath, paramsWithMin.toJson());
+        final response = await ProxyWrapper().get(clearnetUri: uri);
+
+        if (response.statusCode == 200) {
+          final responseData = ExolixRateResponse.fromJson(
+              json.decode(response.body) as Map<String, dynamic>);
+          return ExchangeLimits(
+              min: Money.parse(responseData.minAmount, isFixedRateMode ? from : to),
+              max: Money.parse(responseData.maxAmount, isFixedRateMode ? from : to));
+        }
+      }
+      throw Exception('Error 422: ${errorResponse['message'] ?? 'Unknown error'}');
+    } else {
+      throw Exception("Unexpected HTTP status: ${response.statusCode}");
+    }
+  }
+
 
   @override
   Future<ProviderRate> fetchRate(

@@ -33,3 +33,15 @@ class SecondsDateTimeConverter implements JsonConverter<DateTime, int> {
   @override
   int toJson(DateTime value) => value.millisecondsSinceEpoch ~/ 1000;
 }
+
+
+
+class StringBoolConverter implements JsonConverter<bool, String> {
+  const StringBoolConverter();
+
+  @override
+  bool fromJson(String json) => json.toLowerCase() == "true";
+
+  @override
+  String toJson(bool value) => value.toString();
+}

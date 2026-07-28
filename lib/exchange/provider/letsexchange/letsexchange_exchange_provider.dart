@@ -46,6 +46,25 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
+  Future<ExchangeLimits> fetchLimits({required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode}) async {
+    final params = LetsExchangeInfoRequest(float: !isFixedRateMode,
+        from: from.symbol,
+        to: to.title,
+        networkFrom: _getNetworkType(from),
+        networkTo: _getNetworkType(to),
+        amount: "1",
+        affiliateId: _affiliateId);
+
+    final responseData = await _getInfo(params, isFixedRateMode);
+
+
+    return ExchangeLimits(
+        min: Money.parse(responseData.minAmount, from),
+        max: Money.parse(responseData.maxAmount, from)
+    );
+  }
+
+  @override
   Future<ProviderRate> fetchRate(
       {required Money from, required bool isFixedRate, required CryptoCurrency to}) async {
     final params = LetsExchangeInfoRequest(float: !isFixedRate,
@@ -73,16 +92,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       {required TradeRequest request}) async {
     final networkFrom = _getNetworkType(request.depositAmount.currency);
     final networkTo = _getNetworkType(request.payoutAmount.currency);
-      // final params = {
-      //   "from": request.fromCurrency.title,
-      //   "to": request.toCurrency.title,
-      //   if (networkFrom != null) "network_from": networkFrom,
-      //   if (networkTo != null) "network_to": networkTo,
-      //   "amount": isFixedRateMode ? request.toAmount.toString() : request.fromAmount.toString(),
-      //   "affiliate_id": _affiliateId,
-      //   "float": isFixedRateMode ? "false" : "true",
-      // };
-
 
       final params = LetsExchangeInfoRequest(from: request.depositAmount.currency.title,
           to: request.payoutAmount.currency.title,

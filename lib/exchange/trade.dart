@@ -25,11 +25,8 @@ class Trade {
     this.password,
     this.providerId,
     this.memo,
-    this.fee,
     this.txId,
     this.isRefund,
-    this.isSendAll,
-    this.router,
   });
 
   static const tableName = "Trade";
@@ -67,10 +64,9 @@ class Trade {
   String? txId;
   bool? isRefund;
   bool? isSendAll;
-  String? router;
+
 
   int? chainId;
-  double? fee;
 
   String get chainName {
     if (chainId == null) {
@@ -150,9 +146,7 @@ class Trade {
       "txId": txId,
       "isRefund": isRefund == true ? 1 : 0,
       "isSendAll": isSendAll == true ? 1 : 0,
-      "router": router,
       "chainId": chainId,
-      "fee": fee,
     };
 
   static Future<Trade> fromSqliteRow(Map<String, dynamic> row) async {
@@ -179,11 +173,8 @@ class Trade {
       providerId: row["providerId"] as String?,
       state: TradeState.deserialize(raw: row["state"] as String),
       memo: row["memo"] as String?,
-      fee: row["fee"] as double?,
       txId: row["txId"] as String?,
       isRefund: (row["isRefund"] as int?) == 1,
-      isSendAll: (row["isSendAll"] as int?) == 1,
-      router: row["router"] as String?,
       depositAmount: await moneyFromSerialized(row["depositAmount"] as String),
       payoutAmount: await moneyFromSerialized(row["depositAmount"] as String),
       fundingAddress: row["fundingAddress"] as String,
@@ -226,4 +217,25 @@ class Trade {
   //     chainIconPath: row['${prefix}ChainIconPath'] as String?,
   //   );
   // }
+}
+
+class RoutableTrade extends Trade {
+  RoutableTrade({required this.routerData, required this.routerValue, required super.state, required super.depositAmount, required super.payoutAmount, required super.id, required super.provider, required super.payoutAddress, required super.refundAddress,
+
+
+    required super.fundingAddress, super.createdAt,
+    super.expiredAt,
+    super.extraId,
+    super.outputTransaction,
+    super.walletId,
+    super.toAddressExtraId,
+    super.password,
+    super.providerId,
+    super.memo,
+    super.txId,
+    super.isRefund, this.router,});
+
+  final String routerData;
+  final String routerValue;
+  final String? router;
 }
