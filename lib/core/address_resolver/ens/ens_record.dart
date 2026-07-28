@@ -24,7 +24,7 @@ class EnsRecord {
       ProxyWrapper().getHttpIOClient(),
     );
 
-    final ens = Ens(client: _client);
+    final ens = Ens(client: _client).withName(name);
     final coinType = getEnsCoinType(cur);
 
     if (coinType == null) {
@@ -33,16 +33,31 @@ class EnsRecord {
     }
 
     try {
+      // Every name points at its own resolver contract, so it has to be read from the
+      // registry first. The ens_dart default is a single legacy resolver, which returns
+      // stale (or empty) records for names that are not registered against it.
+      final resolverAddress = await ens.getResolverAddress(ens.nodeHash);
+
+      if (isZeroAddress(resolverAddress)) {
+        printV('No ENS resolver set for $name');
+        return '';
+      }
+
+      final resolver = Ens(client: ens.client, address: resolverAddress).withName(name);
+
       if (coinType == CoinType.ETH || coinType == CoinType.MATIC) {
-        return (await ens.withName(name).getAddress()).hex;
+        return (await resolver.getAddress()).hex;
       } else {
-        return await ens.withName(name).getCoinAddress(coinType);
+        return await resolver.getCoinAddress(coinType);
       }
     } catch (e) {
       printV(e);
       return '';
     }
   }
+
+  static bool isZeroAddress(EthereumAddress address) =>
+      address.addressBytes.every((byte) => byte == 0);
 
   static CoinType? getEnsCoinType(CryptoCurrency cur) => switch (cur) {
         CryptoCurrency.xmr => CoinType.XMR,
