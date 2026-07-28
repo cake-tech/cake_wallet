@@ -60,30 +60,12 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
   }
 
   Future<void> _renameTokenRows(String currentName, String newName) async {
-    if (getType() != WalletType.solana && getType() != WalletType.tron) {
-      return;
-    }
-
-    final oldNameStillUsed = await WalletInfo.get(currentName, getType()) != null;
-
     if (getType() == WalletType.solana) {
-      if (oldNameStillUsed) {
-        for (final token in await SPLToken.getAllForWallet(currentName)) {
-          await SPLToken.copyWith(token, walletName: newName).save();
-        }
-      } else {
-        await SPLToken.renameWallet(currentName, newName);
-      }
+      await SPLToken.renameWallet(currentName, newName);
     }
 
     if (getType() == WalletType.tron) {
-      if (oldNameStillUsed) {
-        for (final token in await TronToken.getAllForWallet(currentName)) {
-          await TronToken.copyWith(token, walletName: newName).save();
-        }
-      } else {
-        await TronToken.renameWallet(currentName, newName);
-      }
+      await TronToken.renameWallet(currentName, newName);
     }
   }
 
