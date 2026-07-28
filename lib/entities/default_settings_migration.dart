@@ -630,6 +630,13 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 69:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Exolix",
+            enabled: false,
+          );
+          break;
+        case 70:
           await addWalletNodeList(type: WalletType.robinhood);
           await _changeDefaultNode(
             sharedPreferences: sharedPreferences,
