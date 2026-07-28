@@ -833,6 +833,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) return;
+    _wallet.payjoinManager.configureMailroom(relays: relays, directories: directories);
+  }
+
+  @override
   bool isSelfSendPayjoinUri(Object wallet, String? pjUriString) {
     final _wallet = wallet as ElectrumWallet;
     if (_wallet is! BitcoinWallet) return false;
