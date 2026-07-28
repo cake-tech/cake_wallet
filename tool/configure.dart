@@ -294,6 +294,7 @@ abstract class Bitcoin {
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
   bool isSelfSendPayjoinUri(Object wallet, String? pjUriString);
+  void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);
