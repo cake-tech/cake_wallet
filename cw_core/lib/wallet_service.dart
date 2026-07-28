@@ -1,14 +1,16 @@
-import 'dart:convert';
-import 'dart:io';
+import "dart:convert";
+import "dart:io";
 
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/file.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:path/path.dart' as p;
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/spl_token.dart";
+import "package:cw_core/tron_token.dart";
+import "package:cw_core/utils/file.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:path/path.dart" as p;
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
     RFK extends WalletCredentials, RFH extends WalletCredentials> {
@@ -29,11 +31,13 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
   Future<void> remove(String wallet);
 
   Future<void> rename(String currentName, String password, String newName) async {
-    if (currentName == newName) return;
+    if (currentName == newName) {
+      return;
+    }
 
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw Exception("Wallet not found");
     }
 
     await copyWalletFilesTo(fromName: currentName, toName: newName, type: getType());
@@ -43,12 +47,42 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     currentWalletInfo.name = newName;
     await currentWalletInfo.save();
 
+    await _renameTokenRows(currentName, newName);
+
     final oldDir = Directory(p.join(await pathForWalletTypeDir(type: getType()), currentName));
     if (oldDir.existsSync()) {
       try {
         await oldDir.delete(recursive: true);
       } catch (e) {
         printV('rename: failed to delete old wallet dir "$currentName": $e');
+      }
+    }
+  }
+
+  Future<void> _renameTokenRows(String currentName, String newName) async {
+    if (getType() != WalletType.solana && getType() != WalletType.tron) {
+      return;
+    }
+
+    final oldNameStillUsed = await WalletInfo.get(currentName, getType()) != null;
+
+    if (getType() == WalletType.solana) {
+      if (oldNameStillUsed) {
+        for (final token in await SPLToken.getAllForWallet(currentName)) {
+          await SPLToken.copyWith(token, walletName: newName).save();
+        }
+      } else {
+        await SPLToken.renameWallet(currentName, newName);
+      }
+    }
+
+    if (getType() == WalletType.tron) {
+      if (oldNameStillUsed) {
+        for (final token in await TronToken.getAllForWallet(currentName)) {
+          await TronToken.copyWith(token, walletName: newName).save();
+        }
+      } else {
+        await TronToken.renameWallet(currentName, newName);
       }
     }
   }
@@ -77,14 +111,14 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
       final jsonSource = await read(path: path, password: password);
       try {
         final data = json.decode(jsonSource) as Map;
-        return data['mnemonic'] as String? ?? '';
+        return data["mnemonic"] as String? ?? "";
       } catch (_) {
         // if not a valid json
         return jsonSource.substring(0, 200);
       }
     } catch (_) {
       // if the file couldn't be opened or read
-      return '';
+      return "";
     }
   }
 

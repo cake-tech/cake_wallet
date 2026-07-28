@@ -27,7 +27,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
@@ -1260,22 +1259,22 @@ Future<void> _addXautTokenToExistingEthereumWallets() async {
 
     final ethereumWallets =
         allWallets.where((wallet) => wallet.type == WalletType.ethereum).toList();
+    const ethereumChainId = 1;
 
     for (final walletInfo in ethereumWallets) {
-      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
-      final boxName = '${sanitizedName}_${Erc20Token.ethereumBoxName}';
+      final existingToken = await Erc20Token.getByContract(
+        walletInfo.name,
+        ethereumChainId,
+        xautToken.contractAddress,
+      );
 
-      Box<Erc20Token> tokenBox;
-      if (CakeHive.isBoxOpen(boxName)) {
-        tokenBox = CakeHive.box<Erc20Token>(boxName);
-      } else {
-        tokenBox = await CakeHive.openBox<Erc20Token>(boxName);
-      }
+      if (existingToken != null) continue;
 
-      final xautAddress = xautToken.contractAddress;
-      if (!tokenBox.containsKey(xautAddress)) {
-        await tokenBox.put(xautAddress, xautToken);
-      }
+      await Erc20Token.copyWith(
+        xautToken,
+        walletName: walletInfo.name,
+        chainId: ethereumChainId,
+      ).save();
     }
   } catch (e) {
     printV('Error in XAUT migration: $e');
@@ -1299,20 +1298,11 @@ Future<void> _addXaut0TokenToExistingSolanaWallets() async {
     final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
 
     for (final walletInfo in solanaWallets) {
-      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
-      final boxName = '${sanitizedName}_${SPLToken.boxName}';
+      final existingToken = await SPLToken.getByMint(walletInfo.name, xaut0Token.mintAddress);
 
-      Box<SPLToken> tokenBox;
-      if (CakeHive.isBoxOpen(boxName)) {
-        tokenBox = CakeHive.box<SPLToken>(boxName);
-      } else {
-        tokenBox = await CakeHive.openBox<SPLToken>(boxName);
-      }
+      if (existingToken != null) continue;
 
-      final xaut0Address = xaut0Token.mintAddress;
-      if (!tokenBox.containsKey(xaut0Address)) {
-        await tokenBox.put(xaut0Address, xaut0Token);
-      }
+      await SPLToken.copyWith(xaut0Token, walletName: walletInfo.name).save();
     }
   } catch (e) {
     printV('Error in XAUT0 migration: $e');
