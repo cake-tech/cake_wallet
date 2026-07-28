@@ -1704,6 +1704,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/wallet_addresses.dart';
 
 """;
   const zcashCWHeaders = """
@@ -1721,13 +1722,15 @@ abstract class Zcash {
       WalletInfo? walletInfo,
       String? password,
       String? mnemonic,
-      required String? passphrase});
+      required String? passphrase,
+      int network = 0});
   WalletCredentials createZcashRestoreWalletFromSeedCredentials(
       {required String name,
       required String mnemonic,
       required String password,
       String? passphrase,
-      required int? height});
+      required int? height,
+      int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password, required int height});
   String getAddress(WalletBase wallet);
@@ -1766,6 +1769,7 @@ abstract class Zcash {
   Future<int> getHeightByDate(DateTime date);
   bool showMissingFundsCard(WalletBase wallet);
   Future<void> rescanInternalChange(WalletBase wallet);
+  bool ironwoodActive(WalletAddresses walletAddresses);
 }
   """;
 
