@@ -89,7 +89,7 @@ class AddressResolverService {
             printV('[address resolver service] ...skipping $src (cannot handle)');
             continue;
           }
-          if (!provider.supportedCurrencies.contains(currency)) {
+          if (!provider.supportsCurrency(currency)) {
             printV('[address resolver service] ...skipping $src (unsupported currency)');
             continue;
           }

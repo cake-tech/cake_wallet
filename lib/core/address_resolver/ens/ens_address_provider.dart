@@ -14,6 +14,16 @@ class EnsAddressProvider extends AddressLookupProvider {
   List<CryptoCurrency> get supportedCurrencies =>
       [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.eth];
 
+  /// In addition to the fixed list above, every ERC-20 token on Ethereum
+  /// mainnet is supported: those are held by the same account as native ETH,
+  /// so they resolve through the very same `addr(60)` record.
+  ///
+  /// Tokens on the other EVM chains Cake supports (Polygon, Base, Arbitrum,
+  /// BSC) are NOT accepted - see `EnsRecord.isEthereumMainnetToken`.
+  @override
+  bool supportsCurrency(CryptoCurrency currency) =>
+      supportedCurrencies.contains(currency) || EnsRecord.isEthereumMainnetToken(currency);
+
   @override
   bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsENS;
 

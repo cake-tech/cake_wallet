@@ -49,7 +49,9 @@ class UnstoppableAddressProvider extends AddressLookupProvider {
     "dream",
     "email",
     "emir",
-    "eth",
+    // NOTE: `eth` is intentionally absent. Unstoppable Domains runs before the
+    // ENS provider in AddressResolverService, and on-chain ENS is the
+    // authoritative source for `.eth` names, so UD must not intercept them.
     "ethermail",
     "family",
     "farms",
@@ -152,8 +154,31 @@ class UnstoppableAddressProvider extends AddressLookupProvider {
   @override
   AddressSource get source => AddressSource.unstoppableDomains;
 
+  /// Matches the ticker part of an Unstoppable Domains `crypto.{TICKER}.address`
+  /// record key. Anything outside this shape cannot name a UD record.
+  static final RegExp _tickerPattern = RegExp(r'^[A-Z0-9]{2,15}$');
+
   @override
   List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.xmr, CryptoCurrency.btc];
+
+  /// Unstoppable Domains stores one record per ticker
+  /// (`crypto.{TICKER}.address`, see [fetchUnstoppableDomainAddress]), so the
+  /// set of supported currencies is not a fixed list: it is "every currency
+  /// whose ticker can name a record". A ticker that the domain owner has not
+  /// published simply yields no record and the resolver moves on, so widening
+  /// here cannot produce an address for the wrong coin.
+  ///
+  /// This restores the pre-6.3.0 behaviour, where the ticker was passed
+  /// straight through for any wallet.
+  @override
+  bool supportsCurrency(CryptoCurrency currency) {
+    // Lightning has no UD record type, and `btcln.title` is 'BTC' - looking it
+    // up would hand back the recipient's on-chain Bitcoin address for a
+    // Lightning payment. LNURL-pay is the provider for this currency.
+    if (currency == CryptoCurrency.btcln) return false;
+
+    return _tickerPattern.hasMatch(currency.title.trim().toUpperCase());
+  }
 
   @override
   bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsUnstoppableDomains;
