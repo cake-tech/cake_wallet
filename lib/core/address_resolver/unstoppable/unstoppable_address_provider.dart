@@ -49,9 +49,13 @@ class UnstoppableAddressProvider extends AddressLookupProvider {
     "dream",
     "email",
     "emir",
-    // NOTE: `eth` is intentionally absent. Unstoppable Domains runs before the
-    // ENS provider in AddressResolverService, and on-chain ENS is the
-    // authoritative source for `.eth` names, so UD must not intercept them.
+    // `eth` must stay in this list. EnsAddressProvider runs first (see
+    // AddressResolverService._buildProviders) and is the authoritative source
+    // for `.eth`, but it only answers for Ethereum mainnet currencies - its
+    // non-EVM code path returns bare hex from `getCoinAddress`, which is not a
+    // usable address. Unstoppable Domains is therefore the fallback that
+    // serves `.eth` on Bitcoin, Monero and every other wallet.
+    "eth",
     "ethermail",
     "family",
     "farms",

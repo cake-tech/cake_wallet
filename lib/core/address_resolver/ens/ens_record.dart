@@ -1,6 +1,5 @@
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -50,6 +49,11 @@ class EnsRecord {
     // exactly what the `addr(60)` ETH record points at, so they share it.
     if (isEthereumMainnetToken(cur)) return CoinType.ETH;
 
+    // The non-ETH arms below are no longer reachable: EnsAddressProvider only
+    // accepts Ethereum mainnet currencies, so nothing gets as far as the
+    // `getCoinAddress` branch in fetchEnsAddress. They are left in place
+    // because that branch would have to return properly encoded addresses
+    // before any of them could be re-enabled.
     return switch (cur) {
       CryptoCurrency.xmr => CoinType.XMR,
       CryptoCurrency.btc => CoinType.BTC,
@@ -67,9 +71,18 @@ class EnsRecord {
   /// `EVMChainWallet` drops any token whose tag does not match the selected
   /// chain, so the tag is a reliable discriminator here.
   ///
+  /// The check is on the tag alone, deliberately not on `cur is Erc20Token`.
+  /// Only the send flow hands us runtime `Erc20Token` instances; the exchange,
+  /// contact and buy/sell screens pass the const [CryptoCurrency] entries, of
+  /// which ~38 are Ethereum mainnet ERC-20s carrying `tag: 'ETH'` (DAI,
+  /// USDTERC20, USDC, WBTC, WETH, ...). Narrowing on the type would leave ENS
+  /// broken on those screens. `Erc20Token` still matches: it declares its own
+  /// `tag` field, which overrides the [CryptoCurrency] getter, so the value is
+  /// the same one either way.
+  ///
   /// Tokens on the other EVM chains are deliberately excluded: resolving them
   /// would require reading that chain's own ENS coin record, and `addr(60)`
-  /// is allowed to differ from it.
-  static bool isEthereumMainnetToken(CryptoCurrency cur) =>
-      cur is Erc20Token && cur.tag?.toUpperCase() == 'ETH';
+  /// is allowed to differ from it. Their tags are POL / BASE / ARB / BSC, and
+  /// SPL and TRC-20 tokens are tagged SOL and TRX, so none of them match.
+  static bool isEthereumMainnetToken(CryptoCurrency cur) => cur.tag?.toUpperCase() == 'ETH';
 }

@@ -10,13 +10,19 @@ class EnsAddressProvider extends AddressLookupProvider {
   @override
   AddressSource get source => AddressSource.ens;
 
+  /// ENS is Ethereum-mainnet only here.
+  ///
+  /// XMR and BTC used to be listed, but the only way to serve them is
+  /// `EnsRecord.fetchEnsAddress`'s `getCoinAddress` branch, which hands back
+  /// `hex.encode(bytes)` - a bare hex blob, not a base58/bech32 address. `.eth`
+  /// names on those wallets are resolved by Unstoppable Domains instead, which
+  /// runs right after this provider.
   @override
-  List<CryptoCurrency> get supportedCurrencies =>
-      [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.eth];
+  List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.eth];
 
-  /// In addition to the fixed list above, every ERC-20 token on Ethereum
-  /// mainnet is supported: those are held by the same account as native ETH,
-  /// so they resolve through the very same `addr(60)` record.
+  /// In addition to native ETH, every ERC-20 token on Ethereum mainnet is
+  /// supported: those are held by the same account as native ETH, so they
+  /// resolve through the very same `addr(60)` record.
   ///
   /// Tokens on the other EVM chains Cake supports (Polygon, Base, Arbitrum,
   /// BSC) are NOT accepted - see `EnsRecord.isEthereumMainnetToken`.

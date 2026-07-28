@@ -171,13 +171,10 @@ ltcmweb1qq0at62jjucmawxp78qutn0cqwkwahcfx7fxls0r2ma5llg5w6wyy2qe20gxa3rku2658j88
     group('unstoppableDomains', () {
       test('contains expected TLDs', () {
         expect(UnstoppableAddressProvider.unstoppableDomains, contains('crypto'));
+        expect(UnstoppableAddressProvider.unstoppableDomains, contains('eth'));
         expect(UnstoppableAddressProvider.unstoppableDomains, contains('bitcoin'));
         expect(UnstoppableAddressProvider.unstoppableDomains, contains('x'));
         expect(UnstoppableAddressProvider.unstoppableDomains, contains('wallet'));
-      });
-
-      test('does not claim the .eth TLD, which belongs to on-chain ENS', () {
-        expect(UnstoppableAddressProvider.unstoppableDomains, isNot(contains('eth')));
       });
     });
   });

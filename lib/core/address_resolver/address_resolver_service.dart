@@ -51,9 +51,14 @@ class AddressResolverService {
       TwitterAddressProvider(),
       MastodonAddressProvider(),
       YatAddressProvider(),
+      // ENS must be tried before Unstoppable Domains: both claim the `.eth`
+      // TLD, providers run in order and the first non-empty result wins, and
+      // on-chain ENS is the authoritative source for `.eth`. ENS only accepts
+      // Ethereum mainnet currencies, so `.eth` on any other wallet still falls
+      // through to Unstoppable Domains, which is what resolved it before.
+      EnsAddressProvider(),
       UnstoppableAddressProvider(),
       OpenaliasAddressProvider(),
-      EnsAddressProvider(),
       ZcashNameAddressProvider(),
       ZcashMeAddressProvider(),
       WellKnownAddressProvider(),
