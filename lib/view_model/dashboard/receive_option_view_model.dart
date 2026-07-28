@@ -3,7 +3,6 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_zcash/cw_zcash.dart';
 import 'package:mobx/mobx.dart';
 
 part 'receive_option_view_model.g.dart';
@@ -22,7 +21,7 @@ abstract class ReceiveOptionViewModelBase with Store {
                         : ReceivePageOption.mainnet) {
     if (_wallet.type == WalletType.zcash) {
       reaction<bool>(
-        (_) => (_wallet.walletAddresses as ZcashWalletAddresses).ironwoodActive,
+        (_) => zcash!.ironwoodActive(_wallet.walletAddresses),
         (_) => _syncZcashShieldedLabel(),
       );
     }

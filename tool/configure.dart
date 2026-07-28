@@ -1692,6 +1692,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/wallet_addresses.dart';
 
 """;
   const zcashCWHeaders = """
@@ -1756,6 +1757,7 @@ abstract class Zcash {
   Future<int> getHeightByDate(DateTime date);
   bool showMissingFundsCard(WalletBase wallet);
   Future<void> rescanInternalChange(WalletBase wallet);
+  bool ironwoodActive(WalletAddresses walletAddresses);
 }
   """;
 
