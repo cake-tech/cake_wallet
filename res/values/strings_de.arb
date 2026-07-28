@@ -64,6 +64,7 @@
   "already_your_username": "Das ist bereits Ihr Benutzername!",
   "always": "Immer",
   "amount": "Betrag: ",
+  "amount_hidden": "Versteckter Betrag",
   "amount_is_below_minimum_limit": "Ihr Guthaben nach Gebühren wäre geringer als der für den Tausch erforderliche Mindestbetrag (${min})",
   "amount_is_estimate": "Der Empfangsbetrag ist eine Schätzung",
   "amount_is_guaranteed": "Der Empfangsbetrag ist garantiert",

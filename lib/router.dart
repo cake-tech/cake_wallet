@@ -159,6 +159,7 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -815,6 +816,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final isChildWallet = args['isChildWallet'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
+      final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
+      final setZcashNetwork =
+          args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
       final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
       final viewModelParam = {'type': type, 'isPow': false};
@@ -825,6 +829,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           isChildWallet: isChildWallet,
           useTestnet: useTestnet,
           toggleUseTestnet: toggleTestnet,
+          zcashNetwork: zcashNetwork,
+          setZcashNetwork: setZcashNetwork,
           advancedPrivacySettingsViewModel:
               getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
           nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
