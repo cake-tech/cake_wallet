@@ -11,7 +11,6 @@ import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift/sideshift_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
@@ -50,8 +49,7 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = SideShiftExchangeProvider();
         break;
       case ExchangeProviderDescription.simpleSwap:
-        _provider = SimpleSwapExchangeProvider();
-        break;
+        throw UnimplementedError();
       case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
         break;
@@ -76,7 +74,7 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = XOSwapExchangeProvider();
         break;
       case ExchangeProviderDescription.swapsXyz:
-        _provider = SwapsXyzExchangeProvider();
+        _provider = SwapsXyzExchangeProvider(settingsStore: appStore.settingsStore);
         break;
       case ExchangeProviderDescription.jupiter:
         _provider = JupiterExchangeProvider();
@@ -166,10 +164,9 @@ abstract class TradeDetailsViewModelBase with Store {
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
-    final tradeFrom = trade.from;
-    final tradeTo = trade.to;
+    final tradeFrom = trade.depositCurrency;
+    final tradeTo = trade.payoutCurrency;
 
-    if (tradeFrom != null && tradeTo != null) {
       items.add(TradeDetailsListCardItem.tradeDetails(
         id: trade.id,
         extraId: trade.extraId,
@@ -181,11 +178,10 @@ abstract class TradeDetailsViewModelBase with Store {
           showBar<void>(context, S.of(context).copied_to_clipboard);
         },
       ));
-    }
 
     final destinationMemo = trade.toAddressExtraId;
-    final destinationCurrency = trade.to;
-    if (destinationMemo != null && destinationMemo.isNotEmpty && destinationCurrency != null) {
+    final destinationCurrency = trade.payoutCurrency;
+    if (destinationMemo != null && destinationMemo.isNotEmpty) {
       final isDestinationTag =
           memoLabelTypeFor(destinationCurrency) == MemoLabelType.destinationTag;
       items.add(StandartListItem(

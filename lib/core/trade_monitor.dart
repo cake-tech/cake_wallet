@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/simpleswap/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -45,7 +44,7 @@ class TradeMonitor {
       case ExchangeProviderDescription.sideShift:
         return SideShiftExchangeProvider();
       case ExchangeProviderDescription.simpleSwap:
-        return SimpleSwapExchangeProvider();
+        throw UnimplementedError();
       case ExchangeProviderDescription.trocador:
         return TrocadorExchangeProvider();
       case ExchangeProviderDescription.exolix:

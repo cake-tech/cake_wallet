@@ -5,6 +5,7 @@ import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/utils/currency_from_serialized.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/generate_name.dart";
 import "package:sqflite/sqflite.dart";
@@ -64,6 +65,9 @@ class Trade {
   String? txId;
   bool? isRefund;
   bool? isSendAll;
+
+  CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
+  CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
 
 
   int? chainId;

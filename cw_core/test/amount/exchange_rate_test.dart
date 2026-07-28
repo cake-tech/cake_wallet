@@ -43,6 +43,35 @@ void main() {
       expect(rate.quote, Money.parse('10', CryptoCurrency.eth));
     });
 
+    test('base currency with 18 decimal places: 2 ETH for 5.000 EUR', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse('2', CryptoCurrency.eth),
+        Money.parse('5000.00', EUR),
+      );
+
+      expect(rate.base, CryptoCurrency.eth);
+      expect(rate.quote, Money.parse('2500.00', EUR));
+    });
+
+    test('fiat base currency: 60.000 EUR for 1 BTC', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse('60000.00', EUR),
+        Money.parse('1', CryptoCurrency.btc),
+      );
+
+      expect(rate.base, EUR);
+      expect(rate.quote, Money.parse('0.00001667', CryptoCurrency.btc));
+    });
+
+    test('same currency on both sides: 2 BTC for 2 BTC is a rate of 1', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse('2', CryptoCurrency.btc),
+        Money.parse('2', CryptoCurrency.btc),
+      );
+
+      expect(rate.quote, Money.parse('1', CryptoCurrency.btc));
+    });
+
     test('derived rate converts the from amount back into the to amount', () {
       final from = Money.parse('0.5', CryptoCurrency.btc);
       final to = Money.parse('30000.00', EUR);
@@ -62,19 +91,65 @@ void main() {
     });
 
     test('quote is rounded to the smallest unit of the to currency', () {
-      // 3 BTC for 1 EUR: 1 BTC = 0.333... EUR, rounded down to cents.
       final roundedDown = ExchangeRate.fromAmounts(
         Money.parse('3', CryptoCurrency.btc),
         Money.parse('1.00', EUR),
       );
       expect(roundedDown.quote, Money.parse('0.33', EUR));
 
-      // 2 BTC for 0.01 EUR: 1 BTC = 0.005 EUR, half rounds away from zero.
       final roundedUp = ExchangeRate.fromAmounts(
         Money.parse('2', CryptoCurrency.btc),
         Money.parse('0.01', EUR),
       );
       expect(roundedUp.quote, Money.parse('0.01', EUR));
+    });
+
+    test('rounding the quote makes the round trip lossy', () {
+      final from = Money.parse('3', CryptoCurrency.btc);
+      final rate = ExchangeRate.fromAmounts(from, Money.parse('1.00', EUR));
+
+      expect(rate.convert(from), Money.parse('0.99', EUR));
+    });
+
+    test('negative amounts keep their sign', () {
+      final negativeTo = ExchangeRate.fromAmounts(
+        Money.parse('4', CryptoCurrency.btc),
+        Money.parse('-200.00', EUR),
+      );
+      expect(negativeTo.quote, Money.parse('-50.00', EUR));
+
+      final negativeRounded = ExchangeRate.fromAmounts(
+        Money.parse('2', CryptoCurrency.btc),
+        Money.fromInt(-1, EUR),
+      );
+      expect(negativeRounded.quote, Money.fromInt(-1, EUR));
+    });
+
+    test('to amount too small for the quote currency gives a zero rate', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse('3', CryptoCurrency.btc),
+        Money.fromInt(1, EUR),
+      );
+
+      expect(rate.quote, Money.zero(EUR));
+    });
+
+    test('single base unit from amount: 1 sat for 1 EUR', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money(BigInt.one, CryptoCurrency.btc),
+        Money.parse('1.00', EUR),
+      );
+
+      expect(rate.quote, Money.parse('100000000.00', EUR));
+    });
+
+    test('no int overflow with large amounts', () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse('21000000', CryptoCurrency.btc),
+        Money.parse('1260000000000.00', EUR),
+      );
+
+      expect(rate.quote, Money.parse('60000.00', EUR));
     });
 
     test('zero to amount gives a zero rate', () {
