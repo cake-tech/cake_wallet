@@ -10,6 +10,7 @@ import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/base_text_form_field.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
@@ -413,23 +414,14 @@ class _AddressSearchBox extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(99999),
                 ),
-                child: TextField(
+                child: BaseTextFormField(
                   controller: controller,
-                  decoration: InputDecoration(
-                    hintText: S.of(context).search,
-                    hintStyle: const TextStyle(fontWeight: FontWeight.w600),
-                    prefixIcon: const Icon(Icons.search),
-                    filled: false,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(99999),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(99999),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
+                  hintText: S.of(context).search,
+                  placeholderTextStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  prefixIcon: const Icon(Icons.search),
+                  fillColor: Colors.transparent,
+                  borderRadius: BorderRadius.circular(99999),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 ),
               ),
             ),
