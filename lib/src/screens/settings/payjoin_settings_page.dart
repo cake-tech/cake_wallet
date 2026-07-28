@@ -19,7 +19,7 @@ class PayjoinSettingsPage extends StatelessWidget {
       child: Column(
         children: [
           ModalTopBar(
-            title: 'Payjoin',
+            title: S.of(context).payjoin,
             leadingIcon: Icon(Icons.arrow_back_ios_new),
             onLeadingPressed: Navigator.of(context).pop,
           ),
@@ -38,12 +38,12 @@ class PayjoinSettingsPage extends StatelessWidget {
                         },
                       ),
                       SettingsCellWithArrow(
-                        title: 'Payjoin Servers',
+                        title: S.of(context).payjoin_servers,
                         handler: (BuildContext context) =>
                             Navigator.of(context).pushNamed(Routes.managePayjoinServers),
                       ),
                       SettingsCellWithArrow(
-                        title: 'Payjoin Logs',
+                        title: S.of(context).payjoin_logs,
                         handler: (BuildContext context) =>
                             Navigator.of(context).pushNamed(Routes.payjoinLogs),
                       ),

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/payjoin/payjoin_server.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
@@ -36,7 +37,7 @@ class _ManagePayjoinServersBodyState
   Widget build(BuildContext context) {
     return ModalPageWrapper(
       topBar: ModalTopBar(
-        title: 'Payjoin Servers',
+        title: S.of(context).payjoin_servers,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
         onLeadingPressed: () => Navigator.of(context).pop(),
         trailingWidget: Row(
@@ -61,8 +62,8 @@ class _ManagePayjoinServersBodyState
       ),
       header: ModalHeader(
         iconPath: 'assets/new-ui/settings_row_icons/payjoin.svg',
-        message: 'Manage OHTTP relays and payjoin directories used for Payjoin v2.',
-        title: 'Payjoin',
+        message: S.of(context).manage_payjoin_servers_description,
+        title: S.of(context).payjoin,
       ),
       content: Consumer<PayjoinServerListViewModel>(
         builder: (_, vm, __) => ListView(
@@ -71,14 +72,14 @@ class _ManagePayjoinServersBodyState
           children: [
             _buildSection(
               context,
-              'OHTTP Relays',
+              S.of(context).ohttp_relays,
               vm.relays,
               vm,
             ),
             SizedBox(height: 24),
             _buildSection(
               context,
-              'Payjoin Directories',
+              S.of(context).payjoin_directories,
               vm.directories,
               vm,
             ),
@@ -192,7 +193,7 @@ class _PayjoinServerDialogState extends State<_PayjoinServerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.editing == null ? 'Add Server' : 'Edit Server'),
+      title: Text(widget.editing == null ? S.of(context).add_server : S.of(context).edit_server),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -200,20 +201,20 @@ class _PayjoinServerDialogState extends State<_PayjoinServerDialog> {
             controller: _urlController,
             decoration: InputDecoration(
               hintText: 'https://example.com',
-              labelText: 'Server URL',
+              labelText: S.of(context).server_url,
             ),
             autofocus: true,
           ),
           SizedBox(height: 16),
           SegmentedButton<PayjoinServerType>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: PayjoinServerType.relay,
-                label: Text('OHTTP Relay'),
+                label: Text(S.of(context).ohttp_relay),
               ),
               ButtonSegment(
                 value: PayjoinServerType.directory,
-                label: Text('Payjoin Directory'),
+                label: Text(S.of(context).payjoin_directory),
               ),
             ],
             selected: {_selectedType},
@@ -226,7 +227,7 @@ class _PayjoinServerDialogState extends State<_PayjoinServerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('Cancel'),
+          child: Text(S.of(context).cancel),
         ),
         TextButton(
           onPressed: () {
@@ -239,7 +240,7 @@ class _PayjoinServerDialogState extends State<_PayjoinServerDialog> {
             }
             Navigator.of(context).pop();
           },
-          child: Text(widget.editing == null ? 'Add' : 'Save'),
+          child: Text(widget.editing == null ? S.of(context).add : S.of(context).save),
         ),
       ],
     );
@@ -350,7 +351,7 @@ class _PayjoinServerRow extends StatelessWidget {
           children: [
             ListTile(
               leading: Icon(Icons.edit_outlined),
-              title: Text('Edit'),
+              title: Text(S.of(context).edit),
               onTap: () {
                 Navigator.of(ctx).pop();
                 onEdit(server);
@@ -362,7 +363,7 @@ class _PayjoinServerRow extends StatelessWidget {
                 color: Theme.of(context).colorScheme.error,
               ),
               title: Text(
-                'Remove',
+                S.of(context).remove,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               onTap: () {
@@ -380,19 +381,19 @@ class _PayjoinServerRow extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Remove Server'),
-        content: Text('Remove ${server.url}?'),
+        title: Text(S.of(context).remove_server),
+        content: Text(S.of(context).remove_server_confirm(server.url)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Cancel'),
+            child: Text(S.of(context).cancel),
           ),
           TextButton(
             onPressed: () {
               onDelete();
               Navigator.of(ctx).pop();
             },
-            child: Text('Remove'),
+            child: Text(S.of(context).remove),
           ),
         ],
       ),
