@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
@@ -96,8 +97,8 @@ class _WalletSwitcherContent extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           child: Row(
                             children: [
-                              Image.asset(
-                                getCryptoCurrencyIconForWalletListItem(
+                              CakeImageWidget(
+                                imageUrl: getCryptoCurrencyIconForWalletListItem(
                                   wallet.type,
                                 ),
                                 width: 32,
