@@ -27,7 +27,7 @@ class ExchangeProviderRegistry {
     ExchangeProviderDescription.letsExchange: LetsExchangeExchangeProvider(),
     ExchangeProviderDescription.stealthEx: StealthExExchangeProvider(),
     ExchangeProviderDescription.xoSwap: XOSwapExchangeProvider(),
-    ExchangeProviderDescription.swapsXyz: SwapsXyzExchangeProvider(),
+    ExchangeProviderDescription.swapsXyz: SwapsXyzExchangeProvider(settingsStore: _settingsStore),
     ExchangeProviderDescription.jupiter: JupiterExchangeProvider(),
     ExchangeProviderDescription.nearIntents: NearIntentsExchangeProvider(),
     ExchangeProviderDescription.trocador: TrocadorExchangeProvider(
