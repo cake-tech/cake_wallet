@@ -23,6 +23,18 @@ final class RatesLoaded extends RateState {
 
   final List<ProviderRate> rates;
 
-  Money get minLimit => rates.map((r) => r.limits.min).min;
-  Money get maxLimit => rates.map((r) => r.limits.max).max;
-}
+  Money? get minLimit {
+    final limits = rates.map((r) => r.limits.min);
+    if(limits.contains(null)) {
+      return null;
+    }
+    return limits.whereType<Money>().min;
+  }
+
+  Money? get maxLimit {
+    final limits = rates.map((r) => r.limits.max);
+    if(limits.contains(null)) {
+      return null;
+    }
+    return limits.whereType<Money>().max;
+  }}
