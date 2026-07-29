@@ -1371,13 +1371,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
-  bool _hasTaprootInput(PendingTransaction? pendingTransaction) {
-    if (walletType == WalletType.bitcoin && pendingTransaction != null) {
-      return bitcoin!.hasTaprootInput(pendingTransaction);
-    }
-
-    return false;
-  }
 
   Future<void> registerSwapsXyzTransaction(Trade trade) async {
     try {
@@ -1441,7 +1434,4 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       selectedCryptoCurrency = token;
     }
   }
-
-  String _decodeMethodSelector(String s) =>
-      (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
 }
