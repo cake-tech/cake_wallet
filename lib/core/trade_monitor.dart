@@ -13,9 +13,7 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -41,16 +39,12 @@ class TradeMonitor {
     switch (description) {
       case ExchangeProviderDescription.changeNow:
         return ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
-      case ExchangeProviderDescription.sideShift:
-        return SideShiftExchangeProvider();
       case ExchangeProviderDescription.simpleSwap:
         throw UnimplementedError();
       case ExchangeProviderDescription.trocador:
         return TrocadorExchangeProvider();
       case ExchangeProviderDescription.exolix:
         return ExolixExchangeProvider();
-      case ExchangeProviderDescription.thorChain:
-        return ThorChainExchangeProvider();
       case ExchangeProviderDescription.swapTrade:
         return SwapTradeExchangeProvider();
       case ExchangeProviderDescription.letsExchange:
@@ -61,8 +55,6 @@ class TradeMonitor {
         return ChainflipExchangeProvider();
       case ExchangeProviderDescription.xoSwap:
         return XOSwapExchangeProvider();
-      case ExchangeProviderDescription.swapsXyz:
-        return SwapsXyzExchangeProvider();
       case ExchangeProviderDescription.jupiter:
         return JupiterExchangeProvider();
       case ExchangeProviderDescription.nearIntents:
