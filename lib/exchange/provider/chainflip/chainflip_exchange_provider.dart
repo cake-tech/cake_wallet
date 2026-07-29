@@ -166,7 +166,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    try {
       final channelParts = id.split("-");
       final network = channelParts[1];
       final normalizedNetwork = _normalizeNetworkName(network);
@@ -213,10 +212,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       );
 
       return newTrade;
-    } catch (e) {
-      printV(e.toString());
-      rethrow;
-    }
   }
 
   String _normalizeNetworkName(String name) {

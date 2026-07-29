@@ -7,6 +7,16 @@ import "package:json_annotation/json_annotation.dart";
 
 part "chainflip_api_schema.g.dart";
 
+class IntStringConverter extends JsonConverter<int, String> {
+  const IntStringConverter();
+
+  @override
+  int fromJson(String json) => int.parse(json);
+
+  @override
+  String toJson(int value) => value.toString();
+}
+
 class ChainflipCurrencyConverter implements JsonConverter<CryptoCurrency, String> {
   const ChainflipCurrencyConverter();
 
@@ -454,10 +464,13 @@ class ChainflipSwapRequest {
   final String minimumPrice;
   @JsonKey(name: "refundAddress")
   final String refundAddress;
+  @IntStringConverter()
   @JsonKey(name: "retryDurationInBlocks")
   final int retryDurationInBlocks;
+  @IntStringConverter()
   @JsonKey(name: "numberOfChunks", includeIfNull: false)
   final int? numberOfChunks;
+  @IntStringConverter()
   @JsonKey(name: "chunkIntervalBlocks", includeIfNull: false)
   final int? chunkIntervalBlocks;
 
@@ -498,6 +511,7 @@ class ChainflipSwapResponse {
   final BigInt channelOpeningFeeNative;
 }
 
+@IntStringConverter()
 @JsonSerializable()
 class ChainflipStatusRequest {
   const ChainflipStatusRequest({
