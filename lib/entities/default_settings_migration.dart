@@ -4,7 +4,6 @@ import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -61,10 +60,9 @@ Future<void> defaultSettingsMigration(
     {required int version,
     required SharedPreferences sharedPreferences,
     required SecureStorage secureStorage,
-    required Box<Contact> contactSource,
     required Box<HavenSeedStore> havenSeedStore}) async {
   if (Platform.isIOS) {
-    await ios_migrate_v1(contactSource);
+    await ios_migrate_v1();
   }
 
   // check current nodes for nullability regardless of the version

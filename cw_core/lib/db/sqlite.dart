@@ -63,7 +63,7 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 9,
+  db = await openDatabase(dbFile.path, version: 10,
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
     printV("migrating: $oldVersion, $newVersion");
     if (oldVersion <= 1) {
@@ -146,6 +146,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         column: 'isGradientOnly',
         definition: 'BOOLEAN DEFAULT FALSE',
       );
+    }
+    if (oldVersion <= 9) {
+      await _createContactTable(db);
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -242,6 +245,7 @@ CREATE TABLE BalanceCardStyleSettings (
     await _createBridgeTransferTable(db);
     await _createNodeTable(db);
     await _createTradeTable(db);
+    await _createContactTable(db);
   });
 }
 
@@ -305,6 +309,23 @@ CREATE TABLE IF NOT EXISTS Trade (
   await db.execute('''
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
 ON Trade (id);
+''');
+}
+
+Future<void> _createContactTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS Contact (
+  contactId INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL DEFAULT '',
+  address TEXT NOT NULL DEFAULT '',
+  raw INTEGER NOT NULL DEFAULT 0,
+  lastChange INTEGER NOT NULL DEFAULT 0,
+  displayName TEXT NOT NULL DEFAULT '',
+  sortOrder INTEGER NOT NULL DEFAULT 0
+);
+''');
+  await db.execute('''
+CREATE INDEX IF NOT EXISTS idx_contact_address ON Contact(address);
 ''');
 }
 

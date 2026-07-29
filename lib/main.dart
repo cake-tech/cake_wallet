@@ -11,8 +11,7 @@ import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/entities/default_settings_migration.dart';
+import "package:cake_wallet/entities/default_settings_migration.dart";
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
@@ -49,6 +48,7 @@ import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
+import 'package:cake_wallet/entities/contact_legacy.dart' show performContactHiveMigration;
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
@@ -217,10 +217,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final appDir = await getAppDir();
   CakeHive.init(appDir.path);
 
-  if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
-    CakeHive.registerAdapter(ContactAdapter());
-  }
-
   if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
     CakeHive.registerAdapter(TransactionDescriptionAdapter());
   }
@@ -282,12 +278,12 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
-  final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
   await performTradeHiveMigration(secureStorage);
   await performNodeHiveMigration();
+  await performContactHiveMigration();
   await validateBuiltinNodes();
 
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
@@ -305,7 +301,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await initialSetup(
     loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
-    contactSource: contacts,
     ordersSource: orders,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     // fiatConvertationService: fiatConvertationService,
@@ -323,7 +318,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 Future<void> initialSetup({
   required bool loadWallet,
   required SharedPreferences sharedPreferences,
-  required Box<Contact> contactSource,
   required Box<Order> ordersSource,
   // required FiatConvertationService fiatConvertationService,
   required Box<Template> templates,
@@ -341,11 +335,9 @@ Future<void> initialSetup({
     secureStorage: secureStorage,
     version: initialMigrationVersion,
     sharedPreferences: sharedPreferences,
-    contactSource: contactSource,
     havenSeedStore: havenSeedStore,
   );
   await setup(
-    contactSource: contactSource,
     ordersSource: ordersSource,
     templates: templates,
     exchangeTemplates: exchangeTemplates,

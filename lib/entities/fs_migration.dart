@@ -4,10 +4,9 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/contact.dart' as sqlite;
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -29,7 +28,7 @@ Future<void> migrate_android_v1() async {
   await android_migrate_wallets(appDocDir: appDocDir);
 }
 
-Future<void> ios_migrate_v1(Box<Contact> contactSource) async {
+Future<void> ios_migrate_v1() async {
   final prefs = await SharedPreferences.getInstance();
 
   if (prefs.getBool('ios_migration_v1_completed') ?? false) {
@@ -41,7 +40,7 @@ Future<void> ios_migrate_v1(Box<Contact> contactSource) async {
   await ios_migrate_wallet_passwords();
   await ios_migrate_wallet_info();
   await ios_migrate_trades_list();
-  await ios_migrate_address_book(contactSource);
+  await ios_migrate_address_book();
 
   await prefs.setBool('ios_migration_v1_completed', true);
 }
@@ -292,45 +291,45 @@ Future<void> ios_migrate_wallet_info() async {
     final infoRecords = moneroWalletsDir
         .listSync()
         .map((item) {
-          try {
-            if (item is Directory) {
-              final name = item.path.split('/').last;
-              final configFile = File('${item.path}/$name.json');
+      try {
+        if (item is Directory) {
+          final name = item.path.split('/').last;
+          final configFile = File('${item.path}/$name.json');
 
-              if (!configFile.existsSync()) {
-                return null;
-              }
-
-              final config = json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
-              final isRecovery = config['isRecovery'] as bool? ?? false;
-              final dateAsDouble = config['date'] as double;
-              final timestamp = dateAsDouble.toInt() * 1000;
-              final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-              final id = walletTypeToString(WalletType.monero).toLowerCase() + '_' + name;
-              final exist = walletsInfo.firstWhereOrNull((el) => el.id == id) != null;
-
-              if (exist) {
-                return null;
-              }
-
-              final walletInfo = WalletInfo.external(
-                  id: id,
-                  type: WalletType.monero,
-                  name: name,
-                  isRecovery: isRecovery,
-                  restoreHeight: 0,
-                  date: date,
-                  dirPath: item.path,
-                  path: '${item.path}/$name',
-                  address: '');
-
-              return walletInfo;
-            }
-          } catch (e) {
-            printV(e.toString());
+          if (!configFile.existsSync()) {
             return null;
           }
-        })
+
+          final config = json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
+          final isRecovery = config['isRecovery'] as bool? ?? false;
+          final dateAsDouble = config['date'] as double;
+          final timestamp = dateAsDouble.toInt() * 1000;
+          final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+          final id = walletTypeToString(WalletType.monero).toLowerCase() + '_' + name;
+          final exist = walletsInfo.firstWhereOrNull((el) => el.id == id) != null;
+
+          if (exist) {
+            return null;
+          }
+
+          final walletInfo = WalletInfo.external(
+              id: id,
+              type: WalletType.monero,
+              name: name,
+              isRecovery: isRecovery,
+              restoreHeight: 0,
+              date: date,
+              dirPath: item.path,
+              path: '${item.path}/$name',
+              address: '');
+
+          return walletInfo;
+        }
+      } catch (e) {
+        printV(e.toString());
+        return null;
+      }
+    })
         .where((el) => el != null)
         .whereType<WalletInfo>()
         .toList();
@@ -413,7 +412,7 @@ Future<void> ios_migrate_trades_list() async {
   }
 }
 
-Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
+Future<void> ios_migrate_address_book() async {
   try {
     final prefs = await SharedPreferences.getInstance();
 
@@ -430,17 +429,19 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
     }
 
     final List<dynamic> addresses =
-        json.decode(addressBookJSON.readAsStringSync()) as List<dynamic>;
-    final contacts = addresses.map((dynamic item) {
-      final _item = item as Map<String, dynamic>;
-      final type = _item["type"] as String;
-      final address = _item["address"] as String;
-      final name = _item["name"] as String;
+    json.decode(addressBookJSON.readAsStringSync()) as List<dynamic>;
 
-      return Contact(address: address, name: name, type: CryptoCurrency.fromString(type));
-    });
+    for (var i = 0; i < addresses.length; i++) {
+      final item = addresses[i] as Map<String, dynamic>;
 
-    await contactSource.addAll(contacts);
+      await sqlite.Contact(
+        address: item["address"] as String,
+        name: item["name"] as String,
+        type: CryptoCurrency.fromString(item["type"] as String),
+        sortOrder: i,
+      ).save();
+    }
+
     await prefs.setBool('ios_migration_address_book_completed', true);
   } catch (e) {
     printV(e.toString());

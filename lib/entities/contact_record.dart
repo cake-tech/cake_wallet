@@ -1,22 +1,21 @@
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/entities/record.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/entities/contact.dart";
+import "package:cake_wallet/entities/contact_base.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:mobx/mobx.dart";
 
-part 'contact_record.g.dart';
+part "contact_record.g.dart";
 
 class ContactRecord = ContactRecordBase with _$ContactRecord;
 
-abstract class ContactRecordBase extends Record<Contact> with Store implements ContactBase {
-  ContactRecordBase(Box<Contact> source, Contact original)
+abstract class ContactRecordBase with Store implements ContactBase {
+  ContactRecordBase(this.original)
       : name = original.name,
         address = original.address,
         type = original.type,
         displayName = original.displayName,
-        lastChange = original.lastChange,
-        super(source, original);
+        lastChange = original.lastChange;
+
+  final Contact original;
 
   @override
   @observable
@@ -34,20 +33,36 @@ abstract class ContactRecordBase extends Record<Contact> with Store implements C
   @observable
   String displayName;
 
+  @observable
   DateTime? lastChange;
 
-  @override
-  void toBind(Contact original) {
-    reaction((_) => name, (String name) => original.name = name);
-    reaction((_) => address, (String address) => original.address = address);
-    reaction((_) => type,
-        (CryptoCurrency currency) => original.updateCryptoCurrency(currency: currency));
+  int get id => original.id;
+
+  bool get isSaved => original.isSaved;
+
+  /// Saves the local edits to the model and persists it to the database.
+  @action
+  Future<void> save() async {
+    original.name = name;
+    original.address = address;
+    original.displayName = displayName;
+    original.updateCryptoCurrency(currency: type);
+    original.lastChange = lastChange ?? DateTime.now();
+
+    await original.save();
+
+    lastChange = original.lastChange;
   }
 
-  @override
-  void fromBind(Contact original) {
+  Future<void> delete() => Contact.delete(original);
+
+  /// Discards local edits and re-reads the values from the model.
+  @action
+  void revert() {
     name = original.name;
     address = original.address;
     type = original.type;
+    displayName = original.displayName;
+    lastChange = original.lastChange;
   }
 }
