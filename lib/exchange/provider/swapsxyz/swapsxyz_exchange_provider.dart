@@ -20,7 +20,6 @@ import "package:cw_core/erc20_token.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:json_annotation/json_annotation.dart";
 
@@ -72,7 +71,8 @@ class SwapsXyzTrade extends RoutableTrade {
 
 class SwapsXyzExchangeProvider extends ExchangeProvider
     implements TransactionCreationExchangeProvider {
-  SwapsXyzExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper}) : _settingsStore = settingsStore;
+  SwapsXyzExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper})
+    : _settingsStore = settingsStore;
 
   final SettingsStore _settingsStore;
 
@@ -769,136 +769,133 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
     final routerValueWei = BigInt.tryParse(trade.routerValue) ?? BigInt.zero;
 
-      final selector = _decodeMethodSelector(routerData);
-      const transferSig = '0xa9059cbb';
-      const swapAndExecuteSig = '0x9be111d1';
+    final selector = _decodeMethodSelector(routerData);
+    const transferSig = "0xa9059cbb";
+    const swapAndExecuteSig = "0x9be111d1";
 
-      // Direct Transfer (Simple routing, no approval needed)
-      if (selector == transferSig) {
-        return evm!.createRawCallDataTransaction(
-          wallet,
-          routerTo,
-          routerData,
-          Money.zero(wallet.currency),
-          priority,
-          useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
-              ? _settingsStore.useBlinkProtection
-              : false,
-        );
-      }
+    // Direct Transfer (Simple routing, no approval needed)
+    if (selector == transferSig) {
+      return evm!.createRawCallDataTransaction(
+        wallet,
+        routerTo,
+        routerData,
+        Money.zero(wallet.currency),
+        priority,
+        useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
+            ? _settingsStore.useBlinkProtection
+            : false,
+      );
+    }
 
-      // Smart Swap (Requires Approval)
-      if (selector == swapAndExecuteSig) {
-        final requiredAmount =
-            BigInt.tryParse(trade.sourceTokenAmountRaw.replaceAll('n', '')) ?? BigInt.zero;
+    // Smart Swap (Requires Approval)
+    if (selector == swapAndExecuteSig) {
+      final requiredAmount =
+          BigInt.tryParse(trade.sourceTokenAmountRaw.replaceAll("n", "")) ?? BigInt.zero;
 
-        final needsApproval = tokenContract.isNotEmpty && requiredAmount > BigInt.zero
-            ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
-            : false;
+      final needsApproval = tokenContract.isNotEmpty && requiredAmount > BigInt.zero
+          ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
+          : false;
 
-        printV(
-          '[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.depositAmount.serialized} with amount $requiredAmount',
-        );
+      printV(
+        "[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.depositAmount.serialized} with amount $requiredAmount",
+      );
 
-        if (needsApproval) {
-          // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
-          final isUSDTMainnet =
-              wallet.chainId == 1 &&
-              tokenContract.toLowerCase() == '0xdac17f958d2ee523a2206206994597c13d831ec7';
+      if (needsApproval) {
+        // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
+        final isUSDTMainnet =
+            wallet.chainId == 1 &&
+            tokenContract.toLowerCase() == "0xdac17f958d2ee523a2206206994597c13d831ec7";
 
-          if (isUSDTMainnet) {
-            final currentAllowance = await evm!.getAllowance(wallet, tokenContract, routerTo);
+        if (isUSDTMainnet) {
+          final currentAllowance = await evm!.getAllowance(wallet, tokenContract, routerTo);
 
-            if (currentAllowance != null && currentAllowance > BigInt.zero) {
-              printV(
-                '[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.',
-              );
-
-              final resetTx = await buildApprovalNeeded(
-                wallet: wallet,
-                spender: routerTo,
-                tokenContract: tokenContract,
-                requiredAmount: BigInt.zero,
-                // Approve 0
-                sourceTokenDecimals: trade.sourceTokenDecimals,
-                priority: priority,
-              );
-
-              if (resetTx != null) {
-                await resetTx.commit();
-
-                final resetConfirmed = await _waitForApprovalUpdate(
-                  wallet: wallet,
-                  tokenContract: tokenContract,
-                  spender: routerTo,
-                  requiredAmount: BigInt.zero, // Wait until it equals 0
-                  waitForExactMatch: true,
-                );
-
-                if (!resetConfirmed) {
-                  throw Exception('Failed to reset USDT allowance. Please try again.');
-                }
-                printV('[Swaps.xyz sending flow] USDT allowance reset to 0 confirmed on-chain.');
-              }
-            }
-          }
-
-          // Standard Approval Flow
-          final approvalTx = await buildApprovalNeeded(
-            wallet: wallet,
-            spender: routerTo,
-            tokenContract: tokenContract,
-            requiredAmount: requiredAmount,
-            sourceTokenDecimals: trade.sourceTokenDecimals,
-            priority: priority,
-          );
-
-          if (approvalTx == null) {
-            throw Exception('Failed to build approval transaction');
-          }
-
-
+          if (currentAllowance != null && currentAllowance > BigInt.zero) {
             printV(
-              '[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.depositAmount.serialized}',
+              "[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.",
             );
-            await approvalTx.commit();
 
-            // Wait for the approval to be mined on-chain
-            final isApproved = await _waitForApprovalUpdate(
+            final resetTx = await buildApprovalNeeded(
               wallet: wallet,
-              tokenContract: tokenContract,
               spender: routerTo,
-              requiredAmount: requiredAmount,
+              tokenContract: tokenContract,
+              requiredAmount: BigInt.zero,
+              // Approve 0
+              sourceTokenDecimals: trade.sourceTokenDecimals,
+              priority: priority,
             );
 
-            if (!isApproved) {
-              throw Exception('Approval transaction failed or timed out on-chain. Try again.');
+            if (resetTx != null) {
+              await resetTx.commit();
+
+              final resetConfirmed = await _waitForApprovalUpdate(
+                wallet: wallet,
+                tokenContract: tokenContract,
+                spender: routerTo,
+                requiredAmount: BigInt.zero,
+                // Wait until it equals 0
+                waitForExactMatch: true,
+              );
+
+              if (!resetConfirmed) {
+                throw Exception("Failed to reset USDT allowance. Please try again.");
+              }
+              printV("[Swaps.xyz sending flow] USDT allowance reset to 0 confirmed on-chain.");
             }
-            printV(
-              '[Swaps.xyz sending flow] Approval transaction confirmed on-chain. Proceeding with swap execution.',
-            );
-
+          }
         }
 
-        // Construct Final Swap Transaction
-        printV('[Swaps.xyz sending flow] Building swap transaction');
-        return await evm!.createRawCallDataTransaction(
-          wallet,
-          routerTo,
-          routerData,
-          Money(routerValueWei, wallet.currency),
-          priority,
-          sourceTokenAddress: tokenContract,
-          sourceTokenAmount: requiredAmount,
-          useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
-              ? _settingsStore.useBlinkProtection
-              : false,
+        // Standard Approval Flow
+        final approvalTx = await buildApprovalNeeded(
+          wallet: wallet,
+          spender: routerTo,
+          tokenContract: tokenContract,
+          requiredAmount: requiredAmount,
+          sourceTokenDecimals: trade.sourceTokenDecimals,
+          priority: priority,
         );
 
+        if (approvalTx == null) {
+          throw Exception("Failed to build approval transaction");
+        }
+
+        printV(
+          "[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.depositAmount.serialized}",
+        );
+        await approvalTx.commit();
+
+        // Wait for the approval to be mined on-chain
+        final isApproved = await _waitForApprovalUpdate(
+          wallet: wallet,
+          tokenContract: tokenContract,
+          spender: routerTo,
+          requiredAmount: requiredAmount,
+        );
+
+        if (!isApproved) {
+          throw Exception("Approval transaction failed or timed out on-chain. Try again.");
+        }
+        printV(
+          "[Swaps.xyz sending flow] Approval transaction confirmed on-chain. Proceeding with swap execution.",
+        );
       }
 
-      throw Exception("invalid selector");
+      // Construct Final Swap Transaction
+      printV("[Swaps.xyz sending flow] Building swap transaction");
+      return evm!.createRawCallDataTransaction(
+        wallet,
+        routerTo,
+        routerData,
+        Money(routerValueWei, wallet.currency),
+        priority,
+        sourceTokenAddress: tokenContract,
+        sourceTokenAmount: requiredAmount,
+        useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
+            ? _settingsStore.useBlinkProtection
+            : false,
+      );
+    }
 
+    throw Exception("invalid selector");
   }
 
   Future<PendingTransaction?> buildApprovalNeeded({
@@ -908,12 +905,12 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     required BigInt requiredAmount,
     required TransactionPriority? priority,
     int? sourceTokenDecimals,
-  }) async {
+  }) {
     final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
-          (t) => t.contractAddress.toLowerCase() == tokenContract.toLowerCase(),
+      (t) => t.contractAddress.toLowerCase() == tokenContract.toLowerCase(),
       orElse: () => Erc20Token(
-        name: '',
-        symbol: '',
+        name: "",
+        symbol: "",
         contractAddress: tokenContract,
         decimal: sourceTokenDecimals ?? 18,
         enabled: true,
@@ -925,8 +922,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       Money(requiredAmount, erc20Token),
       spender,
       priority,
-      useBlinkProtection:
-      canSupportBlinkProtection(wallet.chainId) ? _settingsStore.useBlinkProtection : false,
+      useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
+          ? _settingsStore.useBlinkProtection
+          : false,
     );
   }
 
@@ -937,12 +935,12 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     required BigInt requiredAmount,
     bool waitForExactMatch = false,
   }) async {
-
     int attempts = 0;
     const int maxAttempts = 30; // ~60 seconds
 
     printV(
-        '[Swaps.xyz sending flow] Starting allowance check. Target: $requiredAmount (Exact match: $waitForExactMatch)');
+      "[Swaps.xyz sending flow] Starting allowance check. Target: $requiredAmount (Exact match: $waitForExactMatch)",
+    );
 
     while (attempts < maxAttempts) {
       try {
@@ -950,31 +948,32 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
         if (currentAllowance != null) {
           printV(
-              '[Swaps.xyz sending flow] Current Allowance: $currentAllowance / Target: $requiredAmount');
+            "[Swaps.xyz sending flow] Current Allowance: $currentAllowance / Target: $requiredAmount",
+          );
 
           if (waitForExactMatch) {
             // For Reset (Target 0): We need it to be exactly 0 (or less, though it can't be negative)
             if (currentAllowance <= requiredAmount) {
-              printV('[Swaps.xyz sending flow] Allowance reset verified!');
+              printV("[Swaps.xyz sending flow] Allowance reset verified!");
               return true;
             }
           } else {
             // For Approval: We need it to be at least the required amount
             if (currentAllowance >= requiredAmount) {
-              printV('[Swaps.xyz sending flow] Allowance verified!');
+              printV("[Swaps.xyz sending flow] Allowance verified!");
               return true;
             }
           }
         }
       } catch (e) {
-        printV('[Swaps.xyz sending flow] Allowance check error: $e');
+        printV("[Swaps.xyz sending flow] Allowance check error: $e");
       }
 
       await Future.delayed(const Duration(seconds: 1));
       attempts++;
     }
 
-    printV('[Swaps.xyz sending flow] Allowance check timed out.');
+    printV("[Swaps.xyz sending flow] Allowance check timed out.");
     return false;
   }
 }

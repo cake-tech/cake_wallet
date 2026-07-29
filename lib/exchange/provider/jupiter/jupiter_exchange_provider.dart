@@ -16,33 +16,40 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
-import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:cw_core/wallet_base.dart";
 
 class JupiterTrade extends RoutableTrade {
-  JupiterTrade(
-      {required this.fee, required super.state, required super.depositAmount, required super.payoutAmount, required super.id, required super.provider, required super.payoutAddress, required super.refundAddress,
+  JupiterTrade({
+    required this.fee,
+    required super.state,
+    required super.depositAmount,
+    required super.payoutAmount,
+    required super.id,
+    required super.provider,
+    required super.payoutAddress,
+    required super.refundAddress,
 
-        required super.routerData, required super.routerValue, super.router,
-        super.createdAt,
-        super.expiredAt,
-        super.extraId,
-        super.outputTransaction,
-        super.walletId,
-        super.toAddressExtraId,
-        super.password,
-        super.providerId,
-        super.memo,
-        super.txId,
-        super.isRefund,
-
-      }) : super(fundingAddress: "");
+    required super.routerData,
+    required super.routerValue,
+    super.router,
+    super.createdAt,
+    super.expiredAt,
+    super.extraId,
+    super.outputTransaction,
+    super.walletId,
+    super.toAddressExtraId,
+    super.password,
+    super.providerId,
+    super.memo,
+    super.txId,
+    super.isRefund,
+  }) : super(fundingAddress: "");
 
   final Money fee;
-
 }
 
-class JupiterExchangeProvider extends ExchangeProvider implements TransactionCreationExchangeProvider {
+class JupiterExchangeProvider extends ExchangeProvider
+    implements TransactionCreationExchangeProvider {
   JupiterExchangeProvider({super.proxyWrapper});
 
   // Jupiter only supports Solana native SOL and Solana tokens
@@ -80,7 +87,9 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
   Future<bool> checkIsAvailable() async => true;
 
   String _getTokenMint(CryptoCurrency currency) {
-    if (currency == CryptoCurrency.sol) return _nativeSolMint;
+    if (currency == CryptoCurrency.sol) {
+      return _nativeSolMint;
+    }
 
     if (currency.tag != "SOL") {
       throw Exception("Unsupported currency: ${currency.title} (not a Solana token)");
@@ -110,10 +119,9 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
   }
 
   static const Map<String, String> _headers = {
-      "x-api-key": secrets.jupiterApiKey,
-    "Content-Type": "application/json"
-    };
-
+    "x-api-key": secrets.jupiterApiKey,
+    "Content-Type": "application/json",
+  };
 
   @override
   Future<ProviderRate> fetchRate({
@@ -121,93 +129,101 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
     required CryptoCurrency to,
     required bool isFixedRate,
   }) async {
-      // must support both
-      if (!_isSolanaCurrency(from.currency as CryptoCurrency) || !_isSolanaCurrency(to)) {
-        throw Exception("unsupported");
-      }
-      final inputMint = _getTokenMint(from.currency as CryptoCurrency);
-      final outputMint = _getTokenMint(to);
+    // must support both
+    if (!_isSolanaCurrency(from.currency as CryptoCurrency) || !_isSolanaCurrency(to)) {
+      throw Exception("unsupported");
+    }
+    final inputMint = _getTokenMint(from.currency as CryptoCurrency);
+    final outputMint = _getTokenMint(to);
 
-      final params = JupiterOrderRequest(
-          inputMint: inputMint, outputMint: outputMint, amount: from.amount);
-      final uri = Uri.https(_baseUrl, _orderPath, params.toJson());
+    final params = JupiterOrderRequest(
+      inputMint: inputMint,
+      outputMint: outputMint,
+      amount: from.amount,
+    );
+    final uri = Uri.https(_baseUrl, _orderPath, params.toJson());
 
-      final response = await proxyWrapper.get(
-        clearnetUri: uri,
-        headers: _headers,
-      );
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
-      if (response.statusCode != 200) {
-        throw Exception("status code: ${response.statusCode}");
-      }
+    if (response.statusCode != 200) {
+      throw Exception("status code: ${response.statusCode}");
+    }
 
-      final orderData = JupiterOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
-      final outAmount = orderData.outAmount;
+    final orderData = JupiterOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    final outAmount = orderData.outAmount;
 
-      return ProviderRate(provider: description, rate: ExchangeRate.fromAmounts(from, Money(outAmount, to)), limits: ExchangeLimits());
-
+    return ProviderRate(
+      provider: description,
+      rate: ExchangeRate.fromAmounts(from, Money(outAmount, to)),
+      limits: ExchangeLimits(),
+    );
   }
 
   @override
-  Future<Trade> createTrade({
-    required TradeRequest request,
-  }) async {
-      // must support both
-      if (!_isSolanaCurrency(request.depositCurrency) || !_isSolanaCurrency(request.payoutCurrency)) {
-        throw Exception("not supported currencies");
-      }
+  Future<Trade> createTrade({required TradeRequest request}) async {
+    // must support both
+    if (!_isSolanaCurrency(request.depositCurrency) || !_isSolanaCurrency(request.payoutCurrency)) {
+      throw Exception("not supported currencies");
+    }
 
-      final inputMint = _getTokenMint(request.depositCurrency);
-      final outputMint = _getTokenMint(request.payoutCurrency);
+    final inputMint = _getTokenMint(request.depositCurrency);
+    final outputMint = _getTokenMint(request.payoutCurrency);
 
+    final isInternalTransfer = request.refundAddress == request.payoutAddress.address;
 
-      final isInternalTransfer = request.refundAddress == request.payoutAddress.address;
+    final orderParams = JupiterOrderRequest(
+      inputMint: inputMint,
+      outputMint: outputMint,
+      amount: request.depositAmount.cryptoAmount.amount,
+      taker: request.refundAddress,
+      receiver: isInternalTransfer ? null : request.payoutAddress.address,
+      referralFee: _referralFee,
+      referralAccount: _referralAccount,
+    );
 
-      final orderParams = JupiterOrderRequest(
-        inputMint: inputMint,
-        outputMint: outputMint,
-        amount: request.depositAmount.cryptoAmount.amount,
-        taker: request.refundAddress,
-        receiver: isInternalTransfer ? null : request.payoutAddress.address,
-        referralFee: _referralFee,
-        referralAccount: _referralAccount,);
+    final orderUri = Uri.https(_baseUrl, _orderPath, orderParams.toJson());
 
+    final orderResponse = await proxyWrapper.get(clearnetUri: orderUri, headers: _headers);
 
-      final orderUri = Uri.https(_baseUrl, _orderPath, orderParams.toJson());
-
-      final orderResponse = await proxyWrapper.get(clearnetUri: orderUri, headers: _headers);
-
-      if (orderResponse.statusCode != 200) {
-        throw TradeNotCreatedException(description, description: "status code: ${orderResponse.statusCode}");
-      }
-
-      final orderData = JupiterOrder.fromJson(json.decode(orderResponse.body) as Map<String, dynamic>);
-
-      if (orderData.errorCode != null || orderData.errorMessage != null) {
-        throw TradeNotCreatedException(description, description: "error code: ${orderData.errorCode}, error message: ${orderData.errorMessage}");
-      }
-
-      if (orderData.transaction == null || orderData.transaction!.isEmpty) {
-        throw Exception("No transaction returned from Jupiter order endpoint");
-      }
-
-      if (orderData.requestId.isEmpty) {
-        throw Exception("No requestId returned from Jupiter order endpoint");
-      }
-
-      return JupiterTrade(
-        id: orderData.requestId,
-        provider: description,
-        refundAddress: request.refundAddress,
-        state: TradeState.created,
-        createdAt: DateTime.now(),
-        payoutAddress: request.payoutAddress.address,
-        routerData: orderData.transaction!,
-        routerValue: orderData.requestId,
-        fee: Money.fromInt(orderData.totalFee, CryptoCurrency.sol),
-        depositAmount: Money(orderData.inAmount, request.depositCurrency),
-        payoutAmount: Money(orderData.outAmount, request.payoutCurrency)
+    if (orderResponse.statusCode != 200) {
+      throw TradeNotCreatedException(
+        description,
+        description: "status code: ${orderResponse.statusCode}",
       );
+    }
+
+    final orderData = JupiterOrder.fromJson(
+      json.decode(orderResponse.body) as Map<String, dynamic>,
+    );
+
+    if (orderData.errorCode != null || orderData.errorMessage != null) {
+      throw TradeNotCreatedException(
+        description,
+        description: "error code: ${orderData.errorCode}, error message: ${orderData.errorMessage}",
+      );
+    }
+
+    if (orderData.transaction == null || orderData.transaction!.isEmpty) {
+      throw Exception("No transaction returned from Jupiter order endpoint");
+    }
+
+    if (orderData.requestId.isEmpty) {
+      throw Exception("No requestId returned from Jupiter order endpoint");
+    }
+
+    return JupiterTrade(
+      id: orderData.requestId,
+      provider: description,
+      refundAddress: request.refundAddress,
+      state: TradeState.created,
+      createdAt: DateTime.now(),
+      payoutAddress: request.payoutAddress.address,
+      routerData: orderData.transaction!,
+      routerValue: orderData.requestId,
+      fee: Money.fromInt(orderData.totalFee, CryptoCurrency.sol),
+      depositAmount: Money(orderData.inAmount, request.depositCurrency),
+      payoutAmount: Money(orderData.outAmount, request.payoutCurrency),
+    );
   }
 
   /// Executes a signed Jupiter swap transaction via Jupiter's /execute endpoint
@@ -218,10 +234,7 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
     try {
       final executeUri = Uri.https(_baseUrl, _executePath);
 
-      final body = json.encode({
-        "signedTransaction": signedTransaction,
-        "requestId": requestId,
-      });
+      final body = json.encode({"signedTransaction": signedTransaction, "requestId": requestId});
 
       final response = await proxyWrapper.post(
         clearnetUri: executeUri,
@@ -249,10 +262,7 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
       ExchangeProviderLogger.logSuccess(
         provider: description,
         function: "executeSwap",
-        requestData: {
-          "requestId": requestId,
-          "hasSignedTransaction": signedTransaction.isNotEmpty,
-        },
+        requestData: {"requestId": requestId, "hasSignedTransaction": signedTransaction.isNotEmpty},
         responseData: executeData,
       );
 
@@ -263,10 +273,7 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
         function: "executeSwap",
         error: e,
         stackTrace: s,
-        requestData: {
-          "requestId": requestId,
-          "hasSignedTransaction": signedTransaction.isNotEmpty,
-        },
+        requestData: {"requestId": requestId, "hasSignedTransaction": signedTransaction.isNotEmpty},
       );
       rethrow;
     }
@@ -291,8 +298,9 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
     //
     // For now, throw exception to indicate status must be checked on-chain
     throw Exception(
-        "Jupiter trade status must be checked on-chain using transaction signature (txId). "
-        "After transaction is sent, txId will contain the signature for status checking.");
+      "Jupiter trade status must be checked on-chain using transaction signature (txId). "
+      "After transaction is sent, txId will contain the signature for status checking.",
+    );
   }
 
   @override

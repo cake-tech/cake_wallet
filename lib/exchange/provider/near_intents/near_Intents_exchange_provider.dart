@@ -13,7 +13,6 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/utils/proxy_wrapper.dart";
 
 class NearIntentsExchangeProvider extends ExchangeProvider {
   NearIntentsExchangeProvider({super.proxyWrapper});
@@ -98,17 +97,19 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<ExchangeLimits> fetchLimits(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required bool isFixedRateMode}) async {
+  Future<ExchangeLimits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode,
+  }) async {
     final tokens = await _getSupportedTokens();
     final originToken = currencyToNearAssetId(from, tokens);
     final destinationToken = currencyToNearAssetId(to, tokens);
 
     if (originToken == null || destinationToken == null) {
       throw Exception(
-          'fetchLimits: unsupported currency pair: ${from.title} ${from.tag ?? ''} to ${to.title} ${to.tag ?? ''}');
+        'fetchLimits: unsupported currency pair: ${from.title} ${from.tag ?? ''} to ${to.title} ${to.tag ?? ''}',
+      );
     }
 
     return ExchangeLimits();
@@ -124,82 +125,81 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final originToken = currencyToNearAssetId(from.currency as CryptoCurrency, tokens);
     final destinationToken = currencyToNearAssetId(to, tokens);
 
-      if (originToken == null || destinationToken == null) {
-        throw Exception("fetchRate: Unsupported currency pair");
-      }
+    if (originToken == null || destinationToken == null) {
+      throw Exception("fetchRate: Unsupported currency pair");
+    }
 
+    final dummyAddrFrom = getNearDummyAddress(from.currency as CryptoCurrency);
+    final dummyAddrTo = getNearDummyAddress(to);
 
-      final dummyAddrFrom = getNearDummyAddress(from.currency as CryptoCurrency);
-      final dummyAddrTo = getNearDummyAddress(to);
+    final NearIntentsDepositMode depositMode =
+        _memoRequiredCurrencies.contains(from.currency as CryptoCurrency) ? .memo : .simple;
 
-      final NearIntentsDepositMode depositMode = _memoRequiredCurrencies.contains(from.currency as CryptoCurrency) ? .memo : .simple;
+    final quoteResp = await getSwapQuote(
+      dry: true,
+      isFixedRateMode: isFixedRate,
+      originAsset: originToken.assetId,
+      destinationAsset: destinationToken.assetId,
+      amount: from.amount,
+      depositMode: depositMode,
+      refundTo: dummyAddrFrom,
+      recipient: dummyAddrTo,
+    );
 
-      final quoteResp = await getSwapQuote(
-        dry: true,
-        isFixedRateMode: isFixedRate,
-        originAsset: originToken.assetId,
-        destinationAsset: destinationToken.assetId,
-        amount: from.amount,
-        depositMode: depositMode,
-        refundTo: dummyAddrFrom,
-        recipient: dummyAddrTo,
-      );
+    final quote = quoteResp.quote;
+    final amountIn = quote.amountIn;
+    final amountOut = quote.amountOut;
 
-
-      final quote = quoteResp.quote;
-      final amountIn = quote.amountIn;
-      final amountOut = quote.amountOut;
-
-      return ProviderRate(provider: description, rate: ExchangeRate.fromAmounts(Money(amountIn, from.currency), Money(amountOut, to)), limits: ExchangeLimits());
+    return ProviderRate(
+      provider: description,
+      rate: ExchangeRate.fromAmounts(Money(amountIn, from.currency), Money(amountOut, to)),
+      limits: ExchangeLimits(),
+    );
   }
 
   @override
-  Future<Trade> createTrade({
-    required TradeRequest request,
-  }) async {
-      final tokens = await _getSupportedTokens();
-      final originToken = currencyToNearAssetId(request.depositCurrency, tokens);
-      final destinationToken = currencyToNearAssetId(request.payoutCurrency, tokens);
+  Future<Trade> createTrade({required TradeRequest request}) async {
+    final tokens = await _getSupportedTokens();
+    final originToken = currencyToNearAssetId(request.depositCurrency, tokens);
+    final destinationToken = currencyToNearAssetId(request.payoutCurrency, tokens);
 
-      if (originToken == null || destinationToken == null) {
-        throw Exception("Unsupported currency pair");
-      }
+    if (originToken == null || destinationToken == null) {
+      throw Exception("Unsupported currency pair");
+    }
 
-      final rawAmountStr = request.isFixedRate ? request.depositAmount.cryptoAmount.amount : request
-          .payoutAmount.cryptoAmount.amount;
+    final rawAmountStr = request.isFixedRate
+        ? request.depositAmount.cryptoAmount.amount
+        : request.payoutAmount.cryptoAmount.amount;
 
-      final NearIntentsDepositMode depositMode =
-          _memoRequiredCurrencies.contains(request.depositCurrency) ? .memo : .simple;
+    final NearIntentsDepositMode depositMode =
+        _memoRequiredCurrencies.contains(request.depositCurrency) ? .memo : .simple;
 
-      final quoteResp = await getSwapQuote(
-        dry: false,
-        isFixedRateMode: request.isFixedRate,
-        originAsset: originToken.assetId,
-        destinationAsset: destinationToken.assetId,
-        depositMode: depositMode,
-        amount: rawAmountStr,
-        refundTo: request.refundAddress,
-        recipient: request.payoutAddress.address,
-      );
+    final quoteResp = await getSwapQuote(
+      dry: false,
+      isFixedRateMode: request.isFixedRate,
+      originAsset: originToken.assetId,
+      destinationAsset: destinationToken.assetId,
+      depositMode: depositMode,
+      amount: rawAmountStr,
+      refundTo: request.refundAddress,
+      recipient: request.payoutAddress.address,
+    );
 
+    final quote = quoteResp.quote;
 
-      final quote = quoteResp.quote;
-
-
-      return Trade(
-        id: quote.depositAddress!,
-        // Using deposit address as trade ID
-        provider: description,
-        state: TradeState.created,
-        createdAt: DateTime.now(),
-        fundingAddress: quote.depositAddress!,
-        payoutAddress: request.payoutAddress.address,
-        refundAddress: request.refundAddress,
-        depositAmount: Money.parse(quote.amountInFormatted, request.depositCurrency),
-        payoutAmount: Money.parse(quote.amountOutFormatted, request.payoutCurrency),
-        memo: quote.depositMemo,
-      );
-
+    return Trade(
+      id: quote.depositAddress!,
+      // Using deposit address as trade ID
+      provider: description,
+      state: TradeState.created,
+      createdAt: DateTime.now(),
+      fundingAddress: quote.depositAddress!,
+      payoutAddress: request.payoutAddress.address,
+      refundAddress: request.refundAddress,
+      depositAmount: Money.parse(quote.amountInFormatted, request.depositCurrency),
+      payoutAmount: Money.parse(quote.amountOutFormatted, request.payoutCurrency),
+      memo: quote.depositMemo,
+    );
   }
 
   @override
@@ -210,12 +210,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
     if (response.statusCode != 200) {
-      throw Exception(
-        "Near Intents fetch trade failed: ${response.statusCode} ${response.body}",
-      );
+      throw Exception("Near Intents fetch trade failed: ${response.statusCode} ${response.body}");
     }
 
-    final data = NearIntentsStatusResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    final data = NearIntentsStatusResponse.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
     // final statusRaw = (data['status'] as String?) ?? 'UNKNOWN';
     //
     // final quoteResponse = data['quoteResponse'] as Map<String, dynamic>? ?? {};
@@ -224,7 +224,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     // final refundTo = quoteRequest['refundTo'] as String? ?? '';
     // final recipient = quoteRequest['recipient'] as String? ?? '';
     //
-    final quoteResponse =data.quoteResponse;
+    final quoteResponse = data.quoteResponse;
     final quoteRequest = quoteResponse.quoteRequest;
     final quote = quoteResponse.quote;
 
@@ -260,8 +260,9 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       throw Exception("response code: ${response.statusCode}");
     }
 
-    final data = (json.decode(response.body) as List<dynamic>).map((item) =>
-        NearIntentsToken.fromJson(item as Map<String, dynamic>));
+    final data = (json.decode(response.body) as List<dynamic>).map(
+      (item) => NearIntentsToken.fromJson(item as Map<String, dynamic>),
+    );
     _supportedTokensList
       ..clear()
       ..addAll(data);
@@ -288,63 +289,67 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   }) async {
     final NearIntentsSwapType swapType = isFixedRateMode ? .exactOutput : .exactInput;
     final appFees = [
-      NearIntentsAppFee(recipient: _appFeeRecipientNearIntents, fee: int.parse(_appFeesNearIntents))
+      NearIntentsAppFee(
+        recipient: _appFeeRecipientNearIntents,
+        fee: int.parse(_appFeesNearIntents),
+      ),
     ];
 
     final uri = Uri.https(_baseUrl, "$_versionPath$_quotePath");
 
-    final payload = NearIntentsQuoteRequest(dry: dry,
-        swapType: swapType,
-        slippageTolerance: _slippageTolerance,
-        originAsset: originAsset,
-        depositType: .originChain,
-        destinationAsset: destinationAsset,
-        amount: amount,
-        refundTo: refundTo,
-        refundType: .originChain,
-        recipient: recipient,
-        recipientType: .destinationChain,
-        deadline: deadline??  _buildDeadline(),
-depositMode: depositMode,
-connectedWallets: connectedWallets,
+    final payload = NearIntentsQuoteRequest(
+      dry: dry,
+      swapType: swapType,
+      slippageTolerance: _slippageTolerance,
+      originAsset: originAsset,
+      depositType: .originChain,
+      destinationAsset: destinationAsset,
+      amount: amount,
+      refundTo: refundTo,
+      refundType: .originChain,
+      recipient: recipient,
+      recipientType: .destinationChain,
+      deadline: deadline ?? _buildDeadline(),
+      depositMode: depositMode,
+      connectedWallets: connectedWallets,
       sessionId: sessionId,
       virtualChainRecipient: virtualChainRecipient,
       virtualChainRefundRecipient: virtualChainRefundRecipient,
       customRecipientMsg: customRecipientMsg,
       referral: referral,
       quoteWaitingTimeMs: quoteWaitingTimeMs,
-        appFees: appFees
+      appFees: appFees,
     );
 
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        headers: _headers,
-        body: jsonEncode(payload.toJson()),
-      );
+    final response = await proxyWrapper.post(
+      clearnetUri: uri,
+      headers: _headers,
+      body: jsonEncode(payload.toJson()),
+    );
 
-      if (response.statusCode != 201) {
-        throw Exception("Quote request failed with status: ${response.statusCode}");
-      }
+    if (response.statusCode != 201) {
+      throw Exception("Quote request failed with status: ${response.statusCode}");
+    }
 
-      return NearIntentsQuoteResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-
+    return NearIntentsQuoteResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-
-
   String? _normalizeTagToNearBlockchain(String? tag) => switch (tag) {
-      "TRX" => "tron",
-      "AVAXC" => "avax",
-      _ => tag?.toLowerCase(),
-    };
+    "TRX" => "tron",
+    "AVAXC" => "avax",
+    _ => tag?.toLowerCase(),
+  };
 
   String? _normalizeNearBlockchainToTag(String? blockchain) => switch (blockchain) {
-      "tron" => "TRX",
-      "avax" => "AVAXC",
-      _ => blockchain?.toUpperCase(),
-    };
+    "tron" => "TRX",
+    "avax" => "AVAXC",
+    _ => blockchain?.toUpperCase(),
+  };
 
-  NearIntentsToken? currencyToNearAssetId(CryptoCurrency currency, List<NearIntentsToken> supported) {
+  NearIntentsToken? currencyToNearAssetId(
+    CryptoCurrency currency,
+    List<NearIntentsToken> supported,
+  ) {
     if (supported.isEmpty) {
       return null;
     }
@@ -353,18 +358,22 @@ connectedWallets: connectedWallets,
     final blockchain = _normalizeTagToNearBlockchain(currency.tag);
 
     // Native asset (no contract)
-    final native = supported.firstWhereOrNull((t) =>
-        t.symbol.toUpperCase() == symbol &&
-        (blockchain == null || t.blockchain.toLowerCase() == blockchain) &&
-        t.contractAddress == null);
+    final native = supported.firstWhereOrNull(
+      (t) =>
+          t.symbol.toUpperCase() == symbol &&
+          (blockchain == null || t.blockchain.toLowerCase() == blockchain) &&
+          t.contractAddress == null,
+    );
 
     if (native != null) {
       return native;
     }
 
-    final token = supported.firstWhereOrNull((t) =>
-        t.symbol.toUpperCase() == symbol &&
-        (blockchain == null || t.blockchain.toLowerCase() == blockchain));
+    final token = supported.firstWhereOrNull(
+      (t) =>
+          t.symbol.toUpperCase() == symbol &&
+          (blockchain == null || t.blockchain.toLowerCase() == blockchain),
+    );
 
     return token;
   }
@@ -391,7 +400,5 @@ connectedWallets: connectedWallets,
     return CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
   }
 
-  DateTime _buildDeadline() => DateTime.now()
-        .toUtc()
-        .add(const Duration(hours: 2));
+  DateTime _buildDeadline() => DateTime.now().toUtc().add(const Duration(hours: 2));
 }

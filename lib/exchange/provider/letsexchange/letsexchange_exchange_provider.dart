@@ -12,7 +12,6 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/utils/proxy_wrapper.dart";
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
   LetsExchangeExchangeProvider({super.proxyWrapper});
@@ -46,120 +45,131 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<ExchangeLimits> fetchLimits({required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode}) async {
-    final params = LetsExchangeInfoRequest(float: !isFixedRateMode,
-        from: from.symbol,
-        to: to.title,
-        networkFrom: _getNetworkType(from),
-        networkTo: _getNetworkType(to),
-        amount: "1",
-        affiliateId: _affiliateId);
+  Future<ExchangeLimits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode,
+  }) async {
+    final params = LetsExchangeInfoRequest(
+      float: !isFixedRateMode,
+      from: from.symbol,
+      to: to.title,
+      networkFrom: _getNetworkType(from),
+      networkTo: _getNetworkType(to),
+      amount: "1",
+      affiliateId: _affiliateId,
+    );
 
     final responseData = await _getInfo(params, isFixedRateMode);
 
-
     return ExchangeLimits(
-        min: Money.parse(responseData.minAmount, from),
-        max: Money.parse(responseData.maxAmount, from)
+      min: Money.parse(responseData.minAmount, from),
+      max: Money.parse(responseData.maxAmount, from),
     );
   }
 
   @override
-  Future<ProviderRate> fetchRate(
-      {required Money from, required bool isFixedRate, required CryptoCurrency to}) async {
-    final params = LetsExchangeInfoRequest(float: !isFixedRate,
-        from: from.currency.symbol,
-        to: to.title,
-        networkFrom: _getNetworkType(from.currency as CryptoCurrency),
-        networkTo: _getNetworkType(to),
-        amount: from.toString(),
-        affiliateId: _affiliateId);
+  Future<ProviderRate> fetchRate({
+    required Money from,
+    required bool isFixedRate,
+    required CryptoCurrency to,
+  }) async {
+    final params = LetsExchangeInfoRequest(
+      float: !isFixedRate,
+      from: from.currency.symbol,
+      to: to.title,
+      networkFrom: _getNetworkType(from.currency as CryptoCurrency),
+      networkTo: _getNetworkType(to),
+      amount: from.toString(),
+      affiliateId: _affiliateId,
+    );
 
     final responseData = await _getInfo(params, isFixedRate);
 
-
-    return ProviderRate(provider: description,
-        rate: ExchangeRate.fromAmounts(from, Money.parse(responseData.amount, to)),
-        limits: ExchangeLimits(
-            min: Money.parse(responseData.minAmount, from.currency),
-            max: Money.parse(responseData.maxAmount, from.currency)
-        ));
+    return ProviderRate(
+      provider: description,
+      rate: ExchangeRate.fromAmounts(from, Money.parse(responseData.amount, to)),
+      limits: ExchangeLimits(
+        min: Money.parse(responseData.minAmount, from.currency),
+        max: Money.parse(responseData.maxAmount, from.currency),
+      ),
+    );
   }
 
-
   @override
-  Future<Trade> createTrade(
-      {required TradeRequest request}) async {
+  Future<Trade> createTrade({required TradeRequest request}) async {
     final networkFrom = _getNetworkType(request.depositAmount.currency);
     final networkTo = _getNetworkType(request.payoutAmount.currency);
 
-      final params = LetsExchangeInfoRequest(from: request.depositAmount.currency.title,
-          to: request.payoutAmount.currency.title,
-          networkFrom: networkFrom,
-          networkTo: networkTo,
-          amount: request.depositAmount.toString(),
-          affiliateId: _affiliateId,
-      float: !request.isFixedRate
-      );
+    final params = LetsExchangeInfoRequest(
+      from: request.depositAmount.currency.title,
+      to: request.payoutAmount.currency.title,
+      networkFrom: networkFrom,
+      networkTo: networkTo,
+      amount: request.depositAmount.toString(),
+      affiliateId: _affiliateId,
+      float: !request.isFixedRate,
+    );
 
+    final responseInfoJSON = await _getInfo(params, request.isFixedRate);
+    final rateId = responseInfoJSON.rateId!;
 
-      final responseInfoJSON = await _getInfo(params, request.isFixedRate);
-      final rateId = responseInfoJSON.rateId!;
+    final withdrawalAddress = _normalizeBchAddress(request.payoutAddress.address);
+    final returnAddress = _normalizeBchAddress(request.refundAddress);
 
-      final withdrawalAddress = _normalizeBchAddress(request.payoutAddress.address);
-      final returnAddress = _normalizeBchAddress(request.refundAddress);
+    final tradeParams = LetsExchangeCreateTransactionRequest(
+      coinFrom: request.depositAmount.currency.title,
+      coinTo: request.payoutAmount.currency.title,
+      depositAmount: request.isFixedRate ? null : request.depositAmount.cryptoAmount.toString(),
+      withdrawalAmount: request.isFixedRate ? request.payoutAmount.cryptoAmount.toString() : null,
+      withdrawal: withdrawalAddress,
+      withdrawalExtraId: request.toAddressExtraId,
+      returnAddress: returnAddress,
+      rateId: rateId,
+      networkFrom: networkFrom,
+      networkTo: networkTo,
+      affiliateId: _affiliateId,
+      float: !request.isFixedRate,
+    );
 
-      final tradeParams = LetsExchangeCreateTransactionRequest(
-          coinFrom: request.depositAmount.currency.title,
-          coinTo: request.payoutAmount.currency.title,
-          depositAmount: request.isFixedRate ? null : request.depositAmount.cryptoAmount.toString(),
-          withdrawalAmount: request.isFixedRate
-              ? request.payoutAmount.cryptoAmount.toString()
-              : null,
-          withdrawal: withdrawalAddress,
-          withdrawalExtraId: request.toAddressExtraId,
-          returnAddress: returnAddress,
-          rateId: rateId,
-          networkFrom: networkFrom,
-          networkTo: networkTo,
-          affiliateId: _affiliateId,
-          float: !request.isFixedRate
-      );
+    final headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": apiKey,
+    };
 
-      final headers = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": apiKey
-      };
+    final uri = Uri.https(
+      _baseUrl,
+      request.isFixedRate ? _createTransactionRevertPath : _createTransactionPath,
+    );
+    final response = await proxyWrapper.post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(tradeParams.toJson()),
+    );
 
-      final uri = Uri.https(
-          _baseUrl, request.isFixedRate ? _createTransactionRevertPath : _createTransactionPath);
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        headers: headers,
-        body: json.encode(tradeParams.toJson()),
-      );
+    if (response.statusCode != 200) {
+      throw Exception("LetsExchange create trade failed: ${response.body}");
+    }
+    final responseData = LetsExchangeTransactionResponse.fromJson(
+      json.decode(response.body) as Map<String, dynamic>,
+    );
 
-      if (response.statusCode != 200) {
-        throw Exception("LetsExchange create trade failed: ${response.body}");
-      }
-      final responseData = LetsExchangeTransactionResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
-
-      // the null checks are because api spec shows EVERY FIELD as nullable
-      return Trade(
-        id: responseData.transactionId!,
-        provider: description,
-        payoutAddress: responseData.withdrawal!,
-        fundingAddress: responseData.deposit!,
-        refundAddress: request.refundAddress,
-        payoutAmount: Money.parse(responseData.withdrawalAmount, request.payoutAmount.currency),
-        depositAmount: Money.parse(responseData.depositAmount, request.depositAmount.currency),
-        state: responseData.status!,
-        createdAt: responseData.createdAt,
-        expiredAt: responseData.expiredAt,
-        extraId: responseData.depositExtraId,
-        toAddressExtraId: request.toAddressExtraId,
-      );
+    // the null checks are because api spec shows EVERY FIELD as nullable
+    return Trade(
+      id: responseData.transactionId!,
+      provider: description,
+      payoutAddress: responseData.withdrawal!,
+      fundingAddress: responseData.deposit!,
+      refundAddress: request.refundAddress,
+      payoutAmount: Money.parse(responseData.withdrawalAmount, request.payoutAmount.currency),
+      depositAmount: Money.parse(responseData.depositAmount, request.depositAmount.currency),
+      state: responseData.status!,
+      createdAt: responseData.createdAt,
+      expiredAt: responseData.expiredAt,
+      extraId: responseData.depositExtraId,
+      toAddressExtraId: request.toAddressExtraId,
+    );
   }
 
   @override
@@ -167,7 +177,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Authorization": apiKey
+      "Authorization": apiKey,
     };
 
     final url = Uri.https(_baseUrl, "$_getTransactionPath/$id");
@@ -176,7 +186,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200) {
       throw Exception("LetsExchange fetch trade failed: ${response.body}");
     }
-    final responseData = LetsExchangeTransactionResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    final responseData = LetsExchangeTransactionResponse.fromJson(
+      json.decode(response.body) as Map<String, dynamic>,
+    );
     //
     // // Parsing 'from' currency
     // final fromCurrency = responseJSON["coin_from"] as String;
@@ -209,33 +221,45 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       state: responseData.status!,
       isRefund: responseData.status == TradeState.refund,
       extraId: responseData.depositExtraId,
-      depositAmount: Money.parse(responseData.deposit, CryptoCurrency.safeParseCurrencyFromString(
-          responseData.coinFrom, tag: _normalizeNetworkType(responseData.coinFromNetwork!))!),
-      payoutAmount: Money.parse(responseData.withdrawal, CryptoCurrency.safeParseCurrencyFromString(
-          responseData.coinTo, tag: _normalizeNetworkType(responseData.coinToNetwork!))!),
+      depositAmount: Money.parse(
+        responseData.deposit,
+        CryptoCurrency.safeParseCurrencyFromString(
+          responseData.coinFrom,
+          tag: _normalizeNetworkType(responseData.coinFromNetwork!),
+        )!,
+      ),
+      payoutAmount: Money.parse(
+        responseData.withdrawal,
+        CryptoCurrency.safeParseCurrencyFromString(
+          responseData.coinTo,
+          tag: _normalizeNetworkType(responseData.coinToNetwork!),
+        )!,
+      ),
       fundingAddress: responseData.deposit!,
-
     );
   }
 
-  Future<LetsExchangeInfoResponse> _getInfo(LetsExchangeInfoRequest params, bool isFixedRateMode) async {
+  Future<LetsExchangeInfoResponse> _getInfo(
+    LetsExchangeInfoRequest params,
+    bool isFixedRateMode,
+  ) async {
     final headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "Authorization": apiKey
+      "Authorization": apiKey,
     };
 
-      final uri = Uri.https(_baseUrl, isFixedRateMode ? _infoRevertPath : _infoPath);
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        headers: headers,
-        body: json.encode(params.toJson()),
-      );
+    final uri = Uri.https(_baseUrl, isFixedRateMode ? _infoRevertPath : _infoPath);
+    final response = await proxyWrapper.post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(params.toJson()),
+    );
 
-      if (response.statusCode != 200) {
-        throw Exception("LetsExchange fetch info failed: ${response.body}");
-      }
-      return LetsExchangeInfoResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    if (response.statusCode != 200) {
+      throw Exception("LetsExchange fetch info failed: ${response.body}");
+    }
+    return LetsExchangeInfoResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
   }
 
   String? _getNetworkType(CryptoCurrency currency) {
@@ -257,20 +281,18 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     return _normalizeTitleToNetwork(currency.title);
   }
 
-  String _normalizeNetworkType(String network) =>
-      switch (network.toUpperCase()) {
-        "ERC20" => "ETH",
-        "TRC20" => "TRX",
-        "BEP20" => "BSC",
-        "ARBITRUM" => "ARB",
-        _ => network,
-      };
+  String _normalizeNetworkType(String network) => switch (network.toUpperCase()) {
+    "ERC20" => "ETH",
+    "TRC20" => "TRX",
+    "BEP20" => "BSC",
+    "ARBITRUM" => "ARB",
+    _ => network,
+  };
 
-  String _normalizeTitleToNetwork(String title) =>
-      switch (title.toUpperCase()) {
-        "ARB" => "ARBITRUM",
-        _ => title,
-      };
+  String _normalizeTitleToNetwork(String title) => switch (title.toUpperCase()) {
+    "ARB" => "ARBITRUM",
+    _ => title,
+  };
 
   String _normalizeBchAddress(String address) =>
       address.startsWith("bitcoincash:") ? address.substring(12) : address;

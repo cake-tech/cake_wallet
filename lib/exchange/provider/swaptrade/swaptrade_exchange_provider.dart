@@ -13,7 +13,6 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/utils/proxy_wrapper.dart";
 
 class SwapTradeExchangeProvider extends ExchangeProvider {
   SwapTradeExchangeProvider({super.proxyWrapper});
@@ -55,158 +54,168 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-      final uri = Uri.https(apiAuthority, getCoins);
-      final response = await proxyWrapper.get(clearnetUri: uri);
+    final uri = Uri.https(apiAuthority, getCoins);
+    final response = await proxyWrapper.get(clearnetUri: uri);
 
-      final responseJSON = SwapTradeCoinsResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    final responseJSON = SwapTradeCoinsResponse.fromJson(
+      json.decode(response.body) as Map<String, dynamic>,
+    );
 
-      if (response.statusCode != 200) {
-        throw Exception("Unexpected http status: ${response.statusCode}");
-      }
+    if (response.statusCode != 200) {
+      throw Exception("Unexpected http status: ${response.statusCode}");
+    }
 
-      final coinsInfo = responseJSON.data;
+    final coinsInfo = responseJSON.data;
 
-      if(coinsInfo == null){
-        throw Exception("coin unsupported");
-      }
+    if (coinsInfo == null) {
+      throw Exception("coin unsupported");
+    }
 
-      final normalized = _normalizeCurrency(from);
-      final coin = coinsInfo.firstWhere(
-            (c) => (c.id.toUpperCase()) == normalized,
-          );
+    final normalized = _normalizeCurrency(from);
+    final coin = coinsInfo.firstWhere((c) => (c.id.toUpperCase()) == normalized);
 
-      return ExchangeLimits(
-          min: Money.tryParse(coin.min, from), max: Money.tryParse(coin.max, from));
+    return ExchangeLimits(min: Money.tryParse(coin.min, from), max: Money.tryParse(coin.max, from));
   }
 
   @override
-  Future<ProviderRate> fetchRate(
-      {required Money from,
-      required CryptoCurrency to,
-      required bool isFixedRate,
-      }) async {
-      if (isFixedRate) {
-        throw Exception("fixed rate unsupported");
-      }
-      if (from.currency == CryptoCurrency.btcln || to == CryptoCurrency.btcln) {
-        throw Exception("lightning not supported");
-      }
-
-      final body = SwapTradeGetRateRequest(
-        coinSend: _normalizeCurrency(from.currency as CryptoCurrency),
-        coinReceive: _normalizeCurrency(to),
-        amount: from.amount.toString(),
-      );
-
-      final uri = Uri.https(apiAuthority, getRate);
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        body: json.encode(body),
-        headers: _headers,
-      );
-
-      final responseBody = SwapTradeRateResponse.fromJson(
-          json.decode(response.body) as Map<String, dynamic>);
-
-      if (response.statusCode != 200) {
-        throw Exception("Unexpected http status: ${response.statusCode}");
-      }
-
-      final rate = responseBody.data?.price;
-      return ProviderRate(provider: description,
-          rate: ExchangeRate(base: from.currency, quote: Money.parse(rate, to)),
-          limits: await fetchLimits(
-              from: from.currency as CryptoCurrency, to: to, isFixedRateMode: isFixedRate));
-  }
-
-  @override
-  Future<Trade> createTrade({
-    required TradeRequest request,
+  Future<ProviderRate> fetchRate({
+    required Money from,
+    required CryptoCurrency to,
+    required bool isFixedRate,
   }) async {
+    if (isFixedRate) {
+      throw Exception("fixed rate unsupported");
+    }
+    if (from.currency == CryptoCurrency.btcln || to == CryptoCurrency.btcln) {
+      throw Exception("lightning not supported");
+    }
 
-      final body = SwapTradeCreateOrderRequest(
-          coinSend: _normalizeCurrency(request.depositCurrency),
-          coinSendNetwork: _networkFor(request.depositCurrency),
-          coinReceive: _normalizeCurrency(request.payoutCurrency),
-          coinReceiveNetwork: _networkFor(request.payoutCurrency),
-          amountSend: request.depositAmount.cryptoAmount.toString(),
-          recipient: request.payoutAddress.address,
-          markup: double.parse(markup),
-          refundAddress: request.refundAddress
-      );
+    final body = SwapTradeGetRateRequest(
+      coinSend: _normalizeCurrency(from.currency as CryptoCurrency),
+      coinReceive: _normalizeCurrency(to),
+      amount: from.amount.toString(),
+    );
 
-      final uri = Uri.https(apiAuthority, createOrder);
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        body: json.encode(body),
-        headers: _headers,
-      );
+    final uri = Uri.https(apiAuthority, getRate);
+    final response = await proxyWrapper.post(
+      clearnetUri: uri,
+      body: json.encode(body),
+      headers: _headers,
+    );
 
-      final responseBody = SwapTradeOrderResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    final responseBody = SwapTradeRateResponse.fromJson(
+      json.decode(response.body) as Map<String, dynamic>,
+    );
 
-      if (response.statusCode == 400 || responseBody.success == false) {
-        final errorsList = responseBody.errors ?? [];
-        final error = errorsList.firstOrNull?.msg ?? responseBody.toString();
-        throw TradeNotCreatedException(description, description: error);
-      }
+    if (response.statusCode != 200) {
+      throw Exception("Unexpected http status: ${response.statusCode}");
+    }
 
-      if (response.statusCode != 200) {
-        throw Exception("Unexpected http status: ${response.statusCode}");
-      }
+    final rate = responseBody.data?.price;
+    return ProviderRate(
+      provider: description,
+      rate: ExchangeRate(base: from.currency, quote: Money.parse(rate, to)),
+      limits: await fetchLimits(
+        from: from.currency as CryptoCurrency,
+        to: to,
+        isFixedRateMode: isFixedRate,
+      ),
+    );
+  }
 
-      final responseData = responseBody.data;
+  @override
+  Future<Trade> createTrade({required TradeRequest request}) async {
+    final body = SwapTradeCreateOrderRequest(
+      coinSend: _normalizeCurrency(request.depositCurrency),
+      coinSendNetwork: _networkFor(request.depositCurrency),
+      coinReceive: _normalizeCurrency(request.payoutCurrency),
+      coinReceiveNetwork: _networkFor(request.payoutCurrency),
+      amountSend: request.depositAmount.cryptoAmount.toString(),
+      recipient: request.payoutAddress.address,
+      markup: double.parse(markup),
+      refundAddress: request.refundAddress,
+    );
 
-      return Trade(
-        id: responseData!.orderId,
-        fundingAddress: responseData.serverAddress,
-        provider: description,
-        createdAt: DateTime.now(),
-        state: TradeState.created,
-        payoutAddress: request.payoutAddress.address,
-        refundAddress: request.refundAddress,
-        depositAmount: Money.parse(responseData.amountSend??0, request.depositCurrency),
-        payoutAmount: Money.parse(responseData.amountReceive??0,request.payoutCurrency)
-      );
+    final uri = Uri.https(apiAuthority, createOrder);
+    final response = await proxyWrapper.post(
+      clearnetUri: uri,
+      body: json.encode(body),
+      headers: _headers,
+    );
+
+    final responseBody = SwapTradeOrderResponse.fromJson(
+      json.decode(response.body) as Map<String, dynamic>,
+    );
+
+    if (response.statusCode == 400 || responseBody.success == false) {
+      final errorsList = responseBody.errors ?? [];
+      final error = errorsList.firstOrNull?.msg ?? responseBody.toString();
+      throw TradeNotCreatedException(description, description: error);
+    }
+
+    if (response.statusCode != 200) {
+      throw Exception("Unexpected http status: ${response.statusCode}");
+    }
+
+    final responseData = responseBody.data;
+
+    return Trade(
+      id: responseData!.orderId,
+      fundingAddress: responseData.serverAddress,
+      provider: description,
+      createdAt: DateTime.now(),
+      state: TradeState.created,
+      payoutAddress: request.payoutAddress.address,
+      refundAddress: request.refundAddress,
+      depositAmount: Money.parse(responseData.amountSend ?? 0, request.depositCurrency),
+      payoutAmount: Money.parse(responseData.amountReceive ?? 0, request.payoutCurrency),
+    );
   }
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-      final body = SwapTradeOrderRequest(orderId: id);
+    final body = SwapTradeOrderRequest(orderId: id);
 
-      final uri = Uri.https(apiAuthority, order);
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        body: json.encode(body),
-        headers: _headers,
-      );
+    final uri = Uri.https(apiAuthority, order);
+    final response = await proxyWrapper.post(
+      clearnetUri: uri,
+      body: json.encode(body),
+      headers: _headers,
+    );
 
-      final responseBody = SwapTradeOrderResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    final responseBody = SwapTradeOrderResponse.fromJson(
+      json.decode(response.body) as Map<String, dynamic>,
+    );
 
-      if (response.statusCode == 400 || responseBody.success == false) {
-        final error = responseBody.errors?.firstOrNull?.msg.toString();
-        throw TradeNotCreatedException(description, description: error??"");
-      }
+    if (response.statusCode == 400 || responseBody.success == false) {
+      final error = responseBody.errors?.firstOrNull?.msg.toString();
+      throw TradeNotCreatedException(description, description: error ?? "");
+    }
 
-      if (response.statusCode != 200) {
-        throw Exception("Unexpected http status: ${response.statusCode}");
-      }
+    if (response.statusCode != 200) {
+      throw Exception("Unexpected http status: ${response.statusCode}");
+    }
 
-      final responseData = responseBody.data!;
+    final responseData = responseBody.data!;
 
-      return Trade(
-        id: responseData.orderId,
-        provider: description,
-        state: responseData.status,
-        memo: responseData.memo,
-        createdAt: responseData.createdAt,
-        depositAmount: Money.parse(responseData.amountSend,
-            CryptoCurrency.safeParseCurrencyFromString(responseData.coinSend)!),
-        payoutAmount: Money.parse(responseData.amountReceive,
-            CryptoCurrency.safeParseCurrencyFromString(responseData.coinReceive)!),
-        fundingAddress: responseData.serverAddress,
-        payoutAddress: responseData.recipient,
-        refundAddress: "",
-      );
+    return Trade(
+      id: responseData.orderId,
+      provider: description,
+      state: responseData.status,
+      memo: responseData.memo,
+      createdAt: responseData.createdAt,
+      depositAmount: Money.parse(
+        responseData.amountSend,
+        CryptoCurrency.safeParseCurrencyFromString(responseData.coinSend)!,
+      ),
+      payoutAmount: Money.parse(
+        responseData.amountReceive,
+        CryptoCurrency.safeParseCurrencyFromString(responseData.coinReceive)!,
+      ),
+      fundingAddress: responseData.serverAddress,
+      payoutAddress: responseData.recipient,
+      refundAddress: "",
+    );
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {

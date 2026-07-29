@@ -14,8 +14,6 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/utils/proxy_wrapper.dart";
-
 
 class ChainflipExchangeProvider extends ExchangeProvider {
   ChainflipExchangeProvider({super.proxyWrapper});
