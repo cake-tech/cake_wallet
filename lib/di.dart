@@ -230,8 +230,6 @@ import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -542,19 +540,6 @@ Future<void> setup({
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
       fiatConversionStore: getIt.get<FiatConversionStore>()));
-
-  getIt.registerFactory(
-    () => ExchangeViewModel(
-      getIt.get<AppStore>(),
-      getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>(),
-      getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>(),
-      getIt.get<UnspentCoinsListViewModel>(),
-      getIt.get<FeesViewModel>(),
-      getIt.get<FiatConversionStore>(),
-    ),
-  );
 
   getIt.registerSingleton(
     TradeMonitor(
@@ -1223,16 +1208,6 @@ Future<void> setup({
     () => FeesViewModel(
       getIt.get<AppStore>(),
       getIt.get<BalanceViewModel>(),
-    ),
-  );
-
-  getIt.registerFactory(
-    () => ExchangeTradeViewModel(
-      wallet: getIt.get<AppStore>().wallet!,
-      tradesStore: getIt.get<TradesStore>(),
-      sendViewModel: getIt.get<SendViewModel>(),
-      feesViewModel: getIt.get<FeesViewModel>(),
-      fiatConversionStore: getIt.get<FiatConversionStore>(),
     ),
   );
 
