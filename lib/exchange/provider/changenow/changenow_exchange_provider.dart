@@ -20,7 +20,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
-  ChangeNowExchangeProvider({required SettingsStore settingsStore})
+  ChangeNowExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper})
       : _settingsStore = settingsStore,
         _lastUsedRateId = "";
 
@@ -73,7 +73,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         toNetwork: _networkFor(to),
         flow: isFixedRateMode ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard);
     final uri = Uri.https(apiAuthority, rangePath, params.toJson());
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode == 400) {
       throw Exception(
@@ -110,7 +110,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
           type: ChangeNowExchangeType.direct);
 
       final uri = Uri.https(apiAuthority, estimatedAmountPath, params.toJson());
-      final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+      final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
 
       final responseData = ChangeNowEstimatedAmountResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
       if (responseData.fromAmount <= 0 || responseData.toAmount <= 0) {
@@ -164,7 +164,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
 
     final uri = Uri.https(apiAuthority, createTradePath);
-    final response = await ProxyWrapper().post(
+    final response = await proxyWrapper.post(
       clearnetUri: uri,
       headers: headers,
       body: json.encode(params.toJson()),
@@ -201,7 +201,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final headers = {apiHeaderKey: apiKey};
     final params = ChangeNowByIdRequest(id: id);
     final uri = Uri.https(apiAuthority, findTradeByIdPath, params.toJson());
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 

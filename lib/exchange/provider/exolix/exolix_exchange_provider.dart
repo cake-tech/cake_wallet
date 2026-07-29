@@ -18,7 +18,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 class ExolixExchangeProvider extends ExchangeProvider {
-  ExolixExchangeProvider();
+  ExolixExchangeProvider({super.proxyWrapper});
 
   static final apiKey = isMoneroOnly ? secrets.exolixMoneroApiKey : secrets.exolixCakeWalletApiKey;
   static const apiBaseUrl = "exolix.com";
@@ -59,7 +59,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         apiToken: apiKey);
 
     final uri = Uri.https(apiBaseUrl, ratePath, params.toJson());
-    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final response = await proxyWrapper.get(clearnetUri: uri);
 
     if (response.statusCode == 200) {
 
@@ -84,7 +84,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
             apiToken: apiKey);
 
         final uri = Uri.https(apiBaseUrl, ratePath, paramsWithMin.toJson());
-        final response = await ProxyWrapper().get(clearnetUri: uri);
+        final response = await proxyWrapper.get(clearnetUri: uri);
 
         if (response.statusCode == 200) {
           final responseData = ExolixRateResponse.fromJson(
@@ -116,7 +116,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
 
       final uri = Uri.https(apiBaseUrl, ratePath, params.toJson());
-      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final response = await proxyWrapper.get(clearnetUri: uri);
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -156,7 +156,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         apiToken: apiKey);
 
     final uri = Uri.https(apiBaseUrl, transactionsPath);
-    final response = await ProxyWrapper().post(
+    final response = await proxyWrapper.post(
       clearnetUri: uri,
       headers: headers,
       body: json.encode(body),
@@ -197,7 +197,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final findTradeByIdPath = "$transactionsPath/$id";
     final uri = Uri.https(apiBaseUrl, findTradeByIdPath);
-    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final response = await proxyWrapper.get(clearnetUri: uri);
 
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);

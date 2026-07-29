@@ -18,7 +18,7 @@ import "package:cw_core/utils/proxy_wrapper.dart";
 
 
 class ChainflipExchangeProvider extends ExchangeProvider {
-  ChainflipExchangeProvider();
+  ChainflipExchangeProvider({super.proxyWrapper});
 
   static final List<CryptoCurrency> _supported = [
     CryptoCurrency.btc,
@@ -242,7 +242,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Map<String, dynamic>> _getRequest(String path, Map<String, dynamic> params) async {
     final uri = Uri.https(_baseURL, path, params);
 
-    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final response = await proxyWrapper.get(clearnetUri: uri);
 
     if ((response.statusCode != 200) || (response.body.contains("error"))) {
       throw Exception(
@@ -255,7 +255,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
   Future<ChainflipQuote> _getSwapQuote(ChainflipFetchQuotesRequest params) async {
     final uri = Uri.https(_baseURL, _quotePath, params.toJson());
-    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final response = await proxyWrapper.get(clearnetUri: uri);
     final quotes = ChainflipFetchQuotesResponse.fromJson(
       jsonDecode(response.body) as List<dynamic>,
     );
@@ -265,7 +265,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<ChainflipStatusResponse?> _getStatus(ChainflipStatusRequest params) async {
     final uri = Uri.https(_baseURL, _txInfoPath, params.toJson());
 
-    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final response = await proxyWrapper.get(clearnetUri: uri);
 
     if (response.statusCode == 404) {
       return null;

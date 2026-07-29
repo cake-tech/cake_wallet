@@ -7,10 +7,13 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:cw_core/wallet_base.dart";
 
 abstract class ExchangeProvider {
-  ExchangeProvider();
+  ExchangeProvider({ProxyWrapper? proxyWrapper}) : proxyWrapper = proxyWrapper ?? ProxyWrapper();
+
+  final ProxyWrapper proxyWrapper;
 
   String get title;
 

@@ -15,7 +15,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 class StealthExExchangeProvider extends ExchangeProvider {
-  StealthExExchangeProvider();
+  StealthExExchangeProvider({super.proxyWrapper});
 
   static const apiKey = secrets.stealthExBearerToken;
   static final _additionalFeePercent = double.tryParse(secrets.stealthExAdditionalFeePercent);
@@ -56,7 +56,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         rate: isFixedRateMode ? .fixed : .floating,
         additionalFeePercent: _additionalFeePercent);
 
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: Uri.parse(_baseUrl + _rangePath),
         headers: headers,
         body: json.encode(body),
@@ -142,7 +142,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         additionalFeePercent: _additionalFeePercent
           );
 
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: Uri.parse(_baseUrl + _exchangesPath),
         headers: headers,
         body: json.encode(body),
@@ -194,7 +194,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final headers = {"Authorization": apiKey, "Content-Type": "application/json"};
 
     final uri = Uri.parse("$_baseUrl$_exchangesPath/$id");
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode != 200) {
       throw Exception("StealthEx fetch trade failed: ${response.body}");
@@ -236,7 +236,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         rate: isFixedRateMode ? .fixed : .floating,
         additionalFeePercent: _additionalFeePercent);
 
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: Uri.parse(_baseUrl + _amountPath),
         headers: headers,
         body: json.encode(body),

@@ -15,7 +15,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
-  LetsExchangeExchangeProvider();
+  LetsExchangeExchangeProvider({super.proxyWrapper});
 
   static const apiKey = secrets.letsExchangeBearerToken;
   static const _baseUrl = "api.letsexchange.io";
@@ -134,7 +134,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
       final uri = Uri.https(
           _baseUrl, request.isFixedRate ? _createTransactionRevertPath : _createTransactionPath);
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: uri,
         headers: headers,
         body: json.encode(tradeParams.toJson()),
@@ -171,7 +171,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     };
 
     final url = Uri.https(_baseUrl, "$_getTransactionPath/$id");
-    final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
+    final response = await proxyWrapper.get(clearnetUri: url, headers: headers);
 
     if (response.statusCode != 200) {
       throw Exception("LetsExchange fetch trade failed: ${response.body}");
@@ -226,7 +226,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     };
 
       final uri = Uri.https(_baseUrl, isFixedRateMode ? _infoRevertPath : _infoPath);
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: uri,
         headers: headers,
         body: json.encode(params.toJson()),

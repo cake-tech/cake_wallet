@@ -16,7 +16,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 class SwapTradeExchangeProvider extends ExchangeProvider {
-  SwapTradeExchangeProvider();
+  SwapTradeExchangeProvider({super.proxyWrapper});
 
   static const markup = secrets.swapTradeExchangeMarkup;
 
@@ -56,7 +56,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
   }) async {
       final uri = Uri.https(apiAuthority, getCoins);
-      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final response = await proxyWrapper.get(clearnetUri: uri);
 
       final responseJSON = SwapTradeCoinsResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
 
@@ -99,7 +99,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       );
 
       final uri = Uri.https(apiAuthority, getRate);
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: uri,
         body: json.encode(body),
         headers: _headers,
@@ -136,7 +136,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       );
 
       final uri = Uri.https(apiAuthority, createOrder);
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: uri,
         body: json.encode(body),
         headers: _headers,
@@ -174,7 +174,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final body = SwapTradeOrderRequest(orderId: id);
 
       final uri = Uri.https(apiAuthority, order);
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: uri,
         body: json.encode(body),
         headers: _headers,

@@ -16,7 +16,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 class NearIntentsExchangeProvider extends ExchangeProvider {
-  NearIntentsExchangeProvider();
+  NearIntentsExchangeProvider({super.proxyWrapper});
 
   static const apiKey = secrets.nearIntentsBearerToken;
   static const _baseUrl = "1click.chaindefuser.com";
@@ -207,7 +207,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final param = {"depositAddress": id};
     final uri = Uri.https(_baseUrl, "$_versionPath$_statusPath", param);
 
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
     if (response.statusCode != 200) {
       throw Exception(
@@ -255,7 +255,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
     final uri = Uri.https(_baseUrl, "$_versionPath$_tokenPath");
 
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
     if (response.statusCode != 200) {
       throw Exception("response code: ${response.statusCode}");
     }
@@ -316,7 +316,7 @@ connectedWallets: connectedWallets,
         appFees: appFees
     );
 
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: uri,
         headers: _headers,
         body: jsonEncode(payload.toJson()),

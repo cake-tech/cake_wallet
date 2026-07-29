@@ -43,7 +43,7 @@ class JupiterTrade extends RoutableTrade {
 }
 
 class JupiterExchangeProvider extends ExchangeProvider implements TransactionCreationExchangeProvider {
-  JupiterExchangeProvider();
+  JupiterExchangeProvider({super.proxyWrapper});
 
   // Jupiter only supports Solana native SOL and Solana tokens
   bool _isSolanaCurrency(CryptoCurrency currency) =>
@@ -132,7 +132,7 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
           inputMint: inputMint, outputMint: outputMint, amount: from.amount);
       final uri = Uri.https(_baseUrl, _orderPath, params.toJson());
 
-      final response = await ProxyWrapper().get(
+      final response = await proxyWrapper.get(
         clearnetUri: uri,
         headers: _headers,
       );
@@ -175,7 +175,7 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
 
       final orderUri = Uri.https(_baseUrl, _orderPath, orderParams.toJson());
 
-      final orderResponse = await ProxyWrapper().get(clearnetUri: orderUri, headers: _headers);
+      final orderResponse = await proxyWrapper.get(clearnetUri: orderUri, headers: _headers);
 
       if (orderResponse.statusCode != 200) {
         throw TradeNotCreatedException(description, description: "status code: ${orderResponse.statusCode}");
@@ -223,7 +223,7 @@ class JupiterExchangeProvider extends ExchangeProvider implements TransactionCre
         "requestId": requestId,
       });
 
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: executeUri,
         headers: _headers,
         body: body,

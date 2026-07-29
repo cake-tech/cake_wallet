@@ -72,7 +72,7 @@ class SwapsXyzTrade extends RoutableTrade {
 
 class SwapsXyzExchangeProvider extends ExchangeProvider
     implements TransactionCreationExchangeProvider {
-  SwapsXyzExchangeProvider({required SettingsStore settingsStore}) : _settingsStore = settingsStore;
+  SwapsXyzExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper}) : _settingsStore = settingsStore;
 
   final SettingsStore _settingsStore;
 
@@ -151,7 +151,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     );
 
     final uri = Uri.https(_baseUrl, _getPaths, params.toJson());
-    final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
     if (res.statusCode != 200) {
       throw Exception("Unexpected http status: ${res.statusCode}");
     }
@@ -218,7 +218,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       "dstChainId": "$dstChainId",
       "dstToken": dstToken,
     });
-    final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
     if (res.statusCode != 200) {
       return null;
     }
@@ -289,7 +289,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     );
 
     final uri = Uri.https(_baseUrl, _getQuotePaths, params.toJson());
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
     if (response.statusCode != 200) {
       throw Exception("fetchRate failed: ${response.body}");
@@ -350,7 +350,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     );
 
     final uri = Uri.https(_baseUrl, _getAction, params.toJson());
-    final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
     if (res.statusCode != 200) {
       throw Exception("getAction failed: ${res.statusCode} ${res.body}");
@@ -427,7 +427,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   }
 
   /// Register a broadcasted tx with Swaps.xyz (required for alt-vm).
-  static Future<bool> registerAltVmTx({
+  Future<bool> registerAltVmTx({
     required String txId,
     required String txHash,
     required int chainId,
@@ -437,7 +437,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       final uri = Uri.https(_baseUrl, _registerTxs);
       final payload = {"txId": txId, "vmId": vmId, "txHash": txHash, "chainId": chainId};
 
-      final res = await ProxyWrapper().post(
+      final res = await proxyWrapper.post(
         clearnetUri: uri,
         headers: {..._headers, "content-type": "application/json"},
         body: jsonEncode(payload),
@@ -464,7 +464,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   @override
   Future<Trade> findTradeById({required String id}) async {
     final uri = Uri.https(_baseUrl, _getStatus, {"txId": id});
-    final resp = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final resp = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
     if (resp.statusCode != 200) {
       throw Exception("getStatus failed: ${resp.statusCode} ${resp.body}");
@@ -538,7 +538,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     }
     try {
       final uri = Uri.https(_baseUrl, _getChainList);
-      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
       if (response.statusCode != 200) {
         return [];
       }
@@ -589,7 +589,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     };
 
     final uri = Uri.https(_baseUrl, _getPaths, params);
-    final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
     if (res.statusCode != 200) {
       printV("getPaths failed: ${res.statusCode} ${res.body}");
       return;
