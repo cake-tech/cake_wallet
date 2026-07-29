@@ -589,6 +589,17 @@ class AddressService {
     if (bitcoin == null || wallet.type != WalletType.bitcoin) {
       return;
     }
+
+    if (bitcoin!.hasSelectedSilentPayments(wallet) &&
+        bitcoin!.getSilentPaymentAddresses(wallet).isEmpty) {
+      await setAddressType(bitcoin!.getBitcoinSegwitPageOption());
+      if (bitcoin!.getSubAddresses(wallet).isEmpty) {
+        await bitcoin!.generateNewAddress(wallet, "");
+        await wallet.save();
+      }
+      return;
+    }
+
     final current = bitcoin!.getSelectedAddressType(wallet);
     final lightning = bitcoin!.getBitcoinLightningReceivePageOption();
 

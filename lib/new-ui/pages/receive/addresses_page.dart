@@ -282,7 +282,7 @@ class _GroupSection extends StatelessWidget {
                 hasReceived: state.hasReceived,
                 canSetLabel: state.canSetLabel,
                 canHide: state.canHide,
-                canDelete: state.isSilentPayments && !entry.isOneTimeReceiveAddress,
+                canDelete: state.canDeleteSpEntry(entry),
                 isPicker: isPicker,
                 onSelect: () => onEntrySelected(context, entry.address),
                 onLabelChanged: () {},

@@ -52,6 +52,17 @@ final class AddressesLoaded extends AddressesState {
   final bool isSaving;
   final AddressesFailureCode? failureCode;
 
+  bool canDeleteSpEntry(AddressEntry entry) {
+    if (!isSilentPayments || entry.isOneTimeReceiveAddress) {
+      return false;
+    }
+    final spMainCount = groups
+        .expand((g) => g.entries)
+        .where((e) => !e.isOneTimeReceiveAddress)
+        .length;
+    return spMainCount > 1;
+  }
+
   List<AddressGroup> get displayableGroups {
     final term = searchTerm.toLowerCase();
     return groups
