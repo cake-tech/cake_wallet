@@ -228,9 +228,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final quoteRequest = quoteResponse.quoteRequest;
     final quote = quoteResponse.quote;
 
-    final from = _nearAssetIdToCurrency(quoteRequest.destinationAsset, await _getSupportedTokens());
+    final tokens = await _getSupportedTokens();
 
-    final to = _nearAssetIdToCurrency(quoteRequest.destinationAsset, await _getSupportedTokens());
+    final from = _nearAssetIdToCurrency(quoteRequest.originAsset, tokens);
+
+    final to = _nearAssetIdToCurrency(quoteRequest.destinationAsset, tokens);
 
     return Trade(
       id: id,

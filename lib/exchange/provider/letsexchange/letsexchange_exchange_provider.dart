@@ -222,14 +222,14 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       isRefund: responseData.status == TradeState.refund,
       extraId: responseData.depositExtraId,
       depositAmount: Money.parse(
-        responseData.deposit,
+        responseData.depositAmount,
         CryptoCurrency.safeParseCurrencyFromString(
           responseData.coinFrom,
           tag: _normalizeNetworkType(responseData.coinFromNetwork!),
         )!,
       ),
       payoutAmount: Money.parse(
-        responseData.withdrawal,
+        responseData.withdrawalAmount,
         CryptoCurrency.safeParseCurrencyFromString(
           responseData.coinTo,
           tag: _normalizeNetworkType(responseData.coinToNetwork!),

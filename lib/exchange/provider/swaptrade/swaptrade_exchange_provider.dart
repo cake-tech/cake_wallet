@@ -143,7 +143,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       headers: _headers,
     );
 
-    final responseBody = SwapTradeOrderResponse.fromJson(
+    final responseBody = SwapTradeCreateOrderResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
     );
 
@@ -167,7 +167,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       state: TradeState.created,
       payoutAddress: request.payoutAddress.address,
       refundAddress: request.refundAddress,
-      depositAmount: Money.parse(responseData.amountSend ?? 0, request.depositCurrency),
+      depositAmount: request.depositAmount.cryptoAmount,
       payoutAmount: Money.parse(responseData.amountReceive ?? 0, request.payoutCurrency),
     );
   }

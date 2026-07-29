@@ -66,8 +66,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         json.decode(response.body) as Map<String, dynamic>,
       );
       return ExchangeLimits(
-        min: Money.parse(responseData.minAmount, isFixedRateMode ? from : to),
-        max: Money.parse(responseData.maxAmount, isFixedRateMode ? from : to),
+        min: Money.parse(responseData.minAmount, isFixedRateMode ? to : from),
+        max: Money.parse(responseData.maxAmount, isFixedRateMode ? to : from),
       );
     } else if (response.statusCode == 422) {
       // HACK: exolix provides limits only if we ourselves supply an amount higher than minAmount.
@@ -93,8 +93,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
             json.decode(response.body) as Map<String, dynamic>,
           );
           return ExchangeLimits(
-            min: Money.parse(responseData.minAmount, isFixedRateMode ? from : to),
-            max: Money.parse(responseData.maxAmount, isFixedRateMode ? from : to),
+            min: Money.parse(responseData.minAmount, isFixedRateMode ? to : from),
+            max: Money.parse(responseData.maxAmount, isFixedRateMode ? to : from),
           );
         }
       }

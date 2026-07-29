@@ -14,10 +14,9 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/utils/proxy_wrapper.dart";
 
 class XOSwapExchangeProvider extends ExchangeProvider {
-  XOSwapExchangeProvider() {
+  XOSwapExchangeProvider({super.proxyWrapper}) {
     _addAppVersionHeader();
   }
 
@@ -130,7 +129,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(_apiAuthority, _apiPath + _assets,
           XOSwapAssetsRequest(networks: normalizedNetwork, query: currency.title).toJson());
 
-      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
         throw Exception("Failed to fetch assets for ${currency.title} on ${currency.tag}");
@@ -168,7 +167,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       }
       final pairId = "${curFrom}_$curTo";
       final uri = Uri.https(_apiAuthority, "$_apiPath$_pairsPath/$pairId$_ratePath");
-      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
         return [];
@@ -180,7 +179,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  ExchangeLimits _exchangeLimitsFromRateList(CryptoCurrency from, CryptoCurrency to, List<XOSwapRate> rates) {
+  ExchangeLimits _exchangeLimitsFromRateList(CryptoCurrency from, List<XOSwapRate> rates) {
     double minLimit = double.infinity;
     double maxLimit = 0;
 
@@ -194,7 +193,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         maxLimit = currentMax;
       }
     }
-    return ExchangeLimits(min: Money.tryParse(minLimit, from), max: Money.tryParse(maxLimit, to));
+    return ExchangeLimits(min: Money.tryParse(minLimit, from), max: Money.tryParse(maxLimit, from));
   }
 
 
@@ -209,7 +208,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       throw Exception("No rates found for $from to $to");
     }
 
-    return _exchangeLimitsFromRateList(from, to, rates);
+    return _exchangeLimitsFromRateList(from, rates);
   }
 
   @override
@@ -220,7 +219,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       throw Exception("no rate from xoswap");
     }
 
-    final amount = from.amount.toDouble();
+    final amount = from.toDouble();
     double result;
     if (!isFixedRate) {
       double bestOutput = 0;
@@ -256,7 +255,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
     return ProviderRate(provider: description,
         rate: ExchangeRate(base: from.currency, quote: Money.parse(result, to)),
-        limits: _exchangeLimitsFromRateList(from.currency as CryptoCurrency, to, rates));
+        limits: _exchangeLimitsFromRateList(from.currency as CryptoCurrency, rates));
   }
 
   @override
@@ -282,7 +281,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
           toAddressTag: request.toAddressExtraId
       );
 
-      final response = await ProxyWrapper().post(
+      final response = await proxyWrapper.post(
         clearnetUri: uri,
         headers: _headers,
         body: json.encode(payload),
@@ -314,7 +313,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({required String id}) async {
       final uri = Uri.https(_apiAuthority, "$_apiPath$_orders/$id");
-      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
         final error = XOSwapErrorResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
@@ -375,8 +374,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         provider: description,
         refundAddress: responseData.fromAddress,
 fundingAddress: responseData.payInAddress,
-        depositAmount: Money.parse(responseData.amount, fromCurrency!),
-payoutAmount: Money.parse(responseData.toAmount, toCurrency!),
+        depositAmount: Money.parse(responseData.amount.value, fromCurrency!),
+        payoutAmount: Money.parse(responseData.toAmount?.value ?? 0, toCurrency!),
         state: responseData.status,
         createdAt: responseData.createdAt,
         payoutAddress: responseData.toAddress,

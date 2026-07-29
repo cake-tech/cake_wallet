@@ -149,7 +149,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final swapResponse = await _openDepositChannel(swapParams);
 
     final id =
-        "${swapResponse.issuedBlock}-${swapResponse.network.toString()}-${swapResponse.channelId}";
+        "${swapResponse.issuedBlock}-${swapResponse.network.name}-${swapResponse.channelId}";
 
     return Trade(
       id: id,
@@ -220,12 +220,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeNetworkName(String name) {
-    final networkName = switch (name) {
-      "BITCOIN" => "Bitcoin",
-      "ETHEREUM" => "Ethereum",
-      "ARBITRUM" => "Arbitrum",
-      "SOLANA" => "Solana",
-      "TRON" => "Tron",
+    final networkName = switch (name.toUpperCase()) {
+      "BITCOIN" => "bitcoin",
+      "ETHEREUM" => "ethereum",
+      "ARBITRUM" => "arbitrum",
+      "SOLANA" => "solana",
+      "TRON" => "tron",
+      "ASSETHUB" => "assethub",
       _ => name,
     };
 
