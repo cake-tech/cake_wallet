@@ -16,6 +16,7 @@ class Trade {
     required this.depositAmount,
     required this.payoutAmount,
     required this.fundingAddress,
+    this.providerName,
     required this.id, required this.provider, required this.payoutAddress, required this.refundAddress, this.internalId = 0,
     this.createdAt,
     this.expiredAt,
@@ -56,6 +57,7 @@ class Trade {
   String? walletId;
   final String refundAddress;
   final String payoutAddress;
+  final String? providerName;
 
   // holds the receive address memo or destination tag that was passed for this trade
   String? toAddressExtraId;
@@ -221,11 +223,14 @@ class Trade {
   //     chainIconPath: row['${prefix}ChainIconPath'] as String?,
   //   );
   // }
+
+    void mergeFindTradeByIdResult(Trade trade) {
+    //TODO
+    }
 }
 
 class RoutableTrade extends Trade {
   RoutableTrade({required this.routerData, required this.routerValue, required super.state, required super.depositAmount, required super.payoutAmount, required super.id, required super.provider, required super.payoutAddress, required super.refundAddress,
-
 
     required super.fundingAddress, super.createdAt,
     super.expiredAt,
