@@ -30,7 +30,6 @@ import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.
 import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -713,17 +712,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               throw Exception(
                   'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
             }
-          }
-        }
-
-        if (provider is ThorChainExchangeProvider) {
-          final outputCount = pendingTransaction?.outputCount ?? 0;
-          if (outputCount > 10) {
-            throw Exception("THORChain does not support more than 10 outputs");
-          }
-
-          if (_hasTaprootInput(pendingTransaction)) {
-            throw Exception("THORChain does not support Taproot addresses");
           }
         }
       }
