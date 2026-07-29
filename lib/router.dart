@@ -58,8 +58,6 @@ import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/third_party_disclaimer_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
@@ -700,14 +698,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return MaterialPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
-
-    case Routes.exchange:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ExchangePage>(param1: settings.arguments as PaymentRequest?),
-      );
-
-    case Routes.exchangeTemplate:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
 
     case Routes.rescan:
       final page = getIt.get<RescanPage>();

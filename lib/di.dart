@@ -104,8 +104,6 @@ import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
@@ -179,7 +177,6 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
@@ -1239,11 +1236,6 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
-      (PaymentRequest? paymentRequest, __) {
-    return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(),
-        getIt.get<AddressResolverService>(), paymentRequest);
-  });
 
   getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, CryptoCurrency?>(
       (PaymentRequest? paymentRequest, CryptoCurrency? initialCurrency) {
@@ -1257,22 +1249,6 @@ Future<void> setup({
   });
 
   getIt.registerFactory(() => BackgroundSyncPage(getIt.get<DashboardViewModel>()));
-
-  getIt.registerFactory(() => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
-
-  getIt.registerFactoryParam<SwapConfirmationBottomSheet, PaymentFlowResult, void>(
-    (paymentFlowResult, _) => SwapConfirmationBottomSheet(
-      paymentFlowResult: paymentFlowResult,
-      exchangeViewModel: getIt.get<ExchangeViewModel>(),
-      authService: getIt.get<AuthService>(),
-    ),
-  );
-
-  getIt.registerFactory<SwapDetailsBottomSheet>(
-    () => SwapDetailsBottomSheet(
-      exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>(),
-    ),
-  );
 
   getIt.registerFactory(() => PaymentViewModel(
         appStore: getIt.get<AppStore>(),

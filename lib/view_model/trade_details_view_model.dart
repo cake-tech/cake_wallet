@@ -10,9 +10,7 @@ import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.
 import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -45,20 +43,13 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.changeNow:
         _provider = ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
         break;
-      case ExchangeProviderDescription.sideShift:
-        _provider = SideShiftExchangeProvider();
-        break;
-      case ExchangeProviderDescription.simpleSwap:
-        throw UnimplementedError();
       case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
         break;
       case ExchangeProviderDescription.exolix:
         _provider = ExolixExchangeProvider();
         break;
-      case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider();
-        break;
+
       case ExchangeProviderDescription.swapTrade:
         _provider = SwapTradeExchangeProvider();
       case ExchangeProviderDescription.letsExchange:
