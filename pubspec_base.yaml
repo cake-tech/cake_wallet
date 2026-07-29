@@ -171,6 +171,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.4
+  bloc_test: 10.0.0
   build_runner: ^2.15.0
   logging: ^1.2.0
   mobx_codegen: ^2.7.7
