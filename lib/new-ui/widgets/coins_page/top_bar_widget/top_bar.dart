@@ -46,6 +46,7 @@ class TopBar extends StatelessWidget {
               isSyncHeavy: dashboardViewModel.isSyncHeavy,
             ),
             ModernButton.svg(
+              key: ValueKey('home_page_settings_button_key'),
               iconColor: Theme.of(context).colorScheme.primary,
               size: 36,
               onPressed: () {

@@ -45,6 +45,7 @@ class SyncBar extends StatelessWidget {
 
         return Expanded(
           child: Stack(
+            key: ValueKey('home_page_sync_status_key'),
             alignment: Alignment.centerLeft,
             children: [
               if (!_showFullBar())

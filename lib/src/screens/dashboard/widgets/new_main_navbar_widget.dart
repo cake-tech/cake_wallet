@@ -188,6 +188,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                           : 0),
                                   curve: Curves.easeOutCubic,
                                   child: InkWell(
+                                    key: visibleActions[i].key,
                                     splashFactory: NoSplash.splashFactory,
                                     splashColor: Colors.transparent,
                                     borderRadius: BorderRadius.circular(pillBorderRadius),

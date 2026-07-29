@@ -14,10 +14,19 @@ class CommonTestCases {
     String key, {
     bool shouldPumpAndSettle = true,
     int pumpDuration = 100,
+    Duration timeout = const Duration(seconds: 30),
   }) async {
-    await tester.pump(Duration(milliseconds: 500));
-
     final widgetFinder = find.byKey(ValueKey(key));
+
+    // Wait for the widget instead of a fixed sleep, first frames on a cold emulator are slow.
+    final endTime = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(endTime)) {
+      await tester.pump(const Duration(milliseconds: 100));
+
+      if (tester.any(widgetFinder)) {
+        break;
+      }
+    }
 
     expect(tester.any(widgetFinder), true, reason: 'Widget with key "$key" should be visible');
 
@@ -233,8 +242,22 @@ class CommonTestCases {
     }
   }
 
-  Future<void> enterText(String text, String editableTextKey) async {
-    final editableTextWidget = find.byKey(ValueKey((editableTextKey)));
+  Future<void> enterText(
+    String text,
+    String editableTextKey, {
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
+    final editableTextWidget = find.byKey(ValueKey(editableTextKey));
+
+    // Wait for the field to mount before typing into it.
+    final endTime = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(endTime)) {
+      await tester.pump(const Duration(milliseconds: 100));
+
+      if (tester.any(editableTextWidget)) {
+        break;
+      }
+    }
 
     await tester.enterText(editableTextWidget, text);
 

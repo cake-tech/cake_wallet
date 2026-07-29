@@ -44,6 +44,7 @@ class CoinActionRow extends StatelessWidget {
         spacing: MediaQuery.of(context).size.width * 0.05,
         children: [
           CoinActionButton(
+            key: ValueKey('home_page_send_button_key'),
             icon: CakeImageWidget(
               imageUrl: "assets/new-ui/send.svg",
               colorFilter: ColorFilter.mode(
@@ -82,6 +83,7 @@ class CoinActionRow extends StatelessWidget {
             },
           ),
           CoinActionButton(
+            key: ValueKey('home_page_receive_button_key'),
             icon: CakeImageWidget(
               imageUrl: "assets/new-ui/receive.svg",
               colorFilter: ColorFilter.mode(
@@ -115,6 +117,7 @@ class CoinActionRow extends StatelessWidget {
           ),
           if (showSwap)
             CoinActionButton(
+              key: ValueKey('home_page_swap_button_key'),
               icon: CakeImageWidget(
                 imageUrl: "assets/new-ui/exchange.svg",
                 colorFilter: ColorFilter.mode(
@@ -142,6 +145,7 @@ class CoinActionRow extends StatelessWidget {
               },
             ),
           CoinActionButton(
+            key: ValueKey('home_page_scan_button_key'),
             icon: CakeImageWidget(
               imageUrl: "assets/new-ui/scan.svg",
               colorFilter: ColorFilter.mode(

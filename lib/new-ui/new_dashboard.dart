@@ -63,6 +63,7 @@ class _NewDashboardState extends State<NewDashboard> {
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
         body: Material(
+          key: ValueKey('new_dashboard_page_key'),
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [

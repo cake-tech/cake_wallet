@@ -60,6 +60,7 @@ class WalletInfoBar extends StatelessWidget {
           ),
           Text(
             name,
+            key: ValueKey('home_page_wallet_name_text_key'),
             style: Theme.of(context)
                 .textTheme
                 .titleLarge
