@@ -61,7 +61,7 @@ class ExolixRateResponse {
   const ExolixRateResponse({
     required this.fromAmount,
     required this.toAmount,
-    required this.rate,
+    this.rate,
     this.message,
     this.minAmount,
     this.withdrawMin,
@@ -76,7 +76,7 @@ class ExolixRateResponse {
   @JsonKey(name: "toAmount")
   final double toAmount;
   @JsonKey(name: "rate")
-  final double rate;
+  final double? rate;
   @JsonKey(name: "message")
   final String? message;
   @JsonKey(name: "minAmount")

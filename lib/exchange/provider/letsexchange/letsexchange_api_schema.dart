@@ -31,6 +31,18 @@ class SafeBoolConverter implements JsonConverter<bool, Object> {
   Object toJson(bool value) => value;
 }
 
+// rate_id_expired_at comes back as the number 0 from /info and as a string of millis from
+// /info-revert, so read whatever turns up as a string
+class SafeStringConverter implements JsonConverter<String, Object> {
+  const SafeStringConverter();
+
+  @override
+  String fromJson(Object json) => json.toString();
+
+  @override
+  Object toJson(String value) => value;
+}
+
 @JsonSerializable()
 class LetsExchangeInfoRequest {
   const LetsExchangeInfoRequest({
@@ -101,6 +113,7 @@ class LetsExchangeInfoResponse {
   @JsonKey(name: "rate_id")
   final String? rateId;
   @JsonKey(name: "rate_id_expired_at")
+  @SafeStringConverter()
   final String? rateIdExpiredAt;
 }
 

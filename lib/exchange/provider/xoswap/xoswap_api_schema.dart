@@ -23,6 +23,26 @@ class XOSwapErrorResponse {
   final String? details;
 }
 
+// /v3/pairs/{id}/rates sends amount.value as a number while
+// /v3/orders sends it as a string, so a plain double throws on every order response
+class XOSwapAmountValueConverter implements JsonConverter<double, Object> {
+  const XOSwapAmountValueConverter();
+
+  @override
+  double fromJson(Object json) {
+    if (json is num) {
+      return json.toDouble();
+    }
+    if (json is String) {
+      return double.parse(json);
+    }
+    throw ArgumentError("unexpected XOSwap amount value: $json");
+  }
+
+  @override
+  Object toJson(double value) => value;
+}
+
 @JsonSerializable(createToJson: false)
 class XOSwapAmount {
   const XOSwapAmount({required this.value, this.assetId});
@@ -30,6 +50,7 @@ class XOSwapAmount {
   factory XOSwapAmount.fromJson(Map<String, dynamic> json) => _$XOSwapAmountFromJson(json);
 
   @JsonKey(name: "value")
+  @XOSwapAmountValueConverter()
   final double value;
 
   @JsonKey(name: "assetId")

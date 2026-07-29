@@ -339,7 +339,7 @@ class NearIntentsQuote {
 @JsonSerializable(createToJson: false)
 class NearIntentsQuoteResponse {
   const NearIntentsQuoteResponse({
-    required this.correlationId,
+    this.correlationId,
     required this.timestamp,
     required this.signature,
     required this.quoteRequest,
@@ -350,7 +350,7 @@ class NearIntentsQuoteResponse {
       _$NearIntentsQuoteResponseFromJson(json);
 
   @JsonKey(name: "correlationId")
-  final String correlationId;
+  final String? correlationId;
 
   @JsonKey(name: "timestamp")
   final DateTime timestamp;

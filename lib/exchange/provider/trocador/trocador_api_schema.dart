@@ -22,6 +22,18 @@ class TrocadorBoolConverter implements JsonConverter<bool, Object> {
   Object toJson(bool value) => value ? "True" : "False";
 }
 
+// the top level amount_from, amount_to, minimum and
+// maximum come back as json numbers, while the same values inside a quote come back as strings
+class TrocadorAmountConverter implements JsonConverter<String, Object> {
+  const TrocadorAmountConverter();
+
+  @override
+  String fromJson(Object json) => json.toString();
+
+  @override
+  Object toJson(String value) => value;
+}
+
 enum TrocadorRating {
   @JsonValue("A")
   a,
@@ -74,8 +86,10 @@ class TrocadorCoin {
   @JsonKey(name: "image")
   final String? image;
   @JsonKey(name: "minimum")
+  @TrocadorAmountConverter()
   final String? minimum;
   @JsonKey(name: "maximum")
+  @TrocadorAmountConverter()
   final String? maximum;
 }
 
@@ -185,8 +199,10 @@ class TrocadorRate {
   @JsonKey(name: "network_to")
   final String networkTo;
   @JsonKey(name: "amount_from")
+  @TrocadorAmountConverter()
   final String amountFrom;
   @JsonKey(name: "amount_to")
+  @TrocadorAmountConverter()
   final String amountTo;
 
   @JsonKey(name: "provider")
@@ -332,8 +348,10 @@ class TrocadorTrade {
   @JsonKey(name: "network_to")
   final String networkTo;
   @JsonKey(name: "amount_from")
+  @TrocadorAmountConverter()
   final String amountFrom;
   @JsonKey(name: "amount_to")
+  @TrocadorAmountConverter()
   final String amountTo;
   @JsonKey(name: "provider")
   final String provider;
