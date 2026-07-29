@@ -282,7 +282,6 @@ class _GroupSection extends StatelessWidget {
                 hasReceived: state.hasReceived,
                 canSetLabel: state.canSetLabel,
                 canHide: state.canHide,
-                canDelete: state.canDeleteSpEntry(entry),
                 isPicker: isPicker,
                 onSelect: () => onEntrySelected(context, entry.address),
                 onLabelChanged: () {},
@@ -601,7 +600,6 @@ class _AddressRow extends StatelessWidget {
     required this.hasReceived,
     required this.canSetLabel,
     required this.canHide,
-    required this.canDelete,
     required this.isPicker,
     required this.onSelect,
     required this.onLabelChanged,
@@ -617,7 +615,6 @@ class _AddressRow extends StatelessWidget {
   final bool hasReceived;
   final bool canSetLabel;
   final bool canHide;
-  final bool canDelete;
   final bool isPicker;
   final VoidCallback onSelect;
   final VoidCallback onLabelChanged;
@@ -741,17 +738,6 @@ class _AddressRow extends StatelessWidget {
                         onSelected: () {
                           Navigator.of(context, rootNavigator: true).pop();
                           onAddressHidden();
-                        },
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    if (canDelete)
-                      LongPressMenuItem(
-                        label: S.of(context).delete,
-                        iconPath: "assets/new-ui/address_hide.svg",
-                        onSelected: () {
-                          final bloc = context.read<AddressesBloc>();
-                          Navigator.of(context, rootNavigator: true).pop();
-                          bloc.add(AddressDeleted(entry.address));
                         },
                         color: Theme.of(context).colorScheme.error,
                       ),
