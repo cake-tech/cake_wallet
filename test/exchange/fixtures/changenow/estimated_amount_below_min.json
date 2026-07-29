@@ -1,0 +1,1 @@
+{"error":"deposit_too_small","message":"Out of min amount","payload":{"range":{"minAmount":0.00012045,"maxAmount":null}}}
