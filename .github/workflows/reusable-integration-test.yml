@@ -261,6 +261,18 @@ jobs:
 
             adb logcat -d > logcat_final.txt || true
 
+            # tier1 depends on live network services so it reports without blocking merges,
+            # promote it into the hard gate once it has a stable green history
+            if [[ "${{ inputs.test_tier }}" == "tier0" && -d "${{ inputs.suite_dir }}/tier1" ]]; then
+              echo "Running tier1 suites (non-blocking)..."
+              env \
+                SUITE_DIR="${{ inputs.suite_dir }}" \
+                TEST_TIER=tier1 \
+                EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
+                PLATFORM=android \
+                ./integration_test_runner.sh 2>&1 | tee tier1_run.log || echo "tier1 suites failed (non-blocking)"
+            fi
+
             if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
               echo "Stopping screen recording and encrypting..."
               kill "$RECORD_LOOP_PID" || true
@@ -295,6 +307,7 @@ jobs:
           name: integration-test-logs
           path: |
             ${{ github.workspace }}/integration_test_run.log
+            ${{ github.workspace }}/tier1_run.log
             ${{ github.workspace }}/logcat_final.txt
             ${{ github.workspace }}/recordings/*.gpg
 

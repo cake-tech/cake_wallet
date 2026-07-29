@@ -11,14 +11,14 @@ set -euo pipefail
 #                         Dart defines must already be baked into this apk at build time.
 #   EXTRA_DART_DEFINES    comma separated KEY=VALUE pairs forwarded as --dart-define flags
 #   FLUTTER_DEVICE        device id passed to flutter drive, needed when several devices are attached
-#   TEST_TIMEOUT          per-attempt timeout in seconds, applied when the timeout command exists (default 1800)
+#   TEST_TIMEOUT          per-attempt timeout in seconds (default 900)
 #   RETRY_COUNT           retries per suite after a failure (default 1)
 #   REMOVE_DATA_DIRECTORY set to N to keep app data between suites (default wipes it)
 
 SUITE_DIR=${SUITE_DIR:-integration_test/suites}
 TEST_TIER=${TEST_TIER:-all}
 PLATFORM=${PLATFORM:-auto}
-TEST_TIMEOUT=${TEST_TIMEOUT:-1800}
+TEST_TIMEOUT=${TEST_TIMEOUT:-900}
 RETRY_COUNT=${RETRY_COUNT:-1}
 REMOVE_DATA_DIRECTORY=${REMOVE_DATA_DIRECTORY:-Y}
 EXTRA_DART_DEFINES=${EXTRA_DART_DEFINES:-}
@@ -133,9 +133,12 @@ build_drive_command() {
         done
     fi
 
-    # timeout is not available on stock macOS, only apply it where it exists
+    # A wedged driver otherwise hangs the whole run, timeout is not available on stock
+    # macOS so fall back to a perl alarm there
     if command -v timeout > /dev/null 2>&1; then
         drive_command=(timeout "$TEST_TIMEOUT" "${drive_command[@]}")
+    elif command -v perl > /dev/null 2>&1; then
+        drive_command=(perl -e 'alarm shift; exec @ARGV' "$TEST_TIMEOUT" "${drive_command[@]}")
     fi
 }
 

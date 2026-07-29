@@ -12,38 +12,38 @@ import "../../robots/new_dashboard_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  integrationTest("Create a wallet for each configured wallet type", (tester) async {
+  integrationTest("Restore a wallet from seed for each configured wallet type", (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);
     final dashboardRobot = NewDashboardRobot(tester);
     final homePageRobot = HomePageRobot(tester);
 
-    await appLauncher.launchApp(testKey: "onboarding_create_test_app_key");
+    await appLauncher.launchApp(testKey: "onboarding_restore_test_app_key");
 
     final walletTypes = TestConfig.walletTypesUnderTest;
     final firstType = walletTypes.first;
 
-    tester.printToConsole("Creating first wallet: ${firstType.name}");
+    tester.printToConsole("Restoring first wallet: ${firstType.name}");
 
-    await onboardingFlows.createFirstWallet(firstType);
+    await onboardingFlows.restoreFirstWalletFromSeed(firstType);
 
     await dashboardRobot.isDisplayed();
     await homePageRobot.isDisplayed();
 
-    // Confirm the app actually created and opened a wallet of the requested type.
+    // Confirm the app actually restored and opened a wallet of the requested type.
     final appStore = getIt.get<AppStore>();
     expect(appStore.wallet?.type, firstType);
 
     await homePageRobot.hasWalletName(appStore.wallet!.name);
 
     for (final type in walletTypes.skip(1)) {
-      tester.printToConsole("Creating additional wallet: ${type.name}");
+      tester.printToConsole("Restoring additional wallet: ${type.name}");
 
       await dashboardRobot.openWalletsTab();
 
-      await onboardingFlows.createAdditionalWalletFromWalletList(type);
+      await onboardingFlows.restoreAdditionalWalletFromWalletList(type);
 
-      // Opening the new wallet resets the dashboard to the home tab.
+      // Opening the restored wallet resets the dashboard to the home tab.
       await dashboardRobot.isDisplayed();
       await homePageRobot.isDisplayed();
 

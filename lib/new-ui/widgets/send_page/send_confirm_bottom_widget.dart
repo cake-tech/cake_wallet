@@ -44,6 +44,7 @@ class SendConfirmBottomWidget extends StatelessWidget {
     switch (state) {
       case ExecutedSuccessfullyState:
         return ConfirmSwiper(
+            key: ValueKey('send_page_confirm_swiper_key'),
             onConfirmed: () {
               sendViewModel.commitTransaction(context);
             },

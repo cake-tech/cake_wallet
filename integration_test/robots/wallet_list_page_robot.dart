@@ -9,11 +9,6 @@ class WalletListPageRobot {
   final WidgetTester tester;
   late CommonTestCases commonTestCases;
 
-  Future<void> isWalletListPage() async {
-    await commonTestCases.isSpecificPage<WalletListPageRobot>();
-    await commonTestCases.takeScreenshots('wallet_list_page');
-  }
-
   void displaysCorrectTitle() {
     commonTestCases.hasText(S.current.wallets);
   }

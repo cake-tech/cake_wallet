@@ -1,3 +1,5 @@
+import "package:cake_wallet/new-ui/pages/home_page.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -9,7 +11,6 @@ class HomePageRobot extends BaseRobot {
 
   @override
   Future<void> isDisplayed() async {
-    // The wallet name bar only renders while the home tab is the visible one.
     await pumpUntilFound(find.byKey(const ValueKey("home_page_wallet_name_text_key")));
   }
 
@@ -33,5 +34,46 @@ class HomePageRobot extends BaseRobot {
 
   Future<void> openSettingsSheet() async {
     await tapByKey("home_page_settings_button_key");
+  }
+
+  /// Waits until transactions arrive for the wallet, then scrolls a history tile into view.
+  Future<void> confirmTransactionHistoryVisible({
+    Duration timeout = const Duration(minutes: 3),
+  }) async {
+    final hasTransactions = await pumpUntil(
+      () => _dashboardTransactionCount() > 0,
+      timeout: timeout,
+    );
+
+    expect(
+      hasTransactions,
+      true,
+      reason: "No transactions arrived within ${timeout.inSeconds}s",
+    );
+
+    // History tiles live in a lazy sliver further down the home scroll view.
+    final scrollableFinder = find.descendant(
+      of: find.byType(NewHomePage),
+      matching: find.byType(Scrollable),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byType(HistoryTile),
+      300,
+      scrollable: scrollableFinder.first,
+      maxScrolls: 30,
+    );
+
+    expect(find.byType(HistoryTile), findsWidgets);
+  }
+
+  int _dashboardTransactionCount() {
+    final finder = find.byType(NewHomePage);
+
+    if (!tester.any(finder)) {
+      return 0;
+    }
+
+    return tester.widget<NewHomePage>(finder.first).dashboardViewModel.transactions.length;
   }
 }

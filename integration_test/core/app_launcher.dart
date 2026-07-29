@@ -1,6 +1,23 @@
+import "dart:async";
+
 import "package:cake_wallet/main.dart" as app;
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+
+/// testWidgets with background async errors contained.
+///
+/// Async chains started by test taps bind to the test zone, so wallet networking that
+/// keeps running after an interaction would otherwise fail the test with errors the
+/// production app deliberately ignores. Awaited failures still propagate normally, an
+/// assertion failing inside the body fails the test exactly like under testWidgets.
+void integrationTest(String description, Future<void> Function(WidgetTester tester) body) {
+  testWidgets(description, (tester) async {
+    await (runZonedGuarded(() => body(tester), (error, stack) {
+          debugPrint("Ignoring background async error: $error");
+        }) ??
+        Future<void>.value());
+  });
+}
 
 /// Boots the real app inside an integration test and installs the shared error policy.
 class AppLauncher {

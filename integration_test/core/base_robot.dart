@@ -57,6 +57,10 @@ abstract class BaseRobot {
 
     await pumpUntilFound(finder, timeout: timeout);
 
+    // A tap during a route transition lands on the animating overlay instead of the
+    // widget, so let running animations finish first.
+    await settle(max: const Duration(seconds: 2));
+
     await tester.tap(finder.first, warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 300));
   }
@@ -67,6 +71,8 @@ abstract class BaseRobot {
     Duration timeout = const Duration(seconds: 30),
   }) async {
     await pumpUntilFound(finder, timeout: timeout);
+
+    await settle(max: const Duration(seconds: 2));
 
     await tester.tap(finder.first, warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 300));
@@ -110,6 +116,41 @@ abstract class BaseRobot {
     );
 
     await tester.pump(const Duration(milliseconds: 300));
+  }
+
+  /// Pumps until the condition returns true, false when the timeout passes first.
+  Future<bool> pumpUntil(
+    bool Function() condition, {
+    Duration timeout = const Duration(seconds: 30),
+    Duration step = const Duration(milliseconds: 100),
+  }) async {
+    final endTime = DateTime.now().add(timeout);
+
+    while (DateTime.now().isBefore(endTime)) {
+      await tester.pump(step);
+
+      if (condition()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Pops the deepest navigator, the one closest to what is currently on screen.
+  Future<void> goBack() async {
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator).last);
+    navigator.pop();
+
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+
+  /// Pops the root navigator, dismisses the current modal sheet.
+  Future<void> dismissModal() async {
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator).first);
+    navigator.pop();
+
+    await tester.pump(const Duration(milliseconds: 500));
   }
 
   /// Pumps until no more frames are scheduled, bounded because some screens animate forever.

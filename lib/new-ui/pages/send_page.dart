@@ -415,6 +415,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                           children: [
                                             Text(S.of(context).address_or_alias),
                                             NewSendAddressInput(
+                                              key: ValueKey('send_page_address_input_key'),
                                               displayName: output.displayName,
                                               validator: output.isParsedAddress
                                                   ? widget.sendViewModel.textValidator
@@ -479,6 +480,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                         children: [
                                           Text(S.of(context).amount),
                                           NewSendAmountInput(
+                                            key: ValueKey('send_page_amount_input_key'),
                                             validator: output.sendAll
                                                 ? widget.sendViewModel.allAmountValidator
                                                 : widget.sendViewModel.amountValidator(output),

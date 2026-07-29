@@ -1,12 +1,15 @@
 import "dart:io";
 
+import "package:cake_wallet/entities/seed_type.dart";
 import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../core/test_config.dart";
+import "../core/test_wallets.dart";
 import "../robots/create_pin_welcome_page_robot.dart";
 import "../robots/lightning_username_page_robot.dart";
+import "../robots/restore_options_page_robot.dart";
 import "../robots/new_wallet_page_robot.dart";
 import "../robots/new_wallet_type_page_robot.dart";
 import "../robots/pre_seed_page_robot.dart";
@@ -30,6 +33,7 @@ class OnboardingFlows {
         _newWalletTypePageRobot = NewWalletTypePageRobot(tester),
         _seedVerificationPageRobot = SeedVerificationPageRobot(tester),
         _createPinWelcomePageRobot = CreatePinWelcomePageRobot(tester),
+        _restoreOptionsPageRobot = RestoreOptionsPageRobot(tester),
         _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(tester),
         _lightningUsernamePageRobot = LightningUsernamePageRobot(tester),
         _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(tester);
@@ -45,6 +49,7 @@ class OnboardingFlows {
   final NewWalletTypePageRobot _newWalletTypePageRobot;
   final SeedVerificationPageRobot _seedVerificationPageRobot;
   final CreatePinWelcomePageRobot _createPinWelcomePageRobot;
+  final RestoreOptionsPageRobot _restoreOptionsPageRobot;
   final RestoreFromSeedOrKeysPageRobot _restoreFromSeedOrKeysPageRobot;
   final LightningUsernamePageRobot _lightningUsernamePageRobot;
   final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
@@ -81,6 +86,60 @@ class OnboardingFlows {
     }
 
     await _completeWalletCreationSteps(type);
+  }
+
+  /// Runs the fresh install path restoring the first wallet from its seed phrase.
+  Future<void> restoreFirstWalletFromSeed(WalletType type, {String? seed, List<int>? pin}) async {
+    await _createPinWelcomePageRobot.tapSetAPinButton();
+
+    await setupPinCode(pin ?? TestConfig.pin);
+
+    await _welcomePageRobot.navigateToRestoreWalletPage();
+
+    // Desktop skips the restore options page and goes straight to the type list.
+    if (!Platform.isLinux) {
+      await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
+    }
+
+    await _selectWalletType(type);
+
+    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
+  }
+
+  /// Restores one more wallet starting from the wallet list tab.
+  Future<void> restoreAdditionalWalletFromWalletList(WalletType type, {String? seed}) async {
+    tester.printToConsole("Restoring ${type.name} wallet");
+
+    await _walletListPageRobot.navigateToRestoreWalletOptionsPage();
+
+    if (!Platform.isLinux) {
+      await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
+    }
+
+    await _selectWalletType(type);
+
+    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
+  }
+
+  Future<void> _restoreFromSeed(WalletType type, String seed) async {
+    await _restoreFromSeedOrKeysPageRobot.selectWalletNameFromAvailableOptions();
+    await _restoreFromSeedOrKeysPageRobot.enterSeedPhraseForWalletRestore(seed);
+
+    // 25 word monero seeds are legacy seeds and need their restore block height entered.
+    if (seed.split(" ").length == 25 && type == WalletType.monero) {
+      await _restoreFromSeedOrKeysPageRobot
+          .chooseSeedTypeForMoneroOrWowneroWallets(MoneroSeedType.legacy);
+      await _restoreFromSeedOrKeysPageRobot
+          .enterBlockHeightForWalletRestore(TestWallets.moneroRestoreBlockHeight);
+    }
+
+    if (Platform.isLinux) {
+      final password = TestConfig.pin.join("");
+      await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(password);
+      await _restoreFromSeedOrKeysPageRobot.enterPasswordRepeatForWalletRestore(password);
+    }
+
+    await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
   }
 
   Future<void> setupPinCode(List<int> pin) async {

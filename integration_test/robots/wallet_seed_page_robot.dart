@@ -25,16 +25,6 @@ class WalletSeedPageRobot {
     await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> onConfirmButtonOnSeedAlertDialogPressed() async {
-    await commonTestCases.tapItemByKey('wallet_seed_page_seed_alert_confirm_button_key');
-    await commonTestCases.defaultSleepTime();
-  }
-
-  Future<void> onBackButtonOnSeedAlertDialogPressed() async {
-    await commonTestCases.tapItemByKey('wallet_seed_page_seed_alert_back_button_key');
-    await commonTestCases.defaultSleepTime();
-  }
-
   void confirmWalletDetailsDisplayCorrectly() {
     final walletSeedPage = tester.widget<WalletSeedPage>(find.byType(WalletSeedPage));
 
