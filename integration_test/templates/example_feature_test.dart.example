@@ -1,0 +1,48 @@
+// Copy this file into integration_test/suites/tier0/ or tier1/, rename it to
+// <feature>_test.dart and replace the example steps with your journey.
+// The runner only picks up files ending in _test.dart, this template never runs.
+
+import "package:cw_core/wallet_type.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:integration_test/integration_test.dart";
+
+import "../../core/app_launcher.dart";
+import "../../flows/onboarding_flows.dart";
+import "../../robots/home_page_robot.dart";
+import "../../robots/new_dashboard_robot.dart";
+
+void main() {
+  // Required first line in every suite, integrationTest contains background app errors
+  // that testWidgets would turn into failures.
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  integrationTest("One sentence describing the journey under test", (tester) async {
+    // Robots and flows take the tester, create the ones your journey needs.
+    final appLauncher = AppLauncher(tester);
+    final onboardingFlows = OnboardingFlows(tester);
+    final dashboardRobot = NewDashboardRobot(tester);
+    final homePageRobot = HomePageRobot(tester);
+
+    // Boots the real app, the key names the suite in failure output.
+    await appLauncher.launchApp(testKey: "example_feature_test_app_key");
+
+    // Every suite starts from a fresh install, so get to a working wallet first.
+    // Use restoreFirstWalletFromSeed instead when your feature needs a known wallet.
+    await onboardingFlows.createFirstWallet(WalletType.solana);
+
+    await dashboardRobot.isDisplayed();
+    await homePageRobot.isDisplayed();
+
+    // Drive your feature through its robot from here. Robots own the finders and
+    // assertions for their screen, the suite only sequences them:
+    //
+    //   await homePageRobot.openSettingsSheet();
+    //   await mySettingsRobot.isDisplayed();
+    //   await mySettingsRobot.doTheThing();
+    //
+    // Rules of thumb:
+    // - Wait with pumpUntilFound and pumpUntil, never with sleeps or pumpAndSettle.
+    // - Tap and read widgets by ValueKey, add keys to lib/ widgets when they are missing.
+    // - Assert app state through getIt (AppStore) or the page widget's view model.
+  });
+}
