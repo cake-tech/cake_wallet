@@ -1,0 +1,305 @@
+name: Reusable Integration Test Logic
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      suite_dir:
+        required: false
+        type: string
+        default: "integration_test/suites"
+      test_tier:
+        required: false
+        type: string
+        default: "tier0"
+      extra_dart_defines:
+        required: false
+        type: string
+        default: ""
+      environment:
+        required: false
+        type: string
+        default: ""
+      record_screen:
+        required: false
+        type: boolean
+        default: false
+      write_funds_secrets:
+        required: false
+        type: boolean
+        default: false
+      timeout_minutes:
+        required: false
+        type: number
+        default: 60
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  integration-test:
+    runs-on: [Linux, amd64, android]
+    environment: ${{ inputs.environment }}
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      env:
+        STORE_PASS: test@cake_wallet
+        KEY_PASS: test@cake_wallet
+        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        ANDROID_AVD_HOME: /root/.android/avd
+      volumes:
+        - /opt/cw_cache_android/root/.cache:/root/.cache
+        - /opt/cw_cache_android/root/.android/avd/:/root/.android/avd
+        - /opt/cw_cache_android/root/.ccache:/root/.ccache
+        - /opt/cw_cache_android/root/.pub-cache/:/root/.pub-cache
+        - /opt/cw_cache_android/root/.gradle/:/root/.gradle
+        - /opt/cw_cache_android/root/.android/:/root/.android
+        - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
+        - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
+        - /dev/kvm:/dev/kvm
+        - /var/run/docker.sock:/var/run/docker.sock
+
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add secrets
+        run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
+
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const blinkApiKey = '${{ secrets.BLINK_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
+
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
+
+      # Funded wallet seeds are environment scoped and only reach the manual funds workflow,
+      # they are appended so TestWallets can keep importing a single secrets file.
+      - name: Add funded wallet secrets
+        if: ${{ inputs.write_funds_secrets }}
+        run: |
+          echo "${{ secrets.FUNDS_SECRETS_FILE }}" | base64 --decode >> lib/.secrets.g.dart
+
+      - name: Build dependencies utilizing ghcr cache
+        run: |
+          env \
+            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
+            CW_DOCKER_USE_CLOUD=true \
+            ./scripts/android/docker/build.sh
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/android
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
+
+      - name: Build generated code
+        run: |
+          flutter --version
+          ./model_generator.sh async
+
+      - name: Generate KeyStore
+        run: |
+          pushd /opt/generic_cache
+            if [[ ! -f key.jks ]];
+            then
+              keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
+            else
+              echo "$PWD/key.jks exist, not generating"
+            fi
+          popd
+          cp /opt/generic_cache/key.jks android/app
+
+      - name: Generate key properties
+        run: |
+          dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
+
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
+
+      - name: Compile graphics
+        run: |
+          ./compile_graphics.sh
+
+      # CakeImageWidget loads a .vec twin for every svg and reports a load error before falling
+      # back, compiling the assets/images svgs keeps the strict test error policy quiet.
+      - name: Compile assets/images graphics
+        run: |
+          while read -r dir; do
+            dart run vector_graphics_compiler --input-dir "$dir" --out-dir "$dir" > /dev/null &
+          done < <(find assets/images -type d)
+          wait
+
+      - name: Rename app
+        run: |
+          sanitized_branch_name=${BRANCH_NAME#origin/}  # Remove 'origin/' prefix if it exists
+          sanitized_branch_name=${sanitized_branch_name:0:16}  # Take only the first 16 characters
+          sanitized_branch_name=$(echo "$sanitized_branch_name" | tr '[:upper:]' '[:lower:]')  # Convert to lowercase
+          sanitized_branch_name=$(echo "$sanitized_branch_name" | sed 's/[^a-z0-9]//g')  # Remove all special characters
+
+          echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
+
+      # Building before the emulator boots keeps gradle warm so every flutter drive after it is
+      # an incremental build, and a compile failure fails fast without wasting an emulator boot.
+      - name: Prime test build
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
+          export ANDROID_NDK="$ANDROID_NDK_HOME"
+          if [[ ! -e "$ANDROID_SDK_ROOT/ndk/25.1.8937393" ]];
+          then
+            ln -s "$ANDROID_SDK_ROOT/ndk/28.2.13676358" "$ANDROID_SDK_ROOT/ndk/25.1.8937393"
+          fi
+
+          search_dir="${{ inputs.suite_dir }}"
+          if [[ "${{ inputs.test_tier }}" != "all" ]]; then
+            search_dir="$search_dir/${{ inputs.test_tier }}"
+          fi
+          first_suite=$(find "$search_dir" -name "*_test.dart" -type f | sort | head -1)
+          echo "Priming build with $first_suite"
+          flutter build apk --debug --target-platform android-x64 --target="$first_suite" --dart-define=CI_BUILD=true
+
+      - name: Prepare emulator utilities
+        run: |
+          cat > /tmp/emulator_ready.sh << 'EOF'
+          #!/bin/bash
+
+          echo "Waiting for boot completion..."
+          timeout 300 bash -c 'until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do sleep 5; done' || echo "Boot completion timeout, continuing"
+
+          echo "Waiting for package manager..."
+          timeout 60 bash -c 'until adb shell pm list packages 2>/dev/null >/dev/null; do sleep 2; done' || echo "Package manager timeout, continuing"
+
+          echo "Waiting for settings service..."
+          timeout 60 bash -c 'until adb shell settings get global window_animation_scale 2>/dev/null >/dev/null; do sleep 2; done' || echo "Settings service timeout, continuing"
+
+          echo "Emulator readiness check completed"
+          EOF
+
+          chmod +x /tmp/emulator_ready.sh
+
+      - name: Enable KVM
+        run: |
+          ls -la /dev/kvm
+          sudo chmod 666 /dev/kvm || echo "Failed to set KVM permissions, emulator may fall back to software mode"
+
+      - name: Integration tests on Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          RECORD_SCREEN: ${{ inputs.record_screen }}
+        with:
+          api-level: 29
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 4096 -cores 4 -no-snapshot-save
+          disable-animations: false
+          working-directory: ${{ github.workspace }}
+          script: |
+            /tmp/emulator_ready.sh
+
+            adb shell settings put global window_animation_scale 0.0 || true
+            adb shell settings put global transition_animation_scale 0.0 || true
+            adb shell settings put global animator_duration_scale 0.0 || true
+
+            if [[ "$RECORD_SCREEN" == "true" ]]; then
+              echo "Starting chunked screen recording..."
+              (i=0; while true; do adb shell screenrecord --time-limit 180 --bit-rate 2000000 "/sdcard/rec_$i.mp4" || break; i=$((i+1)); done) &
+              RECORD_LOOP_PID=$!
+            fi
+
+            set -o pipefail
+            set +e
+            env \
+              SUITE_DIR="${{ inputs.suite_dir }}" \
+              TEST_TIER="${{ inputs.test_tier }}" \
+              EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
+              PLATFORM=android \
+              ./integration_test_runner.sh 2>&1 | tee integration_test_run.log
+            TEST_EXIT_CODE=$?
+            set -e
+
+            adb logcat -d > logcat_final.txt || true
+
+            if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
+              echo "Stopping screen recording and encrypting..."
+              kill "$RECORD_LOOP_PID" || true
+              adb shell killall -INT screenrecord || true
+              sleep 5
+
+              mkdir -p recordings
+              for f in $(adb shell ls /sdcard/rec_*.mp4 2>/dev/null | tr -d '\r'); do
+                adb pull "$f" recordings/ || true
+              done
+
+              # Recordings show seed words on screen so they are never uploaded in plaintext
+              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 # konstantin@cakewallet.com
+              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
+              for f in recordings/*.mp4; do
+                [[ -f "$f" ]] || continue
+                gpg --trust-model always --encrypt --output "$f.gpg" \
+                  --recipient 6B3199AD9B3D23B8 \
+                  --recipient 35C8DBAFB8D9ACAC \
+                  "$f"
+                rm "$f"
+              done
+            fi
+
+            exit $TEST_EXIT_CODE
+
+      - name: Upload test logs
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-logs
+          path: |
+            ${{ github.workspace }}/integration_test_run.log
+            ${{ github.workspace }}/logcat_final.txt
+            ${{ github.workspace }}/recordings/*.gpg
+
+      - name: Post-test cleanup
+        if: always()
+        run: |
+          pkill -f emulator || echo "No emulator processes to kill"
+          pkill -f adb || echo "No adb processes to kill"
