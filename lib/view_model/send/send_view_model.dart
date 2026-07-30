@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -128,8 +127,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
     unspentCoinsListViewModel
-        .initialSetup()
-        .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
+        .initialSetup();
+        // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
 
     reaction((_) {
       if (isEVMCompatibleChain(wallet.type)) {
@@ -194,7 +193,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     // Check if the address is valid for the current currency (except for Zano, which can use handles as addresses)
     if (selectedCryptoCurrency != CryptoCurrency.zano) {
-      final isValidAddress = AddressValidator(type: selectedCryptoCurrency).isValid(query);
+      final isValidAddress = AddressValidator(
+        type: selectedCryptoCurrency,
+        network: wallet.walletInfo.network,
+      ).isValid(query);
       if (isValidAddress) return null;
     }
 
@@ -321,8 +323,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator<String> get addressValidator =>
-      AddressValidator(type: selectedCryptoCurrency, isTestnet: wallet.isTestnet);
+  Validator<String> get addressValidator => AddressValidator(
+        type: selectedCryptoCurrency,
+        isTestnet: wallet.isTestnet,
+        network: wallet.walletInfo.network,
+      );
 
   Validator<String> get textValidator => TextValidator();
 

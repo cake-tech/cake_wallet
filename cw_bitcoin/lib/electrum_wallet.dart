@@ -18,7 +18,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -27,25 +26,20 @@ import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -57,7 +51,6 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
@@ -1492,7 +1485,9 @@ abstract class ElectrumWalletBase
           fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
-          outputOrdering: BitcoinOrdering.none,
+          // Shuffle so the change output isn't placed deterministically last
+          // (privacy fingerprint). Applied by orderOutputs in the builder.
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: true,
           cwOutputs: transactionCredentials.outputs,
         );
@@ -1525,7 +1520,10 @@ abstract class ElectrumWalletBase
           fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
-          outputOrdering: BitcoinOrdering.none,
+          // Shuffle so the change output isn't placed deterministically last
+          // (privacy fingerprint). Change is found by isChange, not position.
+          inputOrdering: BitcoinOrdering.shuffle,
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       } else {
@@ -1984,8 +1982,12 @@ abstract class ElectrumWalletBase
   @action
   Future<void> addCoinInfo(BitcoinUnspent coin) async {
     // Check if the coin is already in the unspentCoinsInfo for the wallet
-    final existingCoinInfo = unspentCoinsInfo.values
-        .firstWhereOrNull((element) => element.walletId == walletInfo.id && element == coin);
+    final existingCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
+      (element) =>
+          element.walletId == walletInfo.id &&
+          element.hash == coin.hash &&
+          element.vout == coin.vout,
+    );
 
     if (existingCoinInfo == null) {
       final newInfo = UnspentCoinsInfo(
@@ -2510,10 +2512,16 @@ abstract class ElectrumWalletBase
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
     BitcoinAddressType type,
   ) async {
-    final addressesByType = walletAddresses.allAddresses.where((addr) => addr.type == type);
-    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden == true);
-    final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false);
-    walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
+
+    final addressesByType =
+    walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
+
+    final receiveStandard = getAddressBranchByType(hidden: false, legacy: false, type: type);
+    final changeStandard = getAddressBranchByType(hidden: true,  legacy: false, type: type);
+    final receiveLegacy = getAddressBranchByType(hidden: false, legacy: true, type: type);
+    final changeLegacy = getAddressBranchByType(hidden: true,  legacy: true, type: type);
+
+    walletAddresses.hiddenAddresses.addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
     await Future.wait(addressesByType.map((addressRecord) async {
       final history = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
@@ -2522,7 +2530,9 @@ abstract class ElectrumWalletBase
         addressRecord.txCount = history.length;
         historiesWithDetails.addAll(history);
 
-        final matchedAddresses = addressRecord.isHidden ? hiddenAddresses : receiveAddresses;
+        final matchedAddresses = addressRecord.isHidden
+            ? (addressRecord.isLegacyDerivation ? changeLegacy : changeStandard)
+            : (addressRecord.isLegacyDerivation ? receiveLegacy : receiveStandard);
         final isUsedAddressAboveGap = matchedAddresses.toList().indexOf(addressRecord) >=
             matchedAddresses.length -
                 (addressRecord.isHidden
@@ -2626,18 +2636,19 @@ abstract class ElectrumWalletBase
 
   Future<void> fetchTransactionsForAddressTypeBatch(
       Map<String, ElectrumTransactionInfo> historiesWithDetails, BitcoinAddressType type) async {
-    final addressesByType =
-        walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
-    final receiveAddresses = addressesByType.where((addr) => !addr.isHidden).toList();
-    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden).toList();
 
-    walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
+    final receiveStandard = getAddressBranchByType(hidden: false, legacy: false, type: type);
+    final changeStandard = getAddressBranchByType(hidden: true,  legacy: false, type: type);
+    final receiveLegacy = getAddressBranchByType(hidden: false, legacy: true, type: type);
+    final changeLegacy = getAddressBranchByType(hidden: true,  legacy: true, type: type);
+
+    walletAddresses.hiddenAddresses.addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
     await fetchTransactionsForAddressesBranchBatch(
       historiesWithDetails,
       type,
-      receiveAddresses,
+      receiveStandard,
       isHidden: false,
       isLegacyDerivation: false,
     );
@@ -2645,7 +2656,7 @@ abstract class ElectrumWalletBase
     await fetchTransactionsForAddressesBranchBatch(
       historiesWithDetails,
       type,
-      hiddenAddresses,
+      changeStandard,
       isHidden: true,
       isLegacyDerivation: false,
     );
@@ -2653,7 +2664,7 @@ abstract class ElectrumWalletBase
     await fetchTransactionsForAddressesBranchBatch(
       historiesWithDetails,
       type,
-      receiveAddresses,
+       receiveLegacy,
       isHidden: false,
       isLegacyDerivation: true,
     );
@@ -2661,7 +2672,7 @@ abstract class ElectrumWalletBase
     await fetchTransactionsForAddressesBranchBatch(
       historiesWithDetails,
       type,
-      hiddenAddresses,
+      changeLegacy,
       isHidden: true,
       isLegacyDerivation: true,
     );
@@ -2736,6 +2747,11 @@ abstract class ElectrumWalletBase
       }
     }
   }
+
+  List<BitcoinAddressRecord> getAddressBranchByType({required bool hidden, required bool legacy, required BitcoinAddressType
+  type}) => walletAddresses.allAddresses.where((addr) => addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy)
+        .toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
 
   int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
     for (int i = addresses.length - 1; i >= 0; i--) {
@@ -3681,7 +3697,6 @@ abstract class ElectrumWalletBase
           syncStatus = ConnectingSyncStatus();
         }
         break;
-      default:
     }
   }
 
