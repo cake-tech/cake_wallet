@@ -976,6 +976,50 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     printV("[Swaps.xyz sending flow] Allowance check timed out.");
     return false;
   }
+
+  Future<void> registerSwapsXyzTransaction(Trade trade, PendingTransaction pendingTransaction) async {
+    trade as SwapsXyzTrade;
+      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
+      final needToRegister = trade.needToRegister;
+      if (!needToRegister) {
+        return;
+      }
+
+      final vmId = (trade.providerId ?? "").toLowerCase();
+      if (vmId.isEmpty) {
+        printV("SwapsXyz: transaction register: skipped (vmId empty)");
+        return;
+      }
+
+      final txHash = pendingTransaction.evmTxHashFromRawHex ?? pendingTransaction.id;
+
+      if (txHash.isEmpty) {
+        printV("SwapsXyz: transaction register: skipped (txHash empty)");
+        return;
+      }
+
+      final chainId = int.tryParse(trade.router ?? "") ?? 0;
+      if (chainId <= 0) {
+        printV("SwapsXyz: transaction register: skipped (invalid chainId)");
+        return;
+      }
+
+      printV(
+          "SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId");
+
+      final registered = await registerAltVmTx(
+        txId: trade.id,
+        txHash: txHash,
+        chainId: chainId,
+        vmId: vmId,
+      );
+
+      if (!registered) {
+        printV("SwapsXyz: transaction register: failed");
+      } else {
+        printV("SwapsXyz: transaction register: success");
+      }
+  }
 }
 
 class TokenPathInfo {

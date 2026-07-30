@@ -703,14 +703,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       final bool isTradeTx = trade != null && provider != null;
 
       if (isTradeTx) {
-        final tradeAmountDouble = double.tryParse(trade.amount) ?? 0.0;
-        if (tradeAmountDouble <= 0) throw Exception('Trade amount must be greater than 0');
+        if (trade.depositAmount.isZero || trade.depositAmount.isNegative) throw Exception('Trade amount must be greater than 0');
 
         if (trade.isSendAll == true) {
           if (provider is NearIntentsExchangeProvider) {
-            if (txAmountDouble != tradeAmountDouble) {
+            if (txAmountDouble != trade.depositAmount.toDouble()) {
               throw Exception(
-                  'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
+                  'Transaction amount $txAmountDouble does not match expected trade amount ${trade.depositAmount.toDouble()}');
             }
           }
         }
@@ -1320,50 +1319,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
 
-  Future<void> registerSwapsXyzTransaction(Trade trade) async {
-    try {
-      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
-      final needToRegister = trade.needToRegisterInSwapXyz ?? false;
-      if (!needToRegister) return;
-
-      final vmId = (trade.providerId ?? '').toLowerCase();
-      if (vmId.isEmpty) {
-        printV('SwapsXyz: transaction register: skipped (vmId empty)');
-        return;
-      }
-
-      final txHash = pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? '';
-
-      if (txHash.isEmpty) {
-        printV('SwapsXyz: transaction register: skipped (txHash empty)');
-        return;
-      }
-
-      final chainId = int.tryParse(trade.router ?? '') ?? 0;
-      if (chainId <= 0) {
-        printV('SwapsXyz: transaction register: skipped (invalid chainId)');
-        return;
-      }
-
-      printV(
-          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
-
-      final registered = await SwapsXyzExchangeProvider.registerAltVmTx(
-        txId: trade.id,
-        txHash: txHash,
-        chainId: chainId,
-        vmId: vmId,
-      );
-
-      if (!registered) {
-        printV('SwapsXyz: transaction register: failed');
-      } else {
-        printV('SwapsXyz: transaction register: success');
-      }
-    } catch (e) {
-      printV('registerSwapsXyzTransaction error: $e');
-    }
-  }
 
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
