@@ -286,12 +286,24 @@ newPayoutAmount = s.payoutAmount;
   void _onProviderToggled(ProviderToggled event, Emitter<SwapState> emit) {
     if (state case final SwapInputState s) {
       final newProviders = List<ExchangeProviderDescription>.from(s.enabledProviders);
+      bool loadRates = false;
       if (newProviders.contains(event.provider)) {
         newProviders.remove(event.provider);
+        // if the provider the user disabled was also the one with the best rate, we gotta find a different provider
+        if (rateCubit.state case final RatesLoaded rs) {
+          if (rs.rates.max.provider == event.provider) {
+            loadRates = true;
+          }
+        }
       } else {
         newProviders.add(event.provider);
+        // we have to load rates always since the enabled provider might have a better rate
+        loadRates = true;
       }
       emit(s.copyWith(enabledProviders: newProviders));
+      if (loadRates) {
+        add(RatesLoadStarted());
+      }
     }
   }
 
