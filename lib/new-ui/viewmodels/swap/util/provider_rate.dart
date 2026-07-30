@@ -11,4 +11,7 @@ class ProviderRate implements Comparable<ProviderRate> {
 
   @override
   int compareTo(ProviderRate other) => rate.compareTo(other.rate);
+
+  @override
+  String toString() => "ProviderRate(${provider.title}, 1 ${rate.base} = ${rate.quote.toStringWithSymbol()}, limits: ${limits.min?.toStringWithSymbol()}-${limits.max?.toStringWithSymbol()}";
 }
