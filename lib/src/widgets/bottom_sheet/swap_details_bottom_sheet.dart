@@ -63,7 +63,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
 
     final initialState = widget.bloc.state;
 
-    if (initialState is SwapFailure && !_showingFailureDialog) {
+    if (initialState is SwapFailureState && !_showingFailureDialog) {
       _showingFailureDialog = true;
       printV("Initial failure state: $initialState");
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -74,7 +74,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
                 key: const ValueKey("swap_details_send_failure_dialog_key"),
                 buttonKey: const ValueKey("swap_details_send_failure_dialog_button_key"),
                 alertTitle: S.of(popupContext).error,
-                alertContent: initialState.error.toString(),
+                alertContent: (initialState as SwapFailureState).error.toString(),
                 buttonText: S.of(popupContext).ok,
                 buttonAction: () {
                   _showingFailureDialog = false;
