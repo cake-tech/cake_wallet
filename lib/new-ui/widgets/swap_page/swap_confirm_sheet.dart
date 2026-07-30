@@ -85,6 +85,7 @@ class SwapTransactionDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
+    bloc: bloc,
   builder: (context, state) {
     final Money depositAmount;
     final Money payoutAmount;

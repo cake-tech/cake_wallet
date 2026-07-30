@@ -18,6 +18,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -145,7 +146,17 @@ class _NewSwapPageState extends State<NewSwapPage> {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
-          child: BlocBuilder<SwapBloc, SwapState>(
+          child: BlocConsumer<SwapBloc, SwapState>(
+            listenWhen: (previous, current) => previous is SwapInputState && current is SwapStateCreating,
+            listener: (context, state) {
+              if(state is SwapStateCreating) {
+                final page = SwapConfirmSheet(
+                  bloc: widget.bloc,
+                );
+                showMaterialModalBottomSheet(
+                    context: context, builder: (context) => page, backgroundColor: Colors.transparent);
+              }
+            },
             bloc: widget.bloc,
             builder: (context, state) => Column(
               children: [
