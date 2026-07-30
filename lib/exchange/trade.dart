@@ -223,9 +223,71 @@ class Trade {
   //   );
   // }
 
-    Trade mergeFindTradeByIdResult(Trade trade) {
-    //TODO
-    }
+  Trade mergeFindTradeByIdResult(Trade updated) => copyWith(
+      state: updated.state,
+      createdAt: createdAt ?? updated.createdAt,
+      expiredAt: updated.expiredAt,
+      isRefund: updated.isRefund,
+      payoutAmount: updated.payoutAmount,
+      fundingAddress: updated.fundingAddress,
+      extraId: updated.extraId,
+      outputTransaction: updated.outputTransaction,
+      refundAddress: updated.refundAddress,
+      payoutAddress: updated.payoutAddress,
+      password: updated.password,
+      providerId: updated.providerId,
+      providerName: updated.providerName,
+      memo: updated.memo,
+      txId: updated.txId,
+    );
+
+  Trade copyWith({
+    TradeState? state,
+    Money? depositAmount,
+    Money? payoutAmount,
+    String? fundingAddress,
+    String? providerName,
+    String? id,
+    ExchangeProviderDescription? provider,
+    String? payoutAddress,
+    String? refundAddress,
+    int? internalId,
+    DateTime? createdAt,
+    DateTime? expiredAt,
+    String? extraId,
+    String? outputTransaction,
+    String? walletId,
+    String? toAddressExtraId,
+    String? password,
+    String? providerId,
+    String? memo,
+    String? txId,
+    bool? isRefund,
+    int? chainId,
+  }) => Trade(
+      state: state ?? this.state,
+      depositAmount: depositAmount ?? this.depositAmount,
+      payoutAmount: payoutAmount ?? this.payoutAmount,
+      fundingAddress: fundingAddress ?? this.fundingAddress,
+      providerName: providerName ?? this.providerName,
+      id: id ?? this.id,
+      provider: provider ?? this.provider,
+      payoutAddress: payoutAddress ?? this.payoutAddress,
+      refundAddress: refundAddress ?? this.refundAddress,
+      internalId: internalId ?? this.internalId,
+      createdAt: createdAt ?? this.createdAt,
+      expiredAt: expiredAt ?? this.expiredAt,
+      extraId: extraId ?? this.extraId,
+      outputTransaction: outputTransaction ?? this.outputTransaction,
+      walletId: walletId ?? this.walletId,
+      toAddressExtraId: toAddressExtraId ?? this.toAddressExtraId,
+      password: password ?? this.password,
+      providerId: providerId ?? this.providerId,
+      memo: memo ?? this.memo,
+      txId: txId ?? this.txId,
+      isRefund: isRefund ?? this.isRefund,
+      chainId: chainId ?? this.chainId,
+    );
 
 }
 
