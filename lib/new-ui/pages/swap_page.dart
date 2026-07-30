@@ -671,17 +671,17 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                 ),
                               ),
                             ),
-                            // if (!widget.isReceiverCard &&
-                            //     widget.exchangeViewModel.isSendFromExternal &&
-                            //     widget.exchangeViewModel.depositAddress.isEmpty)
-                            //   ModernButton.svg(
-                            //     svgPath: "assets/new-ui/refund_address.svg",
-                            //     onPressed: askForRefundAddress,
-                            //     size: 36,
-                            //     iconSize: 18,
-                            //     backgroundColor:
-                            //         Theme.of(context).colorScheme.surfaceContainerHighest,
-                            //   ),
+                            if (!widget.isReceiverCard &&
+                                state.source is ExternalSwapSource &&
+                                (state.source as ExternalSwapSource).refundAddress.isEmpty)
+                              ModernButton.svg(
+                                svgPath: "assets/new-ui/refund_address.svg",
+                                onPressed: askForRefundAddress,
+                                size: 36,
+                                iconSize: 18,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                              ),
                             if (widget.isReceiverCard && state.payoutAddress == null) ...[
                               ModernButton.svg(
                                 svgPath: "assets/new-ui/paste.svg",
