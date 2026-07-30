@@ -136,7 +136,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         rate: request.isFixedRate ? .fixed : .floating,
         address: _normalizeAddress(request.payoutAddress.address),
         refundAddress: _normalizeAddress(request.refundAddress),
-        extraId: request.toAddressExtraId,
+        extraId: request.toAddressExtraId.isEmpty ? null : request.toAddressExtraId,
         additionalFeePercent: _additionalFeePercent
     );
 
