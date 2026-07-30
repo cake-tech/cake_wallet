@@ -124,8 +124,9 @@ const Map<String, List<String>> fundedWalletSeeds = {
 };
 ```
 
-The suites currently deposit and send from the first seed of each chain, the second is
-reserved for cross wallet scenarios.
+The suites restore a chain's funded wallets one by one and use the first that shows a
+spendable balance, a wallet that finishes syncing while still empty counts as drained.
+A chain where every funded wallet is empty fails with a message asking for a top up.
 
 The checked in default is an empty map and must stay empty, PR builds never see funded
 seeds. In auto mode the suites discover every chain present in the map, so funding a new

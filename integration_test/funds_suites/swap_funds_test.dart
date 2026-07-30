@@ -7,9 +7,8 @@ import "../core/app_launcher.dart";
 import "../core/test_config.dart";
 import "../core/test_wallets.dart";
 import "../flows/auth_flows.dart";
-import "../flows/onboarding_flows.dart";
+import "../flows/funds_flows.dart";
 import "../robots/home_page_robot.dart";
-import "../robots/new_dashboard_robot.dart";
 import "../robots/new_send_page_robot.dart";
 import "../robots/new_swap_page_robot.dart";
 
@@ -18,9 +17,8 @@ void main() {
 
   integrationTest("Create a real swap and broadcast its deposit", (tester) async {
     final appLauncher = AppLauncher(tester);
-    final onboardingFlows = OnboardingFlows(tester);
+    final fundsFlows = FundsFlows(tester);
     final authFlows = AuthFlows(tester);
-    final dashboardRobot = NewDashboardRobot(tester);
     final homePageRobot = HomePageRobot(tester);
     final sendRobot = NewSendPageRobot(tester);
     final swapRobot = NewSwapPageRobot(tester);
@@ -40,23 +38,18 @@ void main() {
 
     await appLauncher.launchApp(testKey: "swap_funds_test_app_key");
 
-    await onboardingFlows.restoreFirstWalletFromSeed(
-      type,
-      seed: TestWallets.fundedSeedFor(type),
-    );
+    // Every funded wallet of the chain gets a turn, the first with a balance wins.
+    final opened = await fundsFlows.openFundedWallet(type);
 
-    await dashboardRobot.isDisplayed();
-    await homePageRobot.isDisplayed();
+    expect(
+      opened,
+      true,
+      reason: "${type.name}: none of the ${TestWallets.fundedSeedsFor(type).length} funded "
+          "wallets has a spendable balance, top them up before the next run",
+    );
 
     final appStore = getIt.get<AppStore>();
     expect(appStore.wallet?.type, type);
-
-    final funded = await homePageRobot.pumpUntil(
-      () => appStore.wallet?.balance.values.any((b) => b.available.sign > 0) ?? false,
-      timeout: const Duration(minutes: 5),
-    );
-
-    expect(funded, true, reason: "No spendable balance appeared within 5 minutes");
 
     await homePageRobot.openSwapSheet();
     await swapRobot.isDisplayed();

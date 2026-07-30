@@ -7,9 +7,8 @@ import "../core/app_launcher.dart";
 import "../core/test_config.dart";
 import "../core/test_wallets.dart";
 import "../flows/auth_flows.dart";
-import "../flows/onboarding_flows.dart";
+import "../flows/funds_flows.dart";
 import "../robots/home_page_robot.dart";
-import "../robots/new_dashboard_robot.dart";
 import "../robots/new_send_page_robot.dart";
 
 void main() {
@@ -17,9 +16,8 @@ void main() {
 
   integrationTest("Send a real self transaction on every funded chain", (tester) async {
     final appLauncher = AppLauncher(tester);
-    final onboardingFlows = OnboardingFlows(tester);
+    final fundsFlows = FundsFlows(tester);
     final authFlows = AuthFlows(tester);
-    final dashboardRobot = NewDashboardRobot(tester);
     final homePageRobot = HomePageRobot(tester);
     final sendRobot = NewSendPageRobot(tester);
 
@@ -42,34 +40,17 @@ void main() {
       tester.printToConsole("Funds send starting for ${type.name}");
 
       try {
-        if (type == walletTypes.first) {
-          await onboardingFlows.restoreFirstWalletFromSeed(
-            type,
-            seed: TestWallets.fundedSeedFor(type),
-          );
-        } else {
-          await dashboardRobot.openWalletsTab();
-          await onboardingFlows.restoreAdditionalWalletFromWalletList(
-            type,
-            seed: TestWallets.fundedSeedFor(type),
-          );
-        }
+        // Every funded wallet of the chain gets a turn, the first with a balance wins.
+        final opened = await fundsFlows.openFundedWallet(type);
 
-        await dashboardRobot.isDisplayed();
-        await homePageRobot.isDisplayed();
-
-        expect(appStore.wallet?.type, type);
-
-        // The spendable balance only shows up once the wallet synced far enough.
-        final funded = await homePageRobot.pumpUntil(
-          () => appStore.wallet?.balance.values.any((b) => b.available.sign > 0) ?? false,
-          timeout: const Duration(minutes: 5),
-        );
-
-        if (!funded) {
-          failures.add("${type.name}: no spendable balance appeared within 5 minutes");
+        if (!opened) {
+          final walletCount = TestWallets.fundedSeedsFor(type).length;
+          failures.add("${type.name}: none of the $walletCount funded wallets has a "
+              "spendable balance, top them up before the next run");
           continue;
         }
+
+        expect(appStore.wallet?.type, type);
 
         // A self send keeps the funds inside the funded wallet, only fees are spent.
         final ownAddress = appStore.wallet!.walletAddresses.address;
