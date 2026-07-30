@@ -65,7 +65,10 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
@@ -540,6 +543,25 @@ Future<void> setup({
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
       fiatConversionStore: getIt.get<FiatConversionStore>()));
+
+  getIt.registerLazySingleton<ExchangeProviderRegistry>(() =>
+      ExchangeProviderRegistry(settingsStore: getIt.get<SettingsStore>()));
+
+  getIt.registerFactory<RateCubit>(() =>
+      RateCubit(registry: getIt.get<ExchangeProviderRegistry>()));
+
+  getIt.registerLazySingleton<SwapAmountFactory>(() =>
+      SwapAmountFactory(
+          fcs: getIt.get<FiatConversionStore>(), settingsStore: getIt.get<SettingsStore>()));
+
+  getIt.registerFactory<SwapBloc>(() =>
+      SwapBloc(rateCubit: getIt.get<RateCubit>(),
+          calculator: getIt.get<SwapAmountFactory>(),
+          registry: getIt.get<ExchangeProviderRegistry>(),
+          settingsStore: getIt.get<SettingsStore>(),
+          wallet: getIt
+              .get<AppStore>()
+              .wallet!));
 
   getIt.registerSingleton(
     TradeMonitor(
