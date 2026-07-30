@@ -7,6 +7,10 @@ sealed class SwapState {
   bool get canInitiateSwap => false;
 }
 
+abstract interface class SwapFailureState {
+  Object get error;
+}
+
 final class SwapStateNotLoaded extends SwapState {
   const SwapStateNotLoaded();
 }
@@ -140,6 +144,18 @@ final class SwapStateCreating extends SwapStateWithInputs {
         request: request ?? this.request,
         source: source ?? this.source,
       );
+
+  SwapStateCreationError toError(Object error) =>
+      SwapStateCreationError(
+          selectedProvider: selectedProvider, request: request, source: source, error: error);
+}
+
+final class SwapStateCreationError extends SwapStateCreating implements SwapFailureState {
+  const SwapStateCreationError({required super.selectedProvider, required super.source, required super.request, required this.error});
+
+  @override
+  final Object error;
+
 }
 
 final class SwapAwaitingWalletSwitch extends SwapStateCreating {
@@ -202,10 +218,4 @@ final class SwapSending extends SwapStateWithTransaction {
 
 final class SwapTransactionCommitted extends SwapStateWithTransaction {
   const SwapTransactionCommitted({required super.trade, required super.transaction, required super.source});
-}
-
-final class SwapFailure extends SwapState {
-  const SwapFailure(this.error);
-
-  final Exception error;
 }

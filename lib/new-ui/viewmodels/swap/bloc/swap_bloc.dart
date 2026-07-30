@@ -379,12 +379,19 @@ newPayoutAmount = s.payoutAmount;
         isFixedRate: s.isFixedRate,
       );
 
-      emit(SwapStateCreating(source: s.source,selectedProvider: rate.provider, request: req));
+      final creatingState = SwapStateCreating(source: s.source,selectedProvider: rate.provider, request: req);
+      emit(creatingState);
 
-      final trade = await _registry.getProvider(rate.provider).createTrade(request: req);
-      await trade.save();
 
-      emit(SwapCreated(trade: trade, source: s.source));
+      try {
+        final trade = await _registry.getProvider(rate.provider).createTrade(request: req);
+        await trade.save();
+        emit(SwapCreated(trade: trade, source: s.source));
+      } catch(e) {
+        emit(creatingState.toError(e));
+      }
+
+
     }
   }
 
