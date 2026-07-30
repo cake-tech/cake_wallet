@@ -409,10 +409,17 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   Widget build(BuildContext context) => BlocConsumer<SwapBloc, SwapState>(
         listener: (context, state) {
           if(state is SwapStateWithInputs) {
-            final amount = widget.isReceiverCard ? state.payoutAmount.cryptoAmount : state.depositAmount.cryptoAmount;
-            if(amount.toDouble() != double.tryParse(amountController.text)) {
-              amountController.text = amount.toString();
+            final amount = widget.isReceiverCard ? state.payoutAmount : state.depositAmount;
+
+            final changed = _fiatInputMode
+                ? amount.fiatAmount.toDouble() != double.tryParse(fiatAmountController.text)
+                : amount.cryptoAmount.toDouble() != double.tryParse(amountController.text);
+
+            if (changed) {
+              amountController.text = amount.cryptoAmount.toString();
+              fiatAmountController.text = amount.fiatAmount.toString();
             }
+
           }
         },
         bloc: widget.bloc,
