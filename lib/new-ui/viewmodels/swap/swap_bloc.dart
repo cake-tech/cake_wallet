@@ -167,6 +167,23 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
 
   Future<void> _onRatesLoadStarted(RatesLoadStarted event, Emitter<SwapState> emit) async {
     await _reloadRates();
+    if (state case final SwapInputState s) {
+      if(rateCubit.state case final RatesLoaded rs) {
+        final SwapAmount newDepositAmount;
+        final SwapAmount newPayoutAmount;
+        if(s.isFixedRate) {
+          newDepositAmount = await _amountFactory.getSwapAmount(rs.rates.max.rate.convert(s.payoutAmount.cryptoAmount), s.depositAmount.currency);
+newPayoutAmount = s.payoutAmount;
+        } else {
+          newDepositAmount = s.depositAmount;
+          newPayoutAmount = await _amountFactory.getSwapAmount(rs.rates.max.rate.convert(s.depositAmount.cryptoAmount), s.payoutAmount.currency);
+        }
+        emit(s.copyWith(
+          depositAmount: newDepositAmount,
+          payoutAmount: newPayoutAmount
+        ));
+      }
+    }
   }
 
   Future<void> _onDepositCurrencyChanged(
@@ -197,7 +214,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
           payoutAmount: newPayoutAmount,
         ),
       );
-      await _reloadRates();
+      add(RatesLoadStarted());
     }
   }
 
@@ -228,7 +245,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
           payoutAmount: newPayoutAmount,
         ),
       );
-      await _reloadRates();
+      add(RatesLoadStarted());
     }
   }
 
@@ -252,7 +269,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
           payoutAmount: newPayoutAmount,
         ),
       );
-      await _reloadRates();
+      add(RatesLoadStarted());
     }
   }
 
@@ -262,7 +279,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
   ) async {
     if (state case final SwapInputState s) {
       emit(s.copyWith(forcedProvider: event.provider));
-      await _reloadRates();
+      add(RatesLoadStarted());
     }
   }
 
@@ -285,7 +302,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
           isFixedRate: !s.isFixedRate,
         ),
       );
-      await _reloadRates();
+      add(RatesLoadStarted());
     }
   }
 
