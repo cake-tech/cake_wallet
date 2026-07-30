@@ -47,10 +47,17 @@ class _ModalNavigatorState extends State<ModalNavigator> {
       if (context == null) return;
       if (_sheetHeight != null) return;
 
-      final box = context.findRenderObject() as RenderBox;
-      setState(() {
-        _sheetHeight = box.size.height;
-      });
+      if(widget.heightMode == .autoLock) {
+        final box = context.findRenderObject() as RenderBox;
+        setState(() {
+          _sheetHeight = box.size.height;
+        });
+      } else if(widget.heightMode == .fullScreen) {
+        setState(() {
+          _sheetHeight = MediaQuery.of(context).size.height;
+        });
+      }
+
     });
   }
 
@@ -59,8 +66,6 @@ class _ModalNavigatorState extends State<ModalNavigator> {
     late final double? height;
     switch (widget.heightMode) {
       case ModalHeightModes.fullScreen:
-        height = MediaQuery.of(context).size.height;
-        break;
       case ModalHeightModes.autoLock:
         height = _sheetHeight;
         break;

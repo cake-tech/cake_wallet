@@ -176,11 +176,9 @@ class _NewHomePageState extends State<NewHomePage> {
                     ],
                   ),
                 ),
-                Observer(
-                  builder: (_) => AssetsHistorySection(
-                    nftViewModel: widget.nftViewModel,
-                    dashboardViewModel: widget.dashboardViewModel,
-                  ),
+                AssetsHistorySection(
+                  nftViewModel: widget.nftViewModel,
+                  dashboardViewModel: widget.dashboardViewModel,
                 ),
                 SliverToBoxAdapter(
                   child: SizedBox(height: 80.0),
