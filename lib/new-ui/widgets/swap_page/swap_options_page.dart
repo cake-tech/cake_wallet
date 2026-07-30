@@ -12,7 +12,6 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/provider_options_page.dart'
 import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
 import "package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import "package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

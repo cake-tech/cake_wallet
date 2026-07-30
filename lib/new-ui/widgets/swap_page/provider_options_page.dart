@@ -10,7 +10,6 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/trocador_providers_settings
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
