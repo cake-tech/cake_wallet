@@ -129,7 +129,12 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                                   accounts: accounts,
                                   onAddressChosen: (address, accountName) {
                                     if(accountName == null) {
-                                      widget.bloc.add(PayoutAddressChanged(InternalWalletSwapAddress(item)));
+                                      if(widget.isSelectingReceiver) {
+                                        widget.bloc.add(PayoutAddressChanged(InternalWalletSwapAddress(item)));
+                                      } else {
+                                        widget.bloc.add(SourceChanged(InternalSwapSource(item)));
+                                      }
+
                                     } else {
                                       widget.bloc.add(PayoutAddressChanged(InternalAccountSwapAddress(address: address, accountName: accountName, walletName: item.name)));
 
