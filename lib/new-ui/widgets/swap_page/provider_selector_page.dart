@@ -24,8 +24,8 @@ class ProviderSelectorPage extends StatelessWidget {
           builder: (context, state) {
             if (state case final SwapInputState s) {
               final decentralizedProviders =
-                  s.availableProviders.where((item) => !item.isCentralized);
-              final centralizedProviders = s.availableProviders.where((item) => item.isCentralized);
+                  s.enabledProviders.where((item) => !item.isCentralized);
+              final centralizedProviders = s.enabledProviders.where((item) => item.isCentralized);
               final ExchangeProviderDescription? bestRateProvider;
               if (rateState case final RatesLoaded rs) {
                 bestRateProvider = rs.rates.max.provider;
