@@ -699,21 +699,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
-      final txAmountDouble = double.tryParse(pendingTransaction?.amountFormatted ?? '0') ?? 0.0;
-      final bool isTradeTx = trade != null && provider != null;
 
-      if (isTradeTx) {
-        if (trade.depositAmount.isZero || trade.depositAmount.isNegative) throw Exception('Trade amount must be greater than 0');
-
-        if (trade.isSendAll == true) {
-          if (provider is NearIntentsExchangeProvider) {
-            if (txAmountDouble != trade.depositAmount.toDouble()) {
-              throw Exception(
-                  'Transaction amount $txAmountDouble does not match expected trade amount ${trade.depositAmount.toDouble()}');
-            }
-          }
-        }
-      }
 
       if (wallet.type == WalletType.bitcoin) {
         final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
@@ -817,12 +803,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
 
-      if (_currentTrade != null) {
-        final provider = _currentTrade!.provider;
-        if (provider == ExchangeProviderDescription.swapsXyz) {
-          registerSwapsXyzTransaction(_currentTrade!);
-        }
-      }
 
       await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
 
@@ -926,9 +906,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         _currentProvider?.title != 'Jupiter' ||
         walletType != WalletType.solana) return;
 
-    _currentTrade!.txId = signature;
 
-    _currentTrade!.stateRaw = isSuccess ? TradeState.completed.raw : TradeState.failed.raw;
+
+    _currentTrade = _currentTrade!.copyWith(
+      txId: signature,
+      state: isSuccess ? TradeState.completed : TradeState.failed
+    );
 
     await _currentTrade!.save();
   }
