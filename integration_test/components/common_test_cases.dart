@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
 
 class CommonTestCases {
-  WidgetTester tester;
   CommonTestCases(this.tester);
+  WidgetTester tester;
 
   Future<void> isSpecificPage<T>() async {
     await tester.pumpAndSettle();
@@ -78,7 +78,7 @@ class CommonTestCases {
   }
 
   Future<void> goBack() async {
-    tester.printToConsole('Routing back to previous screen');
+    tester.printToConsole("Routing back to previous screen");
     final NavigatorState navigator = tester.state(find.byType(Navigator));
     navigator.pop();
     await tester.pumpAndSettle();
@@ -91,7 +91,9 @@ class CommonTestCases {
 
     tester.printToConsole("Has gestureKey: $hasKey");
 
-    if (!hasKey) return;
+    if (!hasKey) {
+      return;
+    }
 
     final gesture = await tester.startGesture(tester.getCenter(find.byKey(ValueKey(key))));
 
@@ -119,7 +121,7 @@ class CommonTestCases {
     // Check if the widget is already in the widget tree
     if (tester.any(itemFinder)) {
       // Widget is already built and in the tree
-      tester.printToConsole('Child is already present');
+      tester.printToConsole("Child is already present");
       return;
     }
 
@@ -133,7 +135,7 @@ class CommonTestCases {
     expect(
       scrollableFinder,
       findsOneWidget,
-      reason: 'Scrollable descendant of the Parent Widget not found.',
+      reason: "Scrollable descendant of the Parent Widget not found.",
     );
 
     // Get the initial scroll position
@@ -159,7 +161,7 @@ class CommonTestCases {
 
       // Stop if reverse scroll limit is exceeded
       if (!scrollDown && reverseScrollCount >= maxReverseScrolls) {
-        tester.printToConsole('Maximum reverse scrolls reached. Widget not found.');
+        tester.printToConsole("Maximum reverse scrolls reached. Widget not found.");
         break;
       }
 
@@ -177,24 +179,26 @@ class CommonTestCases {
         // Cannot scroll further in the current direction
         if (reversedDirection) {
           // We've already tried both directions
-          tester.printToConsole('Reached the scroll limit in both directions. Widget not found.');
+          tester.printToConsole("Reached the scroll limit in both directions. Widget not found.");
           break;
         } else {
           // Reverse the scroll direction and reset reverse scroll count
           scrollDown = !scrollDown;
           reversedDirection = true;
           reverseScrollCount = 0;
-          tester.printToConsole('Reached the end, reversing direction');
+          tester.printToConsole("Reached the end, reversing direction");
         }
       } else {
         // Update scroll position and reverse scroll count, incrementing only for reverse scrolling
         previousScrollPosition = currentScrollPosition;
-        if (!scrollDown) reverseScrollCount++;
+        if (!scrollDown) {
+          reverseScrollCount++;
+        }
       }
     }
 
     if (!found) {
-      tester.printToConsole('Widget not found after $maxScrolls scrolls.');
+      tester.printToConsole("Widget not found after $maxScrolls scrolls.");
     }
   }
 
@@ -212,13 +216,13 @@ class CommonTestCases {
 
     // Check if the item is already visible
     if (tester.any(itemFinder)) {
-      tester.printToConsole('Item $itemKeyId is already visible');
+      tester.printToConsole("Item $itemKeyId is already visible");
       return;
     }
 
     // Check if scrollable exists
     if (!tester.any(scrollableFinder)) {
-      tester.printToConsole('Scrollable not found for $itemKeyId');
+      tester.printToConsole("Scrollable not found for $itemKeyId");
       return;
     }
 
@@ -231,14 +235,14 @@ class CommonTestCases {
       );
 
       // Wait for the scroll to complete
-      await tester.pumpAndSettle(Duration(milliseconds: 500));
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       // Verify the item is now visible
       if (!tester.any(itemFinder)) {
-        tester.printToConsole('Item $itemKeyId not found after scrolling');
+        tester.printToConsole("Item $itemKeyId not found after scrolling");
       }
     } catch (e) {
-      tester.printToConsole('Could not scroll to $itemKeyId: $e');
+      tester.printToConsole("Could not scroll to $itemKeyId: $e");
     }
   }
 
@@ -273,8 +277,8 @@ class CommonTestCases {
     expect(textWidget, findsOneWidget);
   }
 
-  Future<void> defaultSleepTime({int seconds = 2}) async =>
-      await Future.delayed(Duration(seconds: seconds));
+  Future<void> defaultSleepTime({int seconds = 2}) =>
+      Future.delayed(Duration(seconds: seconds));
 
   Future<void> takeScreenshots(String screenshotName) async {
     // Pausing this for now

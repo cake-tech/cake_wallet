@@ -5,7 +5,6 @@ import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
-/// Drives the new UI send sheet.
 class NewSendPageRobot extends BaseRobot {
   NewSendPageRobot(super.tester);
 
@@ -26,11 +25,8 @@ class NewSendPageRobot extends BaseRobot {
     await tapByKey("send_page_send_button_key");
   }
 
-  /// Drags the confirm swiper thumb across the screen to broadcast the transaction.
-  ///
-  /// The swiper only shows once the transaction is created, which is network bound.
   Future<void> swipeToConfirm({Duration timeout = const Duration(seconds: 90)}) async {
-    final finder = find.byKey(ValueKey("send_page_confirm_swiper_key"));
+    final finder = find.byKey(const ValueKey("send_page_confirm_swiper_key"));
 
     await pumpUntilFound(finder, timeout: timeout);
 
@@ -40,15 +36,14 @@ class NewSendPageRobot extends BaseRobot {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  /// Waits until the broadcast went through, the confirm sheet shows its committed state.
   Future<void> confirmTransactionCommitted({
     Duration timeout = const Duration(minutes: 3),
   }) async {
     await pumpUntilFound(find.byType(TransactionCommittedScreenActionButton), timeout: timeout);
   }
 
-  // The keys sit on the input wrapper widgets, the editable field is a descendant.
   Future<void> _enterTextInInput(String inputKey, String text) async {
+    // The keys sit on the input wrapper widgets, the editable field is a descendant.
     final inputFinder = find.byKey(ValueKey(inputKey));
 
     await pumpUntilFound(inputFinder);

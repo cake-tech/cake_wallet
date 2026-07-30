@@ -3,7 +3,6 @@ import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
-/// Drives the new UI dashboard shell, the navbar and its tab switching.
 class NewDashboardRobot extends BaseRobot {
   NewDashboardRobot(super.tester);
 

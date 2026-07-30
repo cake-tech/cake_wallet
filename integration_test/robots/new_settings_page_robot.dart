@@ -4,7 +4,6 @@ import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
-/// Drives the new UI settings sheet, rows are keyed by their route name.
 class NewSettingsPageRobot extends BaseRobot {
   NewSettingsPageRobot(super.tester);
 

@@ -1,8 +1,8 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/seed/wallet_seed_page.dart";
+import "package:flutter_test/flutter_test.dart";
 
-import '../components/common_test_cases.dart';
+import "../components/common_test_cases.dart";
 
 class WalletSeedPageRobot {
   WalletSeedPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -12,16 +12,16 @@ class WalletSeedPageRobot {
 
   Future<void> isWalletSeedPage() async {
     await commonTestCases.isSpecificPage<WalletSeedPage>();
-    await commonTestCases.takeScreenshots('wallet_seed_page');
+    await commonTestCases.takeScreenshots("wallet_seed_page");
   }
 
   Future<void> onVerifySeedButtonPressed() async {
-    await commonTestCases.tapItemByKey('wallet_seed_page_verify_seed_button_key');
+    await commonTestCases.tapItemByKey("wallet_seed_page_verify_seed_button_key");
     await commonTestCases.defaultSleepTime();
   }
 
   Future<void> onSaveSeedButtonPressed() async {
-    await commonTestCases.tapItemByKey('wallet_seed_page_save_seeds_button_key');
+    await commonTestCases.tapItemByKey("wallet_seed_page_save_seeds_button_key");
     await commonTestCases.defaultSleepTime();
   }
 
@@ -33,7 +33,7 @@ class WalletSeedPageRobot {
     final walletName = walletSeedViewModel.name;
     final walletSeeds = walletSeedViewModel.seedSplit;
     commonTestCases.hasText(walletName);
-    for (var seed in walletSeeds) {
+    for (final seed in walletSeeds) {
       commonTestCases.hasTextAtLestOnce(seed);
     }
   }
@@ -43,12 +43,12 @@ class WalletSeedPageRobot {
   }
 
   Future<void> onSaveSeedsButtonPressed() async {
-    await commonTestCases.tapItemByKey('wallet_seed_page_save_seeds_button_key');
+    await commonTestCases.tapItemByKey("wallet_seed_page_save_seeds_button_key");
     await commonTestCases.defaultSleepTime();
   }
 
   Future<void> onCopySeedsButtonPressed() async {
-    await commonTestCases.tapItemByKey('wallet_seed_page_copy_seeds_button_key');
+    await commonTestCases.tapItemByKey("wallet_seed_page_copy_seeds_button_key");
     await commonTestCases.defaultSleepTime();
   }
 }

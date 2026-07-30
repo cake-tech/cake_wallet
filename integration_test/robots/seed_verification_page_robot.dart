@@ -1,8 +1,8 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart";
+import "package:flutter_test/flutter_test.dart";
 
-import '../components/common_test_cases.dart';
+import "../components/common_test_cases.dart";
 
 class SeedVerificationPageRobot {
   SeedVerificationPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -12,7 +12,7 @@ class SeedVerificationPageRobot {
 
   Future<void> isSeedVerificationPage() async {
     await commonTestCases.isSpecificPage<SeedVerificationPage>();
-    await commonTestCases.takeScreenshots('seed_verification_page');
+    await commonTestCases.takeScreenshots("seed_verification_page");
   }
 
   void hasTitle() {
@@ -32,13 +32,13 @@ class SeedVerificationPageRobot {
       commonTestCases.hasTextAtLestOnce(currentCorrectWord);
 
       await commonTestCases.tapItemByKey(
-        'seed_verification_option_${currentCorrectWord}_button_key',
+        "seed_verification_option_${currentCorrectWord}_button_key",
       );
 
       await commonTestCases.defaultSleepTime(seconds: 1);
     }
 
-    await commonTestCases.tapItemByKey('wallet_seed_page_open_wallet_button_key');
+    await commonTestCases.tapItemByKey("wallet_seed_page_open_wallet_button_key");
 
     await commonTestCases.defaultSleepTime();
   }

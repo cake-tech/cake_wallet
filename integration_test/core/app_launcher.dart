@@ -15,7 +15,7 @@ void integrationTest(String description, Future<void> Function(WidgetTester test
   testWidgets(description, (tester) async {
     final completer = Completer<void>();
 
-    runZonedGuarded(() async {
+    await runZonedGuarded(() async {
       try {
         await body(tester);
 

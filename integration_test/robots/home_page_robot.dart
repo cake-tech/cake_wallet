@@ -5,7 +5,6 @@ import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
-/// Drives the home tab of the new UI dashboard.
 class HomePageRobot extends BaseRobot {
   HomePageRobot(super.tester);
 

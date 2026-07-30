@@ -7,7 +7,6 @@ import "package:cake_wallet/src/screens/settings/other_settings_page.dart";
 import "package:cake_wallet/src/screens/settings/privacy_page.dart";
 import "package:cake_wallet/src/screens/settings/security_backup_page.dart";
 import "package:cw_core/wallet_type.dart";
-import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
 import "../../core/app_launcher.dart";

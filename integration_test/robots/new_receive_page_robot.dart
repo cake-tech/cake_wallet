@@ -3,7 +3,6 @@ import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
-/// Drives the new UI receive sheet.
 class NewReceivePageRobot extends BaseRobot {
   NewReceivePageRobot(super.tester);
 
@@ -12,7 +11,6 @@ class NewReceivePageRobot extends BaseRobot {
     await pumpUntilFound(find.byType(NewReceivePage));
   }
 
-  /// Waits until the displayed address matches, the address derives shortly after opening.
   Future<void> confirmAddressMatches(String expected) async {
     final matched = await pumpUntil(() => _currentAddress() == expected);
 

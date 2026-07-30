@@ -5,7 +5,6 @@ import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
-/// Drives the new UI swap sheet, only the funds suites go past quote fetching.
 class NewSwapPageRobot extends BaseRobot {
   NewSwapPageRobot(super.tester);
 

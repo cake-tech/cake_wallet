@@ -50,9 +50,7 @@ class TestConfig {
       return TestWallets.fundedWalletTypes;
     }
 
-    return _fundedChainsOverride.split(",").map(_walletTypeByName).where((type) {
-      return TestWallets.fundedSeedFor(type).isNotEmpty;
-    }).toList();
+    return _fundedChainsOverride.split(",").map(_walletTypeByName).where((type) => TestWallets.fundedSeedFor(type).isNotEmpty).toList();
   }
 
   static WalletType _walletTypeByName(String name) {
