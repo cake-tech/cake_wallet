@@ -1,4 +1,5 @@
 import "package:bloc/bloc.dart";
+import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/trade.dart";
@@ -35,19 +36,19 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
         _wallet = wallet,
         super(const SwapStateNotLoaded()) {
     on<_Init>(_init);
-    on<SourceChanged>(_onSourceChanged);
-    on<PayoutAddressChanged>(_onPayoutAddressChanged);
-    on<DepositAmountChanged>(_onDepositAmountChanged);
-    on<PayoutAmountChanged>(_onPayoutAmountChanged);
-    on<RatesLoadStarted>(_onRatesLoadStarted);
-    on<DepositCurrencyChanged>(_onDepositCurrencyChanged);
-    on<PayoutCurrencyChanged>(_onPayoutCurrencyChanged);
-    on<SwapDirectionReversed>(_onSwapDirectionReversed);
-    on<ForcedProviderSelected>(_onForcedProviderSelected);
-    on<ProviderToggled>(_onProviderToggled);
-    on<FixedRateToggled>(_onFixedRateToggled);
+    on<SourceChanged>(_onSourceChanged, transformer: restartable());
+    on<PayoutAddressChanged>(_onPayoutAddressChanged, transformer: restartable());
+    on<DepositAmountChanged>(_onDepositAmountChanged, transformer: restartable());
+    on<PayoutAmountChanged>(_onPayoutAmountChanged, transformer: restartable());
+    on<RatesLoadStarted>(_onRatesLoadStarted, transformer: droppable());
+    on<DepositCurrencyChanged>(_onDepositCurrencyChanged, transformer: restartable());
+    on<PayoutCurrencyChanged>(_onPayoutCurrencyChanged, transformer: restartable());
+    on<SwapDirectionReversed>(_onSwapDirectionReversed, transformer: sequential());
+    on<ForcedProviderSelected>(_onForcedProviderSelected, transformer: restartable());
+    on<ProviderToggled>(_onProviderToggled, transformer: sequential());
+    on<FixedRateToggled>(_onFixedRateToggled, transformer: sequential());
     on<FiatCurrencyChanged>(_onFiatCurrencyChanged);
-    on<ForceDecentralizedExchangesToggled>(_onForceDecentralizedExchangesToggled);
+    on<ForceDecentralizedExchangesToggled>(_onForceDecentralizedExchangesToggled, transformer: sequential());
     on<SwapInitiated>(_onSwapInitiated);
     on<SendConfirmed>(_onSendConfirmed);
     add(_Init());
