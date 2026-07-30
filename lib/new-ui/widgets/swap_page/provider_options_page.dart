@@ -4,7 +4,7 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbo
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import "package:cake_wallet/new-ui/viewmodels/swap/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/trocador_providers_settings.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';

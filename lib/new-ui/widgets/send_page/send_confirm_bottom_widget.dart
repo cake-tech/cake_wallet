@@ -1,6 +1,6 @@
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/confirm_swiper.dart";
 import "package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_message.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
