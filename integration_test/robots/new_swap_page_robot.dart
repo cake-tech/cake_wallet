@@ -1,9 +1,10 @@
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
-/// Drives the new UI swap sheet, quote assertions only, it never confirms a trade.
+/// Drives the new UI swap sheet, only the funds suites go past quote fetching.
 class NewSwapPageRobot extends BaseRobot {
   NewSwapPageRobot(super.tester);
 
@@ -21,6 +22,44 @@ class NewSwapPageRobot extends BaseRobot {
     final received = await pumpUntil(() => _bestRate() > 0, timeout: timeout);
 
     expect(received, true, reason: "No provider quote arrived within ${timeout.inSeconds}s");
+  }
+
+  /// Enters a deposit amount just above the provider minimum once the limits load.
+  Future<void> enterMinimumViableDepositAmount() async {
+    final limitsLoaded = await pumpUntil(
+      () => (_limitsMin() ?? 0) > 0,
+      timeout: const Duration(seconds: 90),
+    );
+
+    expect(limitsLoaded, true, reason: "Provider limits never loaded");
+
+    // 5 percent above the minimum keeps the trade valid when the rate moves slightly.
+    final amount = ((_limitsMin() ?? 0) * 1.05).toStringAsFixed(8);
+    await enterDepositAmount(amount);
+  }
+
+  Future<void> tapSwapButton() async {
+    await tapByKey("exchange_page_exchange_button_key");
+  }
+
+  /// Waits for the trade to be created, the confirm sheet shows once the provider accepts.
+  Future<void> confirmTradeCreated({Duration timeout = const Duration(minutes: 2)}) async {
+    await pumpUntilFound(find.byType(SwapConfirmSheet), timeout: timeout);
+  }
+
+  /// Waits until the deposit was broadcast, the confirm sheet pops itself after committing.
+  Future<void> confirmDepositCommitted({Duration timeout = const Duration(minutes: 3)}) async {
+    await pumpUntilGone(find.byType(SwapConfirmSheet), timeout: timeout);
+  }
+
+  double? _limitsMin() {
+    final finder = find.byType(NewSwapPage);
+
+    if (!tester.any(finder)) {
+      return null;
+    }
+
+    return tester.widget<NewSwapPage>(finder.first).exchangeViewModel.limits.min;
   }
 
   double _bestRate() {

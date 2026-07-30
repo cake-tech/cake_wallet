@@ -1,8 +1,17 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/wallet_types.g.dart";
 import "package:cw_core/wallet_type.dart";
+
+import "funded_wallets.dart";
 
 /// The only place tests read wallet secrets from, keeps .secrets.g.dart out of robots and suites.
 class TestWallets {
+  /// Wallet types with a funded seed available, drives the funds suites in auto mode.
+  static List<WalletType> get fundedWalletTypes =>
+      availableWalletTypes.where((type) => fundedSeedFor(type).isNotEmpty).toList();
+
+  static String fundedSeedFor(WalletType type) => fundedWalletSeeds[type.name] ?? "";
+
   static String seedFor(WalletType type) {
     switch (type) {
       case WalletType.monero:

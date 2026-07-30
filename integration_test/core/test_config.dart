@@ -1,6 +1,8 @@
 import "package:cake_wallet/wallet_types.g.dart";
 import "package:cw_core/wallet_type.dart";
 
+import "test_wallets.dart";
+
 /// Knobs the suites read, either compile time defaults or --dart-define overrides.
 class TestConfig {
   static final List<int> pin = [0, 8, 0, 1];
@@ -8,6 +10,52 @@ class TestConfig {
   static const bool isCIBuild = bool.fromEnvironment("CI_BUILD");
 
   static const String _walletTypesOverride = String.fromEnvironment("TEST_WALLET_TYPES");
+
+  static const String _fundsFlows = String.fromEnvironment("FLOWS", defaultValue: "all");
+
+  static const String _fundedChainsOverride = String.fromEnvironment(
+    "CHAINS",
+    defaultValue: "auto",
+  );
+
+  // Tiny real send amounts per chain, above dust thresholds. The team lead tunes these
+  // together with the funded wallet balances.
+  static const Map<String, String> _fundsSendAmounts = {
+    "solana": "0.0001",
+    "ethereum": "0.00001",
+    "polygon": "0.01",
+    "base": "0.00001",
+    "arbitrum": "0.00001",
+    "bsc": "0.00001",
+    "tron": "1",
+    "bitcoin": "0.0002",
+    "litecoin": "0.001",
+    "bitcoinCash": "0.0002",
+    "dogecoin": "2",
+    "monero": "0.0001",
+    "wownero": "0.1",
+  };
+
+  static String fundsSendAmountFor(WalletType type) => _fundsSendAmounts[type.name] ?? "0.0001";
+
+  /// Whether the funds workflow asked for this flow, FLOWS is all, send or swap.
+  static bool shouldRunFundsFlow(String flow) => _fundsFlows == "all" || _fundsFlows == flow;
+
+  /// Funded wallet types the funds suites run against.
+  ///
+  /// Auto mode discovers every type with a funded seed, a comma separated CHAINS define
+  /// narrows the run to just those chains.
+  static List<WalletType> get fundedWalletTypesUnderTest {
+    if (_fundedChainsOverride == "auto") {
+      return TestWallets.fundedWalletTypes;
+    }
+
+    return _fundedChainsOverride
+        .split(",")
+        .map((name) => WalletType.values.byName(name.trim()))
+        .where((type) => TestWallets.fundedSeedFor(type).isNotEmpty)
+        .toList();
+  }
 
   // Solana and ethereum cover the cheap key-derivation chains, bitcoin covers the electrum
   // family and monero covers the native-library chains.

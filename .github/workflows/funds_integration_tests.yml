@@ -1,0 +1,67 @@
+name: Funds Integration Tests
+
+permissions:
+  contents: read
+  packages: write
+
+# Never triggered automatically, these suites move real funds. The team lead runs this
+# from the Actions tab before a release, approval goes through the funds-tests environment.
+on:
+  workflow_dispatch:
+    inputs:
+      flows:
+        description: "Which flows to run"
+        required: true
+        type: choice
+        options:
+          - all
+          - send
+          - swap
+        default: all
+      chains:
+        description: "auto discovers every funded chain, or a comma separated list of wallet type names"
+        required: true
+        type: string
+        default: auto
+      record_screen:
+        description: "Record the emulator screen, uploaded GPG encrypted"
+        required: true
+        type: boolean
+        default: true
+
+# Two funds runs sending from the same wallets at once would race on nonces and utxos
+concurrency:
+  group: funds-integration-tests
+  cancel-in-progress: false
+
+jobs:
+  funds-tests:
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      ref: ${{ github.sha }}
+      suite_dir: integration_test/funds_suites
+      test_tier: all
+      environment: funds-tests
+      write_funds_secrets: true
+      record_screen: ${{ inputs.record_screen }}
+      timeout_minutes: 120
+      extra_dart_defines: "FLOWS=${{ inputs.flows }},CHAINS=${{ inputs.chains }}"
+    secrets: inherit
+
+  notify:
+    needs: [funds-tests]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Post result to slack
+        run: |
+          curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer ${{ secrets.SLACK_APP_TOKEN }}" \
+            -H "Content-type: application/json; charset=utf-8" \
+            -d "$(cat <<EOF
+          {
+            "channel": "${{ secrets.SLACK_APK_CHANNEL }}",
+            "text": "Funds integration tests: ${{ needs.funds-tests.result }} (flows: ${{ inputs.flows }}, chains: ${{ inputs.chains }}) on ${{ github.ref_name }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }
+          EOF
+          )"

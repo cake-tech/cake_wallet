@@ -111,11 +111,11 @@ jobs:
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
       # Funded wallet seeds are environment scoped and only reach the manual funds workflow,
-      # they are appended so TestWallets can keep importing a single secrets file.
+      # the checked in funded_wallets.dart default is an empty map.
       - name: Add funded wallet secrets
         if: ${{ inputs.write_funds_secrets }}
         run: |
-          echo "${{ secrets.FUNDS_SECRETS_FILE }}" | base64 --decode >> lib/.secrets.g.dart
+          echo "${{ secrets.FUNDS_SECRETS_FILE }}" | base64 --decode > integration_test/core/funded_wallets.dart
 
       - name: Build dependencies utilizing ghcr cache
         run: |

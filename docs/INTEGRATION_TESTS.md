@@ -102,11 +102,34 @@ stable history. funds_suites run only from the manual funds workflow.
 Test wallet seeds and receive addresses live in `lib/.secrets.g.dart` under names like
 `solanaTestWalletSeeds`, defined in `tool/utils/secret_key.dart` and reachable through
 `TestWallets`. CI injects the real values from the `MAIN_SECRETS_FILE` repository secret.
-Funded wallet seeds for the funds suites use `<type>FundedWalletSeeds` names and come from
-the environment scoped `FUNDS_SECRETS_FILE` secret, they never exist on PR builds.
 
 Adding a new test secret means adding it in `tool/utils/secret_key.dart`, mapping it in
 `TestWallets` and asking the team lead to add the value to the CI secret.
+
+## Funds suites
+
+`funds_suites/` restore funded wallets and move real funds: a small self send on every
+funded chain, and one real swap with its deposit broadcast. They only run from the manual
+`Funds Integration Tests` workflow, which the team lead dispatches from the Actions tab
+before a release. The run needs approval through the `funds-tests` GitHub environment.
+
+Funded seeds live in the environment scoped `FUNDS_SECRETS_FILE` secret, a base64 encoded
+replacement for `integration_test/core/funded_wallets.dart` mapping wallet type names to
+seed phrases:
+
+```dart
+const Map<String, String> fundedWalletSeeds = {
+  "solana": "seed words ...",
+  "ethereum": "seed words ...",
+};
+```
+
+The checked in default is an empty map and must stay empty, PR builds never see funded
+seeds. In auto mode the suites discover every chain present in the map, so funding a new
+chain only means adding its entry to the secret. The dispatch inputs narrow a run to
+specific flows or chains, and per chain send amounts are tuned in
+`TestConfig._fundsSendAmounts`. The swap suite enters an amount just above the provider
+minimum, the first funded chain's balance has to cover that minimum plus fees.
 
 ## Flakiness playbook
 
