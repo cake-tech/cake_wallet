@@ -3,6 +3,7 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
@@ -12,8 +13,6 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.da
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
-import "package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart";
-import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
@@ -21,113 +20,112 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currencies_with_memo.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
-class SwapConfirmSheet extends StatefulWidget {
-  const SwapConfirmSheet(
-      {super.key,
-        required this.bloc,});
+class SwapConfirmSheet extends StatelessWidget {
+  const SwapConfirmSheet({required this.bloc, super.key,});
 
 
   final SwapBloc bloc;
 
   @override
-  State<SwapConfirmSheet> createState() => _SwapConfirmSheetState();
-}
-
-class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
-  void beginSend() async {
-    // final sendVM = widget.exchangeTradeViewModel.sendViewModel;
-
-    // if (sendVM.wallet.isHardwareWallet) {
-    //   if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
-    //     await Navigator.of(context).pushNamed(Routes.connectDevices,
-    //         arguments: ConnectDevicePageParams(
-    //           walletType: sendVM.walletType,
-    //           hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-    //           onConnectDevice: (context, _) {
-    //             sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-    //             Navigator.of(context).pop();
-    //           },
-    //         ));
-    //   } else {
-    //     sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-    //   }
-    // }
-
-    // widget.exchangeTradeViewModel.confirmSending();
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return PopScope(
-        onPopInvokedWithResult: (didPop, result) {
-          Navigator.of(context, rootNavigator: true).pop();
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          ),
-          child: SafeArea(
-            child: Observer(
-              builder: (_) {
-                final commited =
-                    widget.exchangeTradeViewModel.sendViewModel.state is TransactionCommitted;
-                return Stack(
-                  fit: StackFit.loose,
-                  children: [
-                    Positioned.fill(
-                        child: AnimatedSlide(
-                      offset: commited ? Offset.zero : const Offset(1, 0),
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      child: const TransactionCommitedScreen(),
-                    )),
-                    AnimatedSlide(
-                      offset: commited ? const Offset(-1, 0) : Offset.zero,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      child: SwapTransactionDetails(
-                        exchangeViewModel: widget.exchangeViewModel,
-                        exchangeTradeViewModel: widget.exchangeTradeViewModel,
-                        receiveAmount: widget.receiveAmount,
-                      ),
-                    ),
-                  ],
-                );
+  Widget build(BuildContext context) =>
+      BlocBuilder<SwapBloc, SwapState>(bloc: bloc, builder: (context, state) =>
+          PopScope(
+              onPopInvokedWithResult: (didPop, result) {
+                Navigator.of(context, rootNavigator: true).pop();
               },
-            ),
-          ),
-        ));
-  }
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme
+                      .of(context)
+                      .colorScheme
+                      .surface,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                ),
+                child: SafeArea(
+                  child: Observer(
+                    builder: (_) {
+                      final commited =
+                      state is TransactionCommitted;
+                      return Stack(
+                        fit: StackFit.loose,
+                        children: [
+                          Positioned.fill(
+                              child: AnimatedSlide(
+                                offset: commited ? Offset.zero : const Offset(1, 0),
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutCubic,
+                                child: const TransactionCommitedScreen(),
+                              )),
+                          AnimatedSlide(
+                            offset: commited ? const Offset(-1, 0) : Offset.zero,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutCubic,
+                            child: SwapTransactionDetails(bloc: bloc
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              )));
 }
 
 class SwapTransactionDetails extends StatelessWidget {
   const SwapTransactionDetails(
-      {super.key,
-      required this.exchangeViewModel,
-      required this.exchangeTradeViewModel,
-      required this.receiveAmount});
+      {required this.bloc, super.key});
 
-  final String receiveAmount;
+  final SwapBloc bloc;
+
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
+  builder: (context, state) {
+    final Money depositAmount;
+    final Money payoutAmount;
+    final ExchangeProviderDescription provider;
+    final String sourceString;
+    final bool isExternal;
+    final String tradeId;
+    final String payoutAddress;
+    if(state is SwapStateWithInputs) {
+      depositAmount = state.depositAmount.cryptoAmount;
+      payoutAmount = state.payoutAmount.cryptoAmount;
+      provider = state.usableProviders.first;
+      sourceString = state.source.displayName;
+      isExternal = state.source is ExternalSwapSource;
+      tradeId = "";
+      payoutAddress = state.payoutAddress?.address ?? "";
+    } else if(state is SwapStateWithTrade) {
+      depositAmount = state.trade.depositAmount;
+      payoutAmount = state.trade.payoutAmount;
+      provider =state.trade.provider;
+      sourceString = state.source.displayName;
+      isExternal = state.source is ExternalSwapSource;
+      tradeId = state.trade.id;
+      payoutAddress = state.trade.payoutAddress;
+    } else {
+      throw StateError("this widget shouldn't be openable at this point! what happened?");
+    }
+
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
           title: "",
           leadingWidget: SwapModalHeader(
-              fromIconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
-              toIconPath: exchangeViewModel.receiveCurrency.iconPath ?? ""),
-          trailingIcon: Icon(Icons.close),
+              fromIconPath: depositAmount.currency.iconPath ?? "",
+              toIconPath: payoutAmount.currency.iconPath ?? ""),
+          trailingIcon: const Icon(Icons.close),
           onTrailingPressed: Navigator.of(context).maybePop,
         ),
         SafeArea(
@@ -143,102 +141,93 @@ class SwapTransactionDetails extends StatelessWidget {
                       ListItemRegularRow(
                         showArrow: false,
                         keyValue: "send value",
-                        label: exchangeViewModel.depositCurrency.fullName ?? "",
-                        iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
-                        badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
-                        trailingText: exchangeViewModel.amountParsingProxy
-                            .asDisplayStringWithSymbol(exchangeViewModel.depositCurrency
-                                    .tryParseAmount(exchangeTradeViewModel.trade.amount) ??
-                                Money.zero(exchangeViewModel.depositCurrency)),
+                        label: depositAmount.currency.fullName ?? "",
+                        iconPath: depositAmount.currency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(depositAmount.currency as CryptoCurrency),
+                        trailingText: depositAmount.toStringWithSymbol(),
                       ),
-                      if (exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
+                      if (state is SwapStateWithTransaction)
                         ListItemRegularRow(
                             showArrow: false,
                             keyValue: "fee",
                             label: S.of(context).fee,
                             trailingText:
-                                "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
+                                "${state.transaction.feeFormatted} ()"),
                       ListItemRegularRow(
                           keyValue: "sender",
                           label: S.of(context).from,
-                          trailingText: exchangeViewModel.isSendFromExternal
-                              ? S.of(context).external_wallet
-                              : exchangeViewModel.wallet.name,
+                          trailingText: sourceString,
                           showArrow: false)
                     ],
                     S.of(context).receive: [
                       ListItemRegularRow(
                         showArrow: false,
                         keyValue: "receive value",
-                        label: exchangeViewModel.receiveCurrency.fullName ?? "",
-                        iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
-                        badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),
-                        trailingText: (receiveAmount.withMaxDecimals(8)) +
-                            " " +
-                            (exchangeViewModel.receiveCurrency.title),
+                        label: payoutAmount.currency.fullName ?? "",
+                        iconPath: payoutAmount.currency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(payoutAmount.currency as CryptoCurrency),
+                        trailingText: payoutAmount.toStringWithSymbol(),
                       ),
                       ListItemRegularRow(
                           keyValue: "receiver",
                           label: S.of(context).to,
                           showArrow: false,
-                          trailingText: exchangeViewModel.receiveAddressDisplayName ??
-                              middleTruncate(
-                                  exchangeTradeViewModel.trade.payoutAddress ?? "", 8, 8)),
-                      if ((exchangeTradeViewModel.trade.toAddressExtraId ?? "").isNotEmpty)
+                          trailingText:
+                          middleTruncate(
+                              payoutAddress, 8, 8)),
+                      if (state is SwapStateWithTrade && (state.trade.toAddressExtraId ?? "").isNotEmpty)
                         ListItemRegularRow(
                           keyValue: "receive memo",
                           showArrow: false,
-                          label: memoLabelTypeFor(exchangeViewModel.receiveCurrency) ==
+                          label: memoLabelTypeFor(payoutAmount.currency as CryptoCurrency) ==
                                   MemoLabelType.destinationTag
                               ? S.of(context).destination_tag
                               : S.of(context).memo,
                           trailingText: middleTruncate(
-                              exchangeTradeViewModel.trade.toAddressExtraId ?? "", 8, 8),
-                          copyableText: exchangeTradeViewModel.trade.toAddressExtraId,
+                              state.trade.toAddressExtraId ?? "", 8, 8),
+                          copyableText: state.trade.toAddressExtraId,
                         ),
                     ],
                     "${S.of(context).swap_id} (${S.of(context).tap_to_copy})": [
                       ListItemRegularRow(
                           showArrow: false,
                           keyValue: "provider",
-                          onTap: () => Clipboard.setData(
-                              ClipboardData(text: exchangeTradeViewModel.trade.id)),
-                          label: exchangeTradeViewModel.trade.provider.title,
-                          iconPath: exchangeTradeViewModel.trade.provider.image,
+                          onTap: () {
+                            if(state is SwapStateWithTrade) {
+                              Clipboard.setData(
+                              ClipboardData(text: state.trade.id));
+                            }
+                          },
+                          label: provider.title,
+                          iconPath: provider.image,
                           trailingIconPath: "assets/new-ui/copy.svg",
-                          trailingText: exchangeTradeViewModel.trade.id.toString().length > 18
+                          trailingText:tradeId.length > 18
                               ? null
-                              : exchangeTradeViewModel.trade.id,
-                          bottomWidget: exchangeTradeViewModel.trade.id.toString().length <= 18
+                              : tradeId,
+                          bottomWidget:tradeId.length <= 18
                               ? null
                               : Padding(
                                   padding: const EdgeInsets.only(top: 12.0),
                                   child: Text(
-                                    exchangeTradeViewModel.trade.id,
+                                    tradeId,
                                     style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant),
                                   ),
                                 )),
-                      if (exchangeTradeViewModel.trade.provider ==
-                          ExchangeProviderDescription.trocador)
+                      if (provider ==
+                          ExchangeProviderDescription.trocador && state is SwapStateWithTrade)
                         ListItemRegularRow(
                             showArrow: false,
                             keyValue: "trocador provider name",
                             label: "Trocador ${S.of(context).provider}",
-                            trailingText: exchangeTradeViewModel.trade.providerName ?? "")
+                            trailingText: state.trade.providerName ?? "")
                     ]
                   }),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
-                  child: exchangeViewModel.isSendFromExternal
-                      ? NewPrimaryButton(
-                          onPressed: () => _showExternalSendModal(context),
-                          text: S.of(context).continue_text,
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary)
-                      : SendConfirmBottomWidget(
-                          sendViewModel: exchangeTradeViewModel.sendViewModel),
+                  child: SwapConfirmBottomWidget(
+                          bloc: bloc),
                 ),
               ],
             ),
@@ -246,22 +235,10 @@ class SwapTransactionDetails extends StatelessWidget {
         )
       ],
     );
-  }
+  },
+);
 
-  void _showExternalSendModal(BuildContext context) {
-    if (context.mounted) {
-      showMaterialModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return SwapSendExternalModal(
-                amount: exchangeTradeViewModel.trade.amount,
-                exchangeTradeViewModel: exchangeTradeViewModel,
-                from: exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency,
-                to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
-                address: exchangeTradeViewModel.trade.inputAddress ?? "");
-          });
-    }
-  }
+
 }
 
 String? _resolveChainBadgePath(CryptoCurrency currency) {
