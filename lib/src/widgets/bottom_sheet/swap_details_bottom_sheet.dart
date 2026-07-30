@@ -3,6 +3,7 @@ import "dart:async";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/swap_bloc.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart";
 import "package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart";
@@ -11,22 +12,22 @@ import "package:cake_wallet/src/widgets/standard_slide_button_widget.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
-import "package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 
 class SwapDetailsBottomSheet extends StatefulWidget {
   const SwapDetailsBottomSheet({
-    required this.exchangeTradeViewModel, super.key,
+ required this.bloc, super.key,
   });
 
-  final ExchangeTradeViewModel exchangeTradeViewModel;
+  final SwapBloc bloc;
 
   @override
   State<SwapDetailsBottomSheet> createState() => _SwapDetailsBottomSheetState();
@@ -50,7 +51,6 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
 
   @override
   void dispose() {
-    widget.exchangeTradeViewModel.timer?.cancel();
     _exchangeStateReaction?.reaction.dispose();
     super.dispose();
   }
@@ -61,9 +61,9 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
       return;
     }
 
-    final initialState = widget.exchangeTradeViewModel.sendViewModel.state;
+    final initialState = widget.bloc.state;
 
-    if (initialState is FailureState && !_showingFailureDialog) {
+    if (initialState is SwapFailure && !_showingFailureDialog) {
       _showingFailureDialog = true;
       printV("Initial failure state: $initialState");
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -74,7 +74,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
                 key: const ValueKey("swap_details_send_failure_dialog_key"),
                 buttonKey: const ValueKey("swap_details_send_failure_dialog_button_key"),
                 alertTitle: S.of(popupContext).error,
-                alertContent: initialState.error,
+                alertContent: initialState.error.toString(),
                 buttonText: S.of(popupContext).ok,
                 buttonAction: () {
                   _showingFailureDialog = false;
@@ -87,105 +87,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
         }
       });
     }
-
-    _exchangeStateReaction = reaction(
-          (_) => widget.exchangeTradeViewModel.sendViewModel.state,
-          (state) async {
-        if (state is! IsExecutingState &&
-            state is! TransactionCommitting &&
-            _loadingBottomSheetContext != null &&
-            _loadingBottomSheetContext!.mounted) {
-          Navigator.of(_loadingBottomSheetContext!).pop();
-        }
-
-        if (state is FailureState && !_showingFailureDialog) {
-          _showingFailureDialog = true;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && context.mounted) {
-              showPopUp<void>(
-                context: context,
-                builder: (popupContext) => AlertWithOneAction(
-                    key: const ValueKey("swap_details_send_failure_dialog_key"),
-                    buttonKey: const ValueKey("swap_details_send_failure_dialog_button_key"),
-                    alertTitle: S.of(popupContext).error,
-                    alertContent: state.error,
-                    buttonText: S.of(popupContext).ok,
-                    buttonAction: () {
-                      _showingFailureDialog = false;
-                      Navigator.of(popupContext).pop();
-                      if (mounted) {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      }
-                    },
-                  ),
-              );
-            } else {
-              _showingFailureDialog = false;
-            }
-          });
-        }
-
-        if (state is IsExecutingState) {
-          // Wait a bit to avoid showing the loading dialog if transaction is failed
-          await Future.delayed(const Duration(milliseconds: 300));
-          final currentState = widget.exchangeTradeViewModel.sendViewModel.state;
-          if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
-            return;
-          }
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              showModalBottomSheet<void>(
-                context: context,
-                isDismissible: false,
-                builder: (context) {
-                  _loadingBottomSheetContext = context;
-                  return LoadingBottomSheet(
-                    titleText: S.of(context).generating_transaction,
-                  );
-                },
-              );
-            }
-          });
-        }
-
-        if (state is ExecutedSuccessfullyState) {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            if (context.mounted) {
-              await widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
-            }
-          });
-        }
-
-        if (state is TransactionCommitted) {
-          WidgetsBinding.instance.addPostFrameCallback(
-                (_) async {
-              if (!mounted) {
-                return;
-              }
-
-              await showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                builder: (bottomSheetContext) => InfoBottomSheet(
-                    footerType: FooterType.singleActionButton,
-                    titleText: S.of(bottomSheetContext).transaction_sent,
-                    contentImage: "assets/images/birthday_cake.png",
-                    singleActionButtonText: S.of(bottomSheetContext).close,
-                    singleActionButtonKey: const ValueKey("swap_details_sent_dialog_ok_button_key"),
-                    onSingleActionButtonPressed: () {
-                      Navigator.of(bottomSheetContext).pop();
-                      if (mounted) {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      }
-                    },
-                  ),
-              );
-            },
-          );
-        }
-      },
-    );
+    
 
     _effectsInstalled = true;
   }
@@ -194,65 +96,47 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
   Widget build(BuildContext context) => _SwapDetailsBottomSheetContent(
       titleText: "Confirm Swap",
       footerType: FooterType.none,
+      bloc: widget.bloc,
       maxHeight: 900,
-      exchangeTradeViewModel: widget.exchangeTradeViewModel,
       onExecuteSwap: _executeSwap,
     );
 
   Future<void> _executeSwap() async {
-    if (!widget.exchangeTradeViewModel.isSendable) {
-      return;
-    }
 
-    try {
-      await widget.exchangeTradeViewModel.confirmSending();
-    } catch (e) {
-      printV("Error executing swap: $e");
-      if (mounted) {
-        unawaited(showPopUp<void>(
-          context: context,
-          builder: (popupContext) => AlertWithOneAction(
-              key: const ValueKey("swap_details_execution_error_dialog_key"),
-              buttonKey: const ValueKey("swap_details_execution_error_dialog_button_key"),
-              alertTitle: S.of(popupContext).error,
-              alertContent: e.toString(),
-              buttonText: S.of(popupContext).ok,
-              buttonAction: () => Navigator.of(popupContext).pop(),
-            ),
-        ));
-      }
-    }
+      widget.bloc.add(SendConfirmed());
+
   }
 }
 
 class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
   const _SwapDetailsBottomSheetContent({
-    required super.titleText,
+    required this.bloc, required super.titleText,
     required super.footerType,
     required super.maxHeight,
-    required this.exchangeTradeViewModel,
     required this.onExecuteSwap,
   });
 
-  final ExchangeTradeViewModel exchangeTradeViewModel;
+  final SwapBloc bloc;
   final VoidCallback onExecuteSwap;
 
   @override
-  Widget contentWidget(BuildContext context) => Column(
+  Widget contentWidget(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
+  builder: (context, state) {
+    if(state is! SwapStateWithTrade) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
       children: [
         _SwapDetailsContent(
-          trade: exchangeTradeViewModel.trade,
-          exchangeTradeViewModel: exchangeTradeViewModel,
+          trade: state.trade,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
           child: Observer(
             builder: (_) {
-              final sendingState = exchangeTradeViewModel.sendViewModel.state;
-              final isDisabled = !exchangeTradeViewModel.isSendable ||
-                  exchangeTradeViewModel.trade.fundingAddress.isEmpty;
 
-              if (isDisabled || sendingState is IsExecutingState) {
+              if (state is SwapAwaitingSend || state is SwapSending) {
                 return Container(
                   width: double.infinity,
                   height: 48,
@@ -261,7 +145,7 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
                     color: Theme.of(context).colorScheme.surfaceContainer,
                   ),
                   child: Center(
-                    child: sendingState is IsExecutingState
+                    child: state is SwapSending
                         ? const CircularProgressIndicator()
                         : Text(
                       "Swipe to swap",
@@ -288,13 +172,14 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
         const SizedBox(height: 32),
       ],
     );
+  },
+);
 }
 
 class _SwapDetailsContent extends StatelessWidget {
-  const _SwapDetailsContent({required this.trade, required this.exchangeTradeViewModel});
+  const _SwapDetailsContent({required this.trade, });
 
   final Trade trade;
-  final ExchangeTradeViewModel exchangeTradeViewModel;
 
   @override
   Widget build(BuildContext context) => Container(
