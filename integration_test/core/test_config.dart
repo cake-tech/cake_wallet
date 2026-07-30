@@ -50,11 +50,24 @@ class TestConfig {
       return TestWallets.fundedWalletTypes;
     }
 
-    return _fundedChainsOverride
-        .split(",")
-        .map((name) => WalletType.values.byName(name.trim()))
-        .where((type) => TestWallets.fundedSeedFor(type).isNotEmpty)
-        .toList();
+    return _fundedChainsOverride.split(",").map(_walletTypeByName).where((type) {
+      return TestWallets.fundedSeedFor(type).isNotEmpty;
+    }).toList();
+  }
+
+  static WalletType _walletTypeByName(String name) {
+    final trimmed = name.trim();
+
+    // A typo in the CHAINS dispatch input has to fail with a readable message.
+    final type = WalletType.values.where((value) => value.name == trimmed).toList();
+    if (type.isEmpty) {
+      throw ArgumentError(
+        'Unknown wallet type "$trimmed" in CHAINS, '
+        "valid names: ${WalletType.values.map((value) => value.name).join(", ")}",
+      );
+    }
+
+    return type.first;
   }
 
   // Solana and ethereum cover the cheap key-derivation chains, bitcoin covers the electrum

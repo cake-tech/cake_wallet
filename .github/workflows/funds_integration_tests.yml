@@ -45,7 +45,7 @@ jobs:
       write_funds_secrets: true
       record_screen: ${{ inputs.record_screen }}
       timeout_minutes: 120
-      extra_dart_defines: "FLOWS=${{ inputs.flows }},CHAINS=${{ inputs.chains }}"
+      extra_dart_defines: "FLOWS=${{ inputs.flows }};CHAINS=${{ inputs.chains }}"
     secrets: inherit
 
   notify:

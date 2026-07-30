@@ -1,3 +1,4 @@
+import "package:cake_wallet/exchange/limits_state.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -27,14 +28,17 @@ class NewSwapPageRobot extends BaseRobot {
   /// Enters a deposit amount just above the provider minimum once the limits load.
   Future<void> enterMinimumViableDepositAmount() async {
     final limitsLoaded = await pumpUntil(
-      () => (_limitsMin() ?? 0) > 0,
+      () => _limitsState() is LimitsLoadedSuccessfully,
       timeout: const Duration(seconds: 90),
     );
 
     expect(limitsLoaded, true, reason: "Provider limits never loaded");
 
-    // 5 percent above the minimum keeps the trade valid when the rate moves slightly.
-    final amount = ((_limitsMin() ?? 0) * 1.05).toStringAsFixed(8);
+    final min = _limitsMin() ?? 0;
+
+    // 5 percent above the minimum keeps the trade valid when the rate moves slightly,
+    // pairs without a minimum fall back to a small fixed amount the team lead can tune.
+    final amount = min > 0 ? (min * 1.05).toStringAsFixed(8) : "0.01";
     await enterDepositAmount(amount);
   }
 
@@ -60,6 +64,16 @@ class NewSwapPageRobot extends BaseRobot {
     }
 
     return tester.widget<NewSwapPage>(finder.first).exchangeViewModel.limits.min;
+  }
+
+  LimitsState? _limitsState() {
+    final finder = find.byType(NewSwapPage);
+
+    if (!tester.any(finder)) {
+      return null;
+    }
+
+    return tester.widget<NewSwapPage>(finder.first).exchangeViewModel.limitsState;
   }
 
   double _bestRate() {

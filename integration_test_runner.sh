@@ -9,7 +9,8 @@ set -euo pipefail
 #   ANDROID_APP_ID        package cleared between suites on android (default read from android/app.properties)
 #   PREBUILT_APK          prebuilt apk passed to flutter drive, skips rebuilding per suite.
 #                         Dart defines must already be baked into this apk at build time.
-#   EXTRA_DART_DEFINES    comma separated KEY=VALUE pairs forwarded as --dart-define flags
+#   EXTRA_DART_DEFINES    semicolon separated KEY=VALUE pairs forwarded as --dart-define flags,
+#                         semicolons because values like CHAINS=solana,ethereum contain commas
 #   FLUTTER_DEVICE        device id passed to flutter drive, needed when several devices are attached
 #   TEST_TIMEOUT          per-attempt timeout in seconds (default 900)
 #   RETRY_COUNT           retries per suite after a failure (default 1)
@@ -127,7 +128,7 @@ build_drive_command() {
     fi
 
     if [[ -n "$EXTRA_DART_DEFINES" ]]; then
-        IFS=',' read -ra defines <<< "$EXTRA_DART_DEFINES"
+        IFS=';' read -ra defines <<< "$EXTRA_DART_DEFINES"
         for define in "${defines[@]}"; do
             drive_command+=("--dart-define=$define")
         done

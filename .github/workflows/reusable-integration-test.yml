@@ -284,15 +284,16 @@ jobs:
                 adb pull "$f" recordings/ || true
               done
 
-              # Recordings show seed words on screen so they are never uploaded in plaintext
-              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 # konstantin@cakewallet.com
-              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
+              # Recordings show seed words on screen so they are never uploaded in plaintext,
+              # and a keyserver flake must never eat the test exit code
+              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 || true # konstantin@cakewallet.com
+              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC || true # cyjan@mrcyjanek.net
               for f in recordings/*.mp4; do
                 [[ -f "$f" ]] || continue
                 gpg --trust-model always --encrypt --output "$f.gpg" \
                   --recipient 6B3199AD9B3D23B8 \
                   --recipient 35C8DBAFB8D9ACAC \
-                  "$f"
+                  "$f" || echo "Encrypting $f failed, discarding it"
                 rm "$f"
               done
             fi

@@ -8,14 +8,31 @@ import "package:flutter_test/flutter_test.dart";
 ///
 /// Async chains started by test taps bind to the test zone, so wallet networking that
 /// keeps running after an interaction would otherwise fail the test with errors the
-/// production app deliberately ignores. Awaited failures still propagate normally, an
-/// assertion failing inside the body fails the test exactly like under testWidgets.
+/// production app deliberately ignores. Body failures are handed back across the zone
+/// boundary through a completer, an error cannot cross error zones on its own and
+/// awaiting the guarded future directly would hang the test forever.
 void integrationTest(String description, Future<void> Function(WidgetTester tester) body) {
   testWidgets(description, (tester) async {
-    await (runZonedGuarded(() => body(tester), (error, stack) {
-          debugPrint("Ignoring background async error: $error");
-        }) ??
-        Future<void>.value());
+    final completer = Completer<void>();
+
+    runZonedGuarded(() async {
+      try {
+        await body(tester);
+
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      } catch (error, stack) {
+        // Awaited failures, assertion failures included, must fail the test normally.
+        if (!completer.isCompleted) {
+          completer.completeError(error, stack);
+        }
+      }
+    }, (error, stack) {
+      debugPrint("Ignoring background async error: $error");
+    });
+
+    await completer.future;
   });
 }
 

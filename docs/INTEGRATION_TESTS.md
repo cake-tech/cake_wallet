@@ -133,8 +133,9 @@ minimum, the first funded chain's balance has to cover that minimum plus fees.
 
 ## Flakiness playbook
 
-- A timeout in `pumpUntilFound` throws with the finder description and takes a best
-  effort screenshot. Check the uploaded `integration-test-logs` artifact in CI.
+- A timeout in `pumpUntilFound` throws with the finder description. Diagnose through the
+  `integration-test-logs` artifact in CI, it holds the run log and a final logcat dump.
+  Screenshots do not work on Android without surface conversion, do not rely on them.
 - The app's own error handling ignores missing `.svg.vec` assets by design, the harness
   filters those too. Any other FlutterError fails the test, that is intentional.
 - Monero and wownero load native libraries on first open, give their steps generous
