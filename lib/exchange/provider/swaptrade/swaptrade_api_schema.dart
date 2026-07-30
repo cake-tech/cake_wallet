@@ -169,6 +169,27 @@ class SwapTradeGetRateRequest {
   Map<String, dynamic> toJson() => _$SwapTradeGetRateRequestToJson(this);
 }
 
+@JsonSerializable()
+class SwapTradeGetPriceRequest {
+  SwapTradeGetPriceRequest({required this.coinSend, required this.coinSendNetwork, required this.coinReceive, required this.coinReceiveNetwork, required this.amountSend, required this.markup});
+
+
+  @JsonKey(name: "coin_send")
+  final String coinSend;
+  @JsonKey(name: "coin_send_network")
+  final String coinSendNetwork;
+  @JsonKey(name: "coin_receive")
+  final String coinReceive;
+  @JsonKey(name: "coin_receive_network")
+  final String coinReceiveNetwork;
+  @JsonKey(name: "amount_send")
+  final String amountSend;
+  @JsonKey(name: "markup")
+  final int markup;
+
+  Map<String, dynamic> toJson() => _$SwapTradeGetPriceRequestToJson(this);
+}
+
 @JsonSerializable(createToJson: false)
 @SwapTradeAmountConverter()
 class SwapTradeRate {
@@ -176,7 +197,7 @@ class SwapTradeRate {
 
   factory SwapTradeRate.fromJson(Map<String, dynamic> json) => _$SwapTradeRateFromJson(json);
 
-  @JsonKey(name: "price")
+  @JsonKey(name: "data")
   final double price;
 
   @JsonKey(name: "symbol")

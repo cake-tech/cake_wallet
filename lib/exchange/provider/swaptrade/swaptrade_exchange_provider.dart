@@ -20,7 +20,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   static const markup = secrets.swapTradeExchangeMarkup;
 
   static const apiAuthority = "api.swaptrade.io";
-  static const getRate = "/api/swap/get-rate";
+  static const getPrice = "api/swap/get-price";
   static const getCoins = "/api/swap/get-coins";
   static const createOrder = "/api/swap/create-order";
   static const order = "/api/swap/order";
@@ -90,13 +90,16 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       throw Exception("lightning not supported");
     }
 
-    final body = SwapTradeGetRateRequest(
+    final body = SwapTradeGetPriceRequest(
       coinSend: _normalizeCurrency(from.currency as CryptoCurrency),
+      coinSendNetwork: _networkFor(from.currency as CryptoCurrency),
+      coinReceiveNetwork: _networkFor(to),
       coinReceive: _normalizeCurrency(to),
-      amount: from.amount.toString(),
+      amountSend: from.toString(),
+      markup: int.parse(markup)
     );
 
-    final uri = Uri.https(apiAuthority, getRate);
+    final uri = Uri.https(apiAuthority, getPrice);
     final response = await proxyWrapper.post(
       clearnetUri: uri,
       body: json.encode(body),
@@ -114,7 +117,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     final rate = responseBody.data?.price;
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate(base: from.currency, quote: Money.parse(rate, to)),
+      rate: ExchangeRate(
+          base: from.currency, quote: Money.parse(rate!.toStringAsFixed(to.decimals), to)),
       limits: await fetchLimits(
         from: from.currency as CryptoCurrency,
         to: to,
