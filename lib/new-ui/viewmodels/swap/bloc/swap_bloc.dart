@@ -1,9 +1,12 @@
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
@@ -12,13 +15,16 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/utils/list_extension.dart";
+import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:cw_monero/api/transaction_history.dart";
 import "package:meta/meta.dart";
 
 part "swap_event.dart";
@@ -27,12 +33,12 @@ part "swap_state.dart";
 
 class SwapBloc extends Bloc<SwapEvent, SwapState> {
   SwapBloc({
-    required WalletSwitchService walletSwitchService, required this.rateCubit,
+    required TransactionService transactionService, required WalletSwitchService walletSwitchService, required this.rateCubit,
     required this.currencyStore,
     required SwapAmountFactory calculator,
     required ExchangeProviderRegistry registry,
     required AppStore appStore,
-  })  : _walletSwitchService = walletSwitchService, _amountFactory = calculator,
+  })  : _transactionService = transactionService, _walletSwitchService = walletSwitchService, _amountFactory = calculator,
         _registry = registry,
         _appStore = appStore,
         super(const SwapStateNotLoaded()) {
@@ -57,6 +63,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
 
   final AppStore _appStore;
   final WalletSwitchService _walletSwitchService;
+  final TransactionService _transactionService;
   final ExchangeProviderRegistry _registry;
   final RateCubit rateCubit;
   final SwapAmountFactory _amountFactory;
@@ -389,9 +396,12 @@ newPayoutAmount = s.payoutAmount;
       emit(creatingState);
 
 
+
+      final provider = _registry.getProvider(rate.provider);
       final Trade trade;
+
       try {
-        trade = await _registry.getProvider(rate.provider).createTrade(request: req);
+        trade = await provider.createTrade(request: req);
         await trade.save();
       } catch(e) {
         emit(creatingState.toError(e));
@@ -400,6 +410,19 @@ newPayoutAmount = s.payoutAmount;
 
       if(s.source case final ExternalSwapSource source) {
         emit(SwapAwaitingExternalSend(trade: trade, source: source));
+      } else if(s.source case final InternalSwapSource source) {
+        emit(SwapGeneratingTransaction(trade: trade, source: source));
+        final PendingTransaction tx;
+        if(provider case final TransactionCreationExchangeProvider p) {
+          tx = await p.createTransaction(_appStore.wallet!, trade);
+        } else {
+          final curr = s.depositAmount.currency;
+          // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
+          final output = Output(_appStore.wallet!, _appStore, getIt.get<FiatConversionStore>(), () => curr);
+          output.setCryptoAmount(s.depositAmount.cryptoAmount.toString());
+          tx = await _transactionService.createTransaction([output]);
+        }
+        emit(SwapAwaitingSend(trade: trade, transaction: tx, source: source));
       }
 
 

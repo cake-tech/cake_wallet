@@ -64,6 +64,7 @@ import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
@@ -558,10 +559,13 @@ Future<void> setup({
 
   getIt.registerFactory<SwapCurrencyStore>(SwapCurrencyStore.new);
 
-  getIt.registerFactory<WalletSwitchService>(()=>WalletSwitchService(walletLoadingService: getIt.get<WalletLoadingService>(), appStore: getIt.get<AppStore>()));
+  getIt.registerSingleton<WalletSwitchService>(WalletSwitchService(walletLoadingService: getIt.get<WalletLoadingService>(), appStore: getIt.get<AppStore>()));
+
+  getIt.registerSingleton<TransactionService>(TransactionService(appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory<SwapBloc>(() =>
       SwapBloc(
+          transactionService: getIt.get<TransactionService>(),
           currencyStore: getIt.get<SwapCurrencyStore>(),
           rateCubit: getIt.get<RateCubit>(),
           calculator: getIt.get<SwapAmountFactory>(),
