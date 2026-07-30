@@ -10,6 +10,10 @@ sealed class RateState {
 
 }
 
+final class RatesNotLoaded extends RateState {
+  const RatesNotLoaded(super.from, super.to);
+}
+
 final class RatesLoading extends RateState {
   const RatesLoading(super.from, super.to);
 }
@@ -38,3 +42,7 @@ final class RatesLoaded extends RateState {
     }
     return limits.whereType<Money>().max;
   }}
+
+final class RatesNotFound extends RateState {
+  const RatesNotFound(super.from, super.to);
+}
