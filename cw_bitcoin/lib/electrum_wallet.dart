@@ -428,6 +428,47 @@ abstract class ElectrumWalletBase
     _balanceDisplayedForAccount = targetAccountIndex;
   }
 
+  Map<int, Set<String>> get addressesSetByAccount {
+    final result = <int, Set<String>>{};
+    for (final addr in walletAddresses.allAddresses) {
+      if (addr.type == SegwitAddresType.mweb) continue;
+      (result[addr.accountIndex] ??= <String>{}).add(addr.address);
+    }
+    return result;
+  }
+
+  int? _accountForTransaction(
+      ElectrumTransactionBundle bundle,
+      Map<int, Set<String>> addressesByAccount,
+      ) {
+    if (type != WalletType.bitcoin) return null;
+
+    int? accountForAddress(String address) {
+      for (final entry in addressesByAccount.entries) {
+        if (entry.value.contains(address)) return entry.key;
+      }
+      return null;
+    }
+
+    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+      final inputTransaction = bundle.ins[i];
+      if (inputTransaction == null) continue;
+
+      final outTransaction =
+      inputTransaction.outputs[bundle.originalTransaction.inputs[i].txIndex];
+      final account =
+      accountForAddress(addressFromOutputScript(outTransaction.scriptPubKey, network));
+      if (account != null) return account;
+    }
+
+    for (final out in bundle.originalTransaction.outputs) {
+      final account = accountForAddress(addressFromOutputScript(out.scriptPubKey, network));
+      if (account != null) return account;
+    }
+
+    return null;
+  }
+
   Set<String> get addressesSet => walletAddresses.allAddresses
       .where((element) => element.type != SegwitAddresType.mweb)
       .map((addr) => addr.address)
@@ -2591,13 +2632,19 @@ abstract class ElectrumWalletBase
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, int? height, bool? retryOnFailure}) async {
     try {
-      return ElectrumTransactionInfo.fromElectrumBundle(
-        await getTransactionExpanded(hash: hash, height: height),
+      final bundle = await getTransactionExpanded(hash: hash, height: height);
+      final addressesByAccount = addressesSetByAccount;
+      final owner = _accountForTransaction(bundle, addressesByAccount);
+
+      final info = ElectrumTransactionInfo.fromElectrumBundle(
+        bundle,
         walletInfo.type,
         network,
-        addresses: addressesSet,
+        addresses: owner != null ? addressesByAccount[owner]! : addressesSet,
         height: height,
       );
+      info.accountIndex = owner;
+      return info;
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
         await Future.delayed(const Duration(seconds: 2));
@@ -2765,8 +2812,10 @@ abstract class ElectrumWalletBase
           txid = transaction['tx_hash'] as String;
           final height = transaction['height'] as int;
           final storedTx = transactionHistory.transactions[txid];
+          final needsAccount =
+              type == WalletType.bitcoin && storedTx != null && storedTx.accountIndex == null;
 
-          if (storedTx != null) {
+          if (storedTx != null && !needsAccount) {
             if (height > 0) {
               storedTx.height = height;
               // the tx's block itself is the first confirmation so add 1
@@ -3053,7 +3102,10 @@ abstract class ElectrumWalletBase
           lastTxId = txid;
 
           final storedTx = transactionHistory.transactions[txid];
-          if (storedTx != null) {
+          final needsAccount =
+              type == WalletType.bitcoin && storedTx != null && storedTx.accountIndex == null;
+
+          if (storedTx != null && !needsAccount) {
             if (height > 0) {
               final oldHeight = storedTx.height;
               final oldConfs = storedTx.confirmations;
@@ -3218,9 +3270,11 @@ abstract class ElectrumWalletBase
     required Map<String, ElectrumTransactionInfo?> result,
     required Map<String, int?>? heightsByHash,
   }) async {
+    final addressesByAccount = addressesSetByAccount;
+
     for (var i = 0; i < txIds.length; i += transactionChunkSize) {
       final end =
-          (i + transactionChunkSize < txIds.length) ? i + transactionChunkSize : txIds.length;
+      (i + transactionChunkSize < txIds.length) ? i + transactionChunkSize : txIds.length;
       final chunk = txIds.sublist(i, end);
 
       final bundlesByHash = await getTransactionExpandedBatch(
@@ -3236,14 +3290,17 @@ abstract class ElectrumWalletBase
             continue;
           }
 
+          final owner = _accountForTransaction(bundle, addressesByAccount);
+
           final info = ElectrumTransactionInfo.fromElectrumBundle(
             bundle,
             walletInfo.type,
             network,
-            addresses: addressesSet,
+            addresses: owner != null ? addressesByAccount[owner]! : addressesSet,
             height: heightsByHash?[txId],
           );
           info.id = txId;
+          info.accountIndex = owner;
           result[txId] = info;
         } catch (_) {
           result[txId] = null;
