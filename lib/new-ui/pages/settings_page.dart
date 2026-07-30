@@ -29,6 +29,11 @@ bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 bool _isCupcake(DashboardViewModel vm) =>
     vm.wallet.hardwareWalletType == HardwareWalletType.cupcake;
 
+bool _hasAccounts(DashboardViewModel vm) =>
+    hasAccountsWalletTypes.contains(vm.wallet.type) &&
+    !(vm.wallet.type == WalletType.bitcoin &&
+        vm.wallet.derivationInfo.derivationType == DerivationType.electrum);
+
 class SettingsListItem {
   final String iconPath;
   final String title;
@@ -54,6 +59,9 @@ class SettingsSectionData {
 
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet-setting.svg", [
+    SettingsListItem("assets/new-ui/settings_row_icons/accounts.svg", S.current.accounts,
+        Routes.walletAccountsPage,
+        condition: _hasAccounts),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem(

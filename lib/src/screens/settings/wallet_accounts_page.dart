@@ -1,0 +1,374 @@
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/utils/show_card_customizer.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
+import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
+import 'package:cw_core/balance_card_style_settings.dart';
+import 'package:cw_core/card_design.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+class AccountCustomizerListItem {
+  final BalanceCard card;
+  final int order;
+  final AccountListItem accountListItem;
+
+  AccountCustomizerListItem(
+      {required this.card, required this.order, required this.accountListItem});
+}
+
+class WalletAccountsPage extends StatefulWidget {
+  const WalletAccountsPage(
+      {super.key,
+      required this.accountListViewModel,
+      required this.accountEditOrCreateViewModel,
+      required this.dashboardViewModel});
+
+  final WalletAccountListViewModel accountListViewModel;
+  final WalletAccountEditOrCreateViewModel accountEditOrCreateViewModel;
+  final DashboardViewModel dashboardViewModel;
+
+  @override
+  State<WalletAccountsPage> createState() => _WalletAccountsPageState();
+}
+
+class _WalletAccountsPageState extends State<WalletAccountsPage> {
+  static const double _kStackVisibleFactor = 0.2;
+  late final double cardWidth = MediaQuery.of(context).size.width * 0.9;
+
+  final List<AccountCustomizerListItem> _items = [];
+
+  WalletAccountListViewModel get accountListViewModel =>
+      widget.dashboardViewModel.accountListViewModel ?? widget.accountListViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await widget.dashboardViewModel.loadCardDesigns();
+      if (!mounted) return;
+      loadCards();
+
+      final activeId = accountListViewModel.selectedAccount?.id;
+
+      for (int i = 0; i < _items.length - 1; i++) {
+        if (activeId != null && _items[i].accountListItem.id == activeId) {
+          final lastIndex = _items.length - 1;
+          final temp = _items[i];
+          _items[i] = _items[lastIndex];
+          _items[lastIndex] = temp;
+
+          await saveCardOrder();
+          await widget.dashboardViewModel.loadCardDesigns();
+          loadCards();
+          break;
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    accountListViewModel.reload();
+    saveCardOrder().then((value) => widget.dashboardViewModel.loadCardDesigns());
+    super.dispose();
+  }
+
+  void loadCards() {
+    _items.clear();
+
+    final accounts = accountListViewModel.accounts;
+    for (int i = 0; i < accounts.length; i++) {
+      final index = widget.dashboardViewModel.cardOrder[i];
+
+      if (index == null || index < 0 || index >= accounts.length) {
+        // db order broken.
+        reset();
+        break;
+      }
+
+      _items.add(AccountCustomizerListItem(
+          card: BalanceCard(
+            accountName: accounts[index].label,
+            accountIndex: accounts[index].id,
+            balance: accounts[index].balance ?? "0.00",
+            accountBalance: accounts[index].balance ?? "0.00",
+            designSwitchDuration: Duration.zero,
+            assetName: accountListViewModel.currency.title,
+            onCustomizeTapped: null,
+            selected: i == accounts.length - 1,
+            width: cardWidth,
+            design: widget.dashboardViewModel.cardDesigns[index],
+          ),
+          order: index,
+          accountListItem: accounts[index]));
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (accountListViewModel.accounts.isEmpty) return SizedBox.shrink();
+
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      child: Column(
+        children: [
+          ModalTopBar(
+            title: S.of(context).wallet_accounts,
+            leadingIcon: Icon(Icons.arrow_back_ios_new),
+            onLeadingPressed: Navigator.of(context).maybePop,
+            trailingIcon: Icon(Icons.refresh),
+            onTrailingPressed: showResetDialog,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: Text(
+              S.of(context).account_customizer_desc,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  controller: ModalScrollController.of(context),
+                  padding: EdgeInsets.only(bottom: 196),
+                  child: CardsView(
+                    key: ValueKey(
+                        '${widget.dashboardViewModel.wallet.name}_${widget.dashboardViewModel.lightningMode}_${accountListViewModel.accounts.length}_${widget.dashboardViewModel.cardDesigns.length}'),
+                    dashboardViewModel: widget.dashboardViewModel,
+                    lightningMode: widget.dashboardViewModel.lightningMode,
+                    maxVisibleCards: null,
+                    allowCompactMode: false,
+                    onCustomizeTapped: _openCardCustomizer,
+                    onCompactModeBackgroundCardsTapped: _openCardCustomizer,
+                  ),
+                ),
+                SafeArea(
+                    child: Padding(
+                        padding: EdgeInsets.only(bottom: 50),
+                        child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(999999),
+                                  onTap: _showAddAccountModal,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        borderRadius: BorderRadius.circular(999999)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 18.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        spacing: 8,
+                                        children: [
+                                          Icon(
+                                            Icons.add,
+                                            size: 28,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                          Text(
+                                            S.of(context).add_account,
+                                            style: TextStyle(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                fontWeight: FontWeight.w500),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _checkReadyToManage() {
+    if (widget.dashboardViewModel.wallet.type == WalletType.bitcoin) {
+      return true;
+    }
+    if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
+      showDialog(
+          context: context,
+          builder: (context) => AlertWithOneAction(
+              alertTitle: S.of(context).wallet_is_syncing,
+              alertContent: S.of(context).cannot_manage_accounts_during_sync,
+              buttonText: S.of(context).ok,
+              buttonAction: Navigator.of(context).pop));
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _showAddAccountModal() async {
+    if (!_checkReadyToManage()) {
+      return;
+    }
+
+    final res = await showCupertinoModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Material(
+            child: AccountCreationModal(
+              state: () => widget.accountEditOrCreateViewModel.state,
+              onPressed: (label) async {
+                widget.accountEditOrCreateViewModel.label = label;
+                await widget.accountEditOrCreateViewModel.save();
+                if (!context.mounted) return;
+
+                if (widget.accountEditOrCreateViewModel.state is ExecutedSuccessfullyState) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+            ),
+          );
+        });
+
+    if (res != null && res is bool && res == true) {
+      await accountListViewModel.reload();
+      await Future<void>.delayed(Duration.zero);
+
+      final accounts = accountListViewModel.accounts;
+      if (accounts.isNotEmpty) {
+        final newestAccount = accounts.reduce((a, b) => a.id > b.id ? a : b);
+        await accountListViewModel.select(newestAccount);
+      }
+
+      await widget.dashboardViewModel.loadCardDesigns();
+      loadCards();
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _openCardCustomizer() async {
+    if (!_checkReadyToManage()) {
+      return;
+    }
+
+    await showCardCustomizer(
+      context: context,
+      dashboardViewModel: widget.dashboardViewModel,
+      lightningMode: widget.dashboardViewModel.lightningMode,
+      useCupertinoScaffold: false,
+      onSaved: loadCards,
+    );
+  }
+
+  void reorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final AccountCustomizerListItem item = _items.removeAt(oldIndex);
+      _items.insert(newIndex, item);
+    });
+
+    // necessary to copy all this to keep constant constructor for BalanceCard
+    for (int i = 0; i < _items.length; i++) {
+      _items[i] = AccountCustomizerListItem(
+          card: BalanceCard(
+            accountName: _items[i].card.accountName,
+            balance: _items[i].card.balance,
+            accountIndex: _items[i].card.accountIndex,
+            accountBalance: _items[i].card.accountBalance,
+            assetName: _items[i].card.assetName,
+            designSwitchDuration: _items[i].card.designSwitchDuration,
+            onCustomizeTapped: (i == _items.length - 1) ? _openCardCustomizer : null,
+            selected: i == _items.length - 1,
+            width: _items[i].card.width,
+            design: _items[i].card.design,
+          ),
+          order: i,
+          accountListItem: _items[i].accountListItem);
+    }
+
+    if (newIndex == _items.length - 1 || oldIndex == _items.length - 1) {
+      accountListViewModel.select(_items[_items.length - 1].accountListItem);
+    }
+  }
+
+  Future<void> saveCardOrder() async {
+    for (int orderIndex = 0; orderIndex < _items.length; orderIndex++) {
+      final item = _items[orderIndex];
+      printV("${item.accountListItem.id}: $orderIndex");
+
+      await BalanceCardStyleSettings.fromCardDesign(
+              walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
+              accountIndex: item.accountListItem.id,
+              cardOrder: orderIndex,
+              design: item.card.design)
+          .insert();
+    }
+  }
+
+  Future<void> showResetDialog() async {
+    final res = await showPopUp(
+        context: context,
+        builder: (context) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).reset,
+              alertContent: S.of(context).card_order_reset_desc,
+              leftButtonText: S.of(context).yes,
+              rightButtonText: S.of(context).no,
+              actionLeftButton: () {
+                Navigator.of(context).pop(true);
+              },
+              actionRightButton: Navigator.of(context).pop);
+        });
+    if (res != null && res is bool && res) {
+      reset();
+    }
+  }
+
+  Future<void> reset() async {
+    _items.clear();
+
+    final accounts = accountListViewModel.accounts;
+    for (int i = 0; i < accountListViewModel.accounts.length; i++) {
+      _items.add(AccountCustomizerListItem(
+          card: BalanceCard(
+            accountName: accounts[i].label,
+            accountIndex: accounts[i].id,
+            balance: accounts[i].balance ?? "0.00",
+            accountBalance: accounts[i].balance ?? "0.00",
+            assetName: accountListViewModel.currency.title,
+            selected: true,
+            designSwitchDuration: Duration(milliseconds: 200),
+            width: cardWidth,
+            design: i >= widget.dashboardViewModel.cardDesigns.length
+                ? CardDesign.genericDefault
+                : widget.dashboardViewModel.cardDesigns[i],
+          ),
+          order: i,
+          accountListItem: accounts[i]));
+    }
+
+    saveCardOrder();
+    setState(() {});
+  }
+}

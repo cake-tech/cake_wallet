@@ -12,13 +12,11 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class TopBar extends StatelessWidget {
   const TopBar({
     super.key,
-    required this.lightningMode,
     required this.onLightningSwitchPress,
     required this.dashboardViewModel,
     required this.onSettingsButtonPress,
   });
 
-  final bool lightningMode;
   final VoidCallback onLightningSwitchPress;
   final VoidCallback onSettingsButtonPress;
   final DashboardViewModel dashboardViewModel;
@@ -34,12 +32,12 @@ class TopBar extends StatelessWidget {
           children: [
             (dashboardViewModel.hasLightning)
                 ? LightningSwitcher(
-                    lightningMode: lightningMode,
+                    lightningMode: dashboardViewModel.lightningMode,
                     onLightningSwitchPress: onLightningSwitchPress,
                   )
                 : ChainIcon(
                     iconPath: dashboardViewModel.wallet.currency.flatIconPath ?? "",
-                    dashboardViewModel: dashboardViewModel,
+                    onProgress: dashboardViewModel.status.progress,
                     isSyncHeavy: dashboardViewModel.isSyncHeavy),
             SyncBar(
               dashboardViewModel: dashboardViewModel,

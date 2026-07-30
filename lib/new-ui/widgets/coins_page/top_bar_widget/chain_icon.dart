@@ -8,18 +8,18 @@ class ChainIcon extends StatelessWidget {
   const ChainIcon(
       {super.key,
       required this.iconPath,
-      required this.dashboardViewModel,
+      required this.onProgress,
       required this.isSyncHeavy});
 
   final String iconPath;
   final bool isSyncHeavy;
-  final DashboardViewModel dashboardViewModel;
+  final double Function() onProgress;
 
   @override
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        final progress = dashboardViewModel.status.progress();
+        final progress = onProgress();
         final done = !isSyncHeavy || progress >= 1;
 
         return Stack(

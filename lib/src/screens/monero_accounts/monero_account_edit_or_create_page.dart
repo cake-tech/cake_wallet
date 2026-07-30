@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/monero_account_label_validator.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
