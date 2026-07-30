@@ -20,6 +20,7 @@ class SwapLimitPopup extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
       bloc: bloc,
       builder: (context, state) => BlocBuilder<RateCubit, RateState>(
+        bloc: bloc.rateCubit,
             builder: (context, rateState) {
               Money? max = null;
               Money? min = null;
