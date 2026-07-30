@@ -12,6 +12,8 @@ import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/payment_uris.dart";
+import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:meta/meta.dart";
@@ -47,6 +49,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
     on<FiatCurrencyChanged>(_onFiatCurrencyChanged);
     on<ForceDecentralizedExchangesToggled>(_onForceDecentralizedExchangesToggled);
     on<SwapInitiated>(_onSwapInitiated);
+    on<SendConfirmed>(_onSendConfirmed);
   }
 
   final SettingsStore _settingsStore;
@@ -338,7 +341,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
       final trade = await _registry.getProvider(rate.provider).createTrade(request: req);
       await trade.save();
 
-      emit(SwapCreated(trade: trade));
+      emit(SwapCreated(trade: trade, source: s.source));
     }
+  }
+
+  Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
+
   }
 }
