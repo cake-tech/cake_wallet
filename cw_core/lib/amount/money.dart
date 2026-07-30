@@ -221,5 +221,5 @@ class Money implements Comparable<Money> {
     return currency.symbol;
   }
 
-  String get serialized => "${currency.serialized}:${amount.toString}";
+  String get serialized => "${currency.serialized}:${amount.toString()}";
 }
