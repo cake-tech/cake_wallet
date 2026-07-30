@@ -36,8 +36,10 @@ class SwapConfirmSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      BlocBuilder<SwapBloc, SwapState>(bloc: bloc, builder: (context, state) =>
-          PopScope(
+      BlocBuilder<SwapBloc, SwapState>(bloc: bloc, builder: (context, state) {
+        final commited =
+        state is TransactionCommitted;
+        return PopScope(
               onPopInvokedWithResult: (didPop, result) {
                 Navigator.of(context, rootNavigator: true).pop();
               },
@@ -50,33 +52,28 @@ class SwapConfirmSheet extends StatelessWidget {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                 ),
                 child: SafeArea(
-                  child: Observer(
-                    builder: (_) {
-                      final commited =
-                      state is TransactionCommitted;
-                      return Stack(
-                        fit: StackFit.loose,
-                        children: [
-                          Positioned.fill(
-                              child: AnimatedSlide(
-                                offset: commited ? Offset.zero : const Offset(1, 0),
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOutCubic,
-                                child: const TransactionCommitedScreen(),
-                              )),
-                          AnimatedSlide(
-                            offset: commited ? const Offset(-1, 0) : Offset.zero,
+                  child: Stack(
+                    fit: StackFit.loose,
+                    children: [
+                      Positioned.fill(
+                          child: AnimatedSlide(
+                            offset: commited ? Offset.zero : const Offset(1, 0),
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeOutCubic,
-                            child: SwapTransactionDetails(bloc: bloc
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                            child: const TransactionCommitedScreen(),
+                          )),
+                      AnimatedSlide(
+                        offset: commited ? const Offset(-1, 0) : Offset.zero,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        child: SwapTransactionDetails(bloc: bloc
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              )));
+              ));
+      });
 }
 
 class SwapTransactionDetails extends StatelessWidget {

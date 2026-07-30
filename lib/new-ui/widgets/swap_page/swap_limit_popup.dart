@@ -37,40 +37,38 @@ class SwapLimitPopup extends StatelessWidget {
               final tooSmall =
                   min != null && amount != null && !min.isZero && amount.cryptoAmount < min;
               final show = tooLarge || tooSmall;
+              final askText =
+              tooLarge ? S.of(context).enter_less_than : S.of(context).enter_greater_than;
+              final neededAmount = (tooLarge ? max : min).toString().withMaxDecimals(8);
+              final currency = amount?.currency.title ?? "";
               return AnimatedSize(
                 duration: Duration(milliseconds: 200),
                 curve: Curves.easeInOutCubic,
                 child: Container(
                   width: double.infinity,
-                  child: Observer(builder: (_) {
-                    final askText =
-                        tooLarge ? S.of(context).enter_less_than : S.of(context).enter_greater_than;
-                    final neededAmount = (tooLarge ? max : min).toString().withMaxDecimals(8);
-                    final currency = amount?.currency.title ?? "";
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: AnimatedOpacity(
-                        duration: Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        opacity: show ? 1 : 0,
-                        child: Container(
-                          height: show ? null : 0,
-                          decoration: BoxDecoration(
-                              color: backgroundColor, borderRadius: BorderRadius.circular(99999)),
-                          width: double.infinity,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12.0),
-                            child: Text(
-                              "$askText $neededAmount $currency",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: outlineColor, fontWeight: FontWeight.w500, fontSize: 12),
-                            ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: AnimatedOpacity(
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      opacity: show ? 1 : 0,
+                      child: Container(
+                        height: show ? null : 0,
+                        decoration: BoxDecoration(
+                            color: backgroundColor, borderRadius: BorderRadius.circular(99999)),
+                        width: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          child: Text(
+                            "$askText $neededAmount $currency",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: outlineColor, fontWeight: FontWeight.w500, fontSize: 12),
                           ),
                         ),
                       ),
-                    );
-                  }),
+                    ),
+                  ),
                 ),
               );
             },

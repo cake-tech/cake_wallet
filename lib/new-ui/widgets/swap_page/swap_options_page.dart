@@ -63,77 +63,75 @@ class SwapOptionsPage extends StatelessWidget {
                 ],
               ),
               if(state is SwapStateWithInputs)
-              Observer(
-                builder: (_) => NewListSections(
-                    showHeader: true,
-                    getCheckboxValue: (key) => state.isFixedRate,
-                    updateCheckboxValue: (key, val) {},
-                    sections: {
-                      "": [
-                        ListItemToggle(
-                            keyValue: "fixed rate",
-                            label: S.of(context).fixed_rate,
-                            value: state.isFixedRate,
-                            onChanged: (val) {
-                              bloc.add(FixedRateToggled());
-                            }),
-                        ListItemRegularRow(
-                            keyValue: "refund",
-                            label: S.of(context).set_refund_address,
-                            onTap: () {
-                              showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  context: context,
-                                  builder: (context) => RefundAddressModal(
-                                        selectedCurrency: state.depositAmount.currency)).then((val) {
-                                if (val != null && val is String) {
-                                  bloc.add(SourceChanged(ExternalSwapSource(val)));
-                                }
-                              });
-                            })
-                      ],
-                      S.of(context).general: [
-                        ListItemRegularRow(
-                            keyValue: "providers",
-                            label: S.of(context).swap_providers,
-                            onTap: () {
-                              Navigator.of(context).push(CupertinoPageRoute(
-                                  builder: (context) => Material(
-                                      child: ProviderOptionsPage(
-                                          bloc: bloc))));
-                            }),
-                        ListItemRegularRow(
-                            keyValue: "coin control",
-                            label: "Coin Control",
-                            onTap: () {
-                              showCupertinoModalBottomSheet(
-                                  enableDrag: false,
-                                  useRootNavigator: true,
-                                  isDismissible: false,
-                                  context: context,
-                                  builder: (context) => NewCoinControlPage(
-                                      unspentCoinsListViewModel:
-                                          getIt.get<UnspentCoinsListViewModel>(),
-                                      canEdit: true,
-                                    ));
-                            }),
-                        ListItemSelector(
-                            keyValue: "curr",
-                            label: S.of(context).change_fiat_currency,
-                            options: [bloc.fiat.name],
-                            onTap: () {
-                              FiatCurrencyPickerSheet.show(
+              NewListSections(
+                  showHeader: true,
+                  getCheckboxValue: (key) => state.isFixedRate,
+                  updateCheckboxValue: (key, val) {},
+                  sections: {
+                    "": [
+                      ListItemToggle(
+                          keyValue: "fixed rate",
+                          label: S.of(context).fixed_rate,
+                          value: state.isFixedRate,
+                          onChanged: (val) {
+                            bloc.add(FixedRateToggled());
+                          }),
+                      ListItemRegularRow(
+                          keyValue: "refund",
+                          label: S.of(context).set_refund_address,
+                          onTap: () {
+                            showModalBottomSheet(
+                                isScrollControlled: true,
                                 context: context,
-                                selected: bloc.fiat,
-                                onSelected: (curr) {
-                                  bloc.add(FiatCurrencyChanged(curr));
-                                },
-                              );
+                                builder: (context) => RefundAddressModal(
+                                      selectedCurrency: state.depositAmount.currency)).then((val) {
+                              if (val != null && val is String) {
+                                bloc.add(SourceChanged(ExternalSwapSource(val)));
+                              }
+                            });
+                          })
+                    ],
+                    S.of(context).general: [
+                      ListItemRegularRow(
+                          keyValue: "providers",
+                          label: S.of(context).swap_providers,
+                          onTap: () {
+                            Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (context) => Material(
+                                    child: ProviderOptionsPage(
+                                        bloc: bloc))));
+                          }),
+                      ListItemRegularRow(
+                          keyValue: "coin control",
+                          label: "Coin Control",
+                          onTap: () {
+                            showCupertinoModalBottomSheet(
+                                enableDrag: false,
+                                useRootNavigator: true,
+                                isDismissible: false,
+                                context: context,
+                                builder: (context) => NewCoinControlPage(
+                                    unspentCoinsListViewModel:
+                                        getIt.get<UnspentCoinsListViewModel>(),
+                                    canEdit: true,
+                                  ));
+                          }),
+                      ListItemSelector(
+                          keyValue: "curr",
+                          label: S.of(context).change_fiat_currency,
+                          options: [bloc.fiat.name],
+                          onTap: () {
+                            FiatCurrencyPickerSheet.show(
+                              context: context,
+                              selected: bloc.fiat,
+                              onSelected: (curr) {
+                                bloc.add(FiatCurrencyChanged(curr));
+                              },
+                            );
 
-                            })
-                      ]
-                    }),
-              )
+                          })
+                    ]
+                  })
             ],
           ),
         )
