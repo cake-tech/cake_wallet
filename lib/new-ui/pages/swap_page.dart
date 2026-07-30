@@ -12,6 +12,7 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
@@ -237,7 +238,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                   ),
                                 ),
                               SwapProviderPreview(bloc: widget.bloc),
-                              LoadingPrimaryButton(
+                              NewPrimaryButton(
                                 text: S.of(context).swap,
                                 onPressed: () {
                                   FocusScope.of(context).unfocus();
@@ -256,6 +257,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 },
                                 color: Theme.of(context).colorScheme.primary,
                                 textColor: Theme.of(context).colorScheme.onPrimary,
+                                disabled: !state.canInitiateSwap,
                                 isLoading: state is TradeIsCreating,
                               )
                             ],

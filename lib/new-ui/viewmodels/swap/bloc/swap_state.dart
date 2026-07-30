@@ -3,6 +3,8 @@ part of "swap_bloc.dart";
 @immutable
 sealed class SwapState {
   const SwapState();
+
+  bool get canInitiateSwap => false;
 }
 
 final class SwapStateNotLoaded extends SwapState {
@@ -25,6 +27,21 @@ abstract class SwapStateWithInputs extends SwapState {
   bool get isExternalSend => source is ExternalSwapSource;
 
   List<ExchangeProviderDescription> get usableProviders;
+
+  @override
+  bool get canInitiateSwap {
+    if(source case final ExternalSwapSource s) {
+      if(s.refundAddress.isEmpty) {
+        return false;
+      }
+    }
+
+    if(payoutAddress == null) {
+      return false;
+    }
+
+    return true;
+  }
 }
 
 final class SwapInputState extends SwapStateWithInputs {
