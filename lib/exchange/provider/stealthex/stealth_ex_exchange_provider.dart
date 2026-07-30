@@ -77,7 +77,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final response = await getEstimatedExchangeAmount(
       from: from.currency as CryptoCurrency,
       to: to,
-      amount: from.amount.toDouble(),
+      amount: from.toDouble(),
       isFixedRateMode: isFixedRate,
     );
 

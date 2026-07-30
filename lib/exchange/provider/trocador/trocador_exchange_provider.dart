@@ -127,8 +127,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       networkFrom: _networkFor(from.currency as CryptoCurrency),
       tickerTo: _normalizeCurrency(to),
       networkTo: _networkFor(to),
-      amountFrom: isFixedRate ? null : from.amount.toString(),
-      amountTo: isFixedRate ? from.amount.toString() : null,
+      amountFrom: isFixedRate ? null : from.toString(),
+      amountTo: isFixedRate ? from.toString() : null,
       payment: isFixedRate,
       minKycrating: .c,
       markup: markup,
@@ -136,6 +136,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final uri = await _getUri(newRatePath, params.toJson());
     final response = await proxyWrapper.get(clearnetUri: uri, headers: {"API-Key": apiKey});
+
+
+    if(response.statusCode > 299 || response.statusCode < 200) {
+      throw Exception("unknown status code: ${response.statusCode}");
+    }
 
     final responseJSON = TrocadorRate.fromJson(json.decode(response.body) as Map<String, dynamic>);
     if (responseJSON.quotes == null || responseJSON.quotes!.quotes == null) {

@@ -96,8 +96,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       return ExchangeLimits();
     }
     return ExchangeLimits(
-      min: Money.parse(responseData.minAmount, from),
-      max: Money.parse(responseData.maxAmount, from),
+      min: Money.tryParse(responseData.minAmount, from),
+      max: Money.tryParse(responseData.maxAmount, from),
     );
   }
 
@@ -116,6 +116,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final params = ChangeNowEstimatedAmountRequest(
       fromCurrency: from.currency.symbol,
       toCurrency: to.symbol,
+      fromAmount: isFixedRate ? null : from.toString(),
+      toAmount:  isFixedRate ? from.toString() : null,
       fromNetwork: _networkFor(from.currency as CryptoCurrency),
       toNetwork: _networkFor(to),
       flow: isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
