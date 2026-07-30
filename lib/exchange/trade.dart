@@ -29,6 +29,7 @@ class Trade {
     this.memo,
     this.txId,
     this.isRefund,
+    this.chainId
   });
 
   static const tableName = "Trade";
@@ -41,38 +42,37 @@ class Trade {
 
   int internalId;
 
-  String id;
+  final String id;
 
   final ExchangeProviderDescription provider;
 
   final TradeState state;
 
-  DateTime? createdAt;
-  DateTime? expiredAt;
+  final DateTime? createdAt;
+  final DateTime? expiredAt;
   final Money depositAmount;
   final Money payoutAmount;
   final String fundingAddress;
-  String? extraId;
-  String? outputTransaction;
-  String? walletId;
+  final String? extraId;
+  final String? outputTransaction;
+  final String? walletId;
   final String refundAddress;
   final String payoutAddress;
   final String? providerName;
 
   // holds the receive address memo or destination tag that was passed for this trade
-  String? toAddressExtraId;
-  String? password;
-  String? providerId;
-  String? memo;
-  String? txId;
-  bool? isRefund;
-  bool? isSendAll;
+  final String? toAddressExtraId;
+  final String? password;
+  final String? providerId;
+  final String? memo;
+  final String? txId;
+  final bool? isRefund;
 
   CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
   CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
 
 
-  int? chainId;
+  final int? chainId;
 
   String get chainName {
     if (chainId == null) {
@@ -151,7 +151,6 @@ class Trade {
       "memo": memo,
       "txId": txId,
       "isRefund": isRefund == true ? 1 : 0,
-      "isSendAll": isSendAll == true ? 1 : 0,
       "chainId": chainId,
     };
 
@@ -224,9 +223,10 @@ class Trade {
   //   );
   // }
 
-    void mergeFindTradeByIdResult(Trade trade) {
+    Trade mergeFindTradeByIdResult(Trade trade) {
     //TODO
     }
+
 }
 
 class RoutableTrade extends Trade {
@@ -241,6 +241,7 @@ class RoutableTrade extends Trade {
     super.password,
     super.providerId,
     super.memo,
+    super.chainId,
     super.txId,
     super.isRefund, this.router,});
 
