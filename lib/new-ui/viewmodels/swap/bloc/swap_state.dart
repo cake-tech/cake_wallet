@@ -181,19 +181,14 @@ final class SwapGeneratingTransaction extends SwapStateWithTrade {
 }
 
 final class SwapAwaitingExternalSend extends SwapStateWithTrade {
-  const SwapAwaitingExternalSend({required this.uri, required super.trade, required this.source})
+  const SwapAwaitingExternalSend({required super.trade, required this.source})
       : super(source: source);
 
   @override
   final ExternalSwapSource source;
 
-  final PaymentURI uri;
 }
 
-
-final class SwapCreated extends SwapStateWithTrade {
-  const SwapCreated({required super.trade, required super.source});
-}
 
 abstract class SwapStateWithTransaction extends SwapStateWithTrade {
   const SwapStateWithTransaction({required super.trade, required this.transaction, required super.source});
