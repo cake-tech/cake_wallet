@@ -135,10 +135,10 @@ class Trade {
   Map<String, dynamic> toSqliteMap() => {
       selfIdColumn: internalId,
       "id": id,
-      "providerRaw": provider.raw,
-    "payoutAmount": payoutAmount.serialized,
-    "depositAmount": depositAmount.serialized,
-      "stateRaw": state.raw,
+      "provider": provider.raw,
+      "payoutAmount": payoutAmount.serialized,
+      "depositAmount": depositAmount.serialized,
+      "state": state.raw,
       "createdAt": createdAt?.millisecondsSinceEpoch,
       "expiredAt": expiredAt?.millisecondsSinceEpoch,
       "extraId": extraId,
@@ -152,10 +152,12 @@ class Trade {
       "txId": txId,
       "isRefund": isRefund == true ? 1 : 0,
       "chainId": chainId,
+      "fundingAddress": fundingAddress,
+      "refundAddress": refundAddress
     };
 
-  static Future<Trade> fromSqliteRow(Map<String, dynamic> row) async {
-    final trade = Trade(
+  static Future<Trade> fromSqliteRow(Map<String, dynamic> row) async => Trade(
+      internalId:  row[selfIdColumn] as int? ?? 0,
       id: row["id"] as String? ?? "",
       createdAt: row["createdAt"] != null
           ? DateTime.fromMillisecondsSinceEpoch(
@@ -181,47 +183,9 @@ class Trade {
       txId: row["txId"] as String?,
       isRefund: (row["isRefund"] as int?) == 1,
       depositAmount: await moneyFromSerialized(row["depositAmount"] as String),
-      payoutAmount: await moneyFromSerialized(row["depositAmount"] as String),
+      payoutAmount: await moneyFromSerialized(row["payoutAmount"] as String),
       fundingAddress: row["fundingAddress"] as String,
-      // from: _currencyFromRow(row, 'from'),
-      // to: _currencyFromRow(row, 'to'),
-      // needToRegisterInSwapXyz: (row['needToRegisterInSwapXyz'] as int?) == 1,
-      // sourceTokenAddress: row['sourceTokenAddress'] as String?,
-      // sourceTokenDecimals: row['sourceTokenDecimals'] as int?,
-      // routerData: row['routerData'] as String?,
-      // routerValue: row['routerValue'] as String?,
-      // routerChainId: row['routerChainId'] as int?,
-      // sourceTokenAmountRaw: row['sourceTokenAmountRaw'] as String?,
-      // requiresTokenApproval: (row['requiresTokenApproval'] as int?) == 1,
-      // chainId: row['chainId'] as int?,
     );
-    trade.internalId = row[selfIdColumn] as int? ?? 0;
-    // trade.providerRaw = row['providerRaw'] as int? ?? 0;
-    // trade.stateRaw = row['stateRaw'] as String? ?? '';
-    return trade;
-  }
-
-  // static CryptoCurrency? _currencyFromRow(Map<String, dynamic> row, String prefix) {
-  //   final title = row['${prefix}Title'] as String?;
-  //   if (title == null || title.isEmpty) return null;
-  //
-  //   final tag = row['${prefix}Tag'] as String?;
-  //
-  //   final live = CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
-  //   if (live != null) return live;
-  //
-  //   return CryptoCurrency(
-  //     title: title,
-  //     name: row['${prefix}Name'] as String? ?? '',
-  //     tag: tag,
-  //     fullName: row['${prefix}FullName'] as String?,
-  //     decimals: row['${prefix}Decimals'] as int? ?? 1,
-  //     raw: row['${prefix}Raw'] as int? ?? -1,
-  //     iconPath: row['${prefix}IconPath'] as String?,
-  //     flatIconPath: row['${prefix}FlatIconPath'] as String?,
-  //     chainIconPath: row['${prefix}ChainIconPath'] as String?,
-  //   );
-  // }
 
   Trade mergeFindTradeByIdResult(Trade updated) => copyWith(
       state: updated.state,
