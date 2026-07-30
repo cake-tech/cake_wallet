@@ -230,7 +230,5 @@ abstract class TradeFilterStoreBase with Store {
   }
 
   bool isTradeInAccount(TradeListItem item, WalletBase wallet) =>
-      item.trade.fromWalletAddress == null
-          ? true
-          : wallet.walletAddresses.containsAddress(item.trade.fromWalletAddress!);
+           wallet.walletAddresses.containsAddress(item.trade.refundAddress);
 }
