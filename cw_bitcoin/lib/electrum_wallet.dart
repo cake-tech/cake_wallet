@@ -1628,7 +1628,9 @@ abstract class ElectrumWalletBase
           fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
-          outputOrdering: BitcoinOrdering.none,
+          // Shuffle so the change output isn't placed deterministically last
+          // (privacy fingerprint). Applied by orderOutputs in the builder.
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: true,
           cwOutputs: transactionCredentials.outputs,
         );
@@ -1662,7 +1664,10 @@ abstract class ElectrumWalletBase
           fee: estimatedTx.fee.amount,
           network: network,
           memo: estimatedTx.memo,
-          outputOrdering: BitcoinOrdering.none,
+          // Shuffle so the change output isn't placed deterministically last
+          // (privacy fingerprint). Change is found by isChange, not position.
+          inputOrdering: BitcoinOrdering.shuffle,
+          outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       } else {
@@ -2663,16 +2668,30 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchTransactionsForAddressType(
-    Map<String, ElectrumTransactionInfo> historiesWithDetails,
-    BitcoinAddressType type, {
-    int? accountIndex,
-  }) async {
+      Map<String, ElectrumTransactionInfo> historiesWithDetails,
+      BitcoinAddressType type, {
+        int? accountIndex,
+      }) async {
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
-        .where((addr) => accountIndex == null || addr.accountIndex == accountIndex);
-    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden == true);
-    final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false);
-    walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
+        .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
+        .toList();
+
+
+    final branchCache = <String, List<BitcoinAddressRecord>>{};
+    List<BitcoinAddressRecord> branchFor(BitcoinAddressRecord record) =>
+        branchCache.putIfAbsent(
+          '${record.accountIndex}:${record.isHidden}:${record.isLegacyDerivation}',
+              () => getAddressBranchByType(
+            type: type,
+            hidden: record.isHidden,
+            legacy: record.isLegacyDerivation,
+            accountIndex: record.accountIndex,
+          ),
+        );
+
+    walletAddresses.hiddenAddresses
+        .addAll(addressesByType.where((addr) => addr.isHidden).map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
     await Future.wait(addressesByType.map((addressRecord) async {
       final history = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
@@ -2681,8 +2700,8 @@ abstract class ElectrumWalletBase
         addressRecord.txCount = history.length;
         historiesWithDetails.addAll(history);
 
-        final matchedAddresses = addressRecord.isHidden ? hiddenAddresses : receiveAddresses;
-        final isUsedAddressAboveGap = matchedAddresses.toList().indexOf(addressRecord) >=
+        final matchedAddresses = branchFor(addressRecord);
+        final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
             matchedAddresses.length -
                 (addressRecord.isHidden
                     ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
@@ -2708,7 +2727,11 @@ abstract class ElectrumWalletBase
           final newLength = walletAddresses.allAddresses.length;
 
           if (newLength > prevLength) {
-            await fetchTransactionsForAddressType(historiesWithDetails, type);
+            await fetchTransactionsForAddressType(
+              historiesWithDetails,
+              type,
+              accountIndex: accountIndex,
+            );
           }
         }
       }
@@ -2784,6 +2807,7 @@ abstract class ElectrumWalletBase
     }
   }
 
+
   Future<void> fetchBitcoinTransactionsForInitialRestore(
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
   ) async {
@@ -2841,43 +2865,42 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchTransactionsForAddressTypeBatch(
-    Map<String, ElectrumTransactionInfo> historiesWithDetails,
-    BitcoinAddressType type, {
-    int? accountIndex,
-  }) async {
+      Map<String, ElectrumTransactionInfo> historiesWithDetails,
+      BitcoinAddressType type, {
+        int? accountIndex,
+      }) async {
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
         .toList();
 
-    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden).toList();
-    walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
+    walletAddresses.hiddenAddresses
+        .addAll(addressesByType.where((addr) => addr.isHidden).map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
     final accountIndexes = addressesByType.map((addr) => addr.accountIndex).toSet();
 
-    for (final accountIndex in accountIndexes) {
+    for (final account in accountIndexes) {
       for (final isHidden in [false, true]) {
         for (final isLegacyDerivation in [false, true]) {
-          final branchAddresses = addressesByType
-              .where((addr) =>
-                  addr.accountIndex == accountIndex &&
-                  addr.isHidden == isHidden &&
-                  addr.isLegacyDerivation == isLegacyDerivation)
-              .toList();
-
           await fetchTransactionsForAddressesBranchBatch(
             historiesWithDetails,
             type,
-            branchAddresses,
+            getAddressBranchByType(
+              type: type,
+              hidden: isHidden,
+              legacy: isLegacyDerivation,
+              accountIndex: account,
+            ),
             isHidden: isHidden,
             isLegacyDerivation: isLegacyDerivation,
-            accountIndex: accountIndex,
+            accountIndex: account,
           );
         }
       }
     }
   }
+
 
   Future<void> fetchTransactionsForAddressesBranchBatch(
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
@@ -2950,6 +2973,21 @@ abstract class ElectrumWalletBase
       }
     }
   }
+
+  List<BitcoinAddressRecord> getAddressBranchByType({
+    required BitcoinAddressType type,
+    required bool hidden,
+    required bool legacy,
+    required int accountIndex,
+  }) =>
+      walletAddresses.allAddresses
+          .where((addr) =>
+      addr.type == type &&
+          addr.accountIndex == accountIndex &&
+          addr.isHidden == hidden &&
+          addr.isLegacyDerivation == legacy)
+          .toList()
+        ..sort((a, b) => a.index.compareTo(b.index));
 
   int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
     for (int i = addresses.length - 1; i >= 0; i--) {

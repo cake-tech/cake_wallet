@@ -30,6 +30,7 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/output_ordering.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -1587,8 +1588,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       ));
     }
 
+    final orderedOutputs = orderOutputs(outputs, outputOrdering);
+
     final rawHex = await (hardwareWalletService as LitecoinHardwareWalletService)
-        .signLitecoinTransaction(outputs: outputs, inputs: readyInputs, publicKeys: publicKeys);
+        .signLitecoinTransaction(
+            outputs: orderedOutputs, inputs: readyInputs, publicKeys: publicKeys);
 
     return BtcTransaction.fromRaw(rawHex);
   }

@@ -21,7 +21,18 @@ class ZcashMempoolService {
 
   bool _loopRunning = false;
   String? _nodeUrl;
+  int? _lastBlockHeight;
   StreamSubscription<zkool_mempool.MempoolMsg>? _subscription;
+
+  void removeTx(final String txId) {
+    _txsById.remove(ZcashWalletService.normalizeTxId(txId));
+  }
+
+  void removeKnownTxs(final Iterable<String> txIds) {
+    for (final txId in txIds) {
+      removeTx(txId);
+    }
+  }
 
   List<zkool_mempool.MempoolTx> txsForAccount(final int accountId) => _txsById.values
       .where(
@@ -49,6 +60,7 @@ class ZcashMempoolService {
     await _subscription?.cancel();
     _subscription = null;
     _txsById.clear();
+    _lastBlockHeight = null;
     try {
       await _mempool?.cancel();
     } catch (e) {
@@ -69,8 +81,8 @@ class ZcashMempoolService {
                   return;
                 }
                 switch (msg) {
-                  case zkool_mempool.MempoolMsg_BlockHeight():
-                    _onBlockMined();
+                  case zkool_mempool.MempoolMsg_BlockHeight(:final field0):
+                    _onBlockHeight(field0);
                   case zkool_mempool.MempoolMsg_TxId(:final field0):
                     _onMempoolTx(field0);
                 }
@@ -97,7 +109,12 @@ class ZcashMempoolService {
     }
   }
 
-  void _onBlockMined() {
+  void _onBlockHeight(final int height) {
+    final heightChanged = _lastBlockHeight != null && height > _lastBlockHeight!;
+    _lastBlockHeight = height;
+    if (!heightChanged) {
+      return;
+    }
     final affected = _allAffectedAccounts();
     _txsById.clear();
     onAccountsUpdated?.call(affected);
