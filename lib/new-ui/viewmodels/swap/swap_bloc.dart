@@ -50,6 +50,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
     on<ForceDecentralizedExchangesToggled>(_onForceDecentralizedExchangesToggled);
     on<SwapInitiated>(_onSwapInitiated);
     on<SendConfirmed>(_onSendConfirmed);
+    add(_Init());
   }
 
   final SettingsStore _settingsStore;
