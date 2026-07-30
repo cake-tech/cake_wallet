@@ -111,10 +111,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
     }
   }
 
-  void _onDepositAmountChanged(DepositAmountChanged event, Emitter<SwapState> emit) {
+  Future<void> _onDepositAmountChanged(DepositAmountChanged event, Emitter<SwapState> emit) async {
     if (state case final SwapInputState s) {
       final newDepositAmount =
-          _amountFactory.getSwapAmount(event.newAmount, s.depositAmount.currency);
+      await _amountFactory.getSwapAmount(event.newAmount, s.depositAmount.currency);
 
       final Money newPayoutCryptoAmount;
       if (rateCubit.state case final RatesLoaded l) {
@@ -124,7 +124,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
       }
 
       final newPayoutAmount =
-          _amountFactory.getSwapAmount(newPayoutCryptoAmount, s.payoutAmount.currency);
+          await _amountFactory.getSwapAmount(newPayoutCryptoAmount, s.payoutAmount.currency);
 
       emit(
         s.copyWith(
@@ -133,14 +133,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
           payoutAmount: newPayoutAmount,
         ),
       );
-      _reloadRates();
+      add(RatesLoadStarted());
     }
   }
 
-  void _onPayoutAmountChanged(PayoutAmountChanged event, Emitter<SwapState> emit) {
+  Future<void> _onPayoutAmountChanged(PayoutAmountChanged event, Emitter<SwapState> emit) async {
     if (state case final SwapInputState s) {
       final newPayoutAmount =
-          _amountFactory.getSwapAmount(event.newAmount, s.payoutAmount.currency);
+      await _amountFactory.getSwapAmount(event.newAmount, s.payoutAmount.currency);
 
       final Money newDepositCryptoAmount;
       if (rateCubit.state case final RatesLoaded l) {
@@ -150,7 +150,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
       }
 
       final newDepositAmount =
-          _amountFactory.getSwapAmount(newDepositCryptoAmount, s.depositAmount.currency);
+      await _amountFactory.getSwapAmount(newDepositCryptoAmount, s.depositAmount.currency);
 
       emit(
         s.copyWith(
@@ -159,7 +159,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
           payoutAmount: newPayoutAmount,
         ),
       );
-      _reloadRates();
+      add(RatesLoadStarted());
     }
   }
 
@@ -176,14 +176,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
       final SwapAmount newPayoutAmount;
       if (s.isFixedRate) {
         newDepositAmount =
-            _amountFactory.getSwapAmount(Money.zero(event.newCurrency), event.newCurrency);
+            await _amountFactory.getSwapAmount(Money.zero(event.newCurrency), event.newCurrency);
         newPayoutAmount = s.payoutAmount;
       } else {
-        newDepositAmount = _amountFactory.getSwapAmount(
+        newDepositAmount = await _amountFactory.getSwapAmount(
           Money(s.depositAmount.cryptoAmount.amount, event.newCurrency),
           event.newCurrency,
         );
-        newPayoutAmount = _amountFactory.getSwapAmount(
+        newPayoutAmount = await _amountFactory.getSwapAmount(
           Money.zero(s.payoutAmount.currency),
           s.payoutAmount.currency,
         );
@@ -207,18 +207,18 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
       final SwapAmount newDepositAmount;
       final SwapAmount newPayoutAmount;
       if (s.isFixedRate) {
-        newDepositAmount = _amountFactory.getSwapAmount(
+        newDepositAmount = await _amountFactory.getSwapAmount(
           Money.zero(s.depositAmount.currency),
           s.depositAmount.currency,
         );
-        newPayoutAmount = _amountFactory.getSwapAmount(
+        newPayoutAmount = await _amountFactory.getSwapAmount(
           Money(s.payoutAmount.cryptoAmount.amount, event.newCurrency),
           event.newCurrency,
         );
       } else {
         newDepositAmount = s.depositAmount;
         newPayoutAmount =
-            _amountFactory.getSwapAmount(Money.zero(event.newCurrency), event.newCurrency);
+            await _amountFactory.getSwapAmount(Money.zero(event.newCurrency), event.newCurrency);
       }
       emit(
         s.copyWith(
@@ -237,11 +237,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
       final SwapAmount newPayoutAmount;
       if (s.isFixedRate) {
         newPayoutAmount = s.depositAmount;
-        newDepositAmount = _amountFactory.getSwapAmount(
+        newDepositAmount = await _amountFactory.getSwapAmount(
             Money.zero(s.payoutAmount.currency), s.payoutAmount.currency);
       } else {
         newDepositAmount = s.payoutAmount;
-        newPayoutAmount = _amountFactory.getSwapAmount(
+        newPayoutAmount = await _amountFactory.getSwapAmount(
             Money.zero(s.depositAmount.currency), s.depositAmount.currency);
       }
       emit(
@@ -287,15 +287,15 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
     }
   }
 
-  void _onFiatCurrencyChanged(FiatCurrencyChanged event, Emitter<SwapState> emit) {
+  Future<void> _onFiatCurrencyChanged(FiatCurrencyChanged event, Emitter<SwapState> emit) async {
     _settingsStore.fiatCurrency = event.newCurrency;
     if (state case final SwapInputState s) {
       emit(
         s.copyWith(
           depositAmount:
-              _amountFactory.getSwapAmount(s.depositAmount.cryptoAmount, s.depositAmount.currency),
+             await _amountFactory.getSwapAmount(s.depositAmount.cryptoAmount, s.depositAmount.currency),
           payoutAmount:
-              _amountFactory.getSwapAmount(s.payoutAmount.cryptoAmount, s.payoutAmount.currency),
+              await _amountFactory.getSwapAmount(s.payoutAmount.cryptoAmount, s.payoutAmount.currency),
         ),
       );
     }

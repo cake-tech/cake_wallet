@@ -28,13 +28,13 @@ class SwapAmountFactory {
   final FiatConversionStore _fcs;
   final SettingsStore _settingsStore;
 
-  SwapAmount getSwapAmount(Money amount, CryptoCurrency crypto) {
+  Future<SwapAmount> getSwapAmount(Money amount, CryptoCurrency crypto) async {
     final fiat = _settingsStore.fiatCurrency;
 
     if (amount.currency is FiatCurrency) {
-      return SwapAmount(cryptoAmount: _fcs.convert(amount, crypto), fiatAmount: amount);
+      return SwapAmount(cryptoAmount: await _fcs.convert(amount, crypto), fiatAmount: amount);
     } else {
-      return SwapAmount(cryptoAmount: amount, fiatAmount: _fcs.convert(amount, fiat));
+      return SwapAmount(cryptoAmount: amount, fiatAmount: await _fcs.convert(amount, fiat));
     }
   }
 }
