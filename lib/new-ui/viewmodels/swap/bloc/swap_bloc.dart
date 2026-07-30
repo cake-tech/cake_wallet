@@ -212,10 +212,18 @@ newPayoutAmount = s.payoutAmount;
         );
       }
 
+      SwapSource newSource = s.source;
+      if(s.source case final InternalSwapSource iss) {
+        if(cryptoCurrencyOrTokenToWalletType(event.newCurrency) != iss.sourceWallet.type) {
+            newSource = const ExternalSwapSource("");
+        }
+      }
+
       emit(
         s.copyWith(
           depositAmount: newDepositAmount,
           payoutAmount: newPayoutAmount,
+          source: newSource
         ),
       );
       add(RatesLoadStarted());
