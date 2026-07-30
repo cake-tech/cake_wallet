@@ -281,6 +281,10 @@ class SwapProviderPreview extends StatelessWidget {
         builder: (context, rateState) => BlocBuilder<SwapBloc, SwapState>(
             bloc: bloc,
             builder: (context, state) {
+              if(rateState is RatesNotLoaded) {
+                return const SizedBox.shrink();
+              }
+
               ProviderRate? rate;
               if (rateState case final RatesLoaded rs) {
                 rate = rs.rates.max;
@@ -371,7 +375,6 @@ class SwapAmountBox extends StatefulWidget {
 }
 
 class SwapAmountBoxState extends State<SwapAmountBox> {
-  final addressController = TextEditingController();
   final amountController = TextEditingController();
   final fiatAmountController = TextEditingController();
   final amountFocusNode = FocusNode();
@@ -401,7 +404,15 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   bool _fiatInputMode = false;
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
+  Widget build(BuildContext context) => BlocConsumer<SwapBloc, SwapState>(
+        listener: (context, state) {
+          if(state is SwapStateWithInputs) {
+            final amount = widget.isReceiverCard ? state.payoutAmount.cryptoAmount : state.depositAmount.cryptoAmount;
+            if(amount.toDouble() != double.tryParse(amountController.text)) {
+              amountController.text = amount.toString();
+            }
+          }
+        },
         bloc: widget.bloc,
         builder: (context, state) {
           if (state is SwapStateWithInputs) {
@@ -459,6 +470,18 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                           controller: _fiatInputMode
                                               ? fiatAmountController
                                               : amountController,
+                                          onChanged: (value) {
+                                            if(value.isNotEmpty) {
+                                              final amount = _fiatInputMode ? Money.parse(
+                                                  value, widget.bloc.fiat) : Money
+                                                  .parse(value, widget.isReceiverCard
+                                                  ? state.payoutAmount.currency
+                                                  : state.depositAmount.currency);
+                                                widget.bloc.add(
+                                                    widget.isReceiverCard ? PayoutAmountChanged(
+                                                        amount) : DepositAmountChanged(amount));
+                                            }
+                                          },
                                           focusNode: amountFocusNode,
                                           style: TextStyle(
                                             fontSize: 28,
