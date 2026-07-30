@@ -10,7 +10,16 @@ class TestWallets {
   static List<WalletType> get fundedWalletTypes =>
       availableWalletTypes.where((type) => fundedSeedFor(type).isNotEmpty).toList();
 
-  static String fundedSeedFor(WalletType type) => fundedWalletSeeds[type.name] ?? "";
+  /// All funded seeds for the type, each chain keeps at least two funded wallets.
+  static List<String> fundedSeedsFor(WalletType type) =>
+      (fundedWalletSeeds[type.name] ?? []).where((seed) => seed.trim().isNotEmpty).toList();
+
+  /// The primary funded seed for the type, empty when the chain has none.
+  static String fundedSeedFor(WalletType type) {
+    final seeds = fundedSeedsFor(type);
+
+    return seeds.isEmpty ? "" : seeds.first;
+  }
 
   static String seedFor(WalletType type) {
     switch (type) {

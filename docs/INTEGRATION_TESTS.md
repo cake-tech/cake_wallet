@@ -113,16 +113,19 @@ funded chain, and one real swap with its deposit broadcast. They only run from t
 `Funds Integration Tests` workflow, which the team lead dispatches from the Actions tab
 before a release. The run needs approval through the `funds-tests` GitHub environment.
 
-Funded seeds live in the environment scoped `FUNDS_SECRETS_FILE` secret, a base64 encoded
-replacement for `integration_test/core/funded_wallets.dart` mapping wallet type names to
-seed phrases:
+Funded seeds live in the `FUNDS_SECRETS_FILE` secret, a base64 encoded replacement for
+`integration_test/core/funded_wallets.dart` mapping wallet type names to that chain's
+funded seed phrases, at least two wallets per chain:
 
 ```dart
-const Map<String, String> fundedWalletSeeds = {
-  "solana": "seed words ...",
-  "ethereum": "seed words ...",
+const Map<String, List<String>> fundedWalletSeeds = {
+  "solana": ["first wallet seed words ...", "second wallet seed words ..."],
+  "ethereum": ["first wallet seed words ...", "second wallet seed words ..."],
 };
 ```
+
+The suites currently deposit and send from the first seed of each chain, the second is
+reserved for cross wallet scenarios.
 
 The checked in default is an empty map and must stay empty, PR builds never see funded
 seeds. In auto mode the suites discover every chain present in the map, so funding a new
