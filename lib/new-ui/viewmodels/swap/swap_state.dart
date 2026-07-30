@@ -68,7 +68,7 @@ final class SwapInputState extends SwapStateWithInputs {
     bool? isFixedRate,
     List<ExchangeProviderDescription>? availableProviders,
     List<ExchangeProviderDescription>? enabledProviders,
-    ExchangeProviderDescription? forcedProvider,
+    ExchangeProviderDescription? Function()? forcedProvider,
     bool? forceDecentralizedProviders,
   }) =>
       SwapInputState(
@@ -79,7 +79,7 @@ final class SwapInputState extends SwapStateWithInputs {
         isFixedRate: isFixedRate ?? this.isFixedRate,
         availableProviders: availableProviders ?? this.availableProviders,
         enabledProviders: enabledProviders ?? this.enabledProviders,
-        forcedProvider: forcedProvider ?? this.forcedProvider,
+        forcedProvider: forcedProvider != null ? forcedProvider.call() : this.forcedProvider,
         forceDecentralizedProviders: forceDecentralizedProviders ?? this.forceDecentralizedProviders
       );
 }

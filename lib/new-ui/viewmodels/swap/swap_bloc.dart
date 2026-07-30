@@ -278,7 +278,7 @@ newPayoutAmount = s.payoutAmount;
     Emitter<SwapState> emit,
   ) async {
     if (state case final SwapInputState s) {
-      emit(s.copyWith(forcedProvider: event.provider));
+      emit(s.copyWith(forcedProvider: () => event.provider));
       add(RatesLoadStarted());
     }
   }
