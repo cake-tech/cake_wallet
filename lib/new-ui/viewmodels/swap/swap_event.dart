@@ -76,3 +76,5 @@ final class FiatCurrencyChanged extends SwapEvent {
 final class ForceDecentralizedExchangesToggled extends SwapEvent {}
 
 final class SwapInitiated extends SwapEvent {}
+
+final class SendConfirmed extends SwapEvent {}

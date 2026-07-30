@@ -125,12 +125,70 @@ final class SwapStateCreating extends SwapStateWithInputs {
       );
 }
 
-abstract class SwapStateWithTrade extends SwapState {
-  const SwapStateWithTrade({required this.trade});
+final class SwapAwaitingWalletSwitch extends SwapStateCreating {
+  const SwapAwaitingWalletSwitch({
+    required super.selectedProvider,
+    required this.source,
+    required super.request,
+  }) : super(source: source);
 
-  final Trade trade;
+  @override
+  final InternalSwapSource source;
 }
 
+abstract class SwapStateWithTrade extends SwapState {
+  const SwapStateWithTrade({required this.source, required this.trade});
+
+  final Trade trade;
+  final SwapSource source;
+}
+
+final class SwapGeneratingTransaction extends SwapStateWithTrade {
+  const SwapGeneratingTransaction({required super.trade, required super.source});
+}
+
+final class SwapAwaitingExternalSend extends SwapStateWithTrade {
+  const SwapAwaitingExternalSend({required this.uri, required super.trade, required this.source})
+      : super(source: source);
+
+  @override
+  final ExternalSwapSource source;
+
+  final PaymentURI uri;
+}
+
+
 final class SwapCreated extends SwapStateWithTrade {
-  const SwapCreated({required super.trade});
+  const SwapCreated({required super.trade, required super.source});
+}
+
+abstract class SwapStateWithTransaction extends SwapStateWithTrade {
+  const SwapStateWithTransaction({required super.trade, required this.transaction, required super.source});
+
+
+  final PendingTransaction transaction;
+}
+
+final class SwapAwaitingSend extends SwapStateWithTransaction {
+  const SwapAwaitingSend({required super.trade, required super.transaction, required super.source});
+}
+
+final class SwapAwaitingHardwareWallet extends SwapStateWithTransaction {
+  const SwapAwaitingHardwareWallet({required this.type, required super.trade, required super.transaction, required super.source});
+
+  final HardwareWalletType type;
+}
+
+final class SwapSending extends SwapStateWithTransaction {
+  const SwapSending({required super.trade, required super.transaction, required super.source});
+}
+
+final class SwapTransactionCommitted extends SwapStateWithTransaction {
+  const SwapTransactionCommitted({required super.trade, required super.transaction, required super.source});
+}
+
+final class SwapFailure extends SwapState {
+  const SwapFailure(this.error);
+
+  final Exception error;
 }
