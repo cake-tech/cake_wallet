@@ -841,58 +841,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           }
         });
 
-        // Update balances for currencies involved in swap
-        if (_currentTrade != null) {
-          Future.delayed(Duration(seconds: 2), () async {
-            try {
-              final tokenMints = <String>[];
-
-              // Extract from currency mint (skip native SOL)
-              if (_currentTrade!.from != null && _currentTrade!.from != CryptoCurrency.sol) {
-                try {
-                  final fromMint = solana!.getTokenAddress(_currentTrade!.from!);
-                  tokenMints.add(fromMint);
-                } catch (e) {
-                  printV('Error getting from currency mint: $e');
-                }
-              }
-
-              // Extract to currency mint (skip native SOL)
-              if (_currentTrade!.to != null && _currentTrade!.to != CryptoCurrency.sol) {
-                try {
-                  final toMint = solana!.getTokenAddress(_currentTrade!.to!);
-                  tokenMints.add(toMint);
-                } catch (e) {
-                  printV('Error getting to currency mint: $e');
-                }
-              }
-
-              if (tokenMints.isNotEmpty) {
-                solana!.updateTokenBalances(
-                  wallet,
-                  tokenMints: tokenMints,
-                );
-
-                // Retry after a bit more time to ensure balance is updated
-                Future.delayed(Duration(seconds: 2), () async {
-                  try {
-                    await solana!.updateTokenBalances(
-                      wallet,
-                      tokenMints: tokenMints,
-                    );
-                  } catch (e) {
-                    printV('Error retrying balance update: $e');
-                  }
-                });
-              }
-            } catch (e) {
-              printV('Failed to update balances after send: $e');
-            } finally {
-              _currentTrade = null;
-              _currentProvider = null;
-            }
-          });
-        }
       }
 
       // Immediate transaction update for EVM chains, Tron, and Nano
