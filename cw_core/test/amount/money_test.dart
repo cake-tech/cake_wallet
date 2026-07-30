@@ -42,6 +42,45 @@ void main() {
       expect(() => Money.parse("1.0", CryptoCurrency.btc, isBaseUnit: true), throwsFormatException);
     });
 
+    test("safeParse", () {
+      var money = Money.safeParse("1", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(100000000));
+
+      money = Money.safeParse("-1", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(-100000000));
+
+      money = Money.safeParse("1.11", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(111000000));
+
+      money = Money.safeParse("-1.11", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(-111000000));
+
+      money = Money.safeParse("-.11", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(-11000000));
+
+      money = Money.safeParse(".11", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(11000000));
+
+      // Invalid representation
+      expect(() => Money.safeParse("1,11", CryptoCurrency.btc), throwsFormatException);
+
+      // To many decimals
+      money = Money.safeParse("1.000000000000000", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(100000000));
+
+      money = Money.safeParse("1", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money.amount, BigInt.from(1));
+
+      money = Money.safeParse("0", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money.amount, BigInt.from(0));
+
+      money = Money.safeParse("-1", CryptoCurrency.btc, isBaseUnit: true);
+      expect(money.amount, BigInt.from(-1));
+
+      // canonical representation when expecting base units
+      expect(() => Money.safeParse("1.0", CryptoCurrency.btc, isBaseUnit: true), throwsFormatException);
+    });
+
     test("tryParse", () {
       var money = Money.tryParse("1", CryptoCurrency.btc);
       expect(money?.amount, BigInt.from(100000000));
