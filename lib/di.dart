@@ -65,6 +65,7 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -554,8 +555,12 @@ Future<void> setup({
       SwapAmountFactory(
           fcs: getIt.get<FiatConversionStore>(), settingsStore: getIt.get<SettingsStore>()));
 
+  getIt.registerFactory<SwapCurrencyStore>(SwapCurrencyStore.new);
+
   getIt.registerFactory<SwapBloc>(() =>
-      SwapBloc(rateCubit: getIt.get<RateCubit>(),
+      SwapBloc(
+          currencyStore: getIt.get<SwapCurrencyStore>(),
+          rateCubit: getIt.get<RateCubit>(),
           calculator: getIt.get<SwapAmountFactory>(),
           registry: getIt.get<ExchangeProviderRegistry>(),
           settingsStore: getIt.get<SettingsStore>(),

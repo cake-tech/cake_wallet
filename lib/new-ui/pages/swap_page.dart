@@ -8,6 +8,8 @@ import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -740,16 +742,31 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       );
 
   void _presentCurrencyPicker() {
-    // CurrencyPickerSheet.show(
-    //   context: context,
-    //   args: CurrencyPickerArgs(
-    //     items: currencies,
-    //     selected: selected,
-    //     recentsSource: RecentsSource.trades,
-    //     onSelected: widget.onCurrencySelected,
-    //     // symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
-    //   ),
-    // );
+
+
+    if(widget.bloc.state case final SwapStateWithInputs s) {
+      final currencies = widget.isReceiverCard ? widget.bloc.currencyStore.receiveCurrencies : widget
+          .bloc.currencyStore.depositCurrencies;
+      final selected = widget.isReceiverCard ? s.depositAmount.currency : s.payoutAmount.currency;
+      CurrencyPickerSheet.show(
+        context: context,
+        args: CurrencyPickerArgs(
+          items: currencies,
+          selected: selected,
+          recentsSource: RecentsSource.trades,
+          onSelected: (currency) {
+            widget.bloc.add(
+                widget.isReceiverCard ?
+                PayoutCurrencyChanged(currency) :
+                DepositCurrencyChanged(currency)
+            );
+          },
+          symbolResolver: (curr)=>curr.symbol
+        ),
+      );
+    }
+
+    
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {

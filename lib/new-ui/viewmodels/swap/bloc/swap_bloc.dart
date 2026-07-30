@@ -4,6 +4,7 @@ import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
@@ -17,6 +18,7 @@ import "package:cw_core/payment_uris.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
 
 part "swap_event.dart";
@@ -26,6 +28,7 @@ part "swap_state.dart";
 class SwapBloc extends Bloc<SwapEvent, SwapState> {
   SwapBloc({
     required this.rateCubit,
+    required this.currencyStore,
     required SwapAmountFactory calculator,
     required ExchangeProviderRegistry registry,
     required SettingsStore settingsStore,
@@ -59,6 +62,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
   final ExchangeProviderRegistry _registry;
   final RateCubit rateCubit;
   final SwapAmountFactory _amountFactory;
+  final SwapCurrencyStore currencyStore;
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
