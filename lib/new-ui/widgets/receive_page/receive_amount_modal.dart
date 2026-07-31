@@ -56,6 +56,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                 onLeadingPressed: Navigator.of(context).pop,
                 onTrailingPressed: () {},
                 leadingIcon: Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
               ),
               Padding(
                 padding: const EdgeInsets.all(18.0),

@@ -472,12 +472,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
             ModalTopBar(
               title: S.of(context).swap,
               leadingIcon: Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: Navigator.of(context).maybePop,
               trailingIcon: CakeImageWidget(
                 imageUrl: "assets/new-ui/options.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
+              trailingSemanticLabel: S.of(context).configure,
               onTrailingPressed: () {
                 Navigator.of(context).push(CupertinoPageRoute(
                     builder: (context) => Material(

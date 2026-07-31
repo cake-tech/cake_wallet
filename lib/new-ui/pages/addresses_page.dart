@@ -106,6 +106,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
           ModalTopBar(
               title: widget.showHidden ? S.of(context).hidden_addresses : S.of(context).addresses,
               leadingIcon: Icon(Icons.arrow_back),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
               onTrailingPressed: () {}),
           Expanded(

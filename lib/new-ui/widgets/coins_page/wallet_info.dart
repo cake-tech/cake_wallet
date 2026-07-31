@@ -79,6 +79,7 @@ class WalletInfoBar extends StatelessWidget {
               size: 24,
               onPressed: _openAccountCustomizer,
               svgPath: "assets/new-ui/icon-accounts.svg",
+              semanticLabel: S.of(context).wallet_accounts,
             )
           ]
         ],

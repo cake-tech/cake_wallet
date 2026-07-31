@@ -154,6 +154,7 @@ class SettingsMainPage extends StatelessWidget {
         ModalTopBar(
           title: S.of(context).settings_title,
           leadingIcon: Icon(Icons.close),
+          leadingSemanticLabel: S.of(context).close,
           onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
           onTrailingPressed: () {},
         ),

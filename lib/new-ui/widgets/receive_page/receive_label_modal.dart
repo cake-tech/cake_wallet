@@ -66,6 +66,7 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
                 ModalTopBar(
                     title: S.of(context).label_address,
                     leadingIcon: Icon(Icons.close),
+                    leadingSemanticLabel: S.of(context).close,
                     onLeadingPressed: Navigator.of(context).pop,
                     onTrailingPressed: () {}),
                 Padding(

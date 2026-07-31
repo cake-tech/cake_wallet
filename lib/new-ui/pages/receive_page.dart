@@ -201,6 +201,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
