@@ -20,6 +20,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cake_wallet/store/dashboard/trades_store.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
@@ -35,13 +36,13 @@ part "swap_state.dart";
 
 class SwapBloc extends Bloc<SwapEvent, SwapState> with BlocPresentationMixin<SwapState, SwapPresentationEvent> {
   SwapBloc({
-    required AddressResolverService addressResolverService, required TransactionService transactionService, required WalletSwitchService walletSwitchService, required this.rateCubit,
+    required TradesStore tradesStore, required AddressResolverService addressResolverService, required TransactionService transactionService, required WalletSwitchService walletSwitchService, required this.rateCubit,
     required this.currencyStore,
     required SwapAmountFactory calculator,
     required ExchangeProviderRegistry registry,
     required AppStore appStore,
   })
-      : _addressResolverService = addressResolverService,
+      : _tradesStore = tradesStore, _addressResolverService = addressResolverService,
         _transactionService = transactionService,
         _walletSwitchService = walletSwitchService,
         _amountFactory = calculator,
@@ -70,6 +71,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> with BlocPresentationMixin<Swa
   }
 
   final AppStore _appStore;
+  final TradesStore _tradesStore;
   final AddressResolverService _addressResolverService;
   final WalletSwitchService _walletSwitchService;
   final TransactionService _transactionService;
@@ -453,6 +455,7 @@ newPayoutAmount = s.payoutAmount;
       try {
         trade = await provider.createTrade(request: req);
         await trade.save();
+        _tradesStore.setTrade(trade);
       } catch(e) {
         emit(creatingState.toError(e));
         return;

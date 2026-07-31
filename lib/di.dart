@@ -565,6 +565,7 @@ Future<void> setup({
 
   getIt.registerFactory<SwapBloc>(() =>
       SwapBloc(
+          tradesStore: getIt.get<TradesStore>(),
           addressResolverService: getIt.get<AddressResolverService>(),
           transactionService: getIt.get<TransactionService>(),
           currencyStore: getIt.get<SwapCurrencyStore>(),
