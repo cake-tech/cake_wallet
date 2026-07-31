@@ -173,10 +173,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final errors = responseJSON["error"] as Map<String, String>;
-      final errorMessage = errors.values.join(", ");
-
-      throw Exception(errorMessage);
+      throw Exception(responseJSON["error"].toString());
     }
 
     if (response.statusCode != 200 && response.statusCode != 201) {
