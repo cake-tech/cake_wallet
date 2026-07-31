@@ -130,6 +130,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             leadingIcon: Icon(Icons.close),
             onLeadingPressed: Navigator.of(context).maybePop,
             trailingIcon: Icon(Icons.refresh),
+            trailingSemanticLabel: S.of(context).reset,
             onTrailingPressed: showResetDialog,
           ),
           Padding(

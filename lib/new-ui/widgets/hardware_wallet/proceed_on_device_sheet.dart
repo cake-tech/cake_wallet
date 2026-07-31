@@ -143,6 +143,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                           iconColor: Theme.of(context).colorScheme.onPrimary,
                           size: 36,
                           icon: Icon(Icons.arrow_forward),
+                          semanticLabel: S.of(context).confirm,
                           onPressed: () =>
                               widget.trezorConnectVM.setParingPin(_controller.text.trim()),
                         ),

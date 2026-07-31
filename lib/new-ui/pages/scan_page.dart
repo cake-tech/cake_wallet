@@ -163,6 +163,7 @@ class _ScanPageState extends State<ScanPage> {
                             },
                             iconColor: buttonIconColor,
                             backgroundColor: buttonColor,
+                            semanticLabel: S.of(context).switch_camera,
                           ),
                         ModernButton(
                           size: 36,
@@ -171,6 +172,10 @@ class _ScanPageState extends State<ScanPage> {
                               (controller.value.torchState == TorchState.on || _frontFlashMode)
                                   ? Icons.flash_off_outlined
                                   : Icons.flash_on),
+                          semanticLabel:
+                              (controller.value.torchState == TorchState.on || _frontFlashMode)
+                                  ? S.of(context).turn_flash_off
+                                  : S.of(context).turn_flash_on,
                           onPressed: () {
                             if (controller.value.cameraDirection == CameraFacing.front) {
                               setState(() {
@@ -194,6 +199,7 @@ class _ScanPageState extends State<ScanPage> {
                         size: 36,
                         iconSize: 18,
                         icon: Icon(Icons.arrow_back_ios_new),
+                        semanticLabel: S.of(context).seed_alert_back,
                         onPressed: () {
                           if (_textInputMode) {
                             setState(() {

@@ -223,6 +223,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               : widget.addressListViewModel.isRotatingAddress
                                   ? const CupertinoActivityIndicator()
                                   : const Icon(Icons.refresh),
+                          semanticLabel: _largeQrMode
+                              ? S.of(context).share_address
+                              : S.of(context).rotate_address,
                           onPressed: () {
                             if (_largeQrMode) {
                               ShareUtil.share(

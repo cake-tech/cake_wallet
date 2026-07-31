@@ -274,6 +274,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                   backgroundColor: theme.colorScheme.primary,
                                   iconColor: theme.colorScheme.onPrimary,
                                   icon: Icon(Icons.arrow_forward, size: 20),
+                                  semanticLabel: S.of(context).continue_text,
                                   onPressed: () {
                                     Navigator.pushNamed(
                                       context,
