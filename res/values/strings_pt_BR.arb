@@ -1141,6 +1141,7 @@
   "token_name": "Nome do token (ex: Tether)",
   "token_symbol": "Símbolo do token (ex: USDT)",
   "tokenID": "ID",
+  "token_verified_on_jupiter": "Este token é verificado em Jupiter",
   "tokens": "Tokens",
   "tokens_strong_warning": "Nunca envie tokens para este endereço!",
   "tor_connection": "Conexão Tor",

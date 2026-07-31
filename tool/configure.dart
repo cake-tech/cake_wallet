@@ -981,6 +981,7 @@ abstract class Solana {
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  Future<bool?> isTokenVerifiedOnJupiter(WalletBase wallet, String mintAddress);
   
   // Jupiter swap transaction handling
   // Signs and prepares a base64-encoded unsigned transaction for sending
