@@ -37,7 +37,7 @@ class SwapConfirmSheet extends StatelessWidget {
   Widget build(BuildContext context) =>
       BlocBuilder<SwapBloc, SwapState>(bloc: bloc, builder: (context, state) {
         final commited =
-        state is TransactionCommitted;
+        state is SwapTransactionCommitted;
         return PopScope(
               onPopInvokedWithResult: (didPop, result) {
                 Navigator.of(context, rootNavigator: true).pop();

@@ -488,6 +488,14 @@ newPayoutAmount = s.payoutAmount;
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
-
+      if(state case final SwapStateWithTransaction s) {
+        emit(SwapSending(trade: s.trade, transaction: s.transaction, source: s.source));
+        try {
+          await _transactionService.commitTransaction(s.transaction);
+          emit(SwapTransactionCommitted(trade: s.trade, transaction: s.transaction, source: s.source));
+        } catch(e) {
+          emit(s.toError(e));
+        }
+      }
   }
 }

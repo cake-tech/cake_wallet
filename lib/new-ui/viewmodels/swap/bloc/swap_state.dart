@@ -207,6 +207,8 @@ abstract class SwapStateWithTransaction extends SwapStateWithTrade {
 
 
   final PendingTransaction transaction;
+
+  SwapTransactionCommitError toError(Object error) => SwapTransactionCommitError(error: error, trade: trade, transaction: transaction, source: source);
 }
 
 final class SwapAwaitingSend extends SwapStateWithTransaction {
@@ -232,4 +234,11 @@ final class SwapSending extends SwapStateWithTransaction {
 
 final class SwapTransactionCommitted extends SwapStateWithTransaction {
   const SwapTransactionCommitted({required super.trade, required super.transaction, required super.source});
+}
+
+final class SwapTransactionCommitError extends SwapStateWithTransaction implements SwapFailureState {
+  SwapTransactionCommitError({required this.error, required super.trade, required super.transaction, required super.source});
+
+  @override
+  final Object error;
 }

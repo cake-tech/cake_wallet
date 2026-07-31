@@ -92,7 +92,7 @@ class SwapConfirmBottomWidget extends StatelessWidget {
         textColor: Theme.of(context).colorScheme.onPrimary,
       ),
       SwapSending => LoadingBottomWidget(text: "${S.of(context).sending}..."),
-
+      SwapTransactionCommitted => const SizedBox.shrink(),
       _ => UnreachableWidget(message: state.runtimeType.toString()),
     };
   }
