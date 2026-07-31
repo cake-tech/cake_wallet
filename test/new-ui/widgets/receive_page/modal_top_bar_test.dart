@@ -184,10 +184,17 @@ void main() {
     testWidgets("a non-empty title is exposed as a header", (tester) async {
       await _pump(tester, ModalTopBar(title: "Receive"));
 
-      expect(
-        tester.getSemantics(find.text("Receive")),
-        containsSemantics(label: "Receive", isHeader: true),
-      );
+      // Asserted on the traversal node carrying the title label. Caveat: the
+      // on-device audit found that with Semantics(header:) OUTSIDE the
+      // AnimatedSwitcher the Android tree showed no heading at all, yet this
+      // widget-test tree fuses label and flag either way — the loss happens in
+      // the framework-to-platform bridge and is NOT reproducible here. The
+      // header flag must stay on the Text inside the switcher; only the
+      // device-tree audit (cake-qa-trails a11y/) can catch a regression.
+      final title = tester.semantics
+          .simulatedAccessibilityTraversal()
+          .firstWhere((node) => node.label == "Receive");
+      expect(title, containsSemantics(label: "Receive", isHeader: true));
     });
 
     testWidgets("an empty title is not a header", (tester) async {
