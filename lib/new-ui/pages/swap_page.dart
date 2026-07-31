@@ -92,12 +92,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
         // try {
         final newCurr = CryptoCurrency.fromString(widget.initialPaymentRequest!.scheme);
         widget.bloc.add(DepositCurrencyChanged(newCurr));
-        widget.bloc
-            .add(DepositAmountChanged(Money.parse(widget.initialPaymentRequest!.amount, newCurr)));
         widget.bloc.add(
-          PayoutAddressChanged(
-            ExternalSwapAddress(widget.initialPaymentRequest!.address),
-          ),
+          DepositAmountChanged(Money.parse(widget.initialPaymentRequest!.amount, newCurr)),
+        );
+        widget.bloc.add(
+          PayoutAddressChanged(ExternalSwapAddress(widget.initialPaymentRequest!.address)),
         );
         // } catch (e) {
         //   printV("error: ${e.toString()}");
@@ -106,7 +105,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
       }
     });
   }
-
 
   // void _showFeeAlert(BuildContext context) async {
   //   await Future<void>.delayed(Duration(seconds: 1));
@@ -131,173 +129,171 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
   @override
   Widget build(BuildContext context) => KeyboardHideOverlay(
-        unfocusOnTap: true,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: BlocPresentationListener<SwapBloc, SwapPresentationEvent>(
-            bloc: widget.bloc,
-            listener: (context, event) {
-              if(event is AddressValidationFailed) {
-                _showAddressValidationFailurePopup();
-              }
-              if(event is AliaspayAddressFound) {
-                _showParsedAddressPopup(event.address);
-              }
-              if(event is SwapCreationStarted) {
-                _showConfirmSheet();
-              }
-            },
-            child: BlocBuilder<SwapBloc, SwapState>(
-              bloc: widget.bloc,
-              builder: (context, state) => Column(
-                children: [
-                  ModalTopBar(
-                    title: S.of(context).swap,
-                    leadingIcon: const Icon(Icons.close),
-                    onLeadingPressed: Navigator.of(context).maybePop,
-                    trailingIcon: CakeImageWidget(
-                      imageUrl: "assets/new-ui/options.svg",
-                      colorFilter:
-                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                    ),
-                    onTrailingPressed: () {
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (context) => Material(
-                            child: SwapOptionsPage(bloc: widget.bloc),
-                          ),
-                        ),
-                      );
-                    },
+    unfocusOnTap: true,
+    child: Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: BlocPresentationListener<SwapBloc, SwapPresentationEvent>(
+        bloc: widget.bloc,
+        listener: (context, event) {
+          if (event is AddressValidationFailed) {
+            _showAddressValidationFailurePopup();
+          }
+          if (event is AliaspayAddressFound) {
+            _showParsedAddressPopup(event.address);
+          }
+          if (event is SwapCreationStarted) {
+            _showConfirmSheet();
+          }
+        },
+        child: BlocBuilder<SwapBloc, SwapState>(
+          bloc: widget.bloc,
+          builder: (context, state) => Column(
+            children: [
+              ModalTopBar(
+                title: S.of(context).swap,
+                leadingIcon: const Icon(Icons.close),
+                onLeadingPressed: Navigator.of(context).maybePop,
+                trailingIcon: CakeImageWidget(
+                  imageUrl: "assets/new-ui/options.svg",
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.primary,
+                    BlendMode.srcIn,
                   ),
-                  Expanded(
-                    child: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Expanded(
-                              child: RepaintBoundary(
-                                child: Form(
-                                  key: formKey,
-                                  child: SingleChildScrollView(
-                                    physics: const ClampingScrollPhysics(),
-                                    controller: ModalScrollController.of(context),
-                                    child: Column(
-                                      children: [
-                                        SwapAmountBox(
-                                          isReceiverCard: false,
-                                          bloc: widget.bloc,
-                                        ),
-                                        SwapLimitPopup(bloc: widget.bloc),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
-                                          child: Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              Container(
-                                                height: 1,
-                                                width: double.infinity,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .surfaceContainerHigh,
-                                              ),
-                                              ModernButton.svg(
-                                                size: 36,
-                                                iconSize: 24,
-                                                svgPath: "assets/new-ui/swap_amounts.svg",
-                                                onPressed: () =>
-                                                    widget.bloc.add(SwapDirectionReversed()),
-                                              ),
-                                            ],
+                ),
+                onTrailingPressed: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => Material(child: SwapOptionsPage(bloc: widget.bloc)),
+                    ),
+                  );
+                },
+              ),
+              Expanded(
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: RepaintBoundary(
+                            child: Form(
+                              key: formKey,
+                              child: SingleChildScrollView(
+                                physics: const ClampingScrollPhysics(),
+                                controller: ModalScrollController.of(context),
+                                child: Column(
+                                  children: [
+                                    SwapAmountBox(isReceiverCard: false, bloc: widget.bloc),
+                                    SwapLimitPopup(bloc: widget.bloc),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            height: 1,
+                                            width: double.infinity,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.surfaceContainerHigh,
                                           ),
-                                        ),
-                                        SwapAmountBox(
-                                          isReceiverCard: true,
-                                          bloc: widget.bloc,
-                                        ),
-                                        const SizedBox(height:24),
-                                        SwapMemoInput(bloc: widget.bloc),
-                                      ],
+                                          ModernButton.svg(
+                                            size: 36,
+                                            iconSize: 24,
+                                            svgPath: "assets/new-ui/swap_amounts.svg",
+                                            onPressed: () =>
+                                                widget.bloc.add(SwapDirectionReversed()),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                    SwapAmountBox(isReceiverCard: true, bloc: widget.bloc),
+                                    const SizedBox(height: 24),
+                                    SwapMemoInput(bloc: widget.bloc),
+                                  ],
                                 ),
                               ),
                             ),
-                            Column(
-                              spacing: 12,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                // if (widget.wallet.status is! SyncedSyncStatus)
-                                //   SendSyncingIndicator(status: widget.exchangeViewModel.status),
-                                if (widget.bloc.state is SwapStateWithInputs &&
-                                    (widget.bloc.state as SwapStateWithInputs).isFixedRate)
-                                  Text(
-                                    S.of(context).exchange_rate_is_fixed,
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                SwapProviderPreview(bloc: widget.bloc),
-                                NewPrimaryButton(
-                                  text: S.of(context).swap,
-                                  onPressed: () {
-                                    FocusScope.of(context).unfocus();
-                                    if (formKey.currentState != null &&
-                                        formKey.currentState!.validate()) {
-                                      widget.authService.authenticateAction(
-                                        context,
-                                        conditionToDetermineIfToUse2FA: false,
-                                        onAuthSuccess: (value) {
-                                          if (value) {
-                                            widget.bloc.add(SwapInitiated());
-                                          }
-                                        },
-                                      );
-                                    }
-                                  },
-                                  color: Theme.of(context).colorScheme.primary,
-                                  textColor: Theme.of(context).colorScheme.onPrimary,
-                                  disabled: !state.canInitiateSwap,
-                                  isLoading: state is TradeIsCreating,
-                                )
-                              ],
-                            )
+                          ),
+                        ),
+                        Column(
+                          spacing: 12,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // if (widget.wallet.status is! SyncedSyncStatus)
+                            //   SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                            if (widget.bloc.state is SwapStateWithInputs &&
+                                (widget.bloc.state as SwapStateWithInputs).isFixedRate)
+                              Text(
+                                S.of(context).exchange_rate_is_fixed,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            SwapProviderPreview(bloc: widget.bloc),
+                            NewPrimaryButton(
+                              text: S.of(context).swap,
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+                                if (formKey.currentState != null &&
+                                    formKey.currentState!.validate()) {
+                                  widget.authService.authenticateAction(
+                                    context,
+                                    conditionToDetermineIfToUse2FA: false,
+                                    onAuthSuccess: (value) {
+                                      if (value) {
+                                        widget.bloc.add(SwapInitiated());
+                                      }
+                                    },
+                                  );
+                                }
+                              },
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary,
+                              disabled: !state.canInitiateSwap,
+                              isLoading: state is TradeIsCreating,
+                            ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
-      );
+      ),
+    ),
+  );
 
   Future<void> _showConfirmSheet() async {
-    final page = SwapConfirmSheet(
-      bloc: widget.bloc,
-    );
+    final page = SwapConfirmSheet(bloc: widget.bloc);
     await showMaterialModalBottomSheet(
-        context: context, builder: (context) => page, backgroundColor: Colors.transparent);
+      context: context,
+      builder: (context) => page,
+      backgroundColor: Colors.transparent,
+    );
   }
 
   Future<void> _showAddressValidationFailurePopup() async {
     if (widget.bloc.state case final SwapStateWithInputs s) {
-      await showPopUp(context: context, builder: (context) =>
-          AlertWithOneAction(
-            alertTitle: S.of(context).invalid_address,
-            alertContent: "${S.of(context).invalid_address_desc} ${s.payoutAmount.currency.fullName ?? s.payoutAmount.currency.symbol}.",
-            buttonText: S.of(context).ok,
-            buttonAction: Navigator.of(context).pop,
-          ));
+      await showPopUp(
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).invalid_address,
+          alertContent:
+              "${S.of(context).invalid_address_desc} ${s.payoutAmount.currency.fullName ?? s.payoutAmount.currency.symbol}.",
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+      );
     }
   }
 
@@ -305,17 +301,17 @@ class _NewSwapPageState extends State<NewSwapPage> {
     await showPopUp<bool>(
       context: context,
       builder: (context) => AlertWithOneAction(
-          alertTitle: S.of(context).address_detected,
-          headerTitleText: address.profileName.isEmpty ? null : address.profileName,
-          headerImageProfileUrl: address.profileImageUrl.isEmpty
-              ? address.addressSource.iconPath
-              : address.profileImageUrl,
-          alertContent: S.of(context).extracted_address_content(
-            "${address.handle} (${address.addressSource.label})",
-          ),
-          buttonText: S.of(context).ok,
-          buttonAction: Navigator.of(context).pop,
-        ),
+        alertTitle: S.of(context).address_detected,
+        headerTitleText: address.profileName.isEmpty ? null : address.profileName,
+        headerImageProfileUrl: address.profileImageUrl.isEmpty
+            ? address.addressSource.iconPath
+            : address.profileImageUrl,
+        alertContent: S
+            .of(context)
+            .extracted_address_content("${address.handle} (${address.addressSource.label})"),
+        buttonText: S.of(context).ok,
+        buttonAction: Navigator.of(context).pop,
+      ),
     );
   }
 }
@@ -333,34 +329,35 @@ class _SwapMemoInputState extends State<SwapMemoInput> {
   final memoController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(bloc: widget.bloc, builder: (context, state){
-    if(state case final SwapStateWithInputs s) {
-      final labelType = s.payoutAmount.currency.memoLabelType;
-      if (labelType == null) {
-        return const SizedBox.shrink();
+  Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
+    bloc: widget.bloc,
+    builder: (context, state) {
+      if (state case final SwapStateWithInputs s) {
+        final labelType = s.payoutAmount.currency.memoLabelType;
+        if (labelType == null) {
+          return const SizedBox.shrink();
+        }
+
+        final isDestinationTag = labelType == MemoLabelType.destinationTag;
+        final hint = isDestinationTag
+            ? S.of(context).destination_tag_optional
+            : S.of(context).memo_optional;
+        final disclaimer = isDestinationTag
+            ? S.of(context).destination_tag_swap_disclaimer
+            : S.of(context).memo_swap_disclaimer;
+
+        return NewSendMemoInput(
+          memoController: memoController,
+          maxMemoLength: isDestinationTag ? 20 : 256,
+          memoLength: memoController.text.length,
+          hintText: hint,
+          disclaimerText: disclaimer,
+        );
       }
-
-      final isDestinationTag = labelType == MemoLabelType.destinationTag;
-      final hint = isDestinationTag
-          ? S.of(context).destination_tag_optional
-          : S.of(context).memo_optional;
-      final disclaimer = isDestinationTag
-          ? S.of(context).destination_tag_swap_disclaimer
-          : S.of(context).memo_swap_disclaimer;
-
-      return NewSendMemoInput(
-        memoController: memoController,
-        maxMemoLength: isDestinationTag ? 20 : 256,
-        memoLength: memoController.text.length,
-        hintText: hint,
-        disclaimerText: disclaimer,
-      );
-    }
-    return const SizedBox.shrink();
-
-  },);
+      return const SizedBox.shrink();
+    },
+  );
 }
-
 
 class SwapProviderPreview extends StatelessWidget {
   const SwapProviderPreview({required this.bloc, super.key});
@@ -369,104 +366,120 @@ class SwapProviderPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<RateCubit, RateState>(
-        bloc: bloc.rateCubit,
-        builder: (context, rateState) => BlocBuilder<SwapBloc, SwapState>(
-            bloc: bloc,
-            builder: (context, state) {
-              if(rateState is RatesNotLoaded) {
-                return const SizedBox.shrink();
-              }
+    bloc: bloc.rateCubit,
+    builder: (context, rateState) => BlocBuilder<SwapBloc, SwapState>(
+      bloc: bloc,
+      builder: (context, state) {
+        if (rateState is RatesNotLoaded) {
+          return const SizedBox.shrink();
+        }
 
-              ProviderRate? rate;
-              if (rateState case final RatesLoaded rs) {
-                rate = rs.rates.max;
-              }
+        ProviderRate? rate;
+        if (rateState case final RatesLoaded rs) {
+          rate = rs.rates.max;
+        }
 
-              return GestureDetector(
-                onTap: () {
-                  if (rate != null) {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (context) => Material(
-                          child: ProviderSelectorPage(bloc: bloc),
-                        ),
-                      ),
-                    );
-                  }
-                },
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return GestureDetector(
+          onTap: () {
+            if (rate != null) {
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => Material(child: ProviderSelectorPage(bloc: bloc)),
+                ),
+              );
+            }
+          },
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (rateState is RatesNotFound)
+                    Row(
+                      crossAxisAlignment: .center,
+                      spacing: 12,
                       children: [
-                        if(rateState is RatesNotFound)
-                          Row(crossAxisAlignment:.center,spacing: 12, children: [
-                            CakeImageWidget(imageUrl: "assets/new-ui/warning.svg", width: 28, height: 28,),
-                            Column(crossAxisAlignment: .start,mainAxisAlignment: .center, children: [
-                              Text(S.of(context).no_rates_found),
-                              Wrap(children: [Text(S.of(context).no_rates_found_desc, style: const TextStyle(fontSize: 12),)])
-                            ],)
-                          ],),
-
-                        Row(
-                          spacing: 12,
+                        CakeImageWidget(
+                          imageUrl: "assets/new-ui/warning.svg",
+                          width: 28,
+                          height: 28,
+                        ),
+                        Column(
+                          crossAxisAlignment: .start,
+                          mainAxisAlignment: .center,
                           children: [
-                            if (rate != null)
-                              CakeImageWidget(imageUrl: rate.provider.image, width: 28, height: 28),
-                            if (rateState is RatesLoading) const CupertinoActivityIndicator(),
-                            if([RatesLoading, RatesLoaded].contains(rateState.runtimeType))
-                            Text(
-                              rate?.provider.title ?? "${S.of(context).finding_provider}...",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: rate == null
-                                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                                    : Theme.of(context).colorScheme.onSurface,
-                              ),
+                            Text(S.of(context).no_rates_found),
+                            Wrap(
+                              children: [
+                                Text(
+                                  S.of(context).no_rates_found_desc,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        if (rate != null)
-                          Row(
-                            children: [
-                              Text(
-                                "1 ${rate.rate.base.symbol} ≈ ${rate.rate.quote.toStringWithPrecision(fractionalDigits: 6)} ${rate.rate.quote.currency.symbol}",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              CakeImageWidget(
-                                imageUrl: "assets/new-ui/chooser.svg",
-                                colorFilter: ColorFilter.mode(
-                                  Theme.of(context).colorScheme.onSurfaceVariant,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                            ],
-                          ),
                       ],
                     ),
+
+                  Row(
+                    spacing: 12,
+                    children: [
+                      if (rate != null)
+                        CakeImageWidget(imageUrl: rate.provider.image, width: 28, height: 28),
+                      if (rateState is RatesLoading) const CupertinoActivityIndicator(),
+                      if ([RatesLoading, RatesLoaded].contains(rateState.runtimeType))
+                        Text(
+                          rate?.provider.title ?? "${S.of(context).finding_provider}...",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: rate == null
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-              );
-            }),
-      );
+                  if (rate != null)
+                    Row(
+                      children: [
+                        Text(
+                          "1 ${rate.rate.base.symbol} ≈ ${rate.rate.quote.toStringWithPrecision(fractionalDigits: 6)} ${rate.rate.quote.currency.symbol}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        CakeImageWidget(
+                          imageUrl: "assets/new-ui/chooser.svg",
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.onSurfaceVariant,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }
 
 class SwapAmountBox extends StatefulWidget {
-  SwapAmountBox({
-    required this.isReceiverCard,
-    required this.bloc,
-  }) : title = isReceiverCard ? S.current.receive : S.current.send;
+  SwapAmountBox({required this.isReceiverCard, required this.bloc})
+    : title = isReceiverCard ? S.current.receive : S.current.send;
 
   final String title;
   final bool isReceiverCard;
@@ -481,378 +494,364 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final fiatAmountController = TextEditingController();
   final amountFocusNode = FocusNode();
 
-
   bool _fiatInputMode = false;
 
   @override
   Widget build(BuildContext context) => BlocConsumer<SwapBloc, SwapState>(
-        listener: (context, state) {
-          if(state is SwapStateWithInputs) {
-            final amount = widget.isReceiverCard ? state.payoutAmount : state.depositAmount;
+    listener: (context, state) {
+      if (state is SwapStateWithInputs) {
+        final amount = widget.isReceiverCard ? state.payoutAmount : state.depositAmount;
 
-            final changed = _fiatInputMode
-                ? amount.fiatAmount.toDouble() != double.tryParse(fiatAmountController.text)
-                : amount.cryptoAmount.toDouble() != double.tryParse(amountController.text);
+        final changed = _fiatInputMode
+            ? amount.fiatAmount.toDouble() != double.tryParse(fiatAmountController.text)
+            : amount.cryptoAmount.toDouble() != double.tryParse(amountController.text);
 
-            if (changed) {
-              amountController.text = amount.cryptoAmount.isZero ? "" : amount.cryptoAmount.toString();
-              fiatAmountController.text = amount.fiatAmount.isZero ? "" : amount.fiatAmount.toString();
-            }
-
-          }
-        },
-        bloc: widget.bloc,
-        builder: (context, state) {
-          final CryptoCurrency currency;
-          final bool addressEmpty;
-          final String addressDescription;
-          final String addressPickerText;
-          final String cryptoAmount;
-          final String fiatAmount;
-          if (state is SwapStateWithInputs) {
-            currency =
-            widget.isReceiverCard ? state.payoutAmount.currency : state.depositAmount.currency;
-            addressEmpty = state.payoutAddress == null;
-            addressDescription = widget.isReceiverCard
-                ? state.payoutAddress?.displayName ?? ""
-                : state.source.displayName;
-            addressPickerText = widget.isReceiverCard
-                ? (addressEmpty ? S
-                .of(context)
-                .select_receiver : S
-                .of(context)
-                .to)
-                : S
-                .of(context)
-                .from;
-            cryptoAmount =widget.isReceiverCard
-                ? state.payoutAmount.cryptoAmount
-                .toStringWithPrecision(fractionalDigits: 6)
-                : state.depositAmount.cryptoAmount
-                .toStringWithPrecision(fractionalDigits: 6);
-          fiatAmount =widget.isReceiverCard
-          ? state.payoutAmount.fiatAmount
-              .toStringWithPrecision(fractionalDigits: 2)
-              : state.depositAmount.fiatAmount
-              .toStringWithPrecision(fractionalDigits: 2);
-          } else {
-            currency = widget.bloc.spendingBalance.currency as CryptoCurrency;
-            addressEmpty = false;
-            addressDescription = "";
-            addressPickerText = "";
-            fiatAmount = "";
-            cryptoAmount = "";
-          }
-            return Column(
-              spacing: 12,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                Container(
-                  decoration: ShapeDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(24)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      spacing: 12,
+        if (changed) {
+          amountController.text = amount.cryptoAmount.isZero ? "" : amount.cryptoAmount.toString();
+          fiatAmountController.text = amount.fiatAmount.isZero ? "" : amount.fiatAmount.toString();
+        }
+      }
+    },
+    bloc: widget.bloc,
+    builder: (context, state) {
+      final CryptoCurrency currency;
+      final bool addressEmpty;
+      final String addressDescription;
+      final String addressPickerText;
+      final String cryptoAmount;
+      final String fiatAmount;
+      if (state is SwapStateWithInputs) {
+        currency = widget.isReceiverCard
+            ? state.payoutAmount.currency
+            : state.depositAmount.currency;
+        addressEmpty = state.payoutAddress == null;
+        addressDescription = widget.isReceiverCard
+            ? state.payoutAddress?.displayName ?? ""
+            : state.source.displayName;
+        addressPickerText = widget.isReceiverCard
+            ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
+            : S.of(context).from;
+        cryptoAmount = widget.isReceiverCard
+            ? state.payoutAmount.cryptoAmount.toStringWithPrecision(fractionalDigits: 6)
+            : state.depositAmount.cryptoAmount.toStringWithPrecision(fractionalDigits: 6);
+        fiatAmount = widget.isReceiverCard
+            ? state.payoutAmount.fiatAmount.toStringWithPrecision(fractionalDigits: 2)
+            : state.depositAmount.fiatAmount.toStringWithPrecision(fractionalDigits: 2);
+      } else {
+        currency = widget.bloc.spendingBalance.currency as CryptoCurrency;
+        addressEmpty = false;
+        addressDescription = "";
+        addressPickerText = "";
+        fiatAmount = "";
+        cryptoAmount = "";
+      }
+      return Column(
+        spacing: 12,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Container(
+            decoration: ShapeDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(24)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                spacing: 12,
+                children: [
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: amountFocusNode.requestFocus,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      spacing: 4,
                       children: [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: amountFocusNode.requestFocus,
+                        Expanded(
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             spacing: 4,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Expanded(
-                                child: Row(
-                                  spacing: 4,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      child: IntrinsicWidth(
-                                        child: TextFormField(
-                                          keyboardType: const TextInputType.numberWithOptions(
-                                            signed: false,
-                                            decimal: true,
-                                          ),
-                                          controller: _fiatInputMode
-                                              ? fiatAmountController
-                                              : amountController,
-                                          onChanged: (value) {
-                                            if(value.isNotEmpty) {
-                                              if(state is SwapStateWithInputs) {
-                                                final amount = _fiatInputMode ? Money.parse(
-                                                    value, widget.bloc.fiat) : Money
-                                                    .parse(value, widget.isReceiverCard
-                                                    ? state.payoutAmount.currency
-                                                    : state.depositAmount.currency);
-                                                widget.bloc.add(
-                                                    widget.isReceiverCard ? PayoutAmountChanged(
-                                                        amount) : DepositAmountChanged(amount));
-                                              }
-                                            }
-                                          },
-                                          focusNode: amountFocusNode,
-                                          style: TextStyle(
-                                            fontSize: 28,
-                                            color: Theme.of(context).colorScheme.onSurface,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                          decoration: const InputDecoration(
-                                            contentPadding: EdgeInsets.zero,
-                                            isDense: true,
-                                            hintText: "0",
-                                            fillColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            focusedBorder: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-                                          ),
-                                        ),
-                                      ),
+                              Flexible(
+                                child: IntrinsicWidth(
+                                  child: TextFormField(
+                                    keyboardType: const TextInputType.numberWithOptions(
+                                      signed: false,
+                                      decimal: true,
                                     ),
-                                    if (_fiatInputMode)
-                                      Center(
-                                        child: Text(
-                                          widget.bloc.fiat.title,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: _presentCurrencyPicker,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surface,
-                                    borderRadius: BorderRadius.circular(999999),
-                                  ),
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.only(top: 4, bottom: 4, left: 4, right: 4),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        CakeImageWidget(
-                                          imageUrl: currency.iconPath ?? "",
-                                          width: 28,
-                                          height: 28,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          currency.symbol,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        if (currency.chainIconPath != null) ...[
-                                          const SizedBox(width: 4),
-                                          CakeImageWidget(
-                                            imageUrl: currency.chainIconPath,
-                                            width: 12,
-                                            height: 12,
-                                            colorFilter: ColorFilter.mode(
-                                              Theme.of(context).colorScheme.onSurfaceVariant,
-                                              BlendMode.srcIn,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 6),
-                                        ] else
-                                          const SizedBox(width: 10),
-                                        Container(
-                                          width: 16,
-                                          height: 16,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(9999999999),
-                                            color:
-                                                Theme.of(context).colorScheme.surfaceContainerHigh,
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(4),
-                                            child: RotatedBox(
-                                              quarterTurns: 2,
-                                              child: CakeImageWidget(
-                                                imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                                                width: 4,
-                                                height: 4,
-                                                colorFilter: ColorFilter.mode(
-                                                  Theme.of(context).colorScheme.primary,
-                                                  BlendMode.srcIn,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                      ],
+                                    controller: _fiatInputMode
+                                        ? fiatAmountController
+                                        : amountController,
+                                    onChanged: (value) {
+                                      if (value.isNotEmpty) {
+                                        if (state is SwapStateWithInputs) {
+                                          final amount = _fiatInputMode
+                                              ? Money.parse(value, widget.bloc.fiat)
+                                              : Money.parse(
+                                                  value,
+                                                  widget.isReceiverCard
+                                                      ? state.payoutAmount.currency
+                                                      : state.depositAmount.currency,
+                                                );
+                                          widget.bloc.add(
+                                            widget.isReceiverCard
+                                                ? PayoutAmountChanged(amount)
+                                                : DepositAmountChanged(amount),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    focusNode: amountFocusNode,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      contentPadding: EdgeInsets.zero,
+                                      isDense: true,
+                                      hintText: "0",
+                                      fillColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      focusedBorder: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
                                     ),
                                   ),
                                 ),
                               ),
+                              if (_fiatInputMode)
+                                Center(
+                                  child: Text(
+                                    widget.bloc.fiat.title,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
-                        FiatAmountBar(
-                          foregroundElementColor:
-                              Theme.of(context).colorScheme.surfaceContainerHigh,
-                          textColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fiatInputMode: _fiatInputMode,
-                          onSwitchButtonPressed: () =>
-                              setState(() => _fiatInputMode = !_fiatInputMode),
-                          allAmount: widget.isReceiverCard ? null : widget.bloc.spendingBalance.toString(),
-                          allAmountColor: Colors.transparent,
-                          allAmountTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                          cryptoAmount: cryptoAmount,
-                          fiatAmount: fiatAmount,
-                          cryptoCurrencySymbol: currency.symbol,
-                          fiatCurrencySymbol: widget.bloc.fiat.symbol,
-                        ),
-                        Row(
-                          spacing: 8,
-                          children: [
-                            Flexible(
-                              child: GestureDetector(
-                                onTap: _presentWalletPicker,
-                                child: Container(
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: (addressEmpty && widget.isReceiverCard)
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context).colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(9999),
+                        GestureDetector(
+                          onTap: _presentCurrencyPicker,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(999999),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 4, bottom: 4, left: 4, right: 4),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CakeImageWidget(
+                                    imageUrl: currency.iconPath ?? "",
+                                    width: 28,
+                                    height: 28,
                                   ),
-                                  child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            spacing: 8,
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Text(
-                                                addressPickerText,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: (addressEmpty && widget.isReceiverCard)
-                                                      ? Theme.of(context).colorScheme.onPrimary
-                                                      : Theme.of(context).colorScheme.onSurface,
-                                                ),
-                                              ),
-                                              Text(
-                                                addressDescription,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                ),
-                                              ),
-                                            ],
+                                  const SizedBox(width: 10),
+                                  Text(currency.symbol, textAlign: TextAlign.center),
+                                  if (currency.chainIconPath != null) ...[
+                                    const SizedBox(width: 4),
+                                    CakeImageWidget(
+                                      imageUrl: currency.chainIconPath,
+                                      width: 12,
+                                      height: 12,
+                                      colorFilter: ColorFilter.mode(
+                                        Theme.of(context).colorScheme.onSurfaceVariant,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ] else
+                                    const SizedBox(width: 10),
+                                  Container(
+                                    width: 16,
+                                    height: 16,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(9999999999),
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: RotatedBox(
+                                        quarterTurns: 2,
+                                        child: CakeImageWidget(
+                                          imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                          width: 4,
+                                          height: 4,
+                                          colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary,
+                                            BlendMode.srcIn,
                                           ),
-                                          RotatedBox(
-                                            quarterTurns: 2,
-                                            child: CakeImageWidget(
-                                              imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                                              colorFilter: ColorFilter.mode(
-                                                (addressEmpty && widget.isReceiverCard)
-                                                    ? Theme.of(context).colorScheme.onPrimary
-                                                    : Theme.of(context).colorScheme.onSurface,
-                                                BlendMode.srcIn,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )),
-                                ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                ],
                               ),
                             ),
-                            if (!widget.isReceiverCard &&
-                                state is SwapStateWithInputs &&
-                                state.source is ExternalSwapSource &&
-                                (state.source as ExternalSwapSource).refundAddress.isEmpty)
-                              ModernButton.svg(
-                                svgPath: "assets/new-ui/refund_address.svg",
-                                onPressed: askForRefundAddress,
-                                size: 36,
-                                iconSize: 18,
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                              ),
-                            if (widget.isReceiverCard && state is SwapStateWithInputs && state.payoutAddress == null) ...[
-                              ModernButton.svg(
-                                svgPath: "assets/new-ui/paste.svg",
-                                onPressed: () async {
-                                  final text = (await Clipboard.getData("text/plain"))?.text;
-                                  if (text != null) {
-                                    widget.bloc
-                                        .add(PayoutAddressChanged(ExternalSwapAddress(text)));
-                                  }
-                                },
-                                size: 36,
-                                iconSize: 20,
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                              ),
-                              ModernButton.svg(
-                                svgPath: "assets/new-ui/scan.svg",
-                                onPressed: () => _presentQRScanner(context),
-                                size: 36,
-                                iconSize: 20,
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                              ),
-                            ],
-                          ],
-                        )
-                        // if (widget.isReceiverCard)
-                        //   Observer(builder: (_) {
-                        //     final selected = widget.exchangeViewModel.receiveCurrency;
-                        //     final labelType = memoLabelTypeFor(selected);
-                        //     if (labelType == null) return const SizedBox.shrink();
-                        //
-                        //     final isDestinationTag = labelType == MemoLabelType.destinationTag;
-                        //     final hint = isDestinationTag
-                        //         ? S.of(context).destination_tag_optional
-                        //         : S.of(context).memo_optional;
-                        //     final disclaimer = isDestinationTag
-                        //         ? S.of(context).destination_tag_swap_disclaimer
-                        //         : S.of(context).memo_swap_disclaimer;
-                        //
-                        //     return NewSendMemoInput(
-                        //       memoController: memoController,
-                        //       maxMemoLength: isDestinationTag ? 20 : 256,
-                        //       memoLength: memoController.text.length,
-                        //       hintText: hint,
-                        //       disclaimerText: disclaimer,
-                        //     );
-                        //   }),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ],
-            );
-
-        },
+                  FiatAmountBar(
+                    foregroundElementColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    textColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fiatInputMode: _fiatInputMode,
+                    onSwitchButtonPressed: () => setState(() => _fiatInputMode = !_fiatInputMode),
+                    allAmount: widget.isReceiverCard
+                        ? null
+                        : widget.bloc.spendingBalance.toString(),
+                    allAmountColor: Colors.transparent,
+                    allAmountTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    cryptoAmount: cryptoAmount,
+                    fiatAmount: fiatAmount,
+                    cryptoCurrencySymbol: currency.symbol,
+                    fiatCurrencySymbol: widget.bloc.fiat.symbol,
+                  ),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      Flexible(
+                        child: GestureDetector(
+                          onTap: _presentWalletPicker,
+                          child: Container(
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: (addressEmpty && widget.isReceiverCard)
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(9999),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    spacing: 8,
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Text(
+                                        addressPickerText,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: (addressEmpty && widget.isReceiverCard)
+                                              ? Theme.of(context).colorScheme.onPrimary
+                                              : Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                      Text(
+                                        addressDescription,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  RotatedBox(
+                                    quarterTurns: 2,
+                                    child: CakeImageWidget(
+                                      imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                      colorFilter: ColorFilter.mode(
+                                        (addressEmpty && widget.isReceiverCard)
+                                            ? Theme.of(context).colorScheme.onPrimary
+                                            : Theme.of(context).colorScheme.onSurface,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (!widget.isReceiverCard &&
+                          state is SwapStateWithInputs &&
+                          state.source is ExternalSwapSource &&
+                          (state.source as ExternalSwapSource).refundAddress.isEmpty)
+                        ModernButton.svg(
+                          svgPath: "assets/new-ui/refund_address.svg",
+                          onPressed: askForRefundAddress,
+                          size: 36,
+                          iconSize: 18,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        ),
+                      if (widget.isReceiverCard &&
+                          state is SwapStateWithInputs &&
+                          state.payoutAddress == null) ...[
+                        ModernButton.svg(
+                          svgPath: "assets/new-ui/paste.svg",
+                          onPressed: () async {
+                            final text = (await Clipboard.getData("text/plain"))?.text;
+                            if (text != null) {
+                              widget.bloc.add(PayoutAddressChanged(ExternalSwapAddress(text)));
+                            }
+                          },
+                          size: 36,
+                          iconSize: 20,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        ),
+                        ModernButton.svg(
+                          svgPath: "assets/new-ui/scan.svg",
+                          onPressed: () => _presentQRScanner(context),
+                          size: 36,
+                          iconSize: 20,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        ),
+                      ],
+                    ],
+                  ),
+                  // if (widget.isReceiverCard)
+                  //   Observer(builder: (_) {
+                  //     final selected = widget.exchangeViewModel.receiveCurrency;
+                  //     final labelType = memoLabelTypeFor(selected);
+                  //     if (labelType == null) return const SizedBox.shrink();
+                  //
+                  //     final isDestinationTag = labelType == MemoLabelType.destinationTag;
+                  //     final hint = isDestinationTag
+                  //         ? S.of(context).destination_tag_optional
+                  //         : S.of(context).memo_optional;
+                  //     final disclaimer = isDestinationTag
+                  //         ? S.of(context).destination_tag_swap_disclaimer
+                  //         : S.of(context).memo_swap_disclaimer;
+                  //
+                  //     return NewSendMemoInput(
+                  //       memoController: memoController,
+                  //       maxMemoLength: isDestinationTag ? 20 : 256,
+                  //       memoLength: memoController.text.length,
+                  //       hintText: hint,
+                  //       disclaimerText: disclaimer,
+                  //     );
+                  //   }),
+                ],
+              ),
+            ),
+          ),
+        ],
       );
+    },
+  );
 
   void _presentCurrencyPicker() {
-
-
-    if(widget.bloc.state case final SwapStateWithInputs s) {
-      final currencies = widget.isReceiverCard ? widget.bloc.currencyStore.receiveCurrencies : widget
-          .bloc.currencyStore.depositCurrencies;
+    if (widget.bloc.state case final SwapStateWithInputs s) {
+      final currencies = widget.isReceiverCard
+          ? widget.bloc.currencyStore.receiveCurrencies
+          : widget.bloc.currencyStore.depositCurrencies;
       final selected = widget.isReceiverCard ? s.depositAmount.currency : s.payoutAmount.currency;
       CurrencyPickerSheet.show(
         context: context,
@@ -862,22 +861,22 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
           recentsSource: RecentsSource.trades,
           onSelected: (currency) {
             widget.bloc.add(
-                widget.isReceiverCard ?
-                PayoutCurrencyChanged(currency) :
-                DepositCurrencyChanged(currency)
+              widget.isReceiverCard
+                  ? PayoutCurrencyChanged(currency)
+                  : DepositCurrencyChanged(currency),
             );
           },
-          symbolResolver: (curr)=>curr.symbol
+          symbolResolver: (curr) => curr.symbol,
         ),
       );
     }
-
-    
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {
-    final isCameraPermissionGranted =
-        await PermissionHandler.checkPermission(Permission.camera, context);
+    final isCameraPermissionGranted = await PermissionHandler.checkPermission(
+      Permission.camera,
+      context,
+    );
     if (!isCameraPermissionGranted) {
       return;
     }
@@ -891,8 +890,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
     try {
       final uri = Uri.parse(code);
-      widget.bloc
-          .add(PayoutAddressChanged(ExternalSwapAddress(PaymentRequest.fromUri(uri).address)));
+      widget.bloc.add(
+        PayoutAddressChanged(ExternalSwapAddress(PaymentRequest.fromUri(uri).address)),
+      );
     } catch (_) {}
   }
 
@@ -901,9 +901,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.6,
-        ),
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
         child: SwapAddressSelectionModal(
           isSelectingReceiver: widget.isReceiverCard,
           bloc: widget.bloc,
