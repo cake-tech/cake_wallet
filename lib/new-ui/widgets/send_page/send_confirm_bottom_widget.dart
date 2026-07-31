@@ -69,6 +69,7 @@ class SwapConfirmBottomWidget extends StatelessWidget {
       return TransactionErrorActions(errorText: (state as SwapFailureState).error.toString());
     }
     return switch (state.runtimeType) {
+      SwapInputState => LoadingBottomWidget(text: "${S.of(context).preparing}..."),
       SwapStateCreating => LoadingBottomWidget(text: "${S.of(context).creating_trade}..."),
       SwapAwaitingWalletSwitch => LoadingBottomWidget(
         text:
@@ -78,9 +79,7 @@ class SwapConfirmBottomWidget extends StatelessWidget {
         text: "${S.of(context).generating_transaction}...",
       ),
       SwapAwaitingSend => ConfirmSwiper(
-        onConfirmed: () {
-          bloc.add(SendConfirmed());
-        },
+        onConfirmed: () => bloc.add(SendConfirmed()),
         swiperText: S.of(context).swipe_to_send,
       ),
       SwapAwaitingHardwareWallet => HardwareWalletProceedOnDeviceMessage(
