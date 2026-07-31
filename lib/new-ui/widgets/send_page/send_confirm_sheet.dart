@@ -47,15 +47,15 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
     super.initState();
     reaction((_) => widget.sendViewModel.state, (state) {
       if (state is TransactionCommitted) {
-        if (!mounted) {
-          return;
-        }
         setState(() {
           _committed = true;
         });
         // The sheet swaps its content in place, so nothing would otherwise tell a
         // screen reader that the transaction went through.
-        SemanticsService.announce(S.of(context).transaction_sent_new, Directionality.of(context));
+        if (mounted) {
+          SemanticsService.announce(
+              S.of(context).transaction_sent_new, Directionality.of(context));
+        }
       }
     });
   }

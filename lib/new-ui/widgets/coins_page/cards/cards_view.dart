@@ -216,8 +216,8 @@ class _CardsViewState extends State<CardsView> {
                     widget.dashboardViewModel.settingsStore.fiatCurrency.title,
                 fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
                 fiatBalance: walletFiatBalance,
-                selected: isSelected,
-                onCustomizeTapped: isSelected ? widget.onCustomizeTapped : null,
+                selected: _selectedIndex == visualIndex,
+                onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
                 design: cardDesign,
                 actions: actions,
               );
