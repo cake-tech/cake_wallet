@@ -419,9 +419,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
   final TextEditingController _controller = TextEditingController();
   bool _loading = false;
 
-  Future<void> _generateAccountName() async {
-    _controller.text = await generateName();
-  }
+  Future<void> _generateAccountName() async => _controller.text = await generateName();
 
   @override
   Widget build(BuildContext context) {

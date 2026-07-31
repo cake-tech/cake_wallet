@@ -108,15 +108,14 @@ class SyncBar extends StatelessWidget {
     );
   }
 
-  void _openNodeManagement(BuildContext context) {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        barrierColor: Colors.black.withAlpha(85),
-        builder: (context) => FractionallySizedBox(
-                child: Material(
-              child: getIt.get<ManageNodesPage>(param1: false),
-            )));
-  }
+  void _openNodeManagement(BuildContext context) =>
+      CupertinoScaffold.showCupertinoModalBottomSheet(
+          context: context,
+          barrierColor: Colors.black.withAlpha(85),
+          builder: (context) => FractionallySizedBox(
+                  child: Material(
+                child: getIt.get<ManageNodesPage>(param1: false),
+              )));
 
   /// Compact mode shows sync state with a pulsing dot (and a Tor glyph) only, so
   /// the whole row needs a text equivalent.
