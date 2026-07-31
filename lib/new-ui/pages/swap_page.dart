@@ -495,8 +495,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                 : amount.cryptoAmount.toDouble() != double.tryParse(amountController.text);
 
             if (changed) {
-              amountController.text = amount.cryptoAmount.toString();
-              fiatAmountController.text = amount.fiatAmount.toString();
+              amountController.text = amount.cryptoAmount.isZero ? "" : amount.cryptoAmount.toString();
+              fiatAmountController.text = amount.fiatAmount.isZero ? "" : amount.fiatAmount.toString();
             }
 
           }
