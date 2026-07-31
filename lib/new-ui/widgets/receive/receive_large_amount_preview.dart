@@ -28,42 +28,51 @@ class ReceiveLargeAmountPreview extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 12,
-            children: [
-              CakeImageWidget(
-                imageUrl: "assets/new-ui/send.svg",
-                width: 24,
-                height: 24,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurfaceVariant,
-                  BlendMode.srcIn,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 12,
+              children: [
+                CakeImageWidget(
+                  imageUrl: "assets/new-ui/send.svg",
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurfaceVariant,
+                    BlendMode.srcIn,
+                  ),
                 ),
-              ),
-              Row(
-                spacing: 4,
-                children: [
-                  Text(
-                    amount,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface,
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      spacing: 4,
+                      children: [
+                        Text(
+                          amount,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          currency,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    currency,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       );

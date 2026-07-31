@@ -244,7 +244,7 @@ class _LoadedWidget extends StatelessWidget {
                 onTap: onQrTap,
                 isFetching: state.fetchingInvoice,
               ),
-              if (state.tokenCurrency != null)
+              if (state.tokenCurrency != null && !state.isLightning)
                 ReceiveTokenDisplay(
                   token: state.tokenCurrency!,
                   walletType: state.walletType,
