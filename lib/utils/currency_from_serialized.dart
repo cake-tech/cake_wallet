@@ -43,5 +43,5 @@ Future<Currency> currencyFromSerialized(String serialized) async {
 
 Future<Money> moneyFromSerialized(String serialized) async {
   final parts = serialized.split(":");
-  return Money.parse(parts.last, await currencyFromSerialized(parts.first));
+  return Money.parse(parts.last, await currencyFromSerialized(parts.first), isBaseUnit: true);
 }

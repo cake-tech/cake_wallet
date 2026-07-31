@@ -456,7 +456,7 @@ newPayoutAmount = s.payoutAmount;
 
       try {
         trade = await provider.createTrade(request: req);
-        await trade.save();
+        await trade.copyWith(walletId: _appStore.wallet!.id).save();
         _tradesStore.setTrade(trade);
       } catch(e) {
         emit(creatingState.toError(e));
