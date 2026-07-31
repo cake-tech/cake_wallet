@@ -89,9 +89,6 @@ class HistoryTradeTile extends StatelessWidget {
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500)),
-          if (from?.title != null)
-            Text(from!.title,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           if (fromChainIcon?.isNotEmpty ?? false)
             CakeImageWidget(
               imageUrl: fromChainIcon,
@@ -109,13 +106,9 @@ class HistoryTradeTile extends StatelessWidget {
             "+",
           ),
           Text(
-            receiveAmount.withMaxDecimals(8),
+            receiveAmount,
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
-          if (to != null)
-            Text(
-              to!.title,
-            ),
           if (toChainIcon?.isNotEmpty ?? false)
             CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12)
         ],

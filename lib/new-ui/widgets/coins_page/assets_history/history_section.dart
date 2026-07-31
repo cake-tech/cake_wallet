@@ -135,11 +135,11 @@ class HistorySection extends StatelessWidget {
                                 amount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.depositAmount.toStringWithSymbol(),
+                                    : trade.depositAmount.toStringWithSymbol(fractionalDigits: 8),
                                 receiveAmount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.payoutAmount.toStringWithSymbol(),
+                                    : trade.payoutAmount.toStringWithSymbol(fractionalDigits: 8),
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
