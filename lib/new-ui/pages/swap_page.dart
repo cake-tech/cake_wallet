@@ -405,12 +405,22 @@ class SwapProviderPreview extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        if(rateState is RatesNotFound)
+                          Row(crossAxisAlignment:.center,spacing: 12, children: [
+                            CakeImageWidget(imageUrl: "assets/new-ui/warning.svg", width: 28, height: 28,),
+                            Column(crossAxisAlignment: .start,mainAxisAlignment: .center, children: [
+                              Text(S.of(context).no_rates_found),
+                              Wrap(children: [Text(S.of(context).no_rates_found_desc, style: const TextStyle(fontSize: 12),)])
+                            ],)
+                          ],),
+
                         Row(
                           spacing: 12,
                           children: [
                             if (rate != null)
                               CakeImageWidget(imageUrl: rate.provider.image, width: 28, height: 28),
-                            if (rate == null) const CupertinoActivityIndicator(),
+                            if (rateState is RatesLoading) const CupertinoActivityIndicator(),
+                            if([RatesLoading, RatesLoaded].contains(rateState.runtimeType))
                             Text(
                               rate?.provider.title ?? "${S.of(context).finding_provider}...",
                               style: TextStyle(

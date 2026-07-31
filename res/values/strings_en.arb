@@ -693,6 +693,8 @@
   "no_id_required": "No ID required. Top up and spend anywhere",
   "no_providers_available": "No providers available",
   "no_providers_selected": "No Providers Selected",
+  "no_rates_found": "No rates found",
+  "no_rates_found_desc": "Try enabling providers in Options.",
   "no_relay_on_domain": "There isn't a relay for user's domain or the relay is unavailable. Please choose a relay to use.",
   "no_relays": "No relays",
   "no_relays_message": "We found a Nostr NIP-05 record for this user, but it does not contain any relays. Please instruct the recipient to add relays to their Nostr record.",
