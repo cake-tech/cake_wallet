@@ -96,6 +96,7 @@ dependencies:
   bloc: ^9.0.0
   flutter_bloc: ^9.1.0
   bloc_concurrency: ^0.3.0
+  bloc_presentation: ^1.1.2+3
   equatable: ^2.0.0
   sensitive_clipboard:
     git:
