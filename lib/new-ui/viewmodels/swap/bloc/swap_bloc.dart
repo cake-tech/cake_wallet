@@ -9,6 +9,7 @@ import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
@@ -412,7 +413,10 @@ newPayoutAmount = s.payoutAmount;
   Future<void> _onSwapInitiated(SwapInitiated event, Emitter<SwapState> emit) async {
     emitPresentation(const SwapCreationStarted());
     await _reloadRates();
-    final rate = (rateCubit.state as RatesLoaded).rates.max;
+
+    final rates = (rateCubit.state as RatesLoaded).rates.toList();
+    rates.sort((a, b) => b.compareTo(a));
+
     if (state case final SwapStateWithInputs s) {
 
 
@@ -421,7 +425,8 @@ newPayoutAmount = s.payoutAmount;
         refundAddress = source.refundAddress;
       } else if (s.source case final InternalSwapSource source) {
         if (source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
-          emit(SwapAwaitingWalletSwitch(selectedProvider: rate.provider,
+          emit(SwapAwaitingWalletSwitch(
+              selectedProvider: rates.first.provider,
               source: source,
               request: TradeRequest(refundAddress: "",
                   payoutAddress: s.payoutAddress!,
@@ -446,20 +451,30 @@ newPayoutAmount = s.payoutAmount;
         toAddressExtraId: s.memo
       );
 
-      final creatingState = SwapStateCreating(source: s.source,selectedProvider: rate.provider, request: req);
+      Trade? trade;
+
+      final creatingState = SwapStateCreating(
+          source: s.source,
+          selectedProvider: rates.max.provider,
+          request: req
+      );
+
       emit(creatingState);
 
+      for (final rate in rates) {
+        final provider = _registry.getProvider(rate.provider);
 
+        try {
+          trade = await provider.createTrade(request: req);
+          await trade.copyWith(walletId: _appStore.wallet!.id).save();
+          _tradesStore.setTrade(trade);
+          trade = trade;
+          break;
+        } catch(e) {}
+      }
 
-      final provider = _registry.getProvider(rate.provider);
-      final Trade trade;
-
-      try {
-        trade = await provider.createTrade(request: req);
-        await trade.copyWith(walletId: _appStore.wallet!.id).save();
-        _tradesStore.setTrade(trade);
-      } catch(e) {
-        emit(creatingState.toError(e));
+      if (trade == null) {
+        emit(creatingState.toError(Exception(S.current.none_of_selected_providers_can_exchange)));
         return;
       }
 
@@ -470,7 +485,7 @@ newPayoutAmount = s.payoutAmount;
         try {
           emit(generatingState);
           final PendingTransaction tx;
-          if(provider case final TransactionCreationExchangeProvider p) {
+          if(trade.provider case final TransactionCreationExchangeProvider p) {
             tx = await p.createTransaction(_appStore.wallet!, trade);
           } else {
             final curr = s.depositAmount.currency;
