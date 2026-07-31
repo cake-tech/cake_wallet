@@ -5,7 +5,7 @@ publish_to: none
 homepage: https://cakewallet.com
 
 environment:
-  sdk: '>=3.0.6 <4.0.0'
+  sdk: '>=3.11.0 <4.0.0'
   flutter: ">=1.20.0"
 
 dependencies:
@@ -23,7 +23,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
-      version: 1.0.0
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart
