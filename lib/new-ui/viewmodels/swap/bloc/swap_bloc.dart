@@ -87,6 +87,13 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> with BlocPresentationMixin<Swa
 
   FiatCurrency get fiat => _appStore.settingsStore.fiatCurrency;
 
+  Money get spendingBalance {
+    if(state case final SwapStateWithInputs s) {
+      return _appStore.wallet!.balance[_appStore.wallet!.balance.keys.firstWhereOrNull((item)=>item.symbol == s.depositAmount.currency.symbol)]?.available ?? Money.zero(s.depositAmount.currency);
+    }
+    return _appStore.wallet!.balance[_appStore.wallet!.currency]?.available ?? Money.zero(_appStore.wallet!.currency);
+  }
+
   Future<void> _reloadRates() async {
     if (state case final SwapStateWithInputs s) {
       await rateCubit.fetchRates(
