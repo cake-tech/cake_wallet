@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
@@ -60,71 +61,86 @@ class AppsWidget extends StatelessWidget {
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: TextButton(
-              onPressed: onTap,
-              style: TextButton.styleFrom(
-                shape: RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  side: BorderSide(
-                      width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
-                ),
-                padding: EdgeInsets.all(24),
-              ),
-              child: Column(
-                children: [
-                  Row(
+            // The card is one node; the arrow glyph's "leaves the app" meaning
+            // becomes a hint instead of an unlabeled icon.
+            child: MergeSemantics(
+              child: Semantics(
+                hint: isLink == true ? S.of(context).opens_externally : null,
+                child: TextButton(
+                  onPressed: onTap,
+                  style: TextButton.styleFrom(
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      side: BorderSide(
+                          width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
+                    ),
+                    padding: EdgeInsets.all(24),
+                  ),
+                  child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 20),
-                        child: CakeImageWidget(imageUrl: image, height: 54, width: 54),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 6.0,
+                      Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: ExcludeSemantics(
+                              child: CakeImageWidget(imageUrl: image, height: 54, width: 54),
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Row(
+                                  spacing: 6.0,
+                                  children: [
+                                    Text(
+                                      title,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 20,
+                                          ),
+                                      softWrap: true,
+                                    ),
+                                    isCake == true
+                                        ? ExcludeSemantics(
+                                            child: CakeImageWidget(
+                                                imageUrl: "assets/new-ui/cakelabs-icon.svg",
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant),
+                                          )
+                                        : SizedBox(),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
                                 Text(
-                                  title,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 20,
+                                  subTitle,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                   softWrap: true,
                                 ),
-                                isCake == true
-                                    ? CakeImageWidget(
-                                        imageUrl: "assets/new-ui/cakelabs-icon.svg",
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant)
-                                    : SizedBox(),
                               ],
                             ),
-                            SizedBox(height: 5),
-                            Text(
-                              subTitle,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                              softWrap: true,
+                          ),
+                          ExcludeSemantics(
+                            child: Icon(
+                              isLink == true ? Icons.arrow_outward : Icons.arrow_forward_ios,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              size: 20,
                             ),
-                          ],
-                        ),
+                          )
+                        ],
                       ),
-                      Icon(
-                        isLink == true ? Icons.arrow_outward : Icons.arrow_forward_ios,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        size: 20,
-                      )
+                      if (hint != null) ...[
+                        SizedBox(height: 10),
+                        hint!,
+                      ]
                     ],
                   ),
-                  if (hint != null) ...[
-                    SizedBox(height: 10),
-                    hint!,
-                  ]
-                ],
+                ),
               ),
             ),
           ),
@@ -135,6 +151,8 @@ class AppsWidget extends StatelessWidget {
               child: IconButton(
                 icon: Icon(Icons.close),
                 onPressed: onClose,
+                // IconButton takes its accessible name from the tooltip only.
+                tooltip: S.of(context).close,
                 //color: Theme.of(context).colorScheme.onSurface,
               ),
             ),

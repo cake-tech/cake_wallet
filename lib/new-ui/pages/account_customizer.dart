@@ -173,17 +173,27 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                   itemCount: _items.length,
                   itemBuilder: (BuildContext context, int index) {
                     final card = _items[index].card;
+                    final isSelected = index == _items.length - 1;
 
                     return Container(
                       key: ValueKey(index),
-                      child: GestureDetector(
-                        onTap: () {
-                          reorder(index, _items.length);
-                        },
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          heightFactor: _kStackVisibleFactor,
-                          child: card,
+                      // One labeled, selectable node per account; the card's own
+                      // texts stay reachable underneath it.
+                      child: Semantics(
+                        button: true,
+                        selected: isSelected,
+                        label: _items[index].accountListItem.label,
+                        onTap: () => reorder(index, _items.length),
+                        child: GestureDetector(
+                          excludeFromSemantics: true,
+                          onTap: () {
+                            reorder(index, _items.length);
+                          },
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            heightFactor: _kStackVisibleFactor,
+                            child: card,
+                          ),
                         ),
                       ),
                     );
@@ -198,31 +208,36 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                               padding: const EdgeInsets.symmetric(horizontal: 24.0),
                               child: Material(
                                 color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(999999),
-                                  onTap: _showAddAccountModal,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.surfaceContainer,
-                                        borderRadius: BorderRadius.circular(999999)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 18.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        spacing: 8,
-                                        children: [
-                                          Icon(
-                                            Icons.add,
-                                            size: 28,
-                                            color: Theme.of(context).colorScheme.primary,
-                                          ),
-                                          Text(
-                                            S.of(context).add_account,
-                                            style: TextStyle(
+                                child: MergeSemantics(
+                                  child: Semantics(
+                                    button: true,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(999999),
+                                      onTap: _showAddAccountModal,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.surfaceContainer,
+                                            borderRadius: BorderRadius.circular(999999)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            spacing: 8,
+                                            children: [
+                                              Icon(
+                                                Icons.add,
+                                                size: 28,
                                                 color: Theme.of(context).colorScheme.primary,
-                                                fontWeight: FontWeight.w500),
-                                          )
-                                        ],
+                                              ),
+                                              Text(
+                                                S.of(context).add_account,
+                                                style: TextStyle(
+                                                    color: Theme.of(context).colorScheme.primary,
+                                                    fontWeight: FontWeight.w500),
+                                              )
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -405,6 +420,8 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
   final TextEditingController _controller = TextEditingController();
   bool _loading = false;
 
+  Future<void> _generateAccountName() async => _controller.text = await generateName();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -440,18 +457,23 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                             ),
                             Padding(
                               padding: const EdgeInsets.all(12.0),
-                              child: GestureDetector(
-                                onTap: () async {
-                                  _controller.text = await generateName();
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                      borderRadius: BorderRadius.circular(5)),
-                                  child: CakeImageWidget(
-                                    imageUrl: "assets/new-ui/randomize.svg",
-                                    colorFilter: ColorFilter.mode(
-                                        Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                              child: Semantics(
+                                button: true,
+                                label: S.of(context).generate_name,
+                                onTap: _generateAccountName,
+                                child: ExcludeSemantics(
+                                  child: GestureDetector(
+                                    onTap: _generateAccountName,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                          borderRadius: BorderRadius.circular(5)),
+                                      child: CakeImageWidget(
+                                        imageUrl: "assets/new-ui/randomize.svg",
+                                        colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
