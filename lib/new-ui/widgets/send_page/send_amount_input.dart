@@ -111,7 +111,13 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                   ),
                   IntrinsicWidth(
                     child: Observer(
+                      // `container: true` is load bearing. FormField wraps this
+                      // builder in its own non-container Semantics annotation, so
+                      // without a container of its own this configuration is
+                      // absorbed into that wrapper node — which then parents the
+                      // amount TextField and hides it from screen readers.
                       builder: (_) => Semantics(
+                        container: true,
                         button: widget.hasPicker ? true : null,
                         enabled: widget.hasPicker ? true : null,
                         label: widget.hasPicker ? S.of(context).select_asset : widget.currency,

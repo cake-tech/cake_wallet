@@ -413,7 +413,9 @@ class _NewSendPageState extends State<NewSendPage> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           spacing: 12,
                                           children: [
-                                            // The field announces this label itself.
+                                            // NewSendAddressInput merges this label onto its
+                                            // own text-field node, so announcing the caption
+                                            // as well would read it twice.
                                             ExcludeSemantics(
                                               child: Text(S.of(context).address_or_alias),
                                             ),
@@ -480,7 +482,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         spacing: 12,
                                         children: [
-                                          // The field announces this label itself.
+                                          // NewSendAmountInput merges this label onto its own
+                                          // text-field node, so announcing the caption as well
+                                          // would read it twice. Covered by
+                                          // test/new-ui/widgets/send_page/send_amount_input_test.dart.
                                           ExcludeSemantics(
                                             child: Text(S.of(context).amount),
                                           ),
