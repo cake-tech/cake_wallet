@@ -94,6 +94,7 @@
   "available_balance": "Raspoloživo stanje",
   "available_balance_description": "“Dostupno stanje” ili “Potvrđeno stanje” su sredstva koja možete odmah potrošiti. Ako se sredstva prikazuju u donjem stanju, ali ne i u gornjem, morate pričekati nekoliko minuta da dolazna sredstva dobiju više mrežnih potvrda. Nakon što dobiju više potvrda, moći ćete ih potrošiti.",
   "avg_savings": "Prosj. ušteda",
+  "avl": "Avl",
   "awaitDAppProcessing": "Molimo pričekajte da dApp završi s obradom.",
   "awaiting_payment_confirmation": "Čeka se potvrda plaćanja",
   "background_sync": "Sinkronizacija u pozadini",

@@ -94,6 +94,7 @@
   "available_balance": "Dostupný zůstatek",
   "available_balance_description": "„Dostupný zůstatek“ nebo „Potvrzený zůstatek“ jsou prostředky, které lze okamžitě utratit. Pokud se prostředky zobrazují ve spodním zůstatku, ale ne v horním, musíte několik minut počkat, než příchozí prostředky získají více síťových potvrzení. Jakmile získají více potvrzení, bude možné je utratit.",
   "avg_savings": "Prům. úspora",
+  "avl": "Avl",
   "awaitDAppProcessing": "Počkejte prosím, až dApp dokončí zpracování.",
   "awaiting_payment_confirmation": "Čeká se na potvrzení platby",
   "background_sync": "Synchronizace na pozadí",
@@ -669,6 +670,7 @@
   "nanogpt_subtitle": "Všechny nejnovější modely (GPT-5.3, Claude 4.6).\nBez předplatného, plaťte kryptem.",
   "narrow": "Úzké",
   "network": "Síť",
+  "network_address_detected": "Zjištěna adresa ${network}",
   "network_prefix_on": "na",
   "networks": "Sítě",
   "new_first_wallet_text": "Udržet vaše krypto v bezpečí je hračka",
@@ -1464,6 +1466,5 @@
   "zcash_card_enable_later": "Tuto kartu můžete kdykoli později povolit v nastavení",
   "zcash_card_missing_funds": "Chybějící prostředky?",
   "zcash_card_scan": "Skenovat",
-  "zcash_card_warning": "Nezavírejte aplikaci, dokud se postup nedokončí. Pokud tak učiníte, bude nutné tento proces spustit znovu od začátku.",
-  "network_address_detected": "Zjištěna adresa ${network}"
+  "zcash_card_warning": "Nezavírejte aplikaci, dokud se postup nedokončí. Pokud tak učiníte, bude nutné tento proces spustit znovu od začátku."
 }

@@ -94,6 +94,7 @@
   "available_balance": "الرصيد المتاح",
   "available_balance_description": "يشير “Available Balance” أو “Confirmed Balance” إلى الأموال التي يمكن إنفاقها فورًا. إذا ظهرت الأموال في الرصيد السفلي ولكن ليس في الرصيد العلوي، فعليك الانتظار بضع دقائق حتى تحصل الأموال الواردة على المزيد من تأكيدات الشبكة. بعد حصولها على المزيد من التأكيدات، ستصبح قابلة للإنفاق.",
   "avg_savings": "متوسط التوفير",
+  "avl": "AVL",
   "awaitDAppProcessing": "يرجى الانتظار حتى ينتهي الـ dApp من المعالجة.",
   "awaiting_payment_confirmation": "بانتظار تأكيد الدفع",
   "background_sync": "المزامنة في الخلفية",
@@ -669,6 +670,7 @@
   "nanogpt_subtitle": "جميع أحدث النماذج (GPT-5.3، Claude 4.6).\nبدون اشتراك، ادفع بالعملات المشفرة.",
   "narrow": "ضيق",
   "network": "الشبكة",
+  "network_address_detected": "تم اكتشاف عنوان ${network}.",
   "network_prefix_on": "على",
   "networks": "الشبكات",
   "new_first_wallet_text": "الحفاظ على أمان عملاتك المشفرة سهل للغاية",
@@ -1464,6 +1466,5 @@
   "zcash_card_enable_later": "يمكنك دائمًا تفعيل هذه البطاقة لاحقًا من الإعدادات",
   "zcash_card_missing_funds": "هل أموالك مفقودة؟",
   "zcash_card_scan": "مسح",
-  "zcash_card_warning": "لا تُغلق التطبيق حتى يكتمل الإجراء، لأنك إن فعلت ذلك فستحتاج هذه العملية إلى البدء من جديد من البداية.",
-  "network_address_detected": "تم اكتشاف عنوان ${network}."
+  "zcash_card_warning": "لا تُغلق التطبيق حتى يكتمل الإجراء، لأنك إن فعلت ذلك فستحتاج هذه العملية إلى البدء من جديد من البداية."
 }

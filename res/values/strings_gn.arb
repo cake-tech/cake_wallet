@@ -94,6 +94,7 @@
   "available_balance": "Saldo ojepurukuaáva",
   "available_balance_description": "Pe “Available Balance” térã “Confirmed Balance” ha'e umi fondo ikatúva reipuru pya'e. Umi fondo ojehecháramo pe saldo yvýpe ha ndaha'éi pe saldo yvate gotyo, upéicharõ eha'arõ sapy'ami hag̃ua umi fondo og̃uahẽva ohupytyve hag̃ua confirmación de red. Oguerekóvo hetave confirmación, ikatúta reipuru.",
   "avg_savings": "Ñongatu mbytegua",
+  "avl": "Avl",
   "awaitDAppProcessing": "Eha'arõmi pe dApp omohu'ã hag̃ua hembiapo.",
   "awaiting_payment_confirmation": "Oha’arõ hína ñemoañete jehepyme’ẽ",
   "background_sync": "Ñembojuehe tapykuegua",
@@ -671,6 +672,7 @@
   "nanogpt_subtitle": "Opaite umi modelo ipyahuvéva (GPT-5.3, Claude 4.6).\nNdaipóri suscripción, ehepyme’ẽ cripto rupive.",
   "narrow": "Poʼi",
   "network": "Red",
+  "network_address_detected": "${network} Dirección Ojejuhúva",
   "network_prefix_on": "pe",
   "networks": "Red-kuéra",
   "new_first_wallet_text": "Eñangareko hag̃ua nde criptomoneda rehe ha'e peteĩ mba'e ndahasýiva",
@@ -1472,6 +1474,5 @@
   "zcash_card_enable_later": "Ikatu emboguata hag̃ua ko tarjeta ag̃ave, ñembohekorãme.",
   "zcash_card_missing_funds": "¿Nde fondo okañy?",
   "zcash_card_scan": "Escanear",
-  "zcash_card_warning": "Ani remboty pe app pe procedimiento opa hag̃ua, rejapo ramo upéicha ko proceso tekotevẽta oñepyrũ jey cero guive.",
-  "network_address_detected": "${network} Dirección Ojejuhúva"
+  "zcash_card_warning": "Ani remboty pe app pe procedimiento opa hag̃ua, rejapo ramo upéicha ko proceso tekotevẽta oñepyrũ jey cero guive."
 }

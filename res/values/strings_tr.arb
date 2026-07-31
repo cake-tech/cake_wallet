@@ -94,6 +94,7 @@
   "available_balance": "Kullanılabilir Bakiye",
   "available_balance_description": "“Kullanılabilir Bakiye” veya “Onaylanmış Bakiye”, hemen harcanabilen fonlardır. Fonlar alt bakiyede görünüp üst bakiyede görünmüyorsa, gelen fonların ağda daha fazla onay alması için birkaç dakika beklemeniz gerekir. Daha fazla onay aldıktan sonra harcanabilir olacaktır.",
   "avg_savings": "Ort. Tasarruf",
+  "avl": "Avl",
   "awaitDAppProcessing": "Lütfen dApp'in işlemi tamamlamasını bekleyin.",
   "awaiting_payment_confirmation": "Ödeme onayı bekleniyor",
   "background_sync": "Arka planda senkronizasyon",

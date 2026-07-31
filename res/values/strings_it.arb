@@ -94,6 +94,7 @@
   "available_balance": "Saldo disponibile",
   "available_balance_description": "Il “Saldo disponibile” o “Saldo confermato” sono fondi che possono essere spesi immediatamente. Se i fondi compaiono nel saldo in basso ma non in quello in alto, devi attendere qualche minuto affinché i fondi in arrivo ottengano ulteriori conferme di rete. Dopo aver ricevuto più conferme, saranno spendibili.",
   "avg_savings": "Risparmio medio",
+  "avl": "Avl",
   "awaitDAppProcessing": "Attendi che la dApp completi l'elaborazione.",
   "awaiting_payment_confirmation": "In attesa di conferma del pagamento",
   "background_sync": "Sincronizzazione in background",

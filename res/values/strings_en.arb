@@ -97,6 +97,7 @@
   "available_balance": "Available Balance",
   "available_balance_description": "The “Available Balance” or “Confirmed Balance” are funds that can be spent immediately. If funds appear in the lower balance but not the top balance, then you must wait a few minutes for the incoming funds to get more network confirmations. After they get more confirmations, they will be spendable.",
   "avg_savings": "Avg. Savings",
+  "avl": "Avl",
   "awaitDAppProcessing": "Kindly wait for the dApp to finish processing.",
   "awaiting_payment_confirmation": "Awaiting Payment Confirmation",
   "background_sync": "Background sync",
@@ -676,6 +677,7 @@
   "nanogpt_subtitle": "All the newest models (GPT-5.3, Claude 4.6).\\nNo subscription, pay with crypto.",
   "narrow": "Narrow",
   "network": "Network",
+  "network_address_detected": "${network} Address Detected",
   "network_prefix_on": "on",
   "networks": "Networks",
   "new_first_wallet_text": "Keeping your crypto safe is a piece of cake",
@@ -753,8 +755,8 @@
   "pairing_error": "Pairing Error",
   "pairingInvalidEvent": "Pairing Invalid Event",
   "passphrase": "Passphrase (Optional)",
-  "passphrase_raw": "Passphrase",
   "passphrase_entry": "Passphrase entry",
+  "passphrase_raw": "Passphrase",
   "passphrase_view_keys": "Passphrase",
   "passphrases_doesnt_match": "Passphrases do not match, please try again",
   "password": "Password",
@@ -1087,7 +1089,6 @@
   "share_this_node": "Share this node",
   "shared_seed_wallet_groups": "Shared Seed Wallet Groups",
   "shared_seed_wallets": "Shared Seed Wallets",
-  "share_this_node": "Share this node",
   "shielding": "Autoshield",
   "show": "Show",
   "show_address_book_popup": "Show Address Book popup",
@@ -1479,6 +1480,5 @@
   "zcash_card_enable_later": "You can always enable this card later in settings",
   "zcash_card_missing_funds": "Missing funds?",
   "zcash_card_scan": "Scan",
-  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch.",
-  "network_address_detected": "${network} Address Detected"
+  "zcash_card_warning": "Do not close the app until the procedure completes, if you do so this process will need to restart from scratch."
 }

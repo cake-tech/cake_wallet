@@ -94,6 +94,7 @@
   "available_balance": "Số dư khả dụng",
   "available_balance_description": "“Số dư khả dụng” hoặc “Số dư đã xác nhận” là số tiền có thể chi tiêu ngay lập tức. Nếu tiền xuất hiện ở số dư phía dưới nhưng không xuất hiện ở số dư phía trên, thì bạn phải đợi vài phút để khoản tiền đến có thêm xác nhận từ mạng. Sau khi có thêm xác nhận, chúng sẽ có thể chi tiêu.",
   "avg_savings": "Tiết kiệm TB",
+  "avl": "trung bình",
   "awaitDAppProcessing": "Vui lòng đợi dApp xử lý xong.",
   "awaiting_payment_confirmation": "Đang chờ xác nhận thanh toán",
   "background_sync": "Đồng bộ hóa nền",

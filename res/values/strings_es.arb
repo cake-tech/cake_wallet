@@ -94,6 +94,7 @@
   "available_balance": "Saldo disponible",
   "available_balance_description": "El “Saldo Disponible” o “Saldo Confirmado” son fondos que pueden gastarse de inmediato. Si los fondos aparecen en el saldo inferior pero no en el saldo superior, deberás esperar unos minutos a que los fondos entrantes obtengan más confirmaciones de la red. Una vez que tengan más confirmaciones, podrás gastarlos.",
   "avg_savings": "Ahorro prom.",
+  "avl": "Avl",
   "awaitDAppProcessing": "Espere a que la dApp termine de procesar.",
   "awaiting_payment_confirmation": "En espera de confirmación de pago",
   "background_sync": "Sincronización en segundo plano",
@@ -572,8 +573,8 @@
   "keys": "Claves",
   "label": "Etiqueta",
   "label_address": "Etiquetar dirección",
-  "last_7_days": "Últimos 7 días",
   "last_30_days": "Últimos 30 días",
+  "last_7_days": "Últimos 7 días",
   "learn_more": "Más información",
   "ledger_connection_error": "No se pudo conectar a tu Ledger. Inténtalo de nuevo.",
   "ledger_error_device_locked": "El Ledger está bloqueado",
@@ -670,6 +671,7 @@
   "nanogpt_subtitle": "Todos los modelos más recientes (GPT-5.3, Claude 4.6).\nSin suscripción, paga con cripto.",
   "narrow": "Estrecho",
   "network": "Red",
+  "network_address_detected": "${network} dirección detectada",
   "network_prefix_on": "en",
   "networks": "Redes",
   "new_first_wallet_text": "Mantener tus criptomonedas seguras es pan comido",
@@ -1467,6 +1469,5 @@
   "zcash_card_enable_later": "Siempre puedes habilitar esta tarjeta más adelante en la configuración",
   "zcash_card_missing_funds": "¿Faltan fondos?",
   "zcash_card_scan": "Escanear",
-  "zcash_card_warning": "No cierre la aplicación hasta que se complete el procedimiento; si lo hace, este proceso deberá reiniciarse desde cero.",
-  "network_address_detected": "${network} dirección detectada"
+  "zcash_card_warning": "No cierre la aplicación hasta que se complete el procedimiento; si lo hace, este proceso deberá reiniciarse desde cero."
 }

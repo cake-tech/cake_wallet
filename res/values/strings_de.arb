@@ -95,6 +95,7 @@
   "available_balance": "Verfügbares Guthaben",
   "available_balance_description": "Der „Verfügbare Kontostand“ bzw. „Bestätigter Kontostand“ sind Guthaben, die sofort ausgegeben werden können. Wenn Guthaben im unteren Kontostand angezeigt wird, aber nicht im oberen, müssen Sie ein paar Minuten warten, bis die eingehenden Gelder weitere Netzwerkbestätigungen erhalten. Sobald sie mehr Bestätigungen haben, können sie ausgegeben werden.",
   "avg_savings": "Durchschn. Ersparnis",
+  "avl": "Avl",
   "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",
   "awaiting_payment_confirmation": "Warten auf Zahlungsbestätigung",
   "background_sync": "Hintergrund-Synchronisierung",
@@ -673,6 +674,7 @@
   "nanogpt_subtitle": "Alle neuesten Modelle (GPT-5.3, Claude 4.6).\nKein Abonnement, bezahle mit Krypto.",
   "narrow": "Schmal",
   "network": "Netzwerk",
+  "network_address_detected": "${network}-Adresse erkannt",
   "network_prefix_on": "An",
   "networks": "Netzwerke",
   "new_first_wallet_text": "Ihre Kryptowährungen sicher aufzubewahren ist ein Kinderspiel",
@@ -1471,6 +1473,5 @@
   "zcash_card_enable_later": "Sie können diese Karte jederzeit später in den Einstellungen aktivieren",
   "zcash_card_missing_funds": "Fehlende Gelder?",
   "zcash_card_scan": "Scannen",
-  "zcash_card_warning": "Schließen Sie die App nicht, bis der Vorgang abgeschlossen ist. Andernfalls muss der Vorgang von Grund auf neu gestartet werden.",
-  "network_address_detected": "${network}-Adresse erkannt"
+  "zcash_card_warning": "Schließen Sie die App nicht, bis der Vorgang abgeschlossen ist. Andernfalls muss der Vorgang von Grund auf neu gestartet werden."
 }

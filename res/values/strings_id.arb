@@ -94,6 +94,7 @@
   "available_balance": "Saldo Tersedia",
   "available_balance_description": "“Saldo Tersedia” atau “Saldo Terkonfirmasi” adalah dana yang dapat langsung dibelanjakan. Jika dana muncul di saldo bawah tetapi tidak di saldo atas, maka Anda harus menunggu beberapa menit agar dana masuk mendapatkan konfirmasi jaringan tambahan. Setelah mendapatkan lebih banyak konfirmasi, dana tersebut akan dapat dibelanjakan.",
   "avg_savings": "Rata-rata Penghematan",
+  "avl": "Rata-rata",
   "awaitDAppProcessing": "Mohon tunggu hingga dApp selesai memproses.",
   "awaiting_payment_confirmation": "Menunggu Konfirmasi Pembayaran",
   "background_sync": "Sinkronisasi latar belakang",

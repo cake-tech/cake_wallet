@@ -94,6 +94,7 @@
   "available_balance": "사용 가능 잔액",
   "available_balance_description": "“사용 가능 잔액” 또는 “확정 잔액”은 즉시 사용할 수 있는 자금입니다. 자금이 아래 잔액에는 표시되지만 위 잔액에는 표시되지 않는 경우, 입금된 자금이 네트워크에서 더 많은 컨펌(확인)을 받을 때까지 몇 분 정도 기다려야 합니다. 더 많은 컨펌을 받은 후에는 사용할 수 있습니다.",
   "avg_savings": "평균 절감액",
+  "avl": "Avl",
   "awaitDAppProcessing": "dApp의 처리가 완료될 때까지 잠시 기다려 주세요.",
   "awaiting_payment_confirmation": "결제 확인을 기다리는 중",
   "background_sync": "백그라운드 동기화",

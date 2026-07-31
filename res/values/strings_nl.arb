@@ -94,6 +94,7 @@
   "available_balance": "Beschikbaar saldo",
   "available_balance_description": "Het “Beschikbare saldo” of “Bevestigde saldo” zijn fondsen die direct kunnen worden uitgegeven. Als fondsen in het lagere saldo verschijnen maar niet in het bovenste saldo, dan moet je een paar minuten wachten tot de inkomende fondsen meer netwerkbevestigingen krijgen. Daarna kan het worden uitgegeven.",
   "avg_savings": "Gem. besparingen",
+  "avl": "Gem",
   "awaitDAppProcessing": "Wacht tot de dApp klaar is met verwerken.",
   "awaiting_payment_confirmation": "In afwachting van betalingsbevestiging",
   "background_sync": "Synchronisatie op de achtergrond",

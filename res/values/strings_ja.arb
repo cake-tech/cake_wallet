@@ -94,6 +94,7 @@
   "available_balance": "利用可能残高",
   "available_balance_description": "「利用可能な残高」または「承認済み残高」は、すぐに使用できる資金です。下の残高には表示されているのに上の残高に表示されない場合は、受信した資金がネットワークでさらに承認（確認）されるまで数分待つ必要があります。承認数が増えると、使用できるようになります。",
   "avg_savings": "平均節約額",
+  "avl": "アヴル",
   "awaitDAppProcessing": "dAppの処理が完了するまでお待ちください。",
   "awaiting_payment_confirmation": "支払いの確認待ち",
   "background_sync": "バックグラウンド同期",

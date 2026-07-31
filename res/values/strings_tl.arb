@@ -94,6 +94,7 @@
   "available_balance": "Magagamit na Balanse",
   "available_balance_description": "Ang “Magagamit na Balanse” o “Nakumpirmang Balanse” ay mga pondong maaari nang gastusin kaagad. Kung lumalabas ang mga pondo sa mas mababang balanse ngunit wala sa itaas na balanse, kailangan mong maghintay ng ilang minuto para makakuha ng mas maraming kumpirmasyon sa network ang mga papasok na pondo. Kapag nakakuha na sila ng mas maraming kumpirmasyon, maaari na silang gastusin.",
   "avg_savings": "Avg. Matitipid",
+  "avl": "Avl",
   "awaitDAppProcessing": "Mangyaring maghintay hanggang matapos ang pagproseso ng dApp.",
   "awaiting_payment_confirmation": "Naghihintay ng Kumpirmasyon ng Pagbabayad",
   "background_sync": "Pag-sync sa background",

@@ -94,6 +94,7 @@
   "available_balance": "可用余额",
   "available_balance_description": "“可用余额”或“确认余额”是指可立即花费的资金。如果资金显示在下方余额中但未显示在上方余额中，则需要等待几分钟，让转入资金获得更多网络确认。获得更多确认后，这些资金即可花费。",
   "avg_savings": "平均节省",
+  "avl": "平均",
   "awaitDAppProcessing": "请稍候，等待 dApp 完成处理。",
   "awaiting_payment_confirmation": "等待支付确认",
   "background_sync": "后台同步",

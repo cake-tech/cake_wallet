@@ -94,6 +94,7 @@
   "available_balance": "Solde disponible",
   "available_balance_description": "Le « Solde disponible » ou le « Solde confirmé » correspond aux fonds que vous pouvez dépenser immédiatement. Si des fonds apparaissent dans le solde inférieur mais pas dans le solde supérieur, vous devez attendre quelques minutes pour que les fonds entrants obtiennent davantage de confirmations sur le réseau. Une fois qu’ils auront reçu plus de confirmations, ils pourront être dépensés.",
   "avg_savings": "Économies moy.",
+  "avl": "Avl",
   "awaitDAppProcessing": "Veuillez patienter pendant que la dApp termine le traitement.",
   "awaiting_payment_confirmation": "En attente de confirmation du paiement",
   "background_sync": "Synchronisation en arrière-plan",
@@ -669,6 +670,7 @@
   "nanogpt_subtitle": "Tous les modèles les plus récents (GPT-5.3, Claude 4.6).\nPas d'abonnement, payez en crypto.",
   "narrow": "Étroit",
   "network": "Réseau",
+  "network_address_detected": "Adresse ${network} détectée",
   "network_prefix_on": "sur",
   "networks": "Réseaux",
   "new_first_wallet_text": "Garder vos cryptos en sécurité, c'est du gâteau",
@@ -1464,6 +1466,5 @@
   "zcash_card_enable_later": "Vous pouvez toujours activer cette carte plus tard dans les paramètres",
   "zcash_card_missing_funds": "Fonds manquants ?",
   "zcash_card_scan": "Scanner",
-  "zcash_card_warning": "Ne fermez pas l'application tant que la procédure n'est pas terminée. Si vous le faites, ce processus devra redémarrer depuis le début.",
-  "network_address_detected": "Adresse ${network} détectée"
+  "zcash_card_warning": "Ne fermez pas l'application tant que la procédure n'est pas terminée. Si vous le faites, ce processus devra redémarrer depuis le début."
 }

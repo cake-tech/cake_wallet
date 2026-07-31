@@ -94,6 +94,7 @@
   "available_balance": "Saldo disponível",
   "available_balance_description": "O “Saldo Disponível” ou “Saldo Confirmado” são fundos que podem ser gastos imediatamente. Se os fundos aparecerem no saldo inferior, mas não no saldo superior, você deve aguardar alguns minutos para que os fundos recebidos obtenham mais confirmações na rede. Depois que tiverem mais confirmações, eles poderão ser gastos.",
   "avg_savings": "Poupança média",
+  "avl": "Avl",
   "awaitDAppProcessing": "Por favor, aguarde o dApp concluir o processamento.",
   "awaiting_payment_confirmation": "Aguardando confirmação do pagamento",
   "background_sync": "Sincronização em segundo plano",
