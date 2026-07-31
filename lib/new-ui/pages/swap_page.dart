@@ -1,10 +1,13 @@
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
+import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
 import "package:cake_wallet/exchange/exchange_trade_state.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
@@ -22,13 +25,14 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_moda
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -103,19 +107,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
     });
   }
 
-  Future<String> fetchParsedAddress(
-    BuildContext context,
-    String domain,
-    CryptoCurrency currency,
-  ) async {
-    return "";
-    // printV("$domain");
-    // final parsedAddress = await widget.adrResService
-    //     .resolve(query: domain, wallet: widget.exchangeViewModel.wallet, currency: currency);
-    // return parsedAddress.isNotEmpty
-    //     ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? ""
-    //     : "";
-  }
 
   // void _showFeeAlert(BuildContext context) async {
   //   await Future<void>.delayed(Duration(seconds: 1));
@@ -146,145 +137,187 @@ class _NewSwapPageState extends State<NewSwapPage> {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
-          child: BlocConsumer<SwapBloc, SwapState>(
-            listenWhen: (previous, current) => previous is SwapInputState && current is SwapStateCreating,
-            listener: (context, state) {
-              if(state is SwapStateCreating) {
-                final page = SwapConfirmSheet(
-                  bloc: widget.bloc,
-                );
-                showMaterialModalBottomSheet(
-                    context: context, builder: (context) => page, backgroundColor: Colors.transparent);
+          child: BlocPresentationListener<SwapBloc, SwapPresentationEvent>(
+            bloc: widget.bloc,
+            listener: (context, event) {
+              if(event is AddressValidationFailed) {
+                _showAddressValidationFailurePopup();
+              }
+              if(event is AliaspayAddressFound) {
+                _showParsedAddressPopup(event.address);
+              }
+              if(event is SwapCreationStarted) {
+                _showConfirmSheet();
               }
             },
-            bloc: widget.bloc,
-            builder: (context, state) => Column(
-              children: [
-                ModalTopBar(
-                  title: S.of(context).swap,
-                  leadingIcon: const Icon(Icons.close),
-                  onLeadingPressed: Navigator.of(context).maybePop,
-                  trailingIcon: CakeImageWidget(
-                    imageUrl: "assets/new-ui/options.svg",
-                    colorFilter:
-                        ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                  ),
-                  onTrailingPressed: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (context) => Material(
-                          child: SwapOptionsPage(bloc: widget.bloc),
+            child: BlocBuilder<SwapBloc, SwapState>(
+              bloc: widget.bloc,
+              builder: (context, state) => Column(
+                children: [
+                  ModalTopBar(
+                    title: S.of(context).swap,
+                    leadingIcon: const Icon(Icons.close),
+                    onLeadingPressed: Navigator.of(context).maybePop,
+                    trailingIcon: CakeImageWidget(
+                      imageUrl: "assets/new-ui/options.svg",
+                      colorFilter:
+                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                    ),
+                    onTrailingPressed: () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (context) => Material(
+                            child: SwapOptionsPage(bloc: widget.bloc),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                Expanded(
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: RepaintBoundary(
-                              child: Form(
-                                key: formKey,
-                                child: SingleChildScrollView(
-                                  physics: const ClampingScrollPhysics(),
-                                  controller: ModalScrollController.of(context),
-                                  child: Column(
-                                    children: [
-                                      SwapAmountBox(
-                                        isReceiverCard: false,
-                                        bloc: widget.bloc,
-                                      ),
-                                      SwapLimitPopup(bloc: widget.bloc),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            Container(
-                                              height: 1,
-                                              width: double.infinity,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHigh,
-                                            ),
-                                            ModernButton.svg(
-                                              size: 36,
-                                              iconSize: 24,
-                                              svgPath: "assets/new-ui/swap_amounts.svg",
-                                              onPressed: () =>
-                                                  widget.bloc.add(SwapDirectionReversed()),
-                                            ),
-                                          ],
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Expanded(
+                              child: RepaintBoundary(
+                                child: Form(
+                                  key: formKey,
+                                  child: SingleChildScrollView(
+                                    physics: const ClampingScrollPhysics(),
+                                    controller: ModalScrollController.of(context),
+                                    child: Column(
+                                      children: [
+                                        SwapAmountBox(
+                                          isReceiverCard: false,
+                                          bloc: widget.bloc,
                                         ),
-                                      ),
-                                      SwapAmountBox(
-                                        isReceiverCard: true,
-                                        bloc: widget.bloc,
-                                      ),
-                                      const SizedBox(height:24),
-                                      SwapMemoInput(bloc: widget.bloc),
-                                    ],
+                                        SwapLimitPopup(bloc: widget.bloc),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Container(
+                                                height: 1,
+                                                width: double.infinity,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainerHigh,
+                                              ),
+                                              ModernButton.svg(
+                                                size: 36,
+                                                iconSize: 24,
+                                                svgPath: "assets/new-ui/swap_amounts.svg",
+                                                onPressed: () =>
+                                                    widget.bloc.add(SwapDirectionReversed()),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SwapAmountBox(
+                                          isReceiverCard: true,
+                                          bloc: widget.bloc,
+                                        ),
+                                        const SizedBox(height:24),
+                                        SwapMemoInput(bloc: widget.bloc),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          Column(
-                            spacing: 12,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              // if (widget.wallet.status is! SyncedSyncStatus)
-                              //   SendSyncingIndicator(status: widget.exchangeViewModel.status),
-                              if (widget.bloc.state is SwapStateWithInputs &&
-                                  (widget.bloc.state as SwapStateWithInputs).isFixedRate)
-                                Text(
-                                  S.of(context).exchange_rate_is_fixed,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
+                            Column(
+                              spacing: 12,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                // if (widget.wallet.status is! SyncedSyncStatus)
+                                //   SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                                if (widget.bloc.state is SwapStateWithInputs &&
+                                    (widget.bloc.state as SwapStateWithInputs).isFixedRate)
+                                  Text(
+                                    S.of(context).exchange_rate_is_fixed,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ),
-                              SwapProviderPreview(bloc: widget.bloc),
-                              NewPrimaryButton(
-                                text: S.of(context).swap,
-                                onPressed: () {
-                                  FocusScope.of(context).unfocus();
-                                  if (formKey.currentState != null &&
-                                      formKey.currentState!.validate()) {
-                                    widget.authService.authenticateAction(
-                                      context,
-                                      conditionToDetermineIfToUse2FA: false,
-                                      onAuthSuccess: (value) {
-                                        if (value) {
-                                          widget.bloc.add(SwapInitiated());
-                                        }
-                                      },
-                                    );
-                                  }
-                                },
-                                color: Theme.of(context).colorScheme.primary,
-                                textColor: Theme.of(context).colorScheme.onPrimary,
-                                disabled: !state.canInitiateSwap,
-                                isLoading: state is TradeIsCreating,
-                              )
-                            ],
-                          )
-                        ],
+                                SwapProviderPreview(bloc: widget.bloc),
+                                NewPrimaryButton(
+                                  text: S.of(context).swap,
+                                  onPressed: () {
+                                    FocusScope.of(context).unfocus();
+                                    if (formKey.currentState != null &&
+                                        formKey.currentState!.validate()) {
+                                      widget.authService.authenticateAction(
+                                        context,
+                                        conditionToDetermineIfToUse2FA: false,
+                                        onAuthSuccess: (value) {
+                                          if (value) {
+                                            widget.bloc.add(SwapInitiated());
+                                          }
+                                        },
+                                      );
+                                    }
+                                  },
+                                  color: Theme.of(context).colorScheme.primary,
+                                  textColor: Theme.of(context).colorScheme.onPrimary,
+                                  disabled: !state.canInitiateSwap,
+                                  isLoading: state is TradeIsCreating,
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       );
+
+  Future<void> _showConfirmSheet() async {
+    final page = SwapConfirmSheet(
+      bloc: widget.bloc,
+    );
+    await showMaterialModalBottomSheet(
+        context: context, builder: (context) => page, backgroundColor: Colors.transparent);
+  }
+
+  Future<void> _showAddressValidationFailurePopup() async {
+    if (widget.bloc.state case final SwapStateWithInputs s) {
+      await showPopUp(context: context, builder: (context) =>
+          AlertWithOneAction(
+            alertTitle: S.of(context).invalid_address,
+            alertContent: "${S.of(context).invalid_address_desc} ${s.payoutAmount.currency.fullName ?? s.payoutAmount.currency.symbol}.",
+            buttonText: S.of(context).ok,
+            buttonAction: Navigator.of(context).pop,
+          ));
+    }
+  }
+
+  Future<void> _showParsedAddressPopup(ParsedAddress address) async {
+    await showPopUp<bool>(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).address_detected,
+          headerTitleText: address.profileName.isEmpty ? null : address.profileName,
+          headerImageProfileUrl: address.profileImageUrl.isEmpty
+              ? address.addressSource.iconPath
+              : address.profileImageUrl,
+          alertContent: S.of(context).extracted_address_content(
+            "${address.handle} (${address.addressSource.label})",
+          ),
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+    );
+  }
 }
 
 class SwapMemoInput extends StatefulWidget {

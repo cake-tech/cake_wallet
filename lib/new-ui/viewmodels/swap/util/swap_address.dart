@@ -1,5 +1,7 @@
+import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/entities/contact.dart";
 import "package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_info.dart";
 
 abstract class SwapAddress {
@@ -19,6 +21,19 @@ class ExternalSwapAddress extends SwapAddress {
   @override
   String get displayName =>
       "${address.safeSubString(0, 4)}...${address.safeSubString(address.length - 4, address.length)}";
+}
+
+class PayAnythingSwapAddress extends SwapAddress {
+  const PayAnythingSwapAddress(this.parsedAddress, this.currency);
+
+  final ParsedAddress parsedAddress;
+  final CryptoCurrency currency;
+
+  @override
+  String get address => parsedAddress.parsedAddressByCurrencyMap[currency]!;
+
+  @override
+  String get displayName => "${parsedAddress.profileName} (${parsedAddress.addressSource.label})";
 }
 
 class InternalWalletSwapAddress extends SwapAddress {

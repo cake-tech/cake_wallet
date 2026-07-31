@@ -567,6 +567,8 @@
   "insufficientFundsForRentError": "You do not have enough SOL to cover the transaction fee and rent for the account. Kindly add more SOL to your wallet or reduce the SOL amount you\\'re sending",
   "insufficientFundsForRentErrorReceiver": "The receiver's account does not have enough SOL to cover the rent. Please ask the receiver to add more SOL to their account.",
   "introducing_cake_pay": "Introducing Cake Pay!",
+  "invalid_address": "Invalid address",
+  "invalid_address_desc": "That's not a valid address for",
   "invalid_input": "Invalid input",
   "invalid_password": "Invalid password",
   "invoice_details": "Invoice details",

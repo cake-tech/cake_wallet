@@ -1,5 +1,8 @@
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
+import "package:bloc_presentation/bloc_presentation.dart";
+import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
+import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
@@ -8,6 +11,7 @@ import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
@@ -29,14 +33,18 @@ part "swap_event.dart";
 
 part "swap_state.dart";
 
-class SwapBloc extends Bloc<SwapEvent, SwapState> {
+class SwapBloc extends Bloc<SwapEvent, SwapState> with BlocPresentationMixin<SwapState, SwapPresentationEvent> {
   SwapBloc({
-    required TransactionService transactionService, required WalletSwitchService walletSwitchService, required this.rateCubit,
+    required AddressResolverService addressResolverService, required TransactionService transactionService, required WalletSwitchService walletSwitchService, required this.rateCubit,
     required this.currencyStore,
     required SwapAmountFactory calculator,
     required ExchangeProviderRegistry registry,
     required AppStore appStore,
-  })  : _transactionService = transactionService, _walletSwitchService = walletSwitchService, _amountFactory = calculator,
+  })
+      : _addressResolverService = addressResolverService,
+        _transactionService = transactionService,
+        _walletSwitchService = walletSwitchService,
+        _amountFactory = calculator,
         _registry = registry,
         _appStore = appStore,
         super(const SwapStateNotLoaded()) {
@@ -53,14 +61,16 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
     on<ProviderToggled>(_onProviderToggled, transformer: sequential());
     on<FixedRateToggled>(_onFixedRateToggled, transformer: sequential());
     on<FiatCurrencyChanged>(_onFiatCurrencyChanged);
-    on<ForceDecentralizedExchangesToggled>(_onForceDecentralizedExchangesToggled, transformer: sequential());
-    on<SwapInitiated>(_onSwapInitiated);
-    on<SendConfirmed>(_onSendConfirmed);
-    on<MemoChanged>(_onMemoChanged);
+    on<ForceDecentralizedExchangesToggled>(
+        _onForceDecentralizedExchangesToggled, transformer: sequential());
+    on<SwapInitiated>(_onSwapInitiated, transformer: droppable());
+    on<SendConfirmed>(_onSendConfirmed, transformer: droppable());
+    on<MemoChanged>(_onMemoChanged, transformer: restartable());
     add(_Init());
   }
 
   final AppStore _appStore;
+  final AddressResolverService _addressResolverService;
   final WalletSwitchService _walletSwitchService;
   final TransactionService _transactionService;
   final ExchangeProviderRegistry _registry;
@@ -116,9 +126,26 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
     }
   }
 
-  void _onPayoutAddressChanged(PayoutAddressChanged event, Emitter<SwapState> emit) {
+  Future<void> _onPayoutAddressChanged(PayoutAddressChanged event, Emitter<SwapState> emit) async {
     if (state case final SwapInputState s) {
-      emit(s.copyWith(payoutAddress: ()=>event.newAddress));
+      SwapAddress newAddress = event.newAddress;
+      if (event.newAddress is ExternalSwapAddress) {
+        final parsed = await _addressResolverService.resolve(query: event.newAddress.address,
+            wallet: _appStore.wallet!,
+            currency: s.payoutAmount.currency);
+        if (parsed.isNotEmpty) {
+          final parsedAddr = parsed.first;
+          emitPresentation(AliaspayAddressFound(parsedAddr));
+          newAddress = PayAnythingSwapAddress(parsedAddr, s.payoutAmount.currency);
+        }
+      }
+
+      if (!AddressValidator(type: s.payoutAmount.currency).isValid(newAddress.address)) {
+        emitPresentation(const AddressValidationFailed());
+        return;
+      }
+
+      emit(s.copyWith(payoutAddress: () => newAddress));
     }
   }
 
@@ -379,6 +406,7 @@ newPayoutAmount = s.payoutAmount;
   }
 
   Future<void> _onSwapInitiated(SwapInitiated event, Emitter<SwapState> emit) async {
+    emitPresentation(const SwapCreationStarted());
     await _reloadRates();
     final rate = (rateCubit.state as RatesLoaded).rates.max;
     if (state case final SwapStateWithInputs s) {
