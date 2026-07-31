@@ -209,7 +209,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       if (!_state!.pairingCredentials.any((c) => c.autoconnect == true)) {
         if (_client case final sdk.TrezorClientV2 clientV2) {
           try {
-            final auto = await clientV2.getAutoparing();
+            final auto = await clientV2.getAutoPairingCredentials();
             _state!.setPairingCredentials([auto]);
             await _saveState();
           } catch (_) {}
