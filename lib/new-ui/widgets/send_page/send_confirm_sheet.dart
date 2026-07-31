@@ -23,7 +23,6 @@ import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -50,12 +49,6 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
         setState(() {
           _committed = true;
         });
-        // The sheet swaps its content in place, so nothing would otherwise tell a
-        // screen reader that the transaction went through.
-        if (mounted) {
-          SemanticsService.announce(
-              S.of(context).transaction_sent_new, Directionality.of(context));
-        }
       }
     });
   }
@@ -483,9 +476,14 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
           SizedBox(
             height: 12,
           ),
-          Text(
-            S.of(context).transaction_sent_new,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          // The sheet swaps its content in place, so this title becoming visible is what
+          // tells a screen reader that the transaction went through.
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              S.of(context).transaction_sent_new,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+            ),
           ),
           SizedBox(),
           CakeImageWidget(width: 200, height: 200, imageUrl: "assets/new-ui/birthday_cake.svg"),
@@ -584,7 +582,7 @@ class TransactionCommittedScreenActionButton extends StatelessWidget {
             onTap: isLoading ? null : onTap,
             excludeSemantics: true,
             child: GestureDetector(
-                onTap: onTap,
+                onTap: isLoading ? null : onTap,
                 child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),

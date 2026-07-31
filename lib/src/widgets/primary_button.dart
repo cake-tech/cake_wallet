@@ -61,7 +61,7 @@ class PrimaryButton extends StatelessWidget {
       ),
     );
 
-    final button = isDottedBorder
+    return isDottedBorder
         ? DottedBorder(
             borderType: BorderType.RRect,
             dashPattern: [6, 4],
@@ -70,17 +70,6 @@ class PrimaryButton extends StatelessWidget {
             radius: Radius.circular(15),
             child: content)
         : content;
-
-    // One node that keeps reporting the button name and whether it can be used, even
-    // when the label is dimmed out.
-    return Semantics(
-      button: true,
-      enabled: !isDisabled && onPressed != null,
-      label: text,
-      onTap: isDisabled ? onDisabledPressed : onPressed,
-      excludeSemantics: true,
-      child: button,
-    );
   }
 }
 
