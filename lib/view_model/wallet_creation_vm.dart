@@ -17,6 +17,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -33,8 +34,12 @@ abstract class WalletCreationVMBase with Store {
   @observable
   bool _useTestnet = false;
 
+  int _zcashNetwork = ZcashNetworkType.mainnet;
+
   @computed
   bool get useTestnet => _useTestnet;
+
+  int get zcashNetwork => _zcashNetwork;
 
   @observable
   String name;
@@ -251,5 +256,9 @@ abstract class WalletCreationVMBase with Store {
   @action
   void toggleUseTestnet(bool? value) {
     _useTestnet = value ?? !_useTestnet;
+  }
+
+  void setZcashNetwork(int network) {
+    _zcashNetwork = network;
   }
 }

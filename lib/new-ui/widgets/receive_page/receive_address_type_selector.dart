@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -34,6 +35,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
 
   @override
   Widget build(BuildContext context) {
+    return Observer(builder: (final _) {
     final commonOptions = widget.receiveOptionViewModel.options
         .where((element) =>
             element.isCommon ||
@@ -223,6 +225,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
             ],
           )),
     );
+    });
   }
 }
 
