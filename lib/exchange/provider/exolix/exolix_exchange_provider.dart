@@ -156,7 +156,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         _overrideToCryptoCurrency(request.payoutAmount.currency, request.payoutAddress.address),
       ),
       networkFrom: _networkFor(request.depositAmount.currency),
-      networkTo: _networkFor(request.depositAmount.currency),
+      networkTo: _networkFor(request.payoutAmount.currency),
       withdrawalAddress: await _normalizeAddress(request.payoutAddress.address),
       withdrawalAmount: request.isFixedRate ? request.payoutAmount.cryptoAmount.toString() : null,
       amount: request.isFixedRate ? null : request.depositAmount.cryptoAmount.toString(),
