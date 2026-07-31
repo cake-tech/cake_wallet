@@ -99,7 +99,7 @@ class SwapTransactionDetails extends StatelessWidget {
       provider = state.usableProviders.first;
       sourceString = state.source.displayName;
       isExternal = state.source is ExternalSwapSource;
-      tradeId = "";
+      tradeId = "...";
       payoutAddress = state.payoutAddress?.address ?? "";
     } else if(state is SwapStateWithTrade) {
       depositAmount = state.trade.depositAmount;
