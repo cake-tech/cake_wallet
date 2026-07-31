@@ -3,6 +3,7 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -13,6 +14,7 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.da
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
@@ -96,7 +98,11 @@ class SwapTransactionDetails extends StatelessWidget {
     if(state is SwapStateWithInputs) {
       depositAmount = state.depositAmount.cryptoAmount;
       payoutAmount = state.payoutAmount.cryptoAmount;
-      provider = state.usableProviders.first;
+      if(state is SwapInputState && bloc.rateCubit.state is RatesLoaded) {
+        provider = (bloc.rateCubit.state as RatesLoaded).rates.max.provider;
+      } else {
+        provider = state.usableProviders.first;
+      }
       sourceString = state.source.displayName;
       isExternal = state.source is ExternalSwapSource;
       tradeId = "...";
