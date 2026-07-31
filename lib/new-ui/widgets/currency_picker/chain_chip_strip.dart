@@ -56,24 +56,31 @@ class _ChainChip extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsetsDirectional.only(end: 8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(80),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? colors.primary : colors.surfaceContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    fontSize: isSelected ? 14 : 12,
-                    letterSpacing: -0.07,
-                    color: isSelected ? colors.onPrimary : colors.primary,
-                  ),
+      child: MergeSemantics(
+        child: Semantics(
+          button: true,
+          selected: isSelected,
+          inMutuallyExclusiveGroup: true,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(80),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: isSelected ? colors.primary : colors.surfaceContainer,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Center(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: isSelected ? 14 : 12,
+                        letterSpacing: -0.07,
+                        color: isSelected ? colors.onPrimary : colors.primary,
+                      ),
+                ),
+              ),
             ),
           ),
         ),
