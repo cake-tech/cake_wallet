@@ -259,6 +259,7 @@ class _ScanPageState extends State<ScanPage> {
                       ),
                       FloatingIconButton(
                           iconPath: "assets/new-ui/paste.svg",
+                          semanticLabel: S.of(context).paste,
                           onPressed: () async {
                             final data = await Clipboard.getData("text/plain");
                             if (data?.text != null) {

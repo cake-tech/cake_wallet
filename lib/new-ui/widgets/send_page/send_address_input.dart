@@ -128,16 +128,19 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                       SizedBox.shrink(),
                       FloatingIconButton(
                           iconPath: "assets/new-ui/paste.svg",
+                          semanticLabel: S.of(context).paste,
                           onPressed: () async {
                             _pasteAddress(context);
                           }),
                       FloatingIconButton(
                           iconPath: "assets/new-ui/scan.svg",
+                          semanticLabel: S.of(context).scan_qr_code,
                           onPressed: () {
                             _presentQRScanner(context);
                           }),
                       FloatingIconButton(
                           iconPath: "assets/new-ui/contacts_outlined.svg",
+                          semanticLabel: S.of(context).address_book,
                           onPressed: () {
                             _presetAddressBookPicker(context);
                           }),
