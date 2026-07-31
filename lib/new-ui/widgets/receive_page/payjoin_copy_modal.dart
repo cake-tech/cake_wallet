@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 class PayjoinCopyModal extends StatelessWidget {
@@ -32,7 +33,7 @@ class PayjoinCopyModal extends StatelessWidget {
                 "": [
                   ListItemRegularRow(
                       keyValue: "btc",
-                      label: "Standard",
+                      label: S.of(context).standard,
                       iconPath: "assets/new-ui/pjmodal_btc.svg",
                       onTap: () {
                         Clipboard.setData(
@@ -41,6 +42,7 @@ class PayjoinCopyModal extends StatelessWidget {
                                   ? BitcoinURI(amount: uri.amount, address: uri.address).toString()
                                   : uri.address),
                         );
+                        _announceCopied(context);
                         Navigator.of(context).pop();
                       }),
                   ListItemRegularRow(
@@ -51,6 +53,7 @@ class PayjoinCopyModal extends StatelessWidget {
                         Clipboard.setData(
                           ClipboardData(text: uri.toString()),
                         );
+                        _announceCopied(context);
                         Navigator.of(context).pop();
                       })
                 ]
@@ -62,4 +65,7 @@ class PayjoinCopyModal extends StatelessWidget {
       ),
     );
   }
+
+  void _announceCopied(BuildContext context) =>
+      SemanticsService.announce(S.of(context).copied, Directionality.of(context));
 }
