@@ -116,7 +116,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> with BlocPresentationMixin<Swa
         memo: "",
         isFixedRate: false,
         availableProviders: _registry.allProviders,
-        enabledProviders: _registry.allProviders,
+        enabledProviders: _registry.enabledProviders,
         forceDecentralizedProviders: _appStore.settingsStore.forceDecentralizedExchanges,
       ),
     );
@@ -363,6 +363,8 @@ newPayoutAmount = s.payoutAmount;
       if (loadRates) {
         add(RatesLoadStarted());
       }
+
+      _registry.updateProviders(newProviders);
     }
   }
 

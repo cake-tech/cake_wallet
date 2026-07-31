@@ -548,7 +548,7 @@ Future<void> setup({
       fiatConversionStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerLazySingleton<ExchangeProviderRegistry>(() =>
-      ExchangeProviderRegistry(settingsStore: getIt.get<SettingsStore>()));
+      ExchangeProviderRegistry(sharedPreferences: getIt.get<SharedPreferences>(), settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<RateCubit>(() =>
       RateCubit(registry: getIt.get<ExchangeProviderRegistry>()));
