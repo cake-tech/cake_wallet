@@ -29,17 +29,87 @@ void main() {
     S.current = const S();
   });
 
+  group("ModalTopBar accessible-name asserts", () {
+    test("a leadingIcon without a leadingSemanticLabel is rejected", () {
+      expect(
+        () => ModalTopBar(title: "Receive", leadingIcon: const Icon(Icons.close)),
+        throwsA(
+          isA<AssertionError>().having(
+            (error) => error.message,
+            "message",
+            contains("leadingIcon requires a non-empty leadingSemanticLabel"),
+          ),
+        ),
+      );
+    });
+
+    test("an empty leadingSemanticLabel is rejected too", () {
+      expect(
+        () => ModalTopBar(
+          title: "Receive",
+          leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: "",
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test("a trailingIcon without a trailingSemanticLabel is rejected", () {
+      expect(
+        () => ModalTopBar(
+          title: "Receive",
+          leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: "Close",
+          trailingIcon: const Icon(Icons.share),
+        ),
+        throwsA(
+          isA<AssertionError>().having(
+            (error) => error.message,
+            "message",
+            contains("trailingIcon requires a non-empty trailingSemanticLabel"),
+          ),
+        ),
+      );
+    });
+
+    test("an empty trailingSemanticLabel is rejected too", () {
+      expect(
+        () => ModalTopBar(
+          title: "Receive",
+          trailingIcon: const Icon(Icons.share),
+          trailingSemanticLabel: "",
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test("a bar with no icons at all is fine", () {
+      expect(() => ModalTopBar(title: "Receive"), returnsNormally);
+    });
+
+    test("a leadingWidget carries its own semantics, so it needs no label", () {
+      expect(
+        () => ModalTopBar(title: "Receive", leadingWidget: const Text("Cancel")),
+        returnsNormally,
+      );
+    });
+  });
+
   group("ModalTopBar leading button", () {
-    testWidgets("announces the localized \"Close\" by default", (tester) async {
+    testWidgets("announces the localized label it was given", (tester) async {
       await _pump(
         tester,
-        ModalTopBar(title: "Receive", leadingIcon: const Icon(Icons.close)),
+        ModalTopBar(
+          title: "Receive",
+          leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.current.close,
+        ),
       );
 
       expect(find.semantics.byLabel(S.current.close), findsOne);
     });
 
-    testWidgets("announces a caller-supplied leadingSemanticLabel", (tester) async {
+    testWidgets("announces a back label just as well", (tester) async {
       await _pump(
         tester,
         ModalTopBar(
@@ -60,6 +130,7 @@ void main() {
         ModalTopBar(
           title: "Receive",
           leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.current.close,
           onLeadingPressed: () => pressed++,
         ),
       );
@@ -78,6 +149,7 @@ void main() {
         ModalTopBar(
           title: "Receive",
           leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.current.close,
           trailingIcon: const Icon(Icons.share),
           trailingSemanticLabel: "Share address",
         ),
@@ -95,7 +167,11 @@ void main() {
     testWidgets("contributes no node at all when trailingIcon is null", (tester) async {
       await _pump(
         tester,
-        ModalTopBar(title: "Receive", leadingIcon: const Icon(Icons.close)),
+        ModalTopBar(
+          title: "Receive",
+          leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.current.close,
+        ),
       );
 
       expect(find.byType(ModernButton), findsOneWidget);
