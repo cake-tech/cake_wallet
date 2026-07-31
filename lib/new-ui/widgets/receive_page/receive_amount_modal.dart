@@ -39,9 +39,6 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
 
   @override
   Widget build(BuildContext context) {
-    final decimals = widget.walletAddressListViewModel.selectedCurrencyDecimals;
-    final useSatoshi = widget.walletAddressListViewModel.useSatoshi;
-
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: SafeArea(
@@ -158,14 +155,21 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                   controller: _amountController,
                                   keyboardType: TextInputType.numberWithOptions(
                                     signed: false,
-                                    decimal: decimals > 0,
+                                    decimal:
+                                        widget.walletAddressListViewModel.selectedCurrencyDecimals >
+                                            0,
                                   ),
                                   inputFormatters: [
-                                    DecimalInputFormatter(maxDecimals: decimals),
+                                    DecimalInputFormatter(
+                                      maxDecimals:
+                                          widget.walletAddressListViewModel.selectedCurrencyDecimals,
+                                    ),
                                   ],
                                   decoration: InputDecoration(
                                     hint: Text(
-                                      useSatoshi ? "0" : "0.00000000",
+                                      widget.walletAddressListViewModel.useSatoshi
+                                          ? "0"
+                                          : "0.00000000",
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         fontSize: 16,

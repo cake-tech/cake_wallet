@@ -342,14 +342,6 @@ class AddressRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasLabel = item.name != null && item.name!.isNotEmpty;
     final hideLabel = item.isHidden ? S.of(context).unhide_address : S.of(context).hide_address;
-    final balanceLabel = hasReceived ? S.of(context).received : S.of(context).balance;
-    final addressStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          color: hasLabel
-              ? Theme.of(context).colorScheme.onSurfaceVariant
-              : Theme.of(context).colorScheme.onSurface,
-        );
 
     Future<void> editLabel() async {
       final res = await showPopUp(
@@ -444,7 +436,13 @@ class AddressRow extends StatelessWidget {
                                       address: item.address,
                                       walletType: walletType,
                                       textAlign: TextAlign.left,
-                                      evenTextStyle: addressStyle,
+                                      evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            color: hasLabel
+                                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                                : Theme.of(context).colorScheme.onSurface,
+                                          ),
                                       shouldTruncate: (hasLabel)),
                                 ),
                               ],
@@ -460,7 +458,7 @@ class AddressRow extends StatelessWidget {
                                       color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 ),
                                 Text(
-                                    "$balanceLabel: ${item.balance}",
+                                    "${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
                                     style: TextStyle(
                                         fontSize: 12,
                                         color: Theme.of(context).colorScheme.onSurfaceVariant)),
