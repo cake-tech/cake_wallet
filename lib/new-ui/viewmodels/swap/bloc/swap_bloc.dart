@@ -411,18 +411,26 @@ newPayoutAmount = s.payoutAmount;
       if(s.source case final ExternalSwapSource source) {
         emit(SwapAwaitingExternalSend(trade: trade, source: source));
       } else if(s.source case final InternalSwapSource source) {
-        emit(SwapGeneratingTransaction(trade: trade, source: source));
-        final PendingTransaction tx;
-        if(provider case final TransactionCreationExchangeProvider p) {
-          tx = await p.createTransaction(_appStore.wallet!, trade);
-        } else {
-          final curr = s.depositAmount.currency;
-          // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
-          final output = Output(_appStore.wallet!, _appStore, getIt.get<FiatConversionStore>(), () => curr);
-          output.setCryptoAmount(s.depositAmount.cryptoAmount.toString());
-          tx = await _transactionService.createTransaction([output]);
+        final generatingState = SwapGeneratingTransaction(trade: trade, source: source);
+        try {
+          emit(generatingState);
+          final PendingTransaction tx;
+          if(provider case final TransactionCreationExchangeProvider p) {
+            tx = await p.createTransaction(_appStore.wallet!, trade);
+          } else {
+            final curr = s.depositAmount.currency;
+            // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
+            final output = Output(_appStore.wallet!, _appStore, getIt.get<FiatConversionStore>(), () => curr);
+            output.setCryptoAmount(s.depositAmount.cryptoAmount.toString());
+            output.address = trade.fundingAddress;
+            tx = await _transactionService.createTransaction([output]);
+          }
+          emit(SwapAwaitingSend(trade: trade, transaction: tx, source: source));
+        } catch(e) {
+          emit(generatingState.toError(e));
         }
-        emit(SwapAwaitingSend(trade: trade, transaction: tx, source: source));
+
+
       }
 
 

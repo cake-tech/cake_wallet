@@ -178,6 +178,9 @@ abstract class SwapStateWithTrade extends SwapState {
 
 final class SwapGeneratingTransaction extends SwapStateWithTrade {
   const SwapGeneratingTransaction({required super.trade, required super.source});
+
+  SwapTransactionGenerationError toError(Object error) =>
+      SwapTransactionGenerationError(error: error, trade: trade, source: source);
 }
 
 final class SwapAwaitingExternalSend extends SwapStateWithTrade {
@@ -199,6 +202,13 @@ abstract class SwapStateWithTransaction extends SwapStateWithTrade {
 
 final class SwapAwaitingSend extends SwapStateWithTransaction {
   const SwapAwaitingSend({required super.trade, required super.transaction, required super.source});
+}
+
+final class SwapTransactionGenerationError extends SwapGeneratingTransaction implements SwapFailureState{
+  const SwapTransactionGenerationError({required this.error, required super.trade, required super.source});
+
+  @override
+  final Object error;
 }
 
 final class SwapAwaitingHardwareWallet extends SwapStateWithTransaction {
