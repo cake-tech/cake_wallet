@@ -53,7 +53,7 @@ class ReceiveQrCode extends StatelessWidget {
         ),
         Semantics(
           label: S.of(context).qr_code_receive_address,
-          hint: S.of(context).qr_fullscreen,
+          hint: largeQrMode ? S.of(context).qr_close_fullscreen : S.of(context).qr_fullscreen,
           button: true,
           enabled: true,
           child: GestureDetector(
