@@ -30,6 +30,8 @@ abstract class SwapStateWithInputs extends SwapState {
 
   bool get isExternalSend => source is ExternalSwapSource;
 
+  String get memo;
+
   List<ExchangeProviderDescription> get usableProviders;
 
   @override
@@ -50,7 +52,7 @@ abstract class SwapStateWithInputs extends SwapState {
 
 final class SwapInputState extends SwapStateWithInputs {
   const SwapInputState({
-    required this.depositAmount,
+    required this.memo, required this.depositAmount,
     required this.payoutAmount,
     required this.source,
     required this.payoutAddress,
@@ -71,6 +73,8 @@ final class SwapInputState extends SwapStateWithInputs {
   final SwapAddress? payoutAddress;
   @override
   final bool isFixedRate;
+  @override
+  final String memo;
 
   final List<ExchangeProviderDescription> availableProviders;
   final List<ExchangeProviderDescription> enabledProviders;
@@ -85,7 +89,8 @@ final class SwapInputState extends SwapStateWithInputs {
     SwapAmount? depositAmount,
     SwapAmount? payoutAmount,
     SwapSource? source,
-    SwapAddress? payoutAddress,
+    String? memo,
+    SwapAddress? Function()? payoutAddress,
     bool? isFixedRate,
     List<ExchangeProviderDescription>? availableProviders,
     List<ExchangeProviderDescription>? enabledProviders,
@@ -93,10 +98,11 @@ final class SwapInputState extends SwapStateWithInputs {
     bool? forceDecentralizedProviders,
   }) =>
       SwapInputState(
+        memo: memo ?? this.memo,
         depositAmount: depositAmount ?? this.depositAmount,
         payoutAmount: payoutAmount ?? this.payoutAmount,
         source: source ?? this.source,
-        payoutAddress: payoutAddress ?? this.payoutAddress,
+        payoutAddress: payoutAddress != null ? payoutAddress.call() : this.payoutAddress,
         isFixedRate: isFixedRate ?? this.isFixedRate,
         availableProviders: availableProviders ?? this.availableProviders,
         enabledProviders: enabledProviders ?? this.enabledProviders,
@@ -130,6 +136,9 @@ final class SwapStateCreating extends SwapStateWithInputs {
 
   @override
   bool get isFixedRate => request.isFixedRate;
+
+  @override
+  String get memo => request.toAddressExtraId ?? "";
 
   @override
   List<ExchangeProviderDescription> get usableProviders => [selectedProvider];

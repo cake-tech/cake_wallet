@@ -9,16 +9,18 @@ class TradeRequest {
     required this.depositAmount,
     required this.payoutAmount,
     required this.isFixedRate,
-    this.toAddressExtraId = "",
-  });
+    String? toAddressExtraId,
+    // providers really don't like when you send an empty extraId, so we make it null
+  }) : toAddressExtraId = toAddressExtraId?.isEmpty ?? false ? null : toAddressExtraId;
 
   final String refundAddress;
   final SwapAddress payoutAddress;
   final SwapAmount depositAmount;
   final SwapAmount payoutAmount;
-  final String toAddressExtraId;
+  final String? toAddressExtraId;
   final bool isFixedRate;
 
   CryptoCurrency get depositCurrency => depositAmount.currency;
+
   CryptoCurrency get payoutCurrency => payoutAmount.currency;
 }

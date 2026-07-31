@@ -17,7 +17,6 @@ import "package:cake_wallet/view_model/send/send_view_model_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currencies_with_memo.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/foundation.dart";
@@ -177,7 +176,7 @@ class SwapTransactionDetails extends StatelessWidget {
                         ListItemRegularRow(
                           keyValue: "receive memo",
                           showArrow: false,
-                          label: memoLabelTypeFor(payoutAmount.currency as CryptoCurrency) ==
+                          label: (payoutAmount.currency as CryptoCurrency).memoLabelType ==
                                   MemoLabelType.destinationTag
                               ? S.of(context).destination_tag
                               : S.of(context).memo,

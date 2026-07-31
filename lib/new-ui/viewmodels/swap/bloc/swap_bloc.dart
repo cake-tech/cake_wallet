@@ -20,11 +20,9 @@ import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/payment_uris.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
-import "package:cw_monero/api/transaction_history.dart";
 import "package:meta/meta.dart";
 
 part "swap_event.dart";
@@ -58,6 +56,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
     on<ForceDecentralizedExchangesToggled>(_onForceDecentralizedExchangesToggled, transformer: sequential());
     on<SwapInitiated>(_onSwapInitiated);
     on<SendConfirmed>(_onSendConfirmed);
+    on<MemoChanged>(_onMemoChanged);
     add(_Init());
   }
 
@@ -102,6 +101,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
         payoutAmount: initialPayoutAmount,
         source: InternalSwapSource(_appStore.wallet!.walletInfo),
         payoutAddress: null,
+        memo: "",
         isFixedRate: false,
         availableProviders: _registry.allProviders,
         enabledProviders: _registry.allProviders,
@@ -118,7 +118,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> {
 
   void _onPayoutAddressChanged(PayoutAddressChanged event, Emitter<SwapState> emit) {
     if (state case final SwapInputState s) {
-      emit(s.copyWith(payoutAddress: event.newAddress));
+      emit(s.copyWith(payoutAddress: ()=>event.newAddress));
     }
   }
 
@@ -256,10 +256,23 @@ newPayoutAmount = s.payoutAmount;
         newPayoutAmount =
             await _amountFactory.getSwapAmount(Money.zero(event.newCurrency), event.newCurrency);
       }
+
+      String newMemo = s.memo;
+      if(event.newCurrency.memoLabelType == null) {
+        newMemo = "";
+      }
+
+      SwapAddress? newPayoutddress = s.payoutAddress;
+      if(cryptoCurrencyOrTokenToWalletType(s.payoutAmount.currency) != cryptoCurrencyOrTokenToWalletType(event.newCurrency)) {
+        newPayoutddress = null;
+      }
+
       emit(
         s.copyWith(
           depositAmount: newDepositAmount,
           payoutAmount: newPayoutAmount,
+          memo: newMemo,
+          payoutAddress: ()=>newPayoutddress
         ),
       );
       add(RatesLoadStarted());
@@ -349,6 +362,14 @@ newPayoutAmount = s.payoutAmount;
     }
   }
 
+  Future<void> _onMemoChanged(MemoChanged event, Emitter<SwapState> emit) async {
+    if(state case final SwapInputState s) {
+      emit(s.copyWith(
+        memo: event.newMemo
+      ));
+    }
+  }
+
   void _onForceDecentralizedExchangesToggled(ForceDecentralizedExchangesToggled event, Emitter<SwapState> emit) {
     if(state case final SwapInputState s) {
       final newState = !s.forceDecentralizedProviders;
@@ -390,6 +411,7 @@ newPayoutAmount = s.payoutAmount;
         depositAmount: s.depositAmount,
         payoutAmount: s.payoutAmount,
         isFixedRate: s.isFixedRate,
+        toAddressExtraId: s.memo
       );
 
       final creatingState = SwapStateCreating(source: s.source,selectedProvider: rate.provider, request: req);

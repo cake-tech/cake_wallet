@@ -51,6 +51,12 @@ final class PayoutCurrencyChanged extends SwapEvent {
   final CryptoCurrency newCurrency;
 }
 
+final class MemoChanged extends SwapEvent {
+  const MemoChanged(this.newMemo);
+
+  final String newMemo;
+}
+
 final class SwapDirectionReversed extends SwapEvent {}
 
 final class ForcedProviderSelected extends SwapEvent {

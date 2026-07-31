@@ -3,7 +3,15 @@ import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 
 class SwapWalletListService {
-  static Future<List<WalletInfo>> getWallets(CryptoCurrency currency) => WalletInfo.getAllForType(cryptoCurrencyOrTokenToWalletType(currency)!);
+  static Future<List<WalletInfo>> getWallets(CryptoCurrency currency) async {
+    final type = cryptoCurrencyOrTokenToWalletType(currency);
+
+    if (type == null) {
+      return [];
+    }
+
+    return WalletInfo.getAllForType(type);
+  }
 
   static Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
     final List<WalletInfoAddressInfo> ret = [];

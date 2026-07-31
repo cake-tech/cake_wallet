@@ -23,7 +23,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cw_core/currencies_with_memo.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
@@ -172,7 +172,7 @@ abstract class TradeDetailsViewModelBase with Store {
     final destinationCurrency = trade.payoutCurrency;
     if (destinationMemo != null && destinationMemo.isNotEmpty) {
       final isDestinationTag =
-          memoLabelTypeFor(destinationCurrency) == MemoLabelType.destinationTag;
+          destinationCurrency.memoLabelType == MemoLabelType.destinationTag;
       items.add(StandartListItem(
           title: isDestinationTag ? S.current.destination_tag : S.current.memo,
           value: destinationMemo));

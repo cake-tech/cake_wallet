@@ -15,6 +15,7 @@ import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
@@ -22,7 +23,6 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
-import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
@@ -227,6 +227,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         isReceiverCard: true,
                                         bloc: widget.bloc,
                                       ),
+                                      const SizedBox(height:24),
+                                      SwapMemoInput(bloc: widget.bloc),
                                     ],
                                   ),
                                 ),
@@ -284,6 +286,48 @@ class _NewSwapPageState extends State<NewSwapPage> {
         ),
       );
 }
+
+class SwapMemoInput extends StatefulWidget {
+  const SwapMemoInput({required this.bloc, super.key});
+
+  final SwapBloc bloc;
+
+  @override
+  State<SwapMemoInput> createState() => _SwapMemoInputState();
+}
+
+class _SwapMemoInputState extends State<SwapMemoInput> {
+  final memoController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(bloc: widget.bloc, builder: (context, state){
+    if(state case final SwapStateWithInputs s) {
+      final labelType = s.payoutAmount.currency.memoLabelType;
+      if (labelType == null) {
+        return const SizedBox.shrink();
+      }
+
+      final isDestinationTag = labelType == MemoLabelType.destinationTag;
+      final hint = isDestinationTag
+          ? S.of(context).destination_tag_optional
+          : S.of(context).memo_optional;
+      final disclaimer = isDestinationTag
+          ? S.of(context).destination_tag_swap_disclaimer
+          : S.of(context).memo_swap_disclaimer;
+
+      return NewSendMemoInput(
+        memoController: memoController,
+        maxMemoLength: isDestinationTag ? 20 : 256,
+        memoLength: memoController.text.length,
+        hintText: hint,
+        disclaimerText: disclaimer,
+      );
+    }
+    return const SizedBox.shrink();
+
+  },);
+}
+
 
 class SwapProviderPreview extends StatelessWidget {
   const SwapProviderPreview({required this.bloc, super.key});
@@ -792,7 +836,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   Future<void> _presentQRScanner(BuildContext context) async {
     final isCameraPermissionGranted =
         await PermissionHandler.checkPermission(Permission.camera, context);
-    if (!isCameraPermissionGranted) return;
+    if (!isCameraPermissionGranted) {
+      return;
+    }
     final code = await presentQRScanner(context);
     if (code == null) {
       return;

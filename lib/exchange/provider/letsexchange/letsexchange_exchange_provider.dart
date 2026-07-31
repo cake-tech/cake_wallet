@@ -123,7 +123,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       depositAmount: request.isFixedRate ? null : request.depositAmount.cryptoAmount.toString(),
       withdrawalAmount: request.isFixedRate ? request.payoutAmount.cryptoAmount.toString() : null,
       withdrawal: withdrawalAddress,
-      withdrawalExtraId: request.toAddressExtraId,
+      withdrawalExtraId: request.toAddressExtraId ?? "",
       returnAddress: returnAddress,
       rateId: rateId,
       networkFrom: networkFrom,
