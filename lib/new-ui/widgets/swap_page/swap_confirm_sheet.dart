@@ -47,15 +47,23 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
 
     if (sendVM.wallet.isHardwareWallet) {
       if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
-        await Navigator.of(context).pushNamed(Routes.connectDevices,
-            arguments: ConnectDevicePageParams(
-              walletType: sendVM.walletType,
-              hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (context, _) {
-                sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-                Navigator.of(context).pop();
-              },
-            ));
+        await Navigator.of(context).pushNamed(
+          Routes.connectDevices,
+          arguments: ConnectDevicePageParams(
+            walletType: sendVM.walletType,
+            hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
+            onConnectDevice: (context, _) {
+              sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+              Navigator.of(context).pop();
+            },
+            isReconnect: false,
+          ),
+        );
+
+        // Recheck to handle tap-backs
+        if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
+          return;
+        }
       } else {
         sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
       }
