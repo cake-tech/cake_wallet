@@ -32,6 +32,8 @@ void main() {
     S.current = const S();
   });
 
+  // PrimaryButton no longer wraps itself in Semantics; the node comes from the
+  // TextButton inside it, so these tests pin the base behaviour that replaced it.
   group("PrimaryButton", () {
     testWidgets("reports one enabled button node named after its text", (tester) async {
       await _pump(
@@ -46,7 +48,7 @@ void main() {
 
       expect(_stops(tester), hasLength(1));
       expect(
-        tester.getSemantics(find.byType(PrimaryButton)),
+        _stops(tester).single,
         containsSemantics(
           label: "Continue",
           isButton: true,
@@ -88,7 +90,7 @@ void main() {
       );
 
       expect(
-        tester.getSemantics(find.byType(PrimaryButton)),
+        _stops(tester).single,
         containsSemantics(
           label: "Continue",
           isButton: true,
@@ -106,12 +108,32 @@ void main() {
       );
 
       expect(
-        tester.getSemantics(find.byType(PrimaryButton)),
+        _stops(tester).single,
         containsSemantics(label: "Continue", isEnabled: false, hasTapAction: false),
       );
     });
 
-    testWidgets("a disabled button with onDisabledPressed stays tappable", (tester) async {
+    testWidgets("the dotted-border variant is still a single named node", (tester) async {
+      await _pump(
+        tester,
+        PrimaryButton(
+          text: "Continue",
+          color: Colors.blue,
+          textColor: Colors.white,
+          isDottedBorder: true,
+          onPressed: () {},
+        ),
+      );
+
+      expect(_stops(tester), hasLength(1));
+      expect(_stops(tester).single, containsSemantics(label: "Continue", isButton: true));
+    });
+
+    // Without the old Semantics wrapper there is no longer an `enabled: false`
+    // annotation independent of the TextButton's callback, so a button that is
+    // visually disabled but wired to onDisabledPressed now reports ENABLED.
+    // See the note in the PR description.
+    testWidgets("a disabled button with onDisabledPressed reports enabled", (tester) async {
       var explained = 0;
       await _pump(
         tester,
@@ -126,8 +148,8 @@ void main() {
       );
 
       expect(
-        tester.getSemantics(find.byType(PrimaryButton)),
-        containsSemantics(label: "Continue", isEnabled: false, hasTapAction: true),
+        _stops(tester).single,
+        containsSemantics(label: "Continue", isEnabled: true, hasTapAction: true),
       );
 
       tester.semantics.tap(find.semantics.byLabel("Continue"));

@@ -12,6 +12,63 @@ Future<void> _pump(WidgetTester tester, Widget child) => tester.pumpWidget(
     );
 
 void main() {
+  group("ModernButton accessible-name asserts", () {
+    test("an icon-only button with no name at all is rejected", () {
+      expect(
+        () => ModernButton(size: 40, icon: const Icon(Icons.close), onPressed: () {}),
+        throwsA(
+          isA<AssertionError>().having(
+            (error) => error.message,
+            "message",
+            contains("ModernButton needs a semanticLabel when it has no visible label"),
+          ),
+        ),
+      );
+    });
+
+    test("an empty visible label does not count as a name", () {
+      expect(
+        () => ModernButton(size: 40, icon: const Icon(Icons.close), onPressed: () {}, label: ""),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test("a visible label alone satisfies it", () {
+      expect(
+        () => ModernButton(size: 40, icon: const Icon(Icons.send), onPressed: () {}, label: "Send"),
+        returnsNormally,
+      );
+    });
+
+    test("a semanticLabel alone satisfies it", () {
+      expect(
+        () => ModernButton(
+          size: 40,
+          icon: const Icon(Icons.close),
+          onPressed: () {},
+          semanticLabel: "Close the sheet",
+        ),
+        returnsNormally,
+      );
+    });
+
+    test("the svg constructor enforces the same rule", () {
+      expect(
+        () => ModernButton.svg(size: 40, svgPath: "assets/x.svg", onPressed: () {}),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => ModernButton.svg(
+          size: 40,
+          svgPath: "assets/x.svg",
+          onPressed: () {},
+          semanticLabel: "Close the sheet",
+        ),
+        returnsNormally,
+      );
+    });
+  });
+
   group("ModernButton semantics", () {
     testWidgets("semanticLabel names the one and only button node", (tester) async {
       await _pump(
