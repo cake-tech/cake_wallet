@@ -23,4 +23,13 @@ class TradeRequest {
   CryptoCurrency get depositCurrency => depositAmount.currency;
 
   CryptoCurrency get payoutCurrency => payoutAmount.currency;
+
+  Map<String, dynamic> toJson() => {
+      "refundAddress": refundAddress,
+      "payoutAddress": payoutAddress,
+      "depositAmount": depositAmount.serialized,
+      "payoutAmount": payoutAmount.serialized,
+      "toAddressExtraId": toAddressExtraId,
+      "isFixedRate": isFixedRate,
+    };
 }

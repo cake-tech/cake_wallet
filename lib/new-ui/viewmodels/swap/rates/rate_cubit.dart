@@ -2,6 +2,7 @@ import "package:bloc/bloc.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
+import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -44,10 +45,25 @@ class RateCubit extends Cubit<RateState> {
         if(rate.rate.quote.isZero) {
           return null;
         }
-
+        ExchangeProviderLogger.logSuccess(function: "fetchRate",
+            provider: provider,
+            requestData: {
+              "from": from.serialized,
+              "to": to.serialized,
+              "isFixedRate": isFixedRate
+            });
         return rate;
 
       } catch (e, st) {
+        ExchangeProviderLogger.logError(function: "fetchRate",
+            provider: provider,
+            error: e,
+            stackTrace: st,
+            requestData: {
+              "from": from.serialized,
+              "to": to.serialized,
+              "isFixedRate": isFixedRate
+            });
         printV("failed to fetch rate from ${provider.title}: $e\n$st");
         return null;
       }

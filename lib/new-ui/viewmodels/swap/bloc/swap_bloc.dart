@@ -25,6 +25,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/store/dashboard/trades_store.dart";
+import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
@@ -529,9 +530,15 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           trade = await provider.createTrade(request: req);
           await trade.copyWith(walletId: _appStore.wallet!.id).save();
           _tradesStore.setTrade(trade);
-          trade = trade;
+          ExchangeProviderLogger.logSuccess(
+              provider: provider.description, function: "createTrade", requestData: {"req": req});
           break;
-        } catch (e) {
+        } catch (e, st) {
+          ExchangeProviderLogger.logError(provider: provider.description,
+              error: e,
+              stackTrace: st,
+              function: "createTrade",
+              requestData: {"req": req});
           printV("failed to create trade at ${provider.description.title}: $e");
         }
       }
