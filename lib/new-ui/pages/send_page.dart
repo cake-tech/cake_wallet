@@ -823,8 +823,15 @@ class _NewSendPageState extends State<NewSendPage> {
               widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
               Navigator.of(context).pop();
             },
+            isReconnect: false,
           ),
         );
+
+        // Recheck to handle tap-backs
+        if (!widget.sendViewModel.hardwareWalletViewModel!
+            .isConnected(widget.sendViewModel.walletType)) {
+          return;
+        }
       } else {
         await widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
       }
