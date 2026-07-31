@@ -1247,7 +1247,7 @@ class SolanaWalletClient {
   Future<Message> _getMessageForNativeTransaction({
     required SolanaPublicKey publicKey,
     required String destinationAddress,
-    required Money lamports,
+    required CryptoMoney lamports,
     required Commitment commitment,
   }) async {
     final instructions = [
@@ -1273,7 +1273,7 @@ class SolanaWalletClient {
     required int tokenDecimals,
     required SolAddress mintAddress,
     required SolAddress sourceAccount,
-    required Money amount,
+    required CryptoMoney amount,
     required Commitment commitment,
     required SolAddress tokenProgramId,
   }) async {
@@ -1305,9 +1305,9 @@ class SolanaWalletClient {
   }
 
   Future<bool> hasSufficientFundsLeftForRent({
-    required Money inputAmount,
-    required Money solBalance,
-    required Money fee,
+    required CryptoMoney inputAmount,
+    required CryptoMoney solBalance,
+    required CryptoMoney fee,
   }) async {
     final rent = await _provider!.request(
       SolanaRPCGetMinimumBalanceForRentExemption(size: SolanaTokenAccountUtils.accountSize),
@@ -1397,7 +1397,7 @@ class SolanaWalletClient {
     required SolanaPrivateKey ownerPrivateKey,
     required String destinationAddress,
     required SolAddress latestBlockhash,
-    required Money lamports,
+    required CryptoMoney lamports,
   }) {
     final owner = ownerPrivateKey.publicKey().toAddress();
 

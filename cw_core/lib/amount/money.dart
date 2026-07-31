@@ -10,7 +10,7 @@ export "money_local.dart";
 typedef FiatMoney = Money<FiatCurrency>;
 typedef CryptoMoney = Money<CryptoCurrency>;
 
-class Money<T extends Currency> implements Comparable<Money> {
+class Money<T extends Currency> implements Comparable<Money<T>> {
   const Money(this.amount, this.currency);
 
   factory Money.zero(T currency) => Money(BigInt.zero, currency);
@@ -60,7 +60,7 @@ class Money<T extends Currency> implements Comparable<Money> {
   /// [other] has to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
   @override
-  int compareTo(Money other) {
+  int compareTo(Money<T> other) {
     _assertSameCurrency(other);
 
     return amount.compareTo(other.amount);
@@ -182,7 +182,7 @@ class Money<T extends Currency> implements Comparable<Money> {
   /// Creates new instance with the same currency and given [amount].
   Money<T> _withAmount(BigInt amount) => Money(amount, currency);
 
-  void _assertSameCurrency(Money other, [String? message]) {
+  void _assertSameCurrency(Money<T> other, [String? message]) {
     if (currency != other.currency) {
       throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
     }
