@@ -480,28 +480,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final amountController = TextEditingController();
   final fiatAmountController = TextEditingController();
   final amountFocusNode = FocusNode();
-  final memoController = TextEditingController();
 
-  @override
-  void initState() {
-    if (widget.isReceiverCard) {
-      // memoController.text = widget.exchangeViewModel.receiveAddressExtraId;
-      //
-      // memoController.addListener(() {
-      //   if (widget.exchangeViewModel.receiveAddressExtraId != memoController.text) {
-      //     widget.exchangeViewModel.receiveAddressExtraId = memoController.text;
-      //   }
-      // });
-    }
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    memoController.dispose();
-    super.dispose();
-  }
 
   bool _fiatInputMode = false;
 
