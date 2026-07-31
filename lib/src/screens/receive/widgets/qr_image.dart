@@ -57,20 +57,25 @@ class QrImage extends StatelessWidget {
     } else {
       centerImageToUse = centerImage;
     }
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        qr.QrImageView(
-          data: data,
-          errorCorrectionLevel: errorCorrectionLevel,
-          version: version ?? qr.QrVersions.auto,
-          size: qrSize,
-          foregroundColor: foregroundColor,
-          backgroundColor: backgroundColor,
-          padding: const EdgeInsets.all(12.0),
-        ),
-        centerImageToUse,
-      ],
+    // The QR matrix, the embedded logo and its badge are all purely visual: the
+    // data they encode is announced by the labelled control hosting this widget,
+    // so nothing in here should become a focus stop of its own.
+    return ExcludeSemantics(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          qr.QrImageView(
+            data: data,
+            errorCorrectionLevel: errorCorrectionLevel,
+            version: version ?? qr.QrVersions.auto,
+            size: qrSize,
+            foregroundColor: foregroundColor,
+            backgroundColor: backgroundColor,
+            padding: const EdgeInsets.all(12.0),
+          ),
+          centerImageToUse,
+        ],
+      ),
     );
   }
 }

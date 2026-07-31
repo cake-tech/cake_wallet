@@ -1,3 +1,4 @@
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -88,6 +89,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                           ),
                           FloatingIconButton(
                             iconPath: "assets/new-ui/paste.svg",
+                            semanticLabel: S.of(context).paste,
                             onPressed: () async {
                               final data = await Clipboard.getData(Clipboard.kTextPlain);
                               if (data != null && data.text != null) {
