@@ -27,9 +27,9 @@ class CopyWrapper extends StatefulWidget {
   /// detector. Receives the transient "copied" state.
   final Widget Function(BuildContext, bool)? builder;
 
-  /// Builds a control that performs the copy itself, so no extra gesture or
-  /// semantics layer is stacked on top of it. [onCopy] is null when there is
-  /// nothing to copy.
+  /// Builds a control that performs the copy itself, so no extra gesture
+  /// detector or actionable semantics node is stacked on top of it. [onCopy] is
+  /// null when there is nothing to copy.
   final Widget Function(BuildContext context, bool copied, VoidCallback? onCopy)? controlBuilder;
 
   final Duration duration;
@@ -45,7 +45,11 @@ class _CopyWrapperState extends State<CopyWrapper> {
     if (widget.data == null) return;
     ClipboardUtil.setSensitiveDataToClipboard(widget.data!, isSensitive: widget.isSensitive);
     HapticFeedback.mediumImpact();
-    SemanticsService.announce(S.of(context).copied, Directionality.of(context));
+    // Screen readers learn about the copy from the transient "copied" state
+    // below, which build() marks as a live region, instead of from a push
+    // announcement: those are deprecated on Android and make TalkBack drop
+    // whatever it was saying. Where we don't render that state, android 13+
+    // already shows its own clipboard confirmation.
     if (await shouldShowCopied()) {
       setState(() => copied = true);
       Future.delayed(widget.duration, () {
@@ -58,7 +62,17 @@ class _CopyWrapperState extends State<CopyWrapper> {
   Widget build(BuildContext context) {
     final VoidCallback? onCopy = widget.data == null ? null : handleCopy;
 
-    if (widget.controlBuilder != null) return widget.controlBuilder!(context, copied, onCopy);
+    // The control's own label carries the copied state (Copy -> Copied), so
+    // merging it into one node and marking that node a live region while copied
+    // is enough for a screen reader to pick the change up.
+    if (widget.controlBuilder != null) {
+      return MergeSemantics(
+        child: Semantics(
+          liveRegion: copied,
+          child: widget.controlBuilder!(context, copied, onCopy),
+        ),
+      );
+    }
 
     final content = widget.builder!(context, copied);
 
@@ -69,6 +83,7 @@ class _CopyWrapperState extends State<CopyWrapper> {
     return MergeSemantics(
       child: Semantics(
         button: !widget.requireLongPress,
+        liveRegion: copied,
         hint: widget.requireLongPress ? S.of(context).long_press_to_copy : S.of(context).copy,
         customSemanticsActions: <CustomSemanticsAction, VoidCallback>{
           CustomSemanticsAction(label: S.of(context).copy): onCopy,

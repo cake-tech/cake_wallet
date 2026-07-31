@@ -66,6 +66,14 @@ class PayjoinCopyModal extends StatelessWidget {
     );
   }
 
-  void _announceCopied(BuildContext context) =>
-      SemanticsService.announce(S.of(context).copied, Directionality.of(context));
+  // Copying pops this sheet right away, so no widget survives to carry a
+  // semantics state change: this path still needs a direct announcement. It is
+  // skipped on platforms that deprecate announcements (android, where they
+  // clear TalkBack's speech queue and the system shows its own clipboard
+  // confirmation anyway).
+  void _announceCopied(BuildContext context) {
+    if (!MediaQuery.supportsAnnounceOf(context)) return;
+    SemanticsService.sendAnnouncement(
+        View.of(context), S.of(context).copied, Directionality.of(context));
+  }
 }
