@@ -67,13 +67,13 @@ class ModalTopBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                Semantics(
-                  header: title.isNotEmpty,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Semantics(
+                    key: ValueKey(title),
+                    header: title.isNotEmpty,
                     child: Text(
                       title,
-                      key: ValueKey(title),
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
