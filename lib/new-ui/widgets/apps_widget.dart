@@ -148,12 +148,16 @@ class AppsWidget extends StatelessWidget {
             Positioned(
               top: 10,
               right: 10,
-              child: IconButton(
-                icon: Icon(Icons.close),
-                onPressed: onClose,
-                // IconButton takes its accessible name from the tooltip only.
-                tooltip: S.of(context).close,
-                //color: Theme.of(context).colorScheme.onSurface,
+              // Label the icon-only button without adding a visible tooltip.
+              child: MergeSemantics(
+                child: Semantics(
+                  label: S.of(context).close,
+                  child: IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: onClose,
+                    //color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
               ),
             ),
         ],

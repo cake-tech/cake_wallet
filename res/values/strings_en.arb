@@ -621,6 +621,7 @@
   "login": "Login",
   "logout": "Logout",
   "long_press_edit_address": "Long press to edit address",
+  "long_press_hide_balance": "Long press card to hide balance",
   "long_press_show_balance": "Long press card to show balance",
   "long_press_to_copy": "Long press to copy",
   "low_fee": "Low fee",
