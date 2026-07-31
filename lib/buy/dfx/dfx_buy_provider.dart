@@ -337,14 +337,23 @@ class DFXBuyProvider extends BuyProvider {
       String? countryCode}) async {
     if (wallet.isHardwareWallet) {
       if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
-        await Navigator.of(context).pushNamed(Routes.connectDevices,
-            arguments: ConnectDevicePageParams(
-                walletType: wallet.walletInfo.type,
-                hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
-                onConnectDevice: (context, hwwVM) {
-                  hwwVM.initWallet(wallet);
-                  Navigator.of(context).pop();
-                }));
+        await Navigator.of(context).pushNamed(
+          Routes.connectDevices,
+          arguments: ConnectDevicePageParams(
+            walletType: wallet.walletInfo.type,
+            hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
+            onConnectDevice: (context, hwwVM) {
+              hwwVM.initWallet(wallet);
+              Navigator.of(context).pop();
+            },
+            isReconnect: false,
+          ),
+        );
+
+        // Recheck to handle tap-backs
+        if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
+          return;
+        }
       } else {
         hardwareWalletVM!.initWallet(wallet);
       }
