@@ -118,7 +118,12 @@ class _CardsViewState extends State<CardsView> {
           button: true,
           selected: isSelected,
           label: cardLabel,
-          hint: isSelected ? S.of(context).long_press_show_balance : null,
+          hint: isSelected
+              ? (widget.dashboardViewModel.balanceViewModel.displayMode ==
+                      BalanceDisplayMode.hiddenBalance
+                  ? S.of(context).long_press_show_balance
+                  : S.of(context).long_press_hide_balance)
+              : null,
           onTap: onCardTap,
           onLongPress: isSelected ? onCardLongPress : null,
           child: GestureDetector(

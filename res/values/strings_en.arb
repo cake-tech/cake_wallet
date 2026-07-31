@@ -620,6 +620,7 @@
   "login": "Login",
   "logout": "Logout",
   "long_press_edit_address": "Long press to edit address",
+  "long_press_hide_balance": "Long press card to hide balance",
   "long_press_show_balance": "Long press card to show balance",
   "low_fee": "Low fee",
   "low_fee_alert": "You currently are using a low network fee priority. This could cause long waits, different rates, or canceled trades. We recommend setting a higher fee for a better experience.",
