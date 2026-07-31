@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "미사용 코인 상세 정보",
   "unspent_coins_title": "미사용 코인",
   "unsupported_asset": "이 자산에서는 이 작업을 지원하지 않습니다. 지원되는 자산 유형의 지갑을 생성하거나 해당 지갑으로 전환하세요.",
+  "unsupported_network_requested": "이 결제 요청은 당사가 지원하지 않는 네트워크(체인 ID ${chainId})에 대한 것입니다.",
   "uptime": "가동 시간",
   "upto": "${value}까지",
   "usb": "USB",

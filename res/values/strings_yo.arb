@@ -1320,6 +1320,7 @@
   "unspent_coins_details_title": "Àlàyé àwọn owó ẹyọ tí a kò tíì ná",
   "unspent_coins_title": "Àwọn owó ẹyọ tí a kò tíì na",
   "unsupported_asset": "A ko ṣe atilẹyin ìṣe yìí fún dukia yìí. Jọwọ ṣẹda tàbí yípadà sí apamọwọ ti iru dukia tí a ṣe atilẹyin.",
+  "unsupported_network_requested": "Ibeere isanwo yii jẹ fun netiwọki ti a ko ṣe atilẹyin (ID pq ${chainId}).",
   "uptime": "Akoko tí ó ti ń ṣiṣẹ́",
   "upto": "títí dé ${value}",
   "usb": "USB",

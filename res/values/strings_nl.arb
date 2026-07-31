@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "Details van niet-uitgegeven saldo",
   "unspent_coins_title": "Niet-uitgegeven saldo",
   "unsupported_asset": "We ondersteunen deze actie niet voor deze coin. Maak een wallet van een ondersteund activatype aan of schakel ernaar over.",
+  "unsupported_network_requested": "Dit betalingsverzoek is voor een netwerk dat we niet ondersteunen (keten-ID ${chainId}).",
   "uptime": "Uptime",
   "upto": "tot ${value}",
   "usb": "USB",

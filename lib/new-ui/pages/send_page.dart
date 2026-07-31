@@ -1097,6 +1097,13 @@ class _NewSendPageState extends State<NewSendPage> {
           );
           break;
         case PaymentFlowType.evmNetworkSelection:
+          if (result.chainId != null &&
+              evm != null &&
+              evm!.getChainInfoByChainId(result.chainId!) == null) {
+            _showUnsupportedNetworkAlert(result.chainId!);
+            return;
+          }
+
           final targetChain =
               paymentRequest.scheme.isNotEmpty && result.chainId != null && evm != null
                   ? evm!.getChainInfoByChainId(result.chainId!)
@@ -1134,6 +1141,22 @@ class _NewSendPageState extends State<NewSendPage> {
       printV("Payment flow error: $e");
       _applyPaymentRequest(paymentRequest);
     }
+  }
+
+  void _showUnsupportedNetworkAlert(int chainId) {
+    if (!mounted) {
+      return;
+    }
+
+    showPopUp<void>(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).error,
+        alertContent: S.of(context).unsupported_network_requested(chainId.toString()),
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(context).pop(),
+      ),
+    );
   }
 
   String _networkDisplayName(WalletType type, int? chainId) {

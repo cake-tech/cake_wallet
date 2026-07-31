@@ -1321,6 +1321,7 @@
   "unspent_coins_details_title": "Cikakkun bayanan tsabar kuɗi da ba a kashe ba",
   "unspent_coins_title": "Tsabar kuɗi da ba a kashe ba",
   "unsupported_asset": "Ba mu goyi bayan wannan aikin ga wannan kadara ba. Da fatan za a ƙirƙiri ko canza zuwa walat na nau'in kadara da ake tallafawa.",
+  "unsupported_network_requested": "Wannan buƙatar biyan kuɗi don hanyar sadarwar da ba mu tallafawa (Chain ID ${chainId}).",
   "uptime": "Lokacin aiki",
   "upto": "har zuwa ${value}",
   "usb": "USB",

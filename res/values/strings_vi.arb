@@ -1320,6 +1320,7 @@
   "unspent_coins_details_title": "Chi tiết coin chưa chi tiêu",
   "unspent_coins_title": "Các coin chưa sử dụng",
   "unsupported_asset": "Chúng tôi không hỗ trợ hành động này cho tài sản này. Vui lòng tạo hoặc chuyển sang ví thuộc loại tài sản được hỗ trợ.",
+  "unsupported_network_requested": "Yêu cầu thanh toán này dành cho mạng mà chúng tôi không hỗ trợ (ID chuỗi ${chainId}).",
   "uptime": "Thời gian hoạt động",
   "upto": "tối đa ${value}",
   "usb": "USB",

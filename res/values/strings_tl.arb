@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "Mga detalye ng mga hindi nagastos na coin",
   "unspent_coins_title": "Mga hindi nagastos na coin",
   "unsupported_asset": "Hindi namin sinusuportahan ang aksyong ito para sa asset na ito. Mangyaring gumawa o lumipat sa isang wallet na may suportadong uri ng asset.",
+  "unsupported_network_requested": "Ang kahilingan sa pagbabayad na ito ay para sa isang network na hindi namin sinusuportahan (chain ID ${chainId}).",
   "uptime": "Uptime",
   "upto": "hanggang ${value}",
   "usb": "USB",

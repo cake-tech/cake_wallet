@@ -1320,6 +1320,7 @@
   "unspent_coins_details_title": "Dettagli delle monete non spese",
   "unspent_coins_title": "Monete non spese",
   "unsupported_asset": "Non supportiamo questa azione per questo asset. Crea o passa a un wallet di un tipo di asset supportato.",
+  "unsupported_network_requested": "Questa richiesta di pagamento riguarda una rete che non supportiamo (ID catena ${chainId}).",
   "uptime": "Tempo di attività",
   "upto": "fino a ${value}",
   "usb": "USB",

@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "Podrobnosti o neutracených mincích",
   "unspent_coins_title": "Neutratné mince",
   "unsupported_asset": "Tuto akci pro toto aktivum nepodporujeme. Vytvořte nebo přepněte na peněženku podporovaného typu aktiva.",
+  "unsupported_network_requested": "Tento požadavek na platbu je pro síť, kterou nepodporujeme (ID řetězce ${chainId}).",
   "uptime": "Doba provozu",
   "upto": "až do ${value}",
   "usb": "USB",

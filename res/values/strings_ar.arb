@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "تفاصيل العملات غير المُنفَقة",
   "unspent_coins_title": "العملات غير المُنفَقة",
   "unsupported_asset": "لا ندعم هذا الإجراء لهذا الأصل. يُرجى إنشاء محفظة لأصل مدعوم أو التبديل إلى محفظة من نوع أصل مدعوم.",
+  "unsupported_network_requested": "طلب الدفع هذا مخصص لشبكة لا ندعمها (معرف السلسلة ${chainId}).",
   "uptime": "مدة التشغيل",
   "upto": "حتى ${value}",
   "usb": "USB",

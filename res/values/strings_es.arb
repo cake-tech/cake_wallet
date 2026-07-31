@@ -1321,6 +1321,7 @@
   "unspent_coins_details_title": "Detalles de monedas sin gastar",
   "unspent_coins_title": "Monedas no gastadas",
   "unsupported_asset": "No se admite esta acción para este activo. Por favor, crea o cambia a una billetera de un tipo de activo compatible.",
+  "unsupported_network_requested": "Esta solicitud de pago es para una red que no admitimos (ID de cadena ${chainId}).",
   "uptime": "Tiempo de actividad",
   "upto": "hasta ${value}",
   "usb": "USB",

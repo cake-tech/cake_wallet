@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "Harcanmamış coin detayları",
   "unspent_coins_title": "Harcanmamış coinler",
   "unsupported_asset": "Bu varlık için bu eylemi desteklemiyoruz. Lütfen desteklenen bir varlık türüne sahip bir cüzdan oluşturun veya o cüzdana geçiş yapın.",
+  "unsupported_network_requested": "Bu ödeme isteği, desteklemediğimiz bir ağ içindir (zincir kimliği ${chainId}).",
   "uptime": "Çalışma süresi",
   "upto": "${value} değerine kadar",
   "usb": "USB",

@@ -1321,6 +1321,7 @@
   "unspent_coins_details_title": "Detalhes das moedas não gastas",
   "unspent_coins_title": "Moedas não gastas",
   "unsupported_asset": "Não oferecemos suporte a esta ação para este ativo. Crie ou alterne para uma carteira de um tipo de ativo compatível.",
+  "unsupported_network_requested": "Esta solicitação de pagamento é para uma rede não compatível (ID da cadeia ${chainId}).",
   "uptime": "Tempo de atividade",
   "upto": "até ${value}",
   "usb": "USB",

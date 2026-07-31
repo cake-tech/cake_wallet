@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "Détails des coins non dépensés",
   "unspent_coins_title": "Coins non dépensés",
   "unsupported_asset": "Nous ne prenons pas en charge cette action pour cet actif. Veuillez créer ou passer à un portefeuille d’un type d’actif pris en charge.",
+  "unsupported_network_requested": "Cette demande de paiement concerne un réseau que nous ne prenons pas en charge (ID de chaîne ${chainId}).",
   "uptime": "Temps de disponibilité",
   "upto": "jusqu’à ${value}",
   "usb": "USB",

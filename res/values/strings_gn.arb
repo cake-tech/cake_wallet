@@ -1325,6 +1325,7 @@
   "unspent_coins_details_title": "Marandu viru ndojepurukuaáiva rehegua",
   "unspent_coins_title": "Viru noñemongu'éiva",
   "unsupported_asset": "Ndoroipytyvõi ko tembiapo ko activo-pe g̃uarã. Ikatúpiko emoheñói térã emoambue peteĩ billetera peteĩ activo ojehepytyvõva hag̃ua.",
+  "unsupported_network_requested": "Ko mba’ejerure jehepyme’ẽ rehegua ha’e peteĩ red ndoroipytyvõivape g̃uarã (ID cadena ${chainId}).",
   "uptime": "Ara oĩ hag̃ua",
   "upto": "peve ${value}",
   "usb": "USB",

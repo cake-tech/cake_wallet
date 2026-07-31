@@ -1320,6 +1320,7 @@
   "unspent_coins_details_title": "未使用コインの詳細",
   "unspent_coins_title": "未使用コイン",
   "unsupported_asset": "このアセットではこの操作はサポートされていません。サポートされているアセットタイプのウォレットを作成するか、対応するウォレットに切り替えてください。",
+  "unsupported_network_requested": "この支払いリクエストは、当社がサポートしていないネットワーク (チェーン ID ${chainId}) に対するものです。",
   "uptime": "稼働時間",
   "upto": "${value}まで",
   "usb": "USB",

@@ -1325,6 +1325,7 @@
   "unspent_coins_details_title": "Details zu nicht ausgegebenen Coins",
   "unspent_coins_title": "Nicht ausgegebene Coins",
   "unsupported_asset": "Wir unterstützen diese Aktion für dieses Asset nicht. Bitte erstellen Sie eine Wallet mit einem unterstützten Asset-Typ oder wechseln Sie zu einer Wallet mit einem unterstützten Asset-Typ.",
+  "unsupported_network_requested": "Diese Zahlungsanforderung bezieht sich auf ein Netzwerk, das wir nicht unterstützen (Ketten-ID ${chainId}).",
   "uptime": "Betriebszeit",
   "upto": "bis zu ${value}",
   "usb": "USB",

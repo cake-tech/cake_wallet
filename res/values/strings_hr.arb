@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "Detalji nepotrošenih novčića",
   "unspent_coins_title": "Nepotrošeni novčići",
   "unsupported_asset": "Ne podržavamo ovu radnju za ovu imovinu. Izradite ili se prebacite na novčanik podržane vrste imovine.",
+  "unsupported_network_requested": "Ovaj zahtjev za plaćanje je za mrežu koju ne podržavamo (ID lanca ${chainId}).",
   "uptime": "Vrijeme neprekidnog rada",
   "upto": "do ${value}",
   "usb": "USB",

@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "Szczegóły niewydanych monet",
   "unspent_coins_title": "Niewydane monety",
   "unsupported_asset": "Nie obsługujemy tej czynności dla tego aktywa. Utwórz lub przełącz się na portfel obsługiwanego typu aktywów.",
+  "unsupported_network_requested": "To żądanie płatności dotyczy sieci, której nie obsługujemy (identyfikator łańcucha ${chainId}).",
   "uptime": "Czas działania",
   "upto": "do ${value}",
   "usb": "USB",

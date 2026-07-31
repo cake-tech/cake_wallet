@@ -1333,6 +1333,7 @@
   "unspent_coins_details_title": "Unspent coins details",
   "unspent_coins_title": "Unspent coins",
   "unsupported_asset": "We don't support this action for this asset. Please create or switch to a wallet of a supported asset type.",
+  "unsupported_network_requested": "This payment request is for a network we don't support (chain ID ${chainId}).",
   "uptime": "Uptime",
   "upto": "up to ${value}",
   "usb": "USB",

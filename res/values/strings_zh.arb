@@ -1319,6 +1319,7 @@
   "unspent_coins_details_title": "未花费币详情",
   "unspent_coins_title": "未花费币",
   "unsupported_asset": "我们不支持对该资产执行此操作。请创建或切换到受支持的资产类型的钱包。",
+  "unsupported_network_requested": "此付款请求适用于我们不支持的网络（链 ID ${chainId}）。",
   "uptime": "正常运行时间",
   "upto": "最高可达 ${value}",
   "usb": "USB",

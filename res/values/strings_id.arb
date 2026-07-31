@@ -1322,6 +1322,7 @@
   "unspent_coins_details_title": "Rincian koin yang belum dibelanjakan",
   "unspent_coins_title": "Koin yang belum dibelanjakan",
   "unsupported_asset": "Kami tidak mendukung tindakan ini untuk aset ini. Harap buat atau beralih ke dompet dengan jenis aset yang didukung.",
+  "unsupported_network_requested": "Permintaan pembayaran ini ditujukan untuk jaringan yang tidak kami dukung (ID rantai ${chainId}).",
   "uptime": "Waktu aktif",
   "upto": "hingga ${value}",
   "usb": "USB",
