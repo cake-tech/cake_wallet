@@ -13,7 +13,8 @@ class ModernButton extends StatelessWidget {
   final String? label;
 
   /// Accessible name announced by screen readers. Falls back to [label] (the
-  /// visible caption) when omitted. Must be localized by the caller.
+  /// visible caption) when omitted, so one of the two is required. Must be
+  /// localized by the caller.
   final String? semanticLabel;
   static const iconSvgSizeRatio = 2 / 3;
 
@@ -27,7 +28,9 @@ class ModernButton extends StatelessWidget {
       this.backgroundColor,
       this.label,
       this.semanticLabel})
-      : svgPath = null;
+      : svgPath = null,
+        assert(semanticLabel != null || (label != null && label != ""),
+            "ModernButton needs a semanticLabel when it has no visible label");
 
   const ModernButton.svg(
       {super.key,
@@ -39,7 +42,9 @@ class ModernButton extends StatelessWidget {
       this.backgroundColor,
       this.label,
       this.semanticLabel})
-      : icon = null;
+      : icon = null,
+        assert(semanticLabel != null || (label != null && label != ""),
+            "ModernButton needs a semanticLabel when it has no visible label");
 
   @override
   Widget build(BuildContext context) {

@@ -62,6 +62,7 @@ class AssetDetailsModal extends StatelessWidget {
           ModalTopBar(
             title: "",
             trailingIcon: Icon(Icons.close),
+            trailingSemanticLabel: S.of(context).close,
             onTrailingPressed: Navigator.of(context).pop,
             padding: EdgeInsets.only(top: 12, right: 18),
           ),

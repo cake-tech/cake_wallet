@@ -1,4 +1,3 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +16,12 @@ class ModalTopBar extends StatelessWidget {
       this.leadingWidget,
       this.trailingWidget,
       this.leadingSemanticLabel,
-      this.trailingSemanticLabel}) {
+      this.trailingSemanticLabel})
+      : assert(leadingIcon == null || (leadingSemanticLabel != null && leadingSemanticLabel != ""),
+            "leadingIcon requires a non-empty leadingSemanticLabel"),
+        assert(
+            trailingIcon == null || (trailingSemanticLabel != null && trailingSemanticLabel != ""),
+            "trailingIcon requires a non-empty trailingSemanticLabel") {
     if (leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }
@@ -36,12 +40,15 @@ class ModalTopBar extends StatelessWidget {
   final Widget? leadingWidget;
   final Widget? trailingWidget;
 
-  /// Accessible name for the leading chrome button. Defaults to "Close" because
-  /// the leading icon is a close/back affordance in nearly every modal.
+  /// Accessible name for the leading chrome button. Required (and must be
+  /// non-empty) whenever a [leadingIcon] is supplied, because the icon alone
+  /// does not say whether it closes the modal or goes back. Must be localized
+  /// by the caller.
   final String? leadingSemanticLabel;
 
-  /// Accessible name for the trailing chrome button. Callers should supply one
-  /// whenever they supply a [trailingIcon].
+  /// Accessible name for the trailing chrome button. Required (and must be
+  /// non-empty) whenever a [trailingIcon] is supplied. Must be localized by
+  /// the caller.
   final String? trailingSemanticLabel;
 
   static const buttonSize = 36.0;
@@ -91,7 +98,7 @@ class ModalTopBar extends StatelessWidget {
                         size: buttonSize,
                         onPressed: onLeadingPressed,
                         icon: leadingIcon!,
-                        semanticLabel: leadingSemanticLabel ?? S.of(context).close,
+                        semanticLabel: leadingSemanticLabel,
                         iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
                     : leadingWidget!
               else

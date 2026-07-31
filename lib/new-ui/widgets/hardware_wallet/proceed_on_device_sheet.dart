@@ -106,6 +106,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                     Icons.close,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
+                  trailingSemanticLabel: S.of(context).close,
                   onTrailingPressed: () => showPopUp(
                     context: context,
                     builder: (context) => AlertWithTwoActions(

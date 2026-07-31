@@ -328,6 +328,7 @@ class _NewSendPageState extends State<NewSendPage> {
                         title: widget.mode.title,
                         subtitle: widget.mode.description,
                         leadingIcon: const Icon(Icons.close),
+                        leadingSemanticLabel: S.of(context).close,
                         onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                         trailingWidget: Observer(
                           builder: (_) => Row(
