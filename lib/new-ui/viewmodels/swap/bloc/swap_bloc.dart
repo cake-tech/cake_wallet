@@ -4,6 +4,8 @@ import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_validator.dart";
+import "package:cake_wallet/core/lightning_invoice_service.dart";
+import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
@@ -28,6 +30,7 @@ import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
@@ -144,7 +147,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState> with BlocPresentationMixin<Swa
         }
       }
 
-      if (!AddressValidator(type: s.payoutAmount.currency).isValid(newAddress.address)) {
+      if (newAddress is! InternalWalletSwapAddress && !AddressValidator(type: s.payoutAmount.currency).isValid(newAddress.address)) {
         emitPresentation(const AddressValidationFailed());
         return;
       }
@@ -446,9 +449,18 @@ newPayoutAmount = s.payoutAmount;
         throw UnsupportedError("should not be reachable");
       }
 
+      String payoutAddress = s.payoutAddress!.address;
+      if(s.payoutAddress case final InternalWalletSwapAddress address) {
+        payoutAddress = await _addressFromWalletInfo(address.walletInfo, s.payoutAmount.currency);
+      }
+
+      if (payoutAddress.contains("@")) {
+        payoutAddress = await getBolt11FromLightingAddress(payoutAddress) ?? payoutAddress;
+      }
+
       final req = TradeRequest(
         refundAddress: refundAddress,
-        payoutAddress: s.payoutAddress!.address,
+        payoutAddress: payoutAddress,
         depositAmount: s.depositAmount,
         payoutAmount: s.payoutAmount,
         isFixedRate: s.isFixedRate,
@@ -474,7 +486,9 @@ newPayoutAmount = s.payoutAmount;
           _tradesStore.setTrade(trade);
           trade = trade;
           break;
-        } catch(e) {}
+        } catch(e) {
+          printV("failed to create trade at ${provider.description.title}: $e");
+        }
       }
 
       if (trade == null) {
@@ -509,6 +523,31 @@ newPayoutAmount = s.payoutAmount;
 
 
     }
+  }
+
+  // HACK: not much more we can do here with the way we fetch the wallet list
+  Future<String> _addressFromWalletInfo(WalletInfo wi, CryptoCurrency curr) async {
+    if(wi.type == .bitcoin) {
+      final _walletAddresses = await wi.getAddresses();
+      print(_walletAddresses);
+      if (curr == CryptoCurrency.btcln) {
+        final lightningAddressOfWallet =
+            _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("LN"))?.key;
+        print(lightningAddressOfWallet);
+        if (lightningAddressOfWallet != null) {
+          return lightningAddressOfWallet;
+        }
+      }
+      if (curr == CryptoCurrency.btc) {
+        final segwitAddressOfWallet =
+            _walletAddresses.entries.firstWhereOrNull((e) => e.value.contains("P2WPKH"))?.key;
+        if (segwitAddressOfWallet != null) {
+          return segwitAddressOfWallet;
+        }
+      }
+    }
+
+    return wi.address;
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
