@@ -1,3 +1,4 @@
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -68,22 +69,27 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                         spacing: 8,
                         children: [
                           Expanded(
-                            child: TextField(
-                              keyboardType: TextInputType.numberWithOptions(
-                                signed: false,
-                                decimal: widget.maxDecimals > 0,
+                            child: MergeSemantics(
+                              child: Semantics(
+                                label: S.of(context).amount,
+                                child: TextField(
+                                  keyboardType: TextInputType.numberWithOptions(
+                                    signed: false,
+                                    decimal: widget.maxDecimals > 0,
+                                  ),
+                                  autocorrect: false,
+                                  enableSuggestions: false,
+                                  inputFormatters: <TextInputFormatter>[
+                                    DecimalInputFormatter(maxDecimals: widget.maxDecimals),
+                                  ],
+                                  controller: widget.amountController,
+                                  decoration: InputDecoration(
+                                    hintText: widget.maxDecimals == 0 ? "0" : "0.00",
+                                    errorMaxLines: 3,
+                                  ),
+                                  onChanged: state.didChange,
+                                ),
                               ),
-                              autocorrect: false,
-                              enableSuggestions: false,
-                              inputFormatters: <TextInputFormatter>[
-                                DecimalInputFormatter(maxDecimals: widget.maxDecimals),
-                              ],
-                              controller: widget.amountController,
-                              decoration: InputDecoration(
-                                hintText: widget.maxDecimals == 0 ? "0" : "0.00",
-                                errorMaxLines: 3,
-                              ),
-                              onChanged: state.didChange,
                             ),
                           ),
                           FloatingIconButton(
@@ -105,44 +111,52 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                   ),
                   IntrinsicWidth(
                     child: Observer(
-                      builder: (_) => GestureDetector(
-                        onTap: widget.onPickerClicked,
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(18),
-                              bottomRight: Radius.circular(18),
+                      builder: (_) => Semantics(
+                        button: widget.hasPicker ? true : null,
+                        enabled: widget.hasPicker ? true : null,
+                        label: widget.hasPicker ? S.of(context).select_asset : widget.currency,
+                        value: widget.hasPicker ? widget.currency : null,
+                        onTap: widget.hasPicker ? widget.onPickerClicked : null,
+                        excludeSemantics: true,
+                        child: GestureDetector(
+                          onTap: widget.onPickerClicked,
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(18),
+                                bottomRight: Radius.circular(18),
+                              ),
+                              color: widget.hasPicker
+                                  ? Theme.of(context).colorScheme.surfaceContainerHigh
+                                  : Theme.of(context).colorScheme.surfaceContainer,
                             ),
-                            color: widget.hasPicker
-                                ? Theme.of(context).colorScheme.surfaceContainerHigh
-                                : Theme.of(context).colorScheme.surfaceContainer,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              spacing: 8,
-                              children: [
-                                if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                  TokenImageWidget(
-                                    imageUrl: widget.currencyIconPath,
-                                    size: 24,
-                                  ),
-                                Text(widget.currency),
-                                if (widget.hasPicker)
-                                  CakeImageWidget(
-                                    imageUrl: "assets/new-ui/chooser.svg",
-                                    width: 12,
-                                    height: 12,
-                                    colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary,
-                                      BlendMode.srcIn,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.max,
+                                spacing: 8,
+                                children: [
+                                  if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
+                                    TokenImageWidget(
+                                      imageUrl: widget.currencyIconPath,
+                                      size: 24,
                                     ),
-                                  ),
-                              ],
+                                  Text(widget.currency),
+                                  if (widget.hasPicker)
+                                    CakeImageWidget(
+                                      imageUrl: "assets/new-ui/chooser.svg",
+                                      width: 12,
+                                      height: 12,
+                                      colorFilter: ColorFilter.mode(
+                                        Theme.of(context).colorScheme.primary,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -155,9 +169,15 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
             if (state.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 6, left: 8),
-                child: Text(
-                  state.errorText!,
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                child: Semantics(
+                  container: true,
+                  liveRegion: true,
+                  label: "${S.of(context).amount}${state.errorText!}",
+                  excludeSemantics: true,
+                  child: Text(
+                    state.errorText!,
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                  ),
                 ),
               ),
           ],

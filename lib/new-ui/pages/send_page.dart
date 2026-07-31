@@ -413,7 +413,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           spacing: 12,
                                           children: [
-                                            Text(S.of(context).address_or_alias),
+                                            // The field announces this label itself.
+                                            ExcludeSemantics(
+                                              child: Text(S.of(context).address_or_alias),
+                                            ),
                                             NewSendAddressInput(
                                               displayName: output.displayName,
                                               validator: output.isParsedAddress
@@ -477,7 +480,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         spacing: 12,
                                         children: [
-                                          Text(S.of(context).amount),
+                                          // The field announces this label itself.
+                                          ExcludeSemantics(
+                                            child: Text(S.of(context).amount),
+                                          ),
                                           NewSendAmountInput(
                                             validator: output.sendAll
                                                 ? widget.sendViewModel.allAmountValidator
@@ -554,17 +560,18 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   label: S.of(context).fees,
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
-                                                  onTap: () {
-                                                    if (widget.sendViewModel.feesViewModel
-                                                        .hasFeesPriority) {
-                                                      pickTransactionPriority(context, output);
-                                                    }
-                                                  },
+                                                  // Without fee priorities the row does nothing,
+                                                  // so it must not be announced as interactive.
+                                                  onTap: widget.sendViewModel.feesViewModel
+                                                          .hasFeesPriority
+                                                      ? () =>
+                                                          pickTransactionPriority(context, output)
+                                                      : null,
                                                 ),
                                               if (widget.sendViewModel.hasCoinControl)
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
-                                                  label: "Coin Control",
+                                                  label: S.of(context).coin_control,
                                                   onTap: () {
                                                     showCupertinoModalBottomSheet(
                                                       enableDrag: false,

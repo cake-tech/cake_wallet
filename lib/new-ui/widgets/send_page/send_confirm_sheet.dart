@@ -23,6 +23,7 @@ import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -46,9 +47,15 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
     super.initState();
     reaction((_) => widget.sendViewModel.state, (state) {
       if (state is TransactionCommitted) {
+        if (!mounted) {
+          return;
+        }
         setState(() {
           _committed = true;
         });
+        // The sheet swaps its content in place, so nothing would otherwise tell a
+        // screen reader that the transaction went through.
+        SemanticsService.announce(S.of(context).transaction_sent_new, Directionality.of(context));
       }
     });
   }
@@ -87,11 +94,15 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
                         offset: _committed ? const Offset(-1, 0) : Offset.zero,
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeOutCubic,
-                        child: SendTransactionDetails(
-                          sendViewModel: widget.sendViewModel,
-                          isPage: widget.isPage,
-                          title: widget.title,
-                          iconPath: widget.iconPath,
+                        // Both screens stay mounted; only the visible one may be reachable.
+                        child: ExcludeSemantics(
+                          excluding: _committed,
+                          child: SendTransactionDetails(
+                            sendViewModel: widget.sendViewModel,
+                            isPage: widget.isPage,
+                            title: widget.title,
+                            iconPath: widget.iconPath,
+                          ),
                         ),
                       ),
                     ),
@@ -102,8 +113,11 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
                         offset: _committed ? Offset.zero : const Offset(1, 0),
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeOutCubic,
-                        child: TransactionCommitedScreen(
-                          sendViewModel: widget.sendViewModel,
+                        child: ExcludeSemantics(
+                          excluding: !_committed,
+                          child: TransactionCommitedScreen(
+                            sendViewModel: widget.sendViewModel,
+                          ),
                         ),
                       ),
                     ),
@@ -154,9 +168,12 @@ class SendTransactionDetails extends StatelessWidget {
                         width: 28,
                         height: 28,
                       ),
-                    Text(
-                      title ?? S.of(context).send,
-                      style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        title ?? S.of(context).send,
+                        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                      ),
                     )
                   ],
                 ),
@@ -249,37 +266,40 @@ class SendTransactionDetails extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             spacing: 24,
             children: [
-              Column(
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 4,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          amount,
-                          style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurface),
+              // The amount being sent is the value under review: announce it as one group.
+              MergeSemantics(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 4,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            amount,
+                            style: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w400,
+                                color: Theme.of(context).colorScheme.onSurface),
+                          ),
                         ),
-                      ),
-                      Text(currencySymbol,
-                          style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant))
-                    ],
-                  ),
-                  Text(
-                    fiatAmount,
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                ],
+                        Text(currencySymbol,
+                            style: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w400,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant))
+                      ],
+                    ),
+                    Text(
+                      fiatAmount,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
               ),
               if (outputs.length >= 1 &&
                   (outputs.first.extractedAddress.isNotEmpty || outputs.first.address.isNotEmpty) &&
@@ -351,32 +371,34 @@ class SendTransactionDetails extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(S.of(context).fee,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context).colorScheme.onSurface)),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
+                      child: MergeSemantics(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(S.of(context).fee,
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              ),
-                              Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
+                                    color: Theme.of(context).colorScheme.onSurface)),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant))
-                            ],
-                          )
-                        ],
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                ),
+                                Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant))
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                     if (sendViewModel.isElectrumWallet) ...[
@@ -389,27 +411,29 @@ class SendTransactionDetails extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(S.of(context).network,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).colorScheme.onSurface)),
-                            Column(
-                              children: [
-                                Text(
-                                    sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln
-                                        ? "Lightning"
-                                        : bitcoin!.getNetworkName(sendViewModel.wallet),
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant))
-                              ],
-                            )
-                          ],
+                        child: MergeSemantics(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(S.of(context).network,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).colorScheme.onSurface)),
+                              Column(
+                                children: [
+                                  Text(
+                                      sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln
+                                          ? "Lightning"
+                                          : bitcoin!.getNetworkName(sendViewModel.wallet),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant))
+                                ],
+                              )
+                            ],
+                          ),
                         ),
                       )
                     ],
@@ -551,37 +575,44 @@ class TransactionCommittedScreenActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flexible(
-        child: GestureDetector(
-            onTap: onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Theme.of(context).colorScheme.surfaceContainer),
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 10,
-                  children: [
-                    isLoading
-                        ? CupertinoActivityIndicator()
-                        : CakeImageWidget(
-                            imageUrl: iconPath,
-                            width: 24,
-                            height: 24,
-                            colorFilter: ColorFilter.mode(
-                                Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                          ),
-                    Text(
-                      text,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w500),
-                    )
-                  ],
-                ),
-              ),
-            )));
+        child: Semantics(
+            button: true,
+            enabled: !isLoading,
+            label: text,
+            value: isLoading ? S.of(context).loading : null,
+            onTap: isLoading ? null : onTap,
+            excludeSemantics: true,
+            child: GestureDetector(
+                onTap: onTap,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context).colorScheme.surfaceContainer),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 10,
+                      children: [
+                        isLoading
+                            ? CupertinoActivityIndicator()
+                            : CakeImageWidget(
+                                imageUrl: iconPath,
+                                width: 24,
+                                height: 24,
+                                colorFilter: ColorFilter.mode(
+                                    Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                              ),
+                        Text(
+                          text,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w500),
+                        )
+                      ],
+                    ),
+                  ),
+                ))));
   }
 }
 
@@ -622,16 +653,28 @@ class _MultiSendAddressPreviewState extends State<MultiSendAddressPreview> {
                   style: TextStyle(fontFamily: "IBM Plex Mono"),
                 ),
                 if (!_expanded)
-                  GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _expanded = true;
-                        });
-                      },
-                      child: Text(middleTruncate(widget.address, 8, 8),
-                          style: TextStyle(
-                              fontFamily: "IBM Plex Mono",
-                              color: Theme.of(context).colorScheme.primary)))
+                  Semantics(
+                    button: true,
+                    // Read the whole address rather than the truncated form.
+                    label: widget.address,
+                    hint: S.of(context).show_full_address,
+                    onTap: () {
+                      setState(() {
+                        _expanded = true;
+                      });
+                    },
+                    excludeSemantics: true,
+                    child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _expanded = true;
+                          });
+                        },
+                        child: Text(middleTruncate(widget.address, 8, 8),
+                            style: TextStyle(
+                                fontFamily: "IBM Plex Mono",
+                                color: Theme.of(context).colorScheme.primary))),
+                  )
                 else
                   AddressFormatter.buildSegmentedAddress(
                       address: widget.address,
