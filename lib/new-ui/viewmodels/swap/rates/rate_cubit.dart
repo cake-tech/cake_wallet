@@ -35,11 +35,18 @@ class RateCubit extends Cubit<RateState> {
 
     final futures = providers.map((provider) async {
       try {
-        return await _registry.getProvider(provider).fetchRate(
+        final rate = await _registry.getProvider(provider).fetchRate(
           from: from,
           to: to,
           isFixedRate: isFixedRate,
         );
+
+        if(rate.rate.quote.isZero) {
+          return null;
+        }
+
+        return rate;
+
       } catch (e, st) {
         printV("failed to fetch rate from ${provider.title}: $e\n$st");
         return null;
