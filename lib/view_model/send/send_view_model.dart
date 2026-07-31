@@ -378,14 +378,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  Future<String> get sendingBalance async {
+  Future<CryptoMoney> get sendingBalance async {
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
-        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balanceString;
-        return _appStore.amountParsingProxy.getDisplayCryptoString(
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
-            walletTypeToCryptoCurrency(walletType));
+        if (selectedCryptoCurrency == CryptoCurrency.btcln) {
+          return balance;
+        }
+        return Money.fromInt(
+          await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
+          walletTypeToCryptoCurrency(walletType),
+        );
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
@@ -394,9 +397,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.decred:
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
-        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
+        return Money.fromInt(sendingBalance, walletTypeToCryptoCurrency(walletType));
       default:
-        return balanceString;
+        return balance;
     }
   }
 

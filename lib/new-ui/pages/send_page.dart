@@ -509,7 +509,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             allAmount: widget.sendViewModel.balance,
                                             onAllButtonPressed: () async {
                                               output.setSendAll(
-                                                await widget.sendViewModel.sendingBalance,
+                                                (await widget.sendViewModel.sendingBalance).toString(),
                                               );
                                               await output.calculateEstimatedFee();
                                             },

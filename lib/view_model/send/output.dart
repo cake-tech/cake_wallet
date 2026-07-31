@@ -127,7 +127,7 @@ abstract class OutputBase with Store {
 
   @computed
   Money<FiatCurrency> get fiatAmountMoney {
-    if (cryptoAmount.isEmpty) {
+    if (cryptoAmount.isEmpty && !sendAll) {
       return Money.zero(_settingsStore.fiatCurrency);
     }
 
@@ -267,8 +267,7 @@ abstract class OutputBase with Store {
 
   @action
   void setSendAll(String fullBalance) {
-    cryptoFullBalance =
-        _appStore.amountParsingProxy.getCanonicalCryptoAmount(fullBalance, cryptoCurrencyHandler());
+    cryptoFullBalance = fullBalance;
     sendAll = true;
     _updateFiatAmount();
   }

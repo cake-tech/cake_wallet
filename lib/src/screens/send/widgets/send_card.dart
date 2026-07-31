@@ -19,6 +19,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -685,7 +686,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ? sendViewModel.allAmountValidator
                     : sendViewModel.amountValidator(output),
                 allAmountCallback: () async =>
-                    output.setSendAll(await sendViewModel.sendingBalance),
+                    output.setSendAll((await sendViewModel.sendingBalance).toString()),
               ),
               Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
               Observer(
@@ -707,7 +708,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                 ),
                           ),
                         ),
-                        FutureBuilder<String>(
+                        FutureBuilder<CryptoMoney>(
                           future: sendViewModel.sendingBalance,
                           builder: (context, snapshot) {
                             return GestureDetector(
@@ -720,7 +721,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                 return Text(
                                   hidden
                                       ? S.of(context).show_balance_send_page
-                                      : (snapshot.data ?? sendViewModel.balanceString),
+                                      : snapshot.data.toString(),
                                   // default to balance while loading
                                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                         fontWeight: FontWeight.w600,
@@ -973,7 +974,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     reaction((_) => sendViewModel.selectedCryptoCurrency, (currency) async {
       if (output.sendAll) {
-        output.setSendAll(await sendViewModel.sendingBalance);
+        output.setSendAll((await sendViewModel.sendingBalance).toString());
       }
 
       output.setCryptoAmount(sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
