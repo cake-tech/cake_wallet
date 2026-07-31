@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -73,8 +74,15 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
   Future<String> getSeeds(String name, String password, WalletType type) async {
     try {
+      final encryption = encryptionFileUtilsFor(Platform.isLinux);
+
+      if (await WalletKeysFile.hasKeysFile(name, type)) {
+        final keysData = await WalletKeysFile.readKeysFile(name, type, password, encryption);
+        return keysData.mnemonic ?? keysData.altMnemonic ?? keysData.privateKey ?? '';
+      }
+
       final path = await pathForWallet(name: name, type: type);
-      final jsonSource = await read(path: path, password: password);
+      final jsonSource = await encryption.read(path: path, password: password);
       try {
         final data = json.decode(jsonSource) as Map;
         return data['mnemonic'] as String? ?? '';

@@ -86,8 +86,7 @@ dependencies:
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
-      ref: main
-      version: 1.0.0
+      ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
   flutter_plugin_android_lifecycle: 2.0.23
   path_provider_android: ^2.2.1
   shared_preferences_android: ^2.4.8
@@ -189,6 +188,10 @@ dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
+  cake_backup:
+    git:
+      url: https://github.com/cake-tech/cake_backup.git
+      ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git
