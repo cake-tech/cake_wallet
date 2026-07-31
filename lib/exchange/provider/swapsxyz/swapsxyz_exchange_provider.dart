@@ -310,7 +310,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
     final sender = request.refundAddress.trim();
-    final recipient = request.payoutAddress.address.trim();
+    final recipient = request.payoutAddress.trim();
     if (sender.isEmpty || recipient.isEmpty) {
       throw Exception("Sender (refundAddress) or recipient (toAddress) is empty");
     }
@@ -412,7 +412,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       createdAt: DateTime.now(),
       id: txId,
       provider: description,
-      payoutAddress: request.payoutAddress.address,
+      payoutAddress: request.payoutAddress,
       refundAddress: request.refundAddress,
       routerData: routerData ?? "",
       routerValue: txValue,

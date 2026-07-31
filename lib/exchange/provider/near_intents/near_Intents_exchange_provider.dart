@@ -182,7 +182,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       depositMode: depositMode,
       amount: rawAmountStr,
       refundTo: request.refundAddress,
-      recipient: request.payoutAddress.address,
+      recipient: request.payoutAddress,
     );
 
     final quote = quoteResp.quote;
@@ -194,7 +194,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       state: TradeState.created,
       createdAt: DateTime.now(),
       fundingAddress: quote.depositAddress!,
-      payoutAddress: request.payoutAddress.address,
+      payoutAddress: request.payoutAddress,
       refundAddress: request.refundAddress,
       depositAmount: Money.parse(quote.amountInFormatted, request.depositCurrency),
       payoutAmount: Money.parse(quote.amountOutFormatted, request.payoutCurrency),

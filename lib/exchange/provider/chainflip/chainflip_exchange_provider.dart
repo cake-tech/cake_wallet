@@ -137,7 +137,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       apiKey: _affiliateKey,
       sourceAsset: request.depositAmount.currency,
       destinationAsset: request.payoutAmount.currency,
-      destinationAddress: request.payoutAddress.address,
+      destinationAddress: request.payoutAddress,
       minimumPrice: minimumPrice.toString(),
       refundAddress: request.refundAddress,
       retryDurationInBlocks: 150,
@@ -159,7 +159,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       depositAmount: request.depositAmount.cryptoAmount,
       payoutAmount: request.payoutAmount.cryptoAmount,
       fundingAddress: swapResponse.address,
-      payoutAddress: request.payoutAddress.address,
+      payoutAddress: request.payoutAddress,
       refundAddress: request.refundAddress,
     );
   }

@@ -134,7 +134,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
             .depositAmount.cryptoAmount.toDouble(),
         estimation: request.isFixedRate ? .reversed : .direct,
         rate: request.isFixedRate ? .fixed : .floating,
-        address: _normalizeAddress(request.payoutAddress.address),
+        address: _normalizeAddress(request.payoutAddress),
         refundAddress: _normalizeAddress(request.refundAddress),
         extraId: request.toAddressExtraId,
         additionalFeePercent: _additionalFeePercent

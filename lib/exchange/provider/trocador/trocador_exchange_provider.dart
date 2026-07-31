@@ -189,7 +189,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       networkFrom: _networkFor(request.depositCurrency),
       tickerTo: _normalizeCurrency(request.payoutCurrency),
       networkTo: _networkFor(request.payoutCurrency),
-      address: request.payoutAddress.address,
+      address: request.payoutAddress,
       provider: _provider.first,
       fixed: request.isFixedRate,
       payment: request.isFixedRate,

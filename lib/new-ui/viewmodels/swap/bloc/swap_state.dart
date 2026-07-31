@@ -132,7 +132,7 @@ final class SwapStateCreating extends SwapStateWithInputs {
   final SwapSource source;
 
   @override
-  SwapAddress get payoutAddress => request.payoutAddress;
+  SwapAddress get payoutAddress => ExternalSwapAddress(request.payoutAddress);
 
   @override
   bool get isFixedRate => request.isFixedRate;

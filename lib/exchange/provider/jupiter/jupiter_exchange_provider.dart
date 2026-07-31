@@ -169,14 +169,14 @@ class JupiterExchangeProvider extends ExchangeProvider
     final inputMint = _getTokenMint(request.depositCurrency);
     final outputMint = _getTokenMint(request.payoutCurrency);
 
-    final isInternalTransfer = request.refundAddress == request.payoutAddress.address;
+    final isInternalTransfer = request.refundAddress == request.payoutAddress;
 
     final orderParams = JupiterOrderRequest(
       inputMint: inputMint,
       outputMint: outputMint,
       amount: request.depositAmount.cryptoAmount.amount,
       taker: request.refundAddress,
-      receiver: isInternalTransfer ? null : request.payoutAddress.address,
+      receiver: isInternalTransfer ? null : request.payoutAddress,
       referralFee: _referralFee,
       referralAccount: _referralAccount,
     );
@@ -217,7 +217,7 @@ class JupiterExchangeProvider extends ExchangeProvider
       refundAddress: request.refundAddress,
       state: TradeState.created,
       createdAt: DateTime.now(),
-      payoutAddress: request.payoutAddress.address,
+      payoutAddress: request.payoutAddress,
       routerData: orderData.transaction!,
       routerValue: orderData.requestId,
       fee: Money.fromInt(orderData.totalFee, CryptoCurrency.sol),

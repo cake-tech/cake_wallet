@@ -178,7 +178,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       toCurrency: request.payoutAmount.currency.symbol,
       fromNetwork: _networkFor(request.depositAmount.currency),
       toNetwork: _networkFor(request.payoutAmount.currency),
-      address: request.payoutAddress.address,
+      address: request.payoutAddress,
       refundAddress: request.refundAddress,
       flow: request.isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
       type: ChangeNowExchangeType.direct,

@@ -277,7 +277,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
           fromAmount: request.depositAmount.cryptoAmount.toString(),
           fromAddress: request.refundAddress,
           toAmount: request.payoutAmount.cryptoAmount.toString(),
-          toAddress: request.payoutAddress.address,
+          toAddress: request.payoutAddress,
           toAddressTag: request.toAddressExtraId
       );
 

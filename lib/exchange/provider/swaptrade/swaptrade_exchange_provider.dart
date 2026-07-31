@@ -135,7 +135,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       coinReceive: _normalizeCurrency(request.payoutCurrency),
       coinReceiveNetwork: _networkFor(request.payoutCurrency),
       amountSend: request.depositAmount.cryptoAmount.toString(),
-      recipient: request.payoutAddress.address,
+      recipient: request.payoutAddress,
       markup: double.parse(markup),
       refundAddress: request.refundAddress,
     );
@@ -169,7 +169,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       provider: description,
       createdAt: DateTime.now(),
       state: TradeState.created,
-      payoutAddress: request.payoutAddress.address,
+      payoutAddress: request.payoutAddress,
       refundAddress: request.refundAddress,
       depositAmount: request.depositAmount.cryptoAmount,
       payoutAmount: Money.parse(responseData.amountReceive ?? 0, request.payoutCurrency),

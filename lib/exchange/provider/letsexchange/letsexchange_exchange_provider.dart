@@ -114,7 +114,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final responseInfoJSON = await _getInfo(params, request.isFixedRate);
     final rateId = responseInfoJSON.rateId!;
 
-    final withdrawalAddress = _normalizeBchAddress(request.payoutAddress.address);
+    final withdrawalAddress = _normalizeBchAddress(request.payoutAddress);
     final returnAddress = _normalizeBchAddress(request.refundAddress);
 
     final tradeParams = LetsExchangeCreateTransactionRequest(

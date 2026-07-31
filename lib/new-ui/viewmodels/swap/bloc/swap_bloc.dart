@@ -1,6 +1,7 @@
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:bloc_presentation/bloc_presentation.dart";
+import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/di.dart";
@@ -420,7 +421,7 @@ newPayoutAmount = s.payoutAmount;
     if (state case final SwapStateWithInputs s) {
 
 
-      final String refundAddress;
+      String refundAddress;
       if (s.source case final ExternalSwapSource source) {
         refundAddress = source.refundAddress;
       } else if (s.source case final InternalSwapSource source) {
@@ -429,13 +430,16 @@ newPayoutAmount = s.payoutAmount;
               selectedProvider: rates.first.provider,
               source: source,
               request: TradeRequest(refundAddress: "",
-                  payoutAddress: s.payoutAddress!,
+                  payoutAddress: s.payoutAddress!.address,
                   depositAmount: s.depositAmount,
                   payoutAmount: s.payoutAmount,
                   isFixedRate: s.isFixedRate)));
           await _walletSwitchService.switchToWallet(source.sourceWallet);
         }
-        refundAddress = _appStore.wallet!.walletAddresses.addressForExchange;
+        refundAddress =
+        s.depositAmount.currency == CryptoCurrency.btcln ? (await bitcoin!.getLightningInvoice(
+            _appStore.wallet!, BigInt.zero))! : _appStore.wallet!.walletAddresses
+            .addressForExchange;
       } else {
         // SwapSource is abstract and InternalSwapSource and ExternalSwapSource are the only two implementations
         // nonetheless, analyzer won't shut up without this else clause if we have strict type checks enabled
@@ -444,7 +448,7 @@ newPayoutAmount = s.payoutAmount;
 
       final req = TradeRequest(
         refundAddress: refundAddress,
-        payoutAddress: s.payoutAddress!,
+        payoutAddress: s.payoutAddress!.address,
         depositAmount: s.depositAmount,
         payoutAmount: s.payoutAmount,
         isFixedRate: s.isFixedRate,

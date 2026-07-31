@@ -153,11 +153,11 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final body = ExolixCreateTransactionRequest(
       coinFrom: _normalizeCurrency(_overrideFromCryptoCurrency(request.depositAmount.currency)),
       coinTo: _normalizeCurrency(
-        _overrideToCryptoCurrency(request.payoutAmount.currency, request.payoutAddress.address),
+        _overrideToCryptoCurrency(request.payoutAmount.currency, request.payoutAddress),
       ),
       networkFrom: _networkFor(request.depositAmount.currency),
       networkTo: _networkFor(request.payoutAmount.currency),
-      withdrawalAddress: await _normalizeAddress(request.payoutAddress.address),
+      withdrawalAddress: await _normalizeAddress(request.payoutAddress),
       withdrawalAmount: request.isFixedRate ? request.payoutAmount.cryptoAmount.toString() : null,
       amount: request.isFixedRate ? null : request.depositAmount.cryptoAmount.toString(),
       rateType: request.isFixedRate ? ExolixRateType.fixed : ExolixRateType.float,

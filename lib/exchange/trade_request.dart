@@ -14,7 +14,7 @@ class TradeRequest {
   }) : toAddressExtraId = toAddressExtraId?.isEmpty ?? false ? null : toAddressExtraId;
 
   final String refundAddress;
-  final SwapAddress payoutAddress;
+  final String payoutAddress;
   final SwapAmount depositAmount;
   final SwapAmount payoutAmount;
   final String? toAddressExtraId;
