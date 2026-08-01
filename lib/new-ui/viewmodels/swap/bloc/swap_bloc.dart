@@ -593,12 +593,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   Future<String> _addressFromWalletInfo(WalletInfo wi, CryptoCurrency curr) async {
     if (wi.type == .bitcoin) {
       final _walletAddresses = await wi.getAddresses();
-      print(_walletAddresses);
       if (curr == CryptoCurrency.btcln) {
         final lightningAddressOfWallet = _walletAddresses.entries
             .firstWhereOrNull((e) => e.value.contains("LN"))
             ?.key;
-        print(lightningAddressOfWallet);
         if (lightningAddressOfWallet != null) {
           return lightningAddressOfWallet;
         }
