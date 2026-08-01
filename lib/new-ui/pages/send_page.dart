@@ -482,13 +482,13 @@ class _NewSendPageState extends State<NewSendPage> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         spacing: 12,
                                         children: [
-                                          // NewSendAmountInput merges this label onto its own
-                                          // text-field node, so announcing the caption as well
-                                          // would read it twice. Covered by
+                                          // This caption is the amount field's accessible name
+                                          // and must stay in the semantics tree:
+                                          // NewSendAmountInput deliberately carries no label of
+                                          // its own, because labelling the field made Android
+                                          // announce the amount twice. Covered by
                                           // test/new-ui/widgets/send_page/send_amount_input_test.dart.
-                                          ExcludeSemantics(
-                                            child: Text(S.of(context).amount),
-                                          ),
+                                          Text(S.of(context).amount),
                                           NewSendAmountInput(
                                             validator: output.sendAll
                                                 ? widget.sendViewModel.allAmountValidator
