@@ -25,7 +25,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _statusPath = "/status";
 
   static const _slippageTolerance = 100; // 1%
-  static const _appFeesNearIntents = secrets.nearIntentsAppFee;
+  static final _appFeesNearIntents = secrets.nearIntentsAppFee.toString();
   static const _appFeeRecipientNearIntents = secrets.nearIntentsAppFeeRecipient;
 
   static const _memoRequiredCurrencies = <CryptoCurrency>[
