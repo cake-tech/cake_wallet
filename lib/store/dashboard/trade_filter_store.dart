@@ -230,5 +230,6 @@ abstract class TradeFilterStoreBase with Store {
   }
 
   bool isTradeInAccount(TradeListItem item, WalletBase wallet) =>
-           wallet.walletAddresses.containsAddress(item.trade.refundAddress);
+      item.trade.refundAddress.isEmpty || // we don't allow empty refund addrs anymore but we have to show legacy trades
+      wallet.walletAddresses.containsAddress(item.trade.refundAddress);
 }
