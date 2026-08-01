@@ -68,28 +68,31 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                         mainAxisSize: MainAxisSize.max,
                         spacing: 8,
                         children: [
+                          // Deliberately unwrapped. Naming the field with
+                          // MergeSemantics > Semantics(label:) made Android announce
+                          // the amount twice: FormField's own wrapper node reflects
+                          // its descendants' text, so the authored label came back a
+                          // second time on the container. The visible "Amount:"
+                          // caption on the send page carries the name instead, and it
+                          // must stay in the semantics tree for this field to be
+                          // named at all.
                           Expanded(
-                            child: MergeSemantics(
-                              child: Semantics(
-                                label: S.of(context).amount,
-                                child: TextField(
-                                  keyboardType: TextInputType.numberWithOptions(
-                                    signed: false,
-                                    decimal: widget.maxDecimals > 0,
-                                  ),
-                                  autocorrect: false,
-                                  enableSuggestions: false,
-                                  inputFormatters: <TextInputFormatter>[
-                                    DecimalInputFormatter(maxDecimals: widget.maxDecimals),
-                                  ],
-                                  controller: widget.amountController,
-                                  decoration: InputDecoration(
-                                    hintText: widget.maxDecimals == 0 ? "0" : "0.00",
-                                    errorMaxLines: 3,
-                                  ),
-                                  onChanged: state.didChange,
-                                ),
+                            child: TextField(
+                              keyboardType: TextInputType.numberWithOptions(
+                                signed: false,
+                                decimal: widget.maxDecimals > 0,
                               ),
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              inputFormatters: <TextInputFormatter>[
+                                DecimalInputFormatter(maxDecimals: widget.maxDecimals),
+                              ],
+                              controller: widget.amountController,
+                              decoration: InputDecoration(
+                                hintText: widget.maxDecimals == 0 ? "0" : "0.00",
+                                errorMaxLines: 3,
+                              ),
+                              onChanged: state.didChange,
                             ),
                           ),
                           FloatingIconButton(
