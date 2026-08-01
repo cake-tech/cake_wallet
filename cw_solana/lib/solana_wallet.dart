@@ -289,6 +289,14 @@ abstract class SolanaWalletBase
         totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
+      // Checked after `isSendAll` has replaced the amount with the full balance,
+      // so a zero input amount is only rejected when it is what actually gets
+      // signed. Broadcasting a zero value transfer burns the network fee for a
+      // no-op transfer.
+      if (totalAmount.amount <= BigInt.zero) {
+        throw SolanaTransactionCreationException.zeroAmount(transactionCurrency);
+      }
+
       if (walletBalanceForCurrency < totalAmount) {
         throw SolanaTransactionWrongBalanceException(transactionCurrency);
       }

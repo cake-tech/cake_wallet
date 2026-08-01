@@ -27,6 +27,11 @@ class TronClient {
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
 
+  // `getFeeLimit` returns 0 when the estimation fails, and the transaction
+  // signing will fail if the feeLimit is explicitly 0, so this is used as the
+  // fallback limit in that case.
+  static const int defaultFeeLimit = 269000;
+
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
@@ -342,10 +347,6 @@ class TronClient {
     BigInt tronBalance,
     bool sendAll,
   ) async {
-    // This is introduce to server as a limit in cases where feeLimit is 0
-    // The transaction signing will fail if the feeLimit is explicitly 0.
-    int defaultFeeLimit = 269000;
-
     final block = await _provider!.request(TronRequestGetNowBlock());
     // Create the transfer contract
     final contract = TransferContract(
@@ -416,6 +417,10 @@ class TronClient {
       receiverAddress,
       energyUsed: request.energyUsed ?? 0,
     );
+    // Same fallback as the native transfer path: signing fails outright when the
+    // feeLimit is explicitly 0, which is what `getFeeLimit` returns when the
+    // estimation throws.
+    final feeLimitToUse = feeLimit != 0 ? feeLimit : defaultFeeLimit;
 
     if (feeLimit > tronBalance.toInt()) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
@@ -424,7 +429,7 @@ class TronClient {
       );
     }
 
-    return request.transactionRaw!.copyWith(feeLimit: BigInt.from(feeLimit));
+    return request.transactionRaw!.copyWith(feeLimit: BigInt.from(feeLimitToUse));
   }
 
   Future<String> sendTransaction({

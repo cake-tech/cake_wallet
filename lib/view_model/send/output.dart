@@ -120,6 +120,11 @@ abstract class OutputBase with Store {
     try {
       return cryptoCurrencyHandler().parseAmount(cryptoAmount.sanitized());
     } catch (e) {
+      // Falling back to zero here used to be silent, which made a send of 0 look
+      // like a legitimate amount all the way down to signing. Log it so the
+      // failure is diagnosable; the send path rejects the zero amount.
+      printV("failed to parse crypto amount '$cryptoAmount' for "
+          "${cryptoCurrencyHandler().title}, falling back to zero: $e");
       return Money.zero(cryptoCurrencyHandler());
     }
   }

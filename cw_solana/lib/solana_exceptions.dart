@@ -7,6 +7,9 @@ class SolanaTransactionCreationException implements Exception {
   SolanaTransactionCreationException(CryptoCurrency currency)
       : exceptionMessage = 'Error creating ${currency.title} transaction.';
 
+  SolanaTransactionCreationException.zeroAmount(CryptoCurrency currency)
+      : exceptionMessage = 'The ${currency.title} amount must be greater than 0.';
+
   @override
   String toString() => exceptionMessage;
 }

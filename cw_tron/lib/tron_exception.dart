@@ -12,6 +12,9 @@ class TronTransactionCreationException implements Exception {
   TronTransactionCreationException(CryptoCurrency currency)
       : exceptionMessage = 'Wrong balance. Not enough ${currency.title} on your balance.';
 
+  TronTransactionCreationException.zeroAmount(CryptoCurrency currency)
+      : exceptionMessage = 'The ${currency.title} amount must be greater than 0.';
+
   @override
   String toString() => exceptionMessage;
 }

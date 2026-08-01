@@ -3,8 +3,10 @@
 ///
 /// The number of fractional digits is determined by [decimals].
 ///
+/// Fractional digits beyond [decimals] are truncated, see [parseFixed].
+///
 /// Returns `null` if the input [value] is not a valid fixed-point literal
-/// (e.g., non-numeric characters, too many fractional digits).
+/// (e.g., non-numeric characters, more than one decimal point).
 ///
 /// Like [parseFixed], except that this function returns `null` for invalid inputs
 /// instead of throwing.
@@ -21,14 +23,19 @@ BigInt? tryParseFixed(String value, int decimals) {
 ///
 /// The number of fractional digits is determined by [decimals].
 ///
+/// Excess precision is **truncated, never rounded**: any fractional digit past
+/// [decimals] is dropped, so `parseFixed("1.9999999", 6)` is `1999999` and not
+/// `2000000`. Truncation is applied to the magnitude and is therefore always
+/// toward zero, so `parseFixed("-1.9999999", 6)` is `-1999999`. A value whose
+/// entire fractional part sits below the smallest representable unit (e.g.
+/// `parseFixed("0.0000001", 6)`) is genuinely `0` after truncation.
+///
 /// Throws a [FormatException] if the input [value] is not a valid fixed-point literal
-/// (e.g., non-numeric characters, too many fractional digits).
+/// (e.g., non-numeric characters, more than one decimal point).
 ///
 /// Rather than throwing and immediately catching the [FormatException],
 /// instead use [tryParseFixed] to handle a potential parsing error.
 BigInt parseFixed(String value, int decimals) {
-  final multiplier = getMultiplier(decimals);
-
   /// handle weird cases where users enter spaces and currency after the amount
   /// This should be handled from UI field to prevent non numerical values
   /// but will be in the refactoring
@@ -51,13 +58,17 @@ BigInt parseFixed(String value, int decimals) {
   var whole = comps.isNotEmpty ? comps[0] : "0";
   var fraction = (comps.length == 2 ? comps[1] : "0").padRight(decimals, "0");
 
-  if (fraction.length > multiplier.length - 1) {
-    throw FormatException(
-        "fractional component(${fraction.length}) exceeds decimals(${decimals}), underflow, parseFixed");
+  // Truncate, do not round: digits beyond the currency's precision are simply
+  // dropped. Because `negative` has already been stripped off, this operates on
+  // the magnitude and so always truncates toward zero.
+  if (fraction.length > decimals) {
+    fraction = fraction.substring(0, decimals);
   }
 
   final wholeValue = BigInt.parse(whole);
-  final fractionValue = BigInt.parse(fraction);
+  // `fraction` is empty when [decimals] is 0, in which case there is no
+  // fractional component to add.
+  final fractionValue = fraction.isEmpty ? BigInt.zero : BigInt.parse(fraction);
   final multiplierValue = multiplierOf(decimals);
 
   var wei = (wholeValue * multiplierValue) + fractionValue;

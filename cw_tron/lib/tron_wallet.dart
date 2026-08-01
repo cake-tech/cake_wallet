@@ -338,6 +338,14 @@ abstract class TronWalletBase
         totalAmount = output.cryptoAmount.copyWith(currency: transactionCurrency);
       }
 
+      // Checked after `sendAll` has replaced the amount with the full balance,
+      // so a zero input amount is only rejected when it is what actually gets
+      // signed. Broadcasting a zero value transfer burns the network fee for a
+      // no-op transfer.
+      if (totalAmount.isZero) {
+        throw TronTransactionCreationException.zeroAmount(transactionCurrency);
+      }
+
       if (walletBalanceForCurrency < totalAmount || totalAmount < Money.zero(transactionCurrency)) {
         throw TronTransactionCreationException(transactionCurrency);
       }

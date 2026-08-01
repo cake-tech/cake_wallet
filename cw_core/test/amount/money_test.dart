@@ -26,8 +26,19 @@ void main() {
       // Invalid representation
       expect(() => Money.parse("1,11", CryptoCurrency.btc), throwsFormatException);
 
-      // To many decimals
-      expect(() => Money.parse("-1.000000000000000", CryptoCurrency.btc), throwsFormatException);
+      // Too many decimals: excess precision is truncated, not rejected and not rounded
+      money = Money.parse("-1.000000000000000", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(-100000000));
+
+      money = Money.parse("1.123456789", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(112345678));
+
+      money = Money.parse("-1.123456789", CryptoCurrency.btc);
+      expect(money.amount, BigInt.from(-112345678));
+
+      // Everything below the smallest representable unit truncates to zero
+      money = Money.parse("0.000000001", CryptoCurrency.btc);
+      expect(money.amount, BigInt.zero);
 
       money = Money.parse("1", CryptoCurrency.btc, isBaseUnit: true);
       expect(money.amount, BigInt.from(1));
@@ -65,9 +76,19 @@ void main() {
       money = Money.tryParse("1,11", CryptoCurrency.btc);
       expect(money?.amount, isNull);
 
-      // To many decimals
+      // Too many decimals: excess precision is truncated, not rejected and not rounded
       money = Money.tryParse("-1.000000000000000", CryptoCurrency.btc);
-      expect(money?.amount, isNull);
+      expect(money?.amount, BigInt.from(-100000000));
+
+      money = Money.tryParse("1.123456789", CryptoCurrency.btc);
+      expect(money?.amount, BigInt.from(112345678));
+
+      money = Money.tryParse("-1.123456789", CryptoCurrency.btc);
+      expect(money?.amount, BigInt.from(-112345678));
+
+      // Everything below the smallest representable unit truncates to zero
+      money = Money.tryParse("0.000000001", CryptoCurrency.btc);
+      expect(money?.amount, BigInt.zero);
 
       money = Money.tryParse("1", CryptoCurrency.btc, isBaseUnit: true);
       expect(money?.amount, BigInt.from(1));

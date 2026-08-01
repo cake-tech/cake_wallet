@@ -1076,6 +1076,15 @@ abstract class EVMChainWalletBase
           totalAmount + estimatedFeesForTransaction > currencyBalance.available) {
         throw EVMChainTransactionFeesException.fromCurrency(currency.title);
       }
+
+      // Checked once `totalAmount` is final, i.e. after `sendAll` has replaced it
+      // with the (fee adjusted) balance, so a zero amount is only rejected when it
+      // is what actually gets signed. Broadcasting a zero value transfer burns the
+      // gas fee for a no-op transfer. Mirrors the `hasMultiDestination` branch.
+      if (totalAmount.amount <= BigInt.zero) {
+        throw EVMChainTransactionCreationException.fromMessage(
+            'The ${transactionCurrency.title} amount must be greater than 0.');
+      }
     }
 
     if (transactionCurrency is Erc20Token &&
