@@ -163,6 +163,9 @@ class SendTransactionDetails extends StatelessWidget {
                       ),
                     Semantics(
                       header: true,
+                      // Android reads the heading from headingLevel since the
+                      // Flutter 3.41 engine; header: alone only covers iOS.
+                      headingLevel: 1,
                       child: Text(
                         title ?? S.of(context).send,
                         style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
