@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:bloc_presentation/bloc_presentation.dart";
@@ -65,7 +67,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     on<PayoutAddressChanged>(_onPayoutAddressChanged, transformer: restartable());
     on<DepositAmountChanged>(_onDepositAmountChanged, transformer: restartable());
     on<PayoutAmountChanged>(_onPayoutAmountChanged, transformer: restartable());
-    on<RatesLoadStarted>(_onRatesLoadStarted, transformer: droppable());
+    on<RatesLoadStarted>(_onRatesLoadStarted, transformer: restartable());
     on<DepositCurrencyChanged>(_onDepositCurrencyChanged, transformer: restartable());
     on<PayoutCurrencyChanged>(_onPayoutCurrencyChanged, transformer: restartable());
     on<SwapDirectionReversed>(_onSwapDirectionReversed, transformer: sequential());
@@ -92,6 +94,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   final RateCubit rateCubit;
   final SwapAmountFactory _amountFactory;
   final SwapCurrencyStore currencyStore;
+  Timer? _rateTimer;
 
   FiatCurrency get fiat => _appStore.settingsStore.fiatCurrency;
 
@@ -135,6 +138,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       fiatAmount: Money.zero(_appStore.settingsStore.fiatCurrency),
     );
 
+    _rateTimer = Timer.periodic(const Duration(seconds: 4), (_) => add(RatesLoadStarted()));
+
     emit(
       SwapInputState(
         depositAmount: initialDepositAmount,
@@ -148,6 +153,12 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         forceDecentralizedProviders: _appStore.settingsStore.forceDecentralizedExchanges,
       ),
     );
+  }
+
+  @override
+  Future<void> close() async {
+    _rateTimer?.cancel();
+    await super.close();
   }
 
   void _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) {
