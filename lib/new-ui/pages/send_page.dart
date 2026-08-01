@@ -328,6 +328,7 @@ class _NewSendPageState extends State<NewSendPage> {
                         title: widget.mode.title,
                         subtitle: widget.mode.description,
                         leadingIcon: const Icon(Icons.close),
+                        leadingSemanticLabel: S.of(context).close,
                         onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                         trailingWidget: Observer(
                           builder: (_) => Row(
@@ -343,6 +344,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       BlendMode.srcIn,
                                     ),
                                   ),
+                                  semanticLabel: S.of(context).remove,
                                   onPressed: () {
                                     final outputIndex = _selectedOutput;
                                     if (_selectedOutput != 0) {
@@ -362,6 +364,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                 ModernButton(
                                   size: 36,
                                   icon: const Icon(Icons.add),
+                                  semanticLabel: S.of(context).add_receiver,
                                   onPressed: () {
                                     _addInputControllers();
                                     widget.sendViewModel.addOutput();
@@ -378,6 +381,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       BlendMode.srcIn,
                                     ),
                                   ),
+                                  semanticLabel: S.of(context).help,
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       CupertinoPageRoute(
@@ -413,7 +417,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           spacing: 12,
                                           children: [
-                                            Text(S.of(context).address_or_alias),
+                                            // NewSendAddressInput merges this label onto its
+                                            // own text-field node, so announcing the caption
+                                            // as well would read it twice.
+                                            ExcludeSemantics(
+                                              child: Text(S.of(context).address_or_alias),
+                                            ),
                                             NewSendAddressInput(
                                               displayName: output.displayName,
                                               validator: output.isParsedAddress
@@ -477,6 +486,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         spacing: 12,
                                         children: [
+                                          // This caption is the amount field's accessible name
+                                          // and must stay in the semantics tree:
+                                          // NewSendAmountInput deliberately carries no label of
+                                          // its own, because labelling the field made Android
+                                          // announce the amount twice. Covered by
+                                          // test/new-ui/widgets/send_page/send_amount_input_test.dart.
                                           Text(S.of(context).amount),
                                           NewSendAmountInput(
                                             validator: output.sendAll
@@ -554,17 +569,18 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   label: S.of(context).fees,
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
-                                                  onTap: () {
-                                                    if (widget.sendViewModel.feesViewModel
-                                                        .hasFeesPriority) {
-                                                      pickTransactionPriority(context, output);
-                                                    }
-                                                  },
+                                                  // Without fee priorities the row does nothing,
+                                                  // so it must not be announced as interactive.
+                                                  onTap: widget.sendViewModel.feesViewModel
+                                                          .hasFeesPriority
+                                                      ? () =>
+                                                          pickTransactionPriority(context, output)
+                                                      : null,
                                                 ),
                                               if (widget.sendViewModel.hasCoinControl)
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
-                                                  label: "Coin Control",
+                                                  label: S.of(context).coin_control,
                                                   onTap: () {
                                                     showCupertinoModalBottomSheet(
                                                       enableDrag: false,
@@ -1492,6 +1508,7 @@ class SendHelpPage extends StatelessWidget {
             ModalTopBar(
               title: content.title,
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Padding(

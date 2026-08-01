@@ -125,6 +125,7 @@ class UnconfirmedBalanceModal extends StatelessWidget {
             ModalTopBar(
                 title: S.of(context).balance_confirmation,
                 leadingIcon: Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: Navigator.of(context).pop),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),

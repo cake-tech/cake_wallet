@@ -51,10 +51,15 @@ class ReceiveQrCode extends StatelessWidget {
                 height: 45,
               )),
         ),
-        GestureDetector(
-          onTap: onTap,
-          behavior: HitTestBehavior.opaque,
-          child: TweenAnimationBuilder<double>(
+        Semantics(
+          label: S.of(context).qr_code_receive_address,
+          hint: largeQrMode ? S.of(context).qr_close_fullscreen : S.of(context).qr_fullscreen,
+          button: true,
+          enabled: true,
+          child: GestureDetector(
+            onTap: onTap,
+            behavior: HitTestBehavior.opaque,
+            child: TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0, end: targetY),
               duration: animDuration,
               curve: Curves.easeOutCubic,
@@ -105,31 +110,42 @@ class ReceiveQrCode extends StatelessWidget {
                       ),
                     ),
                     if (addressListViewModel.hasPayjoin)
-                      Opacity(
-                          opacity: largeQrMode ? 0 : 1,
-                          child: Container(
-                              width: resolvedSize,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-                                  color: Theme.of(context).colorScheme.surfaceContainer),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 4,
-                                  children: [
-                                    CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
-                                    Text(S.of(context).payjoin_enabled)
-                                  ],
-                                ),
-                              ))),
+                      // Hidden but still mounted in large-QR mode, so keep it out
+                      // of the semantics tree there. The icon is decorative and
+                      // the badge reads as a single node.
+                      ExcludeSemantics(
+                        excluding: largeQrMode,
+                        child: MergeSemantics(
+                          child: Opacity(
+                              opacity: largeQrMode ? 0 : 1,
+                              child: Container(
+                                  width: resolvedSize,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.vertical(bottom: Radius.circular(16)),
+                                      color: Theme.of(context).colorScheme.surfaceContainer),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      spacing: 4,
+                                      children: [
+                                        CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
+                                        Text(S.of(context).payjoin_enabled)
+                                      ],
+                                    ),
+                                  ))),
+                        ),
+                      ),
                     AnimatedSize(
                         duration: animDuration,
                         curve: Curves.easeOutCubic,
                         child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding + 40 : 0))
                   ],
                 ),
-              )),
+              ),
+            ),
+          ),
         ),
       ],
     );
