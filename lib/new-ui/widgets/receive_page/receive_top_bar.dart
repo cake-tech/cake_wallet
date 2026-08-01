@@ -72,6 +72,9 @@ class ModalTopBar extends StatelessWidget {
                   child: Semantics(
                     key: ValueKey(title),
                     header: title.isNotEmpty,
+                    // Android reads the heading from headingLevel since the
+                    // Flutter 3.41 engine; header: alone only covers iOS.
+                    headingLevel: title.isNotEmpty ? 1 : null,
                     child: Text(
                       title,
                       style: Theme.of(context).textTheme.headlineMedium,
