@@ -201,6 +201,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
@@ -223,6 +224,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               : widget.addressListViewModel.isRotatingAddress
                                   ? const CupertinoActivityIndicator()
                                   : const Icon(Icons.refresh),
+                          semanticLabel: _largeQrMode
+                              ? S.of(context).share_address
+                              : S.of(context).rotate_address,
                           onPressed: () {
                             if (_largeQrMode) {
                               ShareUtil.share(

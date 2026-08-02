@@ -360,11 +360,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
                   widget.nodeViewModel.save();
                 }
-                if (passphraseController.text.isNotEmpty) {
-                  if (_passphraseFormKey.currentState != null &&
-                      !_passphraseFormKey.currentState!.validate()) {
-                    return;
-                  }
+                if (_passphraseFormKey.currentState != null &&
+                    !_passphraseFormKey.currentState!.validate()) {
+                  return;
                 }
 
                 widget.seedTypeViewModel.setPassphrase(passphraseController.text);
