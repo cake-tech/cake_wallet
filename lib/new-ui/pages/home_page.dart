@@ -21,7 +21,6 @@ import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_v
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/transaction_direction.dart";
-import "package:cw_zcash/cw_zcash.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
