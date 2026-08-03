@@ -30,7 +30,7 @@ class RateCubit extends Cubit<RateState> {
       return;
     }
 
-    if (from.currency != state.from || to != state.to) {
+    if (state is! RatesLoaded || from.currency != state.from || to != state.to) {
       emit(RatesLoading(from.currency, to));
     }
 
