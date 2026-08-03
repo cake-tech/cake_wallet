@@ -48,8 +48,11 @@ abstract class SendTemplateViewModelBase with Store {
         amountParsingProxy: _appStore.amountParsingProxy,
       );
 
-  AddressValidator get addressValidator =>
-      AddressValidator(type: _wallet.currency, isTestnet: _wallet.isTestnet);
+  AddressValidator get addressValidator => AddressValidator(
+        type: _wallet.currency,
+        isTestnet: _wallet.isTestnet,
+        network: _wallet.walletInfo.network,
+      );
 
   TemplateValidator get templateValidator => TemplateValidator();
 

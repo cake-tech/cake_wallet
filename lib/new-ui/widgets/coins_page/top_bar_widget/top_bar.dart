@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/chain_icon.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart';
@@ -51,6 +52,7 @@ class TopBar extends StatelessWidget {
                 onSettingsButtonPress();
               },
               svgPath: "assets/new-ui/top-settings.svg",
+              semanticLabel: S.of(context).settings_title,
             ),
           ],
         ),

@@ -472,12 +472,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
             ModalTopBar(
               title: S.of(context).swap,
               leadingIcon: Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: Navigator.of(context).maybePop,
               trailingIcon: CakeImageWidget(
                 imageUrl: "assets/new-ui/options.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
+              trailingSemanticLabel: S.of(context).configure,
               onTrailingPressed: () {
                 Navigator.of(context).push(CupertinoPageRoute(
                     builder: (context) => Material(
@@ -576,6 +578,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           iconSize: 24,
                                           svgPath: "assets/new-ui/swap_amounts.svg",
                                           onPressed: widget.exchangeViewModel.reverseSwapDirection,
+                                          semanticLabel: S.of(context).swap_reverse_direction,
                                         ),
                                       ],
                                     ),
@@ -1174,6 +1177,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             size: 36,
                             iconSize: 18,
                             backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            semanticLabel: S.of(context).refund_address,
                           ),
                         if (widget.isReceiverCard &&
                             widget.exchangeViewModel.receiveAddress.isEmpty) ...[
@@ -1183,6 +1187,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             size: 36,
                             iconSize: 20,
                             backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            semanticLabel: S.of(context).paste,
                           ),
                           ModernButton.svg(
                             svgPath: "assets/new-ui/scan.svg",
@@ -1190,6 +1195,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             size: 36,
                             iconSize: 20,
                             backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            semanticLabel: S.of(context).scan,
                           ),
                         ]
                       ],

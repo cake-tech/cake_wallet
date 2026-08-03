@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -40,16 +41,30 @@ class WalletInfoBar extends StatelessWidget {
                       BlendMode.srcIn,
                     ),
                   ),
-                ),
-        ),
-        Text(
-          name,
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
-        ),
-      ],
+          ),
+          Text(
+            name,
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          if (hasCustomize) ...[
+            SizedBox(width: 8),
+            ModernButton.svg(
+              size: 24,
+              onPressed: () {
+                if (hasCustomize) {
+                  onCustomizeButtonTap();
+                  HapticFeedback.mediumImpact();
+                }
+              },
+              svgPath: "assets/new-ui/icon-accounts.svg",
+              semanticLabel: S.of(context).wallet_accounts,
+            )
+          ]
+        ],
+      ),
     );
   }
 

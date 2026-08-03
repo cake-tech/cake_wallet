@@ -550,10 +550,16 @@ abstract class DashboardViewModelBase with Store {
           .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
           .toSet();
 
-      transactions.removeWhere(
-        (item) => newKeys
-            .contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
-      );
+      transactions.removeWhere((item) {
+        if (wallet.type == WalletType.zcash) {
+          return newTransactions.any(
+            (n) => n.transaction.txHash == item.transaction.txHash,
+          );
+        }
+        return newKeys.contains(
+          _txIdentityString(item.transaction.txHash, item.transaction.direction),
+        );
+      });
 
       transactions.addAll(newTransactions);
       // transactions.clear();

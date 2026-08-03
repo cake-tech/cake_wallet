@@ -1,6 +1,6 @@
-import 'dart:math';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/currency.dart';
+import "dart:math";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/currency.dart";
 
 extension ToMoney on double {
   /// Turn a double representation of a currency amount to a proper Money representation

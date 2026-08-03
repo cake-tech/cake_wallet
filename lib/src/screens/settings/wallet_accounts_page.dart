@@ -130,9 +130,11 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         children: [
           ModalTopBar(
             title: S.of(context).wallet_accounts,
-            leadingIcon: Icon(Icons.arrow_back_ios_new),
+            leadingIcon: Icon(Icons.close),
+            leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: Navigator.of(context).maybePop,
             trailingIcon: Icon(Icons.refresh),
+            trailingSemanticLabel: S.of(context).reset,
             onTrailingPressed: showResetDialog,
           ),
           Padding(
