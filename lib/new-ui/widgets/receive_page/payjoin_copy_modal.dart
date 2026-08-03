@@ -25,6 +25,7 @@ class PayjoinCopyModal extends StatelessWidget {
             ModalTopBar(
                 title: S.of(context).select_address_to_copy,
                 leadingIcon: Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: Navigator.of(context).pop),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),

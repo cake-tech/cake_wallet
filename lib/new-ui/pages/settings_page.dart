@@ -153,8 +153,9 @@ class SettingsMainPage extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       child: Column(children: [
         ModalTopBar(
-          title: "Settings",
+          title: S.of(context).settings_title,
           leadingIcon: Icon(Icons.close),
+          leadingSemanticLabel: S.of(context).close,
           onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
           onTrailingPressed: () {},
         ),
