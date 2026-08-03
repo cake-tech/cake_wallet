@@ -45,11 +45,14 @@ defaults:
 
 jobs:
   integration-test:
-    runs-on: [Linux, amd64, android]
+    # linux-amd64 is the kvm capable host the old emulator workflow targeted, the android
+    # labeled builders do not expose /dev/kvm
+    runs-on: linux-amd64
     environment: ${{ inputs.environment }}
     timeout-minutes: ${{ inputs.timeout_minutes }}
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      options: --device /dev/kvm
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -65,7 +68,6 @@ jobs:
         - /opt/cw_cache_android/root/.android/:/root/.android
         - /opt/cw_cache_android/root/go/pkg:/root/go/pkg
         - /opt/cw_cache_android/opt/generic_cache:/opt/generic_cache
-        - /dev/kvm:/dev/kvm
         - /var/run/docker.sock:/var/run/docker.sock
 
     steps:
@@ -220,10 +222,15 @@ jobs:
 
           chmod +x /tmp/emulator_ready.sh
 
+      # Without kvm the emulator waits out its whole boot timeout, fail in seconds instead
       - name: Enable KVM
         run: |
-          ls -la /dev/kvm
-          sudo chmod 666 /dev/kvm || echo "Failed to set KVM permissions, emulator may fall back to software mode"
+          if [[ ! -c /dev/kvm ]]; then
+            echo "::error::/dev/kvm is not a character device inside the container, the runner host has no usable KVM"
+            ls -la /dev/kvm || true
+            exit 1
+          fi
+          sudo chmod 666 /dev/kvm || true
 
       - name: Integration tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
