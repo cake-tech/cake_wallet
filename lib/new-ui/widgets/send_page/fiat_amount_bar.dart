@@ -47,6 +47,7 @@ class FiatAmountBar extends StatelessWidget {
                 svgPath: "assets/new-ui/switch.svg",
                 iconSize: 18,
                 onPressed: onSwitchButtonPressed,
+                semanticLabel: S.of(context).switch_input_currency,
               ),
               GestureDetector(
                 onTap: onSwitchButtonPressed,

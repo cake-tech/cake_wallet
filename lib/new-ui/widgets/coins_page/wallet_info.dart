@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -76,6 +77,7 @@ class WalletInfoBar extends StatelessWidget {
                 }
               },
               svgPath: "assets/new-ui/icon-accounts.svg",
+              semanticLabel: S.of(context).wallet_accounts,
             )
           ]
         ],
