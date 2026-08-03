@@ -115,6 +115,9 @@
                 <data android:scheme="bsc" />
                 <data android:scheme="bsc-wallet" />
                 <data android:scheme="bsc_wallet" />
+                <data android:scheme="robinhood" />
+                <data android:scheme="robinhood-wallet" />
+                <data android:scheme="robinhood_wallet" />
                 <data android:scheme="zcash" />
                 <data android:scheme="zcash-wallet" />
                 <data android:scheme="lightning" />

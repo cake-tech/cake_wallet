@@ -1120,6 +1120,8 @@ abstract class SettingsStoreBase with Store {
         return PreferencesKey.currentArbitrumNodeIdKey;
       case 56:
         return PreferencesKey.currentBscNodeIdKey;
+      case 4663:
+        return PreferencesKey.currentRobinhoodNodeIdKey;
       default:
         // Default to Ethereum for unknown chainIds
         return PreferencesKey.currentEthereumNodeIdKey;
@@ -1370,6 +1372,7 @@ abstract class SettingsStoreBase with Store {
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
+    final robinhoodNodeId = sharedPreferences.getInt(PreferencesKey.currentRobinhoodNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1423,6 +1426,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final bscNode = nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
+    final robinhoodNode = nodeSource.firstWhereOrNull((e) => e.id == robinhoodNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == robinhoodDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1489,6 +1494,10 @@ abstract class SettingsStoreBase with Store {
 
     if (bscNode != null) {
       nodes[WalletType.bsc] = bscNode;
+    }
+
+    if (robinhoodNode != null) {
+      nodes[WalletType.robinhood] = robinhoodNode;
     }
 
     if (bitcoinCashElectrumServer != null) {
@@ -1963,6 +1972,7 @@ abstract class SettingsStoreBase with Store {
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
+    final robinhoodNodeId = sharedPreferences.getInt(PreferencesKey.currentRobinhoodNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
@@ -1980,6 +1990,7 @@ abstract class SettingsStoreBase with Store {
     final baseNode = await Node.get(baseNodeId ?? -1);
     final arbitrumNode = await Node.get(arbitrumNodeId ?? -1);
     final bscNode = await Node.get(bscNodeId ?? -1);
+    final robinhoodNode = await Node.get(robinhoodNodeId ?? -1);
     final bitcoinCashNode = await Node.get(bitcoinCashElectrumServerId ?? -1);
     final nanoNode = await Node.get(nanoNodeId ?? -1);
     final solanaNode = await Node.get(solanaNodeId ?? -1);
@@ -2024,6 +2035,10 @@ abstract class SettingsStoreBase with Store {
 
     if (bscNode != null) {
       nodes[WalletType.bsc] = bscNode;
+    }
+
+    if (robinhoodNode != null) {
+      nodes[WalletType.robinhood] = robinhoodNode;
     }
 
     if (bitcoinCashNode != null) {
@@ -2179,6 +2194,7 @@ abstract class SettingsStoreBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         final chainId = evm!.getChainIdByWalletType(node.type);
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.id);

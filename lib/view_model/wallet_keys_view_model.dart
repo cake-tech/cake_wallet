@@ -171,6 +171,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.tron:
         items.addAll([
@@ -315,6 +316,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'arbitrum-wallet';
       case WalletType.bsc:
         return 'bsc-wallet';
+      case WalletType.robinhood:
+        return 'robinhood-wallet';
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:

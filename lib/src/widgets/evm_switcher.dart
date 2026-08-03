@@ -28,6 +28,8 @@ String _getSvgPathForChain(String chainName) {
       return 'assets/new-ui/crypto_full_icons/arbitrum.svg';
     case 'base':
       return 'assets/new-ui/crypto_full_icons/base.svg';
+    case 'robinhood chain':
+      return 'assets/new-ui/crypto_full_icons/robinhood.svg';
     case 'bnb':
     case 'bsc':
       return 'assets/new-ui/crypto_full_icons/bnb.svg';

@@ -12,6 +12,8 @@ String getQrImage(WalletType type) {
       return 'assets/images/arbitrum_chain_QR.svg';
     case WalletType.bsc:
       return 'assets/images/bnb_chain_QR.svg';
+    case WalletType.robinhood:
+      return 'assets/images/eth_chain_qr.svg';
     case WalletType.solana:
       return 'assets/images/sol_chain_qr.svg';
     case WalletType.tron:
@@ -55,6 +57,8 @@ String getChainMonoImage(WalletType type) {
       return 'assets/images/arbitrum_chain_mono.svg';
     case WalletType.bsc:
       return 'assets/images/bnb_chain_mono.svg';
+    case WalletType.robinhood:
+      return 'assets/images/robinhood_chain_mono.svg';
     case WalletType.solana:
       return 'assets/images/sol_chain_mono.svg';
     case WalletType.tron:

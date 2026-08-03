@@ -168,6 +168,8 @@ class CardDesign {
 
   static const bnb = CardDesign(imagePath: "assets/new-ui/balance_card_icons/bnb.svg");
 
+  static const robinhood = CardDesign(imagePath: "assets/new-ui/balance_card_icons/robinhood.svg");
+
   static const ethSpecial = CardDesign(
       gradient: const LinearGradient(
           colors: <Color>[Color(0xFF6259FF), Color(0xFF3B20E6)],
@@ -323,6 +325,15 @@ class CardDesign {
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/bnb.svg");
 
+  static const robinhoodSpecial = CardDesign(
+      gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF5AA438), Color(0xFF2E6B1E)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter),
+      colors: CardColorCombination.light,
+      backgroundType: CardDesignBackgroundTypes.svgFull,
+      imagePath: "assets/new-ui/balance_card_backgrounds/robinhood.svg");
+
   CardDesign withGradient(Gradient gradient) => CardDesign(
       gradient: gradient,
       colors: preferredColorCombinations[gradient] ?? colors,
@@ -357,6 +368,7 @@ class CardDesign {
     CryptoCurrency.arbEth: _CurrencyIconNames(ticker: 'arb', longName: 'arbitrum'),
     CryptoCurrency.baseEth:
         _CurrencyIconNames(ticker: 'base', longName: 'base', chainFile: 'base_icon'),
+    CryptoCurrency.robEth: _CurrencyIconNames(ticker: 'rob', longName: 'robinhood'),
     CryptoCurrency.bch:
         _CurrencyIconNames(ticker: 'bch', longName: 'bitcoin_cash', chainFile: 'bitcoin-cash'),
     CryptoCurrency.btc: _CurrencyIconNames(ticker: 'btc', longName: 'bitcoin', outlineFile: 'BTC'),
@@ -409,6 +421,7 @@ class CardDesign {
     arbitrum,
     zec,
     bnb,
+    robinhood,
     ethSpecial,
     btcSpecial,
     xmrSpecial,
@@ -423,7 +436,8 @@ class CardDesign {
     zanoSpecial,
     arbitrumSpecial,
     zecSpecial,
-    bnbSpecial
+    bnbSpecial,
+    robinhoodSpecial,
   ];
 
   static CardDesign forCurrencySpecial(CryptoCurrency currency) {
@@ -453,6 +467,7 @@ class CardDesign {
     CryptoCurrency.zec: zec,
     CryptoCurrency.dcr: dcr,
     CryptoCurrency.bnb: bnb,
+    CryptoCurrency.robEth: robinhood,
   };
 
   static const Map<CryptoCurrency, CardDesign> specialDesignsForCurrencies = {
@@ -474,6 +489,7 @@ class CardDesign {
     CryptoCurrency.arbEth: arbitrumSpecial,
     CryptoCurrency.zec: zecSpecial,
     CryptoCurrency.bnb: bnbSpecial,
+    CryptoCurrency.robEth: robinhoodSpecial,
   };
 
   static Map<Gradient, CardColorCombination> preferredColorCombinations = {

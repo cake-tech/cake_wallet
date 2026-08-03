@@ -379,9 +379,12 @@ class _ContactListBodyState extends State<ContactListBody> {
   }
 
   Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
-    final image = contact.type == CryptoCurrency.baseEth
-        ? 'assets/new-ui/crypto_full_icons/base.svg'
-        : contact.type.iconPath;
+    const l2NativeChainIcons = {
+      CryptoCurrency.baseEth: "assets/new-ui/crypto_full_icons/base.svg",
+      CryptoCurrency.arbEth: "assets/new-ui/crypto_full_icons/arbitrum.svg",
+      CryptoCurrency.robEth: "assets/new-ui/crypto_full_icons/robinhood.svg",
+    };
+    final image = l2NativeChainIcons[contact.type] ?? contact.type.iconPath;
     final currencyIcon = (image != null && image.isNotEmpty)
         ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);

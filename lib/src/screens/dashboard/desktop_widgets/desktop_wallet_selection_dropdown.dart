@@ -49,6 +49,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final arbitrumIcon =
       Image.asset('assets/new-ui/crypto_full_icons/arbitrum.svg', height: 24, width: 24);
   final bscIcon = Image.asset('assets/new-ui/crypto_full_icons/bnb.svg', height: 24, width: 24);
+  final robinhoodIcon =
+      SvgPicture.asset('assets/new-ui/crypto_full_icons/robinhood.svg', height: 24, width: 24);
   final nanoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg', height: 24, width: 24);
   final solanaIcon =
@@ -206,6 +208,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return arbitrumIcon;
       case WalletType.bsc:
         return bscIcon;
+      case WalletType.robinhood:
+        return robinhoodIcon;
       case WalletType.zcash:
         return zcashIcon;
       case WalletType.none:

@@ -377,7 +377,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isTokenBelongingToWallet(CryptoCurrency.arbEth) ||
         _isTokenBelongingToWallet(CryptoCurrency.trx) ||
         _isTokenBelongingToWallet(CryptoCurrency.sol) ||
-        _isTokenBelongingToWallet(CryptoCurrency.bnb);
+        _isTokenBelongingToWallet(CryptoCurrency.bnb) ||
+        _isTokenBelongingToWallet(CryptoCurrency.robEth);
 
     if (!canSend) {
       return 'Wallet currency ${wallet.currency.title} does not match trade from currency ${tradeFrom.title} or is not a supported token for this wallet.';
@@ -446,6 +447,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return _createERC681URI(fromCurrency, inputAddress, amount);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: inputAddress);

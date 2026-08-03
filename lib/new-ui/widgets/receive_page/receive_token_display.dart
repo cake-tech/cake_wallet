@@ -3,7 +3,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ReceiveTokenDisplay extends StatelessWidget {
   const ReceiveTokenDisplay({super.key, required this.addressListViewModel});
@@ -35,7 +34,7 @@ class ReceiveTokenDisplay extends StatelessWidget {
                 children: [
                   CakeImageWidget(
                     imageUrl:
-                        "assets/new-ui/chain_badges/${addressListViewModel.wallet.type == WalletType.bsc ? 'bnb' : walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
+                        "assets/new-ui/chain_badges/${addressListViewModel.wallet.type == WalletType.bsc ? 'bnb' : addressListViewModel.wallet.type == WalletType.robinhood ? 'robinhood' : walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
                     width: 16,
                     height: 16,
                     colorFilter:

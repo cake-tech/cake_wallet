@@ -558,12 +558,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   label: S.of(context).fees,
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
-                                                  onTap: () {
-                                                    if (widget.sendViewModel.feesViewModel
-                                                        .hasFeesPriority) {
-                                                      pickTransactionPriority(context, output);
-                                                    }
-                                                  },
+                                                  showArrow: widget
+                                                      .sendViewModel.feesViewModel.hasFeesPriority,
+                                                  onTap: widget.sendViewModel.feesViewModel
+                                                          .hasFeesPriority
+                                                      ? () => pickTransactionPriority(context, output)
+                                                      : null,
                                                 ),
                                               if (widget.sendViewModel.hasCoinControl)
                                                 ListItemRegularRowWidget(
@@ -1130,6 +1130,9 @@ class _NewSendPageState extends State<NewSendPage> {
     PaymentFlowResult result,
   ) async {
     Navigator.of(context).pop();
+    final targetWalletType = result.chainId != null
+        ? (evm?.getWalletTypeByChainId(result.chainId!) ?? paymentViewModel.detectedWalletType)
+        : paymentViewModel.detectedWalletType;
 
     await showModalBottomSheet<WalletInfo>(
       context: context,
@@ -1137,7 +1140,7 @@ class _NewSendPageState extends State<NewSendPage> {
       isScrollControlled: true,
       builder: (dialogContext) => WalletSwitcherBottomSheet(
         viewModel: walletSwitcherViewModel,
-        filterWalletType: paymentViewModel.detectedWalletType,
+        filterWalletType: targetWalletType,
       ),
     );
 

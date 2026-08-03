@@ -886,7 +886,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<void> calculateForcedProviderRate() async {
-    if (forcedProvider == null || depositCurrency == receiveCurrency) {
+    if (forcedProvider == null ||
+        depositCurrency == receiveCurrency ||
+        _pairInvolvesUnsupportedChain) {
       forcedProviderRate = 0.0;
       return;
     }
@@ -911,6 +913,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool _excludeProviderForReceiveExtraId(ExchangeProvider provider) =>
       memoLabelTypeFor(receiveCurrency) != null && !provider.supportsMemoOrDestinationTag;
 
+  bool _isRobinhoodCurrency(CryptoCurrency currency) =>
+      cryptoCurrencyOrTokenToWalletType(currency) == WalletType.robinhood;
+
+  bool get _pairInvolvesUnsupportedChain =>
+      _isRobinhoodCurrency(depositCurrency) || _isRobinhoodCurrency(receiveCurrency);
+
+  bool _excludeProviderForUnsupportedChain(ExchangeProvider provider) =>
+      _pairInvolvesUnsupportedChain;
+
   Future<void> calculateBestRate() async {
     if (depositCurrency == receiveCurrency) {
       bestRate = 0.0;
@@ -924,6 +935,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       if (_excludeProviderForSwapAll(provider)) return false;
       if (_excludeProviderForReceiveExtraId(provider)) return false;
+      if (_excludeProviderForUnsupportedChain(provider)) return false;
 
       final limits = _providerLimits[provider];
 
@@ -1002,6 +1014,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final futures = selectedProviders
           .where((provider) => providerList.contains(provider))
           .where((provider) => !_excludeProviderForReceiveExtraId(provider))
+          .where((provider) => !_excludeProviderForUnsupportedChain(provider))
           .map((provider) async {
         final limits = await provider
             .fetchLimits(
@@ -1113,6 +1126,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     if (forcedProvider != null && _excludeProviderForReceiveExtraId(forcedProvider!)) {
+      tradeState = TradeIsCreatedFailure(
+        title: S.current.trade_not_created,
+        error: S.current.none_of_selected_providers_can_exchange,
+      );
+      return;
+    }
+
+    if (_pairInvolvesUnsupportedChain) {
       tradeState = TradeIsCreatedFailure(
         title: S.current.trade_not_created,
         error: S.current.none_of_selected_providers_can_exchange,
@@ -1559,6 +1580,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.bsc:
         depositCurrency = CryptoCurrency.bnb;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.robinhood:
+        depositCurrency = CryptoCurrency.robEth;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.solana:

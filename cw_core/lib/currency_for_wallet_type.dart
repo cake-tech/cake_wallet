@@ -26,6 +26,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.arbEth;
     case WalletType.bsc:
       return CryptoCurrency.bnb;
+    case WalletType.robinhood:
+      return CryptoCurrency.robEth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
@@ -66,6 +68,8 @@ CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
       return CryptoCurrency.arbEth;
     case 56:
       return CryptoCurrency.bnb;
+    case 4663:
+      return CryptoCurrency.robEth;
     default:
       return CryptoCurrency.eth;
   }
@@ -85,6 +89,8 @@ int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
       return 42161;
     case CryptoCurrency.bnb:
       return 56;
+    case CryptoCurrency.robEth:
+      return 4663;
     default:
       return null;
   }
@@ -107,6 +113,10 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
 
   if (type == WalletType.base) {
     return "assets/new-ui/crypto_full_icons/base.svg";
+  }
+
+  if (type == WalletType.robinhood) {
+    return "assets/new-ui/crypto_full_icons/robinhood.svg";
   }
 
   return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";

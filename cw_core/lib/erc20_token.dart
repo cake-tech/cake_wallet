@@ -36,6 +36,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
     this.iconPath,
     this.tag,
     this.isPotentialScam = false,
+    Set<String> groups = const {},
   })  : _enabled = enabled,
         super(
           name: symbol.toLowerCase(),
@@ -45,6 +46,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           iconPath: iconPath,
           decimals: decimal,
           isPotentialScam: isPotentialScam,
+          groups: groups,
         );
 
   Erc20Token.copyWith(Erc20Token other, {String? icon, String? tag, bool? enabled})
@@ -64,6 +66,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           iconPath: icon,
           decimals: other.decimal,
           isPotentialScam: other.isPotentialScam,
+          groups: other.groups,
         );
 
   static const typeId = ERC20_TOKEN_TYPE_ID;
@@ -73,6 +76,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   static const baseBoxName = 'BaseErc20Tokens';
   static const arbitrumBoxName = 'ArbitrumErc20Tokens';
   static const bscBoxName = 'BscErc20Tokens';
+  static const robinhoodBoxName = 'RobinhoodErc20Tokens';
 
   @override
   bool operator ==(Object other) => other is Erc20Token && other.contractAddress == contractAddress;

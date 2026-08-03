@@ -31,6 +31,7 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.polygon:
       case WalletType.zano:
       case WalletType.bsc:
+      case WalletType.robinhood:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
         return ReceiveInfoBox(
             iconPath: "",
@@ -39,7 +40,7 @@ class ReceiveInfoBox extends StatelessWidget {
             bottomWidget: InfoboxCurrencyRow(
               currencies: supportedCurrencies ?? [],
               chainIconPath:
-                  "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
+                  "assets/new-ui/chain_badges/${type == WalletType.robinhood ? 'robinhood' : walletTypeToString(type).toLowerCase()}.svg",
             ));
       default:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;

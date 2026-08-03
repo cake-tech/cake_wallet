@@ -180,6 +180,7 @@ class TokenUtilities {
       WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       WalletType.arbitrum => '${walletKey}_${Erc20Token.arbitrumBoxName}',
       WalletType.bsc => '${walletKey}_${Erc20Token.bscBoxName}',
+      WalletType.robinhood => '${walletKey}_${Erc20Token.robinhoodBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
   }
@@ -248,7 +249,12 @@ class TokenUtilities {
     // Only check EVM registry for currencies that might be EVM-related
     final isPotentialEVM = isNativeToken(currency) ||
         (tag != null &&
-            (tag == 'ETH' || tag == 'POL' || tag == 'BASE' || tag == 'ARB' || tag == 'BSC'));
+            (tag == 'ETH' ||
+                tag == 'POL' ||
+                tag == 'BASE' ||
+                tag == 'ARB' ||
+                tag == 'BSC' ||
+                tag == 'ROB'));
 
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')
