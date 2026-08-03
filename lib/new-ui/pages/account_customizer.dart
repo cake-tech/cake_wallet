@@ -92,6 +92,10 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     final accounts = widget.accountListViewModel.accounts;
     final styleSettings = await BalanceCardStyleSettings.getAll(widget.dashboardViewModel.wallet.walletInfo.internalId);
     final sortedOrderKeys = widget.dashboardViewModel.cardOrder.keys.toList()..sort();
+    if(styleSettings.every((item)=>item.hidden)) {
+      await reset();
+      return;
+    }
     for (final key in sortedOrderKeys) {
       final index = widget.dashboardViewModel.cardOrder[key];
 
@@ -106,9 +110,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       }
 
       final account = accounts.firstWhere((item) => item.id == index);
-      final setting = styleSettings.firstWhere((item) => item.accountIndex == index);
+      final setting = styleSettings.firstWhereOrNull((item) => item.accountIndex == index);
 
-      if (setting.hidden) {
+      if (setting?.hidden ?? false) {
         continue;
       }
 
@@ -374,6 +378,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       await BalanceCardStyleSettings.fromCardDesign(
               walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
           accountIndex: item.accountListItem.id,
+          hidden: false,
           cardOrder: i,
               design: item.card.design)
           .insert();

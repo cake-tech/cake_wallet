@@ -84,7 +84,6 @@ class BalanceCardStyleSettings {
     required int accountIndex,
     required int cardOrder,
     required CardDesign design,
-    required bool hidden,
     int iconStyleIndex = 0,
     int? gradientIndexOverride,
     bool hidden = false
@@ -96,14 +95,10 @@ class BalanceCardStyleSettings {
       accountIndex: accountIndex,
       gradientIndex: gradientIndex,
       useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
-      gradientIndex: CardDesign.allGradients.indexOf(design.gradient),
-      useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
       hidden: hidden,
       backgroundImagePath:
           design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
       iconStyleIndex: iconStyleIndex,
-      hidden: hidden,
-
       isGradientOnly:
           design.backgroundType == CardDesignBackgroundTypes.gradientOnly,
       cardOrder: cardOrder,

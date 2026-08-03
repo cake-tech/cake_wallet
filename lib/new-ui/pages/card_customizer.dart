@@ -86,14 +86,13 @@ class _CardCustomizerState extends State<CardCustomizer> {
                       title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                       leadingIcon: Icon(Icons.close),
                       trailingIcon: editEnabled
-                          ? SvgPicture.asset(
+                          ? CakeImageWidget(imageUrl:
                               "assets/new-ui/hide.svg",
                               colorFilter: ColorFilter.mode(
                                   Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                             )
                           : null,
                       onLeadingPressed: () => Navigator.of(context).maybePop(),
-                      trailingIcon: editEnabled ? SvgPicture.asset("assets/new-ui/hide.svg",colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary,BlendMode.srcIn),) : null,
                       onTrailingPressed: () => Navigator.of(context).maybePop(true),
                       // onTrailingPressed: () {},
                     ),
