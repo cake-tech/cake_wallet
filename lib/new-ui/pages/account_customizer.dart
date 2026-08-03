@@ -311,7 +311,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
     widget.accountListViewModel.select(_items[_items.length - 1].accountListItem);
 
-    final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+    final bloc = getIt.get<CardCustomizerBloc>(param1: CardCustomizerBlocParams(lightningMode: false, amountDisplayMode: null, canHide: _items.length > 1));
 
 
     Navigator.of(context).push(CupertinoPageRoute(

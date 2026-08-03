@@ -85,7 +85,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     ModalTopBar(
                       title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                       leadingIcon: Icon(Icons.close),
-                      trailingIcon: editEnabled
+                      trailingIcon: bloc.canHide
                           ? CakeImageWidget(imageUrl:
                               "assets/new-ui/hide.svg",
                               colorFilter: ColorFilter.mode(

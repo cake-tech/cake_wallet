@@ -231,8 +231,10 @@ class _NewHomePageState extends State<NewHomePage> {
 
   void openCardCustomizer() async {
     final bloc = getIt.get<CardCustomizerBloc>(
-        param1: _lightningMode,
-        param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
+        param1: CardCustomizerBlocParams(
+            lightningMode: _lightningMode,
+            amountDisplayMode: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi,
+            canHide: false));
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,

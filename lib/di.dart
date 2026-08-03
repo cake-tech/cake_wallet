@@ -582,14 +582,14 @@ Future<void> setup({
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
-  getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
-      (lightningMode, displayMode) {
+  getIt.registerFactoryParam<CardCustomizerBloc, CardCustomizerBlocParams, void>(
+      (params, _) {
     final wallet = getIt.get<AppStore>().wallet!;
     return CardCustomizerBloc(wallet,
-        lightningMode: lightningMode,
+        lightningMode: params.lightningMode,
         displaySats: wallet.type == WalletType.bitcoin &&
-            (displayMode == BitcoinAmountDisplayMode.satoshi ||
-                (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
+            (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshi ||
+                (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshiForLightning && params.lightningMode)));
   });
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(

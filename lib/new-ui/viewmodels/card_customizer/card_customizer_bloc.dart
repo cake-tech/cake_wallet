@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import "package:cw_core/balance_card_style_settings.dart";
@@ -12,12 +13,21 @@ import 'package:meta/meta.dart';
 part 'card_customizer_event.dart';
 part 'card_customizer_state.dart';
 
+class CardCustomizerBlocParams {
+  CardCustomizerBlocParams({required this.lightningMode, this.amountDisplayMode, required this.canHide});
+
+  final bool lightningMode;
+  final BitcoinAmountDisplayMode? amountDisplayMode;
+  final bool canHide;
+}
+
 class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> {
   final WalletBase _wallet;
   final bool lightningMode;
   final bool displaySats;
+  final bool canHide;
 
-  CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
+  CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false, this.canHide = false})
       : super(CardCustomizerNotLoaded(
             0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
     on<_Init>(_init);
