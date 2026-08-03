@@ -84,11 +84,23 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: subosito/flutter-action@v2
+      - name: Cache flutter sdk
+        id: flutter-cache
+        uses: actions/cache@v4
         with:
-          flutter-version: "3.41.9"
-          channel: stable
-          cache: true
+          path: ~/flutter
+          key: flutter-sdk-3.41.9-${{ runner.os }}
+
+      # Same source as the ci container image, the 3.41.9 release archive ships a stricter
+      # dart that rejects the checked in mweb ffi bindings while the tag clone compiles them
+      - name: Install Flutter
+        run: |
+          if [[ ! -d "$HOME/flutter/bin" ]]; then
+            git clone --branch 3.41.9 --depth 1 https://github.com/flutter/flutter.git "$HOME/flutter"
+          fi
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$HOME/flutter/bin"
+          flutter --version
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v3
