@@ -67,7 +67,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     on<PayoutAddressChanged>(_onPayoutAddressChanged, transformer: restartable());
     on<DepositAmountChanged>(_onDepositAmountChanged, transformer: restartable());
     on<PayoutAmountChanged>(_onPayoutAmountChanged, transformer: restartable());
-    on<RatesLoadStarted>(_onRatesLoadStarted, transformer: restartable());
+    on<RatesLoadStarted>(_onRatesLoadStarted, transformer: droppable());
     on<DepositCurrencyChanged>(_onDepositCurrencyChanged, transformer: restartable());
     on<PayoutCurrencyChanged>(_onPayoutCurrencyChanged, transformer: restartable());
     on<SwapDirectionReversed>(_onSwapDirectionReversed, transformer: sequential());
@@ -472,7 +472,9 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   Future<void> _onSwapInitiated(SwapInitiated event, Emitter<SwapState> emit) async {
     emitPresentation(const SwapCreationStarted());
     await _reloadRates();
-
+    if(rateCubit.state is! RatesLoaded) {
+      return;
+    }
     final rates = (rateCubit.state as RatesLoaded).rates.toList();
     rates.sort((a, b) => b.compareTo(a));
 

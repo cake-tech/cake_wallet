@@ -106,6 +106,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
     });
   }
 
+  @override
+  void dispose() {
+    widget.bloc.close();
+    super.dispose();
+  }
+
   // void _showFeeAlert(BuildContext context) async {
   //   await Future<void>.delayed(Duration(seconds: 1));
   //   if (!context.mounted) {
