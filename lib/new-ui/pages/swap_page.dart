@@ -3,7 +3,6 @@ import "package:cake_wallet/core/address_resolver/address_resolver_service.dart"
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
-import "package:cake_wallet/exchange/exchange_trade_state.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
@@ -243,27 +242,28 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 ),
                               ),
                             SwapProviderPreview(bloc: widget.bloc),
-                            NewPrimaryButton(
-                              text: S.of(context).swap,
-                              onPressed: () {
-                                FocusScope.of(context).unfocus();
-                                if (formKey.currentState != null &&
-                                    formKey.currentState!.validate()) {
-                                  widget.authService.authenticateAction(
-                                    context,
-                                    conditionToDetermineIfToUse2FA: false,
-                                    onAuthSuccess: (value) {
-                                      if (value) {
-                                        widget.bloc.add(SwapInitiated());
-                                      }
-                                    },
-                                  );
-                                }
-                              },
-                              color: Theme.of(context).colorScheme.primary,
-                              textColor: Theme.of(context).colorScheme.onPrimary,
-                              disabled: !state.canInitiateSwap,
-                              isLoading: state is TradeIsCreating,
+                            BlocBuilder<RateCubit, RateState>(
+                              builder: (context, rateState) => NewPrimaryButton(
+                                text: S.of(context).swap,
+                                onPressed: () {
+                                  FocusScope.of(context).unfocus();
+                                  if (formKey.currentState != null &&
+                                      formKey.currentState!.validate()) {
+                                    widget.authService.authenticateAction(
+                                      context,
+                                      conditionToDetermineIfToUse2FA: false,
+                                      onAuthSuccess: (value) {
+                                        if (value) {
+                                          widget.bloc.add(SwapInitiated());
+                                        }
+                                      },
+                                    );
+                                  }
+                                },
+                                color: Theme.of(context).colorScheme.primary,
+                                textColor: Theme.of(context).colorScheme.onPrimary,
+                                disabled: !state.canInitiateSwap || rateState is! RatesLoaded,
+                              ),
                             ),
                           ],
                         ),
