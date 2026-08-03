@@ -1,6 +1,8 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import "package:cake_wallet/monero/monero.dart";
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cw_core/wallet_base.dart';
+import "package:cw_core/wallet_type.dart";
 import 'package:mobx/mobx.dart';
 
 part 'trade_filter_store.g.dart';
@@ -229,7 +231,11 @@ abstract class TradeFilterStoreBase with Store {
         : _trades;
   }
 
-  bool isTradeInAccount(TradeListItem item, WalletBase wallet) =>
-      item.trade.refundAddress.isEmpty || // we don't allow empty refund addrs anymore but we have to show legacy trades
-      wallet.walletAddresses.containsAddress(item.trade.refundAddress);
+  bool isTradeInAccount(TradeListItem item, WalletBase wallet) {
+    if(wallet.type != WalletType.monero) {
+      return true;
+    }
+
+    return item.trade.accountIndex == monero!.getCurrentAccount(wallet).id;
+  }
 }

@@ -15,6 +15,7 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
@@ -541,7 +542,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
         try {
           trade = await provider.createTrade(request: req);
-          await trade.copyWith(walletId: _appStore.wallet!.id).save();
+          await trade.copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex()).save();
           _tradesStore.setTrade(trade);
           ExchangeProviderLogger.logSuccess(
               provider: provider.description, function: "createTrade", requestData: {"req": req});
@@ -614,6 +615,15 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     }
 
     return wi.address;
+  }
+
+
+  int _currentAccountIndex() {
+    if(_appStore.wallet!.type != WalletType.monero) {
+      return 0;
+    }
+
+    return monero!.getCurrentAccount(_appStore.wallet!).id;
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {

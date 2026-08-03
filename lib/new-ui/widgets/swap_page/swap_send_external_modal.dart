@@ -135,7 +135,10 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                     ),
                     AddressFormatter.buildSegmentedAddress(
                         address: widget.uri.address,
-                        evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                        evenTextStyle: TextStyle(color: Theme
+                            .of(context)
+                            .colorScheme
+                            .onSurface, fontFamily: "IBM Plex Mono", fontSize: 16),
                         textAlign: TextAlign.center),
                     Container(
                         decoration: BoxDecoration(

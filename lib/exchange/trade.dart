@@ -22,6 +22,7 @@ class Trade {
     required this.id, required this.provider, required this.payoutAddress, required this.refundAddress, this.internalId = 0,
     this.createdAt,
     this.expiredAt,
+    this.accountIndex = 0,
     this.extraId,
     this.outputTransaction,
     this.walletId,
@@ -58,6 +59,7 @@ class Trade {
   final String? extraId;
   final String? outputTransaction;
   final String? walletId;
+  final int? accountIndex;
   final String refundAddress;
   final String payoutAddress;
   final String? providerName;
@@ -153,6 +155,7 @@ class Trade {
       "payoutAddress": payoutAddress,
       "toAddressExtraId": toAddressExtraId,
       "password": password,
+      "accountIndex": accountIndex,
       "providerId": providerId,
       "memo": memo,
       "txId": txId,
@@ -179,6 +182,7 @@ class Trade {
       outputTransaction: row["outputTransaction"] as String?,
       refundAddress: row["refundAddress"] as String? ?? "",
       walletId: row["walletId"] as String?,
+      accountIndex: row["accountIndex"] as int?,
       payoutAddress: row["payoutAddress"] as String? ?? "",
       provider: ExchangeProviderDescription.deserialize(raw: row["provider"] as int),
       toAddressExtraId: row["toAddressExtraId"] as String?,
@@ -221,6 +225,7 @@ class Trade {
     ExchangeProviderDescription? provider,
     String? payoutAddress,
     String? refundAddress,
+    int? accountIndex,
     int? internalId,
     DateTime? createdAt,
     DateTime? expiredAt,
@@ -241,6 +246,7 @@ class Trade {
       fundingAddress: fundingAddress ?? this.fundingAddress,
       providerName: providerName ?? this.providerName,
       id: id ?? this.id,
+      accountIndex: accountIndex ?? this.accountIndex,
       provider: provider ?? this.provider,
       payoutAddress: payoutAddress ?? this.payoutAddress,
       refundAddress: refundAddress ?? this.refundAddress,

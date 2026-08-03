@@ -29,6 +29,7 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
         "fundingAddress": row["inputAddress"],
         "refundAddress": row["refundAddress"],
         "payoutAddress": row["payoutAddress"],
+        "accountIndex": 0,
         "createdAt": row["createdAt"],
         "expiredAt": row["expiredAt"],
         "extraId": row["extraId"],

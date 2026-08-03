@@ -256,6 +256,7 @@ CREATE TABLE Trade (
     id TEXT NOT NULL,
     provider INTEGER, 
     state TEXT,
+    accountIndex INTEGER,
     depositAmount TEXT,
     payoutAmount TEXT,
     fundingAddress TEXT,
