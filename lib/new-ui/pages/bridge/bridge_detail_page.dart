@@ -46,6 +46,7 @@ class BridgeDetailPage extends StatelessWidget {
                     ModalTopBar(
                       title: "Bridge Transfer Details",
                       leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                      leadingSemanticLabel: S.of(context).seed_alert_back,
                       onLeadingPressed: () => Navigator.of(context).pop(),
                     ),
                     Expanded(

@@ -15,7 +15,16 @@ class ModalTopBar extends StatelessWidget {
     this.padding,
     this.leadingWidget,
     this.trailingWidget,
-  }) {
+    this.leadingSemanticLabel,
+    this.trailingSemanticLabel,
+  })  : assert(
+          leadingIcon == null || (leadingSemanticLabel != null && leadingSemanticLabel != ""),
+          "leadingIcon requires a non-empty leadingSemanticLabel",
+        ),
+        assert(
+          trailingIcon == null || (trailingSemanticLabel != null && trailingSemanticLabel != ""),
+          "trailingIcon requires a non-empty trailingSemanticLabel",
+        ) {
     if (leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }
@@ -34,6 +43,15 @@ class ModalTopBar extends StatelessWidget {
   final Widget? leadingWidget;
   final Widget? trailingWidget;
 
+  /// Accessible name for the leading chrome button. Required (non-empty)
+  /// whenever a [leadingIcon] is supplied — the icon alone doesn't say
+  /// whether it closes the modal or navigates back. Caller must localize.
+  final String? leadingSemanticLabel;
+
+  /// Accessible name for the trailing chrome button. Required (non-empty)
+  /// whenever a [trailingIcon] is supplied. Caller must localize.
+  final String? trailingSemanticLabel;
+
   static const buttonSize = 36.0;
 
   @override
@@ -51,10 +69,16 @@ class ModalTopBar extends StatelessWidget {
                 children: [
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
-                    child: Text(
-                      title,
+                    child: Semantics(
                       key: ValueKey(title),
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      header: title.isNotEmpty,
+                      // Android reads the heading from headingLevel since the
+                      // Flutter 3.41 engine; header: alone only covers iOS.
+                      headingLevel: title.isNotEmpty ? 1 : null,
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
                     ),
                   ),
                   if (subtitle != null && subtitle!.isNotEmpty)
@@ -79,6 +103,7 @@ class ModalTopBar extends StatelessWidget {
                           size: buttonSize,
                           onPressed: onLeadingPressed,
                           icon: leadingIcon,
+                          semanticLabel: leadingSemanticLabel,
                           iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
                         )
                       : leadingWidget!
@@ -93,6 +118,7 @@ class ModalTopBar extends StatelessWidget {
                             size: buttonSize,
                             onPressed: onTrailingPressed,
                             icon: trailingIcon,
+                            semanticLabel: trailingSemanticLabel,
                           )
                         : trailingWidget!,
                   )

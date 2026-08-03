@@ -386,6 +386,7 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) => ModalTopBar(
         title: title,
         leadingIcon: const Icon(Icons.arrow_back),
+        leadingSemanticLabel: S.of(context).seed_alert_back,
         onLeadingPressed: Navigator.of(context).pop,
         onTrailingPressed: () {},
       );

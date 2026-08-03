@@ -40,6 +40,7 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
       topBar: ModalTopBar(
         title: S.of(context).manage_nodes,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
+        leadingSemanticLabel: S.of(context).seed_alert_back,
         onLeadingPressed: () => Navigator.of(context).pop(),
         trailingWidget: Row(
           spacing: 8,
@@ -50,11 +51,13 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                   icon: widget.nodeListViewModel.isTestingNodeSpeed
                       ? CupertinoActivityIndicator()
                       : Icon(Icons.refresh),
+                  semanticLabel: S.of(context).test_node_speeds,
                   onPressed: () => widget.nodeListViewModel.speedTestNodes()),
             ),
             ModernButton(
                 size: 36,
                 icon: Icon(Icons.add),
+                semanticLabel: S.of(context).add_new_node,
                 onPressed: () async {
                   final res = await Navigator.of(context)
                       .pushNamed(widget.isPow ? Routes.newPowNode : Routes.newNode);

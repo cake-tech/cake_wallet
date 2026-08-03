@@ -114,6 +114,7 @@ class _RescanPageState extends State<RescanPage> {
                         ? S.current.silent_payments_scanning
                         : S.current.rescan,
                     leadingIcon: Icon(Icons.arrow_back_ios_new),
+                    leadingSemanticLabel: S.current.seed_alert_back,
                     onLeadingPressed: Navigator.of(context).pop),
                 Expanded(
                     child: Padding(

@@ -156,6 +156,7 @@ class SwapTransactionDetails extends StatelessWidget {
               fromIconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
               toIconPath: exchangeViewModel.receiveCurrency.iconPath ?? ""),
           trailingIcon: Icon(Icons.close),
+          trailingSemanticLabel: S.of(context).close,
           onTrailingPressed: Navigator.of(context).maybePop,
         ),
         SafeArea(

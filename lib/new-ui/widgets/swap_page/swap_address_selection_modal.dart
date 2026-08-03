@@ -82,6 +82,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                     ? "${S.of(context).receive_to}..."
                     : "${S.of(context).send_from}...",
                 leadingIcon: Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: Navigator.of(context).pop,
               ),
               Flexible(

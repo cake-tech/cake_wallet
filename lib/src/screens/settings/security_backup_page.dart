@@ -45,6 +45,7 @@ class SecurityBackupPage extends BasePage {
       topBar: ModalTopBar(
           title: "",
           leadingIcon: Icon(Icons.arrow_back_ios_new),
+          leadingSemanticLabel: S.of(context).seed_alert_back,
           onLeadingPressed: () => Navigator.of(context).pop()),
       header: ModalHeader(
           iconPath: "assets/new-ui/settings_row_icons/security.svg",

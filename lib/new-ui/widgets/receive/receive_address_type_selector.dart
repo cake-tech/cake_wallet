@@ -78,6 +78,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
             ModalTopBar(
               title: S.of(context).address_type,
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: Navigator.of(context).pop,
               onTrailingPressed: () {},
             ),

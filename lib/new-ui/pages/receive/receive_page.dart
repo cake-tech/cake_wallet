@@ -118,6 +118,7 @@ class _LoadingWidget extends StatelessWidget {
           ModalTopBar(
             title: S.of(context).receive,
             leadingIcon: const Icon(Icons.close),
+            leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
             onTrailingPressed: () {},
           ),
@@ -139,6 +140,7 @@ class _FailureWidget extends StatelessWidget {
         ModalTopBar(
           title: S.of(context).receive,
           leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.of(context).close,
           onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
           onTrailingPressed: () {},
         ),
@@ -196,6 +198,7 @@ class _LoadedWidget extends StatelessWidget {
         ModalTopBar(
           title: largeQrMode ? "" : S.of(context).receive,
           leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.of(context).close,
           trailingWidget: AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: largeQrMode || rotationAvailable
@@ -207,6 +210,9 @@ class _LoadedWidget extends StatelessWidget {
                         : state.isRotatingAddress
                             ? const CupertinoActivityIndicator()
                             : const Icon(Icons.refresh),
+                    semanticLabel: largeQrMode
+                        ? S.of(context).share_address
+                        : S.of(context).rotate_address,
                     onPressed: () {
                       if (largeQrMode) {
                         ShareUtil.share(

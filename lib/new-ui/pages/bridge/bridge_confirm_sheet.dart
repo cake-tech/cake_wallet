@@ -87,6 +87,7 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                     ],
                   ),
                   trailingIcon: const Icon(Icons.close),
+                  trailingSemanticLabel: S.of(context).close,
                   onTrailingPressed: () => Navigator.of(context).maybePop(),
                 );
               },

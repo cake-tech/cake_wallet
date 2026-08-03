@@ -69,6 +69,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                 leadingWidget: SwapModalHeader(
                     fromIconPath: widget.from.iconPath ?? "", toIconPath: widget.to.iconPath ?? ""),
                 trailingIcon: Icon(Icons.close),
+                trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).pop,
               ),
               Padding(

@@ -68,6 +68,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                   ModalTopBar(
                     title: S.of(context).transaction,
                     leadingIcon: const Icon(Icons.close),
+                    leadingSemanticLabel: S.of(context).close,
                     onLeadingPressed: Navigator.of(context).pop,
                   ),
                   Expanded(

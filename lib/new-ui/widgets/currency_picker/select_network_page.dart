@@ -35,6 +35,7 @@ class SelectNetworkPage extends StatelessWidget {
             ModalTopBar(
               title: S.of(context).select_network_title,
               leadingIcon: const Icon(Icons.arrow_back),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 24),
