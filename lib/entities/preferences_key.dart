@@ -145,4 +145,5 @@ class PreferencesKey {
   static const backgroundImage = 'background_image';
   static const mwebAdDismissed = "mweb_ad_dismissed";
   static const balanceHideCounter = "balance_hide_counter";
+  static const zcashMigrationModalViewed = "zcash_mgiration_modal_viewed";
 }

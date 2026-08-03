@@ -13,10 +13,15 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/transaction_direction.dart";
+import "package:cw_zcash/cw_zcash.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,6 +52,21 @@ class _NewHomePageState extends State<NewHomePage> {
       setState(() {
         _lightningMode = false;
       });
+    });
+
+    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val)  {
+      if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
+        widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
+        showMaterialModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (context) => ZcashMigrationModal(
+            hasContinue: true,
+            balance: widget.dashboardViewModel.wallet.balance.values.first.unavailable
+                .toStringWithSymbol(),
+          ),
+        );
+      }
     });
   }
 

@@ -1551,9 +1551,10 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  @computed
   bool get isMigratingToIronwood => transactions.any((item) =>
       item.transaction.additionalInfo["isIronwoodMigration"] == true &&
-      item.transaction.confirmations < 0);
+      item.transaction.isPending);
 
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {
