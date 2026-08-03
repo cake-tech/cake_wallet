@@ -52,8 +52,12 @@ class AssetsTopBar extends StatelessWidget {
                 spacing: 8,
                 children: [
                   // Built conditionally rather than rendered at opacity 0: an
-                  // invisible chip stayed focusable for screen readers.
-                  if (actionButton != null)
+                  // invisible chip stayed focusable for screen readers. The
+                  // SizedBox keeps the 40px header height the invisible chip
+                  // used to occupy.
+                  if (actionButton == null)
+                    const SizedBox(height: 40)
+                  else
                     MergeSemantics(
                       child: Semantics(
                         button: true,

@@ -172,7 +172,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                   itemCount: _items.length,
                   itemBuilder: (BuildContext context, int index) {
                     final card = _items[index].card;
-                    final isSelected = index == _items.length - 1;
+                    // The stack is ordered bottom to top, so the last item
+                    // is the account currently in front — the selected one.
+                    final selectedItemIndex = _items.length - 1;
 
                     return Container(
                       key: ValueKey(index),
@@ -180,7 +182,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                       // texts stay reachable underneath it.
                       child: Semantics(
                         button: true,
-                        selected: isSelected,
+                        selected: selectedItemIndex == index,
                         label: _items[index].accountListItem.label,
                         onTap: () => reorder(index, _items.length),
                         child: GestureDetector(
