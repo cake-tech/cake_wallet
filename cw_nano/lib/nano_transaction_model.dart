@@ -20,8 +20,8 @@ class NanoTransactionModel {
   factory NanoTransactionModel.fromJson(dynamic json) {
     DateTime? localTimestamp;
     try {
-      localTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          int.parse(json["local_timestamp"] as String) * 1000);
+      localTimestamp =
+          DateTime.fromMillisecondsSinceEpoch(int.parse(json["local_timestamp"] as String) * 1000);
     } catch (e) {
       localTimestamp = DateTime.now();
     }

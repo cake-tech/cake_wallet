@@ -1,38 +1,33 @@
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:flutter/material.dart';
-
 
 class AlertButtonStyle {
   final Color backgroundColor;
   final Color textColor;
   final FontWeight fontWeight;
 
-  const AlertButtonStyle({
-    required this.backgroundColor,
-    required this.textColor,
-    this.fontWeight = FontWeight.w400
-  });
+  const AlertButtonStyle(
+      {required this.backgroundColor, required this.textColor, this.fontWeight = FontWeight.w400});
 
   factory AlertButtonStyle.primary(BuildContext context) => AlertButtonStyle(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      textColor: Theme.of(context).colorScheme.onPrimary,
-    );
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        textColor: Theme.of(context).colorScheme.onPrimary,
+      );
 
   factory AlertButtonStyle.secondary(BuildContext context) => AlertButtonStyle(
-    backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-    textColor: Theme.of(context).colorScheme.primary,
-  );
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+        textColor: Theme.of(context).colorScheme.primary,
+      );
 
   factory AlertButtonStyle.error(BuildContext context) => AlertButtonStyle(
-    backgroundColor: Theme.of(context).colorScheme.errorContainer,
-    textColor: Theme.of(context).colorScheme.error,
-    fontWeight: FontWeight.w500
-  );
+      backgroundColor: Theme.of(context).colorScheme.errorContainer,
+      textColor: Theme.of(context).colorScheme.error,
+      fontWeight: FontWeight.w500);
 }
-
 
 class BaseAlertDialog extends StatelessWidget {
   String? get headerText => '';
@@ -66,7 +61,7 @@ class BaseAlertDialog extends StatelessWidget {
   Key? rightActionButtonKey;
 
   Key? dialogKey;
-  
+
   AlertButtonStyle? get leftAlertButtonStyle => null;
 
   AlertButtonStyle? get rightAlertButtonStyle => null;
@@ -128,29 +123,30 @@ class BaseAlertDialog extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
-      spacing:8,
+      spacing: 8,
       children: <Widget>[
-        if(showLeftButton)
-        Expanded(
-          child: GestureDetector(
-              key: leftActionButtonKey,
-              onTap: actionLeft,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999999),
-                  color: leftButtonStyle.backgroundColor
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  child: AutoSizeText(
-                    maxLines:1,
-                    leftActionButtonText,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: leftButtonStyle.textColor, fontWeight: leftButtonStyle.fontWeight)
+        if (showLeftButton)
+          Expanded(
+            child: GestureDetector(
+                key: leftActionButtonKey,
+                onTap: actionLeft,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(999999),
+                      color: leftButtonStyle.backgroundColor),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    child: AutoSizeText(
+                        maxLines: 1,
+                        leftActionButtonText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: leftButtonStyle.textColor,
+                            fontWeight: leftButtonStyle.fontWeight)),
                   ),
-                ),
-              )),
-        ),
+                )),
+          ),
         Expanded(
           child: GestureDetector(
               key: rightActionButtonKey,
@@ -158,16 +154,17 @@ class BaseAlertDialog extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999999),
-                    color: rightButtonStyle.backgroundColor
-                ),
+                    color: rightButtonStyle.backgroundColor),
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                   child: AutoSizeText(
-                    maxLines: 1,
-                    rightActionButtonText,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: rightButtonStyle.textColor, fontWeight: rightButtonStyle.fontWeight)
-                  ),
+                      maxLines: 1,
+                      rightActionButtonText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: rightButtonStyle.textColor,
+                          fontWeight: rightButtonStyle.fontWeight)),
                 ),
               )),
         ),
@@ -184,10 +181,7 @@ class BaseAlertDialog extends StatelessWidget {
         radius: 50,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: ClipOval(
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-          ),
+          child: CakeImageWidget(imageUrl: imageUrl, width: 100, height: 100, fit: BoxFit.cover),
         ),
       ),
     );
@@ -203,8 +197,7 @@ class BaseAlertDialog extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration:
-                BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withAlpha(25)),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withAlpha(25)),
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -231,9 +224,7 @@ class BaseAlertDialog extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     if (headerText?.isNotEmpty ?? false) headerTitle(context),
-                                    titleText != null
-                                        ? title(context)
-                                        : SizedBox(height: 16),
+                                    titleText != null ? title(context) : SizedBox(height: 16),
                                     isDividerExists
                                         ? Padding(
                                             padding: EdgeInsets.only(top: 16, bottom: 8),

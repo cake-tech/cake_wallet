@@ -5,13 +5,12 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import "package:cw_core/wallet_type.dart";
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class L2SendExternalModal extends StatefulWidget {
   const L2SendExternalModal({super.key, required this.sendViewModel});
@@ -35,7 +34,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
       if (widget.sendViewModel.wallet.type == WalletType.bitcoin) {
         await bitcoin!.setAddressType(widget.sendViewModel.wallet,
             bitcoin!.getOptionToType(bitcoin!.getBitcoinLightningReceivePageOption()));
-      } else if(widget.sendViewModel.wallet.type == WalletType.litecoin) {
+      } else if (widget.sendViewModel.wallet.type == WalletType.litecoin) {
         await bitcoin!.setAddressType(widget.sendViewModel.wallet,
             bitcoin!.getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
       }
@@ -65,8 +64,8 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
             leadingWidget: Row(
               spacing: 12,
               children: [
-                if(widget.sendViewModel.walletType == WalletType.bitcoin)
-                  CakeImageWidget(imageUrl:"assets/new-ui/lightning_deposit_help.svg", height: 36),
+                if (widget.sendViewModel.walletType == WalletType.bitcoin)
+                  CakeImageWidget(imageUrl: "assets/new-ui/lightning_deposit_help.svg", height: 36),
                 Text(
                   S.of(context).bitcoin_lightning_deposit,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
@@ -141,23 +140,25 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                                   largeQrMode = !largeQrMode;
                                 });
                               },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeOutCubic,
-                          width: resolvedSize,
-                          height: resolvedSize,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: QrImage(
-                              embeddedImagePath: widget.sendViewModel.currency.iconPath,
-                              data: uri.toString(),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 400),
+                                curve: Curves.easeOutCubic,
+                                width: resolvedSize,
+                                height: resolvedSize,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: QrImage(
+                                    embeddedImagePath: widget.sendViewModel.currency.iconPath,
+                                    data: uri.toString(),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
                       AddressFormatter.buildSegmentedAddress(
                           address: output.address,
-                          evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface,fontFamily: "IBM Plex Mono"),
+                          evenTextStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontFamily: "IBM Plex Mono"),
                           textAlign: TextAlign.center),
                       Container(
                           decoration: BoxDecoration(
@@ -180,11 +181,8 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
                         children: [
                           Flexible(
                             child: NewPrimaryButton(
-                                onPressed:(){
-                                  Clipboard.setData(
-                                    ClipboardData(text: output.address),
-                                  );
-                                },
+                                onPressed: () =>
+                                    ClipboardUtil.copyToClipboard(context, output.address),
                                 text: S.of(context).copy,
                                 color: Theme.of(context).colorScheme.primary,
                                 textColor: Theme.of(context).colorScheme.onPrimary),

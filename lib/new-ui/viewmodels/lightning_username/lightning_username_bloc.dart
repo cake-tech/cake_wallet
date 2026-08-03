@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/lnurlpay_record.dart';
+import 'package:cake_wallet/core/address_resolver/lnurl_pay/lnurlpay_record.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -52,7 +52,8 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
     }
   }
 
-  Future<void> onUsernameSaveRequested(RequestUsernameSave event, Emitter<LightningUsernameState> emit) async {
+  Future<void> onUsernameSaveRequested(
+      RequestUsernameSave event, Emitter<LightningUsernameState> emit) async {
     emit(LightningUsernameSaving(state.username));
     try {
       await bitcoin!.setLightningUsername(_wallet, state.username);
@@ -64,7 +65,8 @@ class LightningUsernameBloc extends Bloc<LightningUsernameEvent, LightningUserna
           return;
         }
       }
-      emit(LightningUsernameError(state.username, UsernameError(bitcoin!.getBreezSdkError(e) ?? e.toString())));
+      emit(LightningUsernameError(
+          state.username, UsernameError(bitcoin!.getBreezSdkError(e) ?? e.toString())));
     }
   }
 

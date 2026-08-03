@@ -13,7 +13,7 @@ class VerifyForm extends StatefulWidget {
 
   final WalletType type;
   final int? chainId;
-  
+
   @override
   VerifyFormState createState() => VerifyFormState();
 }

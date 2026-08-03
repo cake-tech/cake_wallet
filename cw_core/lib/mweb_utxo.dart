@@ -1,9 +1,9 @@
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'mweb_utxo.g.dart';
+part 'mweb_utxo.part.dart';
 
-@HiveType(typeId: MWEB_UTXO_TYPE_ID)
+// @HiveType(typeId: MWEB_UTXO_TYPE_ID)
 class MwebUtxo extends HiveObject {
   MwebUtxo({
     required this.height,
@@ -17,21 +17,21 @@ class MwebUtxo extends HiveObject {
   static const typeId = MWEB_UTXO_TYPE_ID;
   static const boxName = 'MwebUtxo';
 
-  @HiveField(0)
+  // @HiveField(0)
   int height;
 
-  @HiveField(1)
+  // @HiveField(1)
   int value;
 
-  @HiveField(2)
+  // @HiveField(2)
   String address;
 
-  @HiveField(3)
+  // @HiveField(3)
   String outputId;
 
-  @HiveField(4)
+  // @HiveField(4)
   int blockTime;
 
-  @HiveField(5, defaultValue: false)
+  // @HiveField(5, defaultValue: false)
   bool spent;
 }

@@ -105,10 +105,10 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
         break;
       }
 
-      final account = accounts.firstWhere((item)=>item.id==index);
-      final setting = styleSettings.firstWhereOrNull((item)=>item.accountIndex == index);
+      final account = accounts.firstWhere((item) => item.id == index);
+      final setting = styleSettings.firstWhere((item) => item.accountIndex == index);
 
-      if(setting?.hidden ?? false) {
+      if (setting.hidden) {
         continue;
       }
 
@@ -127,7 +127,6 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           ),
           order: index,
           accountListItem: account));
-
     }
     _items.clear();
     _items.addAll(newItems);
@@ -305,7 +304,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       return;
     }
 
-    widget.accountListViewModel.select(_items[_items.length-1].accountListItem);
+    widget.accountListViewModel.select(_items[_items.length - 1].accountListItem);
 
     final bloc = getIt.get<CardCustomizerBloc>(param1: false);
 
@@ -327,7 +326,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       final hideRequested = result != null && result is bool && result;
       bloc.add(hideRequested ? AccountHidden() : DesignSaved());
       await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
-      if(hideRequested) await reset(unhide: false);
+      if (hideRequested) await reset(unhide: false);
       await widget.dashboardViewModel.loadCardDesigns();
       await loadCards();
     });
@@ -395,7 +394,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               },
               actionRightButton: Navigator.of(context).pop);
         });
-    if(res != null && res is bool && res) {
+    if (res != null && res is bool && res) {
       reset(close: true);
     }
   }
@@ -407,7 +406,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
       final styleSettings = await BalanceCardStyleSettings.get(
           widget.dashboardViewModel.wallet.walletInfo.internalId, accounts[i].id);
-      if(!unhide && (styleSettings?.hidden??false)) {
+      if (!unhide && (styleSettings?.hidden ?? false)) {
         continue;
       }
 
@@ -422,8 +421,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             designSwitchDuration: Duration(milliseconds: 200),
             width: cardWidth,
             design: CardDesign.fromStyleSettings(
-                styleSettings,
-                widget.dashboardViewModel.wallet.currency),
+                styleSettings, widget.dashboardViewModel.wallet.currency),
           ),
           order: i,
           accountListItem: accounts[i]));

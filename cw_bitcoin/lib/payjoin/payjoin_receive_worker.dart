@@ -47,8 +47,7 @@ class PayjoinReceiverWorker {
     try {
       final receiver = Receiver.fromJson(json: receiverJson);
 
-      final uncheckedProposal =
-          await worker.receiveUncheckedProposal(receiver);
+      final uncheckedProposal = await worker.receiveUncheckedProposal(receiver);
 
       final originalTx = await uncheckedProposal.extractTxToScheduleBroadcast();
       sendPort.send({
@@ -112,8 +111,7 @@ class PayjoinReceiverWorker {
       final httpRequest = await client.post(url,
           headers: {'Content-Type': request.contentType}, body: request.body);
 
-      final proposal = await session.processRes(
-          body: httpRequest.bodyBytes, ctx: extractReq.$2);
+      final proposal = await session.processRes(body: httpRequest.bodyBytes, ctx: extractReq.$2);
       if (proposal != null) return proposal;
       sleep(Duration(seconds: 2));
     }
@@ -140,8 +138,7 @@ class PayjoinReceiverWorker {
     return await finalProposal.psbt();
   }
 
-  Future<PayjoinProposal> processPayjoinProposal(
-      UncheckedProposal proposal) async {
+  Future<PayjoinProposal> processPayjoinProposal(UncheckedProposal proposal) async {
     await proposal.extractTxToScheduleBroadcast();
     // TODO Handle this. send to the main port on a timer?
 
@@ -174,20 +171,27 @@ class PayjoinReceiverWorker {
       );
       final pj5 = await pj4.commitOutputs();
 
-      final listUnspent =
-          await _sendRequest(PayjoinReceiverRequestTypes.getCandidateInputs);
+      final listUnspent = await _sendRequest(PayjoinReceiverRequestTypes.getCandidateInputs);
       final unspent = listUnspent as List<UtxoWithPrivateKey>;
       if (unspent.isEmpty) throw RecoverableError('No unspent outputs available');
 
-      final selectedUtxo = await _inputPairFromUtxo(unspent[0]);
+      final candidateInputs = await Future.wait(unspent.map(_inputPairFromUtxo));
+
+      // Prefer a UTXO that avoids the Unnecessary Input Heuristic (UIH2);
+      // fall back to the first candidate if none preserves privacy.
+      InputPair selectedUtxo = candidateInputs.first;
+      try {
+        selectedUtxo = await pj5.tryPreservingPrivacy(candidateInputs: candidateInputs);
+      } catch (_) {}
+
       final pj6 = await pj5.contributeInputs(replacementInputs: [selectedUtxo]);
       final pj7 = await pj6.commitInputs();
 
       // Finalize proposal
       final payjoinProposal = await pj7.finalizeProposal(
         processPsbt: (String psbt) async {
-          final result = await _sendRequest(
-              PayjoinReceiverRequestTypes.processPsbt, {'psbt': psbt});
+          final result =
+              await _sendRequest(PayjoinReceiverRequestTypes.processPsbt, {'psbt': psbt});
           return result as String;
         },
         // TODO set maxFeeRateSatPerVb
@@ -203,15 +207,12 @@ class PayjoinReceiverWorker {
   Future<InputPair> _inputPairFromUtxo(UtxoWithPrivateKey utxo) async {
     final txout = TxOut(
       value: utxo.utxo.value,
-      scriptPubkey: Uint8List.fromList(
-          utxo.ownerDetails.address.toScriptPubKey().toBytes()),
+      scriptPubkey: Uint8List.fromList(utxo.ownerDetails.address.toScriptPubKey().toBytes()),
     );
 
-    final psbtin =
-        PsbtInput(witnessUtxo: txout, redeemScript: null, witnessScript: null);
+    final psbtin = PsbtInput(witnessUtxo: txout, redeemScript: null, witnessScript: null);
 
-    final previousOutput =
-        OutPoint(txid: utxo.utxo.txHash, vout: utxo.utxo.vout);
+    final previousOutput = OutPoint(txid: utxo.utxo.txHash, vout: utxo.utxo.vout);
 
     final txin = TxIn(
       previousOutput: previousOutput,

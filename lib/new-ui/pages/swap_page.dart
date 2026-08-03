@@ -1,8 +1,8 @@
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
@@ -19,15 +19,16 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/utils/decimal_input_formatter.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -50,7 +51,8 @@ import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NewSwapPage extends StatefulWidget {
-  NewSwapPage(this.exchangeViewModel, this.authService, this.initialPaymentRequest,
+  NewSwapPage(
+      this.exchangeViewModel, this.authService, this.adrResService, this.initialPaymentRequest,
       {required this.walletSwitcherViewModel, CryptoCurrency? initialCurrency}) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
@@ -66,6 +68,7 @@ class NewSwapPage extends StatefulWidget {
   final ExchangeViewModel exchangeViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
+  final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   late final String? depositWalletName;
   late final String? receiveWalletName;
@@ -130,14 +133,13 @@ class _NewSwapPageState extends State<NewSwapPage> {
           if (double.tryParse(depositFiatAmountController.text) != null) {
             widget.exchangeViewModel
                 .setDepositAmountFromFiat(fiatAmount: depositFiatAmountController.text);
-            receiveKey.currentState!.updateFiatAmount();
+            receiveKey.currentState?.updateFiatAmount();
           }
         });
       });
       receiveFiatAmountController.addListener(() {
-        if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
-          return;
-        }
+        if (!receiveKey.currentState!.amountFocusNode.hasFocus) return;
+
         widget.exchangeViewModel.enableFixedRateMode();
         widget.exchangeViewModel.isSendAllEnabled = false;
         Future.delayed(Duration(milliseconds: 200)).then((_) {
@@ -166,6 +168,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
       });
 
       reaction((_) => widget.exchangeViewModel.depositAmount, (String amount) {
+        if (depositKey.currentState!.amountFocusNode.hasFocus) return;
+
         if (widget.exchangeViewModel.isSendAllEnabled) {
           depositAmountController.text = S.of(context).all;
         } else if (depositAmountController.text != amount && amount != S.of(context).all) {
@@ -189,14 +193,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
               widget.exchangeViewModel, widget.exchangeViewModel.depositCurrency, depositKey));
 
       reaction(
-          (_) => widget.exchangeViewModel.receiveCurrency,
-          (CryptoCurrency currency) =>
-              _onCurrencyChange(currency, widget.exchangeViewModel, receiveKey));
+        (_) => widget.exchangeViewModel.receiveCurrency,
+        (currency) => _onCurrencyChange(currency, widget.exchangeViewModel, receiveKey),
+      );
 
       reaction(
-          (_) => widget.exchangeViewModel.depositCurrency,
-          (CryptoCurrency currency) =>
-              _onCurrencyChange(currency, widget.exchangeViewModel, depositKey));
+        (_) => widget.exchangeViewModel.depositCurrency,
+        (currency) => _onCurrencyChange(currency, widget.exchangeViewModel, depositKey),
+      );
 
       reaction((_) => widget.exchangeViewModel.depositAddress, (String address) {
         if (depositKey.currentState!.addressController.text != address) {
@@ -204,7 +208,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         }
       });
 
-      reaction((_) => widget.exchangeViewModel.isDepositAddressEnabled, (bool isEnabled) {});
+      reaction((_) => widget.exchangeViewModel.isDepositAddressEnabled, (isEnabled) {});
 
       reaction((_) => widget.exchangeViewModel.receiveAmount, (String amount) {
         if (receiveKey.currentState!.amountController.text != amount) {
@@ -268,7 +272,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
           widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
         } else {
           printV("bestrate");
-          if (depositAmountController.text == S.current.all)
+          if ((depositKey.currentState?._fiatInputMode ?? false) ||
+              depositAmountController.text.isEmpty ||
+              depositAmountController.text == S.current.all)
             widget.exchangeViewModel
                 .changeDepositAmount(amount: widget.exchangeViewModel.depositAmount);
           else
@@ -300,7 +306,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
             }
             widget.exchangeViewModel.isReceiveAmountEntered = false;
             widget.exchangeViewModel.isFixedRateMode = false;
-            if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
+            if (receiveKey.currentState != null &&
+                !receiveKey.currentState!.amountFocusNode.hasFocus) {
               receiveKey.currentState!.updateFiatAmount();
             }
           });
@@ -395,14 +402,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
     if (key == depositKey && !isCurrentTypeWallet) exchangeViewModel.isSendFromExternal = true;
     if (key == depositKey && isCurrentTypeWallet) exchangeViewModel.isSendFromExternal = false;
 
-
-    key.currentState!.changeSelectedCurrency(currency);
-
-    if (key == depositKey)
+    if (key == depositKey) {
       key.currentState!.changeAddress(
-          address: isCurrentTypeWallet
-              ? exchangeViewModel.wallet.walletAddresses.addressForExchange
-              : '');
+        address:
+            isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '',
+      );
+    }
   }
 
   void _onWalletNameChange(ExchangeViewModel exchangeViewModel, CryptoCurrency currency,
@@ -421,8 +426,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     printV("$domain");
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    return extractAddressFromParsed(context, parsedAddress);
+    final parsedAddress = await widget.adrResService
+        .resolve(query: domain, wallet: widget.exchangeViewModel.wallet, currency: currency);
+    return parsedAddress.isNotEmpty
+        ? parsedAddress.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 
   void _showFeeAlert(BuildContext context) async {
@@ -465,8 +473,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
               title: S.of(context).swap,
               leadingIcon: Icon(Icons.close),
               onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: CakeImageWidget(imageUrl:
-                "assets/new-ui/options.svg",
+              trailingIcon: CakeImageWidget(
+                imageUrl: "assets/new-ui/options.svg",
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
@@ -489,7 +497,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           child: Form(
                             key: formKey,
                             child: SingleChildScrollView(
-                              physics: ClampingScrollPhysics(),
+                              physics: const ClampingScrollPhysics(),
                               controller: ModalScrollController.of(context),
                               child: Column(
                                 children: [
@@ -505,7 +513,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           : null,
                                       key: depositKey,
                                       title: S.of(context).send,
-                                      initialCurrency: widget.exchangeViewModel.depositCurrency,
+                                      currency: widget.exchangeViewModel.depositCurrency,
+                                      useBaseUnit: widget.exchangeViewModel.useDepositBaseUnit,
                                       hasRefundAddress: true,
                                       currencies: widget.exchangeViewModel.depositCurrencies,
                                       onCurrencySelected: (currency) {
@@ -519,11 +528,13 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                                 value != S.of(context).all
                                             ? AmountValidator(
                                                 isAutovalidate: true,
-                                          currency: widget.exchangeViewModel.isFixedRateMode
+                                                currency: widget.exchangeViewModel.isFixedRateMode
                                                     ? widget.exchangeViewModel.receiveCurrency
                                                     : widget.exchangeViewModel.depositCurrency,
-                                                minValue: widget.exchangeViewModel.limits.min.toString(),
-                                                maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                                minValue:
+                                                    widget.exchangeViewModel.limits.min.toString(),
+                                                maxValue:
+                                                    widget.exchangeViewModel.limits.max.toString(),
                                                 amountParsingProxy:
                                                     widget.exchangeViewModel.amountParsingProxy,
                                               ).call(value)
@@ -533,7 +544,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           type: widget.exchangeViewModel.depositCurrency),
                                       onPushPasteButton: (context) async {
                                         final clipboard = await Clipboard.getData('text/plain');
-                                        widget.exchangeViewModel.depositAddress = clipboard?.text ?? '';
+                                        widget.exchangeViewModel.depositAddress =
+                                            clipboard?.text ?? '';
 
                                         final domain = widget.exchangeViewModel.depositAddress;
                                         widget.exchangeViewModel.depositAddress =
@@ -576,8 +588,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       onDispose: disposeBestRateSync,
                                       key: receiveKey,
                                       title: S.of(context).receive,
-                                      initialCurrency: widget.exchangeViewModel.receiveCurrency,
                                       currencies: widget.exchangeViewModel.receiveCurrencies,
+                                      currency: widget.exchangeViewModel.receiveCurrency,
+                                      useBaseUnit: widget.exchangeViewModel.useReceiveBaseUnit,
                                       onCurrencySelected: (currency) {
                                         if (currency is CryptoCurrency) {
                                           widget.exchangeViewModel
@@ -589,8 +602,10 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             ? AmountValidator(
                                                 isAutovalidate: true,
                                                 currency: widget.exchangeViewModel.receiveCurrency,
-                                                minValue: widget.exchangeViewModel.limits.min.toString(),
-                                                maxValue: widget.exchangeViewModel.limits.max.toString(),
+                                                minValue:
+                                                    widget.exchangeViewModel.limits.min.toString(),
+                                                maxValue:
+                                                    widget.exchangeViewModel.limits.max.toString(),
                                                 amountParsingProxy:
                                                     widget.exchangeViewModel.amountParsingProxy,
                                               ).call(value)
@@ -600,7 +615,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           type: widget.exchangeViewModel.receiveCurrency),
                                       onPushPasteButton: (context) async {
                                         final clipboard = await Clipboard.getData('text/plain');
-                                        widget.exchangeViewModel.receiveAddress = clipboard?.text ?? '';
+                                        widget.exchangeViewModel.receiveAddress =
+                                            clipboard?.text ?? '';
 
                                         final domain = widget.exchangeViewModel.receiveAddress;
                                         widget.exchangeViewModel.receiveAddress =
@@ -682,7 +698,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 isLoading: widget.exchangeViewModel.tradeState is TradeIsCreating,
                               ),
                             ),
-                            SizedBox()
                           ],
                         ),
                       )
@@ -698,18 +713,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
   }
 
   bool _swapButtonDisabled() {
-    if (widget.exchangeViewModel.selectedProviders.isEmpty) {
-      return true;
-    }
-    if (widget.exchangeViewModel.receiveAddress.isEmpty) {
-      return true;
-    }
-    if (widget.exchangeViewModel.status is! SyncedSyncStatus) {
-      return true;
-    }
-    if (widget.exchangeViewModel.depositAmount.isEmpty) {
-      return true;
-    }
+    if (widget.exchangeViewModel.selectedProviders.isEmpty) return true;
+
+    if (widget.exchangeViewModel.receiveAddress.isEmpty) return true;
+
+    if (widget.exchangeViewModel.status is! SyncedSyncStatus) return true;
+
+    if (widget.exchangeViewModel.depositAmount.isEmpty) return true;
+
     return false;
   }
 }
@@ -722,9 +733,7 @@ class SwapProviderPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      if (exchangeViewModel.depositAmount.isEmpty) {
-        return SizedBox.shrink();
-      }
+      if (exchangeViewModel.depositAmount.isEmpty) return SizedBox.shrink();
 
       final provider = exchangeViewModel.forcedProvider ?? exchangeViewModel.providerDisplay;
       final rate = exchangeViewModel.forcedProvider == null
@@ -735,8 +744,10 @@ class SwapProviderPreview extends StatelessWidget {
         onTap: () {
           if (provider != null) {
             Navigator.of(context).push(CupertinoPageRoute(
-                builder: (context) =>
-                    Material(child: ProviderSelectorPage(exchangeViewModel: exchangeViewModel))));
+              builder: (context) => Material(
+                child: ProviderSelectorPage(exchangeViewModel: exchangeViewModel),
+              ),
+            ));
           }
         },
         child: Container(
@@ -754,7 +765,7 @@ class SwapProviderPreview extends StatelessWidget {
                   spacing: 12,
                   children: [
                     if (provider != null)
-                      CakeImageWidget(imageUrl:provider.description.image,width:28,height:28),
+                      CakeImageWidget(imageUrl: provider.description.image, width: 28, height: 28),
                     if (provider == null) CupertinoActivityIndicator(),
                     Text(
                       provider?.title ?? "${S.of(context).finding_provider}...",
@@ -777,8 +788,8 @@ class SwapProviderPreview extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                             color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
-                      CakeImageWidget(imageUrl:
-                        "assets/new-ui/chooser.svg",
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/chooser.svg",
                         colorFilter: ColorFilter.mode(
                             Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
                       )
@@ -796,7 +807,7 @@ class SwapProviderPreview extends StatelessWidget {
 class SwapAmountBox extends StatefulWidget {
   SwapAmountBox({
     Key? key,
-    required this.initialCurrency,
+    required this.currency,
     required this.currencies,
     required this.onCurrencySelected,
     this.currencyValueValidator,
@@ -804,6 +815,7 @@ class SwapAmountBox extends StatefulWidget {
     this.title = '',
     this.hasRefundAddress = false,
     this.hasAllAmount = false,
+    this.useBaseUnit = false,
     this.allAmount,
     this.onPushPasteButton,
     this.onPushAddressBookButton,
@@ -817,7 +829,8 @@ class SwapAmountBox extends StatefulWidget {
   final Function(Currency) onCurrencySelected;
   final String title;
   final bool isReceiverCard;
-  final Currency initialCurrency;
+  final Currency currency;
+  final bool useBaseUnit;
   final bool hasRefundAddress;
   final FormFieldValidator<String>? currencyValueValidator;
   final FormFieldValidator<String>? addressTextFieldValidator;
@@ -845,10 +858,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
   @override
   void initState() {
-    _selectedCurrency = widget.initialCurrency;
-
-    super.initState();
-
     if (widget.isReceiverCard) {
       memoController.text = widget.exchangeViewModel.receiveAddressExtraId;
 
@@ -866,6 +875,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         }
       });
     }
+
+    super.initState();
   }
 
   @override
@@ -878,18 +889,18 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     super.dispose();
   }
 
-  late Currency _selectedCurrency;
   bool _fiatInputMode = false;
 
   @override
   Widget build(BuildContext context) {
-    final currencyToShow = (_selectedCurrency is CryptoCurrency)
+    final currencyToShow = (widget.currency is CryptoCurrency)
         ? widget.exchangeViewModel.amountParsingProxy
-            .getCryptoSymbol(_selectedCurrency as CryptoCurrency)
-        : _selectedCurrency.name.toUpperCase();
+            .getCryptoSymbol(widget.currency as CryptoCurrency)
+        : widget.currency.name.toUpperCase();
 
-
-    final chainIconPath = (_selectedCurrency is CryptoCurrency) ? _getCurrencyChainIconPath(_selectedCurrency as CryptoCurrency) : null;
+    final chainIconPath = (widget.currency is CryptoCurrency)
+        ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
+        : null;
 
     return Column(
       spacing: 12,
@@ -925,36 +936,48 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           children: [
                             Flexible(
                               child: IntrinsicWidth(
-                                  child: TextFormField(
-                                keyboardType:
-                                    TextInputType.numberWithOptions(signed: false, decimal: true),
-                                validator: _fiatInputMode ? null : widget.currencyValueValidator,
-                                controller:
-                                    _fiatInputMode ? fiatAmountController : amountController,
-                                focusNode: amountFocusNode,
-                                style: TextStyle(
+                                child: TextFormField(
+                                  keyboardType: TextInputType.numberWithOptions(
+                                    signed: false,
+                                    decimal: !widget.useBaseUnit,
+                                  ),
+                                  validator: _fiatInputMode ? null : widget.currencyValueValidator,
+                                  controller:
+                                      _fiatInputMode ? fiatAmountController : amountController,
+                                  focusNode: amountFocusNode,
+                                  style: TextStyle(
                                     fontSize: 28,
                                     color: Theme.of(context).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w400),
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.zero,
-                                  isDense: true,
-                                  hintText: "0",
-                                  fillColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  focusedBorder: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.zero,
+                                    isDense: true,
+                                    hintText: "0",
+                                    fillColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    focusedBorder: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                  ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    DecimalInputFormatter(
+                                      maxDecimals:
+                                          widget.useBaseUnit ? 0 : widget.currency.decimals,
+                                    ),
+                                  ],
                                 ),
-                              )),
+                              ),
                             ),
                             if (_fiatInputMode)
                               Center(
-                                  child: Text(
-                                widget.exchangeViewModel.fiat.title,
-                                style: TextStyle(
+                                child: Text(
+                                  widget.exchangeViewModel.fiat.title,
+                                  style: TextStyle(
                                     fontSize: 16,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              )),
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -962,16 +985,20 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         onTap: _presentCurrencyPicker,
                         child: Container(
                           decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(999999)),
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(999999),
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.only(top: 4.0, bottom: 4, left: 4, right: 4),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CakeImageWidget(imageUrl: _selectedCurrency.iconPath ?? "",
-                                    width: 28, height: 28),
-                                SizedBox(width: 10),
+                                CakeImageWidget(
+                                  imageUrl: widget.currency.iconPath ?? "",
+                                  width: 28,
+                                  height: 28,
+                                ),
+                                const SizedBox(width: 10),
                                 Text(
                                   currencyToShow,
                                   textAlign: TextAlign.center,
@@ -983,32 +1010,36 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                     width: 12,
                                     height: 12,
                                     colorFilter: ColorFilter.mode(
-                                        Theme.of(context).colorScheme.onSurfaceVariant,
-                                        BlendMode.srcIn),
+                                      Theme.of(context).colorScheme.onSurfaceVariant,
+                                      BlendMode.srcIn,
+                                    ),
                                   ),
-                                  SizedBox(width: 6)
+                                  const SizedBox(width: 6)
                                 ] else
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                 Container(
-                                  width:16,height:16,
+                                  width: 16,
+                                  height: 16,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(9999999999),
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh
-                                  ),
+                                      borderRadius: BorderRadius.circular(9999999999),
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                   child: Padding(
                                     padding: const EdgeInsets.all(4.0),
                                     child: RotatedBox(
-                                          quarterTurns: 2,
-                                          child: CakeImageWidget(imageUrl:
-                                            "assets/new-ui/dropdown_arrow.svg",
-                                            width: 4,
-                                            height: 4,
-                                            colorFilter: ColorFilter.mode(
-                                                Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                                          )),
+                                      quarterTurns: 2,
+                                      child: CakeImageWidget(
+                                        imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                        width: 4,
+                                        height: 4,
+                                        colorFilter: ColorFilter.mode(
+                                          Theme.of(context).colorScheme.primary,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                SizedBox(width:4),
+                                const SizedBox(width: 4),
                               ],
                             ),
                           ),
@@ -1024,36 +1055,40 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         !widget.exchangeViewModel.hasAllAmount);
 
                     return FiatAmountBar(
-                        foregroundElementColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                        textColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                        allAmountColor: hasAllAmount ? null : Colors.transparent,
-                        allAmountTextColor:
-                            hasAllAmount ? null : Theme.of(context).colorScheme.onSurfaceVariant,
-                        fiatInputMode: _fiatInputMode,
-                        allAmount: !hasAllAmount
-                            ? widget.isReceiverCard
-                                ? null
-                                : widget.exchangeViewModel.balanceDisplay
-                            : widget.exchangeViewModel.depositAvailableAmount,
-                        onSwitchButtonPressed: () {
-                          setState(() {
-                            _fiatInputMode = !_fiatInputMode;
-                          });
-                          if (_fiatInputMode) {
-                            updateFiatAmount();
-                          }
-                        },
-                        onAllButtonPressed: widget.allAmount,
-                        cryptoAmount: widget.isReceiverCard
-                            ? widget.exchangeViewModel.roundedReceiveAmount(6)
-                            : widget.exchangeViewModel.roundedDepositAmount(6),
-                        fiatAmount: widget.isReceiverCard
-                            ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
-                            : widget.exchangeViewModel.roundedDepositAmountFiat(6),
-                        cryptoCurrency: widget.isReceiverCard
-                            ? widget.exchangeViewModel.receiveCurrency.title
-                            : widget.exchangeViewModel.depositCurrency.title,
-                        fiatCurrency: widget.exchangeViewModel.fiat.name);
+                      foregroundElementColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      textColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                      allAmountColor: hasAllAmount ? null : Colors.transparent,
+                      allAmountTextColor:
+                          hasAllAmount ? null : Theme.of(context).colorScheme.onSurfaceVariant,
+                      fiatInputMode: _fiatInputMode,
+                      allAmount: !hasAllAmount
+                          ? widget.isReceiverCard
+                              ? null
+                              : widget.exchangeViewModel.balanceDisplay
+                          : widget.exchangeViewModel.depositAvailableAmount,
+                      onSwitchButtonPressed: () {
+                        setState(() => _fiatInputMode = !_fiatInputMode);
+                        if (_fiatInputMode) {
+                          updateFiatAmount();
+                        } else {
+                          amountController.text = widget.exchangeViewModel.depositAmount;
+                        }
+                      },
+                      onAllButtonPressed: () {
+                        setState(() {
+                          _fiatInputMode = false;
+                        });
+                        widget.allAmount?.call();
+                      },
+                      cryptoAmount: widget.isReceiverCard
+                          ? widget.exchangeViewModel.roundedReceiveAmount(6)
+                          : widget.exchangeViewModel.roundedDepositAmount(6),
+                      fiatAmount: widget.isReceiverCard
+                          ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
+                          : widget.exchangeViewModel.roundedDepositAmountFiat(6),
+                      cryptoCurrencySymbol: currencyToShow,
+                      fiatCurrencySymbol: widget.exchangeViewModel.fiat.symbol,
+                    );
                   },
                 ),
                 Observer(
@@ -1102,22 +1137,25 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                                     ? Theme.of(context).colorScheme.onPrimary
                                                     : Theme.of(context).colorScheme.onSurface),
                                           ),
-                                          Text(addressDescription,
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Theme.of(context).colorScheme.primary))
+                                          Text(
+                                            addressDescription,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Theme.of(context).colorScheme.primary),
+                                          )
                                         ],
                                       ),
                                       RotatedBox(
                                         quarterTurns: 2,
-                                        child: CakeImageWidget(imageUrl:
-                                          "assets/new-ui/dropdown_arrow.svg",
+                                        child: CakeImageWidget(
+                                          imageUrl: "assets/new-ui/dropdown_arrow.svg",
                                           colorFilter: ColorFilter.mode(
-                                              (addressEmpty && widget.isReceiverCard)
-                                                  ? Theme.of(context).colorScheme.onPrimary
-                                                  : Theme.of(context).colorScheme.onSurface,
-                                              BlendMode.srcIn),
+                                            (addressEmpty && widget.isReceiverCard)
+                                                ? Theme.of(context).colorScheme.onPrimary
+                                                : Theme.of(context).colorScheme.onSurface,
+                                            BlendMode.srcIn,
+                                          ),
                                         ),
                                       )
                                     ],
@@ -1141,18 +1179,14 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             widget.exchangeViewModel.receiveAddress.isEmpty) ...[
                           ModernButton.svg(
                             svgPath: "assets/new-ui/paste.svg",
-                            onPressed: () {
-                              widget.onPushPasteButton?.call(context);
-                            },
+                            onPressed: () => widget.onPushPasteButton?.call(context),
                             size: 36,
                             iconSize: 20,
                             backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                           ),
                           ModernButton.svg(
                             svgPath: "assets/new-ui/scan.svg",
-                            onPressed: () {
-                              _presentQRScanner(context);
-                            },
+                            onPressed: () => _presentQRScanner(context),
                             size: 36,
                             iconSize: 20,
                             backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -1167,7 +1201,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     final selected = widget.exchangeViewModel.receiveCurrency;
                     final labelType = memoLabelTypeFor(selected);
                     if (labelType == null) return const SizedBox.shrink();
-                    
+
                     final isDestinationTag = labelType == MemoLabelType.destinationTag;
                     final hint = isDestinationTag
                         ? S.of(context).destination_tag_optional
@@ -1175,7 +1209,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     final disclaimer = isDestinationTag
                         ? S.of(context).destination_tag_swap_disclaimer
                         : S.of(context).memo_swap_disclaimer;
-                          
+
                     return NewSendMemoInput(
                       memoController: memoController,
                       maxMemoLength: isDestinationTag ? 20 : 256,
@@ -1192,10 +1226,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     );
   }
 
-  void changeSelectedCurrency(Currency currency) {
-    setState(() => _selectedCurrency = currency);
-  }
-
   void changeAddress({required String address}) {
     setState(() => addressController.text = _normalizeAddressFormat(address));
   }
@@ -1210,9 +1240,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   }
 
   void _presentCurrencyPicker() {
-    final currencies = widget.isReceiverCard
+    final rawCurrencies = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrencies
         : widget.exchangeViewModel.depositCurrencies;
+    final currencies = rawCurrencies.whereType<CryptoCurrency>().toList();
+    appendEvmDefaultTokens(currencies);
     if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
       currencies.sort((a, b) {
         if (a == CryptoCurrency.btcln) return -1;
@@ -1221,20 +1253,18 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       });
     }
 
-    showPopUp<void>(
+    final selected = widget.isReceiverCard
+        ? widget.exchangeViewModel.receiveCurrency
+        : widget.exchangeViewModel.depositCurrency;
+
+    CurrencyPickerSheet.show(
       context: context,
-      builder: (_) => CurrencyPicker(
-        key: ValueKey('send_page_currency_picker_dialog_button_key'),
-        selectedAtIndex: currencies.indexOf(widget.isReceiverCard
-            ? widget.exchangeViewModel.receiveCurrency
-            : widget.exchangeViewModel.depositCurrency),
+      args: CurrencyPickerArgs(
         items: currencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) async {
-          if (cur is CryptoCurrency) {
-            widget.onCurrencySelected(cur);
-          }
-        },
+        selected: selected,
+        recentsSource: RecentsSource.trades,
+        onSelected: widget.onCurrencySelected,
+        symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
       ),
     );
   }
@@ -1338,18 +1368,15 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   }
 
   String? _getCurrencyChainIconPath(CryptoCurrency curr) {
-    try{
+    try {
+      if (curr.chainIconPath != null) return curr.chainIconPath!;
 
-      if(curr.chainIconPath != null) return curr.chainIconPath!;
-
-
-      if(curr.tag != null) {
+      if (curr.tag != null) {
         final currencyFromTag = CryptoCurrency.fromString(curr.tag!);
-        if(currencyFromTag.chainIconPath != null) {
-          return currencyFromTag.chainIconPath!;
-        }
+
+        if (currencyFromTag.chainIconPath != null) return currencyFromTag.chainIconPath!;
       }
-    }catch(_){}
+    } catch (_) {}
     return null;
   }
 }

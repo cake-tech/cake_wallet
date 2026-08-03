@@ -4,11 +4,11 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class SwapSendExternalModal extends StatefulWidget {
   const SwapSendExternalModal(
@@ -16,7 +16,8 @@ class SwapSendExternalModal extends StatefulWidget {
       required this.amount,
       required this.from,
       required this.to,
-      required this.address, required this.exchangeTradeViewModel});
+      required this.address,
+      required this.exchangeTradeViewModel});
 
   final String amount;
   final ExchangeTradeViewModel exchangeTradeViewModel;
@@ -45,7 +46,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
 
   @override
   Widget build(BuildContext context) {
-    if (uri == null) return SizedBox.shrink();
+    if (widget.address.isEmpty) return SizedBox.shrink();
     final resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.8 : 0.54);
 
     return PopScope(
@@ -123,18 +124,27 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                           largeQrMode = !largeQrMode;
                         });
                       },
-                      child: AnimatedContainer(
+                      child: TweenAnimationBuilder<double>(
                         duration: const Duration(milliseconds: 400),
                         curve: Curves.easeOutCubic,
-                        width: resolvedSize,
-                        height: resolvedSize,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: QrImage(
-                            embeddedImagePath: widget.from.iconPath,
-                            data: uri.toString(),
-                          ),
+                        tween: Tween<double>(
+                          begin: resolvedSize,
+                          end: resolvedSize,
                         ),
+                        builder: (context, animatedSize, child) {
+                          return SizedBox(
+                            width: animatedSize,
+                            height: animatedSize,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: QrImage(
+                                size: animatedSize,
+                                embeddedImagePath: widget.from.iconPath,
+                                data: uri?.toString() ?? widget.address,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     AddressFormatter.buildSegmentedAddress(
@@ -155,18 +165,19 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 color: warningTextColor, fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                         )),
-                    if(widget.exchangeTradeViewModel.trade.extraId != null)
+                    if (widget.exchangeTradeViewModel.trade.extraId != null)
                       Text(
                         "${S.of(context).destination_tag} ${widget.exchangeTradeViewModel.trade.extraId}",
                         style: TextStyle(
                             fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     Row(
-                      spacing:8,
+                      spacing: 8,
                       children: [
                         Flexible(
                           child: NewPrimaryButton(
-                              onPressed: ()=> Clipboard.setData(ClipboardData(text:widget.address)),
+                              onPressed: () =>
+                                  ClipboardUtil.copyToClipboard(context, widget.address),
                               text: S.of(context).copy,
                               color: Theme.of(context).colorScheme.primary,
                               textColor: Theme.of(context).colorScheme.onPrimary),

@@ -7,6 +7,13 @@ abstract class PaymentURI {
   final String address;
 }
 
+class ExternalAddressURI extends PaymentURI {
+  ExternalAddressURI({required super.amount, required super.address});
+
+  @override
+  String toString() => address;
+}
+
 class MoneroURI extends PaymentURI {
   MoneroURI({required super.amount, required super.address});
 
@@ -176,14 +183,23 @@ class PolygonURI extends PaymentURI {
 }
 
 class SolanaURI extends PaymentURI {
-  SolanaURI({required super.amount, required super.address});
+  SolanaURI({required super.amount, required super.address, this.contractAddress});
+
+  final String? contractAddress;
 
   @override
   String toString() {
     var base = 'solana:$address';
+    final params = <String>[];
 
     if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
+      params.add('amount=${amount.replaceAll(',', '.')}');
+    }
+    if (contractAddress != null && contractAddress!.isNotEmpty) {
+      params.add('spl-token=$contractAddress');
+    }
+    if (params.isNotEmpty) {
+      base += '?${params.join('&')}';
     }
 
     return base;
@@ -191,14 +207,23 @@ class SolanaURI extends PaymentURI {
 }
 
 class TronURI extends PaymentURI {
-  TronURI({required super.amount, required super.address});
+  TronURI({required super.amount, required super.address, this.contractAddress});
+
+  final String? contractAddress;
 
   @override
   String toString() {
     var base = 'tron:$address';
+    final params = <String>[];
 
     if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
+      params.add('amount=${amount.replaceAll(',', '.')}');
+    }
+    if (contractAddress != null && contractAddress!.isNotEmpty) {
+      params.add('token=$contractAddress');
+    }
+    if (params.isNotEmpty) {
+      base += '?${params.join('&')}';
     }
 
     return base;
@@ -383,14 +408,14 @@ class ERC681URI extends PaymentURI {
 
   static int _getChainID(String path) {
     return int.parse(RegExp(
-      r'@\d*',
-    ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
+          r'@\d*',
+        ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
         "1");
   }
 
   static (bool, String) _getTargetAddress(String path) {
     final targetAddress =
-    RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false).firstMatch(path)!.group(0)!;
+        RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false).firstMatch(path)!.group(0)!;
     return (path.contains("/"), targetAddress);
   }
 
@@ -483,4 +508,3 @@ class LightningPaymentRequest extends PaymentURI {
   @override
   String toString() => bolt11Invoice ?? "lightning:$lnURL";
 }
-

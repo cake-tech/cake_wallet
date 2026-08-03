@@ -4,8 +4,8 @@ import 'package:cake_wallet/core/validator.dart';
 class MoneroLabelValidator extends TextValidator {
   MoneroLabelValidator()
       : super(
-      errorMessage: S.current.error_text_account_name,
-      pattern: '^[a-zA-Z0-9_ ]{1,15}\$',
-      minLength: 1,
-      maxLength: 15);
+            errorMessage: S.current.error_text_account_name,
+            pattern: '^[a-zA-Z0-9_ ]{1,15}\$',
+            minLength: 1,
+            maxLength: 15);
 }

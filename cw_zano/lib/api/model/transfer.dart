@@ -1,3 +1,5 @@
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/model/employed_entries.dart';
@@ -47,38 +49,40 @@ class Transfer {
     required this.unlockTime,
   });
 
-  factory Transfer.fromJson(Map<String, dynamic> json) =>
-      Transfer(
+  factory Transfer.fromJson(Map<String, dynamic> json) => Transfer(
         comment: json['comment'] as String? ?? '',
-        employedEntries: EmployedEntries.fromJson(
-            json['employed_entries'] as Map<String, dynamic>? ?? {}),
+        employedEntries:
+            EmployedEntries.fromJson(json['employed_entries'] as Map<String, dynamic>? ?? {}),
         fee: json['fee'] as int? ?? 0,
         height: json['height'] as int? ?? 0,
         isMining: json['is_mining'] as bool? ?? false,
         isMixing: json['is_mixing'] as bool? ?? false,
         isService: json['is_service'] as bool? ?? false,
         paymentId: json['payment_id'] as String? ?? '',
-        remoteAddresses: json['remote_addresses'] == null ? [] : (json['remote_addresses'] as List<
-            dynamic>).cast<String>(),
-        remoteAliases: json['remote_aliases'] == null ? [] : (json['remote_aliases'] as List<
-            dynamic>).cast<String>(),
+        remoteAddresses: json['remote_addresses'] == null
+            ? []
+            : (json['remote_addresses'] as List<dynamic>).cast<String>(),
+        remoteAliases: json['remote_aliases'] == null
+            ? []
+            : (json['remote_aliases'] as List<dynamic>).cast<String>(),
         showSender: json['show_sender'] as bool? ?? false,
-        subtransfers: (json['subtransfers'] as List<dynamic>? ?? []).map((e) =>
-            Subtransfer.fromJson(e as Map<String, dynamic>)).toList(),
+        subtransfers: (json['subtransfers'] as List<dynamic>? ?? [])
+            .map((e) => Subtransfer.fromJson(e as Map<String, dynamic>))
+            .toList(),
         timestamp: json['timestamp'] as int? ?? 0,
         transferInternalIndex: json['transfer_internal_index'] == null
             ? 0
             : json['transfer_internal_index'] is double
-            ? (json['transfer_internal_index'] as double).toInt()
-            : json['transfer_internal_index'] as int,
+                ? (json['transfer_internal_index'] as double).toInt()
+                : json['transfer_internal_index'] as int,
         txBlobSize: json['tx_blob_size'] as int? ?? 0,
         txHash: json['tx_hash'] as String? ?? '',
         txType: json['tx_type'] as int? ?? 0,
         unlockTime: json['unlock_time'] as int? ?? 0,
       );
 
-  static Map<String, ZanoTransactionInfo> makeMap(List<Transfer> transfers,
-      Map<String, ZanoAsset> zanoAssets, int currentDaemonHeight) {
+  static Map<String, ZanoTransactionInfo> makeMap(
+      List<Transfer> transfers, Map<String, ZanoAsset> zanoAssets, int currentDaemonHeight) {
     return Map.fromIterable(
       transfers,
       key: (item) => (item as Transfer).txHash,
@@ -87,19 +91,19 @@ class Transfer {
         // Simple (only one subtransfer OR two subtransfers and the second is Zano, outgoing and amount equals to fee) or complex?
         Subtransfer? single = transfer.subtransfers.singleOrNull;
         if (transfer.subtransfers.length == 2) {
-          final zano = transfer.subtransfers.firstWhereOrNull((element) =>
-          element.assetId == ZanoWalletBase.zanoAssetId);
+          final zano = transfer.subtransfers
+              .firstWhereOrNull((element) => element.assetId == ZanoWalletBase.zanoAssetId);
           if (zano != null && !zano.isIncome && zano.amount == BigInt.from(transfer.fee)) {
-            single = transfer.subtransfers.firstWhere((element) => element.assetId !=
-                ZanoWalletBase.zanoAssetId);
+            single = transfer.subtransfers
+                .firstWhere((element) => element.assetId != ZanoWalletBase.zanoAssetId);
           }
         }
         bool isSimple = single != null;
         // TODO: for complex transactions we show zano or any other transaction, will fix it later
         if (!isSimple) {
-          single =
-              transfer.subtransfers.firstWhereOrNull((element) =>
-              element.assetId == ZanoWalletBase.zanoAssetId) ?? transfer.subtransfers.first;
+          single = transfer.subtransfers
+                  .firstWhereOrNull((element) => element.assetId == ZanoWalletBase.zanoAssetId) ??
+              transfer.subtransfers.first;
         }
         if (single.assetId != ZanoWalletBase.zanoAssetId) {
           final asset = zanoAssets[single.assetId];
@@ -113,7 +117,8 @@ class Transfer {
             confirmations: currentDaemonHeight - transfer.height,
             isIncome: single.isIncome,
             assetId: single.assetId,
-            amount: single.amount,
+            amount: Money(single.amount,
+                asset ?? CryptoCurrency(title: ticker, name: ticker, decimals: decimalPoint)),
             tokenSymbol: isSimple ? ticker : '*${ticker}',
             decimalPoint: decimalPoint,
           );
@@ -124,7 +129,7 @@ class Transfer {
           confirmations: currentDaemonHeight - transfer.height,
           isIncome: single.isIncome,
           assetId: single.assetId,
-          amount: amount,
+          amount: Money(amount, CryptoCurrency.zano),
           tokenSymbol: isSimple ? 'ZANO' : '*ZANO',
         );
       },

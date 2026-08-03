@@ -43,4 +43,3 @@ class PolygonClient extends EVMChainClient {
   @override
   int get chainId => 137;
 }
-

@@ -1,17 +1,20 @@
 part of 'zano.dart';
 
 class CWZano extends Zano {
-
-  List<ZanoAsset> getZanoAssets(WalletBase wallet) => (wallet as ZanoWallet).zanoAssets.values.toList();
-
-  @override
-  Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId) async => await (wallet as ZanoWallet).addZanoAssetById(assetId);
+  List<ZanoAsset> getZanoAssets(WalletBase wallet) =>
+      (wallet as ZanoWallet).zanoAssets.values.toList();
 
   @override
-  Future<void> changeZanoAssetAvailability(WalletBase wallet, CryptoCurrency token) async => await (wallet as ZanoWallet).changeZanoAssetAvailability(token as ZanoAsset);
+  Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId) async =>
+      await (wallet as ZanoWallet).addZanoAssetById(assetId);
 
   @override
-  Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token) async => await (wallet as ZanoWallet).deleteZanoAsset(token as ZanoAsset);
+  Future<void> changeZanoAssetAvailability(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as ZanoWallet).changeZanoAssetAvailability(token as ZanoAsset);
+
+  @override
+  Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as ZanoWallet).deleteZanoAsset(token as ZanoAsset);
 
   @override
   Future<ZanoAsset?> getZanoAsset(WalletBase wallet, String assetId) async {
@@ -48,12 +51,18 @@ class CWZano extends Zano {
 
   @override
   WalletCredentials createZanoRestoreWalletFromSeedCredentials(
-      {required String name, required String password, required int height, required String passphrase, required String mnemonic}) {
-    return ZanoRestoreWalletFromSeedCredentials(name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
+      {required String name,
+      required String password,
+      required int height,
+      required String passphrase,
+      required String mnemonic}) {
+    return ZanoRestoreWalletFromSeedCredentials(
+        name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
   }
 
   @override
-  WalletCredentials createZanoNewWalletCredentials({required String name, required String? password, required String? passphrase}) {
+  WalletCredentials createZanoNewWalletCredentials(
+      {required String name, required String? password, required String? passphrase}) {
     return ZanoNewWalletCredentials(name: name, password: password, passphrase: passphrase);
   }
 
@@ -70,29 +79,33 @@ class CWZano extends Zano {
   }
 
   @override
-  Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency}) {
-    return ZanoTransactionCredentials(
-      outputs: outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount))
-          .toList(),
-      priority: priority as MoneroTransactionPriority,
-      currency: currency,
-    );
-  }
+  Object createZanoTransactionCredentials(
+          {required List<Output> outputs,
+          required TransactionPriority priority,
+          required CryptoCurrency currency}) =>
+      ZanoTransactionCredentials(
+        outputs: outputs
+            .map((out) => OutputInfo(
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                ))
+            .toList(),
+        priority: priority as MoneroTransactionPriority,
+        currency: currency,
+      );
 
   @override
-  double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee}) {
+  double formatterIntAmountToDouble(
+      {required int amount, required CryptoCurrency currency, required bool forFee}) {
     // fee always counted in zano with default decimal points
     if (forFee) return ZanoFormatter.intAmountToDouble(amount);
-    if (currency is ZanoAsset) return ZanoFormatter.intAmountToDouble(amount, currency.decimalPoint);
+    if (currency is ZanoAsset)
+      return ZanoFormatter.intAmountToDouble(amount, currency.decimalPoint);
     return ZanoFormatter.intAmountToDouble(amount);
   }
 
@@ -120,7 +133,8 @@ class CWZano extends Zano {
       return CryptoCurrency.zano;
     }
     wallet as ZanoWallet;
-    final asset = wallet.zanoAssets.values.firstWhereOrNull((element) => element?.ticker == transaction.tokenSymbol);
+    final asset = wallet.zanoAssets.values
+        .firstWhereOrNull((element) => element?.ticker == transaction.tokenSymbol);
     return asset;
   }
 

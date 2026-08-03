@@ -5,6 +5,7 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -86,6 +87,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   final AppStore _appStore;
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   Quote? bestRateQuote;
 
@@ -473,8 +476,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         validQuotes.where((element) => !uniqueProviderQuotes.contains(element)).toList());
 
     if (sortedRecommendedQuotes.isNotEmpty) {
-      sortedRecommendedQuotes.first
-        ..setIsBestRate = true;
+      sortedRecommendedQuotes.first..setIsBestRate = true;
       bestRateQuote = sortedRecommendedQuotes.first;
 
       sortedRecommendedQuotes.sort((a, b) {
@@ -483,14 +485,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         return 0;
       });
 
-      final Quote effectiveBestRateQuote =
-      sortedRecommendedQuotes.reduce((a, b) {
-        return isBuyAction ? a.rate < b.rate ? a : b : a.rate > b.rate ? a : b;
+      final Quote effectiveBestRateQuote = sortedRecommendedQuotes.reduce((a, b) {
+        return isBuyAction
+            ? a.rate < b.rate
+                ? a
+                : b
+            : a.rate > b.rate
+                ? a
+                : b;
       });
 
-
-      effectiveBestRateQuote.recommendations
-          .add(ProviderRecommendation.bestRate);
+      effectiveBestRateQuote.recommendations.add(ProviderRecommendation.bestRate);
 
       selectedQuote = sortedRecommendedQuotes.first;
       sortedRecommendedQuotes.first.setIsSelected = true;

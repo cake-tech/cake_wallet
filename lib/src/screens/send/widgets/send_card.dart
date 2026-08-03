@@ -594,7 +594,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   controller: addressController,
                   onURIScanned: (uri) async {
                     output.resetParsedAddress();
-                    await output.fetchParsedAddress(context);
 
                     // Process the payment through the new flow
                     await _handlePaymentFlow(
@@ -620,7 +619,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     _justHandledPasteButton = true;
                     try {
                       output.resetParsedAddress();
-                      await output.fetchParsedAddress(context);
 
                       final address =
                           output.isParsedAddress ? output.extractedAddress : output.address;
@@ -642,9 +640,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   onPushAddressBookButton: (context) async {
                     output.resetParsedAddress();
                   },
-                  onSelectedContact: (contact) {
-                    output.loadContact(contact);
-                  },
+                  onSelectedContact: (contact) {},
                   validator: validator,
                   selectedCurrency: sendViewModel.selectedCryptoCurrency,
                 );
@@ -674,8 +670,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
                 currencyAmountTextFieldWidgetKey:
                     ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
-                selectedCurrency: output.useSatoshi ? "SATS" : sendViewModel.selectedCryptoCurrency.title,
-                selectedCurrencyDecimals: output.useSatoshi ? 0 : sendViewModel.selectedCryptoCurrency.decimals,
+                selectedCurrency:
+                    output.useSatoshi ? "SATS" : sendViewModel.selectedCryptoCurrency.title,
+                selectedCurrencyDecimals:
+                    output.useSatoshi ? 0 : sendViewModel.selectedCryptoCurrency.decimals,
                 amountFocusNode: widget.cryptoAmountFocus,
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
@@ -979,8 +977,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.setSendAll(await sendViewModel.sendingBalance);
       }
 
-      output.setCryptoAmount(sendViewModel.amountParsingProxy
-          .getCanonicalCryptoAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency));
+      output.setCryptoAmount(sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+          cryptoAmountController.text, sendViewModel.selectedCryptoCurrency));
     });
 
     reaction((_) => output.fiatAmount, (String amount) {
@@ -994,8 +992,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         output.sendAll = false;
       }
 
-      final cryptoAmount = sendViewModel.amountParsingProxy
-          .getCanonicalCryptoAmount(cryptoAmountController.text, sendViewModel.selectedCryptoCurrency);
+      final cryptoAmount = sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+          cryptoAmountController.text, sendViewModel.selectedCryptoCurrency);
       if (amount != cryptoAmount) {
         cryptoAmountController.text = sendViewModel.amountParsingProxy
             .getDisplayCryptoAmount(amount, sendViewModel.selectedCryptoCurrency);
@@ -1032,8 +1030,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         final current = addressController.text.trim();
         if (current.isEmpty) return;
         if (_justHandledPasteButton || _lastHandledAddress == current) return;
-
-        await output.fetchParsedAddress(context);
 
         // If it's a URI with params, go through URI flow
         if (current.contains('=')) {

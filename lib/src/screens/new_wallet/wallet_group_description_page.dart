@@ -18,10 +18,10 @@ class WalletGroupDescriptionPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
-  String get title => S.current.wallet_group;
+  String get title => S.current.wallet_list_create_new_wallet;
 
   @override
   Widget body(BuildContext context) {

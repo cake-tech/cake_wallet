@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -76,7 +78,7 @@ class NanoClient {
         },
       ),
     );
-    
+
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200 ||
         data["error"] != null ||
@@ -85,10 +87,10 @@ class NanoClient {
       throw Exception(
           "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
     }
-    final String currentBalance = data["balance"] as String;
-    final String receivableBalance = data["receivable"] as String;
-    final BigInt cur = BigInt.parse(currentBalance);
-    final BigInt rec = BigInt.parse(receivableBalance);
+    final currentBalance = data["balance"] as String;
+    final receivableBalance = data["receivable"] as String;
+    final cur = Money(BigInt.parse(currentBalance), CryptoCurrency.nano);
+    final rec = Money(BigInt.parse(receivableBalance), CryptoCurrency.nano);
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
 
@@ -105,7 +107,7 @@ class NanoClient {
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return AccountInfoResponse.fromJson(data);
     } catch (e) {
@@ -130,7 +132,7 @@ class NanoClient {
           },
         ),
       );
-      
+
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
     } catch (e) {
@@ -197,7 +199,7 @@ class NanoClient {
         },
       ),
     );
-    
+
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body) as Map<String, dynamic>;
       if (decoded.containsKey("error")) {
@@ -258,7 +260,7 @@ class NanoClient {
 
     // first get the current account balance:
     if (balanceAfterTx == null) {
-      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance;
+      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance.amount;
       final BigInt txAmount = BigInt.parse(amountRaw);
       balanceAfterTx = currentBalance - txAmount;
     }
@@ -508,7 +510,7 @@ class NanoClient {
           // "raw": true,
         }),
       );
-      
+
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final transactions = data["history"] is List ? data["history"] as List<dynamic> : [];
 
@@ -531,7 +533,6 @@ class NanoClient {
       body: jsonEncode({"action": "reps"}),
     );
     try {
-      
       final List<N2Node> nodes = (jsonDecode(response.body) as List<dynamic>)
           .map((dynamic e) => N2Node.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -552,7 +553,6 @@ class NanoClient {
       }),
     );
     try {
-      
       final N2Node node = N2Node.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
       return node.score ?? 100;
     } catch (error) {

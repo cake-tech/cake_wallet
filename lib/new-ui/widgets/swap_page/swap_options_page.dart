@@ -75,7 +75,7 @@ class SwapOptionsPage extends StatelessWidget {
                             label: S.of(context).set_refund_address,
                             onTap: () {
                               showModalBottomSheet(
-                                isScrollControlled: true,
+                                  isScrollControlled: true,
                                   context: context,
                                   builder: (context) {
                                     return RefundAddressModal(
@@ -101,9 +101,18 @@ class SwapOptionsPage extends StatelessWidget {
                             keyValue: "coin control",
                             label: "Coin Control",
                             onTap: () {
-                              showCupertinoModalBottomSheet(enableDrag: false, useRootNavigator: true, isDismissible: false, context: context, builder: (context){
-                                return NewCoinControlPage(unspentCoinsListViewModel: exchangeViewModel.unspentCoinsListViewModel,);
-                              });
+                              showCupertinoModalBottomSheet(
+                                  enableDrag: false,
+                                  useRootNavigator: true,
+                                  isDismissible: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return NewCoinControlPage(
+                                      unspentCoinsListViewModel:
+                                          exchangeViewModel.unspentCoinsListViewModel,
+                                      canEdit: true,
+                                    );
+                                  });
                             }),
                         ListItemSelector(
                             keyValue: "curr",

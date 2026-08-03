@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProviderOptionsPage extends StatelessWidget {
   const ProviderOptionsPage({super.key, required this.exchangeViewModel});
@@ -39,6 +40,7 @@ class ProviderOptionsPage extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
+                controller: ModalScrollController.of(context),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
@@ -160,10 +162,14 @@ class ProviderOptionsPage extends StatelessWidget {
                                       label: item.title,
                                       showArrow: item.title == "Trocador",
                                       value: exchangeViewModel.selectedProviders.contains(item),
-                                      subtitle: item.title == "Trocador" ? S.of(context).manage_providers : null,
-                                      onTap: item.title == "Trocador" ? (){
-                                        _openTrocadorProvidersPage(context);
-                                      } : null,
+                                      subtitle: item.title == "Trocador"
+                                          ? S.of(context).manage_providers
+                                          : null,
+                                      onTap: item.title == "Trocador"
+                                          ? () {
+                                              _openTrocadorProvidersPage(context);
+                                            }
+                                          : null,
                                       onChanged: (val) {
                                         _switchProviderStatus(item, val, context);
                                       });
@@ -178,7 +184,7 @@ class ProviderOptionsPage extends StatelessWidget {
                             ))
                         ],
                       ),
-                      SizedBox(height:36)
+                      SizedBox(height: 36)
                     ],
                   ),
                 ),

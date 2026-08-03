@@ -21,7 +21,8 @@ class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
   @override
-  String get title => '${walletTypeToString(walletSeedViewModel.walletType)} ${S.current.seed_title}';
+  String get title =>
+      '${walletTypeToString(walletSeedViewModel.walletType)} ${S.current.seed_title}';
 
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;
@@ -144,14 +145,14 @@ class WalletSeedPage extends BasePage {
   }
 
   void _shareSeed(BuildContext context) async {
-    switch(defaultTargetPlatform) {
+    switch (defaultTargetPlatform) {
       case TargetPlatform.android:
       case TargetPlatform.iOS:
-      ShareUtil.share(
-        text: walletSeedViewModel.seed,
-        context: context,
-      );
-      break;
+        ShareUtil.share(
+          text: walletSeedViewModel.seed,
+          context: context,
+        );
+        break;
       case TargetPlatform.macOS:
       case TargetPlatform.windows:
       case TargetPlatform.linux:
@@ -160,12 +161,12 @@ class WalletSeedPage extends BasePage {
           fileName: "${walletSeedViewModel.name}-seed.txt",
           lockParentWindow: true,
         );
-        if(path != null) {
+        if (path != null) {
           final file = File(path);
           await file.writeAsString(walletSeedViewModel.seed);
         }
       default:
-break;
+        break;
     }
   }
 }

@@ -327,79 +327,77 @@ class DerivationInfo {
 
 class WalletInfo {
   WalletInfo(
-    this.internalId,
-    this.id,
-    this.name,
-    this.type,
-    this.isRecovery,
-    this.restoreHeight,
-    this.timestamp,
-    this.dirPath,
-    this.path,
-    this.address,
-    this.yatEid,
-    this.yatLastUsedAddressRaw,
-    this.showIntroCakePayCard,
-    this.derivationInfoId,
-    this.hardwareWalletType,
-    this.parentAddress,
-    this.hashedWalletIdentifier,
-    this.isNonSeedWallet,
-    this.sortOrder,
-    this.addressPageType,
-    this.receiveInfoboxDismissed,
-    this.showCombinedBalance,
-    this.favoriteTokenAddress
-  ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
+      this.internalId,
+      this.id,
+      this.name,
+      this.type,
+      this.isRecovery,
+      this.restoreHeight,
+      this.timestamp,
+      this.dirPath,
+      this.path,
+      this.address,
+      this.yatEid,
+      this.yatLastUsedAddressRaw,
+      this.showIntroCakePayCard,
+      this.derivationInfoId,
+      this.hardwareWalletType,
+      this.parentAddress,
+      this.hashedWalletIdentifier,
+      this.isNonSeedWallet,
+      this.sortOrder,
+      this.addressPageType,
+      this.receiveInfoboxDismissed,
+      this.showCombinedBalance,
+      this.favoriteTokenAddress)
+      : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
-  factory WalletInfo.external({
-    required String id,
-    required String name,
-    required WalletType type,
-    required bool isRecovery,
-    required int restoreHeight,
-    required DateTime date,
-    required String dirPath,
-    required String path,
-    required String address,
-    bool? showIntroCakePayCard,
-    String yatEid = '',
-    String yatLastUsedAddressRaw = '',
-    int? derivationInfoId,
-    HardwareWalletType? hardwareWalletType,
-    String? parentAddress,
-    String? hashedWalletIdentifier,
-    bool? isNonSeedWallet,
-    int? sortOrder,
-    bool? receiveInfoboxDismissed,
-    bool? showCombinedBalance,
-    String? favoriteTokenAddress
-  }) {
+  factory WalletInfo.external(
+      {required String id,
+      required String name,
+      required WalletType type,
+      required bool isRecovery,
+      required int restoreHeight,
+      required DateTime date,
+      required String dirPath,
+      required String path,
+      required String address,
+      bool? showIntroCakePayCard,
+      String yatEid = '',
+      String yatLastUsedAddressRaw = '',
+      int? derivationInfoId,
+      HardwareWalletType? hardwareWalletType,
+      String? parentAddress,
+      String? hashedWalletIdentifier,
+      bool? isNonSeedWallet,
+      int? sortOrder,
+      bool? receiveInfoboxDismissed,
+      bool? showCombinedBalance,
+      String? favoriteTokenAddress}) {
     return WalletInfo(
-      0,
-      id,
-      name,
-      type,
-      isRecovery,
-      restoreHeight,
-      date.millisecondsSinceEpoch,
-      dirPath,
-      path,
-      address,
-      yatEid,
-      yatLastUsedAddressRaw,
-      showIntroCakePayCard,
-      derivationInfoId ?? -1,
-      hardwareWalletType,
-      parentAddress,
-      hashedWalletIdentifier,
-      isNonSeedWallet ?? false,
-      sortOrder ?? 0,
-      null,
-      receiveInfoboxDismissed ?? false,
-      showCombinedBalance ?? true,
-      favoriteTokenAddress
-    );
+        0,
+        id,
+        name,
+        type,
+        isRecovery,
+        restoreHeight,
+        date.millisecondsSinceEpoch,
+        dirPath,
+        path,
+        address,
+        yatEid,
+        yatLastUsedAddressRaw,
+        showIntroCakePayCard,
+        derivationInfoId ?? -1,
+        hardwareWalletType,
+        parentAddress,
+        hashedWalletIdentifier,
+        isNonSeedWallet ?? false,
+        sortOrder ?? 0,
+        null,
+        receiveInfoboxDismissed ?? false,
+        showCombinedBalance ?? true,
+        favoriteTokenAddress);
   }
 
   static String get tableName => 'walletInfo';
@@ -428,11 +426,9 @@ class WalletInfo {
 
   Future<void> setAddresses(Map<String, String> addresses) async {
     await WalletInfoAddressMap.deleteByWalletInfoId(internalId);
-    final keys = addresses.keys.toList();
-    final values = addresses.values.toList();
-    // ToDo: check why the addresses list gets changed half way through
-    for (int i = 0; i < keys.length; i++) {
-      await WalletInfoAddressMap.insert(internalId, keys[i], values[i]);
+    final entries = addresses.entries.toList();
+    for (final entry in entries) {
+      await WalletInfoAddressMap.insert(internalId, entry.key, entry.value);
     }
   }
 
@@ -567,59 +563,59 @@ class WalletInfo {
   StreamController<String> _yatLastUsedAddressController;
 
   Map<String, dynamic> toJson() => {
-    selfIdColumn: internalId,
-    "id": id,
-    "name": name,
-    "type": type.index,
-    "isRecovery": isRecovery ? 1 : 0,
-    "restoreHeight": restoreHeight,
-    "timestamp": timestamp,
-    "dirPath": dirPath,
-    "path": path,
-    "address": address,
-    "yatEid": yatEid,
-    "yatLastUsedAddressRaw": yatLastUsedAddressRaw,
-    "showIntroCakePayCard": showIntroCakePayCard == true ? 1 : 0, // SQL regression: null -> false
-    "walletInfoDerivationInfoId": derivationInfoId,
-    "hardwareWalletType": hardwareWalletType?.index,
-    "parentAddress": parentAddress,
-    "hashedWalletIdentifier": hashedWalletIdentifier,
-    "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
-    "sortOrder": sortOrder,
-    "addressPageType": addressPageType,
-    "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
-    "showCombinedBalance": showCombinedBalance ? 1 : 0,
-    "favoriteTokenAddress": favoriteTokenAddress
-  };
+        selfIdColumn: internalId,
+        "id": id,
+        "name": name,
+        "type": type.index,
+        "isRecovery": isRecovery ? 1 : 0,
+        "restoreHeight": restoreHeight,
+        "timestamp": timestamp,
+        "dirPath": dirPath,
+        "path": path,
+        "address": address,
+        "yatEid": yatEid,
+        "yatLastUsedAddressRaw": yatLastUsedAddressRaw,
+        "showIntroCakePayCard":
+            showIntroCakePayCard == true ? 1 : 0, // SQL regression: null -> false
+        "walletInfoDerivationInfoId": derivationInfoId,
+        "hardwareWalletType": hardwareWalletType?.index,
+        "parentAddress": parentAddress,
+        "hashedWalletIdentifier": hashedWalletIdentifier,
+        "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
+        "sortOrder": sortOrder,
+        "addressPageType": addressPageType,
+        "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
+        "showCombinedBalance": showCombinedBalance ? 1 : 0,
+        "favoriteTokenAddress": favoriteTokenAddress
+      };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
     return WalletInfo(
-      json[selfIdColumn] as int,
-      json['id'] as String,
-      json['name'] as String,
-      WalletType.values[json['type'] as int],
-      (json['isRecovery'] as int) == 1,
-      json['restoreHeight'] as int,
-      json['timestamp'] as int,
-      json['dirPath'] as String,
-      json['path'] as String,
-      json['address'] as String,
-      json['yatEid'] as String?,
-      json['yatLastUsedAddressRaw'] as String?,
-      (json['showIntroCakePayCard'] as int) == 1,
-      json['walletInfoDerivationInfoId'] as int,
-      json['hardwareWalletType'] == null
-          ? null
-          : HardwareWalletType.values[json['hardwareWalletType'] as int],
-      json['parentAddress'] as String?,
-      json['hashedWalletIdentifier'] as String?,
-      (json['isNonSeedWallet'] as int) == 1,
-      json['sortOrder'] as int? ?? 0,
-      json['addressPageType'] as String? ?? null,
-      json['receiveInfoboxDismissed'] != 0,
-      json["showCombinedBalance"] != 0,
-      json["favoriteTokenAddress"] as String? ?? null
-    );
+        json[selfIdColumn] as int,
+        json['id'] as String,
+        json['name'] as String,
+        WalletType.values[json['type'] as int],
+        (json['isRecovery'] as int) == 1,
+        json['restoreHeight'] as int,
+        json['timestamp'] as int,
+        json['dirPath'] as String,
+        json['path'] as String,
+        json['address'] as String,
+        json['yatEid'] as String?,
+        json['yatLastUsedAddressRaw'] as String?,
+        (json['showIntroCakePayCard'] as int) == 1,
+        json['walletInfoDerivationInfoId'] as int,
+        json['hardwareWalletType'] == null
+            ? null
+            : HardwareWalletType.values[json['hardwareWalletType'] as int],
+        json['parentAddress'] as String?,
+        json['hashedWalletIdentifier'] as String?,
+        (json['isNonSeedWallet'] as int) == 1,
+        json['sortOrder'] as int? ?? 0,
+        json['addressPageType'] as String? ?? null,
+        json['receiveInfoboxDismissed'] != 0,
+        json["showCombinedBalance"] != 0,
+        json["favoriteTokenAddress"] as String? ?? null);
   }
 
   Future<int> save() async {

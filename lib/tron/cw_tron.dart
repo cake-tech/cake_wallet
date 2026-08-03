@@ -58,13 +58,12 @@ class CWTron extends Tron {
             .map(
               (out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
+                cryptoAmount: out.cryptoAmountMoney,
                 address: out.address,
                 note: out.note,
                 sendAll: out.sendAll,
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
               ),
             )
             .toList(),
@@ -98,21 +97,15 @@ class CWTron extends Tron {
       (wallet as TronWallet).getTronToken(contractAddress);
 
   @override
-  double getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    final amount = (transactionInfo as TronTransactionInfo).rawTronAmount();
-    return double.parse(amount);
-  }
-
-  @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as TronTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.trx.title) {
+    if (transaction.amount.currency.symbol == CryptoCurrency.trx.title) {
       return CryptoCurrency.trx;
     }
 
     wallet as TronWallet;
-    return wallet.tronTokenCurrencies.firstWhere(
-        (element) => transaction.tokenSymbol.toLowerCase() == element.symbol.toLowerCase());
+    return wallet.tronTokenCurrencies.firstWhere((element) =>
+        transaction.amount.currency.symbol.toLowerCase() == element.symbol.toLowerCase());
   }
 
   @override
@@ -123,11 +116,11 @@ class CWTron extends Tron {
       (wallet as TronWallet).getTronBase58AddressFromHex(hexAddress);
 
   @override
-  String? getTronNativeEstimatedFee(WalletBase wallet) =>
+  Money? getTronNativeEstimatedFee(WalletBase wallet) =>
       (wallet as TronWallet).nativeTxEstimatedFee;
 
   @override
-  String? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
+  Money? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
 
   @override
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled) {
@@ -153,4 +146,25 @@ class CWTron extends Tron {
     return tronWallet.tronTokenCurrencies
         .any((element) => element.contractAddress == contractAddress);
   }
+
+  @override
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required Money amount,
+    Money? fee,
+    required TransactionDirection direction,
+    required DateTime blockTime,
+    String? to,
+    String? from,
+    required bool isPending,
+  }) =>
+      TronTransactionInfo(
+          id: id,
+          amount: amount,
+          fee: fee,
+          direction: direction,
+          blockTime: blockTime,
+          to: to,
+          from: from,
+          isPending: isPending);
 }

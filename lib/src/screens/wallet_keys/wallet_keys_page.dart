@@ -184,7 +184,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   Widget _buildSeedTab(BuildContext context, bool isLegacySeed) {
     return Column(
       children: [
-        if (isLegacySeedOnly || isLegacySeed ||widget.walletKeysViewModel.shouldShowHeightBox) ...[
+        if (isLegacySeedOnly || isLegacySeed || widget.walletKeysViewModel.shouldShowHeightBox) ...[
           _buildHeightBox(),
           const SizedBox(height: 20),
         ],

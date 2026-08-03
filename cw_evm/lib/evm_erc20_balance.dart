@@ -1,33 +1,23 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:cw_core/balance.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/balance.dart";
+import "package:cw_core/currency.dart";
 
 class EVMChainERC20Balance extends Balance {
-  EVMChainERC20Balance(this.balance, {this.exponent = 18})
-      : super(balance, balance);
+  EVMChainERC20Balance(Money balance) : super(balance, Money.zero(balance.currency));
 
-  final BigInt balance;
-  final int exponent;
+  String toJSON() => json.encode({"balanceInWei": available.amount.toString()});
 
-  String toJSON() => json.encode({
-        'balanceInWei': balance.toString(),
-        'exponent': exponent,
-      });
-
-  static EVMChainERC20Balance? fromJSON(String? jsonSource) {
-    if (jsonSource == null) {
-      return null;
-    }
+  static EVMChainERC20Balance? fromJSON(String? jsonSource, Currency currency) {
+    if (jsonSource == null) return null;
 
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return EVMChainERC20Balance(
-        BigInt.parse(decoded['balanceInWei']),
-        exponent: decoded['exponent'],
-      );
+      return EVMChainERC20Balance(Money(BigInt.parse(decoded["balanceInWei"]), currency));
     } catch (e) {
-      return EVMChainERC20Balance(BigInt.zero);
+      return EVMChainERC20Balance(Money.zero(currency));
     }
   }
 }

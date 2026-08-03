@@ -68,20 +68,19 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  int get networkDustAmount => 100000000; // 1 DOGE = 1e8 koinu
+  BigInt get networkDustAmount => BigInt.from(100000000); // 1 DOGE = 1e8 koinu
 
   static int estimatedDogeCoinTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 180 + outputsCounts * 34 + 10;
 
   @override
   int feeAmountForPriority(TransactionPriority priority, int inputsCount, int outputsCount,
-      {int? size}) =>
+          {int? size}) =>
       feeRate(priority) * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
 
   @override
   int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount, {int? size}) =>
       feeRate * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
-
 
   static Future<DogeCoinWallet> create(
       {required String mnemonic,

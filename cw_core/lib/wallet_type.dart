@@ -1,8 +1,9 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 
-part 'wallet_type.g.dart';
+part 'wallet_type.part.dart';
 
 const walletTypes = [
   WalletType.monero,
@@ -40,66 +41,66 @@ const evmWalletTypes = [
   WalletType.bsc
 ];
 
-@HiveType(typeId: WALLET_TYPE_TYPE_ID)
+// @HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
-  @HiveField(0)
+  // @HiveField(0)
   monero,
 
-  @HiveField(1)
+  // @HiveField(1)
   none,
 
-  @HiveField(2)
+  // @HiveField(2)
   bitcoin,
 
-  @HiveField(3)
+  // @HiveField(3)
   litecoin,
 
-  @HiveField(4)
+  // @HiveField(4)
   haven,
 
-  @HiveField(5)
+  // @HiveField(5)
   ethereum,
 
-  @HiveField(6)
+  // @HiveField(6)
   nano,
 
-  @HiveField(7)
+  // @HiveField(7)
   banano,
 
-  @HiveField(8)
+  // @HiveField(8)
   bitcoinCash,
 
-  @HiveField(9)
+  // @HiveField(9)
   polygon,
 
-  @HiveField(10)
+  // @HiveField(10)
   solana,
 
-  @HiveField(11)
+  // @HiveField(11)
   tron,
 
-  @HiveField(12)
+  // @HiveField(12)
   wownero,
 
-  @HiveField(13)
+  // @HiveField(13)
   zano,
 
-  @HiveField(14)
+  // @HiveField(14)
   decred,
 
-  @HiveField(15)
+  // @HiveField(15)
   dogecoin,
 
-  @HiveField(16)
+  // @HiveField(16)
   base,
 
-  @HiveField(17)
+  // @HiveField(17)
   arbitrum,
 
-  @HiveField(18)
+  // @HiveField(18)
   zcash,
 
-  @HiveField(19)
+  // @HiveField(19)
   bsc,
 }
 
@@ -332,13 +333,19 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
 }
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
-  if(type.tag == CryptoCurrency.bnb.tag) {
-    return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
-  }
+  try {
+    if (type.tag == CryptoCurrency.bnb.tag) {
+      return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);
+    }
 
-  if(type.tag != null && ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
-    return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
-  } else {
-    return _cryptoCurrencyToWalletType(type);
+    if (type.tag != null &&
+        ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
+      return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
+    } else {
+      return _cryptoCurrencyToWalletType(type);
+    }
+  } catch (e) {
+    printV(e);
+    return null;
   }
 }

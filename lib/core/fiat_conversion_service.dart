@@ -1,15 +1,15 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
-const _fiatApiOnionAuthority = 'kfkyguqtz5vcnbvar5pjgddkaeawbo4j3r4fj3e22k3tzqageplosiid.onion';
+const _fiatApiClearNetAuthority = 'prices.cakewallet.com';
+const _fiatApiOnionAuthority = '46wisoe2uwipcj2j4og6smiq7hbmj34fkkrquwlzbbsqtgat7bf3erid.onion';
 const _fiatApiPath = '/v2/rates';
 
 Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
-
   final Map<String, String> queryParams = {
     'interval_count': '1',
     'base': crypto.split(".").first,
@@ -22,14 +22,10 @@ Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
     final onionUri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
     final clearnetUri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
 
-    final response = await ProxyWrapper().get(
-      onionUri: onionUri,
-      clearnetUri: torOnly ? onionUri : clearnetUri,
-      headers: {
-        "x-api-key": secrets.fiatApiKey,
-      }
-    );
-    
+    final response = await ProxyWrapper()
+        .get(onionUri: onionUri, clearnetUri: torOnly ? onionUri : clearnetUri, headers: {
+      "x-api-key": secrets.fiatApiKey,
+    });
 
     if (response.statusCode != 200) {
       return 0.0;
@@ -51,9 +47,8 @@ Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
 /// Override specific [CryptoCurrency] to fix its price to the price of another
 /// e.g. nDEPS should have the same price as DEPS, but only DEPS is tracked
 CryptoCurrency _overrideCryptoCurrency(CryptoCurrency crypto) {
-  if (crypto.title == CryptoCurrency.ndeps.title)
-      return CryptoCurrency.deps;
-    return crypto;
+  if (crypto.title == CryptoCurrency.ndeps.title) return CryptoCurrency.deps;
+  return crypto;
 }
 
 class FiatConversionService {

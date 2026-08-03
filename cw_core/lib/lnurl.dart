@@ -1,18 +1,24 @@
 import 'dart:convert';
 
 import 'package:bech32/bech32.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
 const _BOLT_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
 const _LUD17_PREFIXES = ['lnurlw', 'lnurlc', 'lnurlp', 'keyauth'];
 
 bool isBolt11ZeroInvoice(String invoice) {
-  final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+  try {
+    final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
-  final prefix = _BOLT_PREFIXES
-      .firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");
+    final prefix =
+        _BOLT_PREFIXES.firstWhere((prefix) => request.hrp.startsWith(prefix), orElse: () => "");
 
-  return request.hrp.length == prefix.length;
+    return request.hrp.length == prefix.length;
+  } catch (e) {
+    return false;
+  }
 }
 
 /// Get the amount of a Bolt 11 Invoice in
@@ -20,7 +26,7 @@ int? _getAmountBolt11Msat(String invoice) {
   final request = Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
 
   final prefix = _BOLT_PREFIXES.firstWhere(
-        (prefix) => request.hrp.startsWith(prefix),
+    (prefix) => request.hrp.startsWith(prefix),
     orElse: () => throw FormatException('Invalid BOLT11 invoice: unknown HRP prefix.'),
   );
 
@@ -56,14 +62,14 @@ int? _getAmountBolt11Msat(String invoice) {
   }
 }
 
-int? getBolt11Amount(String invoice) {
+Money? getBolt11Amount(String invoice) {
   final msat = _getAmountBolt11Msat(invoice);
   if (msat == null || msat % 1000 != 0) return null;
-  return msat ~/ 1000;
+  return Money.fromInt(msat ~/ 1000, CryptoCurrency.btcln);
 }
 
 class LNURL {
-  static Future<int?> getPayRequestAmount(String lnurl) async {
+  static Future<Money?> getPayRequestAmount(String lnurl) async {
     final url = decode(lnurl);
     final response = await ProxyWrapper().get(clearnetUri: url);
 
@@ -79,11 +85,10 @@ class LNURL {
       final maxSendable = body["maxSendable"] as int?;
 
       // if minSendable and maxSendable are the same we assume a specific payment request
-      if (msat != maxSendable)
-        return null;
+      if (msat != maxSendable) return null;
 
       if (msat == null || msat % 1000 != 0) return null;
-      return msat ~/ 1000;
+      return Money.fromInt(msat ~/ 1000, CryptoCurrency.btcln);
     } catch (_) {
       return null;
     }
@@ -129,8 +134,7 @@ class LNURL {
 String _findLnUrl(String input) {
   final res = RegExp(r',*?((lnurl)([0-9]+[a-z0-9]+))').allMatches(input.toLowerCase());
 
-  if (res.length != 1)
-    throw ArgumentError('Not a valid lnurl string');
+  if (res.length != 1) throw ArgumentError('Not a valid lnurl string');
   return res.first.group(0)!;
 }
 

@@ -43,23 +43,21 @@ class CWZcash extends Zcash {
 
   @override
   Object createZcashTransactionCredentials(List<Output> outputs,
-      {required CryptoCurrency currency,
-      int? feeRate,
-      TransactionPriority? priority}) {
-    final txPriority = (priority ?? getZcashTransactionPriorityAutomatic())
-        as MoneroTransactionPriority;
+      {required CryptoCurrency currency, int? feeRate, TransactionPriority? priority}) {
+    final txPriority =
+        (priority ?? getZcashTransactionPriorityAutomatic()) as MoneroTransactionPriority;
     return ZcashTransactionCredentials(
       outputs: outputs
           .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              memo: out.memo,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount))
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmountMoney,
+                address: out.address,
+                note: out.note,
+                memo: out.memo,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+              ))
           .toList(),
       priority: txPriority,
       currency: currency,
@@ -71,26 +69,25 @@ class CWZcash extends Zcash {
       {required CryptoCurrency currency, required int feeRate}) {
     return ZcashTransactionCredentials(
       outputs: outputs,
-      priority:
-          getZcashTransactionPriorityAutomatic() as MoneroTransactionPriority,
+      priority: getZcashTransactionPriorityAutomatic() as MoneroTransactionPriority,
       currency: currency,
     );
   }
 
   @override
-  WalletService<WalletCredentials, WalletCredentials, WalletCredentials,
-      WalletCredentials> createZcashWalletService(bool isDirect) {
+  WalletService<WalletCredentials, WalletCredentials, WalletCredentials, WalletCredentials>
+      createZcashWalletService(bool isDirect) {
     return ZcashWalletService();
   }
 
   @override
   double formatterZcashAmountToDouble({TransactionInfo? transaction, BigInt? amount}) {
-    return cryptoAmountToDouble(amount: amount?.toInt()??0, divider: 1e8);
+    return cryptoAmountToDouble(amount: amount?.toInt() ?? 0, divider: 1e8);
   }
 
   @override
   int formatterZcashParseAmount(String amount) {
-    return CryptoCurrency.zec.parseAmount(amount).toInt();
+    return CryptoCurrency.zec.parseAmount(amount).amount.toInt();
   }
 
   @override
@@ -100,18 +97,14 @@ class CWZcash extends Zcash {
 
   @override
   String getAddress(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
     final zcashWallet = wallet as ZcashWallet;
     return zcashWallet.walletAddresses.address;
   }
 
   @override
   String getPrivateKey(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
     final zcashWallet = wallet as ZcashWallet;
     final seed = zcashWallet.seed;
     return seed ?? '';
@@ -119,9 +112,7 @@ class CWZcash extends Zcash {
 
   @override
   String getPublicKey(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
     return getAddress(wallet);
   }
 
@@ -132,7 +123,7 @@ class CWZcash extends Zcash {
 
     return <String, String>{
       if (seed != null) 'seed': seed,
-      ...(zcashWallet.keys as Map<String, String?>).map((final k, final v) => MapEntry(k, v??'')),
+      ...(zcashWallet.keys as Map<String, String?>).map((final k, final v) => MapEntry(k, v ?? '')),
     };
   }
 
@@ -144,8 +135,7 @@ class CWZcash extends Zcash {
   @override
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
-    return (zcashWallet.walletAddresses as ZcashWalletAddresses)
-        .getAddressInfos();
+    return (zcashWallet.walletAddresses as ZcashWalletAddresses).getAddressInfos();
   }
 
   @override
@@ -171,14 +161,14 @@ class CWZcash extends Zcash {
   @override
   ReceivePageOption getSelectedAddressType(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
-    final t = (zcashWallet.walletAddresses as ZcashWalletAddresses).walletInfo.addressPageType??"";
+    final t =
+        (zcashWallet.walletAddresses as ZcashWalletAddresses).walletInfo.addressPageType ?? "";
     return ZcashReceivePageOption.fromType(ZcashReceivePageOption.typeFromString(t));
   }
 
   bool hasSelectedTransparentAddress(Object wallet) {
     return getSelectedAddressType(wallet) == ZcashReceivePageOption.transparentRotated;
   }
-
 
   @override
   dynamic getZcashAddressType(ReceivePageOption option) {
@@ -199,19 +189,20 @@ class CWZcash extends Zcash {
   @override
   Future<void> setAddressType(Object wallet, dynamic option) async {
     final zcashWallet = wallet as ZcashWallet;
-    await (zcashWallet.walletAddresses as ZcashWalletAddresses).setAddressType(option as ZcashAddressType);
+    await (zcashWallet.walletAddresses as ZcashWalletAddresses)
+        .setAddressType(option as ZcashAddressType);
   }
 
   @override
   dynamic getOptionToType(ReceivePageOption option) {
     return (option as ZcashReceivePageOption).toType();
   }
-  
+
   @override
   void unlockDatabase(String password) {
     return ZcashWalletBase.unlockDatabase(password);
   }
-  
+
   @override
   Future<int> getHeightByDate(DateTime date) {
     return ZcashWalletBase.getHeightByDate(date);
@@ -222,7 +213,7 @@ class CWZcash extends Zcash {
     final zcashWallet = wallet as ZcashWallet;
     return zcashWallet.couldBeZashiWallet();
   }
-  
+
   @override
   Future<void> rescanInternalChange(WalletBase wallet) {
     final zcashWallet = wallet as ZcashWallet;

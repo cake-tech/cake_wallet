@@ -8,7 +8,6 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -22,8 +21,7 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.unspentCoinsInfoSource,
-      this.payjoinSessionSource, this.isDirect);
+  BitcoinWalletService(this.unspentCoinsInfoSource, this.payjoinSessionSource, this.isDirect);
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final Box<PayjoinSession> payjoinSessionSource;
@@ -39,9 +37,12 @@ class BitcoinWalletService extends WalletService<
 
     final String mnemonic;
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    derivationInfo.derivationType = credentials.derivationInfo?.derivationType ?? derivationInfo.derivationType;
-    derivationInfo.derivationPath = credentials.derivationInfo?.derivationPath ?? derivationInfo.derivationPath;
-    derivationInfo.description = credentials.derivationInfo?.description ?? derivationInfo.description;
+    derivationInfo.derivationType =
+        credentials.derivationInfo?.derivationType ?? derivationInfo.derivationType;
+    derivationInfo.derivationPath =
+        credentials.derivationInfo?.derivationPath ?? derivationInfo.derivationPath;
+    derivationInfo.description =
+        credentials.derivationInfo?.description ?? derivationInfo.description;
     derivationInfo.scriptType = credentials.derivationInfo?.scriptType ?? derivationInfo.scriptType;
     await derivationInfo.save();
     switch (derivationInfo.derivationType) {
@@ -120,8 +121,9 @@ class BitcoinWalletService extends WalletService<
     }
     await WalletInfo.delete(walletInfo);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-          (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -131,41 +133,15 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet = await BitcoinWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
-      payjoinBox: payjoinSessionSource,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
-  }
-
-  @override
   Future<BitcoinWallet> restoreFromHardwareWallet(BitcoinRestoreWalletFromHardware credentials,
       {bool? isTestnet}) async {
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    derivationInfo.derivationPath =
-        credentials.hwAccountData.derivationPath;
-    
+    derivationInfo.derivationPath = credentials.hwAccountData.derivationPath;
+
     final xpub = convertAnyToXpub(credentials.hwAccountData.xpub!);
-    
+
     await credentials.walletInfo!.save();
     final wallet = await BitcoinWallet(
       password: credentials.password!,

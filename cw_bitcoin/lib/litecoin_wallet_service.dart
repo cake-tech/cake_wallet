@@ -12,8 +12,6 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:collection/collection.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:path_provider/path_provider.dart';
 
@@ -50,7 +48,8 @@ class LitecoinWalletService extends WalletService<
       password: credentials.password!,
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
-      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
+      derivationInfo:
+          credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -66,7 +65,6 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
       throw Exception('Wallet not found');
@@ -127,8 +125,9 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -139,26 +138,11 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet = await LitecoinWalletBase.open(
-      password: password,
-      name: currentName,
-      walletInfo: currentWalletInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
+    if (currentName == newName) return;
 
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
+    await LitecoinWalletBase.copyMwebBox(fromName: currentName, toName: newName);
+    await super.rename(currentName, password, newName);
+    await LitecoinWalletBase.deleteMwebBox(currentName);
   }
 
   @override
@@ -167,8 +151,7 @@ class LitecoinWalletService extends WalletService<
     final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
-    derivationInfo.derivationPath =
-        credentials.hwAccountData.derivationPath;
+    derivationInfo.derivationPath = credentials.hwAccountData.derivationPath;
     await derivationInfo.save();
     credentials.walletInfo!.save();
 
@@ -187,7 +170,7 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> restoreFromKeys(LitecoinWalletFromKeysCredentials credentials,
-          {bool? isTestnet}) async {
+      {bool? isTestnet}) async {
     final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
@@ -219,7 +202,8 @@ class LitecoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
-      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
+      derivationInfo:
+          credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

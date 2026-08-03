@@ -132,7 +132,13 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsOpenAlias,
       required this.lookupsENS,
       required this.lookupsZcashNames,
+      required this.lookupsZcashAddress,
       required this.lookupsWellKnown,
+      required this.lookupsFio,
+      required this.lookupsNostr,
+      required this.lookupsThorChain,
+      required this.lookupsBip353,
+      required this.lookupsLNUrl,
       required this.usePayjoin,
       required this.showPayjoinCard,
       required this.customBitcoinFeeRate,
@@ -241,7 +247,6 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.ethereum] = initialEthereumTransactionPriority;
     }
 
-
     if (initialPolygonTransactionPriority != null) {
       priority[WalletType.polygon] = initialPolygonTransactionPriority;
     }
@@ -296,7 +301,8 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => shouldShowRepWarning,
         (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
 
-    reaction((_)=>mwebAdDismissed, (val)=>sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
+    reaction((_) => mwebAdDismissed,
+        (val) => sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
 
     priority.observe((change) {
       final String? key;
@@ -564,13 +570,41 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => lookupsZcashNames,
-        (bool looksUpZcashNames) => _sharedPreferences.setBool(
-            PreferencesKey.lookupsZcashNames, looksUpZcashNames));
+        (bool looksUpZcashNames) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsZcashNames, looksUpZcashNames));
+
+    reaction(
+        (_) => lookupsZcashAddress,
+        (bool lookupsZcashAddress) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsZcashAddress, lookupsZcashAddress));
 
     reaction(
         (_) => lookupsWellKnown,
         (bool looksUpWellKnown) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
+
+    reaction((_) => lookupsFio,
+        (bool lookupsFio) => _sharedPreferences.setBool(PreferencesKey.lookupsFio, lookupsFio));
+
+    reaction(
+        (_) => lookupsNostr,
+        (bool lookupsNostr) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsNostr, lookupsNostr));
+
+    reaction(
+        (_) => lookupsThorChain,
+        (bool lookupsThorChain) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsThorChain, lookupsThorChain));
+
+    reaction(
+        (_) => lookupsBip353,
+        (bool lookupsBip353) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsBip353, lookupsBip353));
+
+    reaction(
+        (_) => lookupsLNUrl,
+        (bool lookupsLNUrl) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsLNUrl, lookupsLNUrl));
 
     reaction((_) => usePayjoin,
         (bool usePayjoin) => _sharedPreferences.setBool(PreferencesKey.usePayjoin, usePayjoin));
@@ -690,8 +724,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => showZcashMissingFundsCard,
-        (bool showZcashMissingFundsCard) =>
-            _sharedPreferences.setBool(PreferencesKey.showZcashMissingFundsCard, showZcashMissingFundsCard));
+        (bool showZcashMissingFundsCard) => _sharedPreferences.setBool(
+            PreferencesKey.showZcashMissingFundsCard, showZcashMissingFundsCard));
 
     reaction((_) => mwebEnabled,
         (bool mwebEnabled) => _sharedPreferences.setBool(PreferencesKey.mwebEnabled, mwebEnabled));
@@ -729,8 +763,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => balanceHideCounter,
-        (int balanceHideCounter) => _sharedPreferences.setInt(PreferencesKey.balanceHideCounter, balanceHideCounter)
-    );
+        (int balanceHideCounter) =>
+            _sharedPreferences.setInt(PreferencesKey.balanceHideCounter, balanceHideCounter));
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -963,7 +997,25 @@ abstract class SettingsStoreBase with Store {
   bool lookupsZcashNames;
 
   @observable
+  bool lookupsZcashAddress;
+
+  @observable
   bool lookupsWellKnown;
+
+  @observable
+  bool lookupsFio;
+
+  @observable
+  bool lookupsNostr;
+
+  @observable
+  bool lookupsThorChain;
+
+  @observable
+  bool lookupsBip353;
+
+  @observable
+  bool lookupsLNUrl;
 
   @observable
   bool usePayjoin;
@@ -1093,7 +1145,8 @@ abstract class SettingsStoreBase with Store {
     return priority[walletType];
   }
 
-  void setPriority(WalletType walletType, TransactionPriority priority, {int? chainId}) => this.priority[walletType] = priority;
+  void setPriority(WalletType walletType, TransactionPriority priority, {int? chainId}) =>
+      this.priority[walletType] = priority;
 
   bool isBitcoinBuyEnabled;
 
@@ -1104,8 +1157,7 @@ abstract class SettingsStoreBase with Store {
       _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
 
   static Future<SettingsStore> load(
-      {
-      required bool isBitcoinBuyEnabled,
+      {required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
@@ -1227,10 +1279,14 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
-    final forceDecentralizedExchanges = await sharedPreferences.getBool(PreferencesKey.forceDecentralizedExchanges) ?? false;
-    final decentralizedExchangesPromptDismissed = await sharedPreferences.getBool(PreferencesKey.decentralizedExchangesPromptDismissed) ?? false;
+    final forceDecentralizedExchanges =
+        await sharedPreferences.getBool(PreferencesKey.forceDecentralizedExchanges) ?? false;
+    final decentralizedExchangesPromptDismissed =
+        await sharedPreferences.getBool(PreferencesKey.decentralizedExchangesPromptDismissed) ??
+            false;
     final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
-        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.blocksRemaining.name);
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
+            SyncStatusDisplayMode.blocksRemaining.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1268,9 +1324,15 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
-    final lookupsZcashNames =
-        sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
+    final lookupsZcashNames = sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
+    final lookupsZcashAddress =
+        sharedPreferences.getBool(PreferencesKey.lookupsZcashAddress) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
+    final lookupsFio = sharedPreferences.getBool(PreferencesKey.lookupsFio) ?? true;
+    final lookupsNostr = sharedPreferences.getBool(PreferencesKey.lookupsNostr) ?? true;
+    final lookupsThorChain = sharedPreferences.getBool(PreferencesKey.lookupsThorChain) ?? false;
+    final lookupsBip353 = sharedPreferences.getBool(PreferencesKey.lookupsBip353) ?? true;
+    final lookupsLNUrl = sharedPreferences.getBool(PreferencesKey.lookupsLNUrl) ?? true;
     final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
     final showPayjoinCard = sharedPreferences.getBool(PreferencesKey.showPayjoinCard) ?? true;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
@@ -1278,7 +1340,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
-    final showZcashMissingFundsCard = sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
+    final showZcashMissingFundsCard =
+        sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     final hasEnabledMwebBefore =
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
@@ -1317,7 +1380,6 @@ abstract class SettingsStoreBase with Store {
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
 
-
     final nodeSource = await Node.getAll();
     final powNodeSource = await Node.getAllPow();
 
@@ -1330,52 +1392,36 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServer =
         nodeSource.firstWhereOrNull((e) => e.id == litecoinElectrumServerId) ??
             nodeSource.firstWhereOrNull((e) => e.uriRaw == cakeWalletLitecoinElectrumUri);
-    final ethereumNode =
-        nodeSource.firstWhereOrNull((e) => e.id == ethereumNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
-    final polygonNode =
-        nodeSource.firstWhereOrNull((e) => e.id == polygonNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
-    final baseNode =
-        nodeSource.firstWhereOrNull((e) => e.id == baseNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
-    final arbitrumNode =
-        nodeSource.firstWhereOrNull((e) => e.id == arbitrumNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
+    final ethereumNode = nodeSource.firstWhereOrNull((e) => e.id == ethereumNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
+    final polygonNode = nodeSource.firstWhereOrNull((e) => e.id == polygonNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
+    final baseNode = nodeSource.firstWhereOrNull((e) => e.id == baseNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == baseDefaultNodeUri);
+    final arbitrumNode = nodeSource.firstWhereOrNull((e) => e.id == arbitrumNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == arbitrumDefaultNodeUri);
     final bitcoinCashElectrumServer =
         nodeSource.firstWhereOrNull((e) => e.id == bitcoinCashElectrumServerId) ??
-            nodeSource.firstWhereOrNull(
-                    (e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
-    final nanoNode =
-        nodeSource.firstWhereOrNull((e) => e.id == nanoNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == nanoDefaultNodeUri);
-    final decredNode =
-        nodeSource.firstWhereOrNull((e) => e.id == decredNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == decredDefaultUri);
-    final nanoPowNode =
-        powNodeSource.firstWhereOrNull((e) => e.id == nanoPowNodeId) ??
-            powNodeSource.firstWhereOrNull(
-                    (e) => e.uriRaw == nanoDefaultPowNodeUri);
-    final solanaNode =
-        nodeSource.firstWhereOrNull((e) => e.id == solanaNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
-    final tronNode =
-        nodeSource.firstWhereOrNull((e) => e.id == tronNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
-    final wowneroNode =
-        nodeSource.firstWhereOrNull((e) => e.id == wowneroNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
-    final zanoNode =
-        nodeSource.firstWhereOrNull((e) => e.id == zanoNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
-    final dogecoinNode =
-        nodeSource.firstWhereOrNull((e) => e.id == dogecoinNodeId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
-    final zcashNode =
-        nodeSource.firstWhereOrNull((e) => e.id == zcashNodeId) ??
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
+    final nanoNode = nodeSource.firstWhereOrNull((e) => e.id == nanoNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == nanoDefaultNodeUri);
+    final decredNode = nodeSource.firstWhereOrNull((e) => e.id == decredNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == decredDefaultUri);
+    final nanoPowNode = powNodeSource.firstWhereOrNull((e) => e.id == nanoPowNodeId) ??
+        powNodeSource.firstWhereOrNull((e) => e.uriRaw == nanoDefaultPowNodeUri);
+    final solanaNode = nodeSource.firstWhereOrNull((e) => e.id == solanaNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
+    final tronNode = nodeSource.firstWhereOrNull((e) => e.id == tronNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
+    final wowneroNode = nodeSource.firstWhereOrNull((e) => e.id == wowneroNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
+    final zanoNode = nodeSource.firstWhereOrNull((e) => e.id == zanoNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
+    final dogecoinNode = nodeSource.firstWhereOrNull((e) => e.id == dogecoinNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
+    final zcashNode = nodeSource.firstWhereOrNull((e) => e.id == zcashNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
-    final bscNode =
-        nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
+    final bscNode = nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
@@ -1595,7 +1641,8 @@ abstract class SettingsStoreBase with Store {
     final mwebAdDismissed =
         await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
 
-    final balanceHideCounter = await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
+    final balanceHideCounter =
+        await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
     return SettingsStore(
       secureStorage: secureStorage,
@@ -1659,7 +1706,13 @@ abstract class SettingsStoreBase with Store {
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
       lookupsZcashNames: lookupsZcashNames,
+      lookupsZcashAddress: lookupsZcashAddress,
       lookupsWellKnown: lookupsWellKnown,
+      lookupsFio: lookupsFio,
+      lookupsNostr: lookupsNostr,
+      lookupsThorChain: lookupsThorChain,
+      lookupsBip353: lookupsBip353,
+      lookupsLNUrl: lookupsLNUrl,
       usePayjoin: usePayjoin,
       showPayjoinCard: showPayjoinCard,
       customBitcoinFeeRate: customBitcoinFeeRate,
@@ -1834,7 +1887,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
     syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
-        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.blocksRemaining.name);
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
+            SyncStatusDisplayMode.blocksRemaining.name);
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1885,15 +1939,15 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
-    lookupsZcashNames =
-        sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
+    lookupsZcashNames = sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
     lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
-    showZcashMissingFundsCard = sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
+    showZcashMissingFundsCard =
+        sharedPreferences.getBool(PreferencesKey.showZcashMissingFundsCard) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     hasEnabledMwebBefore = sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
@@ -1935,7 +1989,6 @@ abstract class SettingsStoreBase with Store {
     final zcashNode = await Node.get(zcashNodeId ?? -1);
     final decredNode = await Node.get(decredNodeId ?? -1);
     final dogecoinNode = await Node.get(dogecoinNodeId ?? -1);
-
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -2108,15 +2161,12 @@ abstract class SettingsStoreBase with Store {
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
-
     switch (walletType) {
       case WalletType.bitcoin:
-        await _sharedPreferences.setInt(
-            PreferencesKey.currentBitcoinElectrumSererIdKey, node.id);
+        await _sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, node.id);
         break;
       case WalletType.litecoin:
-        await _sharedPreferences.setInt(
-            PreferencesKey.currentLitecoinElectrumSererIdKey, node.id);
+        await _sharedPreferences.setInt(PreferencesKey.currentLitecoinElectrumSererIdKey, node.id);
         break;
       case WalletType.monero:
         await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, node.id);
@@ -2135,8 +2185,7 @@ abstract class SettingsStoreBase with Store {
         nodes[node.type] = node;
         break;
       case WalletType.bitcoinCash:
-        await _sharedPreferences.setInt(
-            PreferencesKey.currentBitcoinCashNodeIdKey, node.id);
+        await _sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.id);
         break;
       case WalletType.nano:
         await _sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.id);

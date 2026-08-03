@@ -25,65 +25,44 @@ class FirstIntroduction extends StatelessWidget {
         color: Theme.of(context).colorScheme.surfaceContainer,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(top: 40, bottom: 40),
-          content: Column(
-              children: [
-                Container(
-                    height: 45,
-                    padding: EdgeInsets.only(left: 24, right: 24),
-                    child: YatBar(onClose: () => Navigator.of(context).pop())
-                ),
-                animation,
-                Container(
-                    padding: EdgeInsets.only(left: 30, right: 30),
-                    child: Column(
-                        children: [
-                          Text(
-                              S.of(context).yat_alert_title,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                 
+          content: Column(children: [
+            Container(
+                height: 45,
+                padding: EdgeInsets.only(left: 24, right: 24),
+                child: YatBar(onClose: () => Navigator.of(context).pop())),
+            animation,
+            Container(
+                padding: EdgeInsets.only(left: 30, right: 30),
+                child: Column(children: [
+                  Text(S.of(context).yat_alert_title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            decoration: TextDecoration.none,
+                          )),
+                  Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Text(S.of(context).yat_alert_content,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
                                 color: Theme.of(context).colorScheme.onSurface,
                                 decoration: TextDecoration.none,
-                              )
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(top: 20),
-                              child: Text(
-                                  S.of(context).yat_alert_content,
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                     
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    decoration: TextDecoration.none,
-                                  )
-                              )
-                          )
-                        ]
-                    )
-                )
-              ]
-          ),
+                              )))
+                ]))
+          ]),
           bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-          bottomSection: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                PrimaryButton(
-                    text: S.of(context).restore_next,
-                    textColor: Theme.of(context).colorScheme.onPrimary,
-                    color: Theme.of(context).colorScheme.primary,
-                    onPressed: onNext
-                ),
-                Padding(
-                    padding: EdgeInsets.only(top: 24),
-                    child: YatPageIndicator(filled: 0)
-                )
-              ]
-          ),
-        )
-    );
+          bottomSection: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            PrimaryButton(
+                text: S.of(context).restore_next,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.primary,
+                onPressed: onNext),
+            Padding(padding: EdgeInsets.only(top: 24), child: YatPageIndicator(filled: 0))
+          ]),
+        ));
   }
 }

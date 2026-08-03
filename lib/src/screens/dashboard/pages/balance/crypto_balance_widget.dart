@@ -334,7 +334,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     ),
                   ),
                 ],
-                 if (dashboardViewModel.showZcashMissingFundsCard) ...[
+                if (dashboardViewModel.showZcashMissingFundsCard) ...[
                   SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -349,7 +349,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                       hintWidget: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => launchUrl(
-                          Uri.parse("https://docs.cakewallet.com/tutorials/zashi/#creating-a-new-zcash-wallet-on-cake"),
+                          Uri.parse(
+                              "https://docs.cakewallet.com/tutorials/zashi/#creating-a-new-zcash-wallet-on-cake"),
                           mode: LaunchMode.externalApplication,
                         ),
                         child: Text(
@@ -371,7 +372,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: InfoCard(
                       title: S.of(context).synchronizing,
                       description: S.of(context).decred_info_card_details,
-                      image: 'assets/images/crypto/decred.webp',
+                      image: 'assets/new-ui/crypto_full_icons/decred.svg',
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
@@ -492,7 +493,7 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
     dashboardViewModel.setMwebEnabled();
   }
-  
+
   Future<void> _rescanInternalChangeZcash(BuildContext context) async {
     dashboardViewModel.rescanInternalChangeZcash();
     await showPopUp<void>(
@@ -507,7 +508,6 @@ class CryptoBalanceWidget extends StatelessWidget {
       ),
     );
   }
-  
 
   Future<void> _dismissMweb(BuildContext context) async {
     await showPopUp<void>(
@@ -522,7 +522,7 @@ class CryptoBalanceWidget extends StatelessWidget {
             ));
     dashboardViewModel.dismissMweb();
   }
-  
+
   Future<void> _dismissZcash(BuildContext context) async {
     await showPopUp<void>(
         context: context,

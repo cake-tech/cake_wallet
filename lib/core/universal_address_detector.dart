@@ -132,7 +132,7 @@ class UniversalAddressDetector {
         pattern: RegExp(r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
         currency: CryptoCurrency.btcln,
       ),
-      
+
       // Lightning Address (LNURL format)
       _DetectionPattern(
         pattern: RegExp(r'^(lightning:)?(lnurl)[a-z0-9]+$', caseSensitive: false),

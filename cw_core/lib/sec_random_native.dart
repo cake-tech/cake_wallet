@@ -14,7 +14,8 @@ Future<Uint8List> secRandom(int count) async {
       final rng = Random.secure();
       return Uint8List.fromList(List<int>.generate(count, (_) => rng.nextInt(byteSize)));
     }
-    return await utils.invokeMethod<Uint8List>('sec_random', {'count': count}) ?? Uint8List.fromList([]);
+    return await utils.invokeMethod<Uint8List>('sec_random', {'count': count}) ??
+        Uint8List.fromList([]);
   } on PlatformException catch (_) {
     return Uint8List.fromList([]);
   }

@@ -71,9 +71,9 @@ class _FilterWidgetState extends State<FilterWidget> {
                           child: Text(
                             S.of(context).filter_by,
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ),
                       ),
@@ -97,14 +97,15 @@ class _FilterWidgetState extends State<FilterWidget> {
                                   child: Text(
                                     title,
                                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.none,
-                                    ),
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          fontWeight: FontWeight.bold,
+                                          decoration: TextDecoration.none,
+                                        ),
                                   ),
                                 ),
                                 ListView.builder(
-                                  padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 8.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 28.0, vertical: 8.0),
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: section.length,

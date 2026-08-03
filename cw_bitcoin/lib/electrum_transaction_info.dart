@@ -5,10 +5,11 @@ import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
@@ -17,7 +18,7 @@ class ElectrumTransactionBundle {
       {required this.ins, required this.confirmations, this.time});
 
   final BtcTransaction originalTransaction;
-  final List<BtcTransaction> ins;
+  final List<BtcTransaction?> ins;
   final int? time;
   final int confirmations;
 }
@@ -31,8 +32,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.type, {
     required String id,
     int? height,
-    required int amount,
-    int? fee,
+    required Money amount,
+    Money? fee,
     List<String>? inputAddresses,
     List<String>? outputAddresses,
     required TransactionDirection direction,
@@ -106,9 +107,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
         height: height,
         isPending: false,
         isReplaced: false,
-        fee: fee,
+        fee: Money.fromInt(fee, walletTypeToCryptoCurrency(type)),
         direction: direction,
-        amount: amount,
+        amount: Money.fromInt(amount, walletTypeToCryptoCurrency(type)),
         date: date,
         confirmations: confirmations);
   }
@@ -126,9 +127,14 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
 
+    var hasMissingInputTx = false;
     for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
-      final inputTransaction = bundle.ins[i];
+      final inputTransaction = i < bundle.ins.length ? bundle.ins[i] : null;
+      if (inputTransaction == null || input.txIndex >= inputTransaction.outputs.length) {
+        hasMissingInputTx = true;
+        continue;
+      }
       final outTransaction = inputTransaction.outputs[input.txIndex];
       inputAmount += outTransaction.amount.toInt();
       if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
@@ -178,14 +184,17 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     // MWEB HogEx
     final isHogExTx = (BtcTransaction tx) {
-      if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty)
-        return false;
+      if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty) return false;
       final b = tx.outputs.first.scriptPubKey.toBytes();
       return b.length == 34 && b[0] == 88 && b[1] == 32;
     };
-    final isHogEx = isHogExTx(bundle.originalTransaction) && isHogExTx(bundle.ins.first);
+    final firstInput = bundle.ins.isNotEmpty ? bundle.ins.first : null;
+    final isHogEx =
+        firstInput != null && isHogExTx(bundle.originalTransaction) && isHogExTx(firstInput);
 
-    final fee = inputAmount - totalOutAmount;
+    final fee = hasMissingInputTx ? null : inputAmount - totalOutAmount;
+    final walletCurrency = walletTypeToCryptoCurrency(type);
+    final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;
     return ElectrumTransactionInfo(type,
         id: bundle.originalTransaction.txId(),
         height: height,
@@ -193,11 +202,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
         isReplaced: false,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
-        fee: fee,
+        fee: feeMoney,
         direction: direction,
-        amount: amount,
+        amount: Money.fromInt(amount, walletCurrency),
         date: date,
         isHogEx: isHogEx,
+        additionalInfo: {'hasMissingInputTx': hasMissingInputTx},
         confirmations: bundle.confirmations);
   }
 
@@ -205,13 +215,17 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final inputAddresses = data['inputAddresses'] as List<dynamic>? ?? [];
     final outputAddresses = data['outputAddresses'] as List<dynamic>? ?? [];
     final unspents = data['unspents'] as List<dynamic>? ?? [];
+    final additionalInfo = data['additionalInfo'] as Map<String, dynamic>?;
+    final isLightning = (additionalInfo?['isLightning'] as bool?) == true;
+
+    final currency = isLightning ? CryptoCurrency.btcln : walletTypeToCryptoCurrency(type);
 
     return ElectrumTransactionInfo(
       type,
       id: data['id'] as String,
       height: data['height'] as int?,
-      amount: data['amount'] as int,
-      fee: data['fee'] as int,
+      amount: Money.fromInt(data['amount'] as int, currency),
+      fee: data['fee'] != null ? Money.fromInt(data['fee'] as int, currency) : null,
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
@@ -227,28 +241,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
-      additionalInfo: data['additionalInfo'] as Map<String, dynamic>?,
+      additionalInfo: additionalInfo,
     );
   }
 
   final WalletType type;
-
-  String? _fiatAmount;
-
-  @override
-  String amountFormatted() =>
-      '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(amount))} ${walletTypeToCryptoCurrency(type).title}';
-
-  @override
-  String? feeFormatted() => fee != null
-      ? '${walletTypeToCryptoCurrency(type).formatAmount(BigInt.from(fee!))} ${walletTypeToCryptoCurrency(type).title}'
-      : '';
-
-  @override
-  String fiatAmount() => _fiatAmount ?? '';
-
-  @override
-  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
     return ElectrumTransactionInfo(info.type,
@@ -270,13 +267,13 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final m = <String, dynamic>{};
     m['id'] = id;
     m['height'] = height;
-    m['amount'] = amount;
+    m['amount'] = amount.amount.toInt();
     m['direction'] = direction.index;
     m['date'] = date.millisecondsSinceEpoch;
     m['isPending'] = isPending;
     m['isReplaced'] = isReplaced;
     m['confirmations'] = confirmations;
-    m['fee'] = fee;
+    m['fee'] = fee?.amount.toInt();
     m['to'] = to;
     m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
     m['inputAddresses'] = inputAddresses;

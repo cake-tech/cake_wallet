@@ -25,8 +25,8 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 class $BackupService {
-  $BackupService(this._secureStorage, this.transactionDescriptionBox,
-      this.keyService, this.sharedPreferences)
+  $BackupService(
+      this._secureStorage, this.transactionDescriptionBox, this.keyService, this.sharedPreferences)
       : cipher = Cryptography.instance.chacha20Poly1305Aead(),
         correctWallets = <WalletInfo>[];
 
@@ -41,7 +41,6 @@ class $BackupService {
   final Box<TransactionDescription> transactionDescriptionBox;
   final KeyService keyService;
   List<WalletInfo> correctWallets;
-
 
   Future<void> importBackupV1(Uint8List data, String password, {required String nonce}) async {
     final appDir = await getAppDir();
@@ -59,7 +58,8 @@ class $BackupService {
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    };
+    }
+    ;
 
     await verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
@@ -101,7 +101,8 @@ class $BackupService {
           dir.createSync(recursive: true);
         }
       }
-    };
+    }
+    ;
 
     await verifyWallets();
     await importKeychainDumpV2(password);
@@ -112,7 +113,9 @@ class $BackupService {
   Future<void> verifyWallets() async {
     await performHiveMigration(); // for backups made before sqlite migration
     await performTradeHiveMigration(_secureStorage);
-    correctWallets = (await WalletInfo.getAll()).where((info) => availableWalletTypes.contains(info.type)).toList();
+    correctWallets = (await WalletInfo.getAll())
+        .where((info) => availableWalletTypes.contains(info.type))
+        .toList();
 
     if (correctWallets.isEmpty) {
       printV('Correct wallets not detected');
@@ -133,12 +136,11 @@ class $BackupService {
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
     var box = transactionDescriptionBox;
     if (!box.isOpen) {
-      final transactionDescriptionsBoxKey =
-        await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
-      box = await CakeHive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-      }
+      final transactionDescriptionsBoxKey = await getEncryptionKey(
+          secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
+      box = await CakeHive.openBox<TransactionDescription>(TransactionDescription.boxName,
+          encryptionKey: transactionDescriptionsBoxKey);
+    }
     await box.putAll(descriptionsMap);
   }
 
@@ -152,7 +154,8 @@ class $BackupService {
 
     final data = json.decode(preferencesFile.readAsStringSync()) as Map<String, dynamic>;
 
-    try { // shouldn't throw an error but just in case, so it doesn't stop the backup restore
+    try {
+      // shouldn't throw an error but just in case, so it doesn't stop the backup restore
       for (var entry in data.entries) {
         String key = entry.key;
         dynamic value = entry.value;
@@ -170,7 +173,8 @@ class $BackupService {
           await sharedPreferences.setStringList(key, value);
         } else {
           if (kDebugMode) {
-            printV('Skipping individual save for key "$key": Unsupported type (${value.runtimeType}). Value: $value');
+            printV(
+                'Skipping individual save for key "$key": Unsupported type (${value.runtimeType}). Value: $value');
           }
         }
       }
@@ -187,9 +191,7 @@ class $BackupService {
         currentWalletName = correctWallets.first.name;
         currentWalletType = serializeToInt(correctWallets.first.type);
       }
-    } catch (e) {
-
-    }
+    } catch (e) {}
 
     if (DeviceInfo.instance.isDesktop) {
       await sharedPreferences.setInt(PreferencesKey.currentTheme, ThemeList.darkTheme.raw);
@@ -247,8 +249,8 @@ class $BackupService {
       for (var key in (keychainJSON['_all'] as Map<String, dynamic>).keys) {
         try {
           if (!key.startsWith('MONERO_WALLET_')) continue;
-          final decodedPassword = decodeWalletPassword(
-              password: keychainJSON['_all'][key].toString());
+          final decodedPassword =
+              decodeWalletPassword(password: keychainJSON['_all'][key].toString());
           final walletName = key.split('_WALLET_')[1];
           final walletType = key.split('_WALLET_')[0].toLowerCase();
           await importWalletKeychainInfo({
@@ -294,8 +296,11 @@ class $BackupService {
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _secureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(
-        json.encode({'wallets': wallets, backupPasswordKey: backupPassword, '_all': await _secureStorage.readAll()}));
+    final data = utf8.encode(json.encode({
+      'wallets': wallets,
+      backupPasswordKey: backupPassword,
+      '_all': await _secureStorage.readAll()
+    }));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;

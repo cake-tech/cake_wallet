@@ -2,6 +2,8 @@ import 'dart:core';
 import 'dart:developer' as dev;
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
+import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -16,7 +18,6 @@ import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/utils/qr_util.dart';
@@ -33,6 +34,8 @@ import 'package:cw_core/currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/payment_uris.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -70,8 +73,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   double? _fiatRate;
 
-  List<Currency> get currencies =>
-      [tokenCurrency ?? wallet.currency, ...FiatCurrency.all];
+  List<Currency> get currencies => [tokenCurrency ?? wallet.currency, ...FiatCurrency.all];
 
   List<Currency> get tokenCurrencies => wallet.balance.keys.toList();
 
@@ -83,7 +85,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _appStore.amountParsingProxy.getCryptoSymbol(tokenCurrency ?? wallet.currency);
 
   void setTokenCurrency(Currency curr) {
-    if(curr == wallet.currency || curr == CryptoCurrency.btcln) {
+    if (curr == wallet.currency || curr == CryptoCurrency.btcln) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;
       return;
@@ -141,7 +143,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (_amount.isEmpty) return "";
     var cryptoCurrency = tokenCurrency ?? wallet.currency;
     if (cryptoCurrency == CryptoCurrency.btcln) cryptoCurrency = CryptoCurrency.btc;
-    if(selectedCurrency is FiatCurrency && _fiatRate != null) {
+    if (selectedCurrency is FiatCurrency && _fiatRate != null) {
       return selectedCurrencyFiatAmount;
     }
 
@@ -165,7 +167,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   // payjoinEndpoint getter is broken, but uri works
   bool get hasPayjoin =>
-      wallet.type == WalletType.bitcoin && !isLightning && !isSilentPayments && uri.toString().contains("payjo.in");
+      wallet.type == WalletType.bitcoin &&
+      !isLightning &&
+      !isSilentPayments &&
+      uri.toString().contains("payjo.in");
+
+  AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @computed
   FiatCurrency get fiatCurrency => _appStore.settingsStore.fiatCurrency;
@@ -198,6 +205,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           address: wallet.walletAddresses.address,
           amount: _amount,
           contractAddress: (tokenCurrency as Erc20Token).contractAddress);
+    }
+    if (tokenCurrency is TronToken && wallet.type == WalletType.tron) {
+      return TronURI(
+        amount: _amount,
+        address: wallet.walletAddresses.address,
+        contractAddress: (tokenCurrency as TronToken).contractAddress,
+      );
+    }
+    if (tokenCurrency is SPLToken && wallet.type == WalletType.solana) {
+      return SolanaURI(
+        amount: _amount,
+        address: wallet.walletAddresses.address,
+        contractAddress: (tokenCurrency as SPLToken).mintAddress,
+      );
     }
     if (isLightning && _lnPaymentRequest != null) return _lnPaymentRequest!;
     return wallet.walletAddresses.getPaymentUri(_amount);
@@ -442,7 +463,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   String get walletTypeName => walletTypeToString(type);
 
   @computed
-  bool get hasAddressList => [
+  bool get hasAddressList =>
+      [
         WalletType.monero,
         WalletType.wownero,
         WalletType.haven,
@@ -452,7 +474,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.decred,
         WalletType.dogecoin,
         WalletType.zcash
-      ].contains(wallet.type) && !isLightning && isZCashTransparent;
+      ].contains(wallet.type) &&
+      !isLightning &&
+      isZCashTransparent;
 
   @computed
   bool get hasAddressRotation => hasAddressList && wallet.type != WalletType.zcash;
@@ -478,7 +502,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 137:
           return [
-            'assets/images/crypto/polygon.webp',
+            'assets/new-ui/crypto_full_icons/polygon.svg',
             'assets/images/eth_pol_icon.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
@@ -492,20 +516,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           ];
         case 42161:
           return [
-            'assets/images/crypto/arbitrum.webp',
+            'assets/new-ui/crypto_full_icons/arbitrum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/more_tokens.svg',
           ];
         case 56:
           return [
-            'assets/images/crypto/BNB.webp',
+            'assets/new-ui/crypto_full_icons/bnb.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
             'assets/images/more_tokens.svg',
           ];
         default:
           return [
-            'assets/images/crypto/ethereum.webp',
+            'assets/new-ui/crypto_full_icons/ethereum.svg',
             'assets/images/usdc_icon.svg',
             'assets/images/usdt_wallet_icon.svg',
           ];
@@ -557,11 +581,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
-  bool get isLightning => wallet.type == WalletType.bitcoin && (wallet.walletAddresses.getPaymentUri(_amount) is LightningPaymentRequest);
+  bool get isLightning =>
+      wallet.type == WalletType.bitcoin &&
+      (wallet.walletAddresses.getPaymentUri(_amount) is LightningPaymentRequest);
 
   @computed
   bool get isZCashTransparent {
-    if(wallet.type != WalletType.zcash) {
+    if (wallet.type != WalletType.zcash) {
       return true;
     }
     receivePageOption;
@@ -595,11 +621,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void setAddress(WalletAddressListItem address) =>
       wallet.walletAddresses.address = address.address;
 
+  @observable
+  bool isRotatingAddress = false;
+
   @action
   Future<void> rotateAddress() async {
-    await createNewAddress(wallet, "");
-    if (isElectrumWallet) {
+    if (isRotatingAddress) {
+      return;
+    }
+    try {
+      isRotatingAddress = true;
+      await createNewAddress(wallet, "");
       wallet.walletAddresses.address = addressList.whereType<WalletAddressListItem>().last.address;
+    } finally {
+      isRotatingAddress = false;
     }
   }
 

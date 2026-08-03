@@ -29,6 +29,13 @@ BigInt? tryParseFixed(String value, int decimals) {
 BigInt parseFixed(String value, int decimals) {
   final multiplier = getMultiplier(decimals);
 
+  /// handle weird cases where users enter spaces and currency after the amount
+  /// This should be handled from UI field to prevent non numerical values
+  /// but will be in the refactoring
+  if (value.contains(" ")) {
+    value = value.split(" ").first;
+  }
+
   final negative = value.startsWith("-");
   if (negative) value = value.substring(1);
 
@@ -45,7 +52,8 @@ BigInt parseFixed(String value, int decimals) {
   var fraction = (comps.length == 2 ? comps[1] : "0").padRight(decimals, "0");
 
   if (fraction.length > multiplier.length - 1) {
-    throw FormatException("fractional component exceeds decimals, underflow, parseFixed");
+    throw FormatException(
+        "fractional component(${fraction.length}) exceeds decimals(${decimals}), underflow, parseFixed");
   }
 
   final wholeValue = BigInt.parse(whole);

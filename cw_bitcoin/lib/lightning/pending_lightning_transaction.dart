@@ -1,4 +1,4 @@
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pending_transaction.dart';
 
 class PendingLightningTransaction with PendingTransaction {
@@ -10,33 +10,31 @@ class PendingLightningTransaction with PendingTransaction {
     required this.commitOverride,
   });
 
-  final int amount;
-  final int fee;
   final bool isSendAll;
-  Future<void> Function() commitOverride;
-  final List<void Function()> _listeners =[];
+  Future<String> Function() commitOverride;
+  final List<void Function()> _listeners = [];
 
   @override
-  final String id;
+  String id;
+
+  @override
+  final Money amount;
+
+  @override
+  final Money fee;
 
   @override
   String get hex => "";
 
   @override
-  String get amountFormatted => bitcoinAmountToString(amount: amount);
-
-  @override
-  String get feeFormatted => "$feeFormattedValue BTC";
-
-  @override
-  String get feeFormattedValue => bitcoinAmountToString(amount: fee);
+  String get amountFormatted => amount.toString();
 
   @override
   int? get outputCount => 1;
 
   @override
   Future<void> commit() async {
-    await commitOverride.call();
+    id = await commitOverride.call();
     _listeners.forEach((e) => e.call());
   }
 

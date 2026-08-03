@@ -102,7 +102,13 @@ class PreferencesKey {
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsZcashNames = 'looks_up_zcash_names';
+  static const lookupsZcashAddress = 'looks_up_zcash_address';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const lookupsFio = 'looks_up_fio';
+  static const lookupsNostr = 'looks_up_nostr';
+  static const lookupsThorChain = 'looks_up_thor_chain';
+  static const lookupsBip353 = 'looks_up_bip353';
+  static const lookupsLNUrl = 'looks_up_lnurl';
   static const useBlinkProtection = 'use_blink_protection';
   static const usePayjoin = 'use_payjoin';
   static const showPayjoinCard = 'show_payjoin_card';
@@ -131,7 +137,8 @@ class PreferencesKey {
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
-  static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
+  static String backgroundSyncLastTrigger(String walletId) =>
+      'background_sync_last_trigger_${walletId}';
   static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
   static const syncStatusDisplayMode = 'sync_status_display_mode';

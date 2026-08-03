@@ -8,7 +8,6 @@ class PaymentMethodLoaded extends PaymentMethodLoadingState {}
 
 class PaymentMethodFailed extends PaymentMethodLoadingState {}
 
-
 abstract class BuySellQuotLoadingState {}
 
 class InitialBuySellQuotState extends BuySellQuotLoadingState {}

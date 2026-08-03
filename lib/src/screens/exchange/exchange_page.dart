@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -11,8 +12,6 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -41,7 +40,8 @@ import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class ExchangePage extends BasePage {
-  ExchangePage(this.exchangeViewModel, this.authService, this.initialPaymentRequest) {
+  ExchangePage(
+      this.exchangeViewModel, this.authService, this.adrResService, this.initialPaymentRequest) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
@@ -52,6 +52,7 @@ class ExchangePage extends BasePage {
 
   final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
+  final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
@@ -655,8 +656,11 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    return extractAddressFromParsed(context, parsedAddress);
+    final parsedAddresses = await adrResService.resolve(
+        query: domain, wallet: exchangeViewModel.wallet, currency: currency);
+    return parsedAddresses.isNotEmpty
+        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 
   void _showFeeAlert(BuildContext context) async {
@@ -733,7 +737,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.depositAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
         },
-        useSatoshis: exchangeViewModel.useSatoshiDeposit,
+        useSatoshis: exchangeViewModel.useDepositBaseUnit,
       ),
     );
 
@@ -782,7 +786,7 @@ class ExchangePage extends BasePage {
           exchangeViewModel.receiveAddress =
               await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
         },
-        useSatoshis: exchangeViewModel.useSatoshisReceive,
+        useSatoshis: exchangeViewModel.useReceiveBaseUnit,
       ),
     );
 

@@ -53,6 +53,8 @@ class CWSolana extends Solana {
   @override
   String getPublicKey(WalletBase wallet) =>
       (wallet as SolanaWallet).solanaPublicKey.toAddress().address;
+
+  @override
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
@@ -60,14 +62,14 @@ class CWSolana extends Solana {
       SolanaTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmountMoney,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                ))
             .toList(),
         currency: currency,
       );
@@ -116,21 +118,13 @@ class CWSolana extends Solana {
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as SolanaTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.sol.title) {
+    if (transaction.amount.currency.symbol == CryptoCurrency.sol.symbol) {
       return CryptoCurrency.sol;
     }
 
-    wallet as SolanaWallet;
-
-    return wallet.splTokenCurrencies.firstWhere(
-      (element) => transaction.tokenSymbol == element.symbol,
-    );
-  }
-
-  @override
-  double getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    return (transactionInfo as SolanaTransactionInfo).solAmount.toDouble();
+    return (wallet as SolanaWallet).splTokenCurrencies.firstWhere(
+          (element) => transaction.amount.currency.symbol == element.symbol,
+        );
   }
 
   @override
@@ -168,9 +162,7 @@ class CWSolana extends Solana {
   }
 
   @override
-  double? getEstimateFees(WalletBase wallet) {
-    return (wallet as SolanaWallet).estimatedFee;
-  }
+  Money? getEstimateFees(WalletBase wallet) => (wallet as SolanaWallet).estimatedFee;
 
   @override
   List<SPLToken> getDefaultSPLTokens() => DefaultSPLTokens().initialSPLTokens;
@@ -197,8 +189,8 @@ class CWSolana extends Solana {
     String base64Transaction,
     String requestId,
     String destinationAddress,
-    double amount,
-    double fee,
+    Money amount,
+    Money fee,
   ) async {
     final solanaWallet = wallet as SolanaWallet;
     final privateKey = solanaWallet.solanaPrivateKey;
@@ -395,9 +387,11 @@ class CWSolana extends Solana {
         tokenChecks.add((() async {
           final token = item.token;
 
+          final isPropertiesSuspicious = wallet.isTokenPropertiesSuspicious(token);
+
           final fiatResult = await _getTokenUsdValueAndFiatCheck(token, item.balance);
 
-          final isSpam = !fiatResult.hasValidFiatPrice;
+          final isSpam = isPropertiesSuspicious || !fiatResult.hasValidFiatPrice;
 
           token.isPotentialScam = isSpam;
           token.enabled = (fiatResult.usdValue >= _minTokenUsdValue) && !isSpam;
@@ -409,4 +403,27 @@ class CWSolana extends Solana {
       await Future.wait(tokenChecks);
     } catch (_) {}
   }
+
+  @override
+  TransactionInfo getTransactionInfo({
+    required String id,
+    required DateTime blockTime,
+    required String to,
+    required String from,
+    String? tokenSymbol,
+    required TransactionDirection direction,
+    required Money amount,
+    required bool isPending,
+    required Money fee,
+  }) =>
+      SolanaTransactionInfo(
+        id: id,
+        date: blockTime,
+        to: to,
+        from: from,
+        direction: direction,
+        amount: amount,
+        isPending: isPending,
+        fee: fee,
+      );
 }

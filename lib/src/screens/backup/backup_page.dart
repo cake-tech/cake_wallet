@@ -108,7 +108,7 @@ class BackupPage extends BasePage {
   }
 
   void onExportBackup(BuildContext context) {
-    if(backupViewModelBase.backupPassword.isEmpty) return;
+    if (backupViewModelBase.backupPassword.isEmpty) return;
     showPopUp<void>(
       context: context,
       builder: (dialogContext) {
@@ -154,8 +154,12 @@ class BackupPage extends BasePage {
               leftButtonText: S.of(context).share,
               actionRightButton: () async {
                 await backupViewModelBase.saveToDownload(backup.name, backup.file);
-                Navigator.of(dialogContext).pop();
-                await showBar<void>(context, S.of(context).file_saved);
+                if (dialogContext.mounted && Navigator.canPop(dialogContext)) {
+                  Navigator.of(dialogContext).pop();
+                }
+                if (context.mounted && Navigator.canPop(context)) {
+                  await showBar<void>(context, S.of(context).file_saved);
+                }
               },
               actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();
@@ -171,11 +175,10 @@ class BackupPage extends BasePage {
   }
 
   Future<void> _saveFile(BackupExportFile backup) async {
-    String? outputFile = await FilePicker.platform
-        .saveFile(
-            dialogTitle: 'Save Your File to desired location',
-            fileName: backup.name,
-            lockParentWindow: true);
+    String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Your File to desired location',
+        fileName: backup.name,
+        lockParentWindow: true);
 
     if (outputFile == null) return;
 

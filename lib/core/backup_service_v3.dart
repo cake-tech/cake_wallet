@@ -73,6 +73,7 @@ class ChunkLength {
       'plain': plain,
     };
   }
+
   @override
   String toString() {
     return 'ChunkLength(encrypted: $encrypted, plain: $plain)';
@@ -124,7 +125,9 @@ class BackupMetadata {
     return BackupMetadata(
       version: BackupVersion.values[json['version'] as int],
       sha512sum: json['sha512sum'] as String,
-      chunks: (json['chunks'] as List<dynamic>).map((chunk) => ChunkDetails.fromJson(chunk as Map<String, dynamic>)).toList(),
+      chunks: (json['chunks'] as List<dynamic>)
+          .map((chunk) => ChunkDetails.fromJson(chunk as Map<String, dynamic>))
+          .toList(),
       cakeVersion: json['cakeVersion'] as String,
     );
   }
@@ -144,8 +147,24 @@ class BackupMetadata {
   }
 }
 
+class IncompatibleBackupAppException implements Exception {
+  IncompatibleBackupAppException({
+    required this.sourceAppName,
+    required this.currentAppName,
+  });
+
+  final String sourceAppName;
+  final String currentAppName;
+
+  @override
+  String toString() {
+    return 'This backup was created in $sourceAppName and cannot be restored in $currentAppName.';
+  }
+}
+
 class BackupServiceV3 extends $BackupService {
-  BackupServiceV3(super.secureStorage, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
+  BackupServiceV3(super.secureStorage, super.transactionDescriptionBox, super.keyService,
+      super.sharedPreferences);
 
   static BackupVersion get currentVersion => BackupVersion.v3;
 
@@ -155,12 +174,12 @@ class BackupServiceV3 extends $BackupService {
 
   BackupVersion getVersionFile(File data) {
     final raf = data.openSync(mode: FileMode.read);
-    
+
     try {
       // Read first 4 bytes to check both version and zip signature
       final buffer = Uint8List(1);
       final bytesRead = raf.readIntoSync(buffer);
-      
+
       if (bytesRead == 0) {
         throw Exception('Invalid backup file: empty file');
       }
@@ -197,7 +216,8 @@ class BackupServiceV3 extends $BackupService {
     }
   }
 
-  Future<void> importBackupFile(File file, String password, {String nonce = secrets.backupSalt}) {
+  Future<void> importBackupFile(File file, String password,
+      {String nonce = secrets.backupSalt, bool checkBackupApp = true}) {
     final version = getVersionFile(file);
     switch (version) {
       case BackupVersion.unknown:
@@ -210,11 +230,12 @@ class BackupServiceV3 extends $BackupService {
       case BackupVersion.v2:
         return super.importBackupV2(file.readAsBytesSync(), password);
       case BackupVersion.v3:
-        return importBackupFileV3(file, password, nonce: nonce);
+        return importBackupFileV3(file, password, nonce: nonce, checkBackupApp: checkBackupApp);
     }
   }
 
-  Future<void> importBackupFileV3(File file, String password, {String nonce = secrets.backupSalt}) async{
+  Future<void> importBackupFileV3(File file, String password,
+      {String nonce = secrets.backupSalt, bool checkBackupApp = true}) async {
     // Overall design of v3 backup is the following:
     // 1. backup.zip - plaintext zip file that user can open with any archive manager
     // 2. backup.zip/README.txt - text file to let user know what is inside of this file
@@ -223,6 +244,11 @@ class BackupServiceV3 extends $BackupService {
 
     final inputStream = InputFileStream(file.path);
     final archive = ZipDecoder().decodeStream(inputStream);
+
+    if (checkBackupApp) {
+      await _throwIfBackupWasCreatedInAnotherApp(archive);
+    }
+
     final metadataFile = archive.findFile('metadata.json');
     if (metadataFile == null) {
       throw Exception('Invalid v3 backup: missing metadata.json');
@@ -237,14 +263,14 @@ class BackupServiceV3 extends $BackupService {
       throw Exception('Invalid v3 backup: missing data.bin');
     }
     final dataStream = dataFile.rawContent!.getStream();
-    
+
     final decryptedData = File('${file.path}_decrypted'); // decrypted zip file
     if (decryptedData.existsSync()) {
       decryptedData.deleteSync();
     }
     decryptedData.createSync(recursive: true);
     decryptedData.writeAsBytesSync(Uint8List(0), mode: FileMode.write, flush: true);
-    
+
     int chunkIndex = 0;
     for (var chunk in metadata.chunks) {
       chunkIndex++;
@@ -253,14 +279,14 @@ class BackupServiceV3 extends $BackupService {
 
       // readBytes stores position internally, so we don't need to think about it.
       if (chunk.sha512sum.encrypted != chunkChecksum) {
-        throw Exception('Invalid v3 backup: chunk (${chunk.length.encrypted} bytes) checksum mismatch at index $chunkIndex\n'
+        throw Exception(
+            'Invalid v3 backup: chunk (${chunk.length.encrypted} bytes) checksum mismatch at index $chunkIndex\n'
             'expected: ${chunk.sha512sum.encrypted}\n'
             'got: $chunkChecksum');
       }
       final decryptedChunk = await cake_backup.decrypt(password, chunkBytes);
       decryptedData.writeAsBytesSync(decryptedChunk, mode: FileMode.append, flush: true);
     }
-
 
     final sha512sum = (await sha512.bind(decryptedData.openRead()).first).toString();
     if (sha512sum.toString() != metadata.sha512sum) {
@@ -279,7 +305,6 @@ class BackupServiceV3 extends $BackupService {
     final decryptedDataStream = InputFileStream(decryptedData.path);
     final backupArchive = zip.decodeStream(decryptedDataStream);
 
-
     final appDir = await getAppDir();
 
     outer:
@@ -293,8 +318,7 @@ class BackupServiceV3 extends $BackupService {
       }
       printV("restoring: $filename");
       if (file.isFile) {
-        final output = File('${appDir.path}/' + filename)
-          ..createSync(recursive: true);
+        final output = File('${appDir.path}/' + filename)..createSync(recursive: true);
         final outputStream = OutputFileStream(output.path);
         file.writeContent(outputStream);
         outputStream.flush();
@@ -304,7 +328,8 @@ class BackupServiceV3 extends $BackupService {
           dir.createSync(recursive: true);
         }
       }
-    };
+    }
+    ;
 
     // Continue importing the backup the old way
     await super.verifyWallets();
@@ -322,10 +347,10 @@ class BackupServiceV3 extends $BackupService {
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final appDir = await getAppDir();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
-    final decryptedKeychainDumpFileData = await decryptV2(
-        keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
-    final keychainJSON = json.decode(utf8.decode(decryptedKeychainDumpFileData))
-        as Map<String, dynamic>;
+    final decryptedKeychainDumpFileData =
+        await decryptV2(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
+    final keychainJSON =
+        json.decode(utf8.decode(decryptedKeychainDumpFileData)) as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
 
     final expectedHardwareWallets = keychainWalletsInfo
@@ -336,10 +361,10 @@ class BackupServiceV3 extends $BackupService {
 
     for (final expectedHardwareWallet in expectedHardwareWallets) {
       final info = expectedHardwareWallet as Map<String, dynamic>;
-      final actualWalletInfo = await WalletInfo.get(info['name'] as String, WalletType.values.firstWhere((e) => e.toString() == info['type'] as String));
+      final actualWalletInfo = await WalletInfo.get(info['name'] as String,
+          WalletType.values.firstWhere((e) => e.toString() == info['type'] as String));
       if (actualWalletInfo != null &&
-          info["hardwareWalletType"] !=
-              actualWalletInfo.hardwareWalletType?.index) {
+          info["hardwareWalletType"] != actualWalletInfo.hardwareWalletType?.index) {
         actualWalletInfo.hardwareWalletType =
             HardwareWalletType.values[info["hardwareWalletType"] as int];
         await actualWalletInfo.save();
@@ -368,7 +393,8 @@ class BackupServiceV3 extends $BackupService {
     final transactionDescriptionDumpFile =
         File('${tmpDir.path}/~_transaction_descriptions_dump_TMP');
 
-    final transactionDescriptionData = super.transactionDescriptionBox
+    final transactionDescriptionData = super
+        .transactionDescriptionBox
         .toMap()
         .map((key, value) => MapEntry(key.toString(), value.toJson()));
     final transactionDescriptionDump = jsonEncode(transactionDescriptionData);
@@ -421,15 +447,14 @@ class BackupServiceV3 extends $BackupService {
     int chunkIndex = 0;
     final stopwatch = Stopwatch()..start();
     printV("Starting backup encryption...");
-    
+
     metadata.sha512sum = (await sha512.bind(dataBinUnencrypted.openRead()).first).toString();
 
     final raf = await dataBinUnencrypted.open();
-    
 
     while (true) {
       printV("Reading chunk ${chunkIndex++}");
-      
+
       stopwatch.reset();
       final chunk = await raf.read(chunkSize);
       printV("Chunk read completed in ${stopwatch.elapsed}");
@@ -437,13 +462,14 @@ class BackupServiceV3 extends $BackupService {
       if (chunk.length == 0) {
         break;
       }
-      
+
       stopwatch.reset();
       final encryptedChunk = await cake_backup.encrypt(password, chunk);
       printV("Encryption completed in ${stopwatch.elapsed}");
 
       stopwatch.reset();
-      final sha512sumEncryptedChunk = await sha512.bind(Stream.fromIterable([encryptedChunk])).first;
+      final sha512sumEncryptedChunk =
+          await sha512.bind(Stream.fromIterable([encryptedChunk])).first;
       final sha512sumUnencryptedChunk = await sha512.bind(Stream.fromIterable([chunk])).first;
       printV("Hashing completed in ${stopwatch.elapsed}");
 
@@ -459,7 +485,7 @@ class BackupServiceV3 extends $BackupService {
           plain: chunk.length,
         ),
       ));
-      
+
       await dataBinWriter.flush();
       printV("Writing completed in ${stopwatch.elapsed}");
     }
@@ -473,7 +499,8 @@ class BackupServiceV3 extends $BackupService {
 
     metadataFile.writeAsStringSync(JsonEncoder.withIndent('    ').convert(metadata.toJson()));
     final readmeFile = File('${tmpDir.path}/README.txt');
-    readmeFile.writeAsStringSync('''This is a ${packageInfo.appName} backup. Do not modify this archive.
+    readmeFile
+        .writeAsStringSync('''This is a ${packageInfo.appName} backup. Do not modify this archive.
 
 App version: ${packageInfo.version}
 
@@ -489,6 +516,31 @@ This backup was created on ${DateTime.now().toIso8601String()}
     // tmpDir.deleteSync(recursive: true);
     final file = File(archivePathExport);
     return file;
+  }
+
+  Future<void> _throwIfBackupWasCreatedInAnotherApp(Archive archive) async {
+    final readmeFile = archive.findFile('README.txt');
+    if (readmeFile == null) return;
+
+    final readmeBytes = readmeFile.rawContent?.readBytes();
+    if (readmeBytes == null) return;
+
+    final readmeString = utf8.decode(readmeBytes, allowMalformed: true);
+    final sourceAppName = _extractBackupAppName(readmeString);
+    if (sourceAppName == null) return;
+
+    final currentAppName = (await PackageInfo.fromPlatform()).appName;
+    if (sourceAppName == currentAppName) return;
+
+    throw IncompatibleBackupAppException(
+      sourceAppName: sourceAppName,
+      currentAppName: currentAppName,
+    );
+  }
+
+  String? _extractBackupAppName(String readme) {
+    final match = RegExp(r'^This is a (.+) backup\.', multiLine: true).firstMatch(readme);
+    return match?.group(1)?.trim();
   }
 
   static const chunkSize = 24 * 1024 * 1024; // 24MiB

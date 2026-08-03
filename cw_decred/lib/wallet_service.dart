@@ -10,7 +10,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:path/path.dart';
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 
 class DecredWalletService extends WalletService<
@@ -152,8 +151,8 @@ class DecredWalletService extends WalletService<
       "unsyncedaddrs": true,
     };
     await libwallet!.loadWallet(jsonEncode(config));
-    final wallet =
-        DecredWallet(walletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
+    final wallet = DecredWallet(
+        walletInfo, di, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
     await wallet.init();
     return wallet;
   }
@@ -175,10 +174,10 @@ class DecredWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
     final di = await currentWalletInfo.getDerivationInfo();
-    final network = di.derivationPath == seedRestorePathTestnet ||
-            di.derivationPath == pubkeyRestorePathTestnet
-        ? testnet
-        : mainnet;
+    final network =
+        di.derivationPath == seedRestorePathTestnet || di.derivationPath == pubkeyRestorePathTestnet
+            ? testnet
+            : mainnet;
     currentWalletInfo.network = network;
     currentWalletInfo.save();
     if (libwallet == null) {

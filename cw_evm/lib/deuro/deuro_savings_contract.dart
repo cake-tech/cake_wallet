@@ -1,51 +1,38 @@
+// @dart=3.0
+// coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
 // ignore_for_file: unused_local_variable, unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:web3dart/web3dart.dart' as _i1;
 import 'dart:typed_data' as _i2;
 
+import 'package:web3dart/web3dart.dart' as _i1;
+
 final _contractAbi = _i1.ContractAbi.fromJson(
-  '[{"inputs":[{"internalType":"contract IDecentralizedEURO","name":"deuro_","type":"address"},{"internalType":"uint24","name":"initialRatePPM","type":"uint24"},{"internalType":"address","name":"gateway_","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"ChangeNotReady","type":"error"},{"inputs":[],"name":"ModuleDisabled","type":"error"},{"inputs":[],"name":"NoPendingChange","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint256","name":"interest","type":"uint256"}],"name":"InterestCollected","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint24","name":"newRate","type":"uint24"}],"name":"RateChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"who","type":"address"},{"indexed":false,"internalType":"uint24","name":"nextRate","type":"uint24"},{"indexed":false,"internalType":"uint40","name":"nextChange","type":"uint40"}],"name":"RateProposed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint192","name":"amount","type":"uint192"}],"name":"Saved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint192","name":"amount","type":"uint192"}],"name":"Withdrawn","type":"event"},{"inputs":[],"name":"GATEWAY","outputs":[{"internalType":"contract IFrontendGateway","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"accountOwner","type":"address"}],"name":"accruedInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"accountOwner","type":"address"},{"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"accruedInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint192","name":"targetAmount","type":"uint192"},{"internalType":"bytes32","name":"frontendCode","type":"bytes32"}],"name":"adjust","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint192","name":"targetAmount","type":"uint192"}],"name":"adjust","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"applyChange","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"uint192","name":"saved","type":"uint192"},{"internalType":"uint64","name":"ticks","type":"uint64"}],"internalType":"struct Savings.Account","name":"account","type":"tuple"},{"internalType":"uint64","name":"ticks","type":"uint64"}],"name":"calculateInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRatePPM","outputs":[{"internalType":"uint24","name":"","type":"uint24"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentTicks","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deuro","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"equity","outputs":[{"internalType":"contract IReserve","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextChange","outputs":[{"internalType":"uint40","name":"","type":"uint40"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextRatePPM","outputs":[{"internalType":"uint24","name":"","type":"uint24"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint24","name":"newRatePPM_","type":"uint24"},{"internalType":"address[]","name":"helpers","type":"address[]"}],"name":"proposeChange","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"refreshBalance","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"refreshMyBalance","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint192","name":"amount","type":"uint192"},{"internalType":"bytes32","name":"frontendCode","type":"bytes32"}],"name":"save","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint192","name":"amount","type":"uint192"}],"name":"save","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint192","name":"amount","type":"uint192"},{"internalType":"bytes32","name":"frontendCode","type":"bytes32"}],"name":"save","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint192","name":"amount","type":"uint192"}],"name":"save","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"savings","outputs":[{"internalType":"uint192","name":"saved","type":"uint192"},{"internalType":"uint64","name":"ticks","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"ticks","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"target","type":"address"},{"internalType":"uint192","name":"amount","type":"uint192"}],"name":"withdraw","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"target","type":"address"},{"internalType":"uint192","name":"amount","type":"uint192"},{"internalType":"bytes32","name":"frontendCode","type":"bytes32"}],"name":"withdraw","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]',
-  'SavingsGateway',
+  '[{"inputs":[{"internalType":"contract IDecentralizedEURO","name":"deuro_","type":"address"},{"internalType":"uint24","name":"initialRatePPM","type":"uint24"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"ChangeNotReady","type":"error"},{"inputs":[],"name":"ModuleDisabled","type":"error"},{"inputs":[],"name":"NoPendingChange","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint192","name":"amount","type":"uint192"}],"name":"InterestClaimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint256","name":"interest","type":"uint256"},{"indexed":false,"internalType":"bool","name":"compounded","type":"bool"}],"name":"InterestCollected","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint24","name":"newRate","type":"uint24"}],"name":"RateChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"who","type":"address"},{"indexed":false,"internalType":"uint24","name":"nextRate","type":"uint24"},{"indexed":false,"internalType":"uint40","name":"nextChange","type":"uint40"}],"name":"RateProposed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint192","name":"amount","type":"uint192"}],"name":"Saved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":false,"internalType":"uint192","name":"amount","type":"uint192"}],"name":"Withdrawn","type":"event"},{"inputs":[{"internalType":"address","name":"accountOwner","type":"address"}],"name":"accruedInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"accountOwner","type":"address"},{"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"accruedInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint192","name":"targetAmount","type":"uint192"}],"name":"adjust","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"applyChange","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"uint192","name":"saved","type":"uint192"},{"internalType":"uint64","name":"ticks","type":"uint64"}],"internalType":"struct Savings.Account","name":"account","type":"tuple"},{"internalType":"uint64","name":"ticks","type":"uint64"}],"name":"calculateInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"target","type":"address"}],"name":"claimInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"claimableInterest","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRatePPM","outputs":[{"internalType":"uint24","name":"","type":"uint24"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentTicks","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deuro","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"equity","outputs":[{"internalType":"contract IReserve","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextChange","outputs":[{"internalType":"uint40","name":"","type":"uint40"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextRatePPM","outputs":[{"internalType":"uint24","name":"","type":"uint24"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"nonCompounding","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint24","name":"newRatePPM_","type":"uint24"},{"internalType":"address[]","name":"helpers","type":"address[]"}],"name":"proposeChange","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"refreshBalance","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"refreshMyBalance","outputs":[{"internalType":"uint192","name":"","type":"uint192"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint192","name":"amount","type":"uint192"},{"internalType":"bool","name":"compound","type":"bool"}],"name":"save","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint192","name":"amount","type":"uint192"}],"name":"save","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint192","name":"amount","type":"uint192"}],"name":"save","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"savings","outputs":[{"internalType":"uint192","name":"saved","type":"uint192"},{"internalType":"uint64","name":"ticks","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"ticks","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"target","type":"address"},{"internalType":"uint192","name":"amount","type":"uint192"}],"name":"withdraw","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]',
+  'Savings',
 );
 
-class SavingsGateway extends _i1.GeneratedContract {
-  SavingsGateway({
+class Savings extends _i1.GeneratedContract {
+  Savings({
     required _i1.EthereumAddress address,
     required _i1.Web3Client client,
     int? chainId,
   }) : super(
-    _i1.DeployedContract(
-      _contractAbi,
-      address,
-    ),
-    client,
-    chainId,
-  );
+          _i1.DeployedContract(
+            _contractAbi,
+            address,
+          ),
+          client,
+          chainId,
+        );
 
   /// The optional [atBlock] parameter can be used to view historical data. When
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
-  Future<_i1.EthereumAddress> GATEWAY({_i1.BlockNum? atBlock}) async {
+  Future<BigInt> accruedInterest(
+      {required _i1.EthereumAddress accountOwner, _i1.BlockNum? atBlock}) async {
     final function = self.abi.functions[1];
-    assert(checkSignature(function, '338c5371'));
-    final params = [];
-    final response = await read(
-      function,
-      params,
-      atBlock,
-    );
-    return (response[0] as _i1.EthereumAddress);
-  }
-
-  /// The optional [atBlock] parameter can be used to view historical data. When
-  /// set, the function will be evaluated in the specified block. By default, the
-  /// latest on-chain block will be used.
-  Future<BigInt> accruedInterest({
-        required _i1.EthereumAddress accountOwner,
-        _i1.BlockNum? atBlock,
-      }) async {
-    final function = self.abi.functions[2];
     assert(checkSignature(function, '77267ec3'));
     final params = [accountOwner];
     final response = await read(
@@ -60,10 +47,10 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> accruedInterest$2(
-      ({_i1.EthereumAddress accountOwner, BigInt timestamp}) args, {
-        _i1.BlockNum? atBlock,
-      }) async {
-    final function = self.abi.functions[3];
+    ({_i1.EthereumAddress accountOwner, BigInt timestamp}) args, {
+    _i1.BlockNum? atBlock,
+  }) async {
+    final function = self.abi.functions[2];
     assert(checkSignature(function, 'a696399d'));
     final params = [
       args.accountOwner,
@@ -81,16 +68,31 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<String> adjust(
-      ({BigInt targetAmount, _i2.Uint8List frontendCode}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
+    ({BigInt targetAmount}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
+    final function = self.abi.functions[3];
+    assert(checkSignature(function, 'bdc65152'));
+    final params = [args.targetAmount];
+    return write(
+      credentials,
+      transaction,
+      function,
+      params,
+    );
+  }
+
+  /// The optional [transaction] parameter can be used to override parameters
+  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
+  /// set by the contract.
+  Future<String> applyChange({
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[4];
-    assert(checkSignature(function, '753ef93c'));
-    final params = [
-      args.targetAmount,
-      args.frontendCode,
-    ];
+    assert(checkSignature(function, '4e65037e'));
+    final params = [];
     return write(
       credentials,
       transaction,
@@ -103,15 +105,52 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
   Future<BigInt> calculateInterest(
-      ({dynamic account, BigInt ticks}) args, {
-        _i1.BlockNum? atBlock,
-      }) async {
-    final function = self.abi.functions[7];
+    ({dynamic account, BigInt ticks}) args, {
+    _i1.BlockNum? atBlock,
+  }) async {
+    final function = self.abi.functions[5];
     assert(checkSignature(function, '7915ce20'));
     final params = [
       args.account,
       args.ticks,
     ];
+    final response = await read(
+      function,
+      params,
+      atBlock,
+    );
+    return (response[0] as BigInt);
+  }
+
+  /// The optional [transaction] parameter can be used to override parameters
+  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
+  /// set by the contract.
+  Future<String> claimInterest(
+    ({_i1.EthereumAddress target}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
+    final function = self.abi.functions[6];
+    assert(checkSignature(function, '88d742c2'));
+    final params = [args.target];
+    return write(
+      credentials,
+      transaction,
+      function,
+      params,
+    );
+  }
+
+  /// The optional [atBlock] parameter can be used to view historical data. When
+  /// set, the function will be evaluated in the specified block. By default, the
+  /// latest on-chain block will be used.
+  Future<BigInt> claimableInterest(
+    ({_i1.EthereumAddress $param7}) args, {
+    _i1.BlockNum? atBlock,
+  }) async {
+    final function = self.abi.functions[7];
+    assert(checkSignature(function, '4f24d20a'));
+    final params = [args.$param7];
     final response = await read(
       function,
       params,
@@ -210,15 +249,55 @@ class SavingsGateway extends _i1.GeneratedContract {
     return (response[0] as BigInt);
   }
 
+  /// The optional [atBlock] parameter can be used to view historical data. When
+  /// set, the function will be evaluated in the specified block. By default, the
+  /// latest on-chain block will be used.
+  Future<bool> nonCompounding(
+    ({_i1.EthereumAddress $param8}) args, {
+    _i1.BlockNum? atBlock,
+  }) async {
+    final function = self.abi.functions[14];
+    assert(checkSignature(function, 'cdb95c3b'));
+    final params = [args.$param8];
+    final response = await read(
+      function,
+      params,
+      atBlock,
+    );
+    return (response[0] as bool);
+  }
+
+  /// The optional [transaction] parameter can be used to override parameters
+  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
+  /// set by the contract.
+  Future<String> proposeChange(
+    ({BigInt newRatePPM_, List<_i1.EthereumAddress> helpers}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
+    final function = self.abi.functions[15];
+    assert(checkSignature(function, '1de252e4'));
+    final params = [
+      args.newRatePPM_,
+      args.helpers,
+    ];
+    return write(
+      credentials,
+      transaction,
+      function,
+      params,
+    );
+  }
+
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<_i2.Uint8List> refreshBalance(
-      ({_i1.EthereumAddress owner}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[15];
+    ({_i1.EthereumAddress owner}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
+    final function = self.abi.functions[16];
     assert(checkSignature(function, 'b77cd1c7'));
     final params = [args.owner];
     return writeRaw(
@@ -236,7 +315,7 @@ class SavingsGateway extends _i1.GeneratedContract {
     required _i1.Credentials credentials,
     _i1.Transaction? transaction,
   }) async {
-    final function = self.abi.functions[16];
+    final function = self.abi.functions[17];
     assert(checkSignature(function, '85bd12d1'));
     final params = [];
     return writeRaw(
@@ -251,42 +330,15 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<_i2.Uint8List> save(
-      ({BigInt amount, _i2.Uint8List frontendCode}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[17];
-    assert(checkSignature(function, '9e2363dc'));
+    ({BigInt amount, bool compound}) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
+    final function = self.abi.functions[18];
+    assert(checkSignature(function, 'a776f78c'));
     final params = [
       args.amount,
-      args.frontendCode,
-    ];
-    return writeRaw(
-      credentials,
-      transaction,
-      function,
-      params,
-    );
-  }
-
-  /// The optional [transaction] parameter can be used to override parameters
-  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
-  /// set by the contract.
-  Future<_i2.Uint8List> saveTo(
-      ({
-      _i1.EthereumAddress owner,
-      BigInt amount,
-      _i2.Uint8List frontendCode
-      }) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[19];
-    assert(checkSignature(function, 'cbcf9676'));
-    final params = [
-      args.owner,
-      args.amount,
-      args.frontendCode,
+      args.compound,
     ];
     return writeRaw(
       credentials,
@@ -299,10 +351,10 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// The optional [atBlock] parameter can be used to view historical data. When
   /// set, the function will be evaluated in the specified block. By default, the
   /// latest on-chain block will be used.
-  Future<Savings> savings({
-        required _i1.EthereumAddress accountOwner,
-        _i1.BlockNum? atBlock,
-      }) async {
+  Future<SavingsData> savings({
+    required _i1.EthereumAddress accountOwner,
+    _i1.BlockNum? atBlock,
+  }) async {
     final function = self.abi.functions[21];
     assert(checkSignature(function, '1f7cdd5f'));
     final params = [accountOwner];
@@ -311,27 +363,40 @@ class SavingsGateway extends _i1.GeneratedContract {
       params,
       atBlock,
     );
-    return Savings(response);
+    return SavingsData(response);
+  }
+
+  /// The optional [atBlock] parameter can be used to view historical data. When
+  /// set, the function will be evaluated in the specified block. By default, the
+  /// latest on-chain block will be used.
+  Future<BigInt> ticks(
+    ({BigInt timestamp}) args, {
+    _i1.BlockNum? atBlock,
+  }) async {
+    final function = self.abi.functions[22];
+    assert(checkSignature(function, '534cb30d'));
+    final params = [args.timestamp];
+    final response = await read(
+      function,
+      params,
+      atBlock,
+    );
+    return (response[0] as BigInt);
   }
 
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
   Future<_i2.Uint8List> withdraw(
-    ({
-      _i1.EthereumAddress target,
-      BigInt amount,
-      _i2.Uint8List frontendCode
-    }) args, {
+    ({_i1.EthereumAddress target, BigInt amount}) args, {
     required _i1.Credentials credentials,
     _i1.Transaction? transaction,
   }) async {
-    final function = self.abi.functions[24];
-    assert(checkSignature(function, '829a0476'));
+    final function = self.abi.functions[23];
+    assert(checkSignature(function, '1791dc5e'));
     final params = [
       args.target,
       args.amount,
-      args.frontendCode,
     ];
     return writeRaw(
       credentials,
@@ -339,6 +404,30 @@ class SavingsGateway extends _i1.GeneratedContract {
       function,
       params,
     );
+  }
+
+  /// Returns a live stream of all InterestClaimed events emitted by this contract.
+  Stream<InterestClaimed> interestClaimedEvents({
+    _i1.BlockNum? fromBlock,
+    _i1.BlockNum? toBlock,
+  }) {
+    final event = self.event('InterestClaimed');
+    final filter = _i1.FilterOptions.events(
+      contract: self,
+      event: event,
+      fromBlock: fromBlock,
+      toBlock: toBlock,
+    );
+    return client.events(filter).map((_i1.FilterEvent result) {
+      final decoded = event.decodeResults(
+        result.topics!,
+        result.data!,
+      );
+      return InterestClaimed(
+        decoded,
+        result,
+      );
+    });
   }
 
   /// Returns a live stream of all InterestCollected events emitted by this contract.
@@ -462,8 +551,8 @@ class SavingsGateway extends _i1.GeneratedContract {
   }
 }
 
-class Savings {
-  Savings(List<dynamic> response)
+class SavingsData {
+  SavingsData(List<dynamic> response)
       : saved = (response[0] as BigInt),
         ticks = (response[1] as BigInt);
 
@@ -472,25 +561,42 @@ class Savings {
   final BigInt ticks;
 }
 
+class InterestClaimed {
+  InterestClaimed(
+    List<dynamic> response,
+    this.event,
+  )   : account = (response[0] as _i1.EthereumAddress),
+        amount = (response[1] as BigInt);
+
+  final _i1.EthereumAddress account;
+
+  final BigInt amount;
+
+  final _i1.FilterEvent event;
+}
+
 class InterestCollected {
   InterestCollected(
-      List<dynamic> response,
-      this.event,
-      )   : account = (response[0] as _i1.EthereumAddress),
-        interest = (response[1] as BigInt);
+    List<dynamic> response,
+    this.event,
+  )   : account = (response[0] as _i1.EthereumAddress),
+        interest = (response[1] as BigInt),
+        compounded = (response[2] as bool);
 
   final _i1.EthereumAddress account;
 
   final BigInt interest;
+
+  final bool compounded;
 
   final _i1.FilterEvent event;
 }
 
 class RateChanged {
   RateChanged(
-      List<dynamic> response,
-      this.event,
-      ) : newRate = (response[0] as BigInt);
+    List<dynamic> response,
+    this.event,
+  ) : newRate = (response[0] as BigInt);
 
   final BigInt newRate;
 
@@ -499,9 +605,9 @@ class RateChanged {
 
 class RateProposed {
   RateProposed(
-      List<dynamic> response,
-      this.event,
-      )   : who = (response[0] as _i1.EthereumAddress),
+    List<dynamic> response,
+    this.event,
+  )   : who = (response[0] as _i1.EthereumAddress),
         nextRate = (response[1] as BigInt),
         nextChange = (response[2] as BigInt);
 
@@ -516,9 +622,9 @@ class RateProposed {
 
 class Saved {
   Saved(
-      List<dynamic> response,
-      this.event,
-      )   : account = (response[0] as _i1.EthereumAddress),
+    List<dynamic> response,
+    this.event,
+  )   : account = (response[0] as _i1.EthereumAddress),
         amount = (response[1] as BigInt);
 
   final _i1.EthereumAddress account;
@@ -530,9 +636,9 @@ class Saved {
 
 class Withdrawn {
   Withdrawn(
-      List<dynamic> response,
-      this.event,
-      )   : account = (response[0] as _i1.EthereumAddress),
+    List<dynamic> response,
+    this.event,
+  )   : account = (response[0] as _i1.EthereumAddress),
         amount = (response[1] as BigInt);
 
   final _i1.EthereumAddress account;

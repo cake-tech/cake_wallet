@@ -3,7 +3,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/entities/seed_type.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -345,7 +345,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 Flexible(
                   child: Text(
                     key: ValueKey('picker_items_index_${itemName}_text_key'),
-                    widget.displayItem?.call(item) ?? (item == CryptoCurrency.btcln ? "BTC (LN)" : item.toString()),
+                    widget.displayItem?.call(item) ??
+                        (item == CryptoCurrency.btcln ? "BTC (LN)" : item.toString()),
                     softWrap: true,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.w600,
@@ -498,10 +499,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
   Widget? _getItemIcon(Item item) {
     if (item is Currency) {
       if (item.iconPath != null) {
-        return CakeImageWidget(
+        return TokenImageWidget(
           imageUrl: item.iconPath!,
-          height: 20.0,
-          width: 20.0,
+          size: 20.0,
         );
       } else {
         return Container(

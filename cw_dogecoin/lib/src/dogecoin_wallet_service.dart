@@ -1,12 +1,10 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -98,29 +96,6 @@ class DogeCoinWalletService extends WalletService<
     if (keysToDelete.isNotEmpty) {
       await unspentCoinsInfoSource.deleteAll(keysToDelete);
     }
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet = await DogeCoinWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
   }
 
   @override

@@ -64,8 +64,7 @@ class AnimatedURPage extends BasePage {
             hardwareWalletType: animatedURmodel.wallet.hardwareWalletType,
           ),
         ),
-        if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header]
-            .contains(urQrType)) ...{
+        if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header].contains(urQrType)) ...{
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
@@ -87,28 +86,25 @@ class AnimatedURPage extends BasePage {
     try {
       switch (urQrType) {
         case "ur:xmr-txunsigned": // ur:xmr-txsigned
-          final ur = await presentQRScanner(context);
+          final ur = await presentQRScanner(context, showManualInput: false);
           if (ur == null) return;
-          final result =
-              await monero!.commitTransactionUR(animatedURmodel.wallet, ur);
+          final result = await monero!.commitTransactionUR(animatedURmodel.wallet, ur);
           if (result) {
             Navigator.of(context).pop(true);
           }
           break;
         case "ur:xmr-output": // xmr-keyimage
-          final ur = await presentQRScanner(context);
+          final ur = await presentQRScanner(context, showManualInput: false);
           if (ur == null) return;
-          final result =
-              await monero!.importKeyImagesUR(animatedURmodel.wallet, ur);
+          final result = await monero!.importKeyImagesUR(animatedURmodel.wallet, ur);
           if (result) {
             Navigator.of(context).pop(true);
           }
           break;
         case "ur:psbt": // psbt
-          final ur = await presentQRScanner(context);
+          final ur = await presentQRScanner(context, showManualInput: false);
           if (ur == null) return;
-          await bitcoin!
-              .commitPsbtUR(animatedURmodel.wallet, ur.trim().split("\n"));
+          await bitcoin!.commitPsbtUR(animatedURmodel.wallet, ur.trim().split("\n"));
           Navigator.of(context).pop(true);
         default:
           throw UnimplementedError("unable to handle UR: ${urQrType}");

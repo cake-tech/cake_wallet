@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:cw_monero/api/transaction_history.dart'
-    as monero_transaction_history;
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/amount_converter.dart';
-
-import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_monero/api/transaction_history.dart' as monero_transaction_history;
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:monero/monero.dart' as monero;
@@ -29,6 +27,10 @@ class PendingMoneroTransaction with PendingTransaction {
   final PendingTransactionDescription pendingTransactionDescription;
   final MoneroWalletBase wallet;
 
+  Money get amount => Money.fromInt(pendingTransactionDescription.amount, CryptoCurrency.xmr);
+
+  Money get fee => Money.fromInt(pendingTransactionDescription.fee, CryptoCurrency.xmr);
+
   @override
   String get id => pendingTransactionDescription.hash;
 
@@ -36,15 +38,7 @@ class PendingMoneroTransaction with PendingTransaction {
   String get hex => pendingTransactionDescription.hex;
 
   @override
-  String get amountFormatted => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.amount);
-
-  @override
-  String get feeFormatted => "$feeFormattedValue XMR";
-
-  @override
-  String get feeFormattedValue => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.fee);
+  String get amountFormatted => amount.toString();
 
   @override
   bool shouldCommitUR() => isViewOnly && wallet.hardwareWalletType != HardwareWalletType.trezor;
@@ -69,8 +63,7 @@ class PendingMoneroTransaction with PendingTransaction {
     } else {
       try {
         await monero_transaction_history.commitTransactionFromPointerAddress(
-            address: pendingTransactionDescription.pointerAddress,
-            useUR: false);
+            address: pendingTransactionDescription.pointerAddress, useUR: false);
       } catch (e) {
         final message = e.toString();
 
@@ -92,8 +85,7 @@ class PendingMoneroTransaction with PendingTransaction {
   Future<Map<String, String>> commitUR() async {
     try {
       final ret = await monero_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress,
-          useUR: true);
+          address: pendingTransactionDescription.pointerAddress, useUR: true);
       storeSync(force: true);
       unawaited(() async {
         await Future.delayed(const Duration(milliseconds: 250));

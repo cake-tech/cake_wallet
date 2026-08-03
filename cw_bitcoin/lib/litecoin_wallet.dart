@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -17,12 +18,9 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
-import 'package:collection/collection.dart';
 import 'package:convert/convert.dart' as convert;
-import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -35,25 +33,18 @@ import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/mweb_utxo.dart';
-import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_mweb/cw_mweb.dart';
-import 'package:cw_mweb/mwebd.pbgrpc.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hive/hive.dart';
@@ -184,7 +175,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   bool get hasRescan => true;
 
-
   final String? scanSecretOverride;
   final String? spendPubkeyOverride;
   List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
@@ -241,8 +231,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  WalletKeysData get walletKeysData =>
-      WalletKeysData(mnemonic: seed, xPub: xpub, passphrase: passphrase, scanSecret: scanSecretOverride, spendPubkey: spendPubkeyOverride);
+  WalletKeysData get walletKeysData => WalletKeysData(
+      mnemonic: seed,
+      xPub: xpub,
+      passphrase: passphrase,
+      scanSecret: scanSecretOverride,
+      spendPubkey: spendPubkeyOverride);
 
   static Future<LitecoinWallet> open({
     required String name,
@@ -506,22 +500,25 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    // rename the hive box:
-    final oldBoxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-    final newBoxName = "${newWalletName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+  static Future<void> copyMwebBox({
+    required String fromName,
+    required String toName,
+  }) async {
+    final oldBoxName = "${fromName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final newBoxName = "${toName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    if (oldBoxName == newBoxName) return;
 
     final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
-    mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
+    final newBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
-      final value = oldBox.get(key);
-      await oldBox.delete(key);
-      await mwebUtxosBox.put(key, value!);
+      await newBox.put(key, oldBox.get(key)!);
     }
-    oldBox.deleteFromDisk();
+  }
 
-    await super.renameWalletFiles(newWalletName);
+  static Future<void> deleteMwebBox(String name) async {
+    final boxName = "${name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final box = await CakeHive.openBox<MwebUtxo>(boxName);
+    await box.deleteFromDisk();
   }
 
   @action
@@ -587,8 +584,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         WalletType.litecoin,
         id: utxo.outputId,
         height: utxo.height,
-        amount: utxo.value.toInt(),
-        fee: 0,
+        amount: Money.fromInt(utxo.value, currency),
+        fee: Money.zero(currency),
         direction: TransactionDirection.incoming,
         isPending: utxo.height == 0,
         date: date,
@@ -734,9 +731,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   Future<void> checkMwebUtxosSpent() async {
     printV("checkMwebUtxosSpent() called!");
-    if (!mwebEnabled) {
-      return;
-    }
+    if (!mwebEnabled) return;
 
     final pendingOutgoingTransactions = transactionHistory.transactions.values
         .where((tx) => tx.direction == TransactionDirection.outgoing && tx.isPending);
@@ -763,8 +758,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final height = await electrumClient.getCurrentBlockChainTip();
     if (height == null || status.blockHeaderHeight != height) return;
     if (status.mwebUtxosHeight != height) return; // we aren't synced
-    int amount = 0;
-    Set<String> inputAddresses = {};
+    var amount = 0;
+    var inputAddresses = <String>{};
     var output = convert.AccumulatorSink<Digest>();
     var input = sha256.startChunkedConversion(output);
 
@@ -777,8 +772,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (!inputAddresses.contains(utxo.address)) {
         addressRecord.txCount++;
       }
-      addressRecord.balance -= utxo.value.toInt();
-      amount += utxo.value.toInt();
+      addressRecord.balance -= utxo.value;
+      amount += utxo.value;
       inputAddresses.add(utxo.address);
       input.add(hex.decode(outputId));
     }
@@ -790,8 +785,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       WalletType.litecoin,
       id: digest.toString(),
       height: height,
-      amount: amount,
-      fee: 0,
+      amount: Money.fromInt(amount, currency),
+      fee: Money.zero(currency),
       direction: TransactionDirection.outgoing,
       isPending: false,
       date: DateTime.fromMillisecondsSinceEpoch(status.blockTime * 1000),
@@ -921,10 +916,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // update unspent balances:
     await updateUnspent();
 
-    int confirmed = balance.confirmed;
-    int unconfirmed = balance.unconfirmed;
-    int confirmedMweb = 0;
-    int unconfirmedMweb = 0;
+    var confirmedMweb = 0;
+    var unconfirmedMweb = 0;
     try {
       mwebUtxosBox.values.forEach((utxo) {
         bool isConfirmed = utxo.height > 0;
@@ -933,20 +926,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             "utxo: ${isConfirmed ? "confirmed" : "unconfirmed"} ${utxo.spent ? "spent" : "unspent"} ${utxo.outputId} ${utxo.height} ${utxo.value}");
 
         if (isConfirmed) {
-          confirmedMweb += utxo.value.toInt();
+          confirmedMweb += utxo.value;
         }
 
         if (isConfirmed && utxo.spent) {
-          unconfirmedMweb -= utxo.value.toInt();
+          unconfirmedMweb -= utxo.value;
         }
 
         if (!isConfirmed && !utxo.spent) {
-          unconfirmedMweb += utxo.value.toInt();
+          unconfirmedMweb += utxo.value;
         }
       });
     } catch (_) {}
 
-    for (var addressRecord in walletAddresses.allAddresses) {
+    for (final addressRecord in walletAddresses.allAddresses) {
       addressRecord.balance = 0;
       addressRecord.txCount = 0;
     }
@@ -990,11 +983,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     return ElectrumBalance(
-      confirmed: confirmed,
-      unconfirmed: unconfirmed,
-      frozen: balance.frozen.toInt(),
-      secondConfirmed: confirmedMweb,
-      secondUnconfirmed: unconfirmedMweb,
+      confirmed: balance.confirmed,
+      unconfirmed: balance.unconfirmed,
+      frozen: balance.frozen,
+      secondConfirmed: Money.fromInt(confirmedMweb, currency),
+      secondUnconfirmed: Money.fromInt(unconfirmedMweb, currency),
     );
   }
 
@@ -1116,15 +1109,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     for (final utxo in transaction.utxos) {
       if (utxo.utxo.scriptType != SegwitAddresType.mweb) {
         inputs.add(utxo.utxo.toInput());
-        txouts.add(TxOut(value: Int64(utxo.utxo.value.toInt()),
-                         pkScript: utxo.ownerDetails.address.toScriptPubKey().toBytes()));
+        txouts.add(TxOut(
+            value: Int64(utxo.utxo.value.toInt()),
+            pkScript: utxo.ownerDetails.address.toScriptPubKey().toBytes()));
       }
     }
     var resp = await CwMweb.psbtCreate(PsbtCreateRequest(
-      rawTx: inputs.isEmpty ? null : BtcTransaction(
-        inputs: inputs,
-        outputs: isMweb ? [] : transaction.outputs,
-      ).toBytes(),
+      rawTx: inputs.isEmpty
+          ? null
+          : BtcTransaction(
+              inputs: inputs,
+              outputs: isMweb ? [] : transaction.outputs,
+            ).toBytes(),
       witnessUtxo: txouts,
     ));
     for (final utxo in transaction.utxos) {
@@ -1137,17 +1133,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         ));
       }
     }
-    if (isMweb) for (final output in transaction.outputs) {
-      var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
-      if (output.scriptPubKey.getAddressType() == SegwitAddresType.mweb) {
-        address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
+    if (isMweb)
+      for (final output in transaction.outputs) {
+        var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
+        if (output.scriptPubKey.getAddressType() == SegwitAddresType.mweb) {
+          address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
+        }
+        resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
+          psbtB64: resp.psbtB64,
+          recipient: PsbtRecipient(address: address, value: Int64(output.amount.toInt())),
+          feeRatePerKb: Int64.parseInt(transaction.feeRate) * 1000,
+        ));
       }
-      resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
-        psbtB64: resp.psbtB64,
-        recipient: PsbtRecipient(address: address, value: Int64(output.amount.toInt())),
-        feeRatePerKb: Int64.parseInt(transaction.feeRate) * 1000,
-      ));
-    }
     return base64.decode(resp.psbtB64);
   }
 
@@ -1213,7 +1210,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       for (final utxo in tx.utxos) {
         if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
           hasMwebInput = true;
-
         } else {
           // check if any of the inputs of this transaction are hog-ex:
           // this list is only non-mweb inputs:
@@ -1266,9 +1262,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             final utxo = unspentCoins
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
             final key = generateECPrivate(
-                hd: utxo.bitcoinAddressRecord.isHidden
-                    ? sideHd
-                    : mainHd,
+                hd: utxo.bitcoinAddressRecord.isHidden ? sideHd : mainHd,
                 index: utxo.bitcoinAddressRecord.index,
                 network: network);
             final digest = tx2.getTransactionSegwitDigit(
@@ -1294,8 +1288,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  void addTransactionListener(PendingBitcoinTransaction tx,
-    List<String> inputAddresses, bool isPegIn, bool isPegOut) {
+  void addTransactionListener(
+      PendingBitcoinTransaction tx, List<String> inputAddresses, bool isPegIn, bool isPegOut) {
     tx.addListener((transaction) async {
       final addresses = <String>{};
       transaction.inputAddresses?.addAll(inputAddresses);
@@ -1371,8 +1365,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       btcTx,
       type,
       electrumClient: electrumClient,
-      amount: 0,
-      fee: resp.fee.toInt(),
+      amount: Money.zero(currency),
+      fee: Money.fromInt(resp.fee.toInt(), currency),
       feeRate: "",
       network: network,
       hasChange: resp.recipient.length > 1,
@@ -1585,7 +1579,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         rawTx: rawTx,
         ownerDetails: utxo.ownerDetails,
         ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        ownerMasterFingerprint:masterFingerprint,
+        ownerMasterFingerprint: masterFingerprint,
         ownerPublicKey: publicKeyAndDerivationPath.publicKey,
       ));
     }

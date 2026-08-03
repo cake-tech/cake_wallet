@@ -38,7 +38,7 @@ class NewSendAddressInput extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final FocusNode? focusNode;
   final String? hintText;
-  
+
   @override
   State<NewSendAddressInput> createState() => _NewSendAddressInputState();
 }
@@ -88,6 +88,8 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                       children: [
                         TextField(
                           focusNode: widget.focusNode,
+                          autocorrect: false,
+                          enableSuggestions: false,
                           onSubmitted: (val) => FocusScope.of(context).unfocus(),
                           onChanged: state.didChange,
                           onEditingComplete: () {
