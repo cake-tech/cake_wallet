@@ -162,8 +162,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.parse(responseJSON.amountFrom, from.currency),
-        Money.parse(responseJSON.amountTo, to),
+        Money.safeParse(responseJSON.amountFrom, from.currency),
+        Money.safeParse(responseJSON.amountTo, to),
       ),
       limits: await fetchLimits(
         from: from.currency as CryptoCurrency,
@@ -220,10 +220,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final depositAmount = responseData.amountFrom.isEmpty
         ? request.depositAmount.cryptoAmount
-        : Money.parse(responseData.amountFrom, request.depositCurrency);
+        : Money.safeParse(responseData.amountFrom, request.depositCurrency);
     final payoutAmount = responseData.amountTo.isEmpty
         ? request.payoutAmount.cryptoAmount
-        : Money.parse(responseData.amountTo, request.payoutCurrency);
+        : Money.safeParse(responseData.amountTo, request.payoutCurrency);
 
     return Trade(
       id: responseData.tradeId,
@@ -295,8 +295,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         password: responseData.password,
         providerId: responseData.idProvider,
         extraId: responseData.addressProviderMemo,
-        depositAmount: Money.parse(responseData.amountFrom, from!),
-        payoutAmount: Money.parse(responseData.amountTo, to!),
+        depositAmount: Money.safeParse(responseData.amountFrom, from!),
+        payoutAmount: Money.safeParse(responseData.amountTo, to!),
         fundingAddress: responseData.addressProvider,
       );
     });

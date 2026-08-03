@@ -254,7 +254,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
 
     return ProviderRate(provider: description,
-        rate: ExchangeRate(base: from.currency, quote: Money.parse(result, to)),
+        rate: ExchangeRate(base: from.currency, quote: Money.safeParse(result, to)),
         limits: _exchangeLimitsFromRateList(from.currency as CryptoCurrency, rates));
   }
 
