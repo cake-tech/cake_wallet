@@ -166,6 +166,16 @@ jobs:
             CW_DOCKER_USE_CLOUD=true \
             ./scripts/android/docker/build.sh
 
+      # The docker deps builder generates the mweb ffi bindings with an older dart whose
+      # ffigen output the current compiler rejects, regenerate them with this run's dart
+      - name: Regenerate mweb bindings
+        run: |
+          sudo apt-get install -y --no-install-recommends libclang-dev > /dev/null || true
+          pushd cw_mweb
+            flutter pub get
+            dart run ffigen --config ffigen_config.yaml
+          popd
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/android
