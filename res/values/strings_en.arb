@@ -547,7 +547,7 @@
   "i_understand": "I understand",
   "icon_style": "Icon style",
   "id": "ID: ",
-  "if_you_dont_see_your_device": "If you don't see your device above, please be sure your Ledger is awake and unlocked!",
+  "if_you_dont_see_your_device": "If you don't see your device above, please be sure your device is awake and unlocked!",
   "ignor": "Ignore",
   "import": "Import",
   "importNFTs": "Import NFTs",
