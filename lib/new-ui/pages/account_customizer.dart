@@ -162,6 +162,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                               accountListViewModel: widget.accountListViewModel,
                               dashboardViewModel: widget.dashboardViewModel),
                         )));
+                await widget.dashboardViewModel.loadCardDesigns();
                 await loadCards();
                   }, iconSize: 18,)
               ],),
