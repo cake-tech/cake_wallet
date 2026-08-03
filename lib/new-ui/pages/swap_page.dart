@@ -1055,6 +1055,10 @@ class AnyPaySwapFooter extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Observer(
       builder: (_) {
+        if (exchangeViewModel.depositAmount.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
         final provider = exchangeViewModel.forcedProvider ?? exchangeViewModel.providerDisplay;
         final depositAmount = exchangeViewModel.depositAmount;
         final depositSymbol =
@@ -1065,42 +1069,30 @@ class AnyPaySwapFooter extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
+                alignment: Alignment.center,
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: colors.primary),
                 ),
-                child: Row(
-                  children: [
-                    CakeImageWidget(
-                      imageUrl: "assets/new-ui/send.svg",
-                      width: 20,
-                      height: 20,
-                      colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: AutoSizeText.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: depositAmount.isEmpty ? "—" : "$depositAmount $depositSymbol",
-                            ),
-                            if (depositAmount.isNotEmpty && showFiat)
-                              TextSpan(
-                                text: "  ≈ ${exchangeViewModel.fiat.symbol}$depositFiat",
-                                style: TextStyle(color: colors.onSurfaceVariant),
-                              ),
-                          ],
-                        ),
-                        maxLines: 1,
-                        minFontSize: 8,
-                        style: textTheme.bodySmall
-                            ?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.06),
+                child: AutoSizeText.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: depositAmount.isEmpty ? "—" : "$depositAmount $depositSymbol",
                       ),
-                    ),
-                  ],
+                      if (depositAmount.isNotEmpty && showFiat)
+                        TextSpan(
+                          text: "  ≈ ${exchangeViewModel.fiat.symbol}$depositFiat",
+                          style: TextStyle(color: colors.onSurfaceVariant),
+                        ),
+                    ],
+                  ),
+                  maxLines: 1,
+                  minFontSize: 10,
+                  style: textTheme.bodySmall
+                      ?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.06),
                 ),
               ),
             ),
