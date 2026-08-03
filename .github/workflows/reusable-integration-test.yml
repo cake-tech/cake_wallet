@@ -45,9 +45,9 @@ defaults:
 
 jobs:
   integration-test:
-    # linux-amd64 is the kvm capable host the old emulator workflow targeted, the android
-    # labeled builders do not expose /dev/kvm
-    runs-on: linux-amd64
+    # The android builders need kvm enabled for the emulator, the job fails fast at
+    # container creation until the runner host exposes /dev/kvm
+    runs-on: [Linux, amd64, android]
     environment: ${{ inputs.environment }}
     timeout-minutes: ${{ inputs.timeout_minutes }}
     container:
