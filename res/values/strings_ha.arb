@@ -61,6 +61,7 @@
   "already_have_account": "Kana da asusu tuni?",
   "already_your_username": "Wannan tuni sunan mai amfani naka ne!",
   "always": "Koyaushe",
+  "ambiguous_token_symbol_exception": "Alama fiye da ɗaya a cikin wannan jakar tana amfani da alamar ${symbol}. Kashe alamar kwafin don a iya gano madaidaicin kafin aikawa.",
   "amount": "Adadi: ",
   "amount_is_below_minimum_limit": "Ma'auninka bayan kuɗaɗen ma'amala zai zama ƙasa da mafi ƙarancin adadin da ake buƙata don musayar (${min})",
   "amount_is_estimate": "Adadin da za a karɓa kimantawa ne",

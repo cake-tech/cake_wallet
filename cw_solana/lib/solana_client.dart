@@ -1221,7 +1221,7 @@ class SolanaWalletClient {
   }) async {
     const commitment = Commitment.confirmed;
 
-    if (inputAmount.currency == CryptoCurrency.sol) {
+    if (tokenMint == null) {
       return _signNativeTokenTransaction(
         inputAmount: inputAmount,
         destinationAddress: destinationAddress,
@@ -1233,7 +1233,7 @@ class SolanaWalletClient {
     } else {
       return _signSPLTokenTransaction(
         tokenDecimals: inputAmount.currency.decimals,
-        tokenMint: tokenMint!,
+        tokenMint: tokenMint,
         inputAmount: inputAmount,
         ownerPrivateKey: ownerPrivateKey,
         destinationAddress: destinationAddress,

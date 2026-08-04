@@ -61,6 +61,7 @@
   "already_have_account": "Već imate račun?",
   "already_your_username": "Ovo je već vaše korisničko ime!",
   "always": "Uvijek",
+  "ambiguous_token_symbol_exception": "Više od jednog tokena u ovom novčaniku koristi simbol ${symbol}. Onemogućite dvostruki token kako bi se ispravan mogao identificirati prije slanja.",
   "amount": "Iznos: ",
   "amount_is_below_minimum_limit": "Vaš saldo nakon naknada bio bi manji od minimalnog iznosa potrebnog za razmjenu (${min})",
   "amount_is_estimate": "Primljeni iznos je procijenjen",

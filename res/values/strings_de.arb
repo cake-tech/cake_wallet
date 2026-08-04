@@ -61,6 +61,7 @@
   "already_have_account": "Haben Sie bereits ein Konto?",
   "already_your_username": "Das ist bereits Ihr Benutzername!",
   "always": "Immer",
+  "ambiguous_token_symbol_exception": "Mehr als ein Token in dieser Wallet verwendet das Symbol ${symbol}. Deaktivieren Sie das Duplikat-Token, damit das richtige vor dem Senden identifiziert werden kann.",
   "amount": "Betrag: ",
   "amount_hidden": "Versteckter Betrag",
   "amount_is_below_minimum_limit": "Ihr Guthaben nach Gebühren wäre geringer als der für den Tausch erforderliche Mindestbetrag (${min})",

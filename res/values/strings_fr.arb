@@ -61,6 +61,7 @@
   "already_have_account": "Vous avez déjà un compte ?",
   "already_your_username": "C'est déjà votre nom d'utilisateur !",
   "always": "Toujours",
+  "ambiguous_token_symbol_exception": "Plus d'un jeton dans ce portefeuille utilise le symbole ${symbol}. Désactivez le jeton en double afin que le bon puisse être identifié avant l'envoi.",
   "amount": "Montant : ",
   "amount_is_below_minimum_limit": "Votre solde après les frais serait inférieur au montant minimum requis pour l'échange (${min})",
   "amount_is_estimate": "Le montant à recevoir est une estimation",

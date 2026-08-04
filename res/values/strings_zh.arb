@@ -61,6 +61,7 @@
   "already_have_account": "已经有账户了？",
   "already_your_username": "这已经是您的用户名！",
   "always": "始终",
+  "ambiguous_token_symbol_exception": "该钱包中有多个代币使用符号 ${symbol}。禁用重复的令牌，以便在发送之前可以识别正确的令牌。",
   "amount": "数量：",
   "amount_is_below_minimum_limit": "扣除手续费后，您的余额将低于兑换所需的最低金额（${min}）",
   "amount_is_estimate": "接收金额为预估值",

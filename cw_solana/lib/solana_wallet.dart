@@ -261,12 +261,7 @@ abstract class SolanaWalletBase
 
     await updateTokenBalance();
 
-    final transactionCurrency = balance.keys.firstWhere(
-        (currency) =>
-            currency.title == credentials.currency.title &&
-            currency.tag == credentials.currency.tag,
-        orElse: () => throw Exception(
-            'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+    final transactionCurrency = _resolveTransactionCurrency(credentials.currency);
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.available;
 
@@ -295,9 +290,9 @@ abstract class SolanaWalletBase
     }
 
     String? tokenMint;
-    // Token Mint is only needed for transactions that are not native tokens(non-SOL transactions)
-    if (transactionCurrency.title != CryptoCurrency.sol.title) {
-      tokenMint = (transactionCurrency as SPLToken).mintAddress;
+    // Token Mint is only needed for transactions that are not native tokens(non-SOL transactions).
+    if (transactionCurrency is SPLToken) {
+      tokenMint = transactionCurrency.mintAddress;
     }
 
     return _client.signSolanaTransaction(
@@ -310,6 +305,32 @@ abstract class SolanaWalletBase
       isSendAll: isSendAll,
       solBalance: solBalance,
     );
+  }
+
+  // This would resolve the currency the user picked to the matching entry in the wallet balance.
+  CryptoCurrency _resolveTransactionCurrency(CryptoCurrency requestedCurrency) {
+    final matches = requestedCurrency is SPLToken
+        ? balance.keys
+            .where((currency) =>
+                currency is SPLToken && currency.mintAddress == requestedCurrency.mintAddress)
+            .toList(growable: false)
+        : balance.keys
+            .where((currency) =>
+                currency.title == requestedCurrency.title && currency.tag == requestedCurrency.tag)
+            .toList(growable: false);
+
+    if (matches.isEmpty) {
+      throw Exception(
+        "Currency ${requestedCurrency.title} ${requestedCurrency.tag} is not accessible in the wallet, try to enable it first.",
+      );
+    }
+
+    // Two enabled tokens can share a symbol, and signing the wrong mint sends the wrong asset.
+    if (matches.length > 1) {
+      throw SolanaAmbiguousTokenSymbolException(requestedCurrency.title);
+    }
+
+    return matches.first;
   }
 
   @override
@@ -877,9 +898,8 @@ abstract class SolanaWalletBase
     }
 
     if (splTokensBox.isOpen) {
-      sources.addAll(splTokensBox.values
-          .where((t) => t.symbol == token.symbol)
-          .map((t) => t.mintAddress));
+      sources.addAll(
+          splTokensBox.values.where((t) => t.symbol == token.symbol).map((t) => t.mintAddress));
 
       await splTokensBox.delete(token.mintAddress);
     }

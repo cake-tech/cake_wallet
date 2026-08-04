@@ -1506,6 +1506,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.solana_no_associated_token_account_exception;
       }
 
+      if (error is AmbiguousTokenSymbolException) {
+        return S.current.ambiguous_token_symbol_exception(error.symbol);
+      }
+
       if (errorMessage.contains('found no record of a prior credit')) {
         return S.current.insufficient_funds_for_tx;
       }

@@ -61,6 +61,7 @@
   "already_have_account": "Ṣé o ti ní àkántì tẹ́lẹ̀?",
   "already_your_username": "Eyi ti jẹ orúkọ olumulo rẹ tẹlẹ!",
   "always": "Nígbà gbogbo",
+  "ambiguous_token_symbol_exception": "Die e sii ju ami-ami kan ninu apamọwọ yii nlo aami ${symbol}. Pa àmi àdáwòkọ rẹ́ kí ó lè mọ èyí tí ó tọ́ kí ó tó fi ránṣẹ́.",
   "amount": "Iye: ",
   "amount_is_below_minimum_limit": "Iwontunwonsi rẹ lẹ́yìn àwọn owó ìdúná yóò kéré ju iye kéréjù tí a nílò fún paṣipaarọ (${min})",
   "amount_is_estimate": "Iye tí a máa gba jẹ́ àfojúsùn",

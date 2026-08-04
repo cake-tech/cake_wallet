@@ -61,6 +61,7 @@
   "already_have_account": "Já tem uma conta?",
   "already_your_username": "Este já é o seu nome de utilizador!",
   "always": "Sempre",
+  "ambiguous_token_symbol_exception": "Mais de um token nesta carteira usa o símbolo ${symbol}. Desative o token duplicado para que o correto possa ser identificado antes do envio.",
   "amount": "Quantidade: ",
   "amount_is_below_minimum_limit": "Seu saldo após as taxas seria menor do que o valor mínimo necessário para a troca (${min})",
   "amount_is_estimate": "O valor a receber é uma estimativa",
