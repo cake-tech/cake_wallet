@@ -166,15 +166,31 @@ jobs:
             CW_DOCKER_USE_CLOUD=true \
             ./scripts/android/docker/build.sh
 
-      # The docker deps builder generates the mweb ffi bindings with an older dart whose
-      # ffigen output the current compiler rejects, regenerate them with this run's dart
+      # The deps image generates the mweb ffi bindings with an ffigen too old for the
+      # current compiler, and its rsync also clobbers the checked out cw_mweb pubspec
+      # with the stale unpinned copy baked into the image. Restore our files and
+      # regenerate with the pinned ffigen.
       - name: Regenerate mweb bindings
         run: |
-          sudo apt-get install -y --no-install-recommends libclang-dev > /dev/null || true
+          git checkout -- cw_mweb/pubspec.yaml
+          rm -f cw_mweb/pubspec.lock
+          rm -rf cw_mweb/.dart_tool
+
+          # Hosted runners ship libclang, only install when it is actually missing
+          if ! ldconfig -p | grep -q libclang; then
+            sudo apt-get install -y --no-install-recommends libclang-dev > /dev/null
+          fi
+
           pushd cw_mweb
             flutter pub get
             dart run ffigen --config ffigen_config.yaml
           popd
+
+          # Fail here in seconds rather than minutes into the gradle build
+          if ! grep -q "final class GoSlice" cw_mweb/lib/generated_bindings.g.dart; then
+            echo "::error::mweb bindings regenerated without class modifiers, ffigen resolved too old"
+            exit 1
+          fi
 
       - name: Execute Build and Setup Commands
         run: |
