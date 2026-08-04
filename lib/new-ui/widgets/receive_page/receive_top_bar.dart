@@ -115,7 +115,7 @@ class ModalTopBar extends StatelessWidget {
                           size: buttonSize,
                           onPressed: onTrailingPressed,
                           icon: trailingIcon!,
-                        semanticLabel: trailingSemanticLabel,
+                          semanticLabel: trailingSemanticLabel,
                         )
                       : trailingWidget!,
                 )

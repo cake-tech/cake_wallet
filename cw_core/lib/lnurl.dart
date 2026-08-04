@@ -98,7 +98,7 @@ class LNURL {
       final maxSendable = body["maxSendable"] as int?;
 
       // if minSendable and maxSendable are the same we assume a specific payment request
-      if (msat != maxSendable){
+      if (msat != maxSendable) {
         return null;
       }
 
@@ -229,7 +229,7 @@ class LNURLWithdrawRequest {
 String _findLnUrl(String input) {
   final res = RegExp(r",*?((lnurl)([0-9]+[a-z0-9]+))").allMatches(input.toLowerCase());
 
-  if (res.length != 1){
+  if (res.length != 1) {
     throw ArgumentError("Not a valid lnurl string");
   }
   return res.first.group(0)!;

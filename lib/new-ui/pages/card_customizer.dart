@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class CardCustomizer extends StatefulWidget {
   const CardCustomizer({super.key, required this.cryptoTitle, required this.cryptoName});

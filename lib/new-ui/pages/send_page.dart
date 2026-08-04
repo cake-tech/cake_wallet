@@ -339,11 +339,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                   size: 36,
                                   icon: CakeImageWidget(
                                     imageUrl: "assets/new-ui/remove_recipient.svg",
-                                  colorFilter: ColorFilter.mode(
-                                    Theme.of(context).colorScheme.primary,
-                                    BlendMode.srcIn,
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.primary,
+                                      BlendMode.srcIn,
+                                    ),
                                   ),
-                                ),semanticLabel: S.of(context).remove,
+                                  semanticLabel: S.of(context).remove,
                                   onPressed: () {
                                     final outputIndex = _selectedOutput;
                                     if (_selectedOutput != 0) {
@@ -370,13 +371,14 @@ class _NewSendPageState extends State<NewSendPage> {
                                     _setOutput(widget.sendViewModel.outputs.length - 1);
                                   },
                                 ),
-                          if (widget.mode.helpContent != null)
-                            ModernButton(
-                                size: 36,
-                                icon: CakeImageWidget(
-                                  imageUrl: "assets/new-ui/help.svg",
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary, BlendMode.srcIn,
+                              if (widget.mode.helpContent != null)
+                                ModernButton(
+                                  size: 36,
+                                  icon: CakeImageWidget(
+                                    imageUrl: "assets/new-ui/help.svg",
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.primary,
+                                      BlendMode.srcIn,
                                     ),
                                   ),
                                   semanticLabel: S.of(context).help,
@@ -788,7 +790,8 @@ class _NewSendPageState extends State<NewSendPage> {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
-              _amountControllers[i].text.sanitized(), widget.sendViewModel.selectedCryptoCurrency,
+            _amountControllers[i].text.sanitized(),
+            widget.sendViewModel.selectedCryptoCurrency,
           );
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
@@ -1550,17 +1553,17 @@ Future<bool> showParsedAddressConfirmationAlert(
   final confirmed = await showPopUp<bool>(
     context: context,
     builder: (context) => AlertWithOneAction(
-        alertTitle: S.of(context).address_detected,
-        headerTitleText: parsedAddress.profileName.isEmpty ? null : parsedAddress.profileName,
-        headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
-            ? parsedAddress.addressSource.iconPath
-            : parsedAddress.profileImageUrl,
-        alertContent: S.of(context).extracted_address_content(
-              "${parsedAddress.handle} (${parsedAddress.addressSource.label})",
-            ),
-        buttonText: S.of(context).ok,
-        buttonAction: () => Navigator.of(context).pop(true),
-      ),
+      alertTitle: S.of(context).address_detected,
+      headerTitleText: parsedAddress.profileName.isEmpty ? null : parsedAddress.profileName,
+      headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
+          ? parsedAddress.addressSource.iconPath
+          : parsedAddress.profileImageUrl,
+      alertContent: S.of(context).extracted_address_content(
+            "${parsedAddress.handle} (${parsedAddress.addressSource.label})",
+          ),
+      buttonText: S.of(context).ok,
+      buttonAction: () => Navigator.of(context).pop(true),
+    ),
   );
 
   return confirmed ?? false;

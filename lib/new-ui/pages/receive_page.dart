@@ -168,16 +168,17 @@ class _NewReceivePageState extends State<NewReceivePage> {
     final hasAddressTypeSelector = widget.receiveOptionViewModel.options.length > 1;
     final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
-    final infobox = ReceiveInfoBox.forWalletType(widget.addressListViewModel.type,
-        supportedCurrencies: widget.addressListViewModel.tokenCurrencies
-            .whereType<CryptoCurrency>()
-            .toList(), onDismissed: () {
-      widget.addressListViewModel.dismissInfobox();
-      setState(() {});
-    },
-        autoGenerateSubaddressStatus: widget.lightningMode
-            ? AutoGenerateSubaddressStatus.disabled
-            : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus,
+    final infobox = ReceiveInfoBox.forWalletType(
+      widget.addressListViewModel.type,
+      supportedCurrencies:
+          widget.addressListViewModel.tokenCurrencies.whereType<CryptoCurrency>().toList(),
+      onDismissed: () {
+        widget.addressListViewModel.dismissInfobox();
+        setState(() {});
+      },
+      autoGenerateSubaddressStatus: widget.lightningMode
+          ? AutoGenerateSubaddressStatus.disabled
+          : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus,
     );
 
     return Container(

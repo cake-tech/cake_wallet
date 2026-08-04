@@ -53,7 +53,7 @@ class AssetsTopBar extends StatelessWidget {
                 children: [
                   // Built conditionally rather than rendered at opacity 0: an
                   // invisible chip stayed focusable for screen readers. The
-                    // SizedBox keeps the 40px header height the invisible chip
+                  // SizedBox keeps the 40px header height the invisible chip
                   // used to occupy.
                   if (actionButton == null)
                     const SizedBox(height: 40)
@@ -61,39 +61,40 @@ class AssetsTopBar extends StatelessWidget {
                     MergeSemantics(
                       child: Semantics(
                         button: true,
-                    child: GestureDetector(
-                      onTap: actionButton.onPressed,
-                        
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999999),
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Row(
-                            spacing: 6,
-                            children: [
-                              if (actionButton.title.isNotEmpty)
+                        child: GestureDetector(
+                          onTap: actionButton.onPressed,
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(999999),
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Row(
+                                spacing: 6,
+                                children: [
+                                  if (actionButton.title.isNotEmpty)
                                     Text(
                                       actionButton.title,
-                                  style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                                ),
-                              ExcludeSemantics(
-                                    child:CakeImageWidget(
-                                  imageUrl: actionButton.iconPath,
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
-                            ),
+                                      style:
+                                          TextStyle(color: Theme.of(context).colorScheme.primary),
+                                    ),
+                                  ExcludeSemantics(
+                                    child: CakeImageWidget(
+                                        imageUrl: actionButton.iconPath,
+                                        colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary,
+                                            BlendMode.srcIn)),
+                                  ),
                                 ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ],
+                ],
               ),
             ),
           ],

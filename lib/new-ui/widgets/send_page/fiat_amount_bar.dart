@@ -12,11 +12,12 @@ class FiatAmountBar extends StatelessWidget {
     required this.cryptoCurrencySymbol,
     required this.fiatCurrencySymbol,
     super.key,
-    this.onAllButtonPressed,  this.allAmount,
-      this.foregroundElementColor,
-      this.textColor,
-      this.allAmountColor,
-      this.allAmountTextColor,
+    this.onAllButtonPressed,
+    this.allAmount,
+    this.foregroundElementColor,
+    this.textColor,
+    this.allAmountColor,
+    this.allAmountTextColor,
   });
 
   final bool fiatInputMode;
@@ -82,7 +83,7 @@ class FiatAmountBar extends StatelessWidget {
                         child: Text(
                           _formatAmount(allAmount!),
                           style: TextStyle(
-                              color: allAmountTextColor ?? Theme.of(context).colorScheme.primary,
+                            color: allAmountTextColor ?? Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),

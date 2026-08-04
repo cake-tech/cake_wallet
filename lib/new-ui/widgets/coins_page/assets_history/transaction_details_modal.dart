@@ -68,19 +68,20 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                   ModalTopBar(
                     title: S.of(context).transaction,
                     leadingIcon: const Icon(Icons.close),
-                    leadingSemanticLabel: S.of(context).close,onLeadingPressed: Navigator.of(context).pop,
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: ModalScrollController.of(context),
-                    child: Column(
-                      children: [
-                        TokenImageWidget(
-                          imageUrl:
-                              widget.transactionDetailsViewModel.transactionAsset.iconPath ?? "",
-                          size: 64,
-                        ),
-                        const SizedBox(height: 10),
+                    leadingSemanticLabel: S.of(context).close,
+                    onLeadingPressed: Navigator.of(context).pop,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: ModalScrollController.of(context),
+                      child: Column(
+                        children: [
+                          TokenImageWidget(
+                            imageUrl:
+                                widget.transactionDetailsViewModel.transactionAsset.iconPath ?? "",
+                            size: 64,
+                          ),
+                          const SizedBox(height: 10),
                           Text(
                             widget.transactionDetailsViewModel.formattedTitle +
                                 widget.transactionDetailsViewModel.formattedStatus,
@@ -90,19 +91,20 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             builder: (_) => CopyWrapper(
                               requireLongPress: true,
                               data: ClipboardData(
-                                text: widget.transactionDetailsViewModel.transactionCopyAmount,),
-                          builder: (context, copied) => AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: Text(
-                              key: ValueKey(copied),
-                              copied
-                                  ? S.of(context).copied
-                                  : widget.transactionDetailsViewModel.transactionAmount,
-                              style: TextStyle(
-                                  fontSize: 28,
-                                  color: copied
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.onSurface,
+                                text: widget.transactionDetailsViewModel.transactionCopyAmount,
+                              ),
+                              builder: (context, copied) => AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                child: Text(
+                                  key: ValueKey(copied),
+                                  copied
+                                      ? S.of(context).copied
+                                      : widget.transactionDetailsViewModel.transactionAmount,
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    color: copied
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -110,31 +112,32 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(16),
-                          child: Column(
-                            spacing: 12,
-                            children: [
-                              NewListSections(sections: {
-                                "": widget.transactionDetailsViewModel.items
-                                    .map((item) {
-                                      if (item.value.isEmpty) {
+                            child: Column(
+                              spacing: 12,
+                              children: [
+                                NewListSections(
+                                  sections: {
+                                    "": widget.transactionDetailsViewModel.items
+                                        .map((item) {
+                                          if (item.value.isEmpty) {
                                             return null;
                                           }
 
-                                      final shouldBuildBottomWidget = item.value.length > 25;
+                                          final shouldBuildBottomWidget = item.value.length > 25;
 
-                                      return ListItemRegularRow(
-                                          copyableText: item.value,
-                                          showArrow: false,
-                                          keyValue: ((item.key as ValueKey?)?.value as String?) ??
-                                              item.title,
-                                          label: item.title,
-                                          trailingWidget: shouldBuildBottomWidget
-                                              ? null
-                                              : _buildTrailingWidget(item),
-                                          bottomWidget: shouldBuildBottomWidget
-                                              ? _buildBottomWidget(item)
-                                              : null,
-                                    );
+                                          return ListItemRegularRow(
+                                            copyableText: item.value,
+                                            showArrow: false,
+                                            keyValue: ((item.key as ValueKey?)?.value as String?) ??
+                                                item.title,
+                                            label: item.title,
+                                            trailingWidget: shouldBuildBottomWidget
+                                                ? null
+                                                : _buildTrailingWidget(item),
+                                            bottomWidget: shouldBuildBottomWidget
+                                                ? _buildBottomWidget(item)
+                                                : null,
+                                          );
                                         })
                                         .whereType<ListItem>()
                                         .toList(),
@@ -167,17 +170,19 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                       ],
                                     ),
                                   ),
-                                ),Observer(
-                                builder: (_) => NewListSections(sections: {
-                                  "view tx": [
-                                    ListItemRegularRow(
-                                        keyValue: "view tx on",
-                                        label:
-                                            widget.transactionDetailsViewModel.explorerDescription,
-                                        onTap: widget.transactionDetailsViewModel.launchExplorer,
-                                        foregroundColor: Theme.of(context).colorScheme.primary,
-                                        trailingIconPath: "assets/new-ui/link_arrow.svg",
-                                        trailingIconSize: 8,
+                                ),
+                                Observer(
+                                  builder: (_) => NewListSections(
+                                    sections: {
+                                      "view tx": [
+                                        ListItemRegularRow(
+                                          keyValue: "view tx on",
+                                          label: widget
+                                              .transactionDetailsViewModel.explorerDescription,
+                                          onTap: widget.transactionDetailsViewModel.launchExplorer,
+                                          foregroundColor: Theme.of(context).colorScheme.primary,
+                                          trailingIconPath: "assets/new-ui/link_arrow.svg",
+                                          trailingIconSize: 8,
                                         ),
                                       ],
                                       if (widget.transactionDetailsViewModel.canReplaceByFee)
@@ -191,7 +196,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                 arguments: [
                                                   widget
                                                       .transactionDetailsViewModel.transactionInfo,
-                                              widget.transactionDetailsViewModel.rawTransaction,
+                                                  widget.transactionDetailsViewModel.rawTransaction,
                                                 ],
                                               );
                                             },

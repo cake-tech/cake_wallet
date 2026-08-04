@@ -614,8 +614,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isLightning =>
-      wallet.type == WalletType.bitcoin &&
-      selectedCurrency == CryptoCurrency.btcln;
+      wallet.type == WalletType.bitcoin && selectedCurrency == CryptoCurrency.btcln;
 
   @computed
   bool get isZCashTransparent {

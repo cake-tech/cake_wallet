@@ -152,13 +152,14 @@ class BalanceCard extends StatelessWidget {
                               // Opacity alone keeps the text readable by screen
                               // readers, so drop it while it is invisible.
                               child: ExcludeSemantics(
-                                excluding: selected,child: Text(
-                                accountBalance,
-                                style: TextStyle(color: design.colors.textColor, fontSize: 14),
+                                excluding: selected,
+                                child: Text(
+                                  accountBalance,
+                                  style: TextStyle(color: design.colors.textColor, fontSize: 14),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
                         ),
                       AnimatedOpacity(
                         opacity: selected ? 1 : 0,
@@ -166,40 +167,42 @@ class BalanceCard extends StatelessWidget {
                         // Only the selected card's balance is visible, so only it
                         // may be announced.
                         child: ExcludeSemantics(
-                          excluding: !selected,child: AnimatedSwitcher(
-                          duration: designSwitchDuration,
-                          layoutBuilder: (currentChild, previousChildren) {
-                            return Stack(
-                              alignment: Alignment.centerLeft,
-                              children: <Widget>[
-                                ...previousChildren,
-                                if (currentChild != null) currentChild,
-                              ],
-                            );
-                          },
-                          child: Row(
-                            key: ValueKey("$balance ${resolvedAssetName.toUpperCase()}"),
-                            spacing: 8.0,
-                            children: [
-                              AnimatedDefaultTextStyle(
-                                duration: designSwitchDuration,
-                                style: DefaultTextStyle.of(context).style.copyWith(
+                          excluding: !selected,
+                          child: AnimatedSwitcher(
+                            duration: designSwitchDuration,
+                            layoutBuilder: (currentChild, previousChildren) {
+                              return Stack(
+                                alignment: Alignment.centerLeft,
+                                children: <Widget>[
+                                  ...previousChildren,
+                                  if (currentChild != null) currentChild,
+                                ],
+                              );
+                            },
+                            child: Row(
+                              key: ValueKey("$balance ${resolvedAssetName.toUpperCase()}"),
+                              spacing: 8.0,
+                              children: [
+                                AnimatedDefaultTextStyle(
+                                  duration: designSwitchDuration,
+                                  style: DefaultTextStyle.of(context).style.copyWith(
                                       color: design.colors.textColor,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: -0.4),
-                                child: Text(fiatFirst ? fiatBalance : balance),
-                              ),
-                              AnimatedDefaultTextStyle(
-                                duration: designSwitchDuration,
-                                style: DefaultTextStyle.of(context).style.copyWith(
-                                    color: design.colors.textColorSecondary,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -0.4),
-                                child: Text(resolvedAssetName),
-                              ),
-                            ],),
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: -0.4),
+                                  child: Text(fiatFirst ? fiatBalance : balance),
+                                ),
+                                AnimatedDefaultTextStyle(
+                                  duration: designSwitchDuration,
+                                  style: DefaultTextStyle.of(context).style.copyWith(
+                                      color: design.colors.textColorSecondary,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w400,
+                                      letterSpacing: -0.4),
+                                  child: Text(resolvedAssetName),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

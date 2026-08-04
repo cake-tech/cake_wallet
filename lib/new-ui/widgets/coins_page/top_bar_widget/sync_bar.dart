@@ -58,7 +58,7 @@ class SyncBar extends StatelessWidget {
                   label: _statusSemanticsLabel(context, status),
                   hint: S.of(context).manage_nodes,
                   onTap: () => _openNodeManagement(context),
-                                child: ExcludeSemantics(
+                  child: ExcludeSemantics(
                     child: GestureDetector(
                       onTap: () => _openNodeManagement(context),
                       child: AnimatedSwitcher(

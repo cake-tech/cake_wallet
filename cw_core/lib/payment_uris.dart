@@ -346,9 +346,7 @@ class ERC681URI extends PaymentURI {
   }
 
   static int _getChainID(String path) => int.parse(
-          RegExp(r"@\d*"
-        ).firstMatch(path)?.group(0)?.replaceAll("@", "") ??
-        "1",
+        RegExp(r"@\d*").firstMatch(path)?.group(0)?.replaceAll("@", "") ?? "1",
       );
 
   static (bool, String) _getTargetAddress(String path) {

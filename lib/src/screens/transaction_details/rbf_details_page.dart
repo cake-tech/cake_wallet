@@ -103,15 +103,13 @@ class RBFDetailsPage extends BasePage {
             builder: (_) => LoadingPrimaryButton(
               onPressed: () => transactionDetailsViewModel
                   .replaceByFee(transactionDetailsViewModel.newFee.toString()),
-
-                      text: S.of(context).send,
-                      isLoading:
-                          transactionDetailsViewModel.sendViewModel.state is IsExecutingState,
-                      isDisabled: transactionDetailsViewModel.sendViewModel.state
-                          is ExecutedSuccessfullyState,
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
+              text: S.of(context).send,
+              isLoading: transactionDetailsViewModel.sendViewModel.state is IsExecutingState,
+              isDisabled:
+                  transactionDetailsViewModel.sendViewModel.state is ExecutedSuccessfullyState,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
         ),
       ],

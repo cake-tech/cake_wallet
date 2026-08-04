@@ -587,7 +587,7 @@ class WalletInfo {
         "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
         "favoriteTokenAddress": favoriteTokenAddress,
-      "network": network,
+        "network": network,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {

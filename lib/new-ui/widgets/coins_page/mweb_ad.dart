@@ -37,10 +37,11 @@ class MwebAd extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           ExcludeSemantics(
-                            child:CakeImageWidget(
-                        imageUrl: "assets/new-ui/settings_row_icons/mweb.svg",
-                        width: 24,
-                        height: 24,),
+                            child: CakeImageWidget(
+                              imageUrl: "assets/new-ui/settings_row_icons/mweb.svg",
+                              width: 24,
+                              height: 24,
+                            ),
                           ),
                           Expanded(
                             child: Padding(

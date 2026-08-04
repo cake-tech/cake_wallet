@@ -126,7 +126,7 @@ class CWSolana extends Solana {
 
     if (token == null) {
       throw StateError('No SPL token for symbol ${transaction.amount.currency.symbol}');
-        }
+    }
 
     return token;
   }

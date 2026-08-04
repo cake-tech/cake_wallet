@@ -100,33 +100,34 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                   button: true,
                   selected: widget.selectedTab == index,
                   inMutuallyExclusiveGroup: true,
-                  child:GestureDetector(
-                onTap: () {
-                  widget.onTabChange(index);
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AnimatedDefaultTextStyle(
-                      duration: Duration(milliseconds: 150),
-                      style: DefaultTextStyle.of(context).style.copyWith(
-                            inherit: true,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: widget.selectedTab == index
-                                ? Theme.of(context).colorScheme.onSurface
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                  child: GestureDetector(
+                    onTap: () {
+                      widget.onTabChange(index);
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedDefaultTextStyle(
+                          duration: Duration(milliseconds: 150),
+                          style: DefaultTextStyle.of(context).style.copyWith(
+                                inherit: true,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: widget.selectedTab == index
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: itemPadding / 2),
+                            child: Text(
+                              item,
+                              key: textWidgetKeys[index],
+                            ),
                           ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: itemPadding / 2),
-                        child: Text(
-                          item,
-                          key: textWidgetKeys[index],
                         ),
-                      ),
+                      ],
                     ),
-                  ],),
                   ),
                 ),
               );

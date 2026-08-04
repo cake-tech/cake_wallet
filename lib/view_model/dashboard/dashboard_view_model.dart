@@ -552,8 +552,7 @@ abstract class DashboardViewModelBase with Store {
             (n) => n.transaction.txHash == item.transaction.txHash,
           );
         }
-        return newKeys
-            .contains(
+        return newKeys.contains(
           _txIdentityString(item.transaction.txHash, item.transaction.direction),
         );
       });

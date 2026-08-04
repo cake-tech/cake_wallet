@@ -121,23 +121,25 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.max,
-                                    spacing: 8,
-                                    children: [
-                                      if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
-                                        TokenImageWidget(
-                                            imageUrl: widget.currencyIconPath, size: 24,
-                                  ),    Text(widget.currency),
-                                      if (widget.hasPicker)
-                                        CakeImageWidget(
-                                          imageUrl: "assets/new-ui/chooser.svg",
-                                          width: 12,
-                                          height: 12,
-                                          colorFilter: ColorFilter.mode(
-                                              Theme.of(context).colorScheme.primary,
-                                              BlendMode.srcIn,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              spacing: 8,
+                              children: [
+                                if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
+                                  TokenImageWidget(
+                                    imageUrl: widget.currencyIconPath,
+                                    size: 24,
+                                  ),
+                                Text(widget.currency),
+                                if (widget.hasPicker)
+                                  CakeImageWidget(
+                                    imageUrl: "assets/new-ui/chooser.svg",
+                                    width: 12,
+                                    height: 12,
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.primary,
+                                      BlendMode.srcIn,
                                     ),
                                   ),
                               ],

@@ -115,15 +115,13 @@ class DisplaySettingsPage extends StatelessWidget {
                       value: _displaySettingsViewModel.disableTradeOption,
                       onChanged: (val) {
                         _displaySettingsViewModel.setDisableTradeOption(val);
-
-                        }),
+                      }),
                   ListItemSelector(
                       keyValue: "display_settings_sync_status_display",
                       label: S.of(context).sync_status_display_mode,
                       options: [_displaySettingsViewModel.syncStatusDisplayMode.title],
                       onTap: () async {
                         final items = SyncStatusDisplayMode.values.toList();
-
                         final selectedAtIndex =
                             items.indexOf(_displaySettingsViewModel.syncStatusDisplayMode);
 

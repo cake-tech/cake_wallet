@@ -54,7 +54,8 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
               children: [
                 GestureDetector(
                   onTap: widget.copyData == null ? widget.onCopyButtonPressed : null,
-                  behavior: HitTestBehavior.opaque,child: IgnorePointer(
+                  behavior: HitTestBehavior.opaque,
+                  child: IgnorePointer(
                     ignoring: widget.copyData == null,
                     child: CopyWrapper(
                       data: widget.copyData,

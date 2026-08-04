@@ -164,8 +164,7 @@ class CWZcash extends Zcash {
   @override
   ReceivePageOption getSelectedAddressType(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
-    final addresses =
-        zcashWallet.walletAddresses as ZcashWalletAddresses;
+    final addresses = zcashWallet.walletAddresses as ZcashWalletAddresses;
     final type = ZcashReceivePageOption.typeFromString(addresses.walletInfo.addressPageType ?? "");
     if (type == ZcashAddressType.shieldedOrchard) {
       return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
@@ -206,6 +205,7 @@ class CWZcash extends Zcash {
 
   @override
   bool showMissingFundsCard(WalletBase wallet) => false;
+
   @override
   Future<void> rescanInternalChange(WalletBase wallet) async {}
 

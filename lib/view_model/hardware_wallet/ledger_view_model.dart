@@ -157,7 +157,6 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
     _connectionChangeSubscription ??=
         ledger.deviceStateChanges(device.device.id).listen(_connectionChangeListener);
 
-
     try {
       _connection = await ledger.connect(device.device);
       isConnecting = false;
@@ -214,11 +213,9 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.monero:
         return monero!.setLedgerConnection(wallet, connection);
       case WalletType.bitcoin:
-        return bitcoin!
-            .setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
-        return bitcoin!
-            .setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));

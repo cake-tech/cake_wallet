@@ -136,10 +136,10 @@ class _CardsViewState extends State<CardsView> {
               }
               final account = widget.accountListViewModel?.accounts[realIndex];
 
-            // The second balance should always be the lightning balance
-            // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
-            final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
-                .getMainBalanceRecord(widget.lightningMode);
+              // The second balance should always be the lightning balance
+              // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
+              final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
+                  .getMainBalanceRecord(widget.lightningMode);
 
               late final String walletBalance;
               late final String walletFiatBalance;
