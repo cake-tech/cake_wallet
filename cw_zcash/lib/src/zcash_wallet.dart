@@ -1214,6 +1214,19 @@ abstract class ZcashWalletBase
     return migratable;
   }
 
+  Future<bool> hasOrchardMigratableBalance() async {
+
+    final migratableOrchard = await runWithCoin(
+      accountId: accountId,
+      func: (final coin) async => (
+      await _migratableOrchardTotal(coin),
+      ),
+    );
+
+    return migratableOrchard.$1 > BigInt.zero;
+
+  }
+
   Future<void> _$autoShield() async {
     if (syncStatus is! SyncedSyncStatus) {
       return;

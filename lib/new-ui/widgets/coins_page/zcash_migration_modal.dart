@@ -26,7 +26,7 @@ class ZcashMigrationModal extends StatelessWidget {
               title: S.of(context).zcash_network_upgrade,
               trailingIcon: const Icon(Icons.close),
               onTrailingPressed: Navigator.of(context).pop,
-              trailingSemanticLabel: " ",
+              trailingSemanticLabel: S.of(context).close,
             ),
             Expanded(
               child: Padding(
@@ -39,13 +39,15 @@ class ZcashMigrationModal extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: 142,
-                            height: 75,
+                            width: 146,
+                            height: 79,
                             child: Stack(
                               children: [
                                 const Positioned(
                                   left: 67,
-                                  child: CakeImageWidget(
+                                      top: 0,
+                                      bottom: 0,
+                                      child: CakeImageWidget(
                                     imageUrl: "assets/new-ui/ironwood_migration.svg",
                                     width: 75,
                                     height: 75,
@@ -54,8 +56,8 @@ class ZcashMigrationModal extends StatelessWidget {
                                 Positioned(
                                   left: 0,
                                   child: Container(
-                                    width: 75,
-                                    height: 75,
+                                    width: 79,
+                                    height: 79,
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(99999999),
                                         border: Border.all(
@@ -63,8 +65,8 @@ class ZcashMigrationModal extends StatelessWidget {
                                             width: 4,),),
                                     child: const CakeImageWidget(
                                       imageUrl: "assets/new-ui/crypto_full_icons/zcash.svg",
-                                      height: 71,
-                                      width: 71,
+                                      height: 75,
+                                      width: 75,
                                     ),
                                   ),
                                 ),
@@ -120,6 +122,7 @@ class ZcashMigrationModal extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
+                spacing: 12,
                 children: [
                   NewPrimaryButton(
                       onPressed: _launchDocs,

@@ -96,6 +96,7 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
+        isMigratingToIronwood = false,
         filterItems = [],
         exchangeFilterItems = [],
         subname = '',
@@ -249,6 +250,11 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
 
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
+
+    if (wallet.type == WalletType.zcash) {
+      reaction((_) => wallet.balance.values.first,
+          (_) async => isMigratingToIronwood = await zcash!.hasOrchardMigratableBalance(wallet));
+    }
 
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
@@ -1551,10 +1557,8 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
-  @computed
-  bool get isMigratingToIronwood => transactions.any((item) =>
-      item.transaction.additionalInfo["isIronwoodMigration"] == true &&
-      item.transaction.isPending);
+  @observable
+  bool isMigratingToIronwood;
 
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {
