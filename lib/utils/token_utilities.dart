@@ -222,6 +222,24 @@ class TokenUtilities {
     return null;
   }
 
+  static String? findSolanaTokenMint(CryptoCurrency currency) {
+    if (currency is SPLToken) return currency.mintAddress;
+
+    for (final token in loadDefaultSolTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token.mintAddress;
+    }
+    return null;
+  }
+
+  static String? findTronTokenContract(CryptoCurrency currency) {
+    if (currency is TronToken) return currency.contractAddress;
+
+    for (final token in loadDefaultTronTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token.contractAddress;
+    }
+    return null;
+  }
+
   static bool isNativeToken(CryptoCurrency currency) {
     final title = currency.title.toLowerCase();
     final tag = currency.tag?.toLowerCase();
