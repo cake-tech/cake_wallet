@@ -458,6 +458,8 @@ abstract class SolanaWalletBase
     }
   }
 
+  static final _swapIdSuffixPattern = RegExp(r'_(outgoing|incoming)$');
+
   void _addTransactions(List<SolanaTransactionModel> transactions) {
     final Map<String, SolanaTransactionInfo> result = {};
 
@@ -474,6 +476,11 @@ abstract class SolanaWalletBase
         isPending: false,
         fee: transactionModel.fee,
       );
+
+      final baseSignature = transactionModel.id.replaceFirst(_swapIdSuffixPattern, '');
+      if (baseSignature != transactionModel.id) {
+        transactionHistory.transactions.remove(baseSignature);
+      }
     }
 
     transactionHistory.addMany(result);

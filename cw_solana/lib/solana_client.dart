@@ -232,8 +232,8 @@ class SolanaWalletClient {
           if (transactionModel != null) {
             return [transactionModel];
           }
-        } else if (programId == SPLTokenProgramConst.tokenProgramId) {
-          // For SPL Token transactions
+        } else if (programId == SPLTokenProgramConst.tokenProgramId ||
+            programId == SPLTokenProgramConst.token2022ProgramId) {
           if (instruction.accounts.length < 2) continue;
 
           final transactionModel = await _parseSPLTokenTransaction(
@@ -263,7 +263,8 @@ class SolanaWalletClient {
           bool hasTokenTransfer = false;
           for (final otherInstruction in instructions) {
             final otherProgramId = message.accountKeys[otherInstruction.programIdIndex];
-            if (otherProgramId == SPLTokenProgramConst.tokenProgramId) {
+            if (otherProgramId == SPLTokenProgramConst.tokenProgramId ||
+                otherProgramId == SPLTokenProgramConst.token2022ProgramId) {
               hasTokenTransfer = true;
               break;
             }
@@ -593,17 +594,22 @@ class SolanaWalletClient {
           final walletSolAddress = SolAddress(walletAddress);
           final mintSolAddress = SolAddress(mint);
 
-          final ata = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+          final standardAta = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
             mint: mintSolAddress,
             owner: walletSolAddress,
           );
-          final ataAddress = ata.address.address;
+          final token2022Ata = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+            mint: mintSolAddress,
+            owner: walletSolAddress,
+            tokenProgramId: SPLTokenProgramConst.token2022ProgramId,
+          );
+          final ataAddresses = [standardAta.address.address, token2022Ata.address.address];
 
-          // We check if this ATA address appears in the account keys
+          // We check if either ATA address appears in the account keys
           int? ataAccountIndex;
           for (int i = 0; i < accountKeys.length; i++) {
             final accountKey = accountKeys[i];
-            if (accountKey.address == ataAddress) {
+            if (ataAddresses.contains(accountKey.address)) {
               ataAccountIndex = i;
               break;
             }
