@@ -1,6 +1,5 @@
 -
   uri: api.trongrid.io
-  isDefault: true
   useSSL: true
   isEnabledForAutoSwitching: true
   label: "TronGrid"
@@ -10,6 +9,7 @@
   label: "PublicNode"
 - 
   uri: trx.nownodes.io
+  isDefault: true
   useSSL: true
   isEnabledForAutoSwitching: true
   label: "NOWNodes"

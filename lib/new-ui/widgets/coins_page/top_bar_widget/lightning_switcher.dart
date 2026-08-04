@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +13,13 @@ class LightningSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    // One toggle node: the knob position and the coloured glyphs are the only
+    // visual cue for which mode is active.
+    return Semantics(
+      button: true,
+      toggled: lightningMode,
+      label: S.of(context).lightning_mode,
+      child:SizedBox(
       child: InkWell(
         onTap: () {
           HapticFeedback.mediumImpact();
@@ -81,7 +88,7 @@ class LightningSwitcher extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
+            ],),
           ),
         ),
       ),

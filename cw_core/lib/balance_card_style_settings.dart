@@ -99,8 +99,7 @@ class BalanceCardStyleSettings {
       backgroundImagePath:
           design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
       iconStyleIndex: iconStyleIndex,
-      isGradientOnly:
-          design.backgroundType == CardDesignBackgroundTypes.gradientOnly,
+      isGradientOnly: design.backgroundType == CardDesignBackgroundTypes.gradientOnly,
       cardOrder: cardOrder,
     );
   }

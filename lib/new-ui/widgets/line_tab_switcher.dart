@@ -93,7 +93,14 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                 children: widget.tabs.map((item) {
               final index = widget.tabs.indexOf(item);
 
-              return GestureDetector(
+              // One tab = one node: the visible label merges into a button node
+              // that also carries the selected state of this tab.
+              return MergeSemantics(
+                child: Semantics(
+                  button: true,
+                  selected: widget.selectedTab == index,
+                  inMutuallyExclusiveGroup: true,
+                  child:GestureDetector(
                 onTap: () {
                   widget.onTabChange(index);
                 },
@@ -119,7 +126,8 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                         ),
                       ),
                     ),
-                  ],
+                  ],),
+                  ),
                 ),
               );
             }).toList())),

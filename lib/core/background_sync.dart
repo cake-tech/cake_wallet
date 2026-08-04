@@ -210,7 +210,11 @@ class BackgroundSync {
         }
         await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
             tx.date.add(Duration(minutes: 1)).toIso8601String());
-        final action = tx.direction == TransactionDirection.incoming ? "Received" : "Sent";
+        final action = tx.additionalInfo['isAutoShield'] == true
+            ? "Autoshield"
+            : tx.direction == TransactionDirection.incoming
+                ? "Received"
+                : "Sent";
         if (sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false) {
           await showNotification(
               "$action ${wallet.currency.fullName} in ${wallet.name}", "${tx.amount.toString()}");

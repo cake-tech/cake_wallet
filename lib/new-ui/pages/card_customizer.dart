@@ -92,6 +92,9 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                   Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                             )
                           : null,
+                      leadingSemanticLabel: S.of(context).close,
+                      trailingSemanticLabel: S.of(context).hide,
+                      // trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
                       onLeadingPressed: () => Navigator.of(context).maybePop(),
                       onTrailingPressed: () => Navigator.of(context).maybePop(true),
                       // onTrailingPressed: () {},

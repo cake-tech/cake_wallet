@@ -586,11 +586,12 @@ class WalletInfo {
         "addressPageType": addressPageType,
         "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
-        "favoriteTokenAddress": favoriteTokenAddress
+        "favoriteTokenAddress": favoriteTokenAddress,
+      "network": network,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
-    return WalletInfo(
+    final info = WalletInfo(
         json[selfIdColumn] as int,
         json['id'] as String,
         json['name'] as String,
@@ -616,6 +617,8 @@ class WalletInfo {
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null);
+    info.network = json['network'] as String?;
+    return info;
   }
 
   Future<int> save() async {

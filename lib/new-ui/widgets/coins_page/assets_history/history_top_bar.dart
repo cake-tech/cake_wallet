@@ -11,7 +11,11 @@ class HistoryTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-      child: GestureDetector(
+      child: Semantics(
+        button: true,
+        label: S.of(context).history,
+        onTap: onTap,
+        child: ExcludeSemantics(child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
@@ -50,7 +54,8 @@ class HistoryTopBar extends StatelessWidget {
                     )
                   else
                     Container(height: 2)
-                ],
+                ],),
+                ),
               ),
             ),
           ),

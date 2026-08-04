@@ -227,9 +227,10 @@ abstract class DashboardViewModelBase with Store {
                   1;
         } catch (_) {}
       } else {
-        confirmations = appStore.wallet!.transactionHistory.transactions.values
-            .map((item) => item.isPending)
-            .fold(0, (val, pending) => pending ? val + 1 : val);
+        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
+            .where((item) => item.isPending)
+            .length;
+        confirmations = pendingCount + 1;
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);
@@ -545,10 +546,17 @@ abstract class DashboardViewModelBase with Store {
           .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
           .toSet();
 
-      transactions.removeWhere(
-        (item) => newKeys
-            .contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
-      );
+      transactions.removeWhere((item) {
+        if (wallet.type == WalletType.zcash) {
+          return newTransactions.any(
+            (n) => n.transaction.txHash == item.transaction.txHash,
+          );
+        }
+        return newKeys
+            .contains(
+          _txIdentityString(item.transaction.txHash, item.transaction.direction),
+        );
+      });
 
       transactions.addAll(newTransactions);
       // transactions.clear();
@@ -1339,9 +1347,10 @@ abstract class DashboardViewModelBase with Store {
                   1;
         } catch (_) {}
       } else {
-        confirmations = appStore.wallet!.transactionHistory.transactions.values
-            .map((item) => item.isPending)
-            .fold(0, (val, pending) => pending ? val + 1 : val);
+        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
+            .where((item) => item.isPending)
+            .length;
+        confirmations = pendingCount + 1;
       }
       return length * confirmations;
     }, _transactionDisposerCallback, delay: 300);

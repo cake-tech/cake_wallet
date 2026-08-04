@@ -39,7 +39,12 @@ class AssetTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconPath = balance.asset.iconPath ?? "";
 
-    return GestureDetector(
+    // The row is one control: name, amount and fiat value merge into a single
+    // button node that opens the asset details sheet.
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child:GestureDetector(
       onTap: () {
         showModalBottomSheet(
             context: context,
@@ -86,30 +91,32 @@ class AssetTile extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      iconPath.isNotEmpty
-                          ? TokenImageWidget(
-                              imageUrl: iconPath,
-                              size: 36,
-                            )
-                          : Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  balance.asset.name
-                                      .substring(0, min(2, balance.asset.name.length)),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Theme.of(context).colorScheme.onPrimary,
+                      // Decorative: the asset name is already in the row text.
+                          ExcludeSemantics(
+                            child: iconPath.isNotEmpty
+                                ? TokenImageWidget(
+                                    imageUrl: iconPath,
+                                    size: 36,
+                                  )
+                                : Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        balance.asset.name
+                                            .substring(0, min(2, balance.asset.name.length)),
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                      SizedBox(width: 12.0),
+                          ),SizedBox(width: 12.0),
                       Expanded(
                         child: Column(
                           spacing: 4.0,
@@ -157,7 +164,8 @@ class AssetTile extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-              ],
+              ],),
+              ),
             ),
           ),
         ),

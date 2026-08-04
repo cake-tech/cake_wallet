@@ -21,51 +21,62 @@ class MwebAd extends StatelessWidget {
         child: Column(
           spacing: 12,
           children: [
-            GestureDetector(
-              onTap: () => Navigator.of(context).pushNamed(Routes.mwebSettings),
-              child: Container(
-                height: 64,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    color: Theme.of(context).colorScheme.surfaceContainer),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CakeImageWidget(
+            MergeSemantics(
+              child: Semantics(
+                button: true,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pushNamed(Routes.mwebSettings),
+                  child: Container(
+                    height: 64,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        color: Theme.of(context).colorScheme.surfaceContainer),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ExcludeSemantics(
+                            child:CakeImageWidget(
                         imageUrl: "assets/new-ui/settings_row_icons/mweb.svg",
                         width: 24,
-                        height: 24,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Text(
-                            S.of(context).mweb_ad,
-                            softWrap: true,
-                            style: TextStyle(fontSize: 12),
+                        height: 24,),
                           ),
-                        ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Text(
+                                S.of(context).mweb_ad,
+                                softWrap: true,
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            size: 16,
+                            Icons.arrow_forward_ios,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        ],
                       ),
-                      Icon(
-                        size: 16,
-                        Icons.arrow_forward_ios,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-            GestureDetector(
-              onTap: () => dashboardViewModel.dismissMwebAd(false),
-              child: Text(
-                S.of(context).do_not_show_anymore,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.primary),
+            MergeSemantics(
+              child: Semantics(
+                button: true,
+                child: GestureDetector(
+                  onTap: () => dashboardViewModel.dismissMwebAd(false),
+                  child: Text(
+                    S.of(context).do_not_show_anymore,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
               ),
             )
           ],

@@ -161,6 +161,7 @@ class SendTransactionDetails extends StatelessWidget {
                   ],
                 ),
                 trailingIcon: Icon(Icons.close),
+                trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).maybePop,
               ),
               isPage
@@ -513,7 +514,8 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                               showModalBottomSheet(
                                   isScrollControlled: true,
                                   context: context,
-                                  builder: (context) => page);
+                                  builder: (context) =>
+                                      FractionallySizedBox(heightFactor: 0.9, child: page));
                             }),
                     ],
                   ),

@@ -186,7 +186,11 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                       ((i == widget.selectedIndex)
                                           ? iconHorizontalPadding / 100
                                           : 0),
-                                  curve: Curves.easeOutCubic,
+                                  curve: Curves.easeOutCubic,child: Semantics(
+                                    button: true,
+                                    selected: i == widget.selectedIndex,
+                                    inMutuallyExclusiveGroup: true,
+                                    label: visibleActions[i].name(context),
                                   child: InkWell(
                                     splashFactory: NoSplash.splashFactory,
                                     splashColor: Colors.transparent,
@@ -236,15 +240,15 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                     ),
                                   ),
                                 ),
-                            ],
-                          ),
-                        )),
+                                )],
+                            ),
+                          )),
+                  ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
+          );
       },
     );
   }
@@ -306,11 +310,15 @@ class AnimatedPill extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.only(left: pillIconWidth + 2),
-                  child: Text(
-                    currentAction.name(context),
-                    style: pillTextStyle.copyWith(color: contentColor),
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
+                  // The selected tab's InkWell already announces this name, so the
+                  // pill text must not become a second stop for screen readers.
+                  child: ExcludeSemantics(
+                    child: Text(
+                      currentAction.name(context),
+                      style: pillTextStyle.copyWith(color: contentColor),
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                    ),
                   ),
                 ),
               ],

@@ -10,7 +10,6 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
-import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -46,7 +45,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
-const tronDefaultNodeUri = 'api.trongrid.io';
+const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = '37.27.100.59:10500';
@@ -56,7 +55,7 @@ const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
-const zcashDefaultNodeUri = 'zec-node.cakewallet.com:443';
+const zcashDefaultNodeUri = 'zec.rocks:443';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -607,6 +606,35 @@ Future<void> defaultSettingsMigration(
             enabled: true,
           );
           break;
+        case 68:
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.tron,
+            newDefaultUri: tronDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentTronNodeIdKey,
+            useSSL: true,
+            oldUri: [
+              'tron-rpc.publicnode.com:443',
+              'api.trongrid.io',
+            ],
+          );
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.monero,
+            newDefaultUri: newCakeWalletMoneroUri,
+            currentNodePreferenceKey: PreferencesKey.currentNodeIdKey,
+            useSSL: true,
+            trusted: true,
+            oldUri: ['nodes.hashvault.pro:18081'],
+          );
+          break;
+        case 69:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Exolix",
+            enabled: false,
+          );
+          break;
         default:
           break;
       }
@@ -663,7 +691,7 @@ Future<void> _changeDefaultNode({
   } else {
     final currentNode = nodes.firstWhereOrNull((node) => node.id == currentNodeId);
     shouldReplace =
-        currentNode == null || (oldUri?.any((e) => currentNode!.uriRaw.contains(e)) ?? true);
+        currentNode == null || (oldUri?.any((e) => currentNode.uriRaw.contains(e)) ?? true);
   }
 
   if (shouldReplace) {

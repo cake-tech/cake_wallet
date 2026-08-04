@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SwapSendExternalModal extends StatefulWidget {
   const SwapSendExternalModal(
@@ -67,6 +69,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                 leadingWidget: SwapModalHeader(
                     fromIconPath: widget.from.iconPath ?? "", toIconPath: widget.to.iconPath ?? ""),
                 trailingIcon: Icon(Icons.close),
+                trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).pop,
               ),
               Padding(
@@ -166,10 +169,59 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                           ),
                         )),
                     if (widget.exchangeTradeViewModel.trade.extraId != null)
-                      Text(
-                        "${S.of(context).destination_tag} ${widget.exchangeTradeViewModel.trade.extraId}",
-                        style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      CopyWrapper(
+                        data: ClipboardData(
+                            text: widget.exchangeTradeViewModel.trade.extraId!),
+                        builder: (context, copied) => Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 8,
+                              children: [
+                                Text(
+                                  S.of(context).destination_tag,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 8,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        widget.exchangeTradeViewModel.trade.extraId!,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context).colorScheme.primary),
+                                      ),
+                                    ),
+                                    AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 200),
+                                      child: Icon(
+                                        copied ? Icons.check : Icons.copy,
+                                        key: ValueKey(copied),
+                                        size: 18,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     Row(
                       spacing: 8,

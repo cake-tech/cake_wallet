@@ -325,6 +325,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return 'btc';
       case CryptoCurrency.arb:
         return 'arbitrum';
+      case CryptoCurrency.nano:
+        return 'nano';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title.toLowerCase();
     }
@@ -337,6 +339,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     switch (currency) {
       case CryptoCurrency.zec:
         return 'zec';
+      case CryptoCurrency.maticpoly:
+        return 'matic';
       default:
         return currency.title.toLowerCase();
     }
@@ -344,7 +348,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   String _normalizeTag(String tag) {
     switch (tag) {
-      case 'POLY':
+      case 'POL':
         return 'matic';
       case 'LN':
         return 'lightning';
