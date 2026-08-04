@@ -154,10 +154,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             onLeadingPressed: Navigator.of(context).maybePop,
             // trailingIcon: Icon(Icons.refresh),
             // onTrailingPressed: showResetDialog,
-            trailingSemanticLabel: S.of(context).hidden_accounts,
             trailingWidget: Row(spacing:8,children: [
-              ModernButton(icon: Icon(Icons.refresh), onPressed: showResetDialog, size: 36),
-              ModernButton.svg(svgPath: "assets/new-ui/archived.svg", size: 36, onPressed: ()async{
+              ModernButton(semanticLabel: S.of(context).reset, icon: Icon(Icons.refresh), onPressed: showResetDialog, size: 36),
+              ModernButton.svg(semanticLabel: S.of(context).hidden_accounts, svgPath: "assets/new-ui/archived.svg", size: 36, onPressed: ()async{
                 await Navigator.of(context).push(CupertinoPageRoute(
                         builder: (context) => Material(
                           child: HiddenAccountsPage(
@@ -330,12 +329,14 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
     widget.accountListViewModel.select(_items[_items.length - 1].accountListItem);
 
-    final bloc = getIt.get<CardCustomizerBloc>(param1: CardCustomizerBlocParams(lightningMode: false, amountDisplayMode: null, canHide: _items.length > 1));
 
+    print(_items.length);
+    final bloc = getIt.get<CardCustomizerBloc>(
+        param1: CardCustomizerBlocParams(
+            lightningMode: false, amountDisplayMode: null, canHide: _items.length > 1));
 
     Navigator.of(context).push(CupertinoPageRoute(
-      builder: (context) {
-        return BlocProvider(
+      builder: (context) => BlocProvider(
           create: (context) => bloc,
           child: Material(
             child: CardCustomizer(
@@ -344,8 +345,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               cryptoName: widget.dashboardViewModel.wallet.currency.name,
             ),
           ),
-        );
-      },
+        ),
     )).then((result) async {
       final hideRequested = result != null && result is bool && result;
       bloc.add(hideRequested ? AccountHidden() : DesignSaved());

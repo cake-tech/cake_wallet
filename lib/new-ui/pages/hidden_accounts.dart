@@ -58,6 +58,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
       child: Column(
         children: [
           ModalTopBar(
+            leadingSemanticLabel: S.of(context).seed_alert_back,
             title: S.of(context).hidden_accounts,
             leadingIcon: Icon(Icons.arrow_back_ios_new),
             onLeadingPressed: Navigator.of(context).pop,

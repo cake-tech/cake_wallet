@@ -588,6 +588,7 @@ Future<void> setup({
       (params, _) {
     final wallet = getIt.get<AppStore>().wallet!;
     return CardCustomizerBloc(wallet,
+        canHide: params.canHide,
         lightningMode: params.lightningMode,
         displaySats: wallet.type == WalletType.bitcoin &&
             (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshi ||
