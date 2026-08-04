@@ -1482,5 +1482,5 @@
   "zcash_network_upgrade": "Zcash Network Upgrade",
   "zcash_network_upgrade_desc_1": "Zcash has undergone a network upgrade called Ironwood that requires migration of funds before they can be spent. This migration is automatic, privacy-preserving, and starts as soon as you open your Zcash wallet.",
   "zcash_network_upgrade_desc_2": "When the migration finishes, your Available Balance will return to normal, and you can continue to send and receive Zcash as usual.",
-  "zcash_network_upgrade_desc_3": "Please allow your Zcash wallet to finishing syncing, and then leave the app open until migration finishes which can take a few minutes."
+  "zcash_network_upgrade_desc_3": "Please allow your Zcash wallet to finishing syncing, and then leave the app open until migration finishes which can take a few minutes depending on the balance."
 }
