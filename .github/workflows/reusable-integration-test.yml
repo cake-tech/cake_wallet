@@ -296,6 +296,7 @@ jobs:
             SUITE_DIR="${{ inputs.suite_dir }}" \
             TEST_TIER="${{ inputs.test_tier }}" \
             EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
+            TEST_TIMEOUT=600 \
             PLATFORM=android \
             ./integration_test_runner.sh 2>&1 | tee integration_test_run.log
           TEST_EXIT_CODE=$?
@@ -354,6 +355,7 @@ jobs:
         with:
           api-level: 29
           arch: x86_64
+          profile: pixel_5
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 4096 -cores 4 -no-snapshot-save
           disable-animations: false
