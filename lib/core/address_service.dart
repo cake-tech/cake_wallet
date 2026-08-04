@@ -179,10 +179,8 @@ class AddressService {
 
   AddressEntry _electrumEntry(ElectrumSubAddress addr, {bool isOneTimeReceiveAddress = false}) {
     final w = wallet;
-    final legacyHideApplies =
-        w.type == WalletType.bitcoin || w.type == WalletType.litecoin;
     final hidden = w.walletAddresses.hiddenAddresses.contains(addr.address) ||
-        (legacyHideApplies && addr.isLegacyDerivation);
+        (w.type == WalletType.bitcoin && addr.isLegacyDerivation);
     final isPrimary = !isOneTimeReceiveAddress && addr.id == 0;
     return AddressEntry(
       id: addr.id,
