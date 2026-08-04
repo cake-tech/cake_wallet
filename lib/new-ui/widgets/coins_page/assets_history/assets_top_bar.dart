@@ -22,6 +22,8 @@ class AssetsTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final actionButton = tabs[selectedTab].actionButton;
+
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.only(top: 32.0, bottom: 0.0, left: 12.0, right: 18.0),
@@ -49,40 +51,49 @@ class AssetsTopBar extends StatelessWidget {
                 key: ValueKey(selectedTab),
                 spacing: 8,
                 children: [
-                  Opacity(
-                    opacity: tabs[selectedTab].actionButton != null ? 1 : 0,
-                    child: GestureDetector(
-                      onTap: () {
-                        if (tabs[selectedTab].actionButton != null) {
-                          tabs[selectedTab].actionButton?.onPressed();
-                        }
-                      },
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999999),
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Row(
-                            spacing: 6,
-                            children: [
-                              if ((tabs[selectedTab].actionButton?.title ?? "").isNotEmpty)
-                                Text(
-                                  tabs[selectedTab].actionButton?.title ?? "",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                                ),
-                              CakeImageWidget(
-                                  imageUrl: tabs[selectedTab].actionButton?.iconPath,
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
-                            ],
+                  // Built conditionally rather than rendered at opacity 0: an
+                  // invisible chip stayed focusable for screen readers. The
+                  // SizedBox keeps the 40px header height the invisible chip
+                  // used to occupy.
+                  if (actionButton == null)
+                    const SizedBox(height: 40)
+                  else
+                    MergeSemantics(
+                      child: Semantics(
+                        button: true,
+                        child: GestureDetector(
+                          onTap: actionButton.onPressed,
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(999999),
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Row(
+                                spacing: 6,
+                                children: [
+                                  if (actionButton.title.isNotEmpty)
+                                    Text(
+                                      actionButton.title,
+                                      style:
+                                          TextStyle(color: Theme.of(context).colorScheme.primary),
+                                    ),
+                                  ExcludeSemantics(
+                                    child: CakeImageWidget(
+                                        imageUrl: actionButton.iconPath,
+                                        colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary,
+                                            BlendMode.srcIn)),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

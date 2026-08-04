@@ -21,15 +21,22 @@ class WalletInfoBar extends StatelessWidget {
   final bool hasCustomize;
   final VoidCallback onCustomizeButtonTap;
 
+  void _openAccountCustomizer() {
+    if (hasCustomize) {
+      onCustomizeButtonTap();
+      HapticFeedback.mediumImpact();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (hasCustomize) {
-          onCustomizeButtonTap();
-          HapticFeedback.mediumImpact();
-        }
-      },
+    // The row, the hardware-wallet glyph and the inner accounts button are one
+    // control for a screen reader: a single labeled node opening the customizer.
+    final semanticsLabel =
+        hardwareWalletType == null ? name : "$name, ${S.of(context).hardware_wallet}";
+
+    final row = GestureDetector(
+      onTap: _openAccountCustomizer,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -71,18 +78,25 @@ class WalletInfoBar extends StatelessWidget {
             SizedBox(width: 8),
             ModernButton.svg(
               size: 24,
-              onPressed: () {
-                if (hasCustomize) {
-                  onCustomizeButtonTap();
-                  HapticFeedback.mediumImpact();
-                }
-              },
+              onPressed: _openAccountCustomizer,
               svgPath: "assets/new-ui/icon-accounts.svg",
               semanticLabel: S.of(context).wallet_accounts,
             )
           ]
         ],
       ),
+    );
+
+    if (!hasCustomize) {
+      return Semantics(label: semanticsLabel, child: ExcludeSemantics(child: row));
+    }
+
+    return Semantics(
+      button: true,
+      label: semanticsLabel,
+      hint: S.of(context).wallet_accounts,
+      onTap: _openAccountCustomizer,
+      child: ExcludeSemantics(child: row),
     );
   }
 

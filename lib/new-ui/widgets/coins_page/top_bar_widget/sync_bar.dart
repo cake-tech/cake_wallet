@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -48,65 +49,55 @@ class SyncBar extends StatelessWidget {
             key: ValueKey('home_page_sync_status_key'),
             alignment: Alignment.centerLeft,
             children: [
-              if (!_showFullBar())
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 6,
-                  children: [
-                    if (dashboardViewModel.isTorEnabled)
-                      CakeImageWidget(
-                        imageUrl: "assets/new-ui/tor.svg",
-                        width: 20,
-                        height: 20,
-                      ),
-                    if (_showDot()) PulsingDot(),
-                  ],
-                ),
+              if (!_showFullBar()) _buildCompactBar(context),
               if (_showFullBar())
-                GestureDetector(
-                  onTap: () {
-                    CupertinoScaffold.showCupertinoModalBottomSheet(
-                        context: context,
-                        barrierColor: Colors.black.withAlpha(85),
-                        builder: (context) => FractionallySizedBox(
-                                child: Material(
-                              child: getIt.get<ManageNodesPage>(param1: false),
-                            )));
-                  },
-                  child: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 100),
-                    child: Container(
-                      key: ValueKey(status.runtimeType),
-                      height: 36,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(9999),
-                        border: _getBorder(context, status.runtimeType),
-                        color: _getBackgroundColor(context, status.runtimeType),
-                      ),
-                      child: Row(
-                        spacing: 10,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          if (icon != null) icon,
-                          // if (dashboardViewModel.silentPaymentsScanningActive &&
-                          //     progressStatuses.contains(status.runtimeType)) ...[
-                          //   Text(
-                          //     "${(status.progress() * 100).toInt()}%",
-                          //     style: TextStyle(fontSize: 12, color: Color(0xFFEFBA5E)),
-                          //   ),
-                          //   Text(
-                          //     "·",
-                          //     style: TextStyle(fontSize: 12),
-                          //   )
-                          // ],
-                          Text(
-                            syncStatusTitle(
-                                status, dashboardViewModel.settingsStore.syncStatusDisplayMode),
-                            style: _getTextStyle(context, status.runtimeType),
+                // A single node: the localized status text (plus any active
+                // Tor/MWEB/Silent Payments badge) is the label, and the hint says
+                // where tapping leads. Everything inside is redundant with it.
+                Semantics(
+                  button: true,
+                  label: _statusSemanticsLabel(context, status),
+                  hint: S.of(context).manage_nodes,
+                  onTap: () => _openNodeManagement(context),
+                  child: ExcludeSemantics(
+                    child: GestureDetector(
+                      onTap: () => _openNodeManagement(context),
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 100),
+                        child: Container(
+                          key: ValueKey(status.runtimeType),
+                          height: 36,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(9999),
+                            border: _getBorder(context, status.runtimeType),
+                            color: _getBackgroundColor(context, status.runtimeType),
                           ),
-                        ],
+                          child: Row(
+                            spacing: 10,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              if (icon != null) icon,
+                              // if (dashboardViewModel.silentPaymentsScanningActive &&
+                              //     progressStatuses.contains(status.runtimeType)) ...[
+                              //   Text(
+                              //     "${(status.progress() * 100).toInt()}%",
+                              //     style: TextStyle(fontSize: 12, color: Color(0xFFEFBA5E)),
+                              //   ),
+                              //   Text(
+                              //     "·",
+                              //     style: TextStyle(fontSize: 12),
+                              //   )
+                              // ],
+                              Text(
+                                syncStatusTitle(status,
+                                    dashboardViewModel.settingsStore.syncStatusDisplayMode),
+                                style: _getTextStyle(context, status.runtimeType),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -117,6 +108,55 @@ class SyncBar extends StatelessWidget {
       },
     );
   }
+
+  void _openNodeManagement(BuildContext context) =>
+      CupertinoScaffold.showCupertinoModalBottomSheet(
+          context: context,
+          barrierColor: Colors.black.withAlpha(85),
+          builder: (context) => FractionallySizedBox(
+                  child: Material(
+                child: getIt.get<ManageNodesPage>(param1: false),
+              )));
+
+  /// Compact mode shows sync state with a pulsing dot (and a Tor glyph) only, so
+  /// the whole row needs a text equivalent.
+  Widget _buildCompactBar(BuildContext context) {
+    final row = Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 6,
+      children: [
+        if (dashboardViewModel.isTorEnabled)
+          CakeImageWidget(
+            imageUrl: "assets/new-ui/tor.svg",
+            width: 20,
+            height: 20,
+          ),
+        if (_showDot()) PulsingDot(),
+      ],
+    );
+
+    final label = _joinLabels([
+      if (dashboardViewModel.isTorEnabled) S.of(context).tor_connection,
+      if (_showDot()) S.of(context).synchronizing,
+    ]);
+
+    if (label.isEmpty) return row;
+
+    return Semantics(label: label, child: ExcludeSemantics(child: row));
+  }
+
+  String _statusSemanticsLabel(BuildContext context, SyncStatus status) {
+    final isFailure = failStatuses.contains(status.runtimeType);
+
+    return _joinLabels([
+      syncStatusTitle(status, dashboardViewModel.settingsStore.syncStatusDisplayMode),
+      if (!isFailure && dashboardViewModel.isTorEnabled) S.of(context).tor_connection,
+      if (!isFailure && dashboardViewModel.hasMweb) S.of(context).litecoin_mweb,
+      if (!isFailure && dashboardViewModel.hasSilentPayments) S.of(context).silent_payments,
+    ]);
+  }
+
+  String _joinLabels(List<String> parts) => parts.where((part) => part.isNotEmpty).join(", ");
 
   Color? _getBackgroundColor(BuildContext context, Type status) {
     if (failStatuses.contains(status)) {
