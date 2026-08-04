@@ -915,6 +915,8 @@
   "restore_wallet": "Restore Wallet",
   "restore_wallet_name": "Wallet name",
   "restore_wallet_restore_description": "Wallet restore description",
+  "resync_device": "Resync device",
+  "resync_device_desc": "Balance updating requires occasional resyncing Cake Wallet with the device.",
   "return_address_desc": "In the rare case of a failed swap, our partners can automatically refund your payment to the provided refund address.",
   "return_address_desc_external": "Since you chose Send From External, please set a refund address manually below.",
   "robinhood_option_description": "Buy and transfer instantly using your debit card, bank account, or Robinhood balance. USA only.",

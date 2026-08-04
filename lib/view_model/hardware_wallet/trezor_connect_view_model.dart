@@ -320,6 +320,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       throw Exception("Unable to save Trezor State");
     }
   }
+
+  Future<bool> syncKeyImages(WalletBase wallet) async {
+    if (wallet.type == WalletType.monero) {
+      try {
+        await monero!.syncTrezor(wallet);
+      } catch (_) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
 abstract class TrezorParingState {
