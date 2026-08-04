@@ -1,17 +1,17 @@
-import 'package:cake_wallet/core/utilities.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import 'package:cw_core/balance_card_style_settings.dart';
-import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cw_core/balance_card_style_settings.dart";
+import "package:flutter/material.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class HiddenAccountsPage extends StatefulWidget {
   const HiddenAccountsPage(
-      {super.key, required this.accountListViewModel, required this.dashboardViewModel});
+      {required this.accountListViewModel, required this.dashboardViewModel, super.key,});
 
   final MoneroAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
@@ -29,10 +29,10 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
     loadCards();
   }
 
-  void loadCards() async {
+  Future<void> loadCards() async {
     final accounts = widget.accountListViewModel.accounts;
     final styleSettings = await BalanceCardStyleSettings.getAll(
-        widget.dashboardViewModel.wallet.walletInfo.internalId);
+        widget.dashboardViewModel.wallet.walletInfo.internalId,);
 
     items.clear();
     for (int i = 0; i < accounts.length; i++) {
@@ -43,24 +43,23 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
     setState(() {});
   }
 
-  void unhideCard(AccountListItem acc) async {
-    (await BalanceCardStyleSettings.get(
-            widget.dashboardViewModel.wallet.walletInfo.internalId, acc.id))
+  Future<void> unhideCard(AccountListItem acc) async {
+    await (await BalanceCardStyleSettings.get(
+            widget.dashboardViewModel.wallet.walletInfo.internalId, acc.id,))
         ?.copyWith(hidden: false)
         .insert();
-    loadCards();
+    await loadCards();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           ModalTopBar(
             leadingSemanticLabel: S.of(context).seed_alert_back,
             title: S.of(context).hidden_accounts,
-            leadingIcon: Icon(Icons.arrow_back_ios_new),
+            leadingIcon: const Icon(Icons.arrow_back_ios_new),
             onLeadingPressed: Navigator.of(context).pop,
           ),
           Expanded(
@@ -70,16 +69,16 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
                       children: [
                         Text(
                           S.of(context).no_hidden_accounts,
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                         Text(
                           S.of(context).no_hidden_accounts_desc,
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        )
+                        ),
                       ],
                     )
                   : ListView.separated(
-                      padding: EdgeInsets.symmetric(horizontal: 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 36),
                       controller: ModalScrollController.of(context),
                       itemCount: items.length,
                       itemBuilder: (context, index) => HiddenBalanceCard(
@@ -92,22 +91,16 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
                             widget.dashboardViewModel.settingsStore.fiatCurrency.title,
                         onRestorePressed: () => unhideCard(items[index]),
                       ),
-                      separatorBuilder: (_, __) => SizedBox(height: 16),
-                    )),
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    ),),
         ],
       ),
     );
-  }
 }
 
 class HiddenBalanceCard extends StatelessWidget {
   const HiddenBalanceCard(
-      {super.key,
-      required this.item,
-      required this.assetTtle,
-      required this.fiatAmount,
-      required this.fiatCurrencyTitle,
-      required this.onRestorePressed});
+      {required this.item, required this.assetTtle, required this.fiatAmount, required this.fiatCurrencyTitle, required this.onRestorePressed, super.key,});
 
   final AccountListItem item;
   final String assetTtle;
@@ -116,14 +109,13 @@ class HiddenBalanceCard extends StatelessWidget {
   final VoidCallback onRestorePressed;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(width: 2, color: Theme.of(context).colorScheme.surfaceContainerHigh)),
+          border: Border.all(width: 2, color: Theme.of(context).colorScheme.surfaceContainerHigh),),
       child: Padding(
-        padding: const EdgeInsets.all(18.0),
+        padding: const EdgeInsets.all(18),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -136,7 +128,7 @@ class HiddenBalanceCard extends StatelessWidget {
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 16,
-                      fontWeight: FontWeight.w500),
+                      fontWeight: FontWeight.w500,),
                 ),
                 Row(
                   spacing: 8,
@@ -146,26 +138,26 @@ class HiddenBalanceCard extends StatelessWidget {
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 26,
-                          fontWeight: FontWeight.w500),
+                          fontWeight: FontWeight.w500,),
                     ),
                     Text(assetTtle,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 26,
-                            fontWeight: FontWeight.w500))
+                            fontWeight: FontWeight.w500,),),
                   ],
                 ),
                 Text(
                   "$fiatAmount $fiatCurrencyTitle",
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16,),
                 ),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(),
+                const SizedBox(),
                 Material(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(80085),
@@ -173,29 +165,28 @@ class HiddenBalanceCard extends StatelessWidget {
                     onTap: onRestorePressed,
                     borderRadius: BorderRadius.circular(69420),
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8),
                       child: Row(
                         spacing: 6,
                         children: [
                           CakeImageWidget(
                             imageUrl: "assets/new-ui/restore.svg",
                             colorFilter: ColorFilter.mode(
-                                Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                Theme.of(context).colorScheme.primary, BlendMode.srcIn,),
                           ),
                           Text(
                             S.of(context).restore,
                             style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                          )
+                          ),
                         ],
                       ),
                     ),
                   ),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
-  }
 }
