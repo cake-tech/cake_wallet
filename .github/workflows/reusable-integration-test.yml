@@ -37,7 +37,7 @@ on:
       timeout_minutes:
         required: false
         type: number
-        default: 90
+        default: 120
 
 defaults:
   run:
@@ -254,7 +254,9 @@ jobs:
           echo "Priming build with $first_suite"
           flutter build apk --debug --target-platform android-x64 --target="$first_suite" --dart-define=CI_BUILD=true
 
-      - name: Prepare emulator utilities
+      # The emulator action runs every script line as a separate sh -c command, so all
+      # multi line logic lives in this file and the action gets a one line script
+      - name: Prepare emulator test script
         run: |
           cat > /tmp/emulator_ready.sh << 'EOF'
           #!/bin/bash
@@ -273,6 +275,78 @@ jobs:
 
           chmod +x /tmp/emulator_ready.sh
 
+          cat > /tmp/run_integration_tests.sh << 'EOF'
+          #!/bin/bash
+
+          /tmp/emulator_ready.sh
+
+          adb shell settings put global window_animation_scale 0.0 || true
+          adb shell settings put global transition_animation_scale 0.0 || true
+          adb shell settings put global animator_duration_scale 0.0 || true
+
+          if [[ "$RECORD_SCREEN" == "true" ]]; then
+            echo "Starting chunked screen recording..."
+            (i=0; while true; do adb shell screenrecord --time-limit 180 --bit-rate 2000000 "/sdcard/rec_$i.mp4" || break; i=$((i+1)); done) &
+            RECORD_LOOP_PID=$!
+          fi
+
+          set -o pipefail
+          set +e
+          env \
+            SUITE_DIR="${{ inputs.suite_dir }}" \
+            TEST_TIER="${{ inputs.test_tier }}" \
+            EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
+            PLATFORM=android \
+            ./integration_test_runner.sh 2>&1 | tee integration_test_run.log
+          TEST_EXIT_CODE=$?
+          set -e
+
+          adb logcat -d > logcat_final.txt || true
+
+          # tier1 depends on live network services so it reports but does not block merges,
+          # promote it into the hard gate once it has a stable green history
+          if [[ "${{ inputs.test_tier }}" == "tier0" && -d "${{ inputs.suite_dir }}/tier1" ]]; then
+            echo "Running tier1 suites (non-blocking)..."
+            env \
+              SUITE_DIR="${{ inputs.suite_dir }}" \
+              TEST_TIER=tier1 \
+              TEST_TIMEOUT=600 \
+              RETRY_COUNT=0 \
+              EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
+              PLATFORM=android \
+              ./integration_test_runner.sh 2>&1 | tee tier1_run.log || echo "tier1 suites failed (non-blocking)"
+          fi
+
+          if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
+            echo "Stopping screen recording and encrypting..."
+            kill "$RECORD_LOOP_PID" || true
+            adb shell killall -INT screenrecord || true
+            sleep 5
+
+            mkdir -p recordings
+            for f in $(adb shell ls /sdcard/rec_*.mp4 2>/dev/null | tr -d '\r'); do
+              adb pull "$f" recordings/ || true
+            done
+
+            # Recordings show seed words on screen so they are never uploaded in plaintext,
+            # and a keyserver flake must never eat the test exit code
+            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 || true # konstantin@cakewallet.com
+            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC || true # cyjan@mrcyjanek.net
+            for f in recordings/*.mp4; do
+              [[ -f "$f" ]] || continue
+              gpg --trust-model always --encrypt --output "$f.gpg" \
+                --recipient 6B3199AD9B3D23B8 \
+                --recipient 35C8DBAFB8D9ACAC \
+                "$f" || echo "Encrypting $f failed, discarding it"
+              rm "$f"
+            done
+          fi
+
+          exit $TEST_EXIT_CODE
+          EOF
+
+          chmod +x /tmp/run_integration_tests.sh
+
       - name: Integration tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         env:
@@ -284,70 +358,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 4096 -cores 4 -no-snapshot-save
           disable-animations: false
           working-directory: ${{ github.workspace }}
-          script: |
-            /tmp/emulator_ready.sh
-
-            adb shell settings put global window_animation_scale 0.0 || true
-            adb shell settings put global transition_animation_scale 0.0 || true
-            adb shell settings put global animator_duration_scale 0.0 || true
-
-            if [[ "$RECORD_SCREEN" == "true" ]]; then
-              echo "Starting chunked screen recording..."
-              (i=0; while true; do adb shell screenrecord --time-limit 180 --bit-rate 2000000 "/sdcard/rec_$i.mp4" || break; i=$((i+1)); done) &
-              RECORD_LOOP_PID=$!
-            fi
-
-            set -o pipefail
-            set +e
-            env \
-              SUITE_DIR="${{ inputs.suite_dir }}" \
-              TEST_TIER="${{ inputs.test_tier }}" \
-              EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
-              PLATFORM=android \
-              ./integration_test_runner.sh 2>&1 | tee integration_test_run.log
-            TEST_EXIT_CODE=$?
-            set -e
-
-            adb logcat -d > logcat_final.txt || true
-
-            # tier1 depends on live network services so it reports but does not block merges,
-            # promote it into the hard gate once it has a stable green history
-            if [[ "${{ inputs.test_tier }}" == "tier0" && -d "${{ inputs.suite_dir }}/tier1" ]]; then
-              echo "Running tier1 suites (non-blocking)..."
-              env \
-                SUITE_DIR="${{ inputs.suite_dir }}" \
-                TEST_TIER=tier1 \
-                EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
-                PLATFORM=android \
-                ./integration_test_runner.sh 2>&1 | tee tier1_run.log || echo "tier1 suites failed (non-blocking)"
-            fi
-
-            if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
-              echo "Stopping screen recording and encrypting..."
-              kill "$RECORD_LOOP_PID" || true
-              adb shell killall -INT screenrecord || true
-              sleep 5
-
-              mkdir -p recordings
-              for f in $(adb shell ls /sdcard/rec_*.mp4 2>/dev/null | tr -d '\r'); do
-                adb pull "$f" recordings/ || true
-              done
-
-              # Recordings show seed words on screen so they are never uploaded in plaintext,
-              # and a keyserver flake must never eat the test exit code
-              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 || true # konstantin@cakewallet.com
-              gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC || true # cyjan@mrcyjanek.net
-              for f in recordings/*.mp4; do
-                [[ -f "$f" ]] || continue
-                gpg --trust-model always --encrypt --output "$f.gpg" \
-                  --recipient 6B3199AD9B3D23B8 \
-                  --recipient 35C8DBAFB8D9ACAC \
-                  "$f" || echo "Encrypting $f failed, discarding it"
-                rm "$f"
-              done
-            fi
-
-            exit $TEST_EXIT_CODE
+          script: bash /tmp/run_integration_tests.sh
 
       - name: Upload test logs
         if: always()
