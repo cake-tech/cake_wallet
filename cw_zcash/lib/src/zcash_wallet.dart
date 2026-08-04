@@ -23,6 +23,7 @@ import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_mempool.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
+import 'package:cw_zcash/src/zcash_network.dart';
 import 'package:cw_zcash/src/zkool_compat.dart';
 import 'package:cw_zcash/src/zkooltx.dart';
 import 'package:mobx/mobx.dart';
@@ -32,6 +33,7 @@ import 'package:zkool/src/rust/api/coin.dart' as zkool_coin;
 import 'package:zkool/src/rust/api/mempool.dart' as zkool_mempool;
 import 'package:zkool/src/rust/api/sync.dart' as zkool_sync;
 import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
+import 'package:zkool/src/rust/api/migrate.dart' as zkool_migrate;
 import 'package:zkool/src/rust/api/network.dart' as zkool_network;
 import 'package:zkool/src/rust/pay.dart' as zkool_paydart;
 import 'package:zkool/src/rust/frb_generated.dart' as zkool_frb;
@@ -61,6 +63,15 @@ abstract class ZcashWalletBase
 
   int accountId;
 
+  final Map<String, BigInt> _pendingOutgoingAmounts = {};
+
+  void rememberPendingOutgoingAmount(final String txId, final Money amount) {
+    if (amount.isZero) {
+      return;
+    }
+    _pendingOutgoingAmounts[ZcashWalletService.normalizeTxId(txId)] = amount.amount;
+  }
+
   @override
   @observable
   SyncStatus syncStatus = NotConnectedSyncStatus();
@@ -71,6 +82,12 @@ abstract class ZcashWalletBase
   });
 
   static const int _autoShieldMinSweep = 30000;
+
+  // zkool's migrate::MIN_SD.
+  static const int _ironwoodMigrateMinNote = 500000;
+
+  static int _minSweepThreshold({required final bool ironwood}) =>
+      ironwood ? _ironwoodMigrateMinNote : _autoShieldMinSweep;
 
   Money _feeFromTxPlan(
     final zkool_pay.PcztPackage txPlan,
@@ -147,6 +164,7 @@ abstract class ZcashWalletBase
       c = c.setLwd(url: lwdUrl, serverType: 0);
       syncStatus = ConnectedSyncStatus();
       unawaited(ZcashMempoolService.instance.ensureRunning(c));
+      unawaited(_updateIronwoodActive());
       _ensureSyncLoopRunning();
       unawaited(_refreshSyncStatus());
       unawaited(_oneshotSync());
@@ -457,18 +475,19 @@ abstract class ZcashWalletBase
     }
 
     // pools parameter: bitmask for which pools to use for sending
-    // 1=Transparent, 2=Sapling, 4=Orchard, 7=All pools
-    // Using 7 (all pools) allows spending from any pool type
+    // 1=Transparent, 2=Sapling, 4=Orchard, 8=Ironwood
     try {
       return await runWithCoin(
         accountId: accountId,
         func: (coin) async {
+          final ironwood = await zkool_network.isIronwoodActive(c: coin);
           final txPlan = await zkool_pay.prepare(
             recipients: recipients,
             options: zkool_pay.PaymentOptions(
-              srcPools: 7,
+              srcPools: ironwood ? 8 : 4,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
+              mode: 0,
             ),
             c: coin,
           );
@@ -502,18 +521,57 @@ abstract class ZcashWalletBase
 
   static const _dispPhrase = "Received to disposable address";
 
+  bool _hasExternalOutputs(final ZkoolTx tx) =>
+      tx.outputsWithAddress.any((final o) => !_addressBelongsToWallet(o.address));
+
+  bool _isIronwoodMigrationTx(final ZkoolTx tx) {
+    // zkool classifies migration as selfTransfer with fee-sized net value.
+    if (tx.type != TxType.selfTransfer) {
+      return false;
+    }
+    final orchardSpent = tx.orchardSpent;
+    final spentFromOrchard = orchardSpent > BigInt.zero ||
+        tx.spendPools.contains(NotePool.orchard.index);
+    if (!spentFromOrchard) {
+      return false;
+    }
+    if (tx.ironwoodReceived > BigInt.zero ||
+        tx.notePools.contains(NotePool.ironwood.index)) {
+      return true;
+    }
+    // Orchard → Orchard split step (SD notes created, all outputs are ours).
+    if (tx.orchardReceived > BigInt.zero && !_hasExternalOutputs(tx)) {
+      return true;
+    }
+    // Orchard → Ironwood before the IW note is attached to tx details.
+    return orchardSpent > tx.value;
+  }
+
+  BigInt _migrationDisplayAmount(final ZkoolTx tx) {
+    if (tx.ironwoodReceived > BigInt.zero) {
+      return tx.ironwoodReceived;
+    }
+    if (tx.orchardReceived > BigInt.zero) {
+      return tx.orchardReceived;
+    }
+    return tx.orchardSpent;
+  }
+
   ZcashTransactionInfo _zcashInfoFromMempoolTx(
     final zkool_mempool.MempoolTx tx,
     final int accountId,
   ) {
     final accountNotes = tx.notes.where((final n) => n.account == accountId);
+    final txHash = ZcashWalletService.normalizeTxId(tx.txid);
+    final pendingAmount = _pendingOutgoingAmounts[txHash];
     final netValue = accountNotes.fold<BigInt>(
       BigInt.zero,
       (final sum, final note) => sum + BigInt.from(note.value),
     );
-    final direction = netValue >= BigInt.zero
-        ? TransactionDirection.incoming
-        : TransactionDirection.outgoing;
+    final direction = pendingAmount != null || netValue < BigInt.zero
+        ? TransactionDirection.outgoing
+        : TransactionDirection.incoming;
+    final displayAmount = pendingAmount ?? netValue.abs();
     final memo = accountNotes
         .map((final n) => n.memo)
         .whereType<String>()
@@ -525,8 +583,8 @@ abstract class ZcashWalletBase
     );
 
     final info = ZcashTransactionInfo(
-      id: ZcashWalletService.normalizeTxId(tx.txid),
-      amount: Money(netValue.abs(), currency),
+      id: txHash,
+      amount: Money(displayAmount, currency),
       fee: Money.zero(currency),
       direction: direction,
       isPending: true,
@@ -555,11 +613,15 @@ abstract class ZcashWalletBase
         ? currentHeight - tx.height + 1
         : 0;
     final memo = extraMemo != null ? "${tx.memo ?? ''}\n$extraMemo".trim() : tx.memo;
-    final direction = directionOverride ?? tx.direction;
+    final isMigration = directionOverride == null && _isIronwoodMigrationTx(tx);
+    final direction = directionOverride ??
+        (isMigration ? TransactionDirection.outgoing : tx.direction);
     final recipientAddresses = _recipientAddresses(_paymentOutputAddresses(tx), direction);
+    final amount = amountOverride ??
+        (isMigration ? _migrationDisplayAmount(tx) : tx.value);
     final info = ZcashTransactionInfo(
       id: tx.txHash,
-      amount: Money(amountOverride ?? tx.value, currency),
+      amount: Money(amount, currency),
       fee: Money.zero(currency),
       direction: direction,
       isPending: tx.height == 0,
@@ -571,6 +633,7 @@ abstract class ZcashWalletBase
       txType: tx.type,
       isRotationReceive: isRotationReceive,
       isShieldAction: isShieldAction,
+      isIronwoodMigration: isMigration,
     );
     if (recipientAddresses.isNotEmpty) {
       info.outputAddresses = recipientAddresses;
@@ -627,6 +690,9 @@ abstract class ZcashWalletBase
       'tx_$txHash$suffix';
 
   static int _txDisplayPriority(final ZcashTransactionInfo info) {
+    if (info.additionalInfo['isIronwoodMigration'] == true) {
+      return 4;
+    }
     if (info.additionalInfo['isAutoShield'] == true) {
       return 3;
     }
@@ -650,7 +716,8 @@ abstract class ZcashWalletBase
       return;
     }
     if (infoPriority == existingPriority &&
-        info.additionalInfo['isAutoShield'] == true &&
+        (info.additionalInfo['isAutoShield'] == true ||
+            info.additionalInfo['isIronwoodMigration'] == true) &&
         info.direction == TransactionDirection.outgoing &&
         existing.direction == TransactionDirection.incoming) {
       byHash[hash] = info;
@@ -813,6 +880,10 @@ abstract class ZcashWalletBase
 
     final Map<String, ZcashTransactionInfo> splitEntries = {};
     for (final tx in txs) {
+      _pendingOutgoingAmounts.remove(ZcashWalletService.normalizeTxId(tx.txHash));
+      if (tx.height > 0) {
+        ZcashMempoolService.instance.removeTx(tx.txHash);
+      }
       final isShield = _isShieldActionTx(tx, rotationSweepHashes: rotationSweepHashes);
       if (_shouldSplitAutoshieldTx(tx, isShield: isShield)) {
         byHash.remove(tx.txHash);
@@ -834,10 +905,15 @@ abstract class ZcashWalletBase
       _offerTx(byHash, _zcashInfoFromZkoolTx(tx, currentHeight, isShieldAction: isShield));
     }
 
-    final knownHashes = {for (final tx in txs) tx.txHash, ...byHash.keys};
+    final knownHashes = {
+      for (final tx in txs) ZcashWalletService.normalizeTxId(tx.txHash),
+      for (final hash in byHash.keys) ZcashWalletService.normalizeTxId(hash),
+    };
     for (final mempoolTx in ZcashMempoolService.instance.txsForAccount(accountId)) {
       final hash = ZcashWalletService.normalizeTxId(mempoolTx.txid);
       if (knownHashes.contains(hash)) {
+        ZcashMempoolService.instance.removeTx(hash);
+        _pendingOutgoingAmounts.remove(hash);
         continue;
       }
       final info = _zcashInfoFromMempoolTx(mempoolTx, accountId);
@@ -998,31 +1074,36 @@ abstract class ZcashWalletBase
   }
 
   bool _isTransactionUpdating = false;
+  bool _transactionUpdateQueued = false;
 
   Future<void> updateTransactions() async {
+    if (_isTransactionUpdating) {
+      _transactionUpdateQueued = true;
+      return;
+    }
+
+    _isTransactionUpdating = true;
     try {
-      if (_isTransactionUpdating) {
-        return;
-      }
+      do {
+        _transactionUpdateQueued = false;
+        final transactions = await fetchTransactions();
 
-      _isTransactionUpdating = true;
-      final transactions = await fetchTransactions();
+        final currentIds = transactionHistory.transactions.keys.toSet();
+        final newIds = transactions.keys.toSet();
 
-      final currentIds = transactionHistory.transactions.keys.toSet();
-      final newIds = transactions.keys.toSet();
+        currentIds
+            .difference(newIds)
+            .forEach((final id) => transactionHistory.transactions.remove(id));
 
-      currentIds
-          .difference(newIds)
-          .forEach((final id) => transactionHistory.transactions.remove(id));
-
-      transactions.forEach((final key, final tx) {
-        transactionHistory.transactions[key] = tx;
-      });
-      await transactionHistory.save();
-      _isTransactionUpdating = false;
+        transactions.forEach((final key, final tx) {
+          transactionHistory.transactions[key] = tx;
+        });
+        await transactionHistory.save();
+      } while (_transactionUpdateQueued);
     } catch (e, stackTrace) {
       printV("Update transactions error: $e");
       printV("Stack trace: $stackTrace");
+    } finally {
       _isTransactionUpdating = false;
     }
   }
@@ -1081,6 +1162,8 @@ abstract class ZcashWalletBase
 
   static final autoShieldMutex = Mutex();
   static DateTime? _lastAutoShieldAt;
+  static final ironwoodMigrateMutex = Mutex();
+  static DateTime? _lastIronwoodMigrateAt;
   Future<void> _autoShield() async {
     if (_lastAutoShieldAt != null &&
         _lastAutoShieldAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
@@ -1097,6 +1180,40 @@ abstract class ZcashWalletBase
     }
   }
 
+  /// Total of transparent + sapling notes at or above the per-note spendable floor.
+  static Future<BigInt> _sweepableTotal(final zkool_coin.Coin coin) async {
+    final notes = await zkool_account.listNotes(c: coin);
+    BigInt sweepable = BigInt.zero;
+    for (int i = 0; i < notes.length; i++) {
+      final note = notes[i];
+      if (note.pool < 0 || note.pool >= NotePool.values.length) {
+        continue;
+      }
+      final noteType = NotePool.values[note.pool];
+      if ((noteType == NotePool.transparent || noteType == NotePool.sapling) &&
+          note.value >= BigInt.from(ZcashTaddressRotation.minSpendableNote)) {
+        sweepable += note.value;
+      }
+    }
+    return sweepable;
+  }
+
+  /// Orchard notes that migration will actually split or move to Ironwood.
+  static Future<BigInt> _migratableOrchardTotal(final zkool_coin.Coin coin) async {
+    final notes = await zkool_account.listNotes(c: coin);
+    BigInt migratable = BigInt.zero;
+    for (int i = 0; i < notes.length; i++) {
+      final note = notes[i];
+      if (note.pool != NotePool.orchard.index || note.locked) {
+        continue;
+      }
+      if (note.value >= BigInt.from(_ironwoodMigrateMinNote)) {
+        migratable += note.value;
+      }
+    }
+    return migratable;
+  }
+
   Future<void> _$autoShield() async {
     if (syncStatus is! SyncedSyncStatus) {
       return;
@@ -1104,36 +1221,26 @@ abstract class ZcashWalletBase
     final txId = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
-        final _notes = await zkool_account.listNotes(c: coin);
-        final List<zkool_account.TxNote> txNotes = [];
-        for (int i = 0; i < _notes.length; i++) {
-          final note = _notes[i];
-          final noteType = NotePool.values[note.pool];
-          if ([NotePool.sapling, NotePool.transparent].contains(noteType)) {
-            txNotes.add(note);
-          }
-        }
+        final sweepable = await _sweepableTotal(coin);
+        final ironwood = await zkool_network.isIronwoodActive(c: coin);
 
-        final sweepable = txNotes.isEmpty
-            ? BigInt.from(0)
-            : txNotes.map((final txn) => txn.value).reduce((final a, final b) => a + b);
-
-        if (sweepable <= BigInt.from(_autoShieldMinSweep)) {
+        if (sweepable <= BigInt.from(_minSweepThreshold(ironwood: ironwood))) {
           return null;
         }
-
         final txPlan = await zkool_pay.prepare(
           recipients: [
             zkool_paydart.Recipient(
               assetBase: zecBase,
               address: walletAddresses.orchardAddress!,
               amount: sweepable,
+              pools: ironwood ? ironwoodPoolMask : null,
             ),
           ],
           options: zkool_pay.PaymentOptions(
             srcPools: 3,
             recipientPaysFee: true,
             smartTransparent: false,
+            mode: 0,
           ),
           c: coin,
         );
@@ -1156,34 +1263,141 @@ abstract class ZcashWalletBase
     _lastAutoShieldAt = DateTime.now();
     printV("shielded: $txId");
     await updateTransactions();
-    await _refreshBalance(runAutoShield: false);
+    await _refreshBalance(runAutoShield: false, runIronwoodMigrate: false);
   }
 
-  Future<void> _refreshBalance({required final bool runAutoShield}) async {
+  Future<void> _ironwoodMigrate() async {
+    if (_lastIronwoodMigrateAt != null &&
+        _lastIronwoodMigrateAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
+      return;
+    }
     try {
-      final bal = await runWithCoin(
+      await ironwoodMigrateMutex.acquire();
+      await _$ironwoodMigrate();
+    } catch (e, s) {
+      printV("ironwood migration failed: $e");
+      s.toString().split("\n").forEach(printV);
+    } finally {
+      ironwoodMigrateMutex.release();
+    }
+  }
+
+  Future<void> _$ironwoodMigrate() async {
+    if (syncStatus is! SyncedSyncStatus) {
+      return;
+    }
+    final event = await runWithCoin(
+      accountId: accountId,
+      func: (coin) async {
+        if (!await zkool_network.isIronwoodActive(c: coin)) {
+          return null;
+        }
+        final bal = await zkool_sync.balance(c: coin);
+        if (bal.field0.length <= 2 || bal.field0[2] <= BigInt.zero) {
+          return null;
+        }
+        return zkool_migrate.stepMigration(c: coin);
+      },
+    );
+    if (event == null) {
+      return;
+    }
+    switch (event) {
+      case zkool_migrate.MigrationEvent_Complete():
+      case zkool_migrate.MigrationEvent_NothingToDo():
+        return;
+      case zkool_migrate.MigrationEvent_SplitComplete(:final fee):
+        printV("ironwood split step complete, fee: $fee");
+      case zkool_migrate.MigrationEvent_MigrateComplete(:final fee):
+        printV("ironwood migrate step complete, fee: $fee");
+      case zkool_migrate.MigrationEvent_Error(:final message):
+        printV("ironwood migration error: $message");
+        return;
+    }
+
+    _lastIronwoodMigrateAt = DateTime.now();
+    await updateTransactions();
+    await _refreshBalance(runAutoShield: false, runIronwoodMigrate: false);
+  }
+
+  Future<void> _updateIronwoodActive() async {
+    bool? active;
+    try {
+      active = await runWithCoin(
         accountId: accountId,
-        func: (coin) => zkool_sync.balance(c: coin),
+        func: (final coin) => zkool_network.isIronwoodActive(c: coin),
       );
+    } catch (e) {
+      printV("isIronwoodActive: $e");
+    }
 
-      // 0 - transparent
-      // 1 - sapling
-      // 2 - orchard
-      final confirmedTotal = bal.field0.reduce((final a, final b) => a + b);
+    if (active == null && networkFor(walletInfo) == ZcashNetwork.regtest) {
+      try {
+        final height = await runWithCoin(
+          accountId: accountId,
+          func: (final coin) => zkool_network.getCurrentHeight(c: coin),
+        );
+        active = height >= ZcashNetwork.regtestNu63Height;
+        printV("regtest ironwood inferred from height $height: $active");
+      } catch (e) {
+        printV("regtest height check failed: $e");
+      }
+    }
 
-      // int knownOutPending = 0;
-      // ZcashWalletBase.temporarySentTx[accountId]?.forEach((final sTx) {
-      //   knownOutPending += sTx.value; // it's negative
-      // });
-      final confirmedSpendable = confirmedTotal - bal.field0[0];
+    if (active == null) {
+      return;
+    }
 
+    ironwoodActive = active;
+    runInAction(() => walletAddresses.setIronwoodActive(active!));
+    printV("ironwoodActive=$active (account $accountId)");
+  }
+
+  Future<void> _refreshBalance({
+    required final bool runAutoShield,
+    final bool runIronwoodMigrate = true,
+  }) async {
+    try {
+      await _updateIronwoodActive();
       if (runAutoShield) {
         await _autoShield();
       }
+      if (runIronwoodMigrate) {
+        await _ironwoodMigrate();
+      }
 
-      balance[CryptoCurrency.zec] = ZcashBalance(
-        Money(confirmedSpendable, currency),
-        Money(confirmedTotal - confirmedSpendable, currency),
+      final (bal, sweepable, migratableOrchard) = await runWithCoin(
+        accountId: accountId,
+        func: (final coin) async => (
+          await zkool_sync.balance(c: coin),
+          await _sweepableTotal(coin),
+          await _migratableOrchardTotal(coin),
+        ),
+      );
+
+      // 0 - transparent, 1 - sapling, 2 - orchard, 3 - ironwood
+      final orchard = bal.field0.length > 2 ? bal.field0[2] : BigInt.zero;
+      final ironwood = bal.field0.length > 3 ? bal.field0[3] : BigInt.zero;
+
+      // After NU6.3, Orchard notes are migrated to Ironwood - show them as unconfirmed.
+      // Unavailable uses the same per-note totals and thresholds as auto-shield/migration guards.
+      final BigInt availableAmount;
+      final BigInt unavailableAmount;
+      if (ironwoodActive == true && orchard > BigInt.zero) {
+        final sweepableUnavailable = sweepable <= BigInt.from(_ironwoodMigrateMinNote)
+            ? BigInt.zero
+            : sweepable;
+        availableAmount = ironwood;
+        unavailableAmount = migratableOrchard + sweepableUnavailable;
+      } else {
+        final minSweep = _minSweepThreshold(ironwood: ironwoodActive == true);
+        availableAmount = orchard + ironwood;
+        unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
+      }
+
+      balance[currency] = ZcashBalance(
+        Money(availableAmount, currency),
+        Money(unavailableAmount, currency),
         frozen: Money.zero(currency),
       );
     } catch (e, stackTrace) {
@@ -1211,7 +1425,9 @@ abstract class ZcashWalletBase
   late ZcashWalletAddresses walletAddresses = ZcashWalletAddresses(accountId, walletInfo);
 
   static Future<ZcashWallet> create(final WalletCredentials credentials) async {
-    await $init();
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
     final newWalletCredentials = credentials as ZcashNewWalletCredentials;
 
     String mnemonic;
@@ -1222,7 +1438,7 @@ abstract class ZcashWalletBase
       mnemonic = bip39.generateMnemonic(strength: strength);
     }
 
-    final birthHeight = await ZcashHeight.getBlockHeightByTime(DateTime.now());
+    final birthHeight = await birthHeightForNetwork(network);
 
     final accountId = await restoreZcashWalletFromSeed(
       name: credentials.name,
@@ -1241,7 +1457,9 @@ abstract class ZcashWalletBase
   }
 
   static Future<ZcashWallet> restore(final WalletCredentials credentials) async {
-    await $init();
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
     final fromSeedCredentials = credentials as ZcashFromSeedWalletCredentials;
     final String? seed = fromSeedCredentials.seed;
     if (seed == null || seed.isEmpty) {
@@ -1265,7 +1483,9 @@ abstract class ZcashWalletBase
   }
 
   static Future<ZcashWallet> restoreKeys(final WalletCredentials credentials) async {
-    await $init();
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
     final fromKeysCredentials = credentials as ZcashFromKeysWalletCredentials;
     final String? keys = fromKeysCredentials.privateKey;
     if (keys == null || keys.isEmpty) {
@@ -1299,7 +1519,8 @@ abstract class ZcashWalletBase
     required final String password,
     required final WalletInfo walletInfo,
   }) async {
-    await $init();
+    final network = networkFor(walletInfo);
+    await $init(network: network);
     // if (password.isNotEmpty) {
     //   setDbPasswd(coin, password);
     // }
@@ -1379,9 +1600,32 @@ abstract class ZcashWalletBase
 
   static WalletType get _type => WalletType.zcash;
 
-  static Future<String> getDbDataPath() async {
+  static ZcashNetwork networkFor(final WalletInfo? walletInfo) =>
+      ZcashNetwork.fromName(walletInfo?.network ?? ZcashNetwork.mainnet.value);
+
+  static ZcashNetwork networkForCredentials(final WalletCredentials credentials) {
+    if (credentials is ZcashNewWalletCredentials) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
+    if (credentials is ZcashFromSeedWalletCredentials) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
+    if (credentials is ZcashFromKeysWalletCredentials) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
+    return ZcashNetwork.mainnet;
+  }
+
+  static Future<int> birthHeightForNetwork(final ZcashNetwork network) async {
+    if (network != ZcashNetwork.mainnet) {
+      return 1;
+    }
+    return ZcashHeight.getBlockHeightByTime(DateTime.now());
+  }
+
+  static Future<String> getDbDataPath({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
     final pathForWalletType = await pathForWalletTypeDir(type: _type);
-    final dbDataPath = "${pathForWalletType}/zec.v2.db";
+    final dbDataPath = "${pathForWalletType}/${network.dbFileName}";
     if (!Directory(pathForWalletType).existsSync()) {
       Directory(pathForWalletType).createSync(recursive: true);
     }
@@ -1398,6 +1642,8 @@ abstract class ZcashWalletBase
   }
 
   static bool _initialized = false;
+  static bool _rustInitialized = false;
+  static ZcashNetwork? _activeNetwork;
 
   static void unlockDatabase(final String password) {
     _password = password;
@@ -1406,22 +1652,25 @@ abstract class ZcashWalletBase
   static var c = zkool_coin.Coin();
 
   static String? _password;
-  static Future<void> $init() async {
-    if (_initialized) return;
-    _initialized = true;
-    printV(r".$init()");
-    await zkool_frb.RustLib.init();
+  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+    if (!_rustInitialized) {
+      await zkool_frb.RustLib.init();
+      _rustInitialized = true;
+    }
+    if (_initialized && _activeNetwork == network) {
+      return;
+    }
+    printV(r".$init($network)");
     ZcashMempoolService.instance.onAccountsUpdated = (final accountIds) {
       for (final accountId in accountIds) {
         unawaited(refreshWalletForAccount(accountId));
       }
     };
-    final dbFile = File(await getDbDataPath());
+    final dbFile = File(await getDbDataPath(network: network));
     final ywalletDbFile = File(await getDbDataPathLegacyYwallet());
     await zkool_network.initDatadir(directory: dbFile.parent.path);
-    // c = await c.openDatabase(dbFilepath: dbFile.path, password: 'cw_zcash_migration');
     c = await c.openDatabase(dbFilepath: dbFile.path, password: null);
-    printV("initWallet");
+    printV("initWallet: ${dbFile.path}");
     if (_password == null) {
       throw Exception("Zcash wallet locked! Please contact support");
     }
@@ -1432,6 +1681,7 @@ abstract class ZcashWalletBase
       //TODO(mrcyjanek): migrate to zkool
     }
 
+    _activeNetwork = network;
     _initialized = true;
   }
 

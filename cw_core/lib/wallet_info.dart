@@ -594,39 +594,40 @@ class WalletInfo {
         "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
         "favoriteTokenAddress": favoriteTokenAddress,
+        "network": network,
         "isReady": isReady ? 1 : 0,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
-    final wi = WalletInfo(
-      json[selfIdColumn] as int,
-      json['id'] as String,
-      json['name'] as String,
-      WalletType.values[json['type'] as int],
-      (json['isRecovery'] as int) == 1,
-      json['restoreHeight'] as int,
-      json['timestamp'] as int,
-      json['dirPath'] as String,
-      json['path'] as String,
-      json['address'] as String,
-      json['yatEid'] as String?,
-      json['yatLastUsedAddressRaw'] as String?,
-      (json['showIntroCakePayCard'] as int) == 1,
-      json['walletInfoDerivationInfoId'] as int,
-      json['hardwareWalletType'] == null
-          ? null
-          : HardwareWalletType.values[json['hardwareWalletType'] as int],
-      json['parentAddress'] as String?,
-      json['hashedWalletIdentifier'] as String?,
-      (json['isNonSeedWallet'] as int) == 1,
-      json['sortOrder'] as int? ?? 0,
-      json['addressPageType'] as String? ?? null,
-      json['receiveInfoboxDismissed'] != 0,
-      json["showCombinedBalance"] != 0,
-      json["favoriteTokenAddress"] as String? ?? null,
-    );
-    wi.isReady = (json['isReady'] as int? ?? 1) == 1;
-    return wi;
+    final info = WalletInfo(
+        json[selfIdColumn] as int,
+        json['id'] as String,
+        json['name'] as String,
+        WalletType.values[json['type'] as int],
+        (json['isRecovery'] as int) == 1,
+        json['restoreHeight'] as int,
+        json['timestamp'] as int,
+        json['dirPath'] as String,
+        json['path'] as String,
+        json['address'] as String,
+        json['yatEid'] as String?,
+        json['yatLastUsedAddressRaw'] as String?,
+        (json['showIntroCakePayCard'] as int) == 1,
+        json['walletInfoDerivationInfoId'] as int,
+        json['hardwareWalletType'] == null
+            ? null
+            : HardwareWalletType.values[json['hardwareWalletType'] as int],
+        json['parentAddress'] as String?,
+        json['hashedWalletIdentifier'] as String?,
+        (json['isNonSeedWallet'] as int) == 1,
+        json['sortOrder'] as int? ?? 0,
+        json['addressPageType'] as String? ?? null,
+        json['receiveInfoboxDismissed'] != 0,
+        json["showCombinedBalance"] != 0,
+        json["favoriteTokenAddress"] as String? ?? null);
+    info.network = json['network'] as String?;
+    info.isReady = (json['isReady'] as int? ?? 1) == 1;
+    return info;
   }
 
   Future<int> save() async {
