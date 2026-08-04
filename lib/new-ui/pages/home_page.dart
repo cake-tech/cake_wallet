@@ -55,6 +55,9 @@ class _NewHomePageState extends State<NewHomePage> {
 
     reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val)  {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
+        if(!context.mounted) {
+          return;
+        }
         widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
         showMaterialModalBottomSheet(
           context: context,
