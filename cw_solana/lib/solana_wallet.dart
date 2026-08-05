@@ -918,7 +918,7 @@ abstract class SolanaWalletBase
       await _clearLastSyncedSignature(source);
     }
 
-    updateTokenBalance();
+    await updateTokenBalance();
   }
 
   Future<void> _removeTokenTransactionsInHistory(SPLToken token) async {

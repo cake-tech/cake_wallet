@@ -179,6 +179,9 @@ class JupiterExchangeProvider extends ExchangeProvider {
       final outAmount = BigInt.parse(orderData['outAmount'] as String);
 
       final outputAmount = AmountConverter.fromBaseUnits(outAmount.toString(), to.decimals);
+      if (amount <= 0) {
+        return 0.0;
+      }
 
       final rate = double.parse(outputAmount) / amount;
 

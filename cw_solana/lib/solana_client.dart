@@ -213,11 +213,7 @@ class SolanaWalletClient {
           // For native solana transactions
           if (instruction.accounts.length < 2) continue;
 
-          // Get the fee payer index based on transaction type
-          // For legacy transfers, the first account is usually the fee payer
-          // For versioned, the first account in instruction is usually the fee payer
-          final feePayerIndex =
-              txResponse.version == TransactionType.legacy ? 0 : instruction.accounts[0];
+          const feePayerIndex = 0;
 
           final transactionModel = await _parseNativeTransaction(
             message: message,
@@ -460,7 +456,8 @@ class SolanaWalletClient {
         if (accountAddress == walletAddress) {
           final preBalance = preBalances[i];
           final postBalance = postBalances[i];
-          final balanceChange = preBalance - postBalance;
+
+          final balanceChange = preBalance - postBalance - BigInt.from(fee);
 
           if (balanceChange > BigInt.zero) {
             // The wallet sent SOL
@@ -849,10 +846,12 @@ class SolanaWalletClient {
     }
 
     final diff = userPreAmount - userPostAmount;
-    final rawAmount = diff.abs();
 
-    final amountInString = rawAmount.toStringAsFixed(6);
-    final amount = double.parse(amountInString);
+    if (diff == 0) {
+      return null;
+    }
+
+    final amount = diff.abs();
     final isOutgoing = diff > 0;
 
     // Resolve sender/receiver from token balance owners
@@ -1163,7 +1162,7 @@ class SolanaWalletClient {
         symbol: filteredTokenSymbol,
         mintAddress: mintAddress,
         iconPath: iconPath,
-        decimal: int.tryParse(decimal) ?? 0,
+        decimal: decimal is num ? decimal.toInt() : int.tryParse(decimal.toString()) ?? 0,
       );
     } catch (e, s) {
       printV('Error fetching token info: $e \n $s');

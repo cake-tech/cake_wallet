@@ -124,11 +124,13 @@ class CWSolana extends Solana {
 
     final token = (wallet as SolanaWallet).splTokenBySymbol(transaction.amount.currency.symbol);
 
-    if (token == null) {
-      throw StateError('No SPL token for symbol ${transaction.amount.currency.symbol}');
+    if (token != null) {
+      return token;
     }
 
-    return token;
+    final recordedCurrency = transaction.amount.currency;
+
+    return recordedCurrency is CryptoCurrency ? recordedCurrency : CryptoCurrency.sol;
   }
 
   @override
@@ -416,7 +418,9 @@ class CWSolana extends Solana {
       if (discoveredMints.isNotEmpty) {
         await wallet.updateSPLTokenTransactions(specificMints: discoveredMints);
       }
-    } catch (_) {}
+    } catch (e) {
+      printV("Error discovering wallet tokens: ${e.toString()}");
+    }
   }
 
   @override
