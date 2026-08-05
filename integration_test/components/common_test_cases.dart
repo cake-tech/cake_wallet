@@ -5,8 +5,20 @@ class CommonTestCases {
   CommonTestCases(this.tester);
   WidgetTester tester;
 
-  Future<void> isSpecificPage<T>() async {
-    await tester.pumpAndSettle();
+  Future<void> isSpecificPage<T>({Duration timeout = const Duration(seconds: 30)}) async {
+    final finder = find.byType(T);
+
+    // Wait for the page instead of asserting on the next frame, routes that decrypt keys
+    // or unlock a wallet take much longer on a ci emulator than on a dev machine.
+    final endTime = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(endTime)) {
+      await tester.pump(const Duration(milliseconds: 100));
+
+      if (tester.any(finder)) {
+        break;
+      }
+    }
+
     hasType<T>();
   }
 

@@ -37,7 +37,7 @@ on:
       timeout_minutes:
         required: false
         type: number
-        default: 120
+        default: 180
 
 defaults:
   run:
@@ -296,7 +296,7 @@ jobs:
             SUITE_DIR="${{ inputs.suite_dir }}" \
             TEST_TIER="${{ inputs.test_tier }}" \
             EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
-            TEST_TIMEOUT=600 \
+            TEST_TIMEOUT=1500 \
             PLATFORM=android \
             ./integration_test_runner.sh 2>&1 | tee integration_test_run.log
           TEST_EXIT_CODE=$?
