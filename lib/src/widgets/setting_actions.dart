@@ -28,7 +28,6 @@ class SettingActions {
     privacySettingAction,
     displaySettingAction,
     otherSettingAction,
-    syncKeyImagesSettingAction,
     supportSettingAction,
   ];
 
@@ -124,15 +123,6 @@ class SettingActions {
     name: (context) => S.of(context).other_settings,
     image: 'assets/images/settings_menu.png',
     onTap: (BuildContext context) {
-      Navigator.of(context).pushNamed(Routes.otherSettingsPage);
-    },
-  );
-
-  static SettingActions syncKeyImagesSettingAction = SettingActions._(
-    key: const ValueKey('dashboard_page_menu_widget_sync_key_images_button_key'),
-    name: (context) => S.of(context).other_settings,
-    image: 'assets/images/settings_menu.png',
-    onTap: (context) {
       Navigator.of(context).pushNamed(Routes.otherSettingsPage);
     },
   );
