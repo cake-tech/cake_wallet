@@ -99,7 +99,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       if (isFixedRateMode && !supportsFixedRate) {
         return 0.0;
       }
-      if (from == CryptoCurrency.btcln || to == CryptoCurrency.btcln) return 0;
+      if (to == CryptoCurrency.btcln) return 0;
 
       final params = <String, dynamic>{};
       final body = <String, String>{
@@ -193,7 +193,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       final params = <String, dynamic>{};
-      var body = <String, dynamic>{
+      final body = <String, dynamic>{
         'coin_send': _normalizeCurrency(request.fromCurrency),
         'coin_send_network': _networkFor(request.fromCurrency),
         'coin_receive': _normalizeCurrency(request.toCurrency),
@@ -261,7 +261,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw Exception('Unexpected http status: ${response.statusCode}');
+        throw Exception('Unexpected http status: ${response.statusCode} ${response.body}');
       }
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
@@ -389,29 +389,24 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _normalizeCurrency(CryptoCurrency currency) {
-    switch (currency) {
-      default:
-        return currency.title.toUpperCase();
-    }
-  }
+  String _normalizeCurrency(CryptoCurrency currency) => switch (currency) {
+        _ => currency.title.toUpperCase(),
+      };
 
-  String _networkFor(CryptoCurrency currency) {
-    final network = switch (currency) {
-      CryptoCurrency.eth => 'ETH',
-      CryptoCurrency.bnb => 'BNB_BSC',
-      CryptoCurrency.usdterc20 => 'USDT_ERC20',
-      CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
-      CryptoCurrency.usdtbsc => 'USDT_BSC',
-      CryptoCurrency.sol => 'SOL',
-      CryptoCurrency.btc => 'BTC',
-      CryptoCurrency.xmr => 'XMR',
-      CryptoCurrency.ltc => 'LTC',
-      CryptoCurrency.ada => 'ADA',
-      CryptoCurrency.bch => 'BCH',
-      CryptoCurrency.zec => 'ZEC',
-      _ => currency.title.toUpperCase(),
-    };
-    return network;
-  }
+  String _networkFor(CryptoCurrency currency) => switch (currency) {
+        CryptoCurrency.btcln => 'Lightning',
+        CryptoCurrency.eth => 'ETH',
+        CryptoCurrency.bnb => 'BNB_BSC',
+        CryptoCurrency.usdterc20 => 'USDT_ERC20',
+        CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
+        CryptoCurrency.usdtbsc => 'USDT_BSC',
+        CryptoCurrency.sol => 'SOL',
+        CryptoCurrency.btc => 'BTC',
+        CryptoCurrency.xmr => 'XMR',
+        CryptoCurrency.ltc => 'LTC',
+        CryptoCurrency.ada => 'ADA',
+        CryptoCurrency.bch => 'BCH',
+        CryptoCurrency.zec => 'ZEC',
+        _ => currency.title.toUpperCase(),
+      };
 }
