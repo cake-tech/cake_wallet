@@ -7,8 +7,10 @@ import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class WalletCreationDetailsPage extends BasePage {
   WalletCreationDetailsPage();
@@ -78,42 +80,51 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
             children: [
               const Spacer(flex: 2),
               Center(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                child: state.selectedTypes.length == 1
+                    ? Center(
+                        child: CakeImageWidget(
+                          imageUrl:
+                              getCryptoCurrencyIconForWalletListItem(state.selectedTypes.first),
+                          width: 100,
+                          height: 100,
+                        ),
+                      )
+                    : Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                            ),
+                          ),
+                          Positioned(
+                            right: -2,
+                            bottom: 4,
+                            child: Material(
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                              shape: const CircleBorder(),
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: () {
+                                  // TODO: add icon picker action
+                                },
+                                child: SizedBox(
+                                  width: 36,
+                                  height: 36,
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 22,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    // Positioned(
-                    //   right: -2,
-                    //   bottom: 4,
-                    //   child: Material(
-                    //     color: Theme.of(context).colorScheme.surfaceContainer,
-                    //     shape: const CircleBorder(),
-                    //     child: InkWell(
-                    //       customBorder: const CircleBorder(),
-                    //       onTap: () {
-                    //         // TODO: add icon picker action
-                    //       },
-                    //       child: SizedBox(
-                    //         width: 36,
-                    //         height: 36,
-                    //         child: Icon(
-                    //           Icons.add,
-                    //           size: 22,
-                    //           color: Theme.of(context).colorScheme.primary,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
-                ),
               ),
               const SizedBox(height: 28),
               Text(
@@ -210,7 +221,6 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                       arguments: bloc,
                     );
                   },
-                  borderRadius: BorderRadius.circular(999999),
                   text: S.of(context).continue_text,
                   color: Theme.of(context).colorScheme.primary,
                   textColor: Theme.of(context).colorScheme.onPrimary,
@@ -221,6 +231,64 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
           ),
         );
       },
+    );
+  }
+}
+
+class OmniChainHowToChangeNetworksSheet extends StatelessWidget {
+  const OmniChainHowToChangeNetworksSheet({super.key});
+
+  static Future<void> show(BuildContext context) => showCupertinoModalBottomSheet<void>(
+    context: context,
+    barrierColor: Colors.black.withAlpha(85),
+    builder: (_) => const Material(
+      child: OmniChainHowToChangeNetworksSheet(),
+    ),
+  );
+
+  static const _paragraphs = [
+    "You can find the Network Selector on the top left corner of your wallet's homescreen.",
+    "That way, you can easily change networks without having to navigate to a different tab on Cake Wallet.",
+    "If you are familiar with Wallet Groups, this is an improved navigation for them.",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ModalTopBar(
+          title: "How to Change Network",
+          leadingIcon: const Icon(Icons.arrow_back_ios_new),
+          onLeadingPressed: Navigator.of(context).pop,
+          leadingSemanticLabel: S.of(context).close,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const FrameIconWidget(iconSize: 96),
+              const SizedBox(height: 36),
+              ..._paragraphs.map(
+                    (paragraph) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    paragraph,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

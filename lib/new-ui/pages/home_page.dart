@@ -60,23 +60,22 @@ class _NewHomePageState extends State<NewHomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surfaceDim,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+  Widget build(BuildContext context) => Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceDim,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
-      ),
-      child: Stack(
-        children: [
-          CustomScrollView(
-              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        child: Stack(
+          children: [
+            CustomScrollView(
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: [
                 SliverPadding(
                   padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
@@ -142,48 +141,47 @@ class _NewHomePageState extends State<NewHomePage> {
                               lightningMode: _lightningMode,
                             ),
                           ),
-                          Observer(builder: (_) {
-                            return AnimatedSize(
-                              duration: Duration(milliseconds: 150),
-                              curve: Curves.easeInOutCubic,
-                              child: (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
-                                  ? Column(
-                                      children: [
-                                        SizedBox(
-                                          height: 12,
-                                          width: double.infinity,
-                                        ),
-                                        Text(
-                                          S.of(context).long_press_show_balance,
-                                          style: TextStyle(
-                                              color:
-                                                  Theme.of(context).colorScheme.onSurfaceVariant),
-                                        )
-                                      ],
-                                    )
-                                  : SizedBox(width: double.infinity),
-                            );
-                          }),
+                          Observer(
+                              builder: (_) => AnimatedSize(
+                                    duration: Duration(milliseconds: 150),
+                                    curve: Curves.easeInOutCubic,
+                                    child:
+                                        (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
+                                            ? Column(
+                                                children: [
+                                                  const SizedBox(
+                                                    height: 12,
+                                                    width: double.infinity,
+                                                  ),
+                                                  Text(
+                                                    S.of(context).long_press_show_balance,
+                                                    style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant),
+                                                  )
+                                                ],
+                                              )
+                                            : const SizedBox(width: double.infinity),
+                                  )),
                           UnconfirmedBalanceWidget(
                             dashboardViewModel: widget.dashboardViewModel,
                           ),
                         ],
                       ),
                       Observer(
-                        builder: (_) {
-                          return Column(
-                            children: [
-                              CoinActionRow(
-                                lightningMode: _lightningMode,
-                                showSwap: widget.dashboardViewModel.isEnabledSwapAction,
-                                walletType: widget.dashboardViewModel.wallet.type,
-                              ),
-                              MwebAd(
-                                dashboardViewModel: widget.dashboardViewModel,
-                              ),
-                            ],
-                          );
-                        },
+                        builder: (_) => Column(
+                          children: [
+                            CoinActionRow(
+                              lightningMode: _lightningMode,
+                              showSwap: widget.dashboardViewModel.isEnabledSwapAction,
+                              walletType: widget.dashboardViewModel.wallet.type,
+                            ),
+                            MwebAd(
+                              dashboardViewModel: widget.dashboardViewModel,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -194,39 +192,38 @@ class _NewHomePageState extends State<NewHomePage> {
                     dashboardViewModel: widget.dashboardViewModel,
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: SizedBox(height: 80.0),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 80),
                 )
-              ]),
-          Container(
-            height: (MediaQuery.of(context).padding.top),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: <Color>[
-                  Theme.of(context).colorScheme.surface.withAlpha(5),
-                  Theme.of(context).colorScheme.surface.withAlpha(25),
-                  Theme.of(context).colorScheme.surface.withAlpha(50),
-                  Theme.of(context).colorScheme.surface.withAlpha(100),
-                  Theme.of(context).colorScheme.surface.withAlpha(150),
-                  Theme.of(context).colorScheme.surface.withAlpha(175),
-                  Theme.of(context).colorScheme.surface.withAlpha(200),
-                ],
+              ],
+            ),
+            Container(
+              height: MediaQuery.of(context).padding.top,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: <Color>[
+                    Theme.of(context).colorScheme.surface.withAlpha(5),
+                    Theme.of(context).colorScheme.surface.withAlpha(25),
+                    Theme.of(context).colorScheme.surface.withAlpha(50),
+                    Theme.of(context).colorScheme.surface.withAlpha(100),
+                    Theme.of(context).colorScheme.surface.withAlpha(150),
+                    Theme.of(context).colorScheme.surface.withAlpha(175),
+                    Theme.of(context).colorScheme.surface.withAlpha(200),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
-  void openAccountCustomizer() async {
+  Future<void> openAccountCustomizer() async {
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
-      builder: (context) {
-        return ModalNavigator(
+      builder: (context) => ModalNavigator(
           parentContext: context,
           heightMode: ModalHeightModes.fullScreen,
           rootPage: Material(
@@ -235,8 +232,7 @@ class _NewHomePageState extends State<NewHomePage> {
             accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
             dashboardViewModel: widget.dashboardViewModel,
           )),
-        );
-      },
+        ),
     );
     widget.dashboardViewModel.loadCardDesigns();
   }

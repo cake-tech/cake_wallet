@@ -8,7 +8,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SyncBar extends StatelessWidget {
@@ -38,8 +37,7 @@ class SyncBar extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(
+  Widget build(BuildContext context) => Observer(
       builder: (_) {
         final status = dashboardViewModel.status;
         final Widget? icon = _getIcon(context, status.runtimeType);
@@ -50,8 +48,8 @@ class SyncBar extends StatelessWidget {
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [
-              if (!_showFullBar()) _buildCompactBar(context),
-              if (_showFullBar())
+              if (!showFullBar) _buildCompactBar(context),
+              if (showFullBar)
                 // A single node: the localized status text (plus any active
                 // Tor/MWEB/Silent Payments badge) is the label, and the hint says
                 // where tapping leads. Everything inside is redundant with it.
@@ -64,7 +62,7 @@ class SyncBar extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () => _openNodeManagement(context),
                       child: AnimatedSwitcher(
-                        duration: Duration(milliseconds: 100),
+                        duration: const Duration(milliseconds: 100),
                         child: Container(
                           key: ValueKey(status.runtimeType),
                           height: 36,
@@ -108,7 +106,6 @@ class SyncBar extends StatelessWidget {
         );
       },
     );
-  }
 
   void _openNodeManagement(BuildContext context) =>
       CupertinoScaffold.showCupertinoModalBottomSheet(

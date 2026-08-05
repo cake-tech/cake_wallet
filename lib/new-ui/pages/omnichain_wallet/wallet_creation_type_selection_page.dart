@@ -206,7 +206,6 @@ class _WalletCreationTypeSelectionPageBodyState extends State<WalletCreationType
                 child: FloatingBlurWrapper(
                   child: PrimaryButton(
                     key: const ValueKey("new_wallet_continue_button_key"),
-                    borderRadius: BorderRadius.circular(999999),
                     onPressed: _continue,
                     text: S.of(context).continue_text,
                     color: theme.colorScheme.primary,
@@ -411,6 +410,7 @@ class OmniChainHowToChangeNetworksSheet extends StatelessWidget {
           title: "How to Change Network",
           leadingIcon: const Icon(Icons.arrow_back_ios_new),
           onLeadingPressed: Navigator.of(context).pop,
+          leadingSemanticLabel: S.of(context).close,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -418,7 +418,7 @@ class OmniChainHowToChangeNetworksSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const FrameIconWidget(iconSize: 84),
+              const FrameIconWidget(iconSize: 96),
               const SizedBox(height: 36),
               ..._paragraphs.map(
                 (paragraph) => Padding(
@@ -454,7 +454,7 @@ class FrameIconWidget extends StatelessWidget {
 
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+        padding: const EdgeInsets.fromLTRB(12, 12, 18, 12),
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(999),
@@ -467,10 +467,10 @@ class FrameIconWidget extends StatelessWidget {
               height: iconSize,
               width: iconSize,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Icon(
               Icons.keyboard_arrow_down,
-              size: 20,
+              size: 36,
               color: theme.colorScheme.primary,
             ),
           ],
