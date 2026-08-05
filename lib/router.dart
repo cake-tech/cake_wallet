@@ -909,10 +909,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       }
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
-    //
-    // case Routes.urqrAnimatedPage:
-    //   return MaterialPageRoute<void>(
-    //       builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
+
+    case Routes.urqrAnimatedPage:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
 
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(
