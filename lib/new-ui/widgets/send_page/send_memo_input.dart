@@ -31,11 +31,16 @@ class NewSendMemoInput extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
-                  maxLength: maxMemoLength,
-                  controller: memoController,
-                  decoration: InputDecoration(
-                      hintText: hintText ?? S.of(context).memo_optional, counterText: ""),
+                child: MergeSemantics(
+                  child: Semantics(
+                    label: hintText ?? S.of(context).memo_optional,
+                    child: TextField(
+                      maxLength: maxMemoLength,
+                      controller: memoController,
+                      decoration: InputDecoration(
+                          hintText: hintText ?? S.of(context).memo_optional, counterText: ""),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(width: 12),
@@ -61,8 +66,12 @@ class NewSendMemoInput extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
-              Text("${memoController.text.length} / ${maxMemoLength}",
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary))
+              // The field itself already reports the character count through
+              // maxValueLength/currentValueLength, so this visual counter stays silent.
+              ExcludeSemantics(
+                child: Text("${memoController.text.length} / ${maxMemoLength}",
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary)),
+              )
             ],
           ),
         )
