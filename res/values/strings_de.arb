@@ -884,6 +884,7 @@
   "restore_wallet_restore_description": "Beschreibung der Wallet-Wiederherstellung",
   "resync_device": "Gerät resyncen",
   "resync_device_desc": "Um das Guthaben aktuell zu halten muss Cake Wallet gelegentlich sich mit dem Gerät synchonisieren.",
+  "resync_device_cancel_warning_desc": "Dadurch wird der laufende Synchronisierungsprozess mit Ihrem Hardware-Gerät beendet.",
   "return_address_desc": "Im seltenen Fall eines fehlgeschlagenen Swaps können unsere Partner Ihre Zahlung automatisch an die angegebene Rückerstattungsadresse erstatten.",
   "return_address_desc_external": "Da Sie „Von extern senden“ ausgewählt haben, legen Sie bitte unten manuell eine Erstattungsadresse fest.",
   "robinhood_option_description": "Kaufen und übertragen Sie sofort mit Ihrer Debitkarte, Ihrem Bankkonto oder Ihrem Robinhood-Guthaben. Nur USA.",
