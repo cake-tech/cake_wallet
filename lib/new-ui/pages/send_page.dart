@@ -328,6 +328,7 @@ class _NewSendPageState extends State<NewSendPage> {
                         title: widget.mode.title,
                         subtitle: widget.mode.description,
                         leadingIcon: const Icon(Icons.close),
+                        leadingSemanticLabel: S.of(context).close,
                         onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                         trailingWidget: Observer(
                           builder: (_) => Row(
@@ -343,6 +344,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       BlendMode.srcIn,
                                     ),
                                   ),
+                                  semanticLabel: S.of(context).remove,
                                   onPressed: () {
                                     final outputIndex = _selectedOutput;
                                     if (_selectedOutput != 0) {
@@ -362,6 +364,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                 ModernButton(
                                   size: 36,
                                   icon: const Icon(Icons.add),
+                                  semanticLabel: S.of(context).add_receiver,
                                   onPressed: () {
                                     _addInputControllers();
                                     widget.sendViewModel.addOutput();
@@ -378,6 +381,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                       BlendMode.srcIn,
                                     ),
                                   ),
+                                  semanticLabel: S.of(context).help,
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       CupertinoPageRoute(
@@ -1504,6 +1508,7 @@ class SendHelpPage extends StatelessWidget {
             ModalTopBar(
               title: content.title,
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Padding(

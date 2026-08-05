@@ -52,6 +52,7 @@ class FiatAmountBar extends StatelessWidget {
               svgPath: "assets/new-ui/switch.svg",
               iconSize: 18,
               onPressed: onSwitchButtonPressed,
+              semanticLabel: S.of(context).switch_input_currency,
             ),
             // Announced as the converted value only: the switch button next to it already
             // exposes the same action, so this must not become a second control.

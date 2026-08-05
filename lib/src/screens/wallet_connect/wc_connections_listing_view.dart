@@ -131,6 +131,7 @@ class WalletConnectConnectionsView extends StatelessWidget {
                   size: 40,
                   onPressed: () => Navigator.of(context).maybePop(),
                   icon: Icon(Icons.arrow_back_ios_new, size: 16),
+                  semanticLabel: S.of(context).seed_alert_back,
                   iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),

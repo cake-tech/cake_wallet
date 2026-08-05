@@ -174,6 +174,7 @@ class SendTransactionDetails extends StatelessWidget {
                   ],
                 ),
                 trailingIcon: Icon(Icons.close),
+                trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).maybePop,
               ),
               isPage

@@ -201,6 +201,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
@@ -223,6 +224,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               : widget.addressListViewModel.isRotatingAddress
                                   ? const CupertinoActivityIndicator()
                                   : const Icon(Icons.refresh),
+                          semanticLabel: _largeQrMode
+                              ? S.of(context).share_address
+                              : S.of(context).rotate_address,
                           onPressed: () {
                             if (_largeQrMode) {
                               ShareUtil.share(
@@ -271,11 +275,23 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   ReceiveAddressWidget(
                     addressListViewModel: widget.addressListViewModel,
                   ),
-                  GestureDetector(
-                    onTap: _showLabelModal,
-                    child: ReceiveLabelWidget(
-                      name: _addressItemWithLabel?.name ?? "",
-                      largeQrMode: _largeQrMode,
+                  // The label chip animates to zero height when there is no
+                  // label (or in large QR mode); keep it out of the semantics
+                  // tree entirely while it is collapsed.
+                  ExcludeSemantics(
+                    excluding: _largeQrMode || !hasLabel,
+                    child: MergeSemantics(
+                      child: Semantics(
+                        button: true,
+                        hint: S.of(context).set_label,
+                        child: GestureDetector(
+                          onTap: _showLabelModal,
+                          child: ReceiveLabelWidget(
+                            name: _addressItemWithLabel?.name ?? "",
+                            largeQrMode: _largeQrMode,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   Observer(
