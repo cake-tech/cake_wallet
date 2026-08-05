@@ -961,47 +961,25 @@ abstract class SolanaWalletBase
     return Base58Encoder.encode(signature);
   }
 
-  List<List<int>> bytesFromSigString(String signatureString) {
-    final regex = RegExp(r'Signature\(\[(.+)\], publicKey: (.+)\)');
-    final match = regex.firstMatch(signatureString);
-
-    if (match != null) {
-      final bytesString = match.group(1)!;
-      final base58EncodedPublicKeyString = match.group(2)!;
-      final sigBytes = bytesString.split(', ').map(int.parse).toList();
-
-      List<int> pubKeyBytes = SolAddrDecoder().decodeAddr(base58EncodedPublicKeyString);
-
-      return [sigBytes, pubKeyBytes];
-    } else {
-      throw const FormatException('Invalid Signature string format');
-    }
-  }
-
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    String signatureString = utf8.decode(HEX.decode(signature));
-
-    List<List<int>> bytes = bytesFromSigString(signatureString);
-
-    final messageBytes = utf8.encode(message);
-    final sigBytes = bytes[0];
-    final pubKeyBytes = bytes[1];
-
-    if (address == null) {
+    if (address == null || address.isEmpty) {
       return false;
     }
 
-    // make sure the address derived from the public key provided matches the one we expect
-    final pub = SolanaPublicKey.fromBytes(pubKeyBytes);
-    if (address != pub.toAddress().address) {
+    try {
+      final signatureBytes = Base58Decoder.decode(signature);
+
+      final publicKey = SolanaPublicKey.fromBytes(SolAddrDecoder().decodeAddr(address));
+
+      return publicKey.verify(
+        message: utf8.encode(message),
+        signature: signatureBytes,
+      );
+    } catch (e) {
+      printV("Error verifying solana message: ${e.toString()}");
       return false;
     }
-
-    return pub.verify(
-      message: messageBytes,
-      signature: sigBytes,
-    );
   }
 
   SolanaRPC? get solanaProvider => _client.getSolanaProvider;
