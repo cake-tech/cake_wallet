@@ -60,7 +60,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
                         context: context,
                         builder: (context) => AlertWithTwoActions(
                           alertTitle: S.of(context).are_you_sure_exit,
-                          alertContent: S.of(context).hww_exit_desc,
+                          alertContent: S.of(context).resync_device_cancel_warning_desc,
                           leftButtonText: S.of(context).cancel,
                           rightButtonText: S.of(context).yes_exit,
                           rightAlertButtonStyle: AlertButtonStyle.error(context),
