@@ -646,7 +646,8 @@ class SolanaWalletClient {
               incomingAmount = diff.toDouble();
               incomingMintAddress = mint;
               final token = await getTokenInfo(mint);
-              incomingToken = token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
+              incomingToken =
+                  token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
               incomingTo = walletAddress;
               // We find the intermediate account
               if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
@@ -1017,8 +1018,7 @@ class SolanaWalletClient {
     final transactions = <SolanaTransactionModel>[];
 
     try {
-      final signatures =
-          await _getAllSignaturesSinceLastFetch(address, untilSignature, commitment);
+      final signatures = await _getAllSignaturesSinceLastFetch(address, untilSignature, commitment);
 
       if (signatures.isEmpty) return TransactionSyncResult(transactions: transactions);
 
@@ -1100,11 +1100,9 @@ class SolanaWalletClient {
 
     if (associatedTokenAccount == null) {
       try {
-        associatedTokenAccount = await _getOrCreateAssociatedTokenAccount(
-          payerPrivateKey: privateKey,
+        associatedTokenAccount = await _findAssociatedTokenAccount(
           mintAddress: SolAddress(mintAddress),
           ownerAddress: ownerWalletAddress,
-          shouldCreateATA: false,
         );
       } catch (e, s) {
         printV('$e \n $s');
@@ -1274,41 +1272,19 @@ class SolanaWalletClient {
     );
   }
 
-  Future<Message> _getMessageForSPLTokenTransaction({
-    required SolAddress ownerAddress,
-    required SolAddress destinationAddress,
-    required int tokenDecimals,
-    required SolAddress mintAddress,
-    required SolAddress sourceAccount,
-    required Money amount,
-    required Commitment commitment,
-    required SolAddress tokenProgramId,
-  }) async {
-    final instructions = [
-      SPLTokenProgram.transferChecked(
-        layout: SPLTokenTransferCheckedLayout(
-          amount: amount.amount,
-          decimals: tokenDecimals,
-        ),
-        mint: mintAddress,
-        source: sourceAccount,
-        destination: destinationAddress,
-        owner: ownerAddress,
-      )
-    ];
-
-    final latestBlockhash = await _getLatestBlockhash(commitment);
-
-    return Message.compile(
-      transactionInstructions: instructions,
-      payer: ownerAddress,
-      recentBlockhash: latestBlockhash,
-    );
-  }
-
   Future<Money> _getFeeFromCompiledMessage(Message message, Commitment commitment) {
     final base64Message = base64Encode(message.serialize());
     return getFeeForMessage(base64Message, commitment);
+  }
+
+  Future<Money> _getRentExemptionAmount(int? space) async {
+    final rent = await _provider!.request(
+      SolanaRPCGetMinimumBalanceForRentExemption(
+        size: space ?? SolanaTokenAccountUtils.accountSize,
+      ),
+    );
+
+    return Money(rent, CryptoCurrency.sol);
   }
 
   Future<bool> hasSufficientFundsLeftForRent({
@@ -1506,21 +1482,10 @@ class SolanaWalletClient {
     return SPLTokenProgramConst.tokenProgramId;
   }
 
-  Future<ProgramDerivedAddress?> _getOrCreateAssociatedTokenAccount({
-    required SolanaPrivateKey payerPrivateKey,
+  Future<ProgramDerivedAddress?> _findAssociatedTokenAccount({
     required SolAddress ownerAddress,
     required SolAddress mintAddress,
-    required bool shouldCreateATA,
   }) async {
-    // For transaction history loading (shouldCreateATA: false), try standard token program first
-    // to avoid unnecessary RPC call. Only fetch token program ID when creating accounts.
-    SolAddress tokenProgramId = SPLTokenProgramConst.tokenProgramId;
-
-    if (shouldCreateATA) {
-      // Only fetch token program ID when we need to create an account
-      tokenProgramId = await _getTokenProgramId(mintAddress);
-    }
-
     // Try with standard token program first (most common case)
     var associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
       mint: mintAddress,
@@ -1543,71 +1508,29 @@ class SolanaWalletClient {
     // If account exists with standard program, return it
     if (accountInfo != null) return associatedTokenAccount;
 
-    // If not found and we're not creating, try Token-2022 as fallback
-    if (!shouldCreateATA) {
-      try {
-        final token2022ProgramId = await _getTokenProgramId(mintAddress);
-        if (token2022ProgramId.address != SPLTokenProgramConst.tokenProgramId.address) {
-          associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
-            mint: mintAddress,
-            owner: ownerAddress,
-            tokenProgramId: token2022ProgramId,
+    // if its not found under the standard program, then we try Token-2022, which derives a different address
+    try {
+      final token2022ProgramId = await _getTokenProgramId(mintAddress);
+      if (token2022ProgramId.address != SPLTokenProgramConst.tokenProgramId.address) {
+        associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+          mint: mintAddress,
+          owner: ownerAddress,
+          tokenProgramId: token2022ProgramId,
+        );
+
+        try {
+          accountInfo = await _provider!.request(
+            SolanaRPCGetAccountInfo(
+              account: associatedTokenAccount.address,
+              commitment: Commitment.confirmed,
+            ),
           );
+          if (accountInfo != null) return associatedTokenAccount;
+        } catch (_) {}
+      }
+    } catch (_) {}
 
-          try {
-            accountInfo = await _provider!.request(
-              SolanaRPCGetAccountInfo(
-                account: associatedTokenAccount.address,
-                commitment: Commitment.confirmed,
-              ),
-            );
-            if (accountInfo != null) return associatedTokenAccount;
-          } catch (_) {}
-        }
-      } catch (_) {}
-      return null;
-    }
-
-    // For account creation, use the detected token program ID
-    associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
-      mint: mintAddress,
-      owner: ownerAddress,
-      tokenProgramId: tokenProgramId,
-    );
-
-    final payerAddress = payerPrivateKey.publicKey().toAddress();
-
-    final createAssociatedTokenAccount = AssociatedTokenAccountProgram.associatedTokenAccount(
-      payer: payerAddress,
-      associatedToken: associatedTokenAccount.address,
-      owner: ownerAddress,
-      mint: mintAddress,
-      tokenProgramId: tokenProgramId,
-    );
-
-    final blockhash = await _getLatestBlockhash(Commitment.confirmed);
-
-    final transaction = SolanaTransaction(
-      payerKey: payerAddress,
-      instructions: [createAssociatedTokenAccount],
-      recentBlockhash: blockhash,
-      type: TransactionType.v0,
-    );
-
-    final serializedTransaction = await _signTransactionInternal(
-      ownerPrivateKey: payerPrivateKey,
-      transaction: transaction,
-    );
-
-    await sendTransaction(
-      serializedTransaction: serializedTransaction,
-      commitment: Commitment.confirmed,
-    );
-
-    // Wait for confirmation
-    await Future.delayed(const Duration(seconds: 2));
-
-    return associatedTokenAccount;
+    return null;
   }
 
   Future<PendingSolanaTransaction> _signSPLTokenTransaction({
@@ -1624,6 +1547,7 @@ class SolanaWalletClient {
 
     ProgramDerivedAddress? associatedSenderAccount;
     SolAddress senderTokenProgramId = tokenProgramId;
+    int? senderAccountSpace;
 
     try {
       associatedSenderAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
@@ -1642,6 +1566,7 @@ class SolanaWalletClient {
 
       if (accountInfo != null) {
         senderTokenProgramId = accountInfo.owner;
+        senderAccountSpace = accountInfo.space;
       } else {
         associatedSenderAccount = null;
       }
@@ -1668,6 +1593,7 @@ class SolanaWalletClient {
 
         if (accountInfo != null) {
           senderTokenProgramId = accountInfo.owner;
+          senderAccountSpace = accountInfo.space;
         } else {
           associatedSenderAccount = null;
         }
@@ -1683,18 +1609,16 @@ class SolanaWalletClient {
       );
     }
 
-    // Get or create recipient account using the sender's token program ID
-    // This ensures both accounts use the same program
-    ProgramDerivedAddress? associatedRecipientAccount;
+    final ProgramDerivedAddress associatedRecipientAccount;
+    bool shouldCreateRecipientAccount = false;
+
     try {
-      // First, try to get/create with the sender's actual program ID
       final recipientPDA = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
         mint: mintAddress,
         owner: SolAddress(destinationAddress),
         tokenProgramId: senderTokenProgramId,
       );
 
-      // Check if account exists with correct program
       SolanaAccountInfo? recipientInfo;
       try {
         recipientInfo = await _provider!.request(
@@ -1707,39 +1631,15 @@ class SolanaWalletClient {
         recipientInfo = null;
       }
 
-      if (recipientInfo != null && recipientInfo.owner.address == senderTokenProgramId.address) {
-        associatedRecipientAccount = recipientPDA;
-      } else {
-        // Create the account with the correct program ID
-        final createATA = AssociatedTokenAccountProgram.associatedTokenAccount(
-          payer: ownerPrivateKey.publicKey().toAddress(),
-          associatedToken: recipientPDA.address,
-          owner: SolAddress(destinationAddress),
-          mint: mintAddress,
-          tokenProgramId: senderTokenProgramId,
-        );
-
-        final blockhash = await _getLatestBlockhash(Commitment.confirmed);
-        final createTransaction = SolanaTransaction(
-          payerKey: ownerPrivateKey.publicKey().toAddress(),
-          instructions: [createATA],
-          recentBlockhash: blockhash,
-          type: TransactionType.v0,
-        );
-
-        final serializedCreateTx = await _signTransactionInternal(
-          ownerPrivateKey: ownerPrivateKey,
-          transaction: createTransaction,
-        );
-
-        await sendTransaction(
-          serializedTransaction: serializedCreateTx,
-          commitment: Commitment.confirmed,
-        );
-
-        await Future.delayed(const Duration(seconds: 2));
-        associatedRecipientAccount = recipientPDA;
+      if (recipientInfo != null && recipientInfo.owner.address != senderTokenProgramId.address) {
+        throw SolanaCreateAssociatedTokenAccountException(
+            "Recipient token account is owned by ${recipientInfo.owner.address}",);
       }
+
+      shouldCreateRecipientAccount = recipientInfo == null;
+      associatedRecipientAccount = recipientPDA;
+    } on SolanaCreateAssociatedTokenAccountException {
+      rethrow;
     } catch (e) {
       throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
@@ -1755,29 +1655,40 @@ class SolanaWalletClient {
       decimals: tokenDecimals,
     );
 
+    final instructions = <TransactionInstruction>[
+      if (shouldCreateRecipientAccount)
+        AssociatedTokenAccountProgram.associatedTokenAccountIdempotent(
+          payer: ownerPrivateKey.publicKey().toAddress(),
+          associatedToken: associatedRecipientAccount.address,
+          owner: SolAddress(destinationAddress),
+          mint: mintAddress,
+          tokenProgramId: senderTokenProgramId,
+        ),
+      transferInstructions,
+    ];
+
     final latestBlockHash = await _getLatestBlockhash(commitment);
 
     final transaction = SolanaTransaction(
       payerKey: ownerPrivateKey.publicKey().toAddress(),
-      instructions: [transferInstructions],
+      instructions: instructions,
       recentBlockhash: latestBlockHash,
     );
 
-    final message = await _getMessageForSPLTokenTransaction(
-      ownerAddress: ownerPrivateKey.publicKey().toAddress(),
-      tokenDecimals: tokenDecimals,
-      mintAddress: mintAddress,
-      destinationAddress: associatedRecipientAccount.address,
-      sourceAccount: associatedSenderAccount.address,
-      amount: inputAmount,
-      commitment: commitment,
-      tokenProgramId: tokenProgramId,
+    final message = Message.compile(
+      transactionInstructions: instructions,
+      payer: ownerPrivateKey.publicKey().toAddress(),
+      recentBlockhash: latestBlockHash,
     );
 
     final fee = await _getFeeFromCompiledMessage(message, commitment);
 
+    final accountCreationCost = shouldCreateRecipientAccount
+        ? await _getRentExemptionAmount(senderAccountSpace)
+        : Money.zero(CryptoCurrency.sol);
+
     final hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
-      inputAmount: Money.zero(CryptoCurrency.sol),
+      inputAmount: accountCreationCost,
       fee: fee,
       solBalance: solBalance,
     );
@@ -1800,6 +1711,7 @@ class SolanaWalletClient {
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
       fee: fee,
+      additionalCost: shouldCreateRecipientAccount ? accountCreationCost : null,
     );
   }
 

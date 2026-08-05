@@ -580,8 +580,7 @@ class SendPage extends BasePage {
               context: context,
               isDismissible: false,
               isScrollControlled: true,
-              builder: (BuildContext bottomSheetContext) {
-                return Observer(
+              builder: (BuildContext bottomSheetContext) => Observer(
                   builder: (_) => ConfirmSendingBottomSheet(
                     key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                     titleText: S.of(bottomSheetContext).confirm_transaction,
@@ -595,6 +594,7 @@ class SendPage extends BasePage {
                     amountValue: sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
                         sendViewModel.pendingTransaction!.amountFormatted,
                         sendViewModel.selectedCryptoCurrency),
+                    explanation: sendViewModel.pendingTransactionAdditionalCostNotice,
                     fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
                     fee: isEVMCompatibleChain(sendViewModel.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee
@@ -611,8 +611,7 @@ class SendPage extends BasePage {
                     isOpenCryptoPay: sendViewModel.ocpRequest != null,
                     amountParsingProxy: sendViewModel.amountParsingProxy,
                   ),
-                );
-              },
+                ),
             );
 
             if (result == null) sendViewModel.dismissTransaction();

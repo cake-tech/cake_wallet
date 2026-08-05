@@ -126,9 +126,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         super(appStore: _appStore) {
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
-    unspentCoinsListViewModel
-        .initialSetup();
-        // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
+    unspentCoinsListViewModel.initialSetup();
+    // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
 
     reaction((_) {
       if (isEVMCompatibleChain(wallet.type)) {
@@ -332,6 +331,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @observable
   PendingTransaction? pendingTransaction;
+
+  String? get pendingTransactionAdditionalCostNotice {
+    final additionalCost = pendingTransaction?.additionalCost;
+
+    if (additionalCost == null) {
+      return null;
+    }
+
+    return S.current.recipient_account_creation_fee(
+      _appStore.amountParsingProxy.asDisplayStringWithSymbol(additionalCost),
+    );
+  }
 
   @computed
   String get balance {

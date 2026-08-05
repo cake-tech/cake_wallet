@@ -13,6 +13,7 @@ class PendingSolanaTransaction with PendingTransaction {
     required this.serializedTransaction,
     required this.destinationAddress,
     required this.sendTransaction,
+    this.additionalCost,
   });
 
   @override
@@ -20,6 +21,10 @@ class PendingSolanaTransaction with PendingTransaction {
 
   @override
   final Money fee;
+
+  // This estimates the rent paid for a recipient token account, its a one off cost
+  @override
+  final Money? additionalCost;
 
   @override
   String get amountFormatted {
