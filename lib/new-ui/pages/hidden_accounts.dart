@@ -6,6 +6,7 @@ import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
 import "package:cw_core/balance_card_style_settings.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/material.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
@@ -71,9 +72,13 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
                           S.of(context).no_hidden_accounts,
                           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                         ),
-                        Text(
-                          S.of(context).no_hidden_accounts_desc,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            softWrap: false,
+                            S.of(context).no_hidden_accounts_desc,
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ),
                         ),
                       ],
                     )
@@ -134,7 +139,7 @@ class HiddenBalanceCard extends StatelessWidget {
                   spacing: 8,
                   children: [
                     Text(
-                      item.balance ?? "0",
+                      item.balance?.withMaxDecimals(8) ?? "0",
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 26,
