@@ -3,7 +3,6 @@ import "dart:ui";
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/hidden_accounts.dart";
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
@@ -20,6 +19,7 @@ import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart";
 import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/generate_name.dart";
@@ -31,11 +31,11 @@ import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AccountCustomizerListItem {
   const AccountCustomizerListItem(
-      {required this.card, required this.order, required this.accountListItem,});
+      {required this.card, required this.accountListItem, required this.settings,});
 
   final BalanceCard card;
-  final int order;
   final AccountListItem accountListItem;
+  final BalanceCardStyleSettings? settings;
 }
 
 class AccountCustomizer extends StatefulWidget {
@@ -59,22 +59,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadCards().then((_){
-        final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
-        for (int i = 0; i < _items.length-1; i++) {
-          if(_items[i].accountListItem.id == activeId) {
-            final lastIndex = _items.length - 1;
-            final temp = _items[i];
-            _items[i] = _items[lastIndex];
-            _items[lastIndex] = temp;
-            saveCardOrder();
-            widget.dashboardViewModel.loadCardDesigns();
-            break;
-          }
-        }
-      });
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_bringActiveAccountToFront()));
   }
 
   @override
@@ -83,35 +68,46 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     super.dispose();
   }
 
-  Future<void> loadCards() async {
-    final List<AccountCustomizerListItem> newItems = [];
+  int get _walletInfoId => widget.dashboardViewModel.wallet.walletInfo.internalId;
 
-    final accounts = widget.accountListViewModel.accounts;
-    final styleSettings = await BalanceCardStyleSettings.getAll(widget.dashboardViewModel.wallet.walletInfo.internalId);
-    final sortedOrderKeys = widget.dashboardViewModel.cardOrder.keys.toList()..sort();
-    if(styleSettings.every((item)=>item.hidden)) {
-      await reset();
+  Future<void> _bringActiveAccountToFront() async {
+    await loadCards();
+
+    final activeAccount = widget.accountListViewModel.accounts
+        .firstWhereOrNull((account) => account.isSelected);
+    if (activeAccount == null || _items.isEmpty) {
       return;
     }
-    for (final key in sortedOrderKeys) {
-      final index = widget.dashboardViewModel.cardOrder[key];
 
-      if (index == null) {
+    final index = _items.indexWhere((item) => item.accountListItem.id == activeAccount.id);
+    if (index == -1 || index == _items.length - 1 || !mounted) {
+      return;
+    }
+
+    reorder(index, _items.length);
+    await saveCardOrder();
+    await widget.dashboardViewModel.loadCardDesigns();
+  }
+
+  Future<void> loadCards() async {
+    final accounts = widget.accountListViewModel.accounts;
+    final styleSettings = await BalanceCardStyleSettings.getAll(_walletInfoId);
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: accounts.map((account) => account.id).toList(),
+      settings: styleSettings,
+    );
+
+    final List<AccountCustomizerListItem> newItems = [];
+    for (int position = 0; position < layout.visible.length; position++) {
+      final accountIndex = layout.visible[position];
+      final account = accounts.firstWhereOrNull((item) => item.id == accountIndex);
+
+      if (account == null) {
         continue;
       }
 
-      if(index >= accounts.length) {
-        // db order broken.
-        unawaited(reset());
-        return;
-      }
-
-      final account = accounts.firstWhere((item) => item.id == index);
-      final setting = styleSettings.firstWhereOrNull((item) => item.accountIndex == index);
-
-      if (setting?.hidden ?? false) {
-        continue;
-      }
+      final setting = layout.settingFor(accountIndex);
+      final isFrontCard = position == layout.visible.length - 1;
 
       newItems.add(AccountCustomizerListItem(
           card: BalanceCard(
@@ -121,17 +117,24 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             accountBalance: account.balance ?? "0.00",
             designSwitchDuration: Duration.zero,
             assetName: widget.accountListViewModel.currency.title,
-            onCustomizeTapped: (key == accounts.length - 1) ? _openCardCustomizer : null,
-            selected: key == accounts.length - 1,
+            onCustomizeTapped: isFrontCard ? _openCardCustomizer : null,
+            selected: isFrontCard,
             width: cardWidth,
             design: CardDesign.fromStyleSettings(setting, widget.dashboardViewModel.wallet.currency),
           ),
-          order: index,
-          accountListItem: account,),);
+          accountListItem: account,
+          settings: setting,),);
     }
+
     _items.clear();
     _items.addAll(newItems);
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
+
+    if (layout.needsRepair) {
+      await BalanceCardStyleSettings.setVisibleOrder(_walletInfoId, layout.orders);
+    }
   }
 
   @override
@@ -342,11 +345,12 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       final hideRequested = result != null && result is bool && result;
       bloc.add(hideRequested ? AccountHidden() : DesignSaved());
       await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
-      if (hideRequested) {
-        await reset(unhide: false);
-      }
       await widget.dashboardViewModel.loadCardDesigns();
       await loadCards();
+
+      if (hideRequested && _items.isNotEmpty) {
+        widget.accountListViewModel.select(_items.last.accountListItem);
+      }
     });
   }
 
@@ -374,8 +378,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             width: _items[i].card.width,
             design: _items[i].card.design,
           ),
-          order: i,
-          accountListItem: _items[i].accountListItem,);
+          accountListItem: _items[i].accountListItem,
+          settings: _items[i].settings,);
     }
 
     if (newIndex == _items.length - 1 || oldIndex == _items.length - 1) {
@@ -384,17 +388,17 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   }
 
   Future<void> saveCardOrder() async {
-    final visualOrder = _items.reversed.toList();
-
-    for (int i = 0; i < visualOrder.length; i++) {
-      final item = visualOrder[i];
+    for (int position = 0; position < _items.length; position++) {
+      final item = _items[position];
 
       await BalanceCardStyleSettings.fromCardDesign(
-              walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
+              walletInfoId: _walletInfoId,
           accountIndex: item.accountListItem.id,
           hidden: false,
-          cardOrder: i,
-              design: item.card.design,)
+          cardOrder: position,
+              design: item.card.design,
+              iconStyleIndex: item.settings?.iconStyleIndex ?? 0,
+              gradientIndexOverride: item.settings?.gradientIndex,)
           .insert();
     }
   }
@@ -416,41 +420,34 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     }
   }
 
-  Future<void> reset({bool close = false, bool unhide = true}) async {
-    _items.clear();
-
+  Future<void> reset({bool close = false}) async {
     final accounts = widget.accountListViewModel.accounts;
-    for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
-      final styleSettings = await BalanceCardStyleSettings.get(
-          widget.dashboardViewModel.wallet.walletInfo.internalId, accounts[i].id,);
-      if (!unhide && (styleSettings?.hidden ?? false)) {
-        continue;
-      }
+    final styleSettings = await BalanceCardStyleSettings.getAll(_walletInfoId);
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: accounts.map((account) => account.id).toList(),
+      settings: styleSettings,
+    );
 
-      _items.add(AccountCustomizerListItem(
-          card: BalanceCard(
-            accountName: accounts[i].label,
-            accountIndex: accounts[i].id,
-            balance: accounts[i].balance ?? "0.00",
-            accountBalance: accounts[i].balance ?? "0.00",
-            assetName: widget.accountListViewModel.currency.title,
-            selected: true,
-            designSwitchDuration: const Duration(milliseconds: 200),
-            width: cardWidth,
-            design: CardDesign.fromStyleSettings(
-                styleSettings, widget.dashboardViewModel.wallet.currency,),
-          ),
-          order: i,
-          accountListItem: accounts[i],),);
+    for (int position = 0; position < accounts.length; position++) {
+      final setting = layout.settingFor(accounts[position].id);
+
+      await BalanceCardStyleSettings.fromCardDesign(
+              walletInfoId: _walletInfoId,
+              accountIndex: accounts[position].id,
+              hidden: false,
+              cardOrder: position,
+              design: CardDesign.fromStyleSettings(
+                  setting, widget.dashboardViewModel.wallet.currency,),
+              iconStyleIndex: setting?.iconStyleIndex ?? 0,
+              gradientIndexOverride: setting?.gradientIndex,)
+          .insert();
     }
 
-    await saveCardOrder();
-    if(close) {
-      if(mounted) {
-        unawaited(Navigator.of(context).maybePop());
-      }
-    } else {
-      setState(() {});
+    await widget.dashboardViewModel.loadCardDesigns();
+    await loadCards();
+
+    if (close && mounted) {
+      unawaited(Navigator.of(context).maybePop());
     }
   }
 }

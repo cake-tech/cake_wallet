@@ -128,6 +128,44 @@ class BalanceCardStyleSettings {
   }
 
   Future<void> insert() async {
-    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
+
+  static Future<void> setVisibleOrder(int walletInfoId, Map<int, int> orderByAccountIndex) async {
+    if (orderByAccountIndex.isEmpty) {
+      return;
+    }
+
+    final entries = orderByAccountIndex.entries.toList();
+    final batch = db!.batch();
+
+    for (final entry in entries) {
+      batch.update(
+        tableName,
+        {"cardOrder": entry.value, "hidden": 0},
+        where: "walletInfoId = ? AND accountIndex = ?",
+        whereArgs: [walletInfoId, entry.key],
+      );
+    }
+
+    final updatedRowCounts = await batch.commit();
+
+    for (int i = 0; i < entries.length; i++) {
+      if (updatedRowCounts[i] == 0) {
+        await positionOnly(walletInfoId, entries[i].key, entries[i].value).insert();
+      }
+    }
+  }
+
+  static BalanceCardStyleSettings positionOnly(
+          int walletInfoId, int accountIndex, int cardOrder) =>
+      BalanceCardStyleSettings(
+        walletInfoId: walletInfoId,
+        accountIndex: accountIndex,
+        gradientIndex: -1,
+        useSpecialDesign: true,
+        hidden: false,
+        backgroundImagePath: "",
+        cardOrder: cardOrder,
+      );
 }

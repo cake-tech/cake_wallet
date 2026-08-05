@@ -5,6 +5,7 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/material.dart";
@@ -30,25 +31,39 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
     loadCards();
   }
 
+  int get _walletInfoId => widget.dashboardViewModel.wallet.walletInfo.internalId;
+
+  Future<BalanceCardLayout> _layout() async => BalanceCardLayout.resolve(
+        accountIndices:
+            widget.accountListViewModel.accounts.map((account) => account.id).toList(),
+        settings: await BalanceCardStyleSettings.getAll(_walletInfoId),
+      );
+
   Future<void> loadCards() async {
     final accounts = widget.accountListViewModel.accounts;
-    final styleSettings = await BalanceCardStyleSettings.getAll(
-        widget.dashboardViewModel.wallet.walletInfo.internalId,);
+    final layout = await _layout();
 
     items.clear();
-    for (int i = 0; i < accounts.length; i++) {
-      if (styleSettings.firstWhereOrNull((item) => item.accountIndex == i)?.hidden ?? false) {
-        items.add(accounts[i]);
+    for (final accountIndex in layout.hidden) {
+      final account = accounts.firstWhereOrNull((account) => account.id == accountIndex);
+      if (account != null) {
+        items.add(account);
       }
     }
-    setState(() {});
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
+  String _fiatAmount(AccountListItem item) =>
+      (double.tryParse(item.balance ?? "0") ?? 0 * widget.dashboardViewModel.balanceViewModel.price)
+          .toStringAsFixed(2);
+
   Future<void> unhideCard(AccountListItem acc) async {
-    await (await BalanceCardStyleSettings.get(
-            widget.dashboardViewModel.wallet.walletInfo.internalId, acc.id,))
-        ?.copyWith(hidden: false)
-        .insert();
+    final restored = (await _layout()).unhiding(acc.id);
+    await BalanceCardStyleSettings.setVisibleOrder(_walletInfoId, restored.orders);
+
     await loadCards();
   }
 
@@ -89,9 +104,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
                       itemBuilder: (context, index) => HiddenBalanceCard(
                         item: items[index],
                         assetTtle: widget.dashboardViewModel.wallet.currency.title,
-                        fiatAmount: ((double.tryParse(items[index].balance ?? "0") ?? 0) *
-                                widget.dashboardViewModel.balanceViewModel.price)
-                            .toStringAsFixed(2),
+                        fiatAmount: _fiatAmount(items[index]),
                         fiatCurrencyTitle:
                             widget.dashboardViewModel.settingsStore.fiatCurrency.title,
                         onRestorePressed: () => unhideCard(items[index]),

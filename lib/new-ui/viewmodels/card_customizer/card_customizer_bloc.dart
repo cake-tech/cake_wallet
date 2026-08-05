@@ -52,6 +52,20 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   Future<BalanceCardStyleSettings?> _loadCurrentDesignSettings(int accountIndex) =>
       BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex);
 
+  Future<int> _cardOrderFor(BalanceCardStyleSettings? currentDesignSettings) async {
+    if (currentDesignSettings != null) {
+      return currentDesignSettings.cardOrder;
+    }
+
+    var highest = -1;
+    for (final setting in await BalanceCardStyleSettings.getAll(_wallet.walletInfo.internalId)) {
+      if (setting.cardOrder > highest) {
+        highest = setting.cardOrder;
+      }
+    }
+    return highest + 1;
+  }
+
   List<CardDesign> _initAvailableDesigns({bool lightningMode = false}) {
     final List<CardDesign> ret = List<CardDesign>.empty(growable: true);
     final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
@@ -131,7 +145,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
         accountName,
         accountIndex,
         displaySats,
-        currentDesignSettings?.cardOrder ?? 0,
+        await _cardOrderFor(currentDesignSettings),
         availableIconPaths: availableIconPaths,
         selectedIconIndex: selectedIconIndex,),);
   }
@@ -165,50 +179,56 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(accountName: event.newAccountName));
   }
 
-  void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) {
-    BalanceCardStyleSettings.fromCardDesign(
-            walletInfoId: _wallet.walletInfo.internalId,
-            accountIndex: state.accountIndex,
-            cardOrder: state.cardOrder,
-            design: state.selectedDesign,
-            iconStyleIndex: state.selectedIconIndex,
-            gradientIndexOverride: state.selectedColorIndex,)
-        .insert()
-        .then((value) {
-      emit(CardCustomizerSaved(
-          state.selectedDesignIndex,
-          state.selectedColorIndex,
-          state.availableDesigns,
-          state.availableColors,
-          state.accountName,
-          state.accountIndex,
-          state.displaySats,
-          state.cardOrder,
-          availableIconPaths: state.availableIconPaths,
-          selectedIconIndex: state.selectedIconIndex,),);
-    });
-    saveAccountName();
+  Future<void> _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) async {
+    await BalanceCardStyleSettings.fromCardDesign(
+      walletInfoId: _wallet.walletInfo.internalId,
+      accountIndex: state.accountIndex,
+      cardOrder: state.cardOrder,
+      design: state.selectedDesign,
+      iconStyleIndex: state.selectedIconIndex,
+      gradientIndexOverride: state.selectedColorIndex,
+    ).insert();
+    await saveAccountName();
+
+    emit(
+      CardCustomizerSaved(
+        state.selectedDesignIndex,
+        state.selectedColorIndex,
+        state.availableDesigns,
+        state.availableColors,
+        state.accountName,
+        state.accountIndex,
+        state.displaySats,
+        state.cardOrder,
+        availableIconPaths: state.availableIconPaths,
+        selectedIconIndex: state.selectedIconIndex,
+      ),
+    );
   }
 
-  void _onAccountHidden(AccountHidden event, Emitter<CardCustomizerState> emit) {
-    BalanceCardStyleSettings.fromCardDesign(
-            walletInfoId: _wallet.walletInfo.internalId,
-            accountIndex: state.accountIndex,
-            cardOrder: state.cardOrder,
-            design: state.selectedDesign,
-            hidden: true,)
-        .insert()
-        .then((value) {
-      emit(CardCustomizerSaved(
-          state.selectedDesignIndex,
-          state.selectedColorIndex,
-          state.availableDesigns,
-          state.availableColors,
-          state.accountName,
-          state.accountIndex,
-          state.displaySats,
-          state.cardOrder,),);
-    });
+  Future<void> _onAccountHidden(AccountHidden event, Emitter<CardCustomizerState> emit) async {
+    await BalanceCardStyleSettings.fromCardDesign(
+      walletInfoId: _wallet.walletInfo.internalId,
+      accountIndex: state.accountIndex,
+      cardOrder: state.cardOrder,
+      design: state.selectedDesign,
+      iconStyleIndex: state.selectedIconIndex,
+      gradientIndexOverride: state.selectedColorIndex,
+      hidden: true,
+    ).insert();
+
+    emit(
+      CardCustomizerSaved(
+        state.selectedDesignIndex,
+        state.selectedColorIndex,
+        state.availableDesigns,
+        state.availableColors,
+        state.accountName,
+        state.accountIndex,
+        state.displaySats,
+        state.cardOrder,
+      ),
+    );
   }
 
   Future<void> saveAccountName() async {

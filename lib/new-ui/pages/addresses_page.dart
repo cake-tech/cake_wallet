@@ -58,6 +58,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
   late final TextEditingController _searchController;
 
   CardDesign? design;
+  ReactionDisposer? _cardDesignsDisposer;
 
   void updateItems() {
     setState(() {
@@ -75,13 +76,22 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
         setState(() {});
       });
 
+    design = widget.dashboardViewModel.currentCardDesign;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value) {
+      _cardDesignsDisposer = reaction((context) => widget.dashboardViewModel.cardDesigns.toList(),
+          (value) {
+        if (!mounted) return;
         setState(() {
-          design = value;
+          design = widget.dashboardViewModel.currentCardDesign;
         });
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _cardDesignsDisposer?.call();
+    super.dispose();
   }
 
   @override
