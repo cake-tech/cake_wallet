@@ -62,7 +62,6 @@
   "already_your_username": "Questo è già il tuo nome utente!",
   "always": "Sempre",
   "ambiguous_token_symbol_exception": "Più di un token in questo portafoglio utilizza il simbolo ${symbol}. Disabilitare il token duplicato in modo da poter identificare quello corretto prima dell'invio.",
-  "ambiguous_token_symbol_exception": "Più di un token in questo portafoglio utilizza il simbolo ${symbol}. Disabilitare il token duplicato in modo da poter identificare quello corretto prima dell'invio.",
   "amount": "Importo: ",
   "amount_is_below_minimum_limit": "Il saldo dopo le commissioni sarebbe inferiore all'importo minimo richiesto per lo scambio (${min})",
   "amount_is_estimate": "L'importo da ricevere è una stima",

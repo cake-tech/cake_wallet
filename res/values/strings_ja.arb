@@ -62,7 +62,6 @@
   "already_your_username": "これはすでにあなたのユーザー名です！",
   "always": "常に",
   "ambiguous_token_symbol_exception": "このウォレット内の複数のトークンは、シンボル ${symbol} を使用しています。送信前に正しいトークンを識別できるように、重複したトークンを無効にします。",
-  "ambiguous_token_symbol_exception": "このウォレット内の複数のトークンは、シンボル ${symbol} を使用しています。送信前に正しいトークンを識別できるように、重複したトークンを無効にします。",
   "amount": "金額: ",
   "amount_is_below_minimum_limit": "手数料差し引き後の残高が、交換に必要な最低金額（${min}）を下回ります",
   "amount_is_estimate": "受け取り金額は概算です",

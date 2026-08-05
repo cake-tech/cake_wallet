@@ -27,15 +27,7 @@ class PendingSolanaTransaction with PendingTransaction {
   final Money? additionalCost;
 
   @override
-  String get amountFormatted {
-    String stringifiedAmount = amount.toString();
-
-    if (stringifiedAmount.toString().length >= 6) {
-      stringifiedAmount = stringifiedAmount.substring(0, 6);
-    }
-
-    return stringifiedAmount;
-  }
+  String get amountFormatted => amount.toString();
 
   @override
   Future<void> commit() async {

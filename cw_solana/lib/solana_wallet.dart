@@ -626,7 +626,9 @@ abstract class SolanaWalletBase
     // Fetch SOL and SPL token balances in parallel for better performance
     await Future.wait([
       _fetchSOLBalance().then((solBalance) {
-        balance[CryptoCurrency.sol] = solBalance;
+        if (solBalance != null) {
+          balance[CryptoCurrency.sol] = solBalance;
+        }
       }),
       _updateSplTokenBalancesInternal(tokenMints: tokenMints),
     ]);
@@ -634,10 +636,15 @@ abstract class SolanaWalletBase
     await save();
   }
 
-  Future<SolanaBalance> _fetchSOLBalance() async {
-    final balance = await _client.getBalance(solanaAddress);
-
-    return SolanaBalance(balance);
+  Future<SolanaBalance?> _fetchSOLBalance() async {
+    try {
+      return SolanaBalance(
+        await _client.getBalance(solanaAddress, throwOnError: true),
+      );
+    } catch (e) {
+      printV("Error fetching SOL balance: ${e.toString()}");
+      return null;
+    }
   }
 
   /// Internal helper to update SPL token balances.

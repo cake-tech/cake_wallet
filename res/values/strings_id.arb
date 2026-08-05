@@ -62,7 +62,6 @@
   "already_your_username": "Ini sudah merupakan nama pengguna Anda!",
   "always": "Selalu",
   "ambiguous_token_symbol_exception": "Lebih dari satu token di dompet ini menggunakan simbol ${symbol}. Nonaktifkan token duplikat sehingga token yang benar dapat diidentifikasi sebelum dikirim.",
-  "ambiguous_token_symbol_exception": "Lebih dari satu token di dompet ini menggunakan simbol ${symbol}. Nonaktifkan token duplikat sehingga token yang benar dapat diidentifikasi sebelum dikirim.",
   "amount": "Jumlah: ",
   "amount_is_below_minimum_limit": "Saldo Anda setelah biaya akan lebih rendah dari jumlah minimum yang diperlukan untuk penukaran (${min})",
   "amount_is_estimate": "Jumlah yang diterima adalah perkiraan",

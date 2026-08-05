@@ -1337,6 +1337,10 @@ class SolanaWalletClient {
     if (isSendAll) {
       final updatedLamports = inputAmount - fee;
 
+      if (updatedLamports.isNegative || updatedLamports.isZero) {
+        throw SolanaTransactionWrongBalanceException(CryptoCurrency.sol);
+      }
+
       final transaction = _constructNativeTransaction(
         ownerPrivateKey: ownerPrivateKey,
         destinationAddress: destinationAddress,

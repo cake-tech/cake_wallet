@@ -62,7 +62,6 @@
   "already_your_username": "Dit is al je gebruikersnaam!",
   "always": "Altijd",
   "ambiguous_token_symbol_exception": "Meer dan één token in deze portemonnee gebruikt het symbool ${symbol}. Schakel het dubbele token uit, zodat het juiste token kan worden geïdentificeerd voordat het wordt verzonden.",
-  "ambiguous_token_symbol_exception": "Meer dan één token in deze portemonnee gebruikt het symbool ${symbol}. Schakel het dubbele token uit, zodat het juiste token kan worden geïdentificeerd voordat het wordt verzonden.",
   "amount": "Bedrag: ",
   "amount_is_below_minimum_limit": "Je saldo na kosten zou lager zijn dan het minimale bedrag dat nodig is voor de exchange (${min})",
   "amount_is_estimate": "Het te ontvangen bedrag is een schatting",

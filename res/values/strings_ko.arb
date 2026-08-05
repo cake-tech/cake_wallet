@@ -62,7 +62,6 @@
   "already_your_username": "이미 사용 중인 사용자 이름입니다!",
   "always": "항상",
   "ambiguous_token_symbol_exception": "이 지갑에 있는 두 개 이상의 토큰이 ${symbol} 기호를 사용합니다. 전송하기 전에 올바른 토큰을 식별할 수 있도록 중복 토큰을 비활성화합니다.",
-  "ambiguous_token_symbol_exception": "이 지갑에 있는 두 개 이상의 토큰이 ${symbol} 기호를 사용합니다. 전송하기 전에 올바른 토큰을 식별할 수 있도록 중복 토큰을 비활성화합니다.",
   "amount": "수량: ",
   "amount_is_below_minimum_limit": "수수료 차감 후 잔액이 교환에 필요한 최소 금액(${min})보다 적을 것입니다",
   "amount_is_estimate": "수신 금액은 예상치입니다",

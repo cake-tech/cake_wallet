@@ -62,7 +62,6 @@
   "already_your_username": "Ito na ang username mo!",
   "always": "Palagi",
   "ambiguous_token_symbol_exception": "Higit sa isang token sa wallet na ito ang gumagamit ng simbolo na ${symbol}. I-disable ang duplicate na token para matukoy ang tama bago ipadala.",
-  "ambiguous_token_symbol_exception": "Higit sa isang token sa wallet na ito ang gumagamit ng simbolo na ${symbol}. I-disable ang duplicate na token para matukoy ang tama bago ipadala.",
   "amount": "Halaga: ",
   "amount_is_below_minimum_limit": "Ang iyong balanse pagkatapos ng mga bayarin ay magiging mas mababa kaysa sa minimum na halagang kailangan para sa palitan (${min})",
   "amount_is_estimate": "Ang halagang matatanggap ay isang pagtatantya",

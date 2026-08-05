@@ -62,7 +62,6 @@
   "already_your_username": "Toto už je vaše uživatelské jméno!",
   "always": "Vždy",
   "ambiguous_token_symbol_exception": "Více než jeden token v této peněžence používá symbol ${symbol}. Deaktivujte duplicitní token, aby bylo možné před odesláním identifikovat ten správný.",
-  "ambiguous_token_symbol_exception": "Více než jeden token v této peněžence používá symbol ${symbol}. Deaktivujte duplicitní token, aby bylo možné před odesláním identifikovat ten správný.",
   "amount": "Částka: ",
   "amount_is_below_minimum_limit": "Váš zůstatek po poplatcích by byl nižší než minimální částka potřebná pro směnu (${min})",
   "amount_is_estimate": "Přijatá částka je pouze odhad.",

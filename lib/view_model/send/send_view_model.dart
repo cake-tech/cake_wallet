@@ -1187,11 +1187,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
           DateTime.now().add(Duration(minutes: 1)).toIso8601String());
     } catch (e) {
-      if (e is JupiterSwapFailedException) {
-        await _updateSolanaTrade(signature: e.signature, isSuccess: false);
-      }
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
-      await _updateSolanaTrade(signature: '', isSuccess: false);
+
+      final failedSignature = e is JupiterSwapFailedException ? e.signature : "";
+
+      await _updateSolanaTrade(signature: failedSignature, isSuccess: false);
     }
   }
 
