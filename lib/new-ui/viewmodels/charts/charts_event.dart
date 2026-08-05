@@ -6,33 +6,33 @@ sealed class ChartsEvent {
 }
 
 class RangeChanged extends ChartsEvent {
-  final ChartRange newRange;
-
   const RangeChanged({required this.newRange});
+
+  final ChartRange newRange;
 }
 
 class SortingCriteriumChanged extends ChartsEvent {
-  final PriceDataSortCriterium newCriterium;
-
   const SortingCriteriumChanged({required this.newCriterium});
+
+  final PriceDataSortCriterium newCriterium;
 }
 
 class CurrencyAdded extends ChartsEvent {
-  final CryptoCurrency currency;
-
   const CurrencyAdded({required this.currency});
+
+  final CryptoCurrency currency;
 }
 
 class CurrencyRemoved extends ChartsEvent {
-  final CryptoCurrency currency;
-
   const CurrencyRemoved({required this.currency});
+
+  final CryptoCurrency currency;
 }
 
 class CurrencyPinned extends ChartsEvent {
-  final CryptoCurrency currency;
-
   const CurrencyPinned({required this.currency});
+
+  final CryptoCurrency currency;
 }
 
 class PageRefreshed extends ChartsEvent {}

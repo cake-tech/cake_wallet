@@ -1,4 +1,6 @@
 class ChartRange {
+  const ChartRange._(this.duration, this.displayText, this.dataPrecision);
+
   final Duration? duration;
   final String displayText;
 
@@ -7,8 +9,6 @@ class ChartRange {
   // - less precision means less data sent, less bandwidth used, and thus less load on the backend
   // - less data points means the chart is easier to look through on a small screen
   final Duration dataPrecision;
-
-  const ChartRange._(this.duration, this.displayText, this.dataPrecision);
 
   static const oneHour = ChartRange._(Duration(hours: 1), "1H", Duration(minutes: 5));
   static const oneDay = ChartRange._(Duration(days: 1), "1D", Duration(minutes: 15));

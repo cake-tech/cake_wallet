@@ -1,4 +1,4 @@
-part of 'charts_bloc.dart';
+part of "charts_bloc.dart";
 
 @immutable
 sealed class ChartsState {
@@ -10,6 +10,12 @@ final class ChartsInitial extends ChartsState {
 }
 
 abstract final class ChartsStateWithData extends ChartsState {
+  const ChartsStateWithData({
+    required this.pinnedCurrency,
+    required this.range,
+    required this.sortCriterium,
+  });
+
   final CryptoCurrency pinnedCurrency;
 
   List<CryptoCurrency> get currencies;
@@ -35,12 +41,16 @@ abstract final class ChartsStateWithData extends ChartsState {
         range: range,
         sortCriterium: sortCriterium,
       );
-
-  const ChartsStateWithData(
-      {required this.pinnedCurrency, required this.range, required this.sortCriterium});
 }
 
 final class ChartsLoading extends ChartsStateWithData {
+  const ChartsLoading({
+    required super.pinnedCurrency,
+    required this.currencies,
+    required super.range,
+    required super.sortCriterium,
+  });
+
   @override
   final List<CryptoCurrency> currencies;
 
@@ -57,20 +67,21 @@ final class ChartsLoading extends ChartsStateWithData {
         range: range ?? this.range,
         sortCriterium: sortCriterium ?? this.sortCriterium,
       );
-
-  const ChartsLoading(
-      {required super.pinnedCurrency,
-      required this.currencies,
-      required super.range,
-      required super.sortCriterium});
 }
 
 final class ChartsLoaded extends ChartsStateWithData {
+  const ChartsLoaded({
+    required super.pinnedCurrency,
+    required Map<CryptoCurrency, List<PriceData>> prices,
+    required super.range,
+    required super.sortCriterium,
+  }) : _prices = prices;
   final Map<CryptoCurrency, List<PriceData>> _prices;
 
   @override
   String get fiatTicker => _prices[_prices.keys.first]?.firstOrNull?.from.name ?? "";
 
+  @override
   List<CryptoCurrency> get currencies {
     final list = _prices.keys.toList();
     list.sort((a, b) => sortCriterium.comparator(changeDataFor(a), changeDataFor(b), a, b));
@@ -90,9 +101,10 @@ final class ChartsLoaded extends ChartsStateWithData {
     final amount = (latestPrice - secondLatestPrice).abs();
 
     return PriceChangeData(
-        direction: direction,
-        amount: amount.toStringAsFixed(2),
-        percentage: percentage.toStringAsFixed(2));
+      direction: direction,
+      amount: amount.toStringAsFixed(2),
+      percentage: percentage.toStringAsFixed(2),
+    );
   }
 
   List<PriceData> dataFor(CryptoCurrency curr) => _prices[curr] ?? [];
@@ -106,15 +118,8 @@ final class ChartsLoaded extends ChartsStateWithData {
   }) =>
       ChartsLoaded(
         pinnedCurrency: pinnedCurrency ?? this.pinnedCurrency,
-        prices: prices ?? this._prices,
+        prices: prices ?? _prices,
         range: range ?? this.range,
         sortCriterium: sortCriterium ?? this.sortCriterium,
       );
-
-  const ChartsLoaded(
-      {required super.pinnedCurrency,
-      required Map<CryptoCurrency, List<PriceData>> prices,
-      required super.range,
-      required super.sortCriterium})
-      : _prices = prices;
 }

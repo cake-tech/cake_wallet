@@ -1,6 +1,6 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/model/charts/util/price_change_data.dart';
-import 'package:cw_core/crypto_currency.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/model/charts/util/price_change_data.dart";
+import "package:cw_core/crypto_currency.dart";
 
 const List<CryptoCurrency> cryptoCurrenciesByMarketcap = [
   CryptoCurrency.btc,
@@ -29,24 +29,30 @@ const List<CryptoCurrency> cryptoCurrenciesByMarketcap = [
 ];
 
 abstract class PriceDataSortCriterium {
+  const PriceDataSortCriterium();
+
   String get name;
 
   String get iconPath;
 
   int comparator(
-      PriceChangeData changeDataA, PriceChangeData changeDataB, CryptoCurrency a, CryptoCurrency b);
+    PriceChangeData changeDataA,
+    PriceChangeData changeDataB,
+    CryptoCurrency a,
+    CryptoCurrency b,
+  );
 
   static const all = [
     MarketcapSortCriterium(),
     GainsSortCriterium(),
     LossesSortCriterium(),
-    AlphabeticalSortCriterium()
+    AlphabeticalSortCriterium(),
   ];
-
-  const PriceDataSortCriterium();
 }
 
 class AlphabeticalSortCriterium extends PriceDataSortCriterium {
+  const AlphabeticalSortCriterium();
+
   @override
   String get name => S.current.alphabetical;
 
@@ -54,14 +60,18 @@ class AlphabeticalSortCriterium extends PriceDataSortCriterium {
   String get iconPath => "assets/new-ui/charts_sort_criteria/alpha.svg";
 
   @override
-  int comparator(PriceChangeData changeDataA, PriceChangeData changeDataB, CryptoCurrency a,
-          CryptoCurrency b) =>
-      (a.fullName ?? a.title).compareTo((b.fullName ?? b.title));
-
-  const AlphabeticalSortCriterium();
+  int comparator(
+    PriceChangeData changeDataA,
+    PriceChangeData changeDataB,
+    CryptoCurrency a,
+    CryptoCurrency b,
+  ) =>
+      (a.fullName ?? a.title).compareTo(b.fullName ?? b.title);
 }
 
 class MarketcapSortCriterium extends PriceDataSortCriterium {
+  const MarketcapSortCriterium();
+
   @override
   String get name => S.current.marketcap;
 
@@ -69,24 +79,32 @@ class MarketcapSortCriterium extends PriceDataSortCriterium {
   String get iconPath => "assets/new-ui/charts_sort_criteria/marketcap.svg";
 
   @override
-  int comparator(PriceChangeData changeDataA, PriceChangeData changeDataB, CryptoCurrency a,
-      CryptoCurrency b) {
+  int comparator(
+    PriceChangeData changeDataA,
+    PriceChangeData changeDataB,
+    CryptoCurrency a,
+    CryptoCurrency b,
+  ) {
     final aIndex = cryptoCurrenciesByMarketcap.indexOf(a);
     final bIndex = cryptoCurrenciesByMarketcap.indexOf(b);
 
     if (aIndex != -1 && bIndex != -1) {
       return aIndex.compareTo(bIndex);
     }
-    if (aIndex != -1) return -1;
-    if (bIndex != -1) return 1;
+    if (aIndex != -1) {
+      return -1;
+    }
+    if (bIndex != -1) {
+      return 1;
+    }
 
     return (a.fullName ?? a.title).compareTo(b.fullName ?? b.title);
   }
-
-  const MarketcapSortCriterium();
 }
 
 class GainsSortCriterium extends PriceDataSortCriterium {
+  const GainsSortCriterium();
+
   @override
   String get name => S.current.gains;
 
@@ -94,14 +112,18 @@ class GainsSortCriterium extends PriceDataSortCriterium {
   String get iconPath => "assets/new-ui/charts_sort_criteria/gains.svg";
 
   @override
-  int comparator(PriceChangeData changeDataA, PriceChangeData changeDataB, CryptoCurrency a,
-          CryptoCurrency b) =>
+  int comparator(
+    PriceChangeData changeDataA,
+    PriceChangeData changeDataB,
+    CryptoCurrency a,
+    CryptoCurrency b,
+  ) =>
       changeDataB.compareTo(changeDataA);
-
-  const GainsSortCriterium();
 }
 
 class LossesSortCriterium extends PriceDataSortCriterium {
+  const LossesSortCriterium();
+
   @override
   String get name => S.current.losses;
 
@@ -109,9 +131,11 @@ class LossesSortCriterium extends PriceDataSortCriterium {
   String get iconPath => "assets/new-ui/charts_sort_criteria/losses.svg";
 
   @override
-  int comparator(PriceChangeData changeDataA, PriceChangeData changeDataB, CryptoCurrency a,
-          CryptoCurrency b) =>
+  int comparator(
+    PriceChangeData changeDataA,
+    PriceChangeData changeDataB,
+    CryptoCurrency a,
+    CryptoCurrency b,
+  ) =>
       changeDataA.compareTo(changeDataB);
-
-  const LossesSortCriterium();
 }

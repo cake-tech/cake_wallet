@@ -1,26 +1,25 @@
-import 'package:bloc/bloc.dart';
-import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:cake_wallet/core/utilities.dart';
-import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
-import 'package:cake_wallet/new-ui/model/charts/price_data.dart';
-import 'package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.dart';
-import 'package:cake_wallet/new-ui/model/charts/price_store.dart';
-import 'package:cake_wallet/new-ui/model/charts/util/chart_range.dart';
-import 'package:cake_wallet/new-ui/model/charts/util/price_change_data.dart';
-import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/foundation.dart';
+import "dart:async";
 
-part 'charts_event.dart';
+import "package:bloc/bloc.dart";
+import "package:bloc_concurrency/bloc_concurrency.dart";
+import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/new-ui/model/charts/charts_asset.dart";
+import "package:cake_wallet/new-ui/model/charts/price_data.dart";
+import "package:cake_wallet/new-ui/model/charts/price_store.dart";
+import "package:cake_wallet/new-ui/model/charts/util/chart_range.dart";
+import "package:cake_wallet/new-ui/model/charts/util/price_change_data.dart";
+import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart";
+import "package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:flutter/foundation.dart";
 
-part 'charts_state.dart';
+part "charts_event.dart";
+
+part "charts_state.dart";
 
 class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
-  final PriceStore priceStore;
-  final AppStore appStore;
-
-  ChartsBloc({required this.priceStore, required this.appStore}) : super(ChartsInitial()) {
+  ChartsBloc({required this.priceStore, required this.appStore}) : super(const ChartsInitial()) {
     on<RangeChanged>(_onRangeChanged, transformer: sequential());
     on<SortingCriteriumChanged>(_onSortingCriteriumChanged);
     on<CurrencyAdded>(_onCurrencyAdded, transformer: sequential());
@@ -31,8 +30,11 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     on<Init>(_init);
   }
 
+  final PriceStore priceStore;
+  final AppStore appStore;
+
   Future<void> _init(Init event, Emitter<ChartsState> emit) async {
-    if(state is! ChartsInitial) {
+    if (state is! ChartsInitial) {
       return;
     }
 
@@ -40,36 +42,42 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
 
     if (assets.isEmpty) {
       // generally this shouldn't happen, but i wanna make sure we can recover from a broken db
-      assets.add(ChartsAsset(asset: CryptoCurrency.btc, isFavorite: true));
-      assets.first.insert();
+      assets.add(const ChartsAsset(asset: CryptoCurrency.btc, isFavorite: true));
+      unawaited(assets.first.insert());
     }
 
     if (assets.firstWhereOrNull((item) => item.isFavorite) == null) {
       assets.first = ChartsAsset(asset: assets.first.asset, isFavorite: true);
-      assets.first.insert();
+      unawaited(assets.first.insert());
     }
 
-    emit(ChartsLoading(
+    emit(
+      ChartsLoading(
         pinnedCurrency: assets.firstWhere((item) => item.isFavorite).asset,
         currencies: assets.map((item) => item.asset).toList(),
         range: ChartRange.all,
-        sortCriterium: PriceDataSortCriterium.all.first));
+        sortCriterium: PriceDataSortCriterium.all.first,
+      ),
+    );
     add(PageLoadStarted());
   }
 
   Future<void> _onPageLoadStarted(PageLoadStarted event, Emitter<ChartsState> emit) async {
-    if (state case ChartsStateWithData s) {
+    if (state case final ChartsStateWithData s) {
       final Map<CryptoCurrency, List<PriceData>> data = {};
       final currencies = s.currencies.toList();
       final range = s.range;
       for (final curr in currencies) {
         data[curr] = await priceStore.getPrices(appStore.settingsStore.fiatCurrency, curr, range);
       }
-      emit(ChartsLoaded(
+      emit(
+        ChartsLoaded(
           pinnedCurrency: s.pinnedCurrency,
           prices: data,
           range: s.range,
-          sortCriterium: s.sortCriterium));
+          sortCriterium: s.sortCriterium,
+        ),
+      );
     } else {
       throw Exception("attempted price load without currency data");
     }
@@ -79,7 +87,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     RangeChanged event,
     Emitter<ChartsState> emit,
   ) async {
-    if (state case ChartsStateWithData s) {
+    if (state case final ChartsStateWithData s) {
       emit(s.toLoading().copyWith(range: event.newRange));
       add(PageLoadStarted());
     }
@@ -89,7 +97,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     SortingCriteriumChanged event,
     Emitter<ChartsState> emit,
   ) async {
-    if (state case ChartsStateWithData s) {
+    if (state case final ChartsStateWithData s) {
       emit(s.copyWith(sortCriterium: event.newCriterium));
     }
   }
@@ -98,7 +106,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     CurrencyAdded event,
     Emitter<ChartsState> emit,
   ) async {
-    if (state case ChartsStateWithData s) {
+    if (state case final ChartsStateWithData s) {
       final newCurrencies = s.currencies..add(event.currency);
       await ChartsAsset(asset: event.currency, isFavorite: false).insert();
       emit(s.toLoading().copyWith(currencies: newCurrencies));
@@ -110,12 +118,13 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     CurrencyRemoved event,
     Emitter<ChartsState> emit,
   ) async {
-    if (state case ChartsStateWithData s) {
+    if (state case final ChartsStateWithData s) {
       final newCurrencies = s.currencies..remove(event.currency);
 
       if (newCurrencies.isEmpty) {
         throw Exception(
-            "removed the last currency ${(kDebugMode) ? "- your ui should block this! what did you do?" : ""}");
+          "removed the last currency ${kDebugMode ? "- your ui should block this! what did you do?" : ""}",
+        );
       }
 
       final CryptoCurrency newPin;
@@ -138,7 +147,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     CurrencyPinned event,
     Emitter<ChartsState> emit,
   ) async {
-    if (state case ChartsStateWithData s) {
+    if (state case final ChartsStateWithData s) {
       if (s.pinnedCurrency == event.currency) {
         return;
       }
@@ -153,7 +162,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     PageRefreshed event,
     Emitter<ChartsState> emit,
   ) async {
-    if (state case ChartsStateWithData s) {
+    if (state case final ChartsStateWithData s) {
       emit(s.toLoading());
       add(PageLoadStarted());
     }

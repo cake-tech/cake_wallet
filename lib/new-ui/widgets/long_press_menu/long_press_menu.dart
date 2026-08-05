@@ -1,20 +1,24 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:flutter/material.dart";
 
 class LongPressMenuItem {
+  LongPressMenuItem({
+    required this.label,
+    required this.iconPath,
+    required this.onSelected,
+    this.color,
+  });
+
   final String label;
   final String iconPath;
   final VoidCallback onSelected;
   final Color? color;
-
-  LongPressMenuItem(
-      {required this.label, required this.iconPath, required this.onSelected, this.color});
 }
 
 class LongPressMenu extends StatefulWidget {
-  const LongPressMenu({super.key, required this.items});
+  const LongPressMenu({required this.items, super.key});
 
   final List<LongPressMenuItem> items;
 
@@ -36,42 +40,40 @@ class _LongPressMenuState extends State<LongPressMenu> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedSize(
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-      alignment: Alignment.topCenter,
-      child: SizedBox(
-        height: _isVisible ? null : 0,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Theme.of(context).colorScheme.primary.withAlpha(60),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: widget.items.map((item) {
-                  final color = item.color ?? Theme.of(context).colorScheme.onSurface;
-                  return Material(
-                    color: Colors.transparent,
-                    child: MergeSemantics(
-                      child: Semantics(
-                        button: true,
-                        child: InkWell(
-                          onTap: item.onSelected,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              left: 16,
-                              right: 16,
-                              top: 12,
-                              bottom: 12,
-                            ),
-                            child: Container(
+  Widget build(BuildContext context) => AnimatedSize(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          height: _isVisible ? null : 0,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Theme.of(context).colorScheme.primary.withAlpha(60),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: widget.items.map((item) {
+                    final color = item.color ?? Theme.of(context).colorScheme.onSurface;
+                    return Material(
+                      color: Colors.transparent,
+                      child: MergeSemantics(
+                        child: Semantics(
+                          button: true,
+                          child: InkWell(
+                            onTap: item.onSelected,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 16,
+                                right: 16,
+                                top: 12,
+                                bottom: 12,
+                              ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -85,23 +87,26 @@ class _LongPressMenuState extends State<LongPressMenu> {
                                       colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
                                     ),
                                   ),
-                                  Text(item.label,
-                                      style: TextStyle(
-                                          color: color, fontSize: 14, fontWeight: FontWeight.w500)),
+                                  Text(
+                                    item.label,
+                                    style: TextStyle(
+                                      color: color,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

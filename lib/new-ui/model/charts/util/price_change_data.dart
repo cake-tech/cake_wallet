@@ -1,6 +1,8 @@
-import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
+import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart";
 
 class PriceChangeData implements Comparable<PriceChangeData> {
+  const PriceChangeData({required this.direction, required this.amount, required this.percentage});
+
   final PriceChangeDirection direction;
   final String amount;
   final String percentage;
@@ -13,6 +15,4 @@ class PriceChangeData implements Comparable<PriceChangeData> {
         double.parse(other.percentage) * (other.direction == PriceChangeDirection.up ? 1 : -1);
     return thisValue.compareTo(otherValue);
   }
-
-  const PriceChangeData({required this.direction, required this.amount, required this.percentage});
 }

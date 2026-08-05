@@ -1,15 +1,15 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:cake_wallet/themes/core/theme_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class CoinActionButton extends StatelessWidget {
   const CoinActionButton({
-    super.key,
     required this.icon,
     required this.label,
     required this.action,
+    super.key,
     this.gradientColors,
   });
 
@@ -40,10 +40,10 @@ class CoinActionButton extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: gradientColors ??
-                  [
-                    context.customColors.cardGradientColorPrimary,
-                    context.customColors.cardGradientColorSecondary
-                  ],
+                      [
+                        context.customColors.cardGradientColorPrimary,
+                        context.customColors.cardGradientColorSecondary,
+                      ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -64,7 +64,7 @@ class CoinActionButton extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.only(top: 8),
               child: ExcludeSemantics(
                 child: Text(
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

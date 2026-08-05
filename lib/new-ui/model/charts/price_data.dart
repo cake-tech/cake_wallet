@@ -1,12 +1,12 @@
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/new-ui/model/charts/datetime_extension.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/db/sqlite.dart';
-import 'package:sqflite/sqflite.dart';
+import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/new-ui/model/charts/datetime_extension.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
+import "package:cw_core/db/sqlite.dart";
+import "package:sqflite/sqflite.dart";
 
 Currency currencyFromApiString(String key) {
-  final parts = key.split('.');
+  final parts = key.split(".");
   final type = parts[0];
   final id = parts[1];
 
@@ -24,6 +24,14 @@ Currency currencyFromApiString(String key) {
 }
 
 class PriceData implements Comparable<PriceData> {
+  const PriceData({required this.time, required this.from, required this.to, required this.price});
+
+  factory PriceData.fromJson(Map<String, dynamic> json) => PriceData(
+        time: DateTimeX.fromSecondsSinceEpoch(json["timestamp"] as int),
+        from: currencyFromApiString(json["fromCurrency"] as String),
+        to: currencyFromApiString(json["toCurrency"] as String),
+        price: json["price"] as String,
+      );
   final DateTime time;
   final Currency from;
   final Currency to;
@@ -38,32 +46,34 @@ class PriceData implements Comparable<PriceData> {
         "toCurrency": to.apiString,
       };
 
-  static PriceData fromJson(Map<String, dynamic> json) => PriceData(
-      time: DateTimeX.fromSecondsSinceEpoch(json["timestamp"] as int),
-      from: currencyFromApiString(json["fromCurrency"] as String),
-      to: currencyFromApiString(json["toCurrency"] as String),
-      price: json["price"] as String);
-
   static Future<List<PriceData>> get(
-      Currency from, Currency to, DateTime? start, DateTime? end) async {
-    final json = await db!.query(tableName,
-        where: "fromCurrency = ? AND toCurrency = ? AND timestamp >= ? AND timestamp <= ?",
-        whereArgs: [
-          from.apiString,
-          to.apiString,
-          start?.secondsSinceEpoch ?? 0,
-          // dart doesn't have INT_MAX, apparently.
-          end?.secondsSinceEpoch ?? 0x7FFFFFFFFFFFFFFF
-        ]);
+    Currency from,
+    Currency to,
+    DateTime? start,
+    DateTime? end,
+  ) async {
+    final json = await db!.query(
+      tableName,
+      where: "fromCurrency = ? AND toCurrency = ? AND timestamp >= ? AND timestamp <= ?",
+      whereArgs: [
+        from.apiString,
+        to.apiString,
+        start?.secondsSinceEpoch ?? 0,
+        // dart doesn't have INT_MAX, apparently.
+        end?.secondsSinceEpoch ?? 0x7FFFFFFFFFFFFFFF,
+      ],
+    );
     return List.generate(json.length, (index) => PriceData.fromJson(json[index]));
   }
 
   Future<void> insert() async {
-    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.ignore);
+    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 
   static Future<void> insertMany(Iterable<PriceData> data) async {
-    if (data.isEmpty) return;
+    if (data.isEmpty) {
+      return;
+    }
 
     final batch = db!.batch();
 
@@ -87,6 +97,4 @@ class PriceData implements Comparable<PriceData> {
 
   @override
   int compareTo(PriceData other) => time.compareTo(other.time);
-
-  const PriceData({required this.time, required this.from, required this.to, required this.price});
 }

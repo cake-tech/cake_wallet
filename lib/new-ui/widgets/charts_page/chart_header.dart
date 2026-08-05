@@ -1,25 +1,26 @@
-import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
-import 'package:cake_wallet/new-ui/widgets/charts_page/change_display.dart';
-import 'package:cake_wallet/new-ui/widgets/charts_page/chart_view.dart';
-import 'package:cake_wallet/new-ui/widgets/charts_page/coin_header.dart';
-import 'package:cake_wallet/new-ui/widgets/charts_page/price_header.dart';
-import 'package:cake_wallet/new-ui/widgets/charts_page/range_selector.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/change_display.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/chart_view.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/coin_header.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/price_header.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/range_selector.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:intl/intl.dart";
 
 class ChartHeader extends StatefulWidget {
-  const ChartHeader(
-      {super.key,
-      required this.currency,
-      required this.chartHeight,
-      required this.chartPadding,
-      required this.centered,
-      required this.favorite});
+  const ChartHeader({
+    super.key,
+    required this.currency,
+    required this.chartHeight,
+    required this.chartPadding,
+    required this.centered,
+    required this.favorite,
+  });
 
   final CryptoCurrency currency;
   final double chartHeight;
@@ -36,121 +37,125 @@ class _ChartHeaderState extends State<ChartHeader> {
   String? _viewedTime;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ChartsBloc, ChartsState>(
-      builder: (context, state) {
-        if (state case ChartsStateWithData s) {
-          return Column(
-            crossAxisAlignment:
-                widget.centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18),
-                child: Column(
-                  crossAxisAlignment:
-                      widget.centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-                  spacing: 10,
-                  children: [
-                    if (!widget.favorite)
-                      CakeImageWidget(
-                        imageUrl: widget.currency.iconPath ?? "",
-                        width: 60,
-                        height: 60,
+  Widget build(BuildContext context) => BlocBuilder<ChartsBloc, ChartsState>(
+        builder: (context, state) {
+          if (state case final ChartsStateWithData s) {
+            return Column(
+              crossAxisAlignment:
+                  widget.centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Column(
+                    crossAxisAlignment:
+                        widget.centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                    spacing: 10,
+                    children: [
+                      if (!widget.favorite)
+                        CakeImageWidget(
+                          imageUrl: widget.currency.iconPath ?? "",
+                          width: 60,
+                          height: 60,
+                        ),
+                      ChartViewCoinHeader(currency: widget.currency, isFavorite: widget.favorite),
+                      ChartViewPriceHeader(
+                        price: _viewedPrice ?? s.priceDisplayStringFor(widget.currency),
+                        ticker: s.fiatTicker,
+                        highlight: _viewedPrice != null,
                       ),
-                    ChartViewCoinHeader(currency: widget.currency, isFavorite: widget.favorite),
-                    ChartViewPriceHeader(
-                      price: _viewedPrice ?? s.priceDisplayStringFor(widget.currency),
-                      ticker: s.fiatTicker,
-                      highlight: _viewedPrice != null,
-                    ),
-                    Column(
-                      crossAxisAlignment:
-                          widget.centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          // has to be constant-size, otherwise will jump around when loading
-                          height: 36,
-                          alignment: widget.centered ? Alignment.center : Alignment.centerLeft,
-                          child: (s is ChartsLoaded)
-                              ? (_viewedPrice != null && _viewedTime != null)
-                                  ? Text(
-                                      _viewedTime!,
-                                      style: TextStyle(
+                      Column(
+                        crossAxisAlignment:
+                            widget.centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            // has to be constant-size, otherwise will jump around when loading
+                            height: 36,
+                            alignment: widget.centered ? Alignment.center : Alignment.centerLeft,
+                            child: (s is ChartsLoaded)
+                                ? (_viewedPrice != null && _viewedTime != null)
+                                    ? Text(
+                                        _viewedTime!,
+                                        style: TextStyle(
                                           fontFamily: "IBM Plex Mono",
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          fontSize: 16),
-                                    )
-                                  : ChangeDisplay(
-                                      changeData: s.changeDataFor(widget.currency),
-                                      ticker: s.fiatTicker)
-                              : SizedBox.shrink(),
-                        ),
-                        if (s is ChartsLoaded)
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: widget.chartPadding),
-                            child: PriceChart(
-                              height: widget.chartHeight,
-                              prices: s.dataFor(widget.currency),
-                              direction: s.changeDataFor(widget.currency).direction,
-                              touchCallback: (event, response) {
-                                if (!event.isInterestedForInteractions) {
-                                  setState(() {
-                                    _viewedPrice = null;
-                                    _viewedTime = null;
-                                  });
-                                  return;
-                                }
+                                          fontSize: 16,
+                                        ),
+                                      )
+                                    : ChangeDisplay(
+                                        changeData: s.changeDataFor(widget.currency),
+                                        ticker: s.fiatTicker,
+                                      )
+                                : const SizedBox.shrink(),
+                          ),
+                          if (s is ChartsLoaded)
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: widget.chartPadding),
+                              child: PriceChart(
+                                height: widget.chartHeight,
+                                prices: s.dataFor(widget.currency),
+                                direction: s.changeDataFor(widget.currency).direction,
+                                touchCallback: (event, response) {
+                                  if (!event.isInterestedForInteractions) {
+                                    setState(() {
+                                      _viewedPrice = null;
+                                      _viewedTime = null;
+                                    });
+                                    return;
+                                  }
 
-                                final newPrice =
-                                    response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
-                                final newTime = DateFormat("M/d/y HH:mm").format(
+                                  final newPrice =
+                                      response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
+                                  final newTime = DateFormat("M/d/y HH:mm").format(
                                     DateTime.fromMillisecondsSinceEpoch(
-                                        response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0));
-                                if (_viewedPrice != newPrice) {
-                                  HapticFeedback.selectionClick();
-                                  setState(() {
-                                    _viewedPrice = newPrice;
-                                  });
-                                }
-                                if (_viewedTime != newTime) {
-                                  setState(() {
-                                    _viewedTime = newTime;
-                                  });
-                                }
-                              },
-                            ),
-                          )
-                        else
-                          SizedBox(
+                                      response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0,
+                                    ),
+                                  );
+                                  if (_viewedPrice != newPrice) {
+                                    HapticFeedback.selectionClick();
+                                    setState(() {
+                                      _viewedPrice = newPrice;
+                                    });
+                                  }
+                                  if (_viewedTime != newTime) {
+                                    setState(() {
+                                      _viewedTime = newTime;
+                                    });
+                                  }
+                                },
+                              ),
+                            )
+                          else
+                            SizedBox(
                               height: widget.chartHeight + widget.chartPadding * 2,
-                              child: Center(child: CupertinoActivityIndicator())),
-                      ],
+                              child: const Center(child: CupertinoActivityIndicator()),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  height: 1,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(128),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ChartRangeSelector(
+                      selectedRange: s.range,
+                      onRangeSelected: (range) =>
+                          context.read<ChartsBloc>().add(RangeChanged(newRange: range)),
                     ),
                   ],
                 ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 1,
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(128),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ChartRangeSelector(
-                      selectedRange: s.range,
-                      onRangeSelected: (range) =>
-                          context.read<ChartsBloc>().add(RangeChanged(newRange: range)))
-                ],
-              )
-            ],
-          );
-        }
-        return CupertinoActivityIndicator();
-      },
-    );
-  }
+              ],
+            );
+          }
+          return const CupertinoActivityIndicator();
+        },
+      );
 }

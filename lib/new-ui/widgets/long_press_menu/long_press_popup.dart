@@ -1,16 +1,17 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:flutter/material.dart";
 
 class LongPressPopupBuilder extends StatelessWidget {
-  const LongPressPopupBuilder(
-      {super.key,
-      required this.child,
-      required this.popup,
-      this.spacing = 8,
-      this.showOnTap = false,
-      this.footer});
+  const LongPressPopupBuilder({
+    required this.child,
+    required this.popup,
+    super.key,
+    this.spacing = 8,
+    this.showOnTap = false,
+    this.footer,
+  });
 
   final Widget child;
   final Widget popup;
@@ -19,17 +20,15 @@ class LongPressPopupBuilder extends StatelessWidget {
   final bool showOnTap;
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onLongPress: () => _showMenu(context),
-      onTap: showOnTap ? () => _showMenu(context) : null,
-      child: IgnorePointer(ignoring: showOnTap, child: child),
-    );
-  }
+  Widget build(BuildContext context) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onLongPress: () => _showMenu(context),
+        onTap: showOnTap ? () => _showMenu(context) : null,
+        child: IgnorePointer(ignoring: showOnTap, child: child),
+      );
 
   void _showMenu(BuildContext context) {
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final RenderBox renderBox = context.findRenderObject()! as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
@@ -45,7 +44,7 @@ class LongPressPopupBuilder extends StatelessWidget {
     final bool isOnRightHalf = offset.dx + (size.width / 2) > screenWidth / 2;
 
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: Stack(
         children: [
           Positioned(
@@ -73,7 +72,7 @@ class LongPressPopupBuilder extends StatelessWidget {
               right: 0,
               bottom: MediaQuery.of(context).viewPadding.bottom,
               child: footer!,
-            )
+            ),
         ],
       ),
     );

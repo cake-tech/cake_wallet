@@ -9,17 +9,15 @@ class ChangeDisplay extends StatelessWidget {
   final PriceChangeData changeData;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 10,
-      children: [
-        Text(
-          "${changeData.direction.symbol}${ticker} ${changeData.amount}",
-          style: TextStyle(fontSize: 16, color: changeData.direction.color),
-        ),
-        ChangePill(changePercentage: changeData.percentage, direction: changeData.direction)
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 10,
+        children: [
+          Text(
+            "${changeData.direction.symbol}${ticker} ${changeData.amount}",
+            style: TextStyle(fontSize: 16, color: changeData.direction.color),
+          ),
+          ChangePill(changePercentage: changeData.percentage, direction: changeData.direction)
+        ],
+      );
 }

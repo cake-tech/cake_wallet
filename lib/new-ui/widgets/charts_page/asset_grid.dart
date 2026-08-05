@@ -1,37 +1,38 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/long_press_menu/long_press_footer.dart';
-import 'package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart';
-import 'package:cake_wallet/new-ui/model/charts/util/price_change_data.dart';
-import 'package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart';
-import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
-import 'package:cake_wallet/new-ui/widgets/charts_page/change_pill.dart';
-import 'package:cake_wallet/new-ui/widgets/charts_page/chart_modal.dart';
-import 'package:cake_wallet/new-ui/widgets/long_press_menu/long_press_menu.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/core/theme_extension.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "dart:async";
+
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/model/charts/util/price_change_data.dart";
+import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart";
+import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/change_pill.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/chart_modal.dart";
+import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_footer.dart";
+import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_menu.dart";
+import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
 class ChartsAssetGrid extends StatelessWidget {
   const ChartsAssetGrid({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ChartsBloc, ChartsState>(
+  Widget build(BuildContext context) => BlocBuilder<ChartsBloc, ChartsState>(
       builder: (context, state) {
         if (state is ChartsStateWithData) {
           final currencies = state.currencies;
           return GridView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: currencies.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
-                  mainAxisExtent: 105),
+                  mainAxisExtent: 105,),
               itemBuilder: (context, index) {
                 final curr = currencies[index];
                 return ChartsAssetCard(
@@ -42,13 +43,12 @@ class ChartsAssetGrid extends StatelessWidget {
                   favorite: curr == state.pinnedCurrency,
                   isSingleCurrency: state.hasSingleCurrency,
                 );
-              });
+              },);
         } else {
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         }
       },
     );
-  }
 }
 
 class ChartsAssetCard extends StatelessWidget {
@@ -59,7 +59,7 @@ class ChartsAssetCard extends StatelessWidget {
       required this.ticker,
       this.changeData,
       required this.favorite,
-      required this.isSingleCurrency});
+      required this.isSingleCurrency,});
 
   final CryptoCurrency currency;
   final String price;
@@ -71,18 +71,18 @@ class ChartsAssetCard extends StatelessWidget {
   String get displayPrice {
     try {
       final priceDouble = double.parse(price);
-      if (priceDouble > 10000)
+      if (priceDouble > 10000) {
         return priceDouble.toStringAsFixed(0);
-      else
+      } else {
         return priceDouble.toStringAsFixed(2);
+      }
     } catch (_) {
       return price;
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return LongPressPopupBuilder(
+  Widget build(BuildContext context) => LongPressPopupBuilder(
       popup: LongPressMenu(items: [
         LongPressMenuItem(
             label: S.of(context).favorite,
@@ -91,7 +91,7 @@ class ChartsAssetCard extends StatelessWidget {
               context.read<ChartsBloc>().add(CurrencyPinned(currency: currency));
               Navigator.of(context).pop();
             },
-            color: favorite ? Theme.of(context).colorScheme.error : null),
+            color: favorite ? Theme.of(context).colorScheme.error : null,),
         LongPressMenuItem(
             label: S.of(context).remove,
             iconPath: "assets/new-ui/address_hide.svg",
@@ -101,20 +101,20 @@ class ChartsAssetCard extends StatelessWidget {
                 Navigator.of(context).pop();
               }
             },
-            color: isSingleCurrency ? Theme.of(context).colorScheme.onSurfaceVariant : null)
-      ]),
+            color: isSingleCurrency ? Theme.of(context).colorScheme.onSurfaceVariant : null,),
+      ],),
       footer:
           isSingleCurrency ? LongPressFooter(text: S.of(context).cannot_remove_last_asset) : null,
       child: GestureDetector(
         onTap: () async {
-          HapticFeedback.mediumImpact();
+          unawaited(HapticFeedback.mediumImpact());
           final res = await showModalBottomSheet(
               isScrollControlled: true,
               context: context,
               builder: (context) => ChartModal(
                     currency: currency,
                     isFavorite: favorite,
-                  ));
+                  ),);
           if (res != null && res is bool && res) {
             context.read<ChartsBloc>().add(CurrencyPinned(currency: currency));
           }
@@ -123,13 +123,13 @@ class ChartsAssetCard extends StatelessWidget {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                  width: 1, color: Theme.of(context).colorScheme.surfaceContainerHighest),
+                  width: 1, color: Theme.of(context).colorScheme.surfaceContainerHighest,),
               gradient: LinearGradient(colors: [
                 context.customColors.cardGradientColorPrimary,
-                context.customColors.cardGradientColorSecondary
-              ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+                context.customColors.cardGradientColorSecondary,
+              ], begin: Alignment.topCenter, end: Alignment.bottomCenter,),),
           child: Padding(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             child: Column(
               spacing: 12,
               children: [
@@ -153,13 +153,13 @@ class ChartsAssetCard extends StatelessWidget {
                                     width: 8,
                                     height: 8,
                                     colorFilter: ColorFilter.mode(
-                                        changeData!.direction.color, BlendMode.srcIn),
+                                        changeData!.direction.color, BlendMode.srcIn,),
                                   ),
                                 ),
                               Text(
                                 currency.title.toUpperCase(),
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                              )
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                              ),
                             ],
                           ),
                           Text(
@@ -168,15 +168,15 @@ class ChartsAssetCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          )
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,),
+                          ),
                         ],
                       ),
                     ),
                     if (changeData != null)
                       ChangePill(
                           changePercentage: changeData!.percentage,
-                          direction: changeData!.direction)
+                          direction: changeData!.direction,),
                   ],
                 ),
                 Row(
@@ -198,26 +198,25 @@ class ChartsAssetCard extends StatelessWidget {
                           children: [
                             Text(
                               displayPrice,
-                              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                             ),
                             Text(
                               ticker,
                               style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 20),
-                            )
+                                  fontSize: 20,),
+                            ),
                           ],
                         ),
                       ),
-                    )
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),
         ),
       ),
     );
-  }
 }
