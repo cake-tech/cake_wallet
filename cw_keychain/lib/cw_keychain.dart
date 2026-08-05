@@ -12,11 +12,19 @@ class CwKeychain {
 
   final KeychainPlatformApi _api;
 
+  Future<bool> available() async {
+    try {
+      return _api.available();
+    } catch(e) {
+      return false;
+    }
+  }
+
   Future<List<KeychainData>> getAll() => _api.getAll();
 
   Future<String> put(KeychainData item) => _api.put(item);
 
   Future<void> delete(String id) => _api.delete(id);
 
-  Future<KeychainData> get(String id) => _api.get(id);
+  Future<KeychainData?> get(String id) => _api.get(id);
 }

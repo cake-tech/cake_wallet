@@ -1,3 +1,5 @@
+import Foundation
+
 #if os(iOS)
 import Flutter
 #elseif os(macOS)
@@ -53,130 +55,163 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
         KeychainPlatformApiSetup.setUp(binaryMessenger: messenger, api: instance)
     }
 
+    func available() -> Bool {
+        return true
+    }
 
-    func getAll() throws -> [KeychainData] {
-        print_with_prefix("getAll")
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.serviceName,
-            kSecReturnData as String: true,
-            kSecReturnAttributes as String: true,
-            kSecMatchLimit as String: kSecMatchLimitAll,
-            kSecAttrSynchronizable as String: true
-        ]
 
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
+    func put(item: KeychainData, completion: @escaping (Result<String, Error>) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.print_with_prefix("put")
+            let wrapper = KeychainDataWrapper(from: item)
 
-        if status == errSecItemNotFound {
-            print_with_prefix("returning empty list because no items found")
-            return []
-        }
+            do {
+                let walletData = try JSONEncoder().encode(wrapper)
 
-        if status != errSecSuccess {
-            throw os_error(code: status, method: "getAll")
-        }
+                let deleteQuery: [String: Any] = [
+                    kSecClass as String: kSecClassGenericPassword,
+                    kSecAttrService as String: Self.serviceName,
+                    kSecAttrAccount as String: wrapper.accountId,
+                    kSecAttrSynchronizable as String: true
+                ]
 
-        guard let itemsArray = result as? [[String: Any]] else {
-            throw PigeonError(code: "invalid_format", message: "invalid format", details: nil)
-        }
+                SecItemDelete(deleteQuery as CFDictionary)
 
-        var results: [KeychainData] = []
+                let addQuery: [String: Any] = [
+                    kSecClass as String: kSecClassGenericPassword,
+                    kSecAttrService as String: Self.serviceName,
+                    kSecAttrAccount as String: wrapper.accountId,
+                    kSecValueData as String: walletData,
+                    kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
+                    kSecAttrSynchronizable as String: true
+                ]
 
-        for dict in itemsArray {
-            if let data = dict[kSecValueData as String] as? Data {
-                do {
-                    let wrapper = try JSONDecoder().decode(KeychainDataWrapper.self, from: data)
-                    print_with_prefix("decoded ok: \(wrapper.accountId)")
-                    results.append(wrapper.toPigeonData())
-                } catch {
-                    print_with_prefix("fail decoding item: \(error)\n\(data)")
+                let status = SecItemAdd(addQuery as CFDictionary, nil)
+
+                if status != errSecSuccess {
+                    completion(.failure(self.os_error(code: status, method: "put")))
+                    return
                 }
+
+                self.print_with_prefix("put ok: \(wrapper.accountId)")
+                completion(.success(wrapper.accountId))
+
+            } catch {
+                completion(.failure(error))
             }
         }
-
-        return results
     }
 
-    func put(item: KeychainData) throws -> String {
-        print_with_prefix("put")
-        let wrapper = KeychainDataWrapper(from: item)
-        let walletData = try JSONEncoder().encode(wrapper)
+    func get(id: String, completion: @escaping (Result<KeychainData?, Error>) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.print_with_prefix("get")
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: Self.serviceName,
+                kSecAttrAccount as String: id,
+                kSecReturnData as String: true,
+                kSecMatchLimit as String: kSecMatchLimitOne,
+                kSecAttrSynchronizable as String: true
+            ]
 
-        let deleteQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.serviceName,
-            kSecAttrAccount as String: wrapper.accountId,
-            kSecAttrSynchronizable as String: true
-        ]
+            var item: CFTypeRef?
+            let status = SecItemCopyMatching(query as CFDictionary, &item)
 
-        SecItemDelete(deleteQuery as CFDictionary)
+            if status == errSecItemNotFound {
+                self.print_with_prefix("not found: \(id)")
+                completion(.success(nil))
+                return
+            }
 
-        let addQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.serviceName,
-            kSecAttrAccount as String: wrapper.accountId,
-            kSecValueData as String: walletData,
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
-            kSecAttrSynchronizable as String: true
-        ]
+            if status != errSecSuccess {
+                completion(.failure(self.os_error(code: status, method: "get")))
+                return
+            }
 
-        let status = SecItemAdd(addQuery as CFDictionary, nil)
+            guard let data = item as? Data else {
+                completion(.failure(PigeonError(code: "no_data", message: "Keychain item did not contain data", details: nil)))
+                return
+            }
 
-        if status != errSecSuccess {
-            throw os_error(code: status, method: "put")
+            do {
+                let wrapper = try JSONDecoder().decode(KeychainDataWrapper.self, from: data)
+                self.print_with_prefix("get ok: \(wrapper.accountId)")
+                completion(.success(wrapper.toPigeonData()))
+            } catch {
+                completion(.failure(PigeonError(code: "decode_error", message: "decode fail: \(error)", details: nil)))
+            }
         }
-
-        print_with_prefix("put ok: \(wrapper.accountId)")
-        return wrapper.accountId
     }
 
-    func delete(id: String) throws {
-        print_with_prefix("delete")
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.serviceName,
-            kSecAttrAccount as String: id,
-            kSecAttrSynchronizable as String: true
-        ]
+    func delete(id: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.print_with_prefix("delete")
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: Self.serviceName,
+                kSecAttrAccount as String: id,
+                kSecAttrSynchronizable as String: true
+            ]
 
-        let status = SecItemDelete(query as CFDictionary)
+            let status = SecItemDelete(query as CFDictionary)
 
+            if status != errSecSuccess && status != errSecItemNotFound {
+                completion(.failure(self.os_error(code: status, method: "delete")))
+                return
+            }
 
-        if status != errSecSuccess && status != errSecItemNotFound {
-            throw os_error(code: status, method: "delete")
+            self.print_with_prefix("delete ok: \(id)")
+            completion(.success(()))
         }
-        print_with_prefix("delete ok: \(id)")
     }
 
-    func get(id: String) throws -> KeychainData {
-        print_with_prefix("get")
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.serviceName,
-            kSecAttrAccount as String: id,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecAttrSynchronizable as String: true
-        ]
+    func getAll(completion: @escaping (Result<[KeychainData], Error>) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.print_with_prefix("getAll")
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: Self.serviceName,
+                kSecReturnData as String: true,
+                kSecReturnAttributes as String: true,
+                kSecMatchLimit as String: kSecMatchLimitAll,
+                kSecAttrSynchronizable as String: true
+            ]
 
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
+            var result: CFTypeRef?
+            let status = SecItemCopyMatching(query as CFDictionary, &result)
 
-        if status != errSecSuccess {
-            throw os_error(code: status, method: "get")
-        }
+            if status == errSecItemNotFound {
+                self.print_with_prefix("returning empty list because no items found")
+                completion(.success([]))
+                return
+            }
 
-        guard let data = item as? Data else {
-            throw PigeonError(code: "no_data", message: "id not found", details: nil)
-        }
+            if status != errSecSuccess {
+                completion(.failure(self.os_error(code: status, method: "getAll")))
+                return
+            }
 
-        do {
-            let wrapper = try JSONDecoder().decode(KeychainDataWrapper.self, from: data)
-            print_with_prefix("get ok: \(wrapper.accountId)")
-            return wrapper.toPigeonData()
-        } catch {
-            throw PigeonError(code: "decode_error", message: "decode fail: \(error)", details: nil)
+            guard let itemsArray = result as? [[String: Any]] else {
+                completion(.failure(PigeonError(code: "invalid_format", message: "invalid format", details: nil)))
+                return
+            }
+
+            var results: [KeychainData] = []
+            let decoder = JSONDecoder()
+
+            for dict in itemsArray {
+                if let data = dict[kSecValueData as String] as? Data {
+                    do {
+                        let wrapper = try decoder.decode(KeychainDataWrapper.self, from: data)
+                        self.print_with_prefix("decoded ok: \(wrapper.accountId)")
+                        results.append(wrapper.toPigeonData())
+                    } catch {
+                        self.print_with_prefix("skip decoding item: \(error)\n\(data)")
+                    }
+                }
+            }
+
+            completion(.success(results))
         }
     }
 
@@ -190,7 +225,7 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
     }
 
     private func print_with_prefix(_ message: String) {
-        print("[\(Self.serviceName)] \(message)")
+        NSLog("[\(Self.serviceName)] \(message)")
     }
 
 }

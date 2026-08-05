@@ -30,8 +30,17 @@ class KeychainData {
 
 @HostApi()
 abstract class KeychainPlatformApi {
-    List<KeychainData> getAll();
-    String put(KeychainData item);
-    void delete(String id);
-    KeychainData get(String id);
+  bool available();
+
+  @async
+  List<KeychainData> getAll();
+
+  @async
+  String put(KeychainData item);
+
+  @async
+  void delete(String id);
+
+  @async
+  KeychainData? get(String id);
 }

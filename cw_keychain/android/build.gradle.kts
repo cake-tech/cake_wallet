@@ -11,7 +11,6 @@ allprojects {
     }
 }
 
-// Deliberately versionless -- see the comment in settings.gradle.kts.
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -57,7 +56,6 @@ android {
     }
 }
 
-// Replaces android.kotlinOptions.jvmTarget, which Kotlin 2.3 removed.
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
@@ -65,6 +63,7 @@ kotlin {
 }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-auth-blockstore:16.4.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
 }
