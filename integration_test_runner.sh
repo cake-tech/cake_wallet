@@ -14,6 +14,7 @@ set -euo pipefail
 #   FLUTTER_DEVICE        device id passed to flutter drive, needed when several devices are attached
 #   TEST_TIMEOUT          per-attempt timeout in seconds (default 900)
 #   RETRY_COUNT           retries per suite after a failure (default 1)
+#   MAX_VOID_ATTEMPTS     extra attempts when the driver never attached (default 2)
 #   REMOVE_DATA_DIRECTORY set to N to keep app data between suites (default wipes it)
 
 SUITE_DIR=${SUITE_DIR:-integration_test/suites}
@@ -21,6 +22,7 @@ TEST_TIER=${TEST_TIER:-all}
 PLATFORM=${PLATFORM:-auto}
 TEST_TIMEOUT=${TEST_TIMEOUT:-900}
 RETRY_COUNT=${RETRY_COUNT:-1}
+MAX_VOID_ATTEMPTS=${MAX_VOID_ATTEMPTS:-2}
 REMOVE_DATA_DIRECTORY=${REMOVE_DATA_DIRECTORY:-Y}
 EXTRA_DART_DEFINES=${EXTRA_DART_DEFINES:-}
 PREBUILT_APK=${PREBUILT_APK:-}
@@ -96,6 +98,17 @@ resolve_android_app_id() {
     ANDROID_APP_ID=${ANDROID_APP_ID:-com.cakewallet.cake_wallet}
 }
 
+# A wedged adb server is the usual reason the driver cannot attach to the app
+restart_adb() {
+    if [[ "$PLATFORM" != "android" ]]; then
+        return
+    fi
+
+    adb kill-server > /dev/null 2>&1 || true
+    adb start-server > /dev/null 2>&1 || true
+    adb wait-for-device > /dev/null 2>&1 || true
+}
+
 clean_data_directories() {
     if [[ "$REMOVE_DATA_DIRECTORY" != "Y" ]]; then
         return
@@ -148,6 +161,7 @@ run_test() {
     local test_file="$1"
     local test_name=$(basename "$test_file" .dart)
     local retry_count=0
+    local void_attempts=0
 
     while (( retry_count <= RETRY_COUNT )); do
         log "Running test: $test_name (attempt $((retry_count + 1)))"
@@ -156,19 +170,36 @@ run_test() {
         clean_data_directories
 
         local start_time=$(date +%s)
+        local attempt_log
+        attempt_log=$(mktemp)
 
-        if "${drive_command[@]}" --target="$test_file"; then
+        if "${drive_command[@]}" --target="$test_file" 2>&1 | tee "$attempt_log"; then
             local duration=$(( $(date +%s) - start_time ))
 
             log "PASS: $test_name ($(format_duration $duration))"
             passed_tests+=("$test_name|$duration")
+            rm -f "$attempt_log"
             return 0
         else
             local duration=$(( $(date +%s) - start_time ))
 
+            # A driver that never attaches never ran the test, that is an environment
+            # problem rather than a test failure so it does not consume the real retry
+            local attempt_was_void=N
+            if grep -q "unusually long time to connect to the VM" "$attempt_log"; then
+                attempt_was_void=Y
+            fi
+
+            rm -f "$attempt_log"
+
             log "FAIL: $test_name ($(format_duration $duration))"
 
-            if (( retry_count < RETRY_COUNT )); then
+            if [[ "$attempt_was_void" == "Y" ]] && (( void_attempts < MAX_VOID_ATTEMPTS )); then
+                log "Driver never attached to the app, retrying without spending a retry"
+                void_attempts=$((void_attempts + 1))
+                restart_adb
+                sleep 5
+            elif (( retry_count < RETRY_COUNT )); then
                 log "Retrying test: $test_name"
                 retry_count=$((retry_count + 1))
                 sleep 5

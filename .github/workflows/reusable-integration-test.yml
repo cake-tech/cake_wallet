@@ -296,7 +296,7 @@ jobs:
             SUITE_DIR="${{ inputs.suite_dir }}" \
             TEST_TIER="${{ inputs.test_tier }}" \
             EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
-            TEST_TIMEOUT=1500 \
+            TEST_TIMEOUT=600 \
             PLATFORM=android \
             ./integration_test_runner.sh 2>&1 | tee integration_test_run.log
           TEST_EXIT_CODE=$?
