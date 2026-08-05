@@ -24,6 +24,7 @@ class MoneroHardwareWalletPassphraseInputModal extends StatelessWidget {
                 ModalTopBar(
                   title: S.of(context).passphrase_entry,
                   leadingIcon: const Icon(Icons.close),
+                  leadingSemanticLabel: S.of(context).close,
                   onLeadingPressed: Navigator.of(context).pop,
                 ),
                 Padding(
@@ -34,6 +35,8 @@ class MoneroHardwareWalletPassphraseInputModal extends StatelessWidget {
                       BaseTextFormField(
                         controller: controller,
                         hintText: S.of(context).passphrase_raw,
+                        autocorrect: false,
+                        enableSuggestions: false,
                       ),
                       const SizedBox(),
                       NewPrimaryButton(

@@ -45,7 +45,10 @@ class MoneroNewWalletCredentials extends WalletCredentials {
 
 class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
   MoneroRestoreWalletFromHardwareCredentials({
-    required String name, required this.hardwareWalletService, int height = 0, String? password,
+    required String name,
+    required this.hardwareWalletService,
+    int height = 0,
+    String? password,
     String? passphrase,
   }) : super(name: name, password: password, height: height, passphrase: passphrase);
 

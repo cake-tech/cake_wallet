@@ -42,7 +42,7 @@ class ConnectDevicePage extends BasePage {
   ConnectDevicePage(ConnectDevicePageParams params, this.hardwareWalletVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
-        allowChangeWallet = params.allowChangeWallet,
+        allowChangeWallet = params.allowChangeWallet || params.isReconnect,
         isReconnect = params.isReconnect;
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
@@ -193,9 +193,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
       _isConnectPressed = false;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isConnected)
-       {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (isConnected) {
           widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
         }
       });

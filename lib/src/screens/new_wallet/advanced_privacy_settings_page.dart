@@ -14,11 +14,13 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -28,6 +30,8 @@ class AdvancedPrivacySettingsPage extends BasePage {
     required this.isChildWallet,
     required this.useTestnet,
     required this.toggleUseTestnet,
+    required this.zcashNetwork,
+    required this.setZcashNetwork,
     required this.advancedPrivacySettingsViewModel,
     required this.nodeViewModel,
     required this.seedSettingsViewModel,
@@ -44,6 +48,8 @@ class AdvancedPrivacySettingsPage extends BasePage {
   final bool isChildWallet;
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
+  final int zcashNetwork;
+  final void Function(int network) setZcashNetwork;
 
   @override
   Widget body(BuildContext context) => _AdvancedPrivacySettingsBody(
@@ -51,6 +57,8 @@ class AdvancedPrivacySettingsPage extends BasePage {
         isChildWallet,
         useTestnet,
         toggleUseTestnet,
+        zcashNetwork,
+        setZcashNetwork,
         advancedPrivacySettingsViewModel,
         nodeViewModel,
         seedSettingsViewModel,
@@ -63,6 +71,8 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
     this.isChildWallet,
     this.useTestnet,
     this.toggleUseTestnet,
+    this.zcashNetwork,
+    this.setZcashNetwork,
     this.privacySettingsViewModel,
     this.nodeViewModel,
     this.seedTypeViewModel,
@@ -76,6 +86,8 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
   final bool isChildWallet;
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
+  final int zcashNetwork;
+  final void Function(int network) setZcashNetwork;
 
   @override
   _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
@@ -87,6 +99,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
   final _formKey = GlobalKey<NodeFormState>();
   final _passphraseFormKey = GlobalKey<FormState>();
   bool? testnetValue;
+  int? zcashNetworkValue;
 
   bool obscurePassphrase = true;
 
@@ -112,6 +125,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
     if (testnetValue == null && widget.useTestnet) {
       testnetValue = widget.useTestnet;
     }
+    zcashNetworkValue ??= widget.zcashNetwork;
 
     return Container(
       padding: EdgeInsets.only(top: 24),
@@ -281,6 +295,20 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ],
               );
             }),
+            if (FeatureFlag.hasDevOptions &&
+                widget.privacySettingsViewModel.type == WalletType.zcash)
+              SettingsChoicesCell(
+                ChoicesListItem<int>(
+                  title: 'Zcash network',
+                  items: ZcashNetworkType.values,
+                  selectedItem: zcashNetworkValue ?? ZcashNetworkType.mainnet,
+                  displayItem: ZcashNetworkType.label,
+                  onItemSelected: (final network) {
+                    setState(() => zcashNetworkValue = network);
+                    widget.setZcashNetwork(network);
+                  },
+                ),
+              ),
             if (widget.privacySettingsViewModel.type == WalletType.bitcoin ||
                 widget.privacySettingsViewModel.type == WalletType.decred)
               Builder(builder: (_) {
@@ -332,11 +360,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
                   widget.nodeViewModel.save();
                 }
-                if (passphraseController.text.isNotEmpty) {
-                  if (_passphraseFormKey.currentState != null &&
-                      !_passphraseFormKey.currentState!.validate()) {
-                    return;
-                  }
+                if (_passphraseFormKey.currentState != null &&
+                    !_passphraseFormKey.currentState!.validate()) {
+                  return;
                 }
 
                 widget.seedTypeViewModel.setPassphrase(passphraseController.text);

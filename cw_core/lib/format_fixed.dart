@@ -8,8 +8,7 @@ String formatFixed(BigInt value, int? decimals, {int? fractionalDigits, bool tri
   var negative = value.isNegative;
   if (negative) value = -value;
 
-  var fraction =
-      (value % multiplier).toString().padLeft(decimals, "0");
+  var fraction = (value % multiplier).toString().padLeft(decimals, "0");
 
   if (fractionalDigits < 0) fractionalDigits = 0;
   if (fractionalDigits > decimals) fractionalDigits = decimals;

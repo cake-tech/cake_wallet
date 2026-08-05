@@ -47,7 +47,7 @@ class LinkViewModel {
         case 'send':
           return Routes.send;
         case 'receive':
-          return Routes.addressPage;
+          return Routes.newReceivePage;
         default:
           return null;
       }

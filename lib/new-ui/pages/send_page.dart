@@ -241,7 +241,9 @@ class _NewSendPageState extends State<NewSendPage> {
             widget.initialPaymentRequest!.scheme.toLowerCase()) {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
       _amountControllers[0].text = widget.initialPaymentRequest!.amount;
-      _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      // _memoControllers[0].text = widget.initialPaymentRequest!.note;
+      _applyNote(widget.initialPaymentRequest!.note, 0);
+
       final contractAddress = widget.initialPaymentRequest!.contractAddress;
       if (contractAddress != null && contractAddress.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -326,31 +328,33 @@ class _NewSendPageState extends State<NewSendPage> {
                         title: widget.mode.title,
                         subtitle: widget.mode.description,
                         leadingIcon: const Icon(Icons.close),
-                    onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-                    trailingWidget: Observer(
-                      builder: (_) => Row(
-                        spacing: 8,
-                        children: [
-                          if (widget.sendViewModel.outputs.length > 1)
-                            ModernButton(
-                                size: 36,
-                                icon: CakeImageWidget(
-                                  imageUrl: "assets/new-ui/remove_recipient.svg",
-                                  colorFilter: ColorFilter.mode(
-                                    Theme.of(context).colorScheme.primary,
-                                    BlendMode.srcIn,
+                        leadingSemanticLabel: S.of(context).close,
+                        onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
+                        trailingWidget: Observer(
+                          builder: (_) => Row(
+                            spacing: 8,
+                            children: [
+                              if (widget.sendViewModel.outputs.length > 1)
+                                ModernButton(
+                                  size: 36,
+                                  icon: CakeImageWidget(
+                                    imageUrl: "assets/new-ui/remove_recipient.svg",
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.primary,
+                                      BlendMode.srcIn,
+                                    ),
                                   ),
-                                ),
-                                onPressed: () {
-                                  final outputIndex = _selectedOutput;
-                                  if (_selectedOutput != 0) {
-                                    _setOutput(_selectedOutput - 1);
-                                  } else {
-                                    _setOutput(1);
-                                  }
-                                  _removeInputControllers(outputIndex);
-                                  widget.sendViewModel.removeOutput(output);
-                                  if (outputIndex == 0) {
+                                  semanticLabel: S.of(context).remove,
+                                  onPressed: () {
+                                    final outputIndex = _selectedOutput;
+                                    if (_selectedOutput != 0) {
+                                      _setOutput(_selectedOutput - 1);
+                                    } else {
+                                      _setOutput(1);
+                                    }
+                                    _removeInputControllers(outputIndex);
+                                    widget.sendViewModel.removeOutput(output);
+                                    if (outputIndex == 0) {
                                       _setOutput(0);
                                     }
                                   },
@@ -360,6 +364,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                 ModernButton(
                                   size: 36,
                                   icon: const Icon(Icons.add),
+                                  semanticLabel: S.of(context).add_receiver,
                                   onPressed: () {
                                     _addInputControllers();
                                     widget.sendViewModel.addOutput();
@@ -371,10 +376,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                   size: 36,
                                   icon: CakeImageWidget(
                                     imageUrl: "assets/new-ui/help.svg",
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary, BlendMode.srcIn,
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.primary,
+                                      BlendMode.srcIn,
                                     ),
                                   ),
+                                  semanticLabel: S.of(context).help,
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       CupertinoPageRoute(
@@ -410,7 +417,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           spacing: 12,
                                           children: [
-                                            Text(S.of(context).address_or_alias),
+                                            // NewSendAddressInput merges this label onto its
+                                            // own text-field node, so announcing the caption
+                                            // as well would read it twice.
+                                            ExcludeSemantics(
+                                              child: Text(S.of(context).address_or_alias),
+                                            ),
                                             NewSendAddressInput(
                                               displayName: output.displayName,
                                               validator: output.isParsedAddress
@@ -474,6 +486,12 @@ class _NewSendPageState extends State<NewSendPage> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         spacing: 12,
                                         children: [
+                                          // This caption is the amount field's accessible name
+                                          // and must stay in the semantics tree:
+                                          // NewSendAmountInput deliberately carries no label of
+                                          // its own, because labelling the field made Android
+                                          // announce the amount twice. Covered by
+                                          // test/new-ui/widgets/send_page/send_amount_input_test.dart.
                                           Text(S.of(context).amount),
                                           NewSendAmountInput(
                                             validator: output.sendAll
@@ -551,17 +569,18 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   label: S.of(context).fees,
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
-                                                  onTap: () {
-                                                    if (widget.sendViewModel.feesViewModel
-                                                        .hasFeesPriority) {
-                                                      pickTransactionPriority(context, output);
-                                                    }
-                                                  },
+                                                  // Without fee priorities the row does nothing,
+                                                  // so it must not be announced as interactive.
+                                                  onTap: widget.sendViewModel.feesViewModel
+                                                          .hasFeesPriority
+                                                      ? () =>
+                                                          pickTransactionPriority(context, output)
+                                                      : null,
                                                 ),
                                               if (widget.sendViewModel.hasCoinControl)
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
-                                                  label: "Coin Control",
+                                                  label: S.of(context).coin_control,
                                                   onTap: () {
                                                     showCupertinoModalBottomSheet(
                                                       enableDrag: false,
@@ -783,7 +802,8 @@ class _NewSendPageState extends State<NewSendPage> {
           widget.sendViewModel.outputs[i].setFiatAmount(_amountControllers[i].text);
         } else {
           final amount = widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
-              _amountControllers[i].text.sanitized(), widget.sendViewModel.selectedCryptoCurrency,
+            _amountControllers[i].text.sanitized(),
+            widget.sendViewModel.selectedCryptoCurrency,
           );
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
@@ -819,8 +839,15 @@ class _NewSendPageState extends State<NewSendPage> {
               widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
               Navigator.of(context).pop();
             },
+            isReconnect: false,
           ),
         );
+
+        // Recheck to handle tap-backs
+        if (!widget.sendViewModel.hardwareWalletViewModel!
+            .isConnected(widget.sendViewModel.walletType)) {
+          return;
+        }
       } else {
         await widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
       }
@@ -1306,7 +1333,9 @@ class _NewSendPageState extends State<NewSendPage> {
         );
       } catch (e) {}
     }
-    _memoControllers[_selectedOutput].text = paymentRequest.note;
+    // _memoControllers[_selectedOutput].text = paymentRequest.note;
+
+    _applyNote(paymentRequest.note, _selectedOutput);
   }
 
   Future<void> _handleSwapFlow(
@@ -1454,6 +1483,15 @@ class _NewSendPageState extends State<NewSendPage> {
 
   String _wrapAmount(String amount, int maxChars) =>
       amount.length <= maxChars ? amount : "${amount.substring(0, maxChars - 3)}...";
+
+  // TODO: make a separate variable for memo in payment request model
+  void _applyNote(String note, int selectedOutput) {
+    if (widget.sendViewModel.hasMemos && note.length <= widget.sendViewModel.maxMemoLength) {
+      widget.sendViewModel.outputs[selectedOutput].memo = note;
+    } else {
+      widget.sendViewModel.outputs[selectedOutput].note = note;
+    }
+  }
 }
 
 class SendHelpPage extends StatelessWidget {
@@ -1470,6 +1508,7 @@ class SendHelpPage extends StatelessWidget {
             ModalTopBar(
               title: content.title,
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Padding(
@@ -1526,17 +1565,17 @@ Future<bool> showParsedAddressConfirmationAlert(
   final confirmed = await showPopUp<bool>(
     context: context,
     builder: (context) => AlertWithOneAction(
-        alertTitle: S.of(context).address_detected,
-        headerTitleText: parsedAddress.profileName.isEmpty ? null : parsedAddress.profileName,
-        headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
-            ? parsedAddress.addressSource.iconPath
-            : parsedAddress.profileImageUrl,
-        alertContent: S.of(context).extracted_address_content(
-              "${parsedAddress.handle} (${parsedAddress.addressSource.label})",
-            ),
-        buttonText: S.of(context).ok,
-        buttonAction: () => Navigator.of(context).pop(true),
-      ),
+      alertTitle: S.of(context).address_detected,
+      headerTitleText: parsedAddress.profileName.isEmpty ? null : parsedAddress.profileName,
+      headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
+          ? parsedAddress.addressSource.iconPath
+          : parsedAddress.profileImageUrl,
+      alertContent: S.of(context).extracted_address_content(
+            "${parsedAddress.handle} (${parsedAddress.addressSource.label})",
+          ),
+      buttonText: S.of(context).ok,
+      buttonAction: () => Navigator.of(context).pop(true),
+    ),
   );
 
   return confirmed ?? false;

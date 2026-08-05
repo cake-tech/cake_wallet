@@ -92,14 +92,18 @@ class _NewDashboardState extends State<NewDashboard> {
                   ),
                 ),
               ),
-              SafeArea(
-                bottom: !(Platform.isIOS),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
-                  child: AbsorbPointer(
-                    absorbing: true,
-                    child: Container(color: Colors.transparent),
+              // Invisible pointer-absorbing strip behind the nav bar: it must not
+              // be reachable by screen-reader traversal either.
+              ExcludeSemantics(
+                child: SafeArea(
+                  bottom: !(Platform.isIOS),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: Container(color: Colors.transparent),
+                    ),
                   ),
                 ),
               ),

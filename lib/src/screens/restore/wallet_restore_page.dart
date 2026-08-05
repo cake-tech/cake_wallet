@@ -121,7 +121,9 @@ class WalletRestorePage extends BasePage {
                             'isFromRestore': true,
                             'type': walletRestoreViewModel.type,
                             'useTestnet': walletRestoreViewModel.useTestnet,
-                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
+                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet,
+                            'zcashNetwork': walletRestoreViewModel.zcashNetwork,
+                            'setZcashNetwork': walletRestoreViewModel.setZcashNetwork,
                           },
                         );
                       },
