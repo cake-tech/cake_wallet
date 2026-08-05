@@ -76,6 +76,7 @@ class Routes {
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
   static const addressPage = '/address_page';
+  static const newReceivePage = '/new_receive_page';
   static const fullscreenQR = '/fullscreen_qr';
   static const cakePayWelcomePage = '/cake_pay_welcome_page';
   static const cakePayLoginPage = '/cake_pay_login_page';

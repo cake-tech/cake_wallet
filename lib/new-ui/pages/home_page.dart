@@ -14,6 +14,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
@@ -50,6 +51,24 @@ class _NewHomePageState extends State<NewHomePage> {
       setState(() {
         _lightningMode = false;
       });
+    });
+
+    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val)  {
+      if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
+        if(!context.mounted) {
+          return;
+        }
+        widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
+        showMaterialModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (context) => ZcashMigrationModal(
+            hasContinue: true,
+            balance: widget.dashboardViewModel.wallet.balance.values.first.unavailable
+                .toStringWithSymbol(),
+          ),
+        );
+      }
     });
   }
 

@@ -15,6 +15,7 @@ import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_detail
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_opening_page.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_success_page.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_type_selection_page.dart";
+import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -499,6 +500,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (context) => getIt.get<ReceivePage>(), settings: settings);
 
     case Routes.addressPage:
+      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
+          settings: settings);
+
+    case Routes.newReceivePage:
+      if (FeatureFlag.hasNewUi) {
+        return handleRouteWithPlatformAwareness(
+              (context) => Material(child: getIt.get<NewReceivePage>(param1: false, param2: null)),
+          settings: settings,
+        );
+      }
       return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
           settings: settings);
 
