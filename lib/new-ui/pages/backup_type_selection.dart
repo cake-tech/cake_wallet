@@ -5,6 +5,7 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_creation_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_creation_presentation_event.dart";
+import "package:cake_wallet/new-ui/widgets/keychain_creation/keychain_creation_description.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
@@ -16,6 +17,7 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class BackupTypeSelectionPage extends StatefulWidget {
   const BackupTypeSelectionPage({required this.bloc, super.key});
@@ -62,7 +64,7 @@ class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
                     spacing: 12,
                     children: [
                       const CupertinoActivityIndicator(),
-                      Text(S.of(context).loading_backup_methods)
+                      Text(S.of(context).loading_backup_methods),
                     ],
                   ),
                 );
@@ -79,7 +81,9 @@ class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
                   children: [
                     ModalTopBar(
                       title: S.of(context).recovery_method,
-                      leadingWidget: const SizedBox(height: 52,),
+                      leadingWidget: const SizedBox(
+                        height: 52,
+                      ),
                       leadingSemanticLabel: S.of(context).seed_alert_back,
                     ),
                     Expanded(
@@ -99,17 +103,24 @@ class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
                                 Text(
                                   S.of(context).choose_recovery_method_option,
                                 ),
-                                Row(
-                                  spacing: 8,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      S.of(context).what_is_the_difference,
-                                      style:
-                                          TextStyle(color: Theme.of(context).colorScheme.primary),
-                                    ),
-                                    Icon(Icons.info_outline_rounded, size: 16, color: Theme.of(context).colorScheme.primary,)
-                                  ],
+                                GestureDetector(
+                                  onTap: () => _showExplainer(context),
+                                  child: Row(
+                                    spacing: 8,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        S.of(context).what_is_the_difference,
+                                        style:
+                                            TextStyle(color: Theme.of(context).colorScheme.primary),
+                                      ),
+                                      Icon(
+                                        Icons.info_outline_rounded,
+                                        size: 16,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -125,6 +136,7 @@ class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
                                     tickable: true,
                                     ticked: useKeychain,
                                     iconPath: "assets/new-ui/settings_row_icons/seed.svg",
+                                    subtitle: S.of(context).recommended,
                                   ),
                                   ListItemRegularRow(
                                     keyValue: "seed",
@@ -171,6 +183,12 @@ class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
             },
           ),
         ),
+      );
+
+  void _showExplainer(BuildContext context) => showMaterialModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (context) => const KeychainCreationDescriptionModal(),
       );
 
   void _showKeychainSaveFailed(BuildContext context, String error) => showPopUp<void>(
