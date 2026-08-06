@@ -290,7 +290,6 @@ abstract class SolanaWalletBase
     }
 
     String? tokenMint;
-    // Token Mint is only needed for transactions that are not native tokens(non-SOL transactions).
     if (transactionCurrency is SPLToken) {
       tokenMint = transactionCurrency.mintAddress;
     }
@@ -307,7 +306,6 @@ abstract class SolanaWalletBase
     );
   }
 
-  // This would resolve the currency the user picked to the matching entry in the wallet balance.
   CryptoCurrency _resolveTransactionCurrency(CryptoCurrency requestedCurrency) {
     final matches = requestedCurrency is SPLToken
         ? balance.keys
@@ -325,7 +323,6 @@ abstract class SolanaWalletBase
       );
     }
 
-    // Two enabled tokens can share a symbol, and signing the wrong mint sends the wrong asset.
     if (matches.length > 1) {
       throw SolanaAmbiguousTokenSymbolException(requestedCurrency.title);
     }
@@ -479,7 +476,7 @@ abstract class SolanaWalletBase
     }
   }
 
-  static final _swapIdSuffixPattern = RegExp(r'_(outgoing|incoming)$');
+  static final _swapIdSuffixPattern = RegExp(r"_(outgoing|incoming)$");
 
   void _addTransactions(List<SolanaTransactionModel> transactions) {
     final Map<String, SolanaTransactionInfo> result = {};
@@ -498,7 +495,7 @@ abstract class SolanaWalletBase
         fee: transactionModel.fee,
       );
 
-      final baseSignature = transactionModel.id.replaceFirst(_swapIdSuffixPattern, '');
+      final baseSignature = transactionModel.id.replaceFirst(_swapIdSuffixPattern, "");
       if (baseSignature != transactionModel.id) {
         transactionHistory.transactions.remove(baseSignature);
       }

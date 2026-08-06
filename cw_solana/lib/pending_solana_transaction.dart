@@ -22,7 +22,6 @@ class PendingSolanaTransaction with PendingTransaction {
   @override
   final Money fee;
 
-  // This estimates the rent paid for a recipient token account, its a one off cost
   @override
   final Money? additionalCost;
 
