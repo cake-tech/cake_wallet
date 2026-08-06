@@ -15,14 +15,22 @@ class KeychainData {
     required this.name,
     required this.walletTypeRaw,
     required this.seed,
-    required this.seedTypeRaw,
-    required this.blockHeight,
-    required this.passphrase,
+    required this.derivationTypeRaw,
+    required this.networkRaw,
+    this.seedTypeRaw,
+    this.blockHeight,
+    this.passphrase,
+    this.derivationPath,
+    this.version = 1,
   });
 
+  final int version;
   final String name;
   final int walletTypeRaw;
   final String seed;
+  final int networkRaw;
+  final int derivationTypeRaw;
+  final String? derivationPath;
   final int? seedTypeRaw;
   final int? blockHeight;
   final String? passphrase;

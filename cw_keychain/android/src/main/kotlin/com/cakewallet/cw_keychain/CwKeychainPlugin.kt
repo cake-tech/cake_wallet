@@ -138,6 +138,10 @@ class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
     json.put("name", item.name)
     json.put("walletTypeRaw", item.walletTypeRaw)
     json.put("seed", item.seed)
+    json.put("derivationTypeRaw", item.derivationTypeRaw)
+    json.put("derivationPath", item.derivationPath)
+    json.put("networkRaw", item.networkRaw)
+    json.put("version", item.version)
     item.seedTypeRaw?.let { json.put("seedTypeRaw", it) }
     item.blockHeight?.let { json.put("blockHeight", it) }
     item.passphrase?.let { json.put("passphrase", it) }
@@ -149,11 +153,26 @@ class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
     val name = json.getString("name")
     val walletTypeRaw = json.getLong("walletTypeRaw")
     val seed = json.getString("seed")
+    val derivationTypeRaw = json.getLong("derivationTypeRaw")
+    val networkRaw = json.getLong("networkRaw")
+    val version = json.getLong("version")
+    val derivationPath = if (json.has("derivationPath") && !json.isNull("derivationPath")) json.getString("derivationPath") else null
     val seedTypeRaw = if (json.has("seedTypeRaw") && !json.isNull("seedTypeRaw")) json.getLong("seedTypeRaw") else null
     val blockHeight = if (json.has("blockHeight") && !json.isNull("blockHeight")) json.getLong("blockHeight") else null
     val passphrase = if (json.has("passphrase") && !json.isNull("passphrase")) json.getString("passphrase") else null
 
-    return KeychainData(name, walletTypeRaw, seed, seedTypeRaw, blockHeight, passphrase)
+    return KeychainData(
+      version,
+      name,
+      walletTypeRaw,
+      seed,
+      networkRaw,
+      derivationTypeRaw,
+      derivationPath,
+      seedTypeRaw,
+      blockHeight,
+      passphrase
+    )
   }
 
   private fun printWithPrefix(s: String) {

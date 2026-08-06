@@ -149,4 +149,5 @@ class Routes {
   static const bridgeDestinationNetworkPage = '/bridge_destination_network_page';
   static const bridgeReceivingWalletPage = '/bridge_receiving_wallet_page';
   static const backupModeSelectionPage = "/backup_mode_selection";
+  static const keychainRestorePage = "/keychain_restore";
 }

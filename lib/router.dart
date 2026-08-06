@@ -11,6 +11,7 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import "package:cake_wallet/new-ui/pages/keychain_restore.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -202,15 +203,26 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.welcomeWallet:
       if (SettingsStoreBase.walletPasswordDirectInput) {
-        return createRoute(RouteSettings(name: Routes.welcomePage));
+        return createRoute(RouteSettings(
+            name: Routes.keychainRestorePage,
+            arguments: KeychainRestorePageParams(isInitial: true)));
       }
       return handleRouteWithPlatformAwareness(
         (_) => getIt.get<SetupPinCodePage>(
           param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
-            Navigator.of(context.context).pushNamed(Routes.welcomePage);
+            Navigator.of(context.context).pushNamed(Routes.keychainRestorePage,
+                arguments: KeychainRestorePageParams(isInitial: true));
           },
         ),
         fullscreenDialog: true,
+      );
+
+    case Routes.keychainRestorePage:
+      final page =  getIt.get<KeychainRestorePage>(
+  param1: settings.arguments! as KeychainRestorePageParams,
+  );
+      return MaterialPageRoute<void>(
+        builder: (_) => page
       );
 
     case Routes.welcomePage:

@@ -11,6 +11,10 @@ private struct KeychainDataWrapper: Codable {
     let name: String
     let walletTypeRaw: Int64
     let seed: String
+    let networkRaw: Int64
+    let version: Int64
+    let derivationTypeRaw: Int64
+    let derivationPath: String?
     let seedTypeRaw: Int64?
     let blockHeight: Int64?
     let passphrase: String?
@@ -23,6 +27,10 @@ private struct KeychainDataWrapper: Codable {
         self.name = pigeonData.name
         self.walletTypeRaw = pigeonData.walletTypeRaw
         self.seed = pigeonData.seed
+        self.derivationTypeRaw = pigeonData.derivationTypeRaw
+        self.derivationPath = pigeonData.derivationPath
+        self.version = pigeonData.version
+        self.networkRaw = pigeonData.networkRaw
         self.seedTypeRaw = pigeonData.seedTypeRaw
         self.blockHeight = pigeonData.blockHeight
         self.passphrase = pigeonData.passphrase
@@ -30,9 +38,13 @@ private struct KeychainDataWrapper: Codable {
 
     func toPigeonData() -> KeychainData {
         return KeychainData(
+            version: version,
             name: name,
             walletTypeRaw: walletTypeRaw,
             seed: seed,
+            networkRaw: networkRaw,
+            derivationTypeRaw: derivationTypeRaw,
+            derivationPath: derivationPath,
             seedTypeRaw: seedTypeRaw,
             blockHeight: blockHeight,
             passphrase: passphrase

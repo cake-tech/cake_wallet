@@ -49,9 +49,15 @@ class KeychainCreationBloc extends Bloc<KeychainCreationEvent, KeychainCreationS
       emit(KeychainStateSaving(useKeychain: s.useKeychain));
       if (s.useKeychain) {
         try {
+          final derivationInfo = await _appStore.wallet!.walletInfo.getDerivationInfo();
           await _keychain.put(KeychainData(
             name: _appStore.wallet!.name,
             walletTypeRaw: serializeToInt(_appStore.wallet!.type),
+            // we only support mainnet and testnet right now
+            networkRaw: _appStore.wallet!.isTestnet ? 1 : 0,
+            // "1" is "default"
+            derivationTypeRaw: derivationInfo.derivationType?.index ?? 1,
+            derivationPath: derivationInfo.derivationPath,
             seed: _appStore.wallet!.seed!,
             passphrase: _appStore.wallet!.passphrase,
             seedTypeRaw: seedTypeRaw,

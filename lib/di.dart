@@ -61,10 +61,13 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import "package:cake_wallet/new-ui/pages/keychain_restore.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_creation_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/keychain_restore/keychain_restore_bloc.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -437,6 +440,14 @@ Future<void> setup({
   getIt.registerFactory<BackupTypeSelectionPage>(
       () => BackupTypeSelectionPage(bloc: getIt.get<KeychainCreationBloc>()));
 
+  getIt.registerFactory<KeychainRestoreBloc>(() => KeychainRestoreBloc(
+      walletSwitchService: getIt.get<WalletSwitchService>(),
+      creationService: getIt.get<WalletCreationService>(param1: WalletType.monero),
+      keychain: getIt.get<CwKeychain>(),),);
+
+  getIt.registerFactoryParam<KeychainRestorePage, KeychainRestorePageParams, void>((params, _) =>
+      KeychainRestorePage(bloc: getIt.get<KeychainRestoreBloc>(), isInitial: params.isInitial));
+
   getIt.registerLazySingleton(() => LedgerViewModel(getIt<AppStore>()));
 
   getIt.registerLazySingleton(BitboxViewModel.new);
@@ -558,6 +569,8 @@ Future<void> setup({
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
       fiatConversionStore: getIt.get<FiatConversionStore>()));
+
+  getIt.registerSingleton<WalletSwitchService>(WalletSwitchService(walletLoadingService: getIt.get<WalletLoadingService>(), appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(
     () => ExchangeViewModel(
