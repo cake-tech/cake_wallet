@@ -29,12 +29,14 @@ void main() {
     final appStore = getIt.get<AppStore>();
 
     // Reaching a syncing or synced state proves node connection over the live network.
+    // SyncronizingSyncStatus is spelled that way in cw_core and is a separate class from
+    // SyncingSyncStatus, chains that report the first one never reach the second.
     final synced = await homePageRobot.pumpUntil(
       () {
         final status = appStore.wallet?.syncStatus;
-        return status is SyncingSyncStatus ||
-            status is SyncedSyncStatus ||
-            status is SyncedTipSyncStatus;
+        return status is SyncronizingSyncStatus ||
+            status is SyncingSyncStatus ||
+            status is SyncedSyncStatus;
       },
       timeout: const Duration(minutes: 3),
     );

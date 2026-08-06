@@ -55,12 +55,19 @@ class HomePageRobot extends BaseRobot {
       matching: find.byType(Scrollable),
     );
 
-    await tester.scrollUntilVisible(
-      find.byType(HistoryTile),
-      300,
-      scrollable: scrollableFinder.first,
-      maxScrolls: 30,
-    );
+    // scrollUntilVisible resolves this finder on every drag and calls single on it, so an
+    // unbuilt scroll view comes back as a bare "Bad state: No element" with nothing to go on.
+    await pumpUntilFound(scrollableFinder.first);
+
+    // The tiles can already be on screen when the wallet has only a few transactions.
+    if (!tester.any(find.byType(HistoryTile))) {
+      await tester.scrollUntilVisible(
+        find.byType(HistoryTile),
+        300,
+        scrollable: scrollableFinder.first,
+        maxScrolls: 30,
+      );
+    }
 
     expect(find.byType(HistoryTile), findsWidgets);
   }
