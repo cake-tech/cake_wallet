@@ -19,6 +19,7 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/new_future_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/picker.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -42,7 +43,6 @@ import "package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_shee
 import "package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
-import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
@@ -618,9 +618,9 @@ class _NewSendPageState extends State<NewSendPage> {
                                         selectedDot: _selectedOutput,
                                       ),
                                     Observer(
-                                      builder: (_) => LoadingPrimaryButton(
+                                      builder: (_) => NewFuturePrimaryButton(
                                         key: const ValueKey("send_page_send_button_key"),
-                                        onPressed: () {
+                                        onPressed: () async {
                                           //Request dummy node to get the focus out of the text fields
                                           FocusScope.of(context).requestFocus(FocusNode());
 
@@ -629,11 +629,11 @@ class _NewSendPageState extends State<NewSendPage> {
                                           }
 
                                           if (widget.mode == SendPageModes.normal) {
-                                            _handleSend();
+                                            await _handleSend();
                                           } else if (widget.mode ==
                                                   SendPageModes.lightningDeposit ||
                                               widget.mode == SendPageModes.mwebDeposit) {
-                                            Navigator.of(context).push(
+                                            await Navigator.of(context).push(
                                               CupertinoPageRoute(
                                                 builder: (context) => Material(
                                                   child: L2ActionWalletSelector(
@@ -652,7 +652,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                           } else if (widget.mode ==
                                                   SendPageModes.lightningWithdrawal ||
                                               widget.mode == SendPageModes.mwebWithdrawal) {
-                                            Navigator.of(context).push(
+                                            await Navigator.of(context).push(
                                               CupertinoPageRoute(
                                                 builder: (context) => Material(
                                                   child: L2ActionWalletSelector(
@@ -673,13 +673,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                         text: S.of(context).continue_text,
                                         color: Theme.of(context).colorScheme.primary,
                                         textColor: Theme.of(context).colorScheme.onPrimary,
-                                        isLoading: widget.sendViewModel.state is IsExecutingState ||
-                                            widget.sendViewModel.state is TransactionCommitting ||
-                                            widget.sendViewModel.state
-                                                is IsAwaitingDeviceResponseState ||
-                                            widget.sendViewModel.state
-                                                is LoadingTemplateExecutingState,
-                                        isDisabled: !widget.sendViewModel.isReadyForSend ||
+                                        disabled: !widget.sendViewModel.isReadyForSend ||
                                             widget.sendViewModel.state is ExecutedSuccessfullyState,
                                       ),
                                     ),
@@ -858,17 +852,11 @@ class _NewSendPageState extends State<NewSendPage> {
       for (final item in widget.sendViewModel.outputs) {
         amount += item.cryptoAmountMoney;
       }
-      if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
-        if (widget.sendViewModel.wallet.hardwareWalletType == HardwareWalletType.trezor) {
-          await monero!.syncTrezor(widget.sendViewModel.wallet);
-        } else {
-          if (mounted) {
-            await Navigator.of(context).pushNamed(
-              Routes.urqrAnimatedPage,
-              arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet),
-            );
-          }
-        }
+      if (monero!.hasUnknownKeyImages(widget.sendViewModel.wallet) && mounted) {
+        await Navigator.of(context).pushNamed(
+          Routes.syncKeyImagesDevices,
+          arguments: monero!.exportOutputsUR(widget.sendViewModel.wallet),
+        );
         await Future.delayed(const Duration(seconds: 1)); // wait for monero to refresh the state
       }
       if (monero!.needExportOutputs(widget.sendViewModel.wallet, amount)) {
