@@ -162,6 +162,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
               ModalTopBar(
                 title: S.of(context).swap,
                 leadingIcon: const Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
+                trailingSemanticLabel: S.of(context).configure,
                 onLeadingPressed: Navigator.of(context).maybePop,
                 trailingIcon: CakeImageWidget(
                   imageUrl: "assets/new-ui/options.svg",
@@ -213,6 +215,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             size: 36,
                                             iconSize: 24,
                                             svgPath: "assets/new-ui/swap_amounts.svg",
+                                            semanticLabel: S.of(context).swap_reverse_direction,
                                             onPressed: () =>
                                                 widget.bloc.add(SwapDirectionReversed()),
                                           ),
@@ -803,8 +806,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           onPressed: askForRefundAddress,
                           size: 36,
                           iconSize: 18,
-                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        ),
+                          semanticLabel: S.of(context).refund_address,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,),
                       if (widget.isReceiverCard &&
                           state is SwapStateWithInputs &&
                           state.payoutAddress == null) ...[
@@ -816,16 +819,17 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                               widget.bloc.add(PayoutAddressChanged(ExternalSwapAddress(text)));
                             }
                           },
+
                           size: 36,
                           iconSize: 20,
                           backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        ),
+                        semanticLabel: S.of(context).paste,),
                         ModernButton.svg(
                           svgPath: "assets/new-ui/scan.svg",
                           onPressed: () => _presentQRScanner(context),
                           size: 36,
                           iconSize: 20,
-                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,semanticLabel: S.of(context).scan,
                         ),
                       ],
                     ],

@@ -24,6 +24,7 @@ class TrocadorProvidersSettings extends StatelessWidget {
           ModalTopBar(
             title: "Trocador ${S.of(context).providers}",
             leadingIcon: Icon(Icons.arrow_back_ios_new),
+            leadingSemanticLabel: S.of(context).seed_alert_back,
             onLeadingPressed: Navigator.of(context).pop,
           ),
           Expanded(

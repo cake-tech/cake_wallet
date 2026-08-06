@@ -172,14 +172,28 @@ class LoadingBottomWidget extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    spacing: 12,
-    children: [
-      CupertinoActivityIndicator(color: Theme.of(context).colorScheme.onSurfaceVariant),
-      Text(text, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-    ],
-  );
+  Widget build(BuildContext context) {
+    // One node per state so each step of the send is announced exactly once.
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: text,
+      excludeSemantics: true,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 12,
+        children: [
+          CupertinoActivityIndicator(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          Text(
+            text,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          )
+        ],
+      ),
+    );
+  }
 }
 
 class TransactionErrorActions extends StatelessWidget {
@@ -191,7 +205,12 @@ class TransactionErrorActions extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     spacing: 12,
     children: [
-      Container(
+      Semantics(
+          container: true,
+          liveRegion: true,
+          label: "${S.of(context).transaction_error}\n$errorText",
+          excludeSemantics: true,
+          child:Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.errorContainer.withAlpha(64),
           borderRadius: BorderRadius.circular(16),
@@ -212,18 +231,18 @@ class TransactionErrorActions extends StatelessWidget {
                     colorFilter: ColorFilter.mode(
                       Theme.of(context).colorScheme.error,
                       BlendMode.srcIn,
+                      ),
                     ),
-                  ),
                   Text(
                     S.of(context).transaction_error,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               Text(
                 errorText,
                 style: TextStyle(
@@ -231,9 +250,9 @@ class TransactionErrorActions extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                   color: Theme.of(context).colorScheme.error,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                textAlign: TextAlign.center,),
+              ],
+            ),
           ),
         ),
       ),

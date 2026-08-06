@@ -83,6 +83,12 @@ abstract class ZcashWalletBase
 
   static const int _autoShieldMinSweep = 30000;
 
+  // zkool's migrate::MIN_SD.
+  static const int _ironwoodMigrateMinNote = 500000;
+
+  static int _minSweepThreshold({required final bool ironwood}) =>
+      ironwood ? _ironwoodMigrateMinNote : _autoShieldMinSweep;
+
   Money _feeFromTxPlan(
     final zkool_pay.PcztPackage txPlan,
     final TransactionPriority priority,
@@ -469,8 +475,7 @@ abstract class ZcashWalletBase
     }
 
     // pools parameter: bitmask for which pools to use for sending
-    // 1=Transparent, 2=Sapling, 4=Orchard, 7=All pools
-    // Using 7 (all pools) allows spending from any pool type
+    // 1=Transparent, 2=Sapling, 4=Orchard, 8=Ironwood
     try {
       return await runWithCoin(
         accountId: accountId,
@@ -479,7 +484,7 @@ abstract class ZcashWalletBase
           final txPlan = await zkool_pay.prepare(
             recipients: recipients,
             options: zkool_pay.PaymentOptions(
-              srcPools: ironwood ? 15 : 7,
+              srcPools: ironwood ? 8 : 4,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
               mode: 0,
@@ -1175,6 +1180,57 @@ abstract class ZcashWalletBase
     }
   }
 
+  /// Total of transparent + sapling notes at or above the per-note spendable floor.
+  static Future<BigInt> _sweepableTotal(final zkool_coin.Coin coin) async {
+    final notes = await zkool_account.listNotes(c: coin);
+    BigInt sweepable = BigInt.zero;
+    for (int i = 0; i < notes.length; i++) {
+      final note = notes[i];
+      if (note.pool < 0 || note.pool >= NotePool.values.length) {
+        continue;
+      }
+      final noteType = NotePool.values[note.pool];
+      if ((noteType == NotePool.transparent || noteType == NotePool.sapling) &&
+          note.value >= BigInt.from(ZcashTaddressRotation.minSpendableNote)) {
+        sweepable += note.value;
+      }
+    }
+    return sweepable;
+  }
+
+  /// Orchard notes that migration will actually split or move to Ironwood.
+  static Future<BigInt> _migratableOrchardTotal(final zkool_coin.Coin coin) async {
+    final notes = await zkool_account.listNotes(c: coin);
+    BigInt migratable = BigInt.zero;
+    for (int i = 0; i < notes.length; i++) {
+      final note = notes[i];
+      if (note.pool != NotePool.orchard.index || note.locked) {
+        continue;
+      }
+      if (note.value >= BigInt.from(_ironwoodMigrateMinNote)) {
+        migratable += note.value;
+      }
+    }
+    return migratable;
+  }
+
+  Future<bool> hasOrchardMigratableBalance() async {
+
+    final (active, migratableOrchard) = await runWithCoin(
+      accountId: accountId,
+      func: (final coin) async => (
+      await zkool_network.isIronwoodActive(c: coin),
+      await _migratableOrchardTotal(coin),
+      ),
+    );
+
+    if(!active) {
+      return false;
+    }
+
+    return migratableOrchard > BigInt.zero;
+  }
+
   Future<void> _$autoShield() async {
     if (syncStatus is! SyncedSyncStatus) {
       return;
@@ -1182,24 +1238,12 @@ abstract class ZcashWalletBase
     final txId = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
-        final _notes = await zkool_account.listNotes(c: coin);
-        BigInt sweepable = BigInt.zero;
-        for (int i = 0; i < _notes.length; i++) {
-          final note = _notes[i];
-          if (note.pool < 0 || note.pool >= NotePool.values.length) {
-            continue;
-          }
-          final noteType = NotePool.values[note.pool];
-          if (noteType == NotePool.transparent || noteType == NotePool.sapling) {
-            sweepable += note.value;
-          }
-        }
+        final sweepable = await _sweepableTotal(coin);
+        final ironwood = await zkool_network.isIronwoodActive(c: coin);
 
-        if (sweepable <= BigInt.from(_autoShieldMinSweep)) {
+        if (sweepable <= BigInt.from(_minSweepThreshold(ironwood: ironwood))) {
           return null;
         }
-
-        final ironwood = await zkool_network.isIronwoodActive(c: coin);
         final txPlan = await zkool_pay.prepare(
           recipients: [
             zkool_paydart.Recipient(
@@ -1332,17 +1376,6 @@ abstract class ZcashWalletBase
   }) async {
     try {
       await _updateIronwoodActive();
-      final bal = await runWithCoin(
-        accountId: accountId,
-        func: (final coin) async => zkool_sync.balance(c: coin),
-      );
-
-      // 0 - transparent, 1 - sapling, 2 - orchard, 3 - ironwood
-      final transparent = bal.field0[0];
-      final sapling = bal.field0.length > 1 ? bal.field0[1] : BigInt.zero;
-      final orchard = bal.field0.length > 2 ? bal.field0[2] : BigInt.zero;
-      final ironwood = bal.field0.length > 3 ? bal.field0[3] : BigInt.zero;
-
       if (runAutoShield) {
         await _autoShield();
       }
@@ -1350,18 +1383,36 @@ abstract class ZcashWalletBase
         await _ironwoodMigrate();
       }
 
+      final (bal, sweepable, migratableOrchard) = await runWithCoin(
+        accountId: accountId,
+        func: (final coin) async => (
+          await zkool_sync.balance(c: coin),
+          await _sweepableTotal(coin),
+          await _migratableOrchardTotal(coin),
+        ),
+      );
+
+      // 0 - transparent, 1 - sapling, 2 - orchard, 3 - ironwood
+      final orchard = bal.field0.length > 2 ? bal.field0[2] : BigInt.zero;
+      final ironwood = bal.field0.length > 3 ? bal.field0[3] : BigInt.zero;
+
       // After NU6.3, Orchard notes are migrated to Ironwood - show them as unconfirmed.
+      // Unavailable uses the same per-note totals and thresholds as auto-shield/migration guards.
       final BigInt availableAmount;
       final BigInt unavailableAmount;
       if (ironwoodActive == true && orchard > BigInt.zero) {
-        availableAmount = sapling + ironwood;
-        unavailableAmount = transparent + orchard;
+        final sweepableUnavailable = sweepable <= BigInt.from(_ironwoodMigrateMinNote)
+            ? BigInt.zero
+            : sweepable;
+        availableAmount = ironwood;
+        unavailableAmount = migratableOrchard + sweepableUnavailable;
       } else {
-        availableAmount = sapling + orchard + ironwood;
-        unavailableAmount = transparent;
+        final minSweep = _minSweepThreshold(ironwood: ironwoodActive == true);
+        availableAmount = orchard + ironwood;
+        unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
       }
 
-      balance[CryptoCurrency.zec] = ZcashBalance(
+      balance[currency] = ZcashBalance(
         Money(availableAmount, currency),
         Money(unavailableAmount, currency),
         frozen: Money.zero(currency),

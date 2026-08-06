@@ -300,6 +300,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
@@ -313,21 +314,25 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           const SizedBox(width: 6),
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Observer(
-                  builder: (BuildContext context) {
-                    return Text(
-                      (widget.walletKeysViewModel.obscurePassphrase)
-                          ? "*****"
-                          : widget.walletKeysViewModel.passphrase,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    );
-                  },
+                Expanded(
+                  child: Observer(
+                    builder: (BuildContext context) {
+                      return Text(
+                        (widget.walletKeysViewModel.obscurePassphrase)
+                            ? "*****"
+                            : widget.walletKeysViewModel.passphrase,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      );
+                    },
+                  ),
                 ),
+                const SizedBox(width: 6),
                 Observer(
                   builder: (BuildContext context) {
                     return GestureDetector(
