@@ -17,14 +17,12 @@ class NewSwapPageRobot extends BaseRobot {
     await enterTextByKey("swap_page_deposit_amount_field_key", amount);
   }
 
-  /// Waits until a provider quote lands, quotes come from live provider APIs.
   Future<void> confirmQuoteReceived({Duration timeout = const Duration(seconds: 90)}) async {
     final received = await pumpUntil(() => _bestRate() > 0, timeout: timeout);
 
     expect(received, true, reason: "No provider quote arrived within ${timeout.inSeconds}s");
   }
 
-  /// Enters a deposit amount just above the provider minimum once the limits load.
   Future<void> enterMinimumViableDepositAmount() async {
     final limitsLoaded = await pumpUntil(
       () => _limitsState() is LimitsLoadedSuccessfully,
@@ -35,8 +33,7 @@ class NewSwapPageRobot extends BaseRobot {
 
     final min = _limitsMin() ?? 0;
 
-    // 5 percent above the minimum keeps the trade valid when the rate moves slightly,
-    // pairs without a minimum fall back to a small fixed amount the team lead can tune.
+    // 5 percent over the minimum, so a small rate move does not invalidate the trade.
     final amount = min > 0 ? (min * 1.05).toStringAsFixed(8) : "0.01";
     await enterDepositAmount(amount);
   }
@@ -45,12 +42,10 @@ class NewSwapPageRobot extends BaseRobot {
     await tapByKey("exchange_page_exchange_button_key");
   }
 
-  /// Waits for the trade to be created, the confirm sheet shows once the provider accepts.
   Future<void> confirmTradeCreated({Duration timeout = const Duration(minutes: 2)}) async {
     await pumpUntilFound(find.byType(SwapConfirmSheet), timeout: timeout);
   }
 
-  /// Waits until the deposit was broadcast, the confirm sheet pops itself after committing.
   Future<void> confirmDepositCommitted({Duration timeout = const Duration(minutes: 3)}) async {
     await pumpUntilGone(find.byType(SwapConfirmSheet), timeout: timeout);
   }

@@ -25,8 +25,7 @@ void main() {
     final settingsRobot = NewSettingsPageRobot(tester);
     final walletKeysRobot = WalletKeysAndSeedPageRobot(tester);
 
-    // One cheap key-derivation chain, one electrum chain and the native monero stack cover
-    // the three different key display paths on the wallet keys page.
+    // These three cover the different key display paths on the wallet keys page.
     final walletTypes = [WalletType.solana, WalletType.bitcoin, WalletType.monero];
 
     await appLauncher.launchApp(testKey: "seed_confirmation_test_app_key");

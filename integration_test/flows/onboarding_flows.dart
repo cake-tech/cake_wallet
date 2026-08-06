@@ -21,7 +21,6 @@ import "../robots/wallet_list_page_robot.dart";
 import "../robots/wallet_seed_page_robot.dart";
 import "../robots/welcome_page_robot.dart";
 
-/// Multi-screen journeys covering first install onboarding and wallet creation.
 class OnboardingFlows {
   OnboardingFlows(this.tester)
       : _welcomePageRobot = WelcomePageRobot(tester),
@@ -54,7 +53,6 @@ class OnboardingFlows {
   final LightningUsernamePageRobot _lightningUsernamePageRobot;
   final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
 
-  /// Runs the fresh install path, from the pin welcome screen to an opened wallet.
   Future<void> createFirstWallet(WalletType type, {List<int>? pin}) async {
     await _createPinWelcomePageRobot.tapSetAPinButton();
 
@@ -72,7 +70,6 @@ class OnboardingFlows {
     await _completeWalletCreationSteps(type);
   }
 
-  /// Creates one more wallet starting from the wallet list tab.
   Future<void> createAdditionalWalletFromWalletList(WalletType type) async {
     tester.printToConsole("Creating ${type.name} wallet");
 
@@ -88,7 +85,6 @@ class OnboardingFlows {
     await _completeWalletCreationSteps(type);
   }
 
-  /// Runs the fresh install path restoring the first wallet from its seed phrase.
   Future<void> restoreFirstWalletFromSeed(WalletType type, {String? seed, List<int>? pin}) async {
     await _createPinWelcomePageRobot.tapSetAPinButton();
 
@@ -106,7 +102,6 @@ class OnboardingFlows {
     await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
   }
 
-  /// Restores one more wallet starting from the wallet list tab.
   Future<void> restoreAdditionalWalletFromWalletList(WalletType type, {String? seed}) async {
     tester.printToConsole("Restoring ${type.name} wallet");
 

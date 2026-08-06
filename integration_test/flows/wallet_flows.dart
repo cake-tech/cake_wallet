@@ -3,7 +3,6 @@ import "package:flutter_test/flutter_test.dart";
 import "../robots/new_dashboard_robot.dart";
 import "auth_flows.dart";
 
-/// Journeys around the wallet list tab, switching between already created wallets.
 class WalletFlows {
   WalletFlows(this.tester)
       : _authFlows = AuthFlows(tester),
@@ -13,10 +12,8 @@ class WalletFlows {
   final AuthFlows _authFlows;
   final NewDashboardRobot _dashboardRobot;
 
-  /// Switches to the wallet with the given name from the wallets tab.
-  ///
-  /// Wallet names are user data so matching on text is stable here, rows on the wallet
-  /// list have no per wallet keys.
+  // Rows on the wallet list have no per wallet keys, and a wallet name is our own test
+  // data rather than a translated string, so matching on it is stable.
   Future<void> switchToWallet(String name) async {
     await _dashboardRobot.openWalletsTab();
 

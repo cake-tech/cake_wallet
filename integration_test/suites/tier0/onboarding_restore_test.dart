@@ -30,7 +30,6 @@ void main() {
     await dashboardRobot.isDisplayed();
     await homePageRobot.isDisplayed();
 
-    // Same as the other test, we confirm the app actually restored and opened a wallet of the requested type.
     final appStore = getIt.get<AppStore>();
     expect(appStore.wallet?.type, firstType);
 

@@ -4,17 +4,14 @@ import "package:cw_core/wallet_type.dart";
 
 import "funded_wallets.dart";
 
-/// The only place tests read wallet secrets from, keeps .secrets.g.dart out of robots and suites.
+// Nothing else in the tests imports .secrets.g.dart, it all comes through here.
 class TestWallets {
-  /// Wallet types with a funded seed available, drives the funds suites in auto mode.
   static List<WalletType> get fundedWalletTypes =>
       availableWalletTypes.where((type) => fundedSeedFor(type).isNotEmpty).toList();
 
-  /// All funded seeds for the type, each chain keeps at least two funded wallets.
   static List<String> fundedSeedsFor(WalletType type) =>
       (fundedWalletSeeds[type.name] ?? []).where((seed) => seed.trim().isNotEmpty).toList();
 
-  /// The primary funded seed for the type, empty when the chain has none.
   static String fundedSeedFor(WalletType type) {
     final seeds = fundedSeedsFor(type);
 
@@ -97,6 +94,6 @@ class TestWallets {
     }
   }
 
-  /// Restore block height for the legacy 25 word monero test wallet.
+  // Only the legacy 25 word monero seed needs a restore height.
   static String get moneroRestoreBlockHeight => secrets.moneroTestWalletBlockHeight;
 }

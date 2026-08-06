@@ -40,7 +40,6 @@ void main() {
       tester.printToConsole("Funds send starting for ${type.name}");
 
       try {
-        // Every funded wallet of the chain gets a turn, the first with a balance wins.
         final opened = await fundsFlows.openFundedWallet(type);
 
         if (!opened) {
@@ -79,7 +78,8 @@ void main() {
           await sendRobot.dismissModal();
           await homePageRobot.isDisplayed();
         } catch (e) {
-          // Recovery is best effort, the per chain failure is already recorded.
+          // The chain's own failure is already recorded, this is only about getting back
+          // to a known screen for the next chain.
           tester.printToConsole("Recovery for ${type.name} failed: $e");
         }
       }

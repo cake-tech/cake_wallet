@@ -35,7 +35,6 @@ class HomePageRobot extends BaseRobot {
     await tapByKey("home_page_settings_button_key");
   }
 
-  /// Waits until transactions arrive for the wallet, then scrolls a history tile into view.
   Future<void> confirmTransactionHistoryVisible({
     Duration timeout = const Duration(minutes: 3),
   }) async {

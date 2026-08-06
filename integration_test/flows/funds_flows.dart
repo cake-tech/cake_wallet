@@ -9,7 +9,6 @@ import "../robots/home_page_robot.dart";
 import "../robots/new_dashboard_robot.dart";
 import "onboarding_flows.dart";
 
-/// Journeys only the funds suites use, they restore wallets that hold real funds.
 class FundsFlows {
   FundsFlows(this.tester)
       : _onboardingFlows = OnboardingFlows(tester),
@@ -23,10 +22,7 @@ class FundsFlows {
 
   bool _hasRestoredAnyWallet = false;
 
-  /// Restores the chain's funded wallets one by one until one has a spendable balance.
-  ///
-  /// Returns true with that wallet open, false when every funded wallet of the chain
-  /// came up empty so the caller can report the chain and move on.
+  // Returns false once every funded wallet of the chain has come up empty.
   Future<bool> openFundedWallet(WalletType type) async {
     final seeds = TestWallets.fundedSeedsFor(type);
 
@@ -55,8 +51,8 @@ class FundsFlows {
     return false;
   }
 
-  /// Waits for a spendable balance, a wallet that finishes syncing and still shows
-  /// nothing is treated as drained so the next seed gets its turn quickly.
+  // A wallet that finishes syncing and still shows nothing counts as drained, waiting out
+  // the full timeout on an empty wallet would cost us the whole run.
   Future<bool> _hasSpendableBalance({Duration timeout = const Duration(minutes: 5)}) async {
     final appStore = getIt.get<AppStore>();
     final endTime = DateTime.now().add(timeout);

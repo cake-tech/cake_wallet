@@ -3,7 +3,6 @@ import "package:cw_core/wallet_type.dart";
 
 import "test_wallets.dart";
 
-/// Knobs the suites read, either compile time defaults or --dart-define overrides.
 class TestConfig {
   static final List<int> pin = [0, 8, 0, 1];
 
@@ -18,8 +17,7 @@ class TestConfig {
     defaultValue: "auto",
   );
 
-  // Tiny real send amounts per chain, above dust thresholds. The team lead tunes these
-  // together with the funded wallet balances.
+  // Tiny real amounts that still clear each chain's dust threshold.
   static const Map<String, String> _fundsSendAmounts = {
     "solana": "0.0001",
     "ethereum": "0.00001",
@@ -38,13 +36,8 @@ class TestConfig {
 
   static String fundsSendAmountFor(WalletType type) => _fundsSendAmounts[type.name] ?? "0.0001";
 
-  /// Whether the funds workflow asked for this flow, FLOWS is all, send or swap.
   static bool shouldRunFundsFlow(String flow) => _fundsFlows == "all" || _fundsFlows == flow;
 
-  /// Funded wallet types the funds suites run against.
-  ///
-  /// Auto mode discovers every type with a funded seed, a comma separated CHAINS define
-  /// narrows the run to just those chains.
   static List<WalletType> get fundedWalletTypesUnderTest {
     if (_fundedChainsOverride == "auto") {
       return TestWallets.fundedWalletTypes;
@@ -77,10 +70,6 @@ class TestConfig {
     WalletType.monero,
   ];
 
-  /// Resolves the wallet types a suite should loop over.
-  ///
-  /// Defaults to the representative set, `--dart-define=TEST_WALLET_TYPES=all` runs every
-  /// available type and a comma separated list of type names runs just those.
   static List<WalletType> get walletTypesUnderTest {
     if (_walletTypesOverride == "all") {
       return availableWalletTypes;

@@ -7,10 +7,9 @@ set -euo pipefail
 #   TEST_TIER             tier0, tier1 or all, narrows SUITE_DIR to a tier subdirectory
 #   PLATFORM              android, linux or auto, picks the between-suite data reset
 #   ANDROID_APP_ID        package cleared between suites on android (default read from android/app.properties)
-#   PREBUILT_APK          prebuilt apk passed to flutter drive, skips rebuilding per suite.
-#                         Dart defines must already be baked into this apk at build time.
-#   EXTRA_DART_DEFINES    semicolon separated KEY=VALUE pairs forwarded as --dart-define flags,
-#                         semicolons because values like CHAINS=solana,ethereum contain commas
+#   PREBUILT_APK          prebuilt apk passed to flutter drive, its dart defines are already baked in
+#   EXTRA_DART_DEFINES    semicolon separated KEY=VALUE pairs, semicolons because values like
+#                         CHAINS=solana,ethereum contain commas
 #   FLUTTER_DEVICE        device id passed to flutter drive, needed when several devices are attached
 #   TEST_TIMEOUT          per-attempt timeout in seconds (default 900)
 #   RETRY_COUNT           retries per suite after a failure (default 1)
@@ -36,9 +35,9 @@ DATA_DIRS=(
     "$HOME/.config/cake_wallet"
 )
 
-# Each entry is "name|duration_seconds" so retries can never misalign names and durations.
-# Assigned empty rather than only declared, set -u treats a declared but never assigned
-# array as unbound and that only shows up on a run where nothing fails.
+# Entries are "name|duration_seconds", one string so a retry cannot misalign the two.
+# Assigned empty rather than only declared, set -u treats a declared but never assigned array
+# as unbound and that only shows up on a run where nothing fails.
 targets=()
 passed_tests=()
 failed_tests=()
@@ -59,7 +58,6 @@ error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1" >&2
 }
 
-# Format seconds into hours, minutes, seconds
 format_duration() {
     local seconds=$1
     local hours=$((seconds / 3600))
@@ -120,7 +118,6 @@ restart_adb() {
     fi
 }
 
-# Runs a command with a hard time limit, never lets a wedged tool hang the run
 bounded() {
     local limit="$1"
     shift
@@ -194,7 +191,6 @@ build_drive_command() {
     fi
 }
 
-# Run a single test with retry logic
 run_test() {
     local test_file="$1"
     local test_name=$(basename "$test_file" .dart)

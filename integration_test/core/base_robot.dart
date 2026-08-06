@@ -4,21 +4,16 @@ import "package:integration_test/integration_test.dart";
 
 import "benign_errors.dart";
 
-/// Base class for all screen robots, holds the shared waiting and interaction primitives.
 abstract class BaseRobot {
   BaseRobot(this.tester);
 
   final WidgetTester tester;
 
-  /// Asserts that the robot's screen is currently displayed.
   Future<void> isDisplayed();
 
-  /// Clears background errors the app tolerates at runtime, rethrows the rest.
-  ///
-  /// The test framework records uncaught async errors and fails the test with them at
-  /// teardown. Wallet networking keeps running under every screen, so the transient
-  /// failures the app itself ignores have to be cleared as the test goes, while anything
-  /// unrecognised still fails the test where it happened.
+  // Wallet networking keeps running under every screen and the test framework fails the
+  // test at teardown with anything it threw, so the failures the app itself ignores have
+  // to be cleared as the test goes.
   void drainBackgroundErrors() {
     final Object? pending = tester.takeException();
 
@@ -31,19 +26,15 @@ abstract class BaseRobot {
       return;
     }
 
-    // The binding already dumped the details and the stack to the console, so the message
-    // here only has to name what stopped the test.
     throw TestFailure("Unhandled background error: $pending");
   }
 
-  /// Pumps one step and drops any benign background error the frame surfaced.
   Future<void> _pumpStep(Duration step) async {
     await tester.pump(step);
 
     drainBackgroundErrors();
   }
 
-  /// Pumps frames until the finder matches, failing with a screenshot when the timeout passes.
   Future<void> pumpUntilFound(
     Finder finder, {
     Duration timeout = const Duration(seconds: 30),
@@ -63,7 +54,6 @@ abstract class BaseRobot {
     throw TestFailure("Widget not found after ${timeout.inSeconds}s: $finder");
   }
 
-  /// Pumps frames until the finder stops matching, for dismissing modals and spinners.
   Future<void> pumpUntilGone(
     Finder finder, {
     Duration timeout = const Duration(seconds: 30),
@@ -83,21 +73,18 @@ abstract class BaseRobot {
     throw TestFailure("Widget still present after ${timeout.inSeconds}s: $finder");
   }
 
-  /// Waits for the widget with the given key to appear, then taps it.
   Future<void> tapByKey(String key, {Duration timeout = const Duration(seconds: 30)}) async {
     final finder = find.byKey(ValueKey(key));
 
     await pumpUntilFound(finder, timeout: timeout);
 
-    // A tap during a route transition lands on the animating overlay instead of the
-    // widget, so let running animations finish first.
+    // A tap during a route transition lands on the animating overlay instead of the widget.
     await settle(max: const Duration(seconds: 2));
 
     await tester.tap(finder.first, warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 300));
   }
 
-  /// Waits for the finder to match, then taps the first match.
   Future<void> tapWhenVisible(
     Finder finder, {
     Duration timeout = const Duration(seconds: 30),
@@ -110,7 +97,6 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 300));
   }
 
-  /// Waits for the text field with the given key to appear, then types into it.
   Future<void> enterTextByKey(String key, String text) async {
     final finder = find.byKey(ValueKey(key));
 
@@ -120,7 +106,6 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 300));
   }
 
-  /// Scrolls inside the scrollable with the given key until the item key becomes visible.
   Future<void> scrollUntilVisibleByKey(
     String itemKey,
     String scrollableKey, {
@@ -150,7 +135,6 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 300));
   }
 
-  /// Pumps until the condition returns true, false when the timeout passes first.
   Future<bool> pumpUntil(
     bool Function() condition, {
     Duration timeout = const Duration(seconds: 30),
@@ -169,7 +153,7 @@ abstract class BaseRobot {
     return false;
   }
 
-  /// Pops the deepest navigator, the one closest to what is currently on screen.
+  // The deepest navigator is the one closest to what is on screen.
   Future<void> goBack() async {
     final navigator = tester.state<NavigatorState>(find.byType(Navigator).last);
     navigator.pop();
@@ -177,7 +161,7 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  /// Pops the root navigator, dismisses the current modal sheet.
+  // Modal sheets are pushed onto the root navigator.
   Future<void> dismissModal() async {
     final navigator = tester.state<NavigatorState>(find.byType(Navigator).first);
     navigator.pop();
@@ -185,7 +169,7 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  /// Pumps until no more frames are scheduled, bounded because some screens animate forever.
+  // Bounded instead of pumpAndSettle, the dashboard animates forever and never settles.
   Future<void> settle({Duration max = const Duration(seconds: 3)}) async {
     final endTime = DateTime.now().add(max);
 
@@ -204,7 +188,6 @@ abstract class BaseRobot {
     expect(find.text(text), findsWidgets);
   }
 
-  /// Reads the content of the Text widget with the given key, null when it is not on screen.
   String? textByKey(String key) {
     final finder = find.byKey(ValueKey(key));
 
@@ -215,7 +198,7 @@ abstract class BaseRobot {
     return tester.widget<Text>(finder.first).data;
   }
 
-  /// Takes a screenshot without ever failing the test, screenshots are diagnostics only.
+  // Screenshots are diagnostics, a failed one must never be what fails the test.
   Future<void> takeScreenshot(String name) async {
     try {
       final binding = tester.binding;

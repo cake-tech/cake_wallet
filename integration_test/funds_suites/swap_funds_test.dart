@@ -38,7 +38,6 @@ void main() {
 
     await appLauncher.launchApp(testKey: "swap_funds_test_app_key");
 
-    // Every funded wallet of the chain gets a turn, the first with a balance wins.
     final opened = await fundsFlows.openFundedWallet(type);
 
     expect(

@@ -30,7 +30,6 @@ class CommonTestCases {
   }) async {
     final widgetFinder = find.byKey(ValueKey(key));
 
-    // Wait for the widget instead of a fixed sleep, first frames on a cold emulator are slow.
     final endTime = DateTime.now().add(timeout);
     while (DateTime.now().isBefore(endTime)) {
       await tester.pump(const Duration(milliseconds: 100));
@@ -265,7 +264,6 @@ class CommonTestCases {
   }) async {
     final editableTextWidget = find.byKey(ValueKey(editableTextKey));
 
-    // Wait for the field to mount before typing into it.
     final endTime = DateTime.now().add(timeout);
     while (DateTime.now().isBefore(endTime)) {
       await tester.pump(const Duration(milliseconds: 100));
