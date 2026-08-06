@@ -41,7 +41,9 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
       return;
     }
 
-    final keychainData = await _keychain.getAll();
+    final existingWalletNames = (await WalletInfo.getAll()).map((item) => item.name);
+    final keychainData =
+        (await _keychain.getAll()).where((item) => !existingWalletNames.contains(item.name)).toList();
     if (keychainData.isEmpty) {
       emit(const KeychainRestoreNoWallets());
       return;
