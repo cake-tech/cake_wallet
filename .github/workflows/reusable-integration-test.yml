@@ -84,9 +84,9 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Cache flutter sdk
+      - name: Restore flutter sdk
         id: flutter-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ~/flutter
           key: flutter-sdk-3.41.9-${{ runner.os }}
@@ -102,11 +102,22 @@ jobs:
           export PATH="$PATH:$HOME/flutter/bin"
           flutter --version
 
+      - name: Save flutter sdk
+        if: steps.flutter-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/flutter
+          key: flutter-sdk-3.41.9-${{ runner.os }}
+
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
 
-      - name: Cache pub packages
-        uses: actions/cache@v4
+      - name: Restore pub packages
+        id: pub-cache
+        uses: actions/cache/restore@v4
         with:
           path: ~/.pub-cache
           key: pub-cache-${{ runner.os }}-${{ hashFiles('pubspec_base.yaml', 'cw_*/pubspec.yaml') }}
@@ -203,6 +214,14 @@ jobs:
         run: |
           flutter pub get
 
+      - name: Save pub packages
+        if: steps.pub-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('pubspec_base.yaml', 'cw_*/pubspec.yaml') }}
+
       - name: Build generated code
         run: |
           flutter --version
@@ -275,8 +294,12 @@ jobs:
 
           chmod +x /tmp/emulator_ready.sh
 
+          # Takes the tier to run as its first argument, the workflow runs it once per tier
+          # so each tier uploads its logs before the next one can take the runner down
           cat > /tmp/run_integration_tests.sh << 'EOF'
           #!/bin/bash
+
+          TIER="$1"
 
           /tmp/emulator_ready.sh
 
@@ -284,39 +307,41 @@ jobs:
           adb shell settings put global transition_animation_scale 0.0 || true
           adb shell settings put global animator_duration_scale 0.0 || true
 
+          echo "===== resources before $TIER ====="
+          free -h || true
+          df -h / || true
+
           if [[ "$RECORD_SCREEN" == "true" ]]; then
             echo "Starting chunked screen recording..."
-            (i=0; while true; do adb shell screenrecord --time-limit 180 --bit-rate 2000000 "/sdcard/rec_$i.mp4" || break; i=$((i+1)); done) &
+            (i=0; while true; do adb shell screenrecord --time-limit 180 --bit-rate 2000000 "/sdcard/rec_${TIER}_$i.mp4" || break; i=$((i+1)); done) &
             RECORD_LOOP_PID=$!
+          fi
+
+          # tier1 talks to live nodes and providers, it reports without blocking merges so
+          # it gets no retries, tier0 is the gate and keeps one
+          RETRIES=1
+          if [[ "$TIER" == "tier1" ]]; then
+            RETRIES=0
           fi
 
           set -o pipefail
           set +e
           env \
             SUITE_DIR="${{ inputs.suite_dir }}" \
-            TEST_TIER="${{ inputs.test_tier }}" \
+            TEST_TIER="$TIER" \
             EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
             TEST_TIMEOUT=600 \
+            RETRY_COUNT=$RETRIES \
             PLATFORM=android \
-            ./integration_test_runner.sh 2>&1 | tee integration_test_run.log
+            ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log"
           TEST_EXIT_CODE=$?
           set -e
 
-          adb logcat -d > logcat_final.txt || true
+          echo "===== resources after $TIER ====="
+          free -h || true
+          df -h / || true
 
-          # tier1 depends on live network services so it reports but does not block merges,
-          # promote it into the hard gate once it has a stable green history
-          if [[ "${{ inputs.test_tier }}" == "tier0" && -d "${{ inputs.suite_dir }}/tier1" ]]; then
-            echo "Running tier1 suites (non-blocking)..."
-            env \
-              SUITE_DIR="${{ inputs.suite_dir }}" \
-              TEST_TIER=tier1 \
-              TEST_TIMEOUT=600 \
-              RETRY_COUNT=0 \
-              EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
-              PLATFORM=android \
-              ./integration_test_runner.sh 2>&1 | tee tier1_run.log || echo "tier1 suites failed (non-blocking)"
-          fi
+          adb logcat -d > "${TIER}_logcat.txt" || true
 
           if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
             echo "Stopping screen recording and encrypting..."
@@ -348,6 +373,17 @@ jobs:
 
           chmod +x /tmp/run_integration_tests.sh
 
+      # The gradle daemon holds a 6GB heap from android/gradle.properties, which together
+      # with the emulator leaves the runner too little to stay alive. The per suite builds
+      # from here on are incremental so a smaller heap is plenty.
+      - name: Cap the gradle heap for the test phase
+        run: |
+          sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx3072M/' android/gradle.properties
+          grep '^org.gradle.jvmargs' android/gradle.properties
+          pkill -f GradleDaemon || echo "No gradle daemon to stop"
+          free -h || true
+          df -h / || true
+
       - name: Integration tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         env:
@@ -357,11 +393,13 @@ jobs:
           arch: x86_64
           profile: pixel_5
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 4096 -cores 4 -no-snapshot-save
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -cores 4 -no-snapshot-save
           disable-animations: false
           working-directory: ${{ github.workspace }}
-          script: bash /tmp/run_integration_tests.sh
+          script: bash /tmp/run_integration_tests.sh ${{ inputs.test_tier }}
 
+      # Uploaded before tier1 runs, a runner lost during tier1 used to take the gate's own
+      # results down with it
       - name: Upload test logs
         if: always()
         continue-on-error: true
@@ -369,10 +407,36 @@ jobs:
         with:
           name: integration-test-logs
           path: |
-            ${{ github.workspace }}/integration_test_run.log
-            ${{ github.workspace }}/tier1_run.log
-            ${{ github.workspace }}/logcat_final.txt
+            ${{ github.workspace }}/${{ inputs.test_tier }}_run.log
+            ${{ github.workspace }}/${{ inputs.test_tier }}_logcat.txt
             ${{ github.workspace }}/recordings/*.gpg
+
+      # tier1 needs live nodes and providers so it reports without blocking merges
+      - name: Integration tests on Android Emulator (tier1, non-blocking)
+        if: ${{ inputs.test_tier == 'tier0' }}
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          RECORD_SCREEN: ${{ inputs.record_screen }}
+        with:
+          api-level: 29
+          arch: x86_64
+          profile: pixel_5
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -cores 4 -no-snapshot-save
+          disable-animations: false
+          working-directory: ${{ github.workspace }}
+          script: bash /tmp/run_integration_tests.sh tier1
+
+      - name: Upload tier1 logs
+        if: ${{ always() && inputs.test_tier == 'tier0' }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-logs-tier1
+          path: |
+            ${{ github.workspace }}/tier1_run.log
+            ${{ github.workspace }}/tier1_logcat.txt
 
       - name: Post-test cleanup
         if: always()

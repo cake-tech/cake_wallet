@@ -135,6 +135,23 @@ specific flows or chains, and per chain send amounts are tuned in
 `TestConfig._fundsSendAmounts`. The swap suite enters an amount just above the provider
 minimum, the first funded chain's balance has to cover that minimum plus fees.
 
+## How CI runs them
+
+The PR gate runs on GitHub hosted runners, the self-hosted android builders have no
+usable KVM so the emulator cannot start there. Moving back is a one line change to
+`runs-on` in `reusable-integration-test.yml` once a KVM capable builder exists.
+
+tier0 and tier1 each get their own emulator step and upload their logs separately, so a
+runner that dies during tier1 cannot take the gate's own results with it. The gradle heap
+is capped before the test phase because the daemon and the emulator together were
+exhausting the runner.
+
+Two environment quirks are worth knowing when a build fails in CI but not locally: the
+deps docker image regenerates the mweb ffi bindings with an ffigen too old for the current
+compiler and its rsync overwrites `cw_mweb/pubspec.yaml`, so the workflow restores that
+file and regenerates the bindings itself. And `assets/images` svgs need compiling to
+`.vec`, which `compile_graphics.sh` does not cover.
+
 ## Flakiness playbook
 
 - A timeout in `pumpUntilFound` throws with the finder description. Diagnose through the
