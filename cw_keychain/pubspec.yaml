@@ -7,8 +7,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cw_core:
-    path: ../cw_core
 
 dev_dependencies:
   flutter_test:
