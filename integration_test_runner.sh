@@ -15,6 +15,7 @@ set -euo pipefail
 #   TEST_TIMEOUT          per-attempt timeout in seconds (default 900)
 #   RETRY_COUNT           retries per suite after a failure (default 1)
 #   MAX_VOID_ATTEMPTS     extra attempts when the driver never attached (default 2)
+#   MAX_TOTAL_VOID_ATTEMPTS  give up on the whole run after this many, the environment is broken (default 4)
 #   REMOVE_DATA_DIRECTORY set to N to keep app data between suites (default wipes it)
 
 SUITE_DIR=${SUITE_DIR:-integration_test/suites}
@@ -23,6 +24,7 @@ PLATFORM=${PLATFORM:-auto}
 TEST_TIMEOUT=${TEST_TIMEOUT:-900}
 RETRY_COUNT=${RETRY_COUNT:-1}
 MAX_VOID_ATTEMPTS=${MAX_VOID_ATTEMPTS:-2}
+MAX_TOTAL_VOID_ATTEMPTS=${MAX_TOTAL_VOID_ATTEMPTS:-4}
 REMOVE_DATA_DIRECTORY=${REMOVE_DATA_DIRECTORY:-Y}
 EXTRA_DART_DEFINES=${EXTRA_DART_DEFINES:-}
 PREBUILT_APK=${PREBUILT_APK:-}
@@ -38,6 +40,7 @@ DATA_DIRS=(
 declare -a targets
 declare -a passed_tests
 declare -a failed_tests
+total_void_attempts=0
 
 cleanup() {
     echo "Received interrupt signal, cleaning up..."
@@ -98,15 +101,48 @@ resolve_android_app_id() {
     ANDROID_APP_ID=${ANDROID_APP_ID:-com.cakewallet.cake_wallet}
 }
 
-# A wedged adb server is the usual reason the driver cannot attach to the app
+# A wedged adb server is the usual reason the driver cannot attach to the app.
+# Every call is bounded, adb wait-for-device blocks forever when the emulator is gone.
 restart_adb() {
     if [[ "$PLATFORM" != "android" ]]; then
         return
     fi
 
-    adb kill-server > /dev/null 2>&1 || true
-    adb start-server > /dev/null 2>&1 || true
-    adb wait-for-device > /dev/null 2>&1 || true
+    bounded 30 adb kill-server
+    bounded 30 adb start-server
+    bounded 60 adb wait-for-device
+
+    if ! bounded 30 adb devices | grep -q "device$"; then
+        error "No device is attached after restarting adb"
+        return 1
+    fi
+}
+
+# Runs a command with a hard time limit, never lets a wedged tool hang the run
+bounded() {
+    local limit="$1"
+    shift
+
+    if command -v timeout > /dev/null 2>&1; then
+        timeout "$limit" "$@" 2>/dev/null || return 1
+    elif command -v perl > /dev/null 2>&1; then
+        perl -e 'alarm shift; exec @ARGV' "$limit" "$@" 2>/dev/null || return 1
+    else
+        "$@" 2>/dev/null || return 1
+    fi
+}
+
+# The app never started, its logcat is the only place the reason shows up
+capture_failure_logcat() {
+    local test_name="$1"
+
+    if [[ "$PLATFORM" != "android" ]]; then
+        return
+    fi
+
+    echo "===== logcat after failed attempt: $test_name ====="
+    bounded 60 adb logcat -d -t 400 || echo "logcat unavailable"
+    echo "===== end logcat ====="
 }
 
 clean_data_directories() {
@@ -194,10 +230,30 @@ run_test() {
 
             log "FAIL: $test_name ($(format_duration $duration))"
 
+            capture_failure_logcat "$test_name"
+
+            if [[ "$attempt_was_void" == "Y" ]]; then
+                total_void_attempts=$((total_void_attempts + 1))
+
+                # An environment where the driver never attaches will not fix itself,
+                # give up early instead of spending the whole job on dead attempts
+                if (( total_void_attempts > MAX_TOTAL_VOID_ATTEMPTS )); then
+                    error "The flutter driver failed to attach $total_void_attempts times, the emulator or adb is broken"
+                    failed_tests+=("$test_name|$duration")
+                    return 1
+                fi
+            fi
+
             if [[ "$attempt_was_void" == "Y" ]] && (( void_attempts < MAX_VOID_ATTEMPTS )); then
                 log "Driver never attached to the app, retrying without spending a retry"
                 void_attempts=$((void_attempts + 1))
-                restart_adb
+
+                if ! restart_adb; then
+                    error "Could not bring adb back, aborting this suite"
+                    failed_tests+=("$test_name|$duration")
+                    return 1
+                fi
+
                 sleep 5
             elif (( retry_count < RETRY_COUNT )); then
                 log "Retrying test: $test_name"
