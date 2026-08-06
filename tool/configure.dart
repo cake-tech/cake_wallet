@@ -442,6 +442,8 @@ abstract class Monero {
   Map<String, String> exportOutputsUR(Object wallet);
 
   bool needExportOutputs(Object wallet, Money amount);
+  
+  bool hasUnknownKeyImages(Object wallet);
 
   bool importKeyImagesUR(Object wallet, String ur);
 
