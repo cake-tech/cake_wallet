@@ -1,7 +1,7 @@
 import "dart:async";
 
 import "package:cake_wallet/main.dart" as app;
-import "package:flutter/material.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "benign_errors.dart";
