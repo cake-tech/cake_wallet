@@ -469,7 +469,7 @@ abstract class DashboardViewModelBase with Store {
     final designIndex =
         BalanceCardLayout.designOrderOf(cardOrder.values).indexOf(currentCardAccountIndex);
 
-    return cardDesigns[designIndex];
+    return cardDesigns[designIndex == -1 ? 0 : designIndex];
   }
 
   void _transactionDisposerCallback(int _) async {

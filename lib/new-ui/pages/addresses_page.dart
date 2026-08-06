@@ -76,7 +76,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
         setState(() {});
       });
 
-    design = widget.dashboardViewModel.currentCardDesign;
+    loadCardDesign();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _cardDesignsDisposer = reaction((context) => widget.dashboardViewModel.cardDesigns.toList(),
           (value) {
@@ -85,6 +85,13 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
           design = widget.dashboardViewModel.currentCardDesign;
         });
       });
+    });
+  }
+
+  Future<void> loadCardDesign() async {
+    await widget.dashboardViewModel.loadCardDesigns();
+    setState(() {
+      design = widget.dashboardViewModel.currentCardDesign;
     });
   }
 
