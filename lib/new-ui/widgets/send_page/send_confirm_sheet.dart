@@ -198,9 +198,9 @@ class SendTransactionDetails extends StatelessWidget {
     return "${decimals == null ? str : str.withDecimals(decimals)} $unit";
   }
 
-  Widget _buildMainContent(BuildContext context) {
-    return Observer(builder: (context) {
+  Widget _buildMainContent(BuildContext context) => Observer(builder: (context) {
       final transaction = sendViewModel.pendingTransaction;
+      final additionalCostNotice = sendViewModel.pendingTransactionAdditionalCostNotice;
 
       final currencySymbol =
           sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.selectedCryptoCurrency);
@@ -208,10 +208,11 @@ class SendTransactionDetails extends StatelessWidget {
       final amount = (transaction == null)
           ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(sendViewModel.outputs, (o) {
               final zero = Money.zero(sendViewModel.selectedCryptoCurrency);
-              if (o.sendAll)
+              if (o.sendAll) {
                 return sendViewModel.amountParsingProxy.tryParseCryptoString(
                         sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
                     zero;
+              }
 
               return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ?? zero;
             }, sendViewModel.selectedCryptoCurrency))
@@ -398,6 +399,25 @@ class SendTransactionDetails extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (additionalCostNotice != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Container(
+                          height: 1,
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          additionalCostNotice,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                    ],
                     if (sendViewModel.isElectrumWallet) ...[
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 12),
@@ -445,7 +465,6 @@ class SendTransactionDetails extends StatelessWidget {
         ),
       );
     });
-  }
 
   String formatAmount(String amount) {
     try {
