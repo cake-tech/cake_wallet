@@ -219,8 +219,10 @@ run_test() {
 
             # A driver that never attaches never ran the test, that is an environment
             # problem rather than a test failure so it does not consume the real retry
+            # flutter drive words this differently depending on how far the attach got,
+            # so match every wording we have actually seen fail this way
             local attempt_was_void=N
-            if grep -q "unusually long time to connect to the VM" "$attempt_log"; then
+            if grep -qE "unusually long time to connect to the VM|taking unusually long time to initialize|Service has disappeared|Flutter Driver extension is taking a long time to become available" "$attempt_log"; then
                 attempt_was_void=Y
             fi
 

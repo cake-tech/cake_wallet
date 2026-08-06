@@ -295,12 +295,9 @@ jobs:
             RECORD_LOOP_PID=$!
           fi
 
-          # tier1 talks to live nodes and providers, it reports without blocking merges so
-          # it gets no retries, tier0 is the gate and keeps one
+          # Both tiers get one retry. tier1 talks to live nodes and providers, and giving it
+          # no retry meant a driver that never attached was reported as a failing test.
           RETRIES=1
-          if [[ "$TIER" == "tier1" ]]; then
-            RETRIES=0
-          fi
 
           set -o pipefail
           set +e
