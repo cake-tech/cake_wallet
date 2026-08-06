@@ -1,2 +1,8 @@
 additional_public_assets:
   - pigeons/**
+
+targets:
+  $default:
+    sources:
+      exclude:
+        - example/**
