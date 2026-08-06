@@ -68,7 +68,8 @@ class KeychainRestorePage extends StatelessWidget {
                           ? const SizedBox(
                               height: 52,
                             )
-                          : const Icon(Icons.arrow_back_ios_new),
+                          : null,
+                      leadingIcon: isInitial ? null : const Icon(Icons.arrow_back_ios_new),
                       onLeadingPressed: isInitial ? () {} : Navigator.of(context).pop,
                       leadingSemanticLabel: isInitial ? null : S.of(context).seed_alert_back,
                     ),
