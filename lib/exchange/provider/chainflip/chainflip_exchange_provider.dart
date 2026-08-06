@@ -250,6 +250,11 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<ChainflipQuote> _getSwapQuote(ChainflipFetchQuotesRequest params) async {
     final uri = Uri.https(_baseURL, _quotePath, params.toJson());
     final response = await proxyWrapper.get(clearnetUri: uri);
+
+    if(response.statusCode < 200 || response.statusCode > 299) {
+      throw Exception("status code: ${response.statusCode}");
+    }
+
     final quotes = ChainflipFetchQuotesResponse.fromJson(
       jsonDecode(response.body) as List<dynamic>,
     );
