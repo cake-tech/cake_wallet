@@ -127,7 +127,7 @@ class ProviderOptionsPage extends StatelessWidget {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  for (final provider in decentralizedProviders) {
+                                  for (final provider in centralizedProviders) {
                                     if(!s.enabledProviders.contains(provider))
                                       bloc.add(ProviderToggled(provider));
                                   }
@@ -139,7 +139,7 @@ class ProviderOptionsPage extends StatelessWidget {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  for (final provider in decentralizedProviders) {
+                                  for (final provider in centralizedProviders) {
                                     if(s.enabledProviders.contains(provider))
                                     bloc.add(ProviderToggled(provider));
                                   }
