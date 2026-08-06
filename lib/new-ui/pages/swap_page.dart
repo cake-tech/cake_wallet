@@ -243,6 +243,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                               ),
                             SwapProviderPreview(bloc: widget.bloc),
                             BlocBuilder<RateCubit, RateState>(
+                              bloc: widget.bloc.rateCubit,
                               builder: (context, rateState) => NewPrimaryButton(
                                 text: S.of(context).swap,
                                 onPressed: () {
@@ -283,6 +284,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
     final page = SwapConfirmSheet(bloc: widget.bloc);
     await showMaterialModalBottomSheet(
       context: context,
+      enableDrag: false,
+      isDismissible: false,
       builder: (context) => page,
       backgroundColor: Colors.transparent,
     );
