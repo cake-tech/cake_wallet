@@ -19,8 +19,6 @@ concurrency:
 
 jobs:
   android-integration-tests:
-    # Fork PRs get no secrets so the test build cannot be produced for them,
-    # same policy as pr_test_build_android.yml
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/reusable-integration-test.yml
     with:

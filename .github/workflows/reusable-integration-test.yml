@@ -45,8 +45,6 @@ defaults:
 
 jobs:
   integration-test:
-    # Hosted runners have working KVM, the self-hosted android builders do not expose
-    # /dev/kvm yet. Move back to them once a kvm labeled builder exists.
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     timeout-minutes: ${{ inputs.timeout_minutes }}
@@ -59,9 +57,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
-
-      # The hosted image ships ~25GB of toolchains this build never uses, the flutter
-      # build plus the emulator system image need that room
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/lib/node_modules /opt/hostedtoolcache/CodeQL
@@ -91,8 +86,6 @@ jobs:
           path: ~/flutter
           key: flutter-sdk-3.41.9-${{ runner.os }}
 
-      # Same source as the ci container image, the 3.41.9 release archive ships a stricter
-      # dart that rejects the checked in mweb ffi bindings while the tag clone compiles them
       - name: Install Flutter
         run: |
           if [[ ! -d "$HOME/flutter/bin" ]]; then
@@ -123,7 +116,6 @@ jobs:
           key: pub-cache-${{ runner.os }}-${{ hashFiles('pubspec_base.yaml', 'cw_*/pubspec.yaml') }}
           restore-keys: pub-cache-${{ runner.os }}-
 
-      # The breez rust crate builds through cargokit during the android build
       - name: Add rust android targets
         run: |
           rustup target add x86_64-linux-android aarch64-linux-android armv7-linux-androideabi i686-linux-android
@@ -162,9 +154,6 @@ jobs:
           echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
-
-      # Funded wallet seeds only reach the manual funds workflow, the checked in
-      # funded_wallets.dart default is an empty map
       - name: Add funded wallet secrets
         if: ${{ inputs.write_funds_secrets }}
         run: |
@@ -176,11 +165,6 @@ jobs:
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
             CW_DOCKER_USE_CLOUD=true \
             ./scripts/android/docker/build.sh
-
-      # The deps image generates the mweb ffi bindings with an ffigen too old for the
-      # current compiler, and its rsync also clobbers the checked out cw_mweb pubspec
-      # with the stale unpinned copy baked into the image. Restore our files and
-      # regenerate with the pinned ffigen.
       - name: Regenerate mweb bindings
         run: |
           git checkout -- cw_mweb/pubspec.yaml
@@ -243,8 +227,6 @@ jobs:
         run: |
           ./compile_graphics.sh
 
-      # CakeImageWidget loads a .vec twin for every svg and reports a load error before
-      # falling back, compiling the assets/images svgs keeps the strict test error policy quiet
       - name: Compile assets/images graphics
         run: |
           while read -r dir; do
@@ -261,8 +243,6 @@ jobs:
 
           echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
 
-      # Building before the emulator boots keeps gradle warm so every flutter drive after
-      # it is an incremental build, and a compile failure fails fast without wasting a boot
       - name: Prime test build
         run: |
           search_dir="${{ inputs.suite_dir }}"
@@ -273,8 +253,6 @@ jobs:
           echo "Priming build with $first_suite"
           flutter build apk --debug --target-platform android-x64 --target="$first_suite" --dart-define=CI_BUILD=true
 
-      # The emulator action runs every script line as a separate sh -c command, so all
-      # multi line logic lives in this file and the action gets a one line script
       - name: Prepare emulator test script
         run: |
           cat > /tmp/emulator_ready.sh << 'EOF'
@@ -372,10 +350,7 @@ jobs:
           EOF
 
           chmod +x /tmp/run_integration_tests.sh
-
-      # The gradle daemon holds a 6GB heap from android/gradle.properties, which together
-      # with the emulator leaves the runner too little to stay alive. The per suite builds
-      # from here on are incremental so a smaller heap is plenty.
+          
       - name: Cap the gradle heap for the test phase
         run: |
           sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx3072M/' android/gradle.properties
@@ -398,8 +373,6 @@ jobs:
           working-directory: ${{ github.workspace }}
           script: bash /tmp/run_integration_tests.sh ${{ inputs.test_tier }}
 
-      # Uploaded before tier1 runs, a runner lost during tier1 used to take the gate's own
-      # results down with it
       - name: Upload test logs
         if: always()
         continue-on-error: true
@@ -411,7 +384,6 @@ jobs:
             ${{ github.workspace }}/${{ inputs.test_tier }}_logcat.txt
             ${{ github.workspace }}/recordings/*.gpg
 
-      # tier1 needs live nodes and providers so it reports without blocking merges
       - name: Integration tests on Android Emulator (tier1, non-blocking)
         if: ${{ inputs.test_tier == 'tier0' }}
         continue-on-error: true
