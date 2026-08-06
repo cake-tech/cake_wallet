@@ -41,6 +41,7 @@ class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
       val data = StoreBytesData.Builder()
         .setKey(accountId)
         .setBytes(jsonString.toByteArray(Charsets.UTF_8))
+        .setShouldBackupToCloud(true)
         .build()
 
       client!!.storeBytes(data)
