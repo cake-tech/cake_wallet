@@ -49,7 +49,7 @@ BigInt parseFixed(String value, int decimals) {
   }
 
   var whole = comps.isNotEmpty ? comps[0] : "0";
-  var fraction = (comps.length == 2 ? comps[1] : "0").padRight(decimals, "0");
+  var fraction = (comps.length == 2 ? comps[1] : "").padRight(decimals, "0");
 
   if (fraction.length > multiplier.length - 1) {
     throw FormatException(
@@ -57,7 +57,7 @@ BigInt parseFixed(String value, int decimals) {
   }
 
   final wholeValue = BigInt.parse(whole);
-  final fractionValue = BigInt.parse(fraction);
+  final fractionValue = fraction.isEmpty ? BigInt.zero : BigInt.parse(fraction);
   final multiplierValue = multiplierOf(decimals);
 
   var wei = (wholeValue * multiplierValue) + fractionValue;

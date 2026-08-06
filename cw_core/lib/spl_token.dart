@@ -65,6 +65,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     required String mint,
     required String symbol,
     required String mintAddress,
+    required int decimal,
     String? iconPath,
     bool isPotentialScam = false,
   }) {
@@ -72,7 +73,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
       name: name,
       symbol: symbol,
       mintAddress: mintAddress,
-      decimal: 0,
+      decimal: decimal,
       mint: mint,
       iconPath: iconPath,
       isPotentialScam: isPotentialScam,
