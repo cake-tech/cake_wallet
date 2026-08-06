@@ -213,6 +213,11 @@ class CWZcash extends Zcash {
   bool ironwoodActive(WalletAddresses walletAddresses) {
     return (walletAddresses as ZcashWalletAddresses).ironwoodActive;
   }
+
+  @override
+  Future<bool> hasOrchardMigratableBalance(WalletBase wallet) {
+    return (wallet as ZcashWallet).hasOrchardMigratableBalance();
+  }
 }
 
 const wordList = [

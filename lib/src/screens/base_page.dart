@@ -84,20 +84,16 @@ abstract class BasePage extends StatelessWidget {
       return null;
     }
 
-    return MergeSemantics(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 4.0),
-        child: ButtonTheme(
-          minWidth: double.minPositive,
-          child: Semantics(
-            label: S.of(context).seed_alert_back,
-            child: ModernButton(
-              size: 37,
-              icon: Icon(CupertinoIcons.back),
-              iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              onPressed: () => onClose(context),
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: ButtonTheme(
+        minWidth: double.minPositive,
+        child: ModernButton(
+          size: 37,
+          icon: Icon(CupertinoIcons.back),
+          semanticLabel: S.of(context).seed_alert_back,
+          iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          onPressed: () => onClose(context),
         ),
       ),
     );

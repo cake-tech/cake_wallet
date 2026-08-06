@@ -82,6 +82,10 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   bool isEditingToken = false;
   bool _isTokenVerified = false;
   bool _isJupiterVerified = false;
+  String? _jupiterVerifiedAddress;
+
+  bool get _isJupiterVerifiedForCurrentAddress =>
+      _isJupiterVerified && _jupiterVerifiedAddress == _contractAddressController.text;
 
   @override
   void initState() {
@@ -131,7 +135,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
     setState(() {
       _isTokenVerified = isVerified;
-      _isJupiterVerified = false;
     });
 
     _checkIfTokenIsVerifiedOnJupiter(contractAddress);
@@ -145,6 +148,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
     setState(() {
       _isJupiterVerified = isVerified ?? false;
+      _jupiterVerifiedAddress = contractAddress;
     });
   }
 
@@ -235,7 +239,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 
-                            final isTrusted = isWhitelisted || _isJupiterVerified;
+                            final isTrusted = isWhitelisted || _isJupiterVerifiedForCurrentAddress;
 
                             final hasPotentialError = !isTrusted &&
                                 await widget.homeSettingsViewModel
@@ -405,7 +409,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         size: 75,
                       ),
                     ),
-                    if (_isTokenVerified || _isJupiterVerified)
+                    if (_isTokenVerified || _isJupiterVerifiedForCurrentAddress)
                       Positioned(
                         bottom: 0,
                         right: 0,
@@ -428,7 +432,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                       ),
                   ],
                 ),
-          if (_isJupiterVerified) ...[
+          if (_isJupiterVerifiedForCurrentAddress) ...[
             const SizedBox(height: 12),
             Text(
               S.of(context).token_verified_on_jupiter,
