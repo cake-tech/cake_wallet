@@ -52,6 +52,8 @@ class SolanaWalletClient {
   SolanaRPC? _provider;
   bool _isStopped = false;
 
+  final Map<String, bool> _jupiterVerificationCache = {};
+
   bool connect(Node node) {
     try {
       _isStopped = false;
@@ -1934,6 +1936,48 @@ class SolanaWalletClient {
     } catch (e) {
       printV('Error fetching wallet tokens from Moralis: ${e.toString()}');
       return [];
+    }
+  }
+
+  Future<bool?> isTokenVerifiedOnJupiter(String mintAddress) async {
+    if (_jupiterVerificationCache.containsKey(mintAddress)) {
+      return _jupiterVerificationCache[mintAddress];
+    }
+
+    try {
+      final uri = Uri.https(
+        "lite-api.jup.ag",
+        "/tokens/v2/search",
+        {"query": mintAddress},
+      );
+
+      final response = await client.get(
+        uri,
+        headers: {"Accept": "application/json"},
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        printV("Jupiter token API returned status: ${response.statusCode}");
+        return null;
+      }
+
+      final decodedResponse = jsonDecode(response.body) as List;
+
+      for (final item in decodedResponse) {
+        final tokenData = item as Map<String, dynamic>;
+
+        if (tokenData["id"] == mintAddress) {
+          final isVerified = tokenData["isVerified"] as bool? ?? false;
+          _jupiterVerificationCache[mintAddress] = isVerified;
+          return isVerified;
+        }
+      }
+
+      // this means Jupiter doesn't index this mint at all, so we can't say either
+      return null;
+    } catch (e) {
+      printV("Error checking Jupiter verification: ${e.toString()}");
+      return null;
     }
   }
 }
