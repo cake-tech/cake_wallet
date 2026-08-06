@@ -83,7 +83,7 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
           final credentials = await KeychainRestoreUtilities.credentialsFromKeychainData(wallet);
           _creationService.changeWalletType(type: deserializeFromInt(wallet.walletTypeRaw));
           final created = await _creationService.restoreFromSeed(credentials,
-              isTestnet: wallet.networkRaw == 1);
+              isTestnet: wallet.networkRaw == 1, checkKeychain: false);
           walletInfos.add(created.walletInfo);
         } catch (e, st) {
           printV("$e\n$st");

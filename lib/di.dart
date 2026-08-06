@@ -466,6 +466,7 @@ Future<void> setup({
             keyService: getIt.get<KeyService>(),
             sharedPreferences: getIt.get<SharedPreferences>(),
             settingsStore: getIt.get<SettingsStore>(),
+            keychain: getIt.get<CwKeychain>(),
           ));
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
