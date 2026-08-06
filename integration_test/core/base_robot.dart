@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
+import "benign_errors.dart";
+
 /// Base class for all screen robots, holds the shared waiting and interaction primitives.
 abstract class BaseRobot {
   BaseRobot(this.tester);
@@ -10,6 +12,36 @@ abstract class BaseRobot {
 
   /// Asserts that the robot's screen is currently displayed.
   Future<void> isDisplayed();
+
+  /// Clears background errors the app tolerates at runtime, rethrows the rest.
+  ///
+  /// The test framework records uncaught async errors and fails the test with them at
+  /// teardown. Wallet networking keeps running under every screen, so the transient
+  /// failures the app itself ignores have to be cleared as the test goes, while anything
+  /// unrecognised still fails the test where it happened.
+  void drainBackgroundErrors() {
+    final Object? pending = tester.takeException();
+
+    if (pending == null) {
+      return;
+    }
+
+    if (isBenignError(pending.toString())) {
+      tester.printToConsole("Ignoring benign background error: $pending");
+      return;
+    }
+
+    // The binding already dumped the details and the stack to the console, so the message
+    // here only has to name what stopped the test.
+    throw TestFailure("Unhandled background error: $pending");
+  }
+
+  /// Pumps one step and drops any benign background error the frame surfaced.
+  Future<void> _pumpStep(Duration step) async {
+    await tester.pump(step);
+
+    drainBackgroundErrors();
+  }
 
   /// Pumps frames until the finder matches, failing with a screenshot when the timeout passes.
   Future<void> pumpUntilFound(
@@ -20,7 +52,7 @@ abstract class BaseRobot {
     final endTime = DateTime.now().add(timeout);
 
     while (DateTime.now().isBefore(endTime)) {
-      await tester.pump(step);
+      await _pumpStep(step);
 
       if (tester.any(finder)) {
         return;
@@ -40,7 +72,7 @@ abstract class BaseRobot {
     final endTime = DateTime.now().add(timeout);
 
     while (DateTime.now().isBefore(endTime)) {
-      await tester.pump(step);
+      await _pumpStep(step);
 
       if (!tester.any(finder)) {
         return;
@@ -127,7 +159,7 @@ abstract class BaseRobot {
     final endTime = DateTime.now().add(timeout);
 
     while (DateTime.now().isBefore(endTime)) {
-      await tester.pump(step);
+      await _pumpStep(step);
 
       if (condition()) {
         return true;
@@ -158,7 +190,7 @@ abstract class BaseRobot {
     final endTime = DateTime.now().add(max);
 
     while (DateTime.now().isBefore(endTime)) {
-      await tester.pump(const Duration(milliseconds: 100));
+      await _pumpStep(const Duration(milliseconds: 100));
 
       if (!tester.binding.hasScheduledFrame) {
         return;
