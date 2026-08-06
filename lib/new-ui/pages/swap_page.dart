@@ -26,12 +26,14 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -529,6 +531,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       final String addressPickerText;
       final String cryptoAmount;
       final String fiatAmount;
+      final Currency inputCurrency;
       if (state is SwapStateWithInputs) {
         currency = widget.isReceiverCard
             ? state.payoutAmount.currency
@@ -554,6 +557,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         fiatAmount = "";
         cryptoAmount = "";
       }
+      inputCurrency = _fiatInputMode ? widget.bloc.fiat : currency;
       return Column(
         spacing: 12,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -601,22 +605,23 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                     onChanged: (value) {
                                       if (value.isNotEmpty) {
                                         if (state is SwapStateWithInputs) {
-                                          final amount = _fiatInputMode
-                                              ? Money.parse(value, widget.bloc.fiat)
-                                              : Money.parse(
-                                                  value,
-                                                  widget.isReceiverCard
-                                                      ? state.payoutAmount.currency
-                                                      : state.depositAmount.currency,
-                                                );
-                                          widget.bloc.add(
-                                            widget.isReceiverCard
-                                                ? PayoutAmountChanged(amount)
-                                                : DepositAmountChanged(amount),
-                                          );
+                                          final amount = Money.tryParse(value, inputCurrency);
+                                          if(amount != null) {
+                                            widget.bloc.add(
+                                              widget.isReceiverCard
+                                                  ? PayoutAmountChanged(amount)
+                                                  : DepositAmountChanged(amount),
+                                            );
+                                          }
+
                                         }
                                       }
                                     },
+                                    inputFormatters: [
+                                      if(state is SwapStateWithInputs)
+                                        DecimalInputFormatter(
+                                            maxDecimals: inputCurrency.decimals),
+                                    ],
                                     focusNode: amountFocusNode,
                                     style: TextStyle(
                                       fontSize: 28,
