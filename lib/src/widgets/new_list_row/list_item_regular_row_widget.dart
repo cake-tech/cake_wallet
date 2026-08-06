@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 
 class ListItemRegularRowWidget extends StatelessWidget {
   const ListItemRegularRowWidget(
-      {super.key,
+      {this.ticked = false,
+      this.tickable = false,
+      super.key,
       required this.keyValue,
       required this.label,
       this.subtitle,
@@ -51,6 +53,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final bool ticked;
+  final bool tickable;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +118,11 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       Expanded(
                         child: Row(
                           children: [
+                            if(tickable) ...[
+                              Opacity(opacity: ticked ? 1 : 0, child: Icon(Icons.check, color: Theme.of(context).colorScheme.primary,size: 24,),),
+                              const SizedBox(width:10),
+                            ],
+
                             if (iconPath != null)
                               Padding(
                                 padding: const EdgeInsets.only(right: 12.0),

@@ -92,6 +92,8 @@ class NewListSections extends StatelessWidget {
       return ListItemRegularRowWidget(
         keyValue: item.keyValue,
         label: item.label,
+        ticked: item.ticked,
+        tickable: item.tickable,
         subtitle: item.subtitle,
         trailingText: item.trailingText,
         iconPath: item.iconPath,

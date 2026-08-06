@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 class ListItemRegularRow extends ListItem {
   const ListItemRegularRow({
+    this.ticked = false,
+    this.tickable = false,
     required super.keyValue,
     required super.label,
     this.subtitle,
@@ -41,4 +43,6 @@ class ListItemRegularRow extends ListItem {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final bool tickable;
+  final bool ticked;
 }

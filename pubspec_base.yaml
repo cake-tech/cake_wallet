@@ -94,6 +94,7 @@ dependencies:
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   bloc: ^9.0.0
+  bloc_presentation: 1.1.2+3
   flutter_bloc: ^9.1.0
   bloc_concurrency: ^0.3.0
   equatable: ^2.0.0
@@ -111,6 +112,8 @@ dependencies:
   #    git:
   #      url: https://github.com/cake-tech/tor.git
   #      ref: main
+  cw_keychain:
+    path: cw_keychain
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart
@@ -226,8 +229,7 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/universal_ble.git
       ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
-  cw_keychain:
-    path: cw_keychain
+
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

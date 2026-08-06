@@ -4,6 +4,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
+import "package:cake_wallet/new-ui/pages/backup_type_selection.dart";
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
@@ -163,6 +164,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
+import "package:cw_keychain/cw_keychain.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -725,6 +727,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.faq:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
+
+    case Routes.backupModeSelectionPage:
+      return MaterialPageRoute<void>(builder: (_)=> getIt.get<BackupTypeSelectionPage>());
 
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<PreSeedPage>());

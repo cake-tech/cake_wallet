@@ -54,6 +54,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
+import "package:cake_wallet/new-ui/pages/backup_type_selection.dart";
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
@@ -63,6 +64,7 @@ import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_creation_bloc.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -308,6 +310,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import "package:cw_keychain/cw_keychain.dart";
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
@@ -425,6 +428,14 @@ Future<void> setup({
         );
     }
   });
+
+  getIt.registerLazySingleton<CwKeychain>(CwKeychain.new);
+
+  getIt.registerFactory<KeychainCreationBloc>(() =>
+      KeychainCreationBloc(keychain: getIt.get<CwKeychain>(), appStore: getIt.get<AppStore>()));
+
+  getIt.registerFactory<BackupTypeSelectionPage>(
+      () => BackupTypeSelectionPage(bloc: getIt.get<KeychainCreationBloc>()));
 
   getIt.registerLazySingleton(() => LedgerViewModel(getIt<AppStore>()));
 
