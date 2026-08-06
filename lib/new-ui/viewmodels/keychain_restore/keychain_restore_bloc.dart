@@ -15,7 +15,8 @@ part "keychain_restore_event.dart";
 
 part "keychain_restore_state.dart";
 
-class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreState> with BlocPresentationMixin<KeychainRestoreState, KeychainRestorePresentationEvent> {
+class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreState>
+    with BlocPresentationMixin<KeychainRestoreState, KeychainRestorePresentationEvent> {
   KeychainRestoreBloc(
       {required WalletSwitchService walletSwitchService,
       required WalletCreationService creationService,
@@ -42,8 +43,9 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
     }
 
     final existingWalletNames = (await WalletInfo.getAll()).map((item) => item.name);
-    final keychainData =
-        (await _keychain.getAll()).where((item) => !existingWalletNames.contains(item.name)).toList();
+    final keychainData = (await _keychain.getAll())
+        .where((item) => !existingWalletNames.contains(item.name))
+        .toList();
     if (keychainData.isEmpty) {
       emit(const KeychainRestoreNoWallets());
       return;
@@ -80,7 +82,8 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
         try {
           final credentials = await KeychainRestoreUtilities.credentialsFromKeychainData(wallet);
           _creationService.changeWalletType(type: deserializeFromInt(wallet.walletTypeRaw));
-          final created = await _creationService.restoreFromSeed(credentials, isTestnet: wallet.networkRaw == 1);
+          final created = await _creationService.restoreFromSeed(credentials,
+              isTestnet: wallet.networkRaw == 1);
           walletInfos.add(created.walletInfo);
         } catch (e, st) {
           printV("$e\n$st");
