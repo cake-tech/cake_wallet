@@ -36,10 +36,12 @@ DATA_DIRS=(
     "$HOME/.config/cake_wallet"
 )
 
-# Each entry is "name|duration_seconds" so retries can never misalign names and durations
-declare -a targets
-declare -a passed_tests
-declare -a failed_tests
+# Each entry is "name|duration_seconds" so retries can never misalign names and durations.
+# Assigned empty rather than only declared, set -u treats a declared but never assigned
+# array as unbound and that only shows up on a run where nothing fails.
+targets=()
+passed_tests=()
+failed_tests=()
 total_void_attempts=0
 
 cleanup() {
