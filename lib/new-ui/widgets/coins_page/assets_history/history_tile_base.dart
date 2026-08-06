@@ -21,9 +21,7 @@ class HistoryTileBase extends StatelessWidget {
     this.amountFiatWidget,
   })  : assert((title != null || titleWidget != null) && (title == null || titleWidget == null)),
         assert(
-            (amountWidget != null || amount != null) && (amountWidget == null || amount == null)),
-        assert((amountFiatWidget != null || amountFiat != null) &&
-            (amountFiatWidget == null || amountFiat == null));
+            (amountWidget != null || amount != null) && (amountWidget == null || amount == null));
 
   final String? title;
   final Widget? titleWidget;

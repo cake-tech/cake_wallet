@@ -261,7 +261,7 @@ class StandardTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 MoneyText(itemValue, style: itemTitleTextStyle),
-                MoneyText.optional(itemSubTitle, style: itemSubTitleTextStyle),
+                MoneyText.optional(itemSubTitle, trimZeros: false, style: itemSubTitleTextStyle),
               ],
             ),
           ],

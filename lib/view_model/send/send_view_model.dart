@@ -264,7 +264,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       final currency = pendingTransactionFeeCurrency(walletType);
       final price = _fiatConversationStore.prices[_fiatConversationStore.prices.keys
-          .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency))];
+          .firstWhere((k) => k.titleAndTagEqual(currency))];
       final rate = _fiatConversationStore.getExchangeRate(currency, fiatCurrency, price);
       return rate.convert(amount);
     } catch (_) {
@@ -277,7 +277,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       if (pendingTransaction != null) {
         final currency = pendingTransactionFeeCurrency(walletType);
-        final price = _fiatConversationStore.prices[currency];
+
+        final selectedCurrency = currency == CryptoCurrency.btcln ? CryptoCurrency.btc : currency;
+        final price = _fiatConversationStore.prices[selectedCurrency];
         final rate = _fiatConversationStore.getExchangeRate(currency, fiatCurrency, price);
         return rate.convert(pendingTransaction!.fee);
       } else {
@@ -297,7 +299,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bsc:
       case WalletType.tron:
       case WalletType.solana:
-      case WalletType.bitcoin:
         return wallet.currency;
       default:
         return selectedCryptoCurrency;

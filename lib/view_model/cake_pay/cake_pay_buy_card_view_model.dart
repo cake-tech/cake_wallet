@@ -12,6 +12,7 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -134,6 +135,14 @@ abstract class CakePayBuyCardViewModelBase with Store {
     selectedPaymentMethod = method;
     if (walletType == WalletType.litecoin) {
       sendViewModel.setAllowMwebCoins(method == CakePayPaymentMethod.LTC_MWEB);
+    }
+
+    if (selectedPaymentMethod == CakePayPaymentMethod.BTC_LN) {
+      sendViewModel.selectedCryptoCurrency = CryptoCurrency.btcln;
+    }
+
+    if (selectedPaymentMethod == CakePayPaymentMethod.BTC) {
+      sendViewModel.selectedCryptoCurrency = CryptoCurrency.btc;
     }
   }
 

@@ -370,6 +370,7 @@ class SendTransactionDetails extends StatelessWidget {
                               ),
                               MoneyText(
                                 fiatFee,
+                                trimZeros: false,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
