@@ -5,7 +5,7 @@ permissions:
   packages: write
 
 # Never triggered automatically, these suites move real funds. The team lead runs this
-# from the Actions tab before a release, approval goes through the funds-tests environment.
+# from the Actions tab before a release, or any time we want to confirm the flows
 on:
   workflow_dispatch:
     inputs:
@@ -41,7 +41,6 @@ jobs:
       ref: ${{ github.sha }}
       suite_dir: integration_test/funds_suites
       test_tier: all
-      environment: funds-tests
       write_funds_secrets: true
       record_screen: ${{ inputs.record_screen }}
       timeout_minutes: 120

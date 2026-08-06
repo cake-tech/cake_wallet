@@ -111,7 +111,8 @@ Adding a new test secret means adding it in `tool/utils/secret_key.dart`, mappin
 `funds_suites/` restore funded wallets and move real funds: a small self send on every
 funded chain, and one real swap with its deposit broadcast. They only run from the manual
 `Funds Integration Tests` workflow, which the team lead dispatches from the Actions tab
-before a release. The run needs approval through the `funds-tests` GitHub environment.
+before a release. Nothing gates the dispatch, anyone who can run workflows in the repo can
+start a funds run, so treat it as a deliberate release step and not a routine check.
 
 Funded seeds live in the `FUNDS_SECRETS_FILE` secret, a base64 encoded replacement for
 `integration_test/core/funded_wallets.dart` mapping wallet type names to that chain's
@@ -128,12 +129,14 @@ The suites restore a chain's funded wallets one by one and use the first that sh
 spendable balance, a wallet that finishes syncing while still empty counts as drained.
 A chain where every funded wallet is empty fails with a message asking for a top up.
 
-The checked in default is an empty map and must stay empty, PR builds never see funded
-seeds. In auto mode the suites discover every chain present in the map, so funding a new
-chain only means adding its entry to the secret. The dispatch inputs narrow a run to
-specific flows or chains, and per chain send amounts are tuned in
-`TestConfig._fundsSendAmounts`. The swap suite enters an amount just above the provider
-minimum, the first funded chain's balance has to cover that minimum plus fees.
+The checked in default is an empty map and must stay empty. Only the funds workflow turns
+on `write_funds_secrets`, and that input is the one thing keeping funded seeds out of a PR
+build now that no environment scopes the secret. In auto mode the suites discover every
+chain present in the map, so funding a new chain only means adding its entry to the
+secret. The dispatch inputs narrow a run to specific flows or chains, and per chain send
+amounts are tuned in `TestConfig._fundsSendAmounts`. The swap suite enters an amount just
+above the provider minimum, the first funded chain's balance has to cover that minimum
+plus fees.
 
 ## How CI runs them
 
