@@ -370,6 +370,8 @@ abstract class MoneroWalletBase
     };
   }
 
+  bool hasUnknownKeyImages() => currentWallet!.hasUnknownKeyImages();
+
   bool needExportOutputs(Money amount) {
     if (int.tryParse(currentWallet!.secretSpendKey()) != 0) {
       return false;
@@ -382,22 +384,30 @@ abstract class MoneroWalletBase
   }
 
   MoneroTrezorService? trezorService;
+
+  Future<Trezor> _getTrezor() async {
+    if (trezorService == null) throw Exception("Trezor not connected");
+
+    final trezor = Trezor(trezorService!);
+    await trezor.newPassphraseSession(passphrase);
+    return trezor;
+  }
+
   Future<void> syncTrezor() async {
     if (trezorService == null) throw Exception("Trezor not connected");
 
     final ptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
     final tdis = monero.Wallet_exportTrezorTdis(ptr);
-
-    final response = await Trezor(trezorService!).keyImageSync(tdis);
-
+    final trezor = await _getTrezor();
+    final response = await trezor.keyImageSync(tdis);
     final success = monero.Wallet_importTrezorEncryptedKeyImagesJson(ptr, response);
 
     if (!success) throw Exception(monero.Wallet_errorString(ptr));
   }
 
   Future<String> signTrezorTransaction(String json) async {
-    if (trezorService == null) throw Exception("Trezor not connected");
-    return Trezor(trezorService!).signTransaction(json);
+    final trezor = await _getTrezor();
+    return trezor.signTransaction(json);
   }
 
   @override

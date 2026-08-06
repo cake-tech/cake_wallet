@@ -236,12 +236,14 @@ class CWMonero extends Monero {
     required String password,
     required int height,
     required HardwareWalletService hardwareWalletService,
+    required String? passphrase,
   }) =>
       MoneroRestoreWalletFromHardwareCredentials(
         name: name,
         password: password,
         height: height,
         hardwareWalletService: hardwareWalletService,
+        passphrase: passphrase,
       );
 
   @override
@@ -416,6 +418,12 @@ class CWMonero extends Monero {
   bool needExportOutputs(Object wallet, Money amount) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.needExportOutputs(amount);
+  }
+
+  @override
+  bool hasUnknownKeyImages(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.hasUnknownKeyImages();
   }
 
   @override

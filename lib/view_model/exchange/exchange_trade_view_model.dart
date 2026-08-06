@@ -442,16 +442,11 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.dogecoin:
         return DogeURI(address: inputAddress, amount: amount);
       case WalletType.ethereum:
-        return _createERC681URI(fromCurrency, inputAddress, amount);
-      // TODO: Expand ERC681URI support to Polygon(modify decoding flow for QRs, pay anything, and deep link handling)
       case WalletType.polygon:
-        return PolygonURI(amount: amount, address: inputAddress);
       case WalletType.base:
-        return BaseURI(amount: amount, address: inputAddress);
       case WalletType.arbitrum:
-        return ArbitrumURI(amount: amount, address: inputAddress);
       case WalletType.bsc:
-        return BSCURI(amount: amount, address: inputAddress);
+        return _createERC681URI(fromCurrency, inputAddress, amount);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: inputAddress);
       case WalletType.tron:

@@ -9,6 +9,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/migrate.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as p;
 
@@ -25,9 +26,9 @@ class ZcashWalletService
   static Mutex dbMutex = Mutex();
   static int dbMutexQueue = 0;
   static Future<T> runInDbMutex<T>(final Future<T> Function() call) async {
+    dbMutexQueue++;
+    await dbMutex.acquire();
     try {
-      printV("dbMutexQueue: ${dbMutexQueue++}");
-      await dbMutex.acquire();
       return await call();
     } finally {
       dbMutex.release();
@@ -37,10 +38,15 @@ class ZcashWalletService
 
   static Set<String> autoshieldTx = {};
 
+  static String normalizeTxId(final String txId) =>
+      txId.replaceAll(RegExp(r'[^a-fA-F0-9]'), '').toLowerCase();
+
+  static bool isAutoshieldTx(final String txHash) => autoshieldTx.contains(normalizeTxId(txHash));
+
   static Future<void> addShieldedTx(final String txId) async {
     final pathForWalletType = await pathForWalletTypeDir(type: type);
-    final shieldedListFile = p.join(pathForWalletType, "autoshield_list.txt");
-    autoshieldTx.add(txId.replaceAll(RegExp(r'[^a-zA-Z0-9 ]'), ''));
+    final shieldedListFile = p.join(pathForWalletType, "autoshield_list.v2.txt");
+    autoshieldTx.add(normalizeTxId(txId));
     final shieldedList = File(shieldedListFile);
     shieldedList.writeAsStringSync(autoshieldTx.join("\n"));
   }
@@ -48,12 +54,16 @@ class ZcashWalletService
   static Future<void> loadShieldTxs() async {
     try {
       final pathForWalletType = await pathForWalletTypeDir(type: type);
-      final shieldedListFile = p.join(pathForWalletType, "autoshield_list.txt");
+      final shieldedListFile = p.join(pathForWalletType, "autoshield_list.v2.txt");
       final shieldedList = File(shieldedListFile);
       if (!shieldedList.existsSync()) {
         return;
       }
-      autoshieldTx = shieldedList.readAsLinesSync().toSet();
+      autoshieldTx = shieldedList
+          .readAsLinesSync()
+          .map(normalizeTxId)
+          .where((final line) => line.isNotEmpty)
+          .toSet();
     } catch (e) {
       printV("loadShieldTxs failed: $e");
     }
@@ -74,17 +84,26 @@ class ZcashWalletService
 
   @override
   Future<bool> isWalletExit(final String name) async {
-    final path = await pathForWallet(name: name, type: getType());
-    return File(path).existsSync();
+    final oldPath = (await pathForWallet(name: name, type: getType()));
+    final path = (await pathForWallet(name: name, type: getType())) + ".v2";
+    return File(path).existsSync() || File(oldPath).existsSync();
   }
 
   @override
   Future<ZcashWallet> openWallet(final String name, final String password) async {
-    await loadShieldTxs();
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
       throw Exception('Wallet not found');
     }
+    await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
+    if (await isWalletExit(name)) {
+      final path = (await pathForWallet(name: name, type: getType())) + ".v2";
+      if (!File(path).existsSync()) {
+        await migrateOldSqliteToZkool2(walletName: name);
+      }
+    }
+
+    await loadShieldTxs();
     try {
       final wallet = await ZcashWalletBase.open(
         name: name,
@@ -108,7 +127,7 @@ class ZcashWalletService
 
   @override
   Future<void> remove(final String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: getType());
+    final path = (await pathForWalletDir(name: wallet, type: getType()));
     final file = Directory(path);
     final isExist = file.existsSync();
 
@@ -129,17 +148,11 @@ class ZcashWalletService
     if (currentWalletInfo == null) {
       throw Exception('Wallet not found');
     }
-    final accountId = await ZcashWalletBase.getZcashAccountIdForName(currentName);
-    if (accountId == null) {
-      throw Exception('Wallet account not found for name: $currentName');
+    if (!await isWalletExit(currentName)) {
+      throw Exception('Wallet not found');
     }
-    final currentWallet = ZcashWallet(
-      currentWalletInfo,
-      await currentWalletInfo.getDerivationInfo(),
-      accountId: accountId,
-    );
 
-    await currentWallet.renameWalletFiles(newName);
+    await ZcashWalletBase.renameWalletFilesForName(fromName: currentName, toName: newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -162,11 +175,11 @@ class ZcashWalletService
     final bool? isTestnet,
   }) async {
     if (credentials.seed == null || credentials.seed!.isEmpty) {
-      throw ZcashMnemonicIsIncorrectException();
+      throw Exception("Seed is missing");
     }
 
     if (!bip39.validateMnemonic(credentials.seed!)) {
-      throw ZcashMnemonicIsIncorrectException();
+      throw Exception("Seed is not valid bip39");
     }
 
     return ZcashWalletBase.restore(credentials);

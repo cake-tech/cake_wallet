@@ -35,6 +35,7 @@ class DisplaySettingsPage extends StatelessWidget {
       topBar: ModalTopBar(
         title: S.of(context).display,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
+        leadingSemanticLabel: S.of(context).seed_alert_back,
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),
       content: Column(
@@ -115,21 +116,12 @@ class DisplaySettingsPage extends StatelessWidget {
                       onChanged: (val) {
                         _displaySettingsViewModel.setDisableTradeOption(val);
                       }),
-                  if (_displaySettingsViewModel.showZcashCardSetting)
-                    ListItemToggle(
-                        keyValue: "display_settings_show_zcashcard",
-                        label: S.of(context).show_zcash_card,
-                        value: _displaySettingsViewModel.showZcashCard,
-                        onChanged: (val) {
-                          _displaySettingsViewModel.setShowZcashCard(val);
-                        }),
                   ListItemSelector(
                       keyValue: "display_settings_sync_status_display",
                       label: S.of(context).sync_status_display_mode,
                       options: [_displaySettingsViewModel.syncStatusDisplayMode.title],
                       onTap: () async {
                         final items = SyncStatusDisplayMode.values.toList();
-
                         final selectedAtIndex =
                             items.indexOf(_displaySettingsViewModel.syncStatusDisplayMode);
 

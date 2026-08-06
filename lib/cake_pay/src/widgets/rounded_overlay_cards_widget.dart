@@ -15,7 +15,7 @@ class RoundedOverlayCards extends StatelessWidget {
 
     return ClipRRect(
       borderRadius:
-          BorderRadius.only(bottomLeft: Radius.circular(25.0), bottomRight: Radius.circular(25.0)),
+          BorderRadius.only(bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
       child: Container(
         decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
@@ -30,8 +30,8 @@ class RoundedOverlayCards extends StatelessWidget {
             Flexible(
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(25.0),
-                  bottomRight: Radius.circular(25.0),
+                  bottomLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
                 ),
                 child: Container(
                   decoration: BoxDecoration(

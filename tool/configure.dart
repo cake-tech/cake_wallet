@@ -442,6 +442,8 @@ abstract class Monero {
   Map<String, String> exportOutputsUR(Object wallet);
 
   bool needExportOutputs(Object wallet, Money amount);
+  
+  bool hasUnknownKeyImages(Object wallet);
 
   bool importKeyImagesUR(Object wallet, String ur);
 
@@ -455,7 +457,7 @@ abstract class Monero {
     HardwareWalletType? hardwareWalletType,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
-  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required HardwareWalletService hardwareWalletService});
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required HardwareWalletService hardwareWalletService, required String? passphrase});
 WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
@@ -981,6 +983,7 @@ abstract class Solana {
   List<String> getDefaultTokenContractAddresses();
   List<String> getDefaultTokenSymbols();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+  Future<bool?> isTokenVerifiedOnJupiter(WalletBase wallet, String mintAddress);
   
   // Jupiter swap transaction handling
   // Signs and prepares a base64-encoded unsigned transaction for sending
@@ -1704,6 +1707,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/wallet_addresses.dart';
 
 """;
   const zcashCWHeaders = """
@@ -1721,13 +1725,15 @@ abstract class Zcash {
       WalletInfo? walletInfo,
       String? password,
       String? mnemonic,
-      required String? passphrase});
+      required String? passphrase,
+      int network = 0});
   WalletCredentials createZcashRestoreWalletFromSeedCredentials(
       {required String name,
       required String mnemonic,
       required String password,
       String? passphrase,
-      required int? height});
+      required int? height,
+      int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password, required int height});
   String getAddress(WalletBase wallet);
@@ -1766,6 +1772,8 @@ abstract class Zcash {
   Future<int> getHeightByDate(DateTime date);
   bool showMissingFundsCard(WalletBase wallet);
   Future<void> rescanInternalChange(WalletBase wallet);
+  bool ironwoodActive(WalletAddresses walletAddresses);
+  Future<bool> hasOrchardMigratableBalance(WalletBase wallet);
 }
   """;
 

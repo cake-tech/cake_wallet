@@ -42,7 +42,7 @@ class ConnectDevicePage extends BasePage {
   ConnectDevicePage(ConnectDevicePageParams params, this.hardwareWalletVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
-        allowChangeWallet = params.allowChangeWallet,
+        allowChangeWallet = params.allowChangeWallet || params.isReconnect,
         isReconnect = params.isReconnect;
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
@@ -142,12 +142,22 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     super.dispose();
   }
 
+  var _isRefreshingUsb = false;
   Future<void> _refreshUsbDevices() async {
-    final dev = await widget.hardwareWalletVM.getAllUsbDevices();
-
-    if (usbDevices.length != dev.length) {
-      setState(() => usbDevices = dev);
+    if (_isRefreshingUsb) {
+      return;
     }
+    _isRefreshingUsb = true;
+    try {
+      final dev = await widget.hardwareWalletVM.getAllUsbDevices();
+
+      if (usbDevices.length != dev.length) {
+        setState(() => usbDevices = dev);
+      }
+    } catch(e) {
+      printV(e);
+    }
+    _isRefreshingUsb = false;
   }
 
   Future<void> _refreshBleDevices() async {
