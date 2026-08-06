@@ -104,11 +104,6 @@ class KeychainRestorePage extends StatelessWidget {
                                               return null;
                                             }
 
-                                            if (state is KeychainRestoreComplete &&
-                                                !state.walletsRestored.contains(item)) {
-                                              return null;
-                                            }
-
                                             return ListItemRegularRow(
                                               keyValue: item.name,
                                               iconPath: iconPath,
@@ -181,17 +176,16 @@ class KeychainRestorePage extends StatelessWidget {
       return Icon(Icons.check, size: 16, color: Theme.of(context).colorScheme.primary);
     }
 
-    if (state is KeychainRestoreComplete) {
-      return const SizedBox.shrink();
-    }
-
     if (state is KeychainRestoreStateWithWalletProgress) {
       if (state.walletsFailed.contains(item)) {
         return Text(
           S.of(context).error,
           style: TextStyle(color: Theme.of(context).colorScheme.onError),
         );
+      } else if (state is KeychainRestoreComplete) {
+        return const SizedBox.shrink();
       } else if (state.walletsRestored.contains(item)) {
+
         return Text(
           S.of(context).restored,
           style: TextStyle(color: Theme.of(context).colorScheme.primary),
