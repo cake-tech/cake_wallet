@@ -35,6 +35,21 @@ class HomePageRobot extends BaseRobot {
     await tapByKey("home_page_settings_button_key");
   }
 
+  // The home page shows a three item preview of the history under a tab, the full list is
+  // behind the All button. Opens the history tab when the wallet has an assets tab too,
+  // wallets without tokens render the history straight away with no tabs at all.
+  Future<void> openHistoryTab() async {
+    final tabFinder = find.byKey(const ValueKey("line_tab_switcher_1_key"));
+
+    if (!tester.any(tabFinder)) {
+      return;
+    }
+
+    await tapWhenVisible(tabFinder);
+
+    await settle();
+  }
+
   Future<void> confirmTransactionHistoryVisible({
     Duration timeout = const Duration(minutes: 3),
   }) async {
@@ -49,25 +64,31 @@ class HomePageRobot extends BaseRobot {
       reason: "No transactions arrived within ${timeout.inSeconds}s",
     );
 
-    // History tiles live in a lazy sliver further down the home scroll view.
-    final scrollableFinder = find.descendant(
-      of: find.byType(NewHomePage),
-      matching: find.byType(Scrollable),
+    await openHistoryTab();
+
+    await pumpUntilFound(find.byType(HistoryTile));
+
+    // itemsShort caps the preview at DashboardViewModel.shortHistoryLength.
+    expect(
+      tester.widgetList(find.byType(HistoryTile)).length,
+      lessThanOrEqualTo(3),
+      reason: "The home page preview should never render more than the short history",
     );
+  }
 
-    // scrollUntilVisible resolves this finder on every drag and calls single on it, so an
-    // unbuilt scroll view comes back as a bare "Bad state: No element" with nothing to go on.
-    await pumpUntilFound(scrollableFinder.first);
+  // The All button opens the history as a modal over the dashboard, the same section built
+  // with short false so it renders every transaction instead of the preview.
+  Future<void> openAllTransactions() async {
+    final actionButton = find.byKey(const ValueKey("assets_history_action_button_key"));
+    final historyBar = find.byKey(const ValueKey("history_top_bar_key"));
 
-    // The tiles can already be on screen when the wallet has only a few transactions.
-    if (!tester.any(find.byType(HistoryTile))) {
-      await tester.scrollUntilVisible(
-        find.byType(HistoryTile),
-        300,
-        scrollable: scrollableFinder.first,
-        maxScrolls: 30,
-      );
-    }
+    await tapWhenVisible(tester.any(actionButton) ? actionButton : historyBar);
+
+    await pumpUntilFound(find.byKey(const ValueKey("history_modal_key")));
+  }
+
+  Future<void> confirmAllTransactionsVisible() async {
+    await pumpUntilFound(find.byType(HistoryTile));
 
     expect(find.byType(HistoryTile), findsWidgets);
   }

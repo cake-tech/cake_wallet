@@ -30,5 +30,10 @@ void main() {
     expect(getIt.get<AppStore>().wallet?.type, WalletType.solana);
 
     await homePageRobot.confirmTransactionHistoryVisible();
+
+    // The home page only ever shows the first three, the rest are behind the All button.
+    await homePageRobot.openAllTransactions();
+
+    await homePageRobot.confirmAllTransactionsVisible();
   });
 }

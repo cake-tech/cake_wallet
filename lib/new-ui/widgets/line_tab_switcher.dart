@@ -101,6 +101,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                   selected: widget.selectedTab == index,
                   inMutuallyExclusiveGroup: true,
                   child: GestureDetector(
+                    key: ValueKey("line_tab_switcher_${index}_key"),
                     onTap: () {
                       widget.onTabChange(index);
                     },
