@@ -1128,6 +1128,19 @@ class SolanaWalletClient {
     return tokenInfoCache[mintAddress] = await fetchSPLTokenInfo(mintAddress);
   }
 
+  Future<int?> _fetchMintDecimals(String mintAddress) async {
+    try {
+      final supply = await _provider!.request(
+        SolanaRPCGetTokenSupply(account: SolAddress(mintAddress)),
+      );
+
+      return supply.decimals;
+    } catch (e) {
+      printV("Could not read decimals for mint $mintAddress: ${e.toString()}");
+      return null;
+    }
+  }
+
   Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
     try {
       final uri = Uri.https(
@@ -1148,10 +1161,21 @@ class SolanaWalletClient {
 
       final symbol = decodedResponse['symbol'] ?? '';
       final name = decodedResponse['name'] ?? '';
-      final decimal = decodedResponse['decimals'] ?? '0';
+      final rawDecimals = decodedResponse["decimals"];
       final iconPath = decodedResponse['logo'] ?? '';
 
       final filteredTokenSymbol = symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
+
+      final reportedDecimals =
+          rawDecimals is num ? rawDecimals.toInt() : int.tryParse(rawDecimals?.toString() ?? '');
+
+      final decimals = (reportedDecimals != null && reportedDecimals > 0)
+          ? reportedDecimals
+          : await _fetchMintDecimals(mintAddress);
+
+      if (decimals == null) {
+        return null;
+      }
 
       return SPLToken(
         name: name,
@@ -1159,7 +1183,7 @@ class SolanaWalletClient {
         symbol: filteredTokenSymbol,
         mintAddress: mintAddress,
         iconPath: iconPath,
-        decimal: int.tryParse(decimal) ?? 0,
+        decimal: decimals,
       );
     } catch (e, s) {
       printV('Error fetching token info: $e \n $s');
@@ -1187,11 +1211,18 @@ class SolanaWalletClient {
         String filteredTokenSymbol =
             metadata.symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
 
+        final decimals = await _fetchMintDecimals(token.mint.address);
+
+        if (decimals == null) {
+          return null;
+        }
+
         return SPLToken.fromMetadata(
           name: metadata.name,
           mint: metadata.symbol,
           symbol: filteredTokenSymbol,
           mintAddress: token.mint.address,
+          decimal: decimals,
           iconPath: iconPath,
         );
       } catch (_) {}
