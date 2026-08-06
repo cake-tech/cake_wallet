@@ -7,60 +7,38 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletInfoBar extends StatelessWidget {
-  const WalletInfoBar(
-      {super.key,
-      required this.name,
-      required this.hardwareWalletType,
-      required this.onCustomizeButtonTap,
-      required this.hasCustomize});
+  const WalletInfoBar({super.key, required this.name, required this.hardwareWalletType});
 
   final String name;
   final HardwareWalletType? hardwareWalletType;
-  final bool hasCustomize;
-  final VoidCallback onCustomizeButtonTap;
-
-  void _openAccountCustomizer() {
-    if (hasCustomize) {
-      onCustomizeButtonTap();
-      HapticFeedback.mediumImpact();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    // The row, the hardware-wallet glyph and the inner accounts button are one
-    // control for a screen reader: a single labeled node opening the customizer.
-    final semanticsLabel =
-        hardwareWalletType == null ? name : "$name, ${S.of(context).hardware_wallet}";
-
-    final row = GestureDetector(
-      onTap: _openAccountCustomizer,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedSwitcher(
-            duration: Duration(milliseconds: 150),
-            transitionBuilder: (child, animation) {
-              return SizeTransition(
-                axis: Axis.horizontal,
-                sizeFactor: animation,
-                child: FadeTransition(opacity: animation, child: child),
-              );
-            },
-            child: hardwareWalletIcon == null
-                ? const SizedBox.shrink(key: ValueKey("empty"))
-                : Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: CakeImageWidget(
-                      imageUrl: hardwareWalletIcon!,
-                      key: ValueKey("hardware_wallet_icon"),
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.onSurfaceVariant,
-                        BlendMode.srcIn,
-                      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 150),
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              axis: Axis.horizontal,
+              sizeFactor: animation,
+              child: FadeTransition(opacity: animation, child: child),
+            );
+          },
+          child: hardwareWalletIcon == null
+              ? const SizedBox.shrink(key: ValueKey("empty"))
+              : Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: CakeImageWidget(
+                    imageUrl: hardwareWalletIcon!,
+                    key: ValueKey("hardware_wallet_icon"),
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
                     ),
                   ),
           ),
@@ -75,25 +53,18 @@ class WalletInfoBar extends StatelessWidget {
             SizedBox(width: 8),
             ModernButton.svg(
               size: 24,
-              onPressed: _openAccountCustomizer,
+              onPressed: () {
+                if (hasCustomize) {
+                  onCustomizeButtonTap();
+                  HapticFeedback.mediumImpact();
+                }
+              },
               svgPath: "assets/new-ui/icon-accounts.svg",
               semanticLabel: S.of(context).wallet_accounts,
             )
           ]
         ],
       ),
-    );
-
-    if (!hasCustomize) {
-      return Semantics(label: semanticsLabel, child: ExcludeSemantics(child: row));
-    }
-
-    return Semantics(
-      button: true,
-      label: semanticsLabel,
-      hint: S.of(context).wallet_accounts,
-      onTap: _openAccountCustomizer,
-      child: ExcludeSemantics(child: row),
     );
   }
 

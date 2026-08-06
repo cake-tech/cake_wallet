@@ -68,6 +68,7 @@ Future<void> _initDb({String? pathOverride}) async {
     printV("migrating: $oldVersion, $newVersion");
     if (oldVersion <= 1) {
       await db.execute('''
+
 DELETE FROM WalletInfo
 WHERE walletInfoId NOT IN (
     SELECT MIN(walletInfoId)
@@ -154,6 +155,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         column: 'isReady',
         definition: 'INTEGER NOT NULL DEFAULT 1',
       );
+      await _createWalletInfoAccountTable(db);
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -248,9 +250,11 @@ CREATE TABLE BalanceCardStyleSettings (
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
+
     await _createBridgeTransferTable(db);
     await _createNodeTable(db);
     await _createTradeTable(db);
+    await _createWalletInfoAccountTable(db);
   });
 }
 
@@ -314,6 +318,25 @@ CREATE TABLE IF NOT EXISTS Trade (
   await db.execute('''
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
 ON Trade (id);
+''');
+}
+
+Future<void> _createWalletInfoAccountTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS WalletInfoAccount (
+  walletInfoAccountId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletInfoId INTEGER NOT NULL,
+  accountIndex INTEGER NOT NULL,
+  label TEXT NOT NULL,
+  isSelected INTEGER DEFAULT 0 NOT NULL,
+  CONSTRAINT WalletInfoAccount_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId),
+  UNIQUE(walletInfoId, accountIndex)
+);
+''');
+
+  await db.execute('''
+CREATE INDEX IF NOT EXISTS idx_walletinfoaccount_walletinfoid
+ON WalletInfoAccount(walletInfoId);
 ''');
 }
 

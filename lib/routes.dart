@@ -115,6 +115,7 @@ class Routes {
   static const setup2faInfoPage = '/setup_2fa_info_page';
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
+  static const walletAccountsPage = '/wallet_accounts_page';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
