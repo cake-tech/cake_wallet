@@ -12,7 +12,8 @@ import "../../robots/new_dashboard_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  integrationTest("Transaction history renders for a wallet with known transactions", (tester) async {
+  integrationTest("Transaction history renders for a wallet with known transactions",
+      (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);
     final dashboardRobot = NewDashboardRobot(tester);

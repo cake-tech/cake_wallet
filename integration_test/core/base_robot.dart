@@ -182,10 +182,36 @@ abstract class BaseRobot {
     }
   }
 
+  // Waits for the page widget to mount, screens that decrypt keys or unlock a wallet take
+  // much longer on a ci emulator than on a dev machine.
+  Future<void> isSpecificPage<T>({Duration timeout = const Duration(seconds: 30)}) async {
+    await pumpUntilFound(find.byType(T), timeout: timeout);
+
+    hasType<T>();
+  }
+
+  Future<void> swipePage({bool swipeRight = true}) async {
+    await tester.drag(find.byType(PageView), Offset(swipeRight ? -300 : 300, 0));
+
+    await settle();
+  }
+
   bool isKeyPresent(String key) => tester.any(find.byKey(ValueKey(key)));
 
-  void hasText(String text) {
-    expect(find.text(text), findsWidgets);
+  void hasValueKey(String key) {
+    expect(find.byKey(ValueKey(key)), findsOneWidget);
+  }
+
+  void hasType<T>() {
+    expect(find.byType(T), findsOneWidget);
+  }
+
+  void hasText(String text, {bool isVisible = true}) {
+    expect(find.text(text), isVisible ? findsOneWidget : findsNothing);
+  }
+
+  void hasTextAtLeastOnce(String text, {bool isVisible = true}) {
+    expect(find.text(text), isVisible ? findsAny : findsNothing);
   }
 
   String? textByKey(String key) {

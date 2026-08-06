@@ -55,7 +55,7 @@ void main() {
       await settingsRobot.openRow(Routes.showKeys);
       await authFlows.authenticateWithPin();
 
-      await walletKeysRobot.isWalletKeysAndSeedPage();
+      await walletKeysRobot.isDisplayed();
       await walletKeysRobot.confirmWalletCredentials(type);
 
       // Pop the keys page inside the sheet, then dismiss the settings sheet itself.

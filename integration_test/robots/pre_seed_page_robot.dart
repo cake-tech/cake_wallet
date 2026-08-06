@@ -1,21 +1,16 @@
 import "package:cake_wallet/src/screens/seed/pre_seed_page.dart";
-import "package:flutter_test/flutter_test.dart";
 
-import "../core/common_test_cases.dart";
+import "../core/base_robot.dart";
 
-class PreSeedPageRobot {
-  PreSeedPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class PreSeedPageRobot extends BaseRobot {
+  PreSeedPageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
-
-  Future<void> isPreSeedPage() async {
-    await commonTestCases.isSpecificPage<PreSeedPage>();
-    await commonTestCases.takeScreenshots("pre_seed_page");
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<PreSeedPage>();
   }
 
   Future<void> onConfirmButtonPressed() async {
-    await commonTestCases.tapItemByKey("pre_seed_page_button_key");
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("pre_seed_page_button_key");
   }
 }

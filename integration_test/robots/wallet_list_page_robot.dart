@@ -1,23 +1,22 @@
 import "package:cake_wallet/generated/i18n.dart";
-import "package:flutter_test/flutter_test.dart";
 
-import "../core/common_test_cases.dart";
+import "../core/base_robot.dart";
 
-class WalletListPageRobot {
-  WalletListPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class WalletListPageRobot extends BaseRobot {
+  WalletListPageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
+  @override
+  Future<void> isDisplayed() async => displaysCorrectTitle();
 
   void displaysCorrectTitle() {
-    commonTestCases.hasText(S.current.wallets);
+    hasText(S.current.wallets);
   }
 
   Future<void> navigateToCreateNewWalletPage() async {
-    await commonTestCases.tapItemByKey("wallet_list_page_create_new_wallet_button_key");
+    await tapByKey("wallet_list_page_create_new_wallet_button_key");
   }
 
   Future<void> navigateToRestoreWalletOptionsPage() async {
-    await commonTestCases.tapItemByKey("wallet_list_page_restore_wallet_button_key");
+    await tapByKey("wallet_list_page_restore_wallet_button_key");
   }
 }

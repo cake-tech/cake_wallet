@@ -4,7 +4,6 @@ import "package:cw_core/wallet_type.dart";
 
 import "funded_wallets.dart";
 
-// Nothing else in the tests imports .secrets.g.dart, it all comes through here.
 class TestWallets {
   static List<WalletType> get fundedWalletTypes =>
       availableWalletTypes.where((type) => fundedSeedFor(type).isNotEmpty).toList();

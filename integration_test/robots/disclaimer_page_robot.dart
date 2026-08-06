@@ -2,20 +2,17 @@ import "package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../core/common_test_cases.dart";
+import "../core/base_robot.dart";
 
-class DisclaimerPageRobot {
-  DisclaimerPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class DisclaimerPageRobot extends BaseRobot {
+  DisclaimerPageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
-
-  Future<void> isDisclaimerPage() async {
-    await commonTestCases.isSpecificPage<DisclaimerPage>();
-    await commonTestCases.takeScreenshots("disclaimer_page");
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<DisclaimerPage>();
   }
 
-  void hasCheckIcon(bool hasBeenTapped) {
+  void hasCheckIcon({required bool hasBeenTapped}) {
     final checkIcon = find.byKey(const ValueKey("disclaimer_check_icon_key"));
     expect(checkIcon, hasBeenTapped ? findsOneWidget : findsNothing);
   }
@@ -26,14 +23,10 @@ class DisclaimerPageRobot {
   }
 
   Future<void> tapDisclaimerCheckbox() async {
-    await commonTestCases.tapItemByKey("disclaimer_check_key");
-
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("disclaimer_check_key");
   }
 
   Future<void> tapAcceptButton() async {
-    await commonTestCases.tapItemByKey("disclaimer_accept_button_key");
-
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("disclaimer_accept_button_key");
   }
 }

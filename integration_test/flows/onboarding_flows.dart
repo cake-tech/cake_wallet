@@ -78,7 +78,7 @@ class OnboardingFlows {
     await _selectWalletType(type);
 
     if (isBIP39Wallet(type)) {
-      await _walletGroupDescriptionPageRobot.isWalletGroupDescriptionPage();
+      await _walletGroupDescriptionPageRobot.isDisplayed();
       await _walletGroupDescriptionPageRobot.navigateToCreateNewSeedPage();
     }
 
@@ -143,7 +143,7 @@ class OnboardingFlows {
       return;
     }
 
-    await _setupPinCodeRobot.isSetupPinCodePage();
+    await _setupPinCodeRobot.isDisplayed();
 
     await _setupPinCodeRobot.enterPinCode(pin);
     await _setupPinCodeRobot.enterPinCode(pin);
@@ -151,7 +151,7 @@ class OnboardingFlows {
   }
 
   Future<void> _selectWalletType(WalletType type) async {
-    await _newWalletTypePageRobot.isNewWalletTypePage();
+    await _newWalletTypePageRobot.isDisplayed();
 
     await _newWalletTypePageRobot.findParticularWalletTypeInScrollableList(type);
     await _newWalletTypePageRobot.selectWalletType(type);
@@ -160,7 +160,7 @@ class OnboardingFlows {
   Future<void> _completeWalletCreationSteps(WalletType type) async {
     await _generateNewWalletDetails();
 
-    await _preSeedPageRobot.isPreSeedPage();
+    await _preSeedPageRobot.isDisplayed();
     await _preSeedPageRobot.onConfirmButtonPressed();
 
     await _confirmWalletSeedDetails();
@@ -175,7 +175,7 @@ class OnboardingFlows {
   }
 
   Future<void> _generateNewWalletDetails() async {
-    await _newWalletPageRobot.isNewWalletPage();
+    await _newWalletPageRobot.isDisplayed();
 
     await _newWalletPageRobot.generateWalletName();
 
@@ -189,7 +189,7 @@ class OnboardingFlows {
   }
 
   Future<void> _confirmWalletSeedDetails() async {
-    await _walletSeedPageRobot.isWalletSeedPage();
+    await _walletSeedPageRobot.isDisplayed();
 
     _walletSeedPageRobot.confirmWalletDetailsDisplayCorrectly();
     _walletSeedPageRobot.confirmWalletSeedReminderDisplays();
@@ -198,7 +198,7 @@ class OnboardingFlows {
   }
 
   Future<void> _verifyWalletSeed() async {
-    await _seedVerificationPageRobot.isSeedVerificationPage();
+    await _seedVerificationPageRobot.isDisplayed();
 
     _seedVerificationPageRobot.hasTitle();
 

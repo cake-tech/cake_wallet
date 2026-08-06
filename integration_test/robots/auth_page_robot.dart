@@ -3,18 +3,15 @@ import "package:cake_wallet/src/screens/auth/auth_page.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../core/common_test_cases.dart";
 import "pin_code_widget_robot.dart";
 
 class AuthPageRobot extends PinCodeWidgetRobot {
-  AuthPageRobot(this.tester)
-      : commonTestCases = CommonTestCases(tester),
-        super(tester);
+  AuthPageRobot(super.tester);
 
   @override
-  final WidgetTester tester;
-  @override
-  late CommonTestCases commonTestCases;
+  Future<void> isDisplayed() async {
+    await isSpecificPage<AuthPage>();
+  }
 
   bool onAuthPage() {
     final hasPinButtons = find.byKey(const ValueKey("pin_code_button_3_key"));
@@ -27,12 +24,7 @@ class AuthPageRobot extends PinCodeWidgetRobot {
     return hasWalletPasswordInput.tryEvaluate();
   }
 
-  Future<void> isAuthPage() async {
-    await commonTestCases.isSpecificPage<AuthPage>();
-    await commonTestCases.takeScreenshots("auth_page");
-  }
-
   void hasTitle() {
-    commonTestCases.hasText(S.current.setup_pin);
+    hasText(S.current.setup_pin);
   }
 }

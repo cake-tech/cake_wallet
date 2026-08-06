@@ -15,7 +15,8 @@ import "../../robots/wallet_keys_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  integrationTest("Seed and keys page rejects a wrong pin and accepts the right one", (tester) async {
+  integrationTest("Seed and keys page rejects a wrong pin and accepts the right one",
+      (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);
     final authFlows = AuthFlows(tester);
@@ -48,7 +49,7 @@ void main() {
 
     await authFlows.authenticateWithPin();
 
-    await walletKeysRobot.isWalletKeysAndSeedPage();
+    await walletKeysRobot.isDisplayed();
 
     await settingsRobot.goBack();
     await settingsRobot.dismissModal();

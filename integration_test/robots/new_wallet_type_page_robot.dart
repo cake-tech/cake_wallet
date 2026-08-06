@@ -5,27 +5,24 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../core/common_test_cases.dart";
+import "../core/base_robot.dart";
 
-class NewWalletTypePageRobot {
-  NewWalletTypePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class NewWalletTypePageRobot extends BaseRobot {
+  NewWalletTypePageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
-
-  Future<void> isNewWalletTypePage() async {
-    await commonTestCases.isSpecificPage<NewWalletTypePage>();
-    await commonTestCases.takeScreenshots("new_wallet_type_page");
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<NewWalletTypePage>();
   }
 
-  void displaysCorrectTitle(bool isCreate) {
-    commonTestCases.hasText(
+  void displaysCorrectTitle({required bool isCreate}) {
+    hasText(
       isCreate ? S.current.wallet_list_create_new_wallet : S.current.wallet_list_restore_wallet,
     );
   }
 
   void hasWalletTypeForm() {
-    commonTestCases.hasType<WalletTypeForm>();
+    hasType<WalletTypeForm>();
   }
 
   void displaysCorrectImage(ThemeType type) {
@@ -38,8 +35,6 @@ class NewWalletTypePageRobot {
   }
 
   Future<void> findParticularWalletTypeInScrollableList(WalletType type) async {
-    await tester.pump(const Duration(milliseconds: 1000));
-
     final scrollableWidget = find.descendant(
       of: find.byKey(const Key("new_wallet_type_scrollable_key")),
       matching: find.byType(Scrollable),
@@ -49,7 +44,7 @@ class NewWalletTypePageRobot {
 
     tester.printToConsole("Attempting to scroll to wallet type ${type.name}");
 
-    await tester.pump(const Duration(milliseconds: 500));
+    await pumpUntilFound(scrollableWidget.first);
 
     await tester.scrollUntilVisible(
       targetWidget,
@@ -58,7 +53,7 @@ class NewWalletTypePageRobot {
       maxScrolls: 20,
     );
 
-    await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+    await settle();
 
     expect(
       tester.any(targetWidget),
@@ -81,6 +76,6 @@ class NewWalletTypePageRobot {
   }
 
   Future<void> selectWalletType(WalletType type) async {
-    await commonTestCases.tapItemByKey("new_wallet_type_${type.name}_button_key");
+    await tapByKey("new_wallet_type_${type.name}_button_key");
   }
 }

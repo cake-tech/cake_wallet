@@ -12,8 +12,6 @@ class WalletFlows {
   final AuthFlows _authFlows;
   final NewDashboardRobot _dashboardRobot;
 
-  // Rows on the wallet list have no per wallet keys, and a wallet name is our own test
-  // data rather than a translated string, so matching on it is stable.
   Future<void> switchToWallet(String name) async {
     await _dashboardRobot.openWalletsTab();
 

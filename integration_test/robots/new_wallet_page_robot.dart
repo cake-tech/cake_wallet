@@ -1,36 +1,24 @@
 import "package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart";
-import "package:flutter_test/flutter_test.dart";
 
-import "../core/common_test_cases.dart";
+import "../core/base_robot.dart";
 
-class NewWalletPageRobot {
-  NewWalletPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class NewWalletPageRobot extends BaseRobot {
+  NewWalletPageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
-
-  Future<void> isNewWalletPage() async {
-    await commonTestCases.isSpecificPage<NewWalletPage>();
-    await commonTestCases.takeScreenshots("new_wallet_page");
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<NewWalletPage>();
   }
 
   Future<void> enterWalletName(String walletName) async {
-    await commonTestCases.enterText(
-      walletName,
-      "new_wallet_page_wallet_name_textformfield_key",
-    );
-    await commonTestCases.defaultSleepTime();
+    await enterTextByKey("new_wallet_page_wallet_name_textformfield_key", walletName);
   }
 
   Future<void> generateWalletName() async {
-    await commonTestCases.tapItemByKey(
-      "new_wallet_page_wallet_name_textformfield_generate_name_button_key",
-    );
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("new_wallet_page_wallet_name_textformfield_generate_name_button_key");
   }
 
   Future<void> onNextButtonPressed() async {
-    await commonTestCases.tapItemByKey("new_wallet_page_confirm_button_key");
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("new_wallet_page_confirm_button_key");
   }
 }

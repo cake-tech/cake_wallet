@@ -2,17 +2,14 @@ import "package:cake_wallet/src/screens/welcome/welcome_page.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../core/common_test_cases.dart";
+import "../core/base_robot.dart";
 
-class WelcomePageRobot {
-  WelcomePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class WelcomePageRobot extends BaseRobot {
+  WelcomePageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
-
-  Future<void> isWelcomePage() async {
-    await commonTestCases.isSpecificPage<WelcomePage>();
-    await commonTestCases.takeScreenshots("welcome_page");
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<WelcomePage>();
   }
 
   void confirmActionButtonsDisplay() {
@@ -27,25 +24,22 @@ class WelcomePageRobot {
   }
 
   Future<void> navigateToCreateNewWalletPage() async {
-    await commonTestCases.tapItemByKey("welcome_page_create_new_wallet_button_key");
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("welcome_page_create_new_wallet_button_key");
   }
 
   bool hasNewSingleSeedButton() =>
-      commonTestCases.isKeyPresent("wallet_group_description_page_create_new_seed_button_key");
+      isKeyPresent("wallet_group_description_page_create_new_seed_button_key");
 
   Future<void> tapNewSingleSeed() async {
-    await commonTestCases.tapItemByKey("wallet_group_description_page_create_new_seed_button_key");
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("wallet_group_description_page_create_new_seed_button_key");
   }
 
   Future<void> navigateToRestoreWalletPage() async {
-    await commonTestCases.tapItemByKey("welcome_page_restore_wallet_button_key");
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("welcome_page_restore_wallet_button_key");
   }
 
   Future<void> backAndVerify() async {
-    await commonTestCases.goBack();
-    await isWelcomePage();
+    await goBack();
+    await isDisplayed();
   }
 }
