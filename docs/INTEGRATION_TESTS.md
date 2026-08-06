@@ -35,11 +35,33 @@ Prerequisites, one time:
 1. A generated `lib/.secrets.g.dart` with the `*TestWalletSeeds` values populated.
 2. App config for the cakewallet flavor:
    `cd scripts/android && source ./app_env.sh cakewallet && ./app_config.sh`
-3. Compiled vector assets: `./compile_graphics.sh` plus the assets/images pass the CI
-   workflow runs (see "Compile assets/images graphics" in reusable-integration-test.yml).
-4. Native libs in `android/app/src/main/jniLibs/` for monero, wownero and zano
+3. Rename the app, every run wipes its data between suites:
+
+   ```
+   printf 'id=com.cakewallet.test_local\nname=local\n' > android/app.properties
+   ```
+
+   Step 2 writes the real `com.cakewallet.cake_wallet` id, and clearing that package takes
+   your own wallets with it. CI does this same rename after app_config for the same reason.
+   The runner refuses to clear a package that is not named for testing.
+4. Compiled vector assets, both passes:
+
+   ```
+   ./compile_graphics.sh
+   while read -r dir; do
+     dart run vector_graphics_compiler --input-dir "$dir" --out-dir "$dir"
+   done < <(find assets/images -type d)
+   ```
+
+   `compile_graphics.sh` does not cover `assets/images`, and those `.svg.vec` files are
+   neither committed nor ignored, so a fresh checkout has none of them. Without this the
+   app throws "Unable to load asset" on the welcome screen and the first suite fails.
+5. Native libs in `android/app/src/main/jniLibs/` for monero, wownero and zano
    (prebuilts from the pinned monero_c release).
-5. `~/.cargo/bin` on PATH so gradle can build the breez rust crate.
+6. `~/.cargo/bin` on PATH so gradle can build the breez rust crate.
+
+If the build sits at 0% CPU for minutes, close Android Studio or stop its Gradle daemon,
+two daemons on this project deadlock on the same locks.
 
 Run one suite against a booted emulator:
 

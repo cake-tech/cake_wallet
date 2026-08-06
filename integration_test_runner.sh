@@ -152,6 +152,13 @@ clean_data_directories() {
     log "Cleaning app data..."
 
     if [[ "$PLATFORM" == "android" ]]; then
+        # app_config.sh writes the real app id into android/app.properties, and wiping that
+        # package would take a developer's own wallets with it. CI renames the app before
+        # running, so only ever clear a package that was named for testing.
+        if [[ "$ANDROID_APP_ID" != *".test_"* ]]; then
+            error "Refusing to clear $ANDROID_APP_ID, it is not a test build. Rename the app first: printf 'id=com.cakewallet.test_local\\nname=local\\n' > android/app.properties"
+        fi
+
         # pm clear resets the app to a fresh install so every suite starts from onboarding
         adb shell pm clear "$ANDROID_APP_ID" > /dev/null 2>&1 || log "pm clear skipped, $ANDROID_APP_ID not installed yet"
         return
