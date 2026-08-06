@@ -2,7 +2,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/new_wallet/wallet_group_description_page.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../components/common_test_cases.dart";
+import "../core/common_test_cases.dart";
 
 class WalletGroupDescriptionPageRobot {
   WalletGroupDescriptionPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);

@@ -4,7 +4,7 @@ import "package:cake_wallet/src/screens/restore/wallet_restore_page.dart";
 import "package:cake_wallet/src/widgets/validable_annotated_editable_text.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../components/common_test_cases.dart";
+import "../core/common_test_cases.dart";
 
 class RestoreFromSeedOrKeysPageRobot {
   RestoreFromSeedOrKeysPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);

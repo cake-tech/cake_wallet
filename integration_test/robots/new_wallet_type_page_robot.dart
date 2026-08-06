@@ -5,7 +5,7 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../components/common_test_cases.dart";
+import "../core/common_test_cases.dart";
 
 class NewWalletTypePageRobot {
   NewWalletTypePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -66,7 +66,7 @@ class NewWalletTypePageRobot {
       reason: "Wallet type ${type.name} should be visible after scrolling",
     );
 
-    // Additional check to ensure the widget is actually on screen
+    // tester.any is true for a widget that is built but scrolled out of view.
     final widgetRect = tester.getRect(targetWidget);
     final screenSize = tester.view.physicalSize;
     final screenRect = Rect.fromLTWH(0, 0, screenSize.width, screenSize.height);

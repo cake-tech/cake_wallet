@@ -2,7 +2,7 @@ import "package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../components/common_test_cases.dart";
+import "../core/common_test_cases.dart";
 
 class DisclaimerPageRobot {
   DisclaimerPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -16,7 +16,6 @@ class DisclaimerPageRobot {
   }
 
   void hasCheckIcon(bool hasBeenTapped) {
-    // The checked Icon should not be available initially, until user taps the checkbox
     final checkIcon = find.byKey(const ValueKey("disclaimer_check_icon_key"));
     expect(checkIcon, hasBeenTapped ? findsOneWidget : findsNothing);
   }

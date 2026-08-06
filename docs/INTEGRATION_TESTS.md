@@ -17,6 +17,10 @@ robots/        one class per screen, knows that screen's keys and assertions
 core/          the harness: BaseRobot primitives, AppLauncher, TestConfig, TestWallets
 ```
 
+New robots extend `BaseRobot`. The older onboarding robots still hold a `CommonTestCases`
+instead, which is the same idea with a weaker waiting story, migrate one over whenever you
+touch it.
+
 Supporting pieces:
 
 - `test_driver/integration_test.dart` is the standard flutter drive driver.

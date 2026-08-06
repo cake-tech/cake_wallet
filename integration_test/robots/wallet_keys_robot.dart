@@ -8,7 +8,7 @@ import "package:cw_monero/monero_wallet.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:polyseed/polyseed.dart";
 
-import "../components/common_test_cases.dart";
+import "../core/common_test_cases.dart";
 
 class WalletKeysAndSeedPageRobot {
   WalletKeysAndSeedPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);

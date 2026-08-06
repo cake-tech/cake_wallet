@@ -1,7 +1,7 @@
 import "package:cake_wallet/src/screens/seed/pre_seed_page.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../components/common_test_cases.dart";
+import "../core/common_test_cases.dart";
 
 class PreSeedPageRobot {
   PreSeedPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);

@@ -1,7 +1,7 @@
 import "package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "../components/common_test_cases.dart";
+import "../core/common_test_cases.dart";
 
 class NewWalletPageRobot {
   NewWalletPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
