@@ -1,7 +1,11 @@
+import "dart:io";
+
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/pages/keychain_restore.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -68,6 +72,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     final imageRestoreQR = Image.asset(imageRestoreQRPath, width: 55);
     final imageSeedKeys = Image.asset(imageRestoreHotWalletPath, width: 55);
     final imageRestoreBackup = Image.asset(imageRestoreBackupPath, width: 55);
+    final imageKeychain = CakeImageWidget(imageUrl: "assets/new-ui/key_hero.svg", width:55);
+    final keychainName = Platform.isAndroid ? "Keystore" : "Keychain";
 
     return Center(
       child: Container(
@@ -128,6 +134,16 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     description: S.of(context).cold_or_recover_wallet,
                   ),
                 ),
+              if(!widget.isNewInstall)
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: OptionTile(
+                    onPressed: ()=>Navigator.of(context).pushNamed(Routes.keychainRestorePage, arguments: KeychainRestorePageParams(isInitial: false)),
+                    image: imageKeychain,
+                    title: keychainName,
+                    description: S.of(context).restore_from_keychain_desc(keychainName.toLowerCase()),
+                  )
+                )
             ],
           ),
         ),
