@@ -33,5 +33,9 @@ class PinCodeWidgetRobot extends BaseRobot {
     for (final pin in pinCode) {
       await tapByKey("pin_code_button_${pin}_key");
     }
+
+    // The last digit sends the gate away on its own. Returning while that route is still
+    // popping lands the caller's next navigation on a locked navigator.
+    await settle();
   }
 }
