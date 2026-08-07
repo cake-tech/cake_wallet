@@ -30,6 +30,7 @@ abstract class WalletKeysViewModelBase with Store {
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
         _restoreHeightByTransactions = 0,
         items = ObservableList<StandartListItem>(),
+        silentPaymentItems = ObservableList<StandartListItem>(),
         _title = _getInitialTitle(_appStore.wallet!) {
     _populateKeysItems();
 
@@ -87,6 +88,7 @@ abstract class WalletKeysViewModelBase with Store {
   // this is incomplete, needs legacy seed toggle for XMR
   bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
   final ObservableList<StandartListItem> items;
+  final ObservableList<StandartListItem> silentPaymentItems;
 
   @observable
   String _title;
@@ -150,6 +152,7 @@ abstract class WalletKeysViewModelBase with Store {
 
   void _populateKeysItems() {
     items.clear();
+    silentPaymentItems.clear();
 
     Map<String, String>? keys;
 
@@ -238,7 +241,8 @@ abstract class WalletKeysViewModelBase with Store {
     }
 
     if (keys != null) {
-      items.addAll([
+      final keysList = _wallet.type == WalletType.bitcoin ? silentPaymentItems : items;
+      keysList.addAll([
         if ((keys['primaryAddress'] ?? '').isNotEmpty)
           StandartListItem(
               key: ValueKey('${_walletName}_wallet_primary_address_item_key'),

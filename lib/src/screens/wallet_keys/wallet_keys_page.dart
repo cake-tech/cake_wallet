@@ -78,7 +78,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
 
     showKeyTab = widget.walletKeysViewModel.items.isNotEmpty;
     showSilentPaymentsTab =
-        widget.walletKeysViewModel.isBitcoin && widget.walletKeysViewModel.items.length > 4;
+        widget.walletKeysViewModel.isBitcoin && widget.walletKeysViewModel.silentPaymentItems.isNotEmpty;
     showLegacySeedTab = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
     isLegacySeedOnly = widget.walletKeysViewModel.isLegacySeedOnly;
 
@@ -157,16 +157,12 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 if (showKeyTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(
-                        context,
-                        showSilentPaymentsTab
-                            ? widget.walletKeysViewModel.items.sublist(0, 4)
-                            : widget.walletKeysViewModel.items),
+                    child: _buildKeysTab(context, widget.walletKeysViewModel.items),
                   ),
                 if (showSilentPaymentsTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(context, widget.walletKeysViewModel.items.sublist(4)),
+                    child: _buildKeysTab(context, widget.walletKeysViewModel.silentPaymentItems),
                   ),
                 if (showLegacySeedTab)
                   Padding(
