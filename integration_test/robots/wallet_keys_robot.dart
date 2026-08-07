@@ -28,7 +28,11 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
     hasText(S.current.do_not_share_warning_text.toUpperCase());
   }
 
+  int _verifiedCredentials = 0;
+
   Future<void> confirmWalletCredentials(WalletType walletType) async {
+    _verifiedCredentials = 0;
+
     final walletKeysPage = tester.widget<WalletKeysPage>(find.byType(WalletKeysPage));
     final walletKeysViewModel = walletKeysPage.walletKeysViewModel;
 
@@ -58,6 +62,7 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
       for (final seedWord in seedWords) {
         hasTextAtLeastOnce(seedWord);
       }
+      _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has seeds properly displayed");
     }
 
@@ -69,11 +74,13 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
         for (final seedWord in seedWords) {
           hasTextAtLeastOnce(seedWord);
         }
+        _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has seeds properly displayed");
       }
       if (hasPrivateKey) {
         await _openKeysTab();
         hasText(appStore.wallet!.privateKey!);
+        _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has private key properly displayed");
       }
     }
@@ -84,19 +91,33 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
         for (final seedWord in seedWords) {
           hasTextAtLeastOnce(seedWord);
         }
+        _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has seeds properly displayed");
       }
       if (hasHexSeed) {
         await _openKeysTab();
         hasText(appStore.wallet!.hexSeed!);
+        _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has hexSeed properly displayed");
       }
       if (hasPrivateKey) {
         await _openKeysTab();
         hasText(appStore.wallet!.privateKey!);
+        _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has private key properly displayed");
       }
     }
+
+    _expectSomethingWasVerified(walletType);
+  }
+
+  void _expectSomethingWasVerified(WalletType walletType) {
+    expect(
+      _verifiedCredentials,
+      greaterThan(0),
+      reason: "Nothing was verified for ${walletType.name}, this suite covers no credential "
+          "for that type so it cannot tell a working keys page from a broken one",
+    );
   }
 
   // The assertions right after this read the tab's content straight off the tree, so the
@@ -125,21 +146,25 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
     if (hasPublicSpendKey) {
       await _openKeysTab();
       hasText(keys.publicSpendKey);
+      _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has public spend key properly displayed");
     }
     if (hasPrivateSpendKey) {
       await _openKeysTab();
       hasText(keys.privateSpendKey);
+      _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has private spend key properly displayed");
     }
     if (hasPublicViewKey) {
       await _openKeysTab();
       hasText(keys.publicViewKey);
+      _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has public view key properly displayed");
     }
     if (hasPrivateViewKey) {
       await _openKeysTab();
       hasText(keys.privateViewKey);
+      _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has private view key properly displayed");
     }
     if (hasSeeds) {
@@ -150,6 +175,7 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
       for (final seedWord in seedWords) {
         hasTextAtLeastOnce(seedWord);
       }
+      _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has seeds properly displayed");
     }
     if (hasSeedLegacy) {
@@ -160,6 +186,7 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
       for (final seedWord in seedWords) {
         hasTextAtLeastOnce(seedWord);
       }
+      _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has legacy seeds properly displayed");
     }
   }

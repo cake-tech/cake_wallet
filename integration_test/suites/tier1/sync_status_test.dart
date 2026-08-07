@@ -48,6 +48,6 @@ void main() {
     );
 
     // The sync bar on the home page reflects the same state to the user.
-    expect(homePageRobot.isKeyPresent("home_page_sync_status_key"), true);
+    await homePageRobot.confirmSyncIndicatorShown(appStore.wallet!.syncStatus.runtimeType);
   });
 }

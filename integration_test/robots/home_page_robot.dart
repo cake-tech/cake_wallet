@@ -1,5 +1,6 @@
 import "package:cake_wallet/new-ui/pages/home_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -35,9 +36,6 @@ class HomePageRobot extends BaseRobot {
     await tapByKey("home_page_settings_button_key");
   }
 
-  // The home page shows a three item preview of the history under a tab, the full list is
-  // behind the All button. Opens the history tab when the wallet has an assets tab too,
-  // wallets without tokens render the history straight away with no tabs at all.
   Future<void> openHistoryTab() async {
     final tabFinder = find.byKey(const ValueKey("line_tab_switcher_1_key"));
 
@@ -76,8 +74,6 @@ class HomePageRobot extends BaseRobot {
     );
   }
 
-  // The All button opens the history as a modal over the dashboard, the same section built
-  // with short false so it renders every transaction instead of the preview.
   Future<void> openAllTransactions() async {
     final actionButton = find.byKey(const ValueKey("assets_history_action_button_key"));
     final historyBar = find.byKey(const ValueKey("history_top_bar_key"));
@@ -90,7 +86,31 @@ class HomePageRobot extends BaseRobot {
   Future<void> confirmAllTransactionsVisible() async {
     await pumpUntilFound(find.byType(HistoryTile));
 
+    final rendered = tester.widgetList(find.byType(HistoryTile)).length;
+
+    if (_dashboardTransactionCount() > 3) {
+      expect(
+        rendered,
+        greaterThan(3),
+        reason: "The All view rendered $rendered tiles, no more than the home preview does",
+      );
+
+      return;
+    }
+
     expect(find.byType(HistoryTile), findsWidgets);
+  }
+
+  Future<void> confirmSyncIndicatorShown(Type statusType) async {
+    final shown = await pumpUntil(
+      () => tester.any(find.byType(PulsingDot)) || tester.any(find.byKey(ValueKey(statusType))),
+    );
+
+    expect(
+      shown,
+      true,
+      reason: "Sync bar showed nothing while the wallet reported $statusType",
+    );
   }
 
   int _dashboardTransactionCount() {
