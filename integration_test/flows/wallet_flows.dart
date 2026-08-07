@@ -1,3 +1,5 @@
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/store/app_store.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../robots/new_dashboard_robot.dart";
@@ -24,5 +26,15 @@ class WalletFlows {
 
     // Switching re-authenticates unless the pin timeout window is still open.
     await _authFlows.authenticateWithPinIfPrompted();
+
+    // The row does nothing at all when that wallet is already the open one, and the load
+    // itself runs behind a progress overlay, so the store is the only thing that tells us
+    // the switch happened rather than the tap having quietly gone nowhere.
+    final switched = await _dashboardRobot.pumpUntil(
+      () => getIt.get<AppStore>().wallet?.name == name,
+      timeout: const Duration(minutes: 2),
+    );
+
+    expect(switched, true, reason: "Wallet never became $name after tapping its row");
   }
 }
