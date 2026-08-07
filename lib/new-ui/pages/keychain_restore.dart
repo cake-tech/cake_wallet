@@ -156,6 +156,7 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
                             ),
                           if (state is KeychainRestoreSelection)
                             NewPrimaryButton(
+                              disabled: state.walletsSelected.isEmpty,
                               onPressed: () => widget.bloc.add(const RestoreInitiated()),
                               text: S.of(context).continue_text,
                               color: Theme.of(context).colorScheme.primary,
