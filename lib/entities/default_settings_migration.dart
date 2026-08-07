@@ -635,6 +635,9 @@ Future<void> defaultSettingsMigration(
             enabled: false,
           );
           break;
+        case 70:
+          await _addTbbTokenToExistingSolanaWallets();
+          break;
         default:
           break;
       }
@@ -1323,5 +1326,42 @@ Future<void> _addXaut0TokenToExistingSolanaWallets() async {
     }
   } catch (e) {
     printV('Error in XAUT0 migration: $e');
+  }
+}
+
+Future<void> _addTbbTokenToExistingSolanaWallets() async {
+  try {
+    final tbbToken = SPLToken(
+      name: "The Bitcoin Bull",
+      symbol: "TBB",
+      mintAddress: "42cXQvAAr7hcPBPWAS4ocVtDyeJ4Fa6gRR2uG4gppump",
+      decimal: 6,
+      mint: "tbb",
+      enabled: false,
+      iconPath: "assets/images/tbb_icon.png",
+    );
+
+    final allWallets = await WalletInfo.getAll();
+
+    final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
+
+    for (final walletInfo in solanaWallets) {
+      final sanitizedName = walletInfo.name.replaceAll(" ", "_");
+      final boxName = "${sanitizedName}_${SPLToken.boxName}";
+
+      Box<SPLToken> tokenBox;
+      if (CakeHive.isBoxOpen(boxName)) {
+        tokenBox = CakeHive.box<SPLToken>(boxName);
+      } else {
+        tokenBox = await CakeHive.openBox<SPLToken>(boxName);
+      }
+
+      final tbbAddress = tbbToken.mintAddress;
+      if (!tokenBox.containsKey(tbbAddress)) {
+        await tokenBox.put(tbbAddress, tbbToken);
+      }
+    }
+  } catch (e) {
+    printV("Error in TBB migration: $e");
   }
 }

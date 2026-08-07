@@ -134,38 +134,49 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                           borderRadius: BorderRadius.vertical(
                               top: Radius.circular(20),
                               bottom: _otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
-                          child: InkWell(
-                            highlightColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
-                                bottom: !_otherOptionsExpanded ? Radius.zero : Radius.circular(20)),
-                            onTap: () {
-                              setState(() {
-                                _otherOptionsExpanded = !_otherOptionsExpanded;
-                              });
-                            },
-                            child: Container(
-                              height: 64.0,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      S.of(context).more_options,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          color: Theme.of(context).colorScheme.primary),
+                          child: MergeSemantics(
+                            child: Semantics(
+                              button: true,
+                              expanded: _otherOptionsExpanded,
+                              child: InkWell(
+                                highlightColor:
+                                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                    bottom: !_otherOptionsExpanded
+                                        ? Radius.zero
+                                        : Radius.circular(20)),
+                                onTap: () {
+                                  setState(() {
+                                    _otherOptionsExpanded = !_otherOptionsExpanded;
+                                  });
+                                },
+                                child: Container(
+                                  height: 64.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          S.of(context).more_options,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w400,
+                                              color: Theme.of(context).colorScheme.primary),
+                                        ),
+                                        ExcludeSemantics(
+                                          child: AnimatedRotation(
+                                              duration: ReceiveAddressTypeSelector
+                                                  .otherOptionsExpandDuration,
+                                              turns: _otherOptionsExpanded ? 0.0 : 0.5,
+                                              curve: Curves.easeOut,
+                                              child: CakeImageWidget(
+                                                  imageUrl: "assets/new-ui/dropdown_arrow.svg")),
+                                        )
+                                      ],
                                     ),
-                                    AnimatedRotation(
-                                        duration:
-                                            ReceiveAddressTypeSelector.otherOptionsExpandDuration,
-                                        turns: _otherOptionsExpanded ? 0.0 : 0.5,
-                                        curve: Curves.easeOut,
-                                        child: CakeImageWidget(
-                                            imageUrl: "assets/new-ui/dropdown_arrow.svg"))
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -180,40 +191,45 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                           duration: ReceiveAddressTypeSelector.otherOptionsExpandDuration,
                           curve: Curves.easeOut,
                           alignment: Alignment.topCenter,
-                          child: Container(
-                            height: _otherOptionsExpanded ? null : 0,
-                            child: ListView.separated(
-                              shrinkWrap: true,
-                              padding: EdgeInsets.zero,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: otherOptions.length,
-                              itemBuilder: (context, index) {
-                                final opt = otherOptions[index];
+                          // Collapsed to zero height: keep the options out of
+                          // the semantics tree so they cannot be focused.
+                          child: ExcludeSemantics(
+                            excluding: !_otherOptionsExpanded,
+                            child: Container(
+                              height: _otherOptionsExpanded ? null : 0,
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                padding: EdgeInsets.zero,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: otherOptions.length,
+                                itemBuilder: (context, index) {
+                                  final opt = otherOptions[index];
 
-                                return ReceiveAddressTypeRow(
-                                  option: opt,
-                                  roundedTop: false,
-                                  roundedBottom: index == otherOptions.length - 1,
-                                  selected:
-                                      widget.receiveOptionViewModel.selectedReceiveOption == opt,
-                                  onItemTap: () {
-                                    Navigator.of(context).pop(opt);
-                                  },
-                                  receiveOptionViewModel: widget.receiveOptionViewModel,
-                                );
-                              },
-                              separatorBuilder: (context, index) {
-                                if ((widget.receiveOptionViewModel.selectedReceiveOption ==
-                                        otherOptions[index]) ||
-                                    (index != otherOptions.length - 1 &&
-                                        widget.receiveOptionViewModel.selectedReceiveOption ==
-                                            otherOptions[index + 1])) return Container();
+                                  return ReceiveAddressTypeRow(
+                                    option: opt,
+                                    roundedTop: false,
+                                    roundedBottom: index == otherOptions.length - 1,
+                                    selected:
+                                        widget.receiveOptionViewModel.selectedReceiveOption == opt,
+                                    onItemTap: () {
+                                      Navigator.of(context).pop(opt);
+                                    },
+                                    receiveOptionViewModel: widget.receiveOptionViewModel,
+                                  );
+                                },
+                                separatorBuilder: (context, index) {
+                                  if ((widget.receiveOptionViewModel.selectedReceiveOption ==
+                                          otherOptions[index]) ||
+                                      (index != otherOptions.length - 1 &&
+                                          widget.receiveOptionViewModel.selectedReceiveOption ==
+                                              otherOptions[index + 1])) return Container();
 
-                                return Padding(
-                                  padding: const EdgeInsets.only(left: 44.0, right: 36.0),
-                                  child: HorizontalSectionDivider(),
-                                );
-                              },
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 44.0, right: 36.0),
+                                    child: HorizontalSectionDivider(),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -264,65 +280,75 @@ class ReceiveAddressTypeRow extends StatelessWidget {
         top: roundedTop ? Radius.circular(20) : Radius.zero,
         bottom: roundedBottom ? Radius.circular(20) : Radius.zero,
       ),
-      child: InkWell(
-        onTap: onItemTap,
-        child: Container(
-          height: rowHeight,
-          decoration: BoxDecoration(
-              color: selected
-                  ? Theme.of(context).colorScheme.surfaceContainerHigh
-                  : Colors.transparent,
-              borderRadius: BorderRadius.vertical(
-                top: roundedTop ? Radius.circular(20) : Radius.zero,
-                bottom: roundedBottom ? Radius.circular(20) : Radius.zero,
-              )),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Row(
+      // The row itself carries the selection state; the checkbox next to it is
+      // only a visual echo of it and must not be announced separately.
+      child: MergeSemantics(
+        child: Semantics(
+          selected: selected,
+          inMutuallyExclusiveGroup: true,
+          child: InkWell(
+            onTap: onItemTap,
+            child: Container(
+              height: rowHeight,
+              decoration: BoxDecoration(
+                  color: selected
+                      ? Theme.of(context).colorScheme.surfaceContainerHigh
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.vertical(
+                    top: roundedTop ? Radius.circular(20) : Radius.zero,
+                    bottom: roundedBottom ? Radius.circular(20) : Radius.zero,
+                  )),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    if (iconPath != null)
-                      CakeImageWidget(
-                        imageUrl: iconPath!,
-                        width: iconSize,
-                        height: iconSize,
-                        colorFilter: ColorFilter.mode(
-                            Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-                      )
-                    else
-                      Container(width: iconSize, height: iconSize),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            option.value,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface),
+                    Row(
+                      children: [
+                        if (iconPath != null)
+                          ExcludeSemantics(
+                            child: CakeImageWidget(
+                              imageUrl: iconPath!,
+                              width: iconSize,
+                              height: iconSize,
+                              colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                            ),
+                          )
+                        else
+                          Container(width: iconSize, height: iconSize),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                option.value,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.onSurface),
+                              ),
+                              if (option.description != null)
+                                Text(
+                                  option.description!,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                )
+                            ],
                           ),
-                          if (option.description != null)
-                            Text(
-                              option.description!,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            )
-                        ],
-                      ),
-                    )
+                        )
+                      ],
+                    ),
+                    ExcludeSemantics(child: RoundedCheckbox(value: selected))
                   ],
                 ),
-                RoundedCheckbox(value: selected)
-              ],
+              ),
             ),
           ),
         ),
