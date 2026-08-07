@@ -46,7 +46,6 @@ void main() {
 
       await onboardingFlows.restoreAdditionalWalletFromWalletList(type);
 
-      // Opening the restored wallet resets the dashboard to the home tab.
       await dashboardRobot.isDisplayed();
       await homePageRobot.isDisplayed();
 

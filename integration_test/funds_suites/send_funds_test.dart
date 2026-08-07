@@ -28,7 +28,6 @@ void main() {
 
     final walletTypes = TestConfig.fundedWalletTypesUnderTest;
 
-    // A green run that sent nothing proves nothing, missing seeds must be loud.
     expect(walletTypes.isNotEmpty, true, reason: "No funded wallet seeds configured");
 
     await appLauncher.launchApp(testKey: "send_funds_test_app_key");
@@ -78,8 +77,6 @@ void main() {
           await sendRobot.dismissModal();
           await homePageRobot.isDisplayed();
         } catch (e) {
-          // The chain's own failure is already recorded, this is only about getting back
-          // to a known screen for the next chain.
           tester.printToConsole("Recovery for ${type.name} failed: $e");
         }
       }

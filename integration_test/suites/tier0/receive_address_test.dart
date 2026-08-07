@@ -24,7 +24,6 @@ void main() {
 
     await appLauncher.launchApp(testKey: "receive_address_test_app_key");
 
-    // Restoring a known seed keeps the derived address deterministic across runs.
     await onboardingFlows.restoreFirstWalletFromSeed(walletType);
 
     await dashboardRobot.isDisplayed();

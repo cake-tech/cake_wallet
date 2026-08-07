@@ -29,8 +29,6 @@ void main() {
     final appStore = getIt.get<AppStore>();
 
     // Reaching a syncing or synced state proves node connection over the live network.
-    // SyncronizingSyncStatus is spelled that way in cw_core and is a separate class from
-    // SyncingSyncStatus, chains that report the first one never reach the second.
     final synced = await homePageRobot.pumpUntil(
       () {
         final status = appStore.wallet?.syncStatus;
@@ -47,7 +45,6 @@ void main() {
       reason: "Wallet never started syncing, last status: ${appStore.wallet?.syncStatus}",
     );
 
-    // The sync bar on the home page reflects the same state to the user.
     await homePageRobot.confirmSyncIndicatorShown(appStore.wallet!.syncStatus.runtimeType);
   });
 }

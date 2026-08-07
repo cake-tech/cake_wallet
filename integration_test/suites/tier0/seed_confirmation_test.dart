@@ -57,8 +57,7 @@ void main() {
 
       await walletKeysRobot.isDisplayed();
       await walletKeysRobot.confirmWalletCredentials(type);
-
-      // Pop the keys page inside the sheet, then dismiss the settings sheet itself.
+      
       await settingsRobot.goBack();
       await settingsRobot.dismissModal();
 

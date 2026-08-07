@@ -66,7 +66,6 @@ class HomePageRobot extends BaseRobot {
 
     await pumpUntilFound(find.byType(HistoryTile));
 
-    // itemsShort caps the preview at DashboardViewModel.shortHistoryLength.
     expect(
       tester.widgetList(find.byType(HistoryTile)).length,
       lessThanOrEqualTo(3),

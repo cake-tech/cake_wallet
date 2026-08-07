@@ -42,7 +42,6 @@ void main() {
 
       await onboardingFlows.createAdditionalWalletFromWalletList(type);
 
-      // Opening the new wallet resets the dashboard to the home tab.
       await dashboardRobot.isDisplayed();
       await homePageRobot.isDisplayed();
 

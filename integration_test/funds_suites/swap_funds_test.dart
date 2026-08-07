@@ -32,8 +32,6 @@ void main() {
 
     expect(walletTypes.isNotEmpty, true, reason: "No funded wallet seeds configured");
 
-    // The swap deposits from the first funded chain, its balance has to cover the
-    // provider minimum plus fees.
     final type = walletTypes.first;
 
     await appLauncher.launchApp(testKey: "swap_funds_test_app_key");
@@ -62,7 +60,6 @@ void main() {
 
     await swapRobot.confirmTradeCreated();
 
-    // The confirm sheet reuses the send swiper for the internal deposit transaction.
     await sendRobot.swipeToConfirm();
     await swapRobot.confirmDepositCommitted();
 

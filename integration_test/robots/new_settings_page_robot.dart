@@ -20,7 +20,6 @@ class NewSettingsPageRobot extends BaseRobot {
   Future<void> scrollUntilRowVisible(String route) async {
     final rowFinder = find.byKey(ValueKey(route));
 
-    // Rows further down the sheet only mount once scrolled into view.
     if (tester.any(rowFinder)) {
       return;
     }

@@ -42,7 +42,6 @@ void main() {
 
     await walletFlows.switchToWallet(firstWalletName);
 
-    // The wallet change reaction resets the dashboard to the home tab with the new wallet.
     await homePageRobot.isDisplayed();
     await homePageRobot.hasWalletName(firstWalletName);
 

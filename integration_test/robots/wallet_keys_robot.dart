@@ -120,8 +120,6 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
     );
   }
 
-  // The assertions right after this read the tab's content straight off the tree, so the
-  // switch has to have finished painting first.
   Future<void> _openKeysTab() async {
     await tapByKey("wallet_keys_page_keys");
 

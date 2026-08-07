@@ -21,7 +21,6 @@ void main() {
 
     await appLauncher.launchApp(testKey: "transaction_history_test_app_key");
 
-    // The solana test wallet has transaction history on chain.
     await onboardingFlows.restoreFirstWalletFromSeed(WalletType.solana);
 
     await dashboardRobot.isDisplayed();
@@ -31,7 +30,6 @@ void main() {
 
     await homePageRobot.confirmTransactionHistoryVisible();
 
-    // The home page only ever shows the first three, the rest are behind the All button.
     await homePageRobot.openAllTransactions();
 
     await homePageRobot.confirmAllTransactionsVisible();

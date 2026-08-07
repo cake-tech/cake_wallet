@@ -61,7 +61,6 @@ class NewWalletTypePageRobot extends BaseRobot {
       reason: "Wallet type ${type.name} should be visible after scrolling",
     );
 
-    // tester.any is true for a widget that is built but scrolled out of view.
     final widgetRect = tester.getRect(targetWidget);
     final screenSize = tester.view.physicalSize;
     final screenRect = Rect.fromLTWH(0, 0, screenSize.width, screenSize.height);

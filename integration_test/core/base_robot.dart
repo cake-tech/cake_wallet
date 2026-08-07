@@ -182,13 +182,9 @@ abstract class BaseRobot {
     }
   }
 
-  // Waits for the page widget to mount, screens that decrypt keys or unlock a wallet take
-  // much longer on a ci emulator than on a dev machine.
   Future<void> isSpecificPage<T>({Duration timeout = const Duration(seconds: 30)}) async {
     await pumpUntilFound(find.byType(T), timeout: timeout);
 
-    // The page mounts when the route starts animating in, and the page being replaced sits
-    // in the tree until that finishes. Assertions on text would see both screens at once.
     await settle();
 
     hasType<T>();

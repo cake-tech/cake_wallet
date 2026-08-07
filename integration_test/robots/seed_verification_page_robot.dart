@@ -31,9 +31,6 @@ class SeedVerificationPageRobot extends BaseRobot {
 
       await tapByKey("seed_verification_option_${currentCorrectWord}_button_key");
 
-      // Tapping the right word moves the view model on to the next one. Waiting for that
-      // instead of sleeping keeps the loop from reading the word of the previous step,
-      // which would tap an option that is no longer on screen.
       final hasMovedOn = await pumpUntil(
         () =>
             walletSeedViewModel.isVerificationComplete ||

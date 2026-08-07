@@ -1,5 +1,4 @@
-// Errors the app itself tolerates at runtime, a test that fails on one of these is
-// reporting the emulator and not the wallet.
+// Errors the app itself tolerates at runtime
 bool isBenignError(String message) => _benignFragments.any(message.contains);
 
 const List<String> _benignFragments = [
@@ -15,7 +14,7 @@ const List<String> _benignFragments = [
   "NetworkImageLoadException",
   "Failed to load network image",
 
-  // The same transient failures exception_handler.dart ignores
+  // The same failures exception_handler.dart ignores
   "SocketException",
   "HttpException",
   "ClientException",
