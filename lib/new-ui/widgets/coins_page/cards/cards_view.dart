@@ -1,35 +1,29 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/modal_navigator.dart';
-import 'package:cake_wallet/new-ui/pages/send_page.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/card_design.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
-
-import 'balance_card.dart';
+import "package:cake_wallet/entities/balance_display_mode.dart";
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/utils/responsive_layout_util.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cw_core/card_design.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
 
 class CardsView extends StatefulWidget {
-  const CardsView(
-      {super.key,
-      required this.dashboardViewModel,
-      required this.lightningMode,
-      required this.onCompactModeBackgroundCardsTapped,
-      required this.onCustomizeTapped,
-      this.actions,
-      this.maxVisibleCards = 5,
-      this.allowCompactMode = true});
+  const CardsView({
+    required this.dashboardViewModel,
+    required this.lightningMode,
+    required this.onCompactModeBackgroundCardsTapped,
+    required this.onCustomizeTapped,
+    super.key,
+    this.actions,
+    this.maxVisibleCards = 5,
+    this.allowCompactMode = true,
+  });
 
   final DashboardViewModel dashboardViewModel;
   final VoidCallback onCompactModeBackgroundCardsTapped;
@@ -40,6 +34,7 @@ class CardsView extends StatefulWidget {
   final int? maxVisibleCards;
   final bool allowCompactMode;
 
+  @override
   _CardsViewState createState() => _CardsViewState();
 }
 
@@ -118,9 +113,17 @@ class _CardsViewState extends State<CardsView> {
     }
   }
 
-  Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
-      bool compactMode, double overlapAmount) {
-    final accountListViewModel = widget.dashboardViewModel.accountListViewModel;
+  Widget _buildCard(
+    int visualIndex,
+    int realIndex,
+    int numCards,
+    double parentWidth,
+    bool compactMode,
+    double overlapAmount,
+  ) {
+    final dashBoardVM = widget.dashboardViewModel;
+    final balanceVM = dashBoardVM.balanceViewModel;
+    final accountListVM = dashBoardVM.accountListViewModel;
 
     final baseTop = overlapAmount * (numCards - 1);
     final scaleFactor = compactMode ? 1 : 0.96;
@@ -150,49 +153,46 @@ class _CardsViewState extends State<CardsView> {
               setState(() {
                 _selectedIndex = visualIndex;
                 if (!widget.lightningMode &&
-                    accountListViewModel != null &&
-                    realIndex < accountListViewModel.accounts.length) {
-                  accountListViewModel.select(accountListViewModel.accounts[realIndex]);
+                    accountListVM != null &&
+                    realIndex < accountListVM.accounts.length) {
+                  accountListVM.select(accountListVM.accounts[realIndex]);
                 }
               });
             }
           },
           onLongPress: () {
             if (_selectedIndex == visualIndex) {
-              widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
+              balanceVM.switchBalanceValue();
             }
             ;
             HapticFeedback.heavyImpact();
           },
           child: Observer(builder: (_) {
-            if (!widget.lightningMode &&
-                realIndex >= (accountListViewModel?.accounts.length ?? 1)) {
+            if (!widget.lightningMode && realIndex >= (accountListVM?.accounts.length ?? 1)) {
               return Container();
             }
             final account =
-                !widget.lightningMode && realIndex < (accountListViewModel?.accounts.length ?? 0)
-                    ? accountListViewModel?.accounts[realIndex]
+                !widget.lightningMode && realIndex < (accountListVM?.accounts.length ?? 0)
+                    ? accountListVM?.accounts[realIndex]
                     : null;
 
             // The second balance should always be the lightning balance
             // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
-            final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
-                .getMainBalanceRecord(widget.lightningMode);
+            final walletBalanceRecord = balanceVM.getMainBalanceRecord(widget.lightningMode);
 
             late final String walletBalance;
             late final String walletFiatBalance;
-            if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-              if (widget.dashboardViewModel.balanceViewModel.displayMode ==
-                  BalanceDisplayMode.hiddenBalance) {
+            if (dashBoardVM.mwebEnabled && dashBoardVM.hasMweb) {
+              if (balanceVM.displayMode == BalanceDisplayMode.hiddenBalance) {
                 walletBalance = '●●●●●●';
                 walletFiatBalance = '●●●●●●';
               } else {
                 walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
                 walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
               }
-            } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
+            } else if (balanceVM.showCombinedBalance) {
               walletBalance = "";
-              walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
+              walletFiatBalance = balanceVM.combinedFiatBalance;
             } else {
               walletBalance = walletBalanceRecord?.availableBalance ?? "0";
               walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
@@ -201,14 +201,14 @@ class _CardsViewState extends State<CardsView> {
             // the card designs is empty if widget gets built before it loads.
             // should get populated before user sees anything
             final CardDesign cardDesign;
-            if (widget.dashboardViewModel.cardDesigns.isEmpty) {
+            if (dashBoardVM.cardDesigns.isEmpty) {
               cardDesign = CardDesign.genericDefault;
             } else if (widget.lightningMode) {
-              cardDesign = widget.dashboardViewModel.cardDesigns.last;
-            } else if (realIndex >= widget.dashboardViewModel.cardDesigns.length) {
+              cardDesign = dashBoardVM.cardDesigns.last;
+            } else if (realIndex >= dashBoardVM.cardDesigns.length) {
               cardDesign = CardDesign.genericDefault;
             } else {
-              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
+              cardDesign = dashBoardVM.cardDesigns[realIndex];
             }
 
             final String accountName;
@@ -221,26 +221,27 @@ class _CardsViewState extends State<CardsView> {
               accountBalance = account.balance ?? "0.00";
             }
 
-            final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
+            final assetName = balanceVM.showCombinedBalance
                 ? ""
                 : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
 
             return BalanceCard(
-                width: effectiveCardWidth,
-                accountName: accountName,
-                accountBalance: accountBalance,
-                designSwitchDuration: Duration(milliseconds: 150),
-                assetName: assetName,
-                capitalizeAssetName: _shouldCapitalizeAssetName(),
-                balance: walletBalance,
-                fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
-                    widget.dashboardViewModel.settingsStore.fiatCurrency.title,
-                fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
-                fiatBalance: walletFiatBalance,
-                selected: _selectedIndex == visualIndex,
-                onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
-                design: cardDesign,
-                actions: widget.actions ?? []);
+              width: effectiveCardWidth,
+              accountName: accountName,
+              accountBalance: accountBalance,
+              designSwitchDuration: const Duration(milliseconds: 150),
+              assetName: assetName,
+              capitalizeAssetName: _shouldCapitalizeAssetName(),
+              balance: walletBalance,
+              fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
+                  dashBoardVM.settingsStore.fiatCurrency.title,
+              fiatFirst: balanceVM.showCombinedBalance,
+              fiatBalance: walletFiatBalance,
+              selected: _selectedIndex == visualIndex,
+              onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
+              design: cardDesign,
+              actions: widget.actions ?? [],
+            );
           }),
         ),
       ),
@@ -337,8 +338,7 @@ class _CardsViewState extends State<CardsView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(builder: (context) {
+  Widget build(BuildContext context) => Observer(builder: (context) {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
@@ -353,7 +353,7 @@ class _CardsViewState extends State<CardsView> {
       final bool compactMode = widget.allowCompactMode && numCards >= compactModeTreshold;
       final double overlapAmount = compactMode ? 5.0 : 46.0;
       for (int i = _cardsToRender(numCards); i >= 0; i--) {
-        int visualIndex = (_selectedIndex - i + numCards) % numCards;
+        final int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
         final realIndex = _realIndexForVisualIndex(visualIndex, numCards);
 
@@ -362,7 +362,7 @@ class _CardsViewState extends State<CardsView> {
       }
 
       return AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         width: double.infinity,
         height: _getBoxHeight(numCards, overlapAmount),
@@ -374,5 +374,4 @@ class _CardsViewState extends State<CardsView> {
         ),
       );
     });
-  }
 }

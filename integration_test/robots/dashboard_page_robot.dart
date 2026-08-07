@@ -27,10 +27,10 @@ class DashboardPageRobot {
   }) async {
     final cryptoBalanceWidget =
         tester.widget<CryptoBalanceWidget>(find.byType(CryptoBalanceWidget));
-    final hasAccounts = cryptoBalanceWidget.dashboardViewModel.balanceViewModel.hasAccounts;
+    final hasAccounts = cryptoBalancewidget.dashboardViewModel.balanceViewModel.hasAccounts;
 
     if (hasAccounts) {
-      final walletName = cryptoBalanceWidget.dashboardViewModel.name;
+      final walletName = cryptoBalancewidget.dashboardViewModel.name;
       commonTestCases.hasText(walletName);
     } else {
       final walletName = walletTypeToString(type);

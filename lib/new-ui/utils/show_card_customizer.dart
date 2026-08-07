@@ -19,8 +19,7 @@ Future<void> showCardCustomizer({
     param2: dashboardViewModel.settingsStore.displayAmountsInSatoshi,
   );
 
-  Widget buildCustomizer(BuildContext context) {
-    return ModalNavigator(
+  Widget buildCustomizer(BuildContext context) => ModalNavigator(
       parentContext: context,
       heightMode: ModalHeightModes.fullScreen,
       rootPage: BlocProvider(
@@ -34,7 +33,6 @@ Future<void> showCardCustomizer({
         ),
       ),
     );
-  }
 
   if (useCupertinoScaffold) {
     await CupertinoScaffold.showCupertinoModalBottomSheet(

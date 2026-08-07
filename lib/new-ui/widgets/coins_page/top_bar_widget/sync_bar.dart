@@ -124,12 +124,12 @@ class SyncBar extends StatelessWidget {
       spacing: 6,
       children: [
         if (dashboardViewModel.isTorEnabled)
-          CakeImageWidget(
+          const CakeImageWidget(
             imageUrl: "assets/new-ui/tor.svg",
             width: 20,
             height: 20,
           ),
-        if (_showDot()) PulsingDot(),
+        _showDot() ? const PulsingDot() : const SizedBox(width: 5, height: 5),
       ],
     );
 
