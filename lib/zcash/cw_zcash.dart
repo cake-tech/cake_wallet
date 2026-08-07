@@ -176,6 +176,14 @@ class CWZcash extends Zcash {
     return getSelectedAddressType(wallet) == ZcashReceivePageOption.transparentRotated;
   }
 
+  /// The disposable transparent type is the only Zcash address type that
+  /// rotates. The public transparent address, both shielded types and the
+  /// unified address are all derived from the account and stay the same.
+  @override
+  bool isRotatingAddressOption(ReceivePageOption option) {
+    return option == ZcashReceivePageOption.transparentRotated;
+  }
+
   @override
   dynamic getZcashAddressType(ReceivePageOption option) {
     return (option as ZcashReceivePageOption).toType();
@@ -212,6 +220,11 @@ class CWZcash extends Zcash {
   @override
   bool ironwoodActive(WalletAddresses walletAddresses) {
     return (walletAddresses as ZcashWalletAddresses).ironwoodActive;
+  }
+
+  @override
+  Future<bool> hasOrchardMigratableBalance(WalletBase wallet) {
+    return (wallet as ZcashWallet).hasOrchardMigratableBalance();
   }
 }
 
