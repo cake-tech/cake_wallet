@@ -1493,7 +1493,10 @@ Future<void> setup({
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
   getIt.registerFactoryParam<RestoreOptionsPage, bool, void>(
-      (bool isNewInstall, _) => RestoreOptionsPage(isNewInstall: isNewInstall));
+      (bool isNewInstall, _) => RestoreOptionsPage(
+            isNewInstall: isNewInstall,
+            keychain: getIt.get<CwKeychain>(),
+          ));
 
   getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupServiceV3>()));
 
