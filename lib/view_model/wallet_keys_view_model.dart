@@ -217,6 +217,11 @@ abstract class WalletKeysViewModelBase with Store {
         final electrumKeys = bitcoin!.getWalletKeys(_appStore.wallet!);
 
         items.addAll([
+          if ((electrumKeys['masterFingerprint'] ?? '').isNotEmpty)
+            StandartListItem(
+              title: "Master fingerprint",
+              value: electrumKeys['masterFingerprint']!,
+            ),
           if ((electrumKeys['wif'] ?? '').isNotEmpty)
             StandartListItem(title: "WIF", value: electrumKeys['wif']!),
           if ((electrumKeys['privateKey'] ?? '').isNotEmpty)
