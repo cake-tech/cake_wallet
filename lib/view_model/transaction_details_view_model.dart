@@ -308,6 +308,31 @@ abstract class TransactionDetailsViewModelBase with Store {
     return description?.transactionNote ?? "";
   }
 
+  String? get transactionHex {
+    final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
+    final description = transactionDescriptionBox.values
+        .firstWhereOrNull((val) => val.id == descriptionKey || val.id == transactionInfo.txHash);
+    final hex = description?.transactionHex ?? '';
+    return hex.isEmpty ? null : hex;
+  }
+
+  /// Whether the "Rebroadcast" action should be offered: a pending outgoing tx sent from a
+  /// hot (non-hardware) Monero wallet for which we retained the signed raw transaction hex.
+  bool get canRebroadcast =>
+      wallet.type == WalletType.monero &&
+      !wallet.isHardwareWallet &&
+      transactionInfo.direction == TransactionDirection.outgoing &&
+      transactionInfo.isPending &&
+      transactionHex != null;
+
+  /// Re-submits the signed transaction to the connected daemon via wallet2's relay_raw_tx.
+  Future<void> rebroadcast() async {
+    final hex = transactionHex;
+    if (hex == null) return;
+    await monero!.submitTransactionHex(wallet, hex);
+    await wallet.fetchTransactions();
+  }
+
   final TransactionInfo transactionInfo;
   final Box<TransactionDescription> transactionDescriptionBox;
   final WalletBase wallet;

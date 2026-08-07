@@ -409,6 +409,12 @@ class CWMonero extends Monero {
   }
 
   @override
+  Future<bool> submitTransactionHex(Object wallet, String hex) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.submitTransactionHex(hex);
+  }
+
+  @override
   Map<String, String> exportOutputsUR(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.exportOutputsUR();
