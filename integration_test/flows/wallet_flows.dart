@@ -1,5 +1,6 @@
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../robots/new_dashboard_robot.dart";
@@ -14,10 +15,29 @@ class WalletFlows {
   final AuthFlows _authFlows;
   final NewDashboardRobot _dashboardRobot;
 
+  Future<void> _expandWalletGroups({int maxGroups = 10}) async {
+    for (int index = 0; index < maxGroups; index++) {
+      final tile = find.byKey(ValueKey("group_wallets_expansion_tile_widget_$index"));
+
+      if (!tester.any(tile)) {
+        return;
+      }
+
+      await tester.tap(tile, warnIfMissed: false);
+      await tester.pump(const Duration(milliseconds: 300));
+    }
+  }
+
   Future<void> switchToWallet(String name) async {
     await _dashboardRobot.openWalletsTab();
 
     final walletFinder = find.text(name);
+
+    // Wallets sharing a seed are listed under their group's name, so the wallet itself is
+    // not on screen until that group is opened.
+    if (!tester.any(walletFinder)) {
+      await _expandWalletGroups();
+    }
 
     await _dashboardRobot.pumpUntilFound(walletFinder);
 
