@@ -14,6 +14,7 @@ allprojects {
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -64,6 +65,7 @@ kotlin {
 
 dependencies {
     implementation("com.google.android.gms:play-services-auth-blockstore:16.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
 }

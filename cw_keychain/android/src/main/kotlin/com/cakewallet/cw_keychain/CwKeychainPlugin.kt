@@ -9,12 +9,13 @@ import com.google.android.gms.auth.blockstore.StoreBytesData
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import org.json.JSONObject
+import kotlinx.serialization.json.Json
 
 class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
 
   private val cloudBackupTransportName = "com.google.android.gms/.backup.BackupTransportService"
   private val serviceName = "cw_keychain"
+  private val json = Json { ignoreUnknownKeys = true }
   private var client: BlockstoreClient? = null
 
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -38,10 +39,11 @@ class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
 
   override fun put(item: KeychainData, callback: (Result<String>) -> Unit) {
     printWithPrefix("put")
-    val accountId = "${serviceName}_${item.name}_${item.walletTypeRaw}"
+    val wrapper = KeychainDataWrapper(item)
+    val accountId = "${serviceName}_${wrapper.accountId}"
 
     try {
-      val jsonString = serializeKeychainData(item)
+      val jsonString = json.encodeToString(wrapper)
       val data = StoreBytesData.Builder()
         .setKey(accountId)
         .setBytes(jsonString.toByteArray(Charsets.UTF_8))
@@ -79,10 +81,10 @@ class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
           }
 
           val jsonString = String(blockstoreData.bytes, Charsets.UTF_8)
-          val item = deserializeKeychainData(jsonString)
+          val wrapper = json.decodeFromString<KeychainDataWrapper>(jsonString)
 
           printWithPrefix("get ok: $id")
-          callback(Result.success(item))
+          callback(Result.success(wrapper.toPigeonData()))
         } catch (e: Exception) {
           callback(Result.failure(Exception("decode fail: ${e.message}")))
         }
@@ -123,7 +125,7 @@ class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
           if (key.startsWith(serviceName)) {
             try {
               val jsonString = String(blockstoreData.bytes, Charsets.UTF_8)
-              results.add(deserializeKeychainData(jsonString))
+              results.add(json.decodeFromString<KeychainDataWrapper>(jsonString).toPigeonData())
               printWithPrefix("decoded ok: $key")
             } catch (e: Exception) {
               printWithPrefix("skip decoding item $key: ${e.message}")
@@ -137,48 +139,6 @@ class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
       }
   }
 
-
-  private fun serializeKeychainData(item: KeychainData): String {
-    val json = JSONObject()
-    json.put("name", item.name)
-    json.put("walletTypeRaw", item.walletTypeRaw)
-    json.put("seed", item.seed)
-    json.put("derivationTypeRaw", item.derivationTypeRaw)
-    json.put("derivationPath", item.derivationPath)
-    json.put("networkRaw", item.networkRaw)
-    json.put("version", item.version)
-    item.seedTypeRaw?.let { json.put("seedTypeRaw", it) }
-    item.blockHeight?.let { json.put("blockHeight", it) }
-    item.passphrase?.let { json.put("passphrase", it) }
-    return json.toString()
-  }
-
-  private fun deserializeKeychainData(jsonString: String): KeychainData {
-    val json = JSONObject(jsonString)
-    val name = json.getString("name")
-    val walletTypeRaw = json.getLong("walletTypeRaw")
-    val seed = json.getString("seed")
-    val derivationTypeRaw = json.getLong("derivationTypeRaw")
-    val networkRaw = json.getLong("networkRaw")
-    val version = json.getLong("version")
-    val derivationPath = if (json.has("derivationPath") && !json.isNull("derivationPath")) json.getString("derivationPath") else null
-    val seedTypeRaw = if (json.has("seedTypeRaw") && !json.isNull("seedTypeRaw")) json.getLong("seedTypeRaw") else null
-    val blockHeight = if (json.has("blockHeight") && !json.isNull("blockHeight")) json.getLong("blockHeight") else null
-    val passphrase = if (json.has("passphrase") && !json.isNull("passphrase")) json.getString("passphrase") else null
-
-    return KeychainData(
-      version,
-      name,
-      walletTypeRaw,
-      seed,
-      networkRaw,
-      derivationTypeRaw,
-      derivationPath,
-      seedTypeRaw,
-      blockHeight,
-      passphrase
-    )
-  }
 
   private fun printWithPrefix(s: String) {
     println("[$serviceName] $s")
