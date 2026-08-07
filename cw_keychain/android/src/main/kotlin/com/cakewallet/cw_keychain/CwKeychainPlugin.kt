@@ -1,5 +1,6 @@
 package com.cakewallet.cw_keychain
 
+import android.provider.Settings
 import com.google.android.gms.auth.blockstore.Blockstore
 import com.google.android.gms.auth.blockstore.BlockstoreClient
 import com.google.android.gms.auth.blockstore.DeleteBytesRequest
@@ -12,13 +13,16 @@ import org.json.JSONObject
 
 class CwKeychainPlugin : FlutterPlugin, KeychainPlatformApi {
 
-  private var serviceName = "cw_keychain"
+  private val cloudBackupTransportName = "com.google.android.gms/.backup.BackupTransportService"
+  private val serviceName = "cw_keychain"
   private var client: BlockstoreClient? = null
 
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     val hasApi = GoogleApiAvailability.getInstance()
       .isGooglePlayServicesAvailable(binding.applicationContext) == ConnectionResult.SUCCESS
-    if (hasApi) {
+    val backupTransportName = Settings.Secure.getString(binding.applicationContext.contentResolver, "backup_transport")
+    val hasCloudBackup = backupTransportName == cloudBackupTransportName
+    if (hasApi && hasCloudBackup) {
       client = Blockstore.getClient(binding.applicationContext)
     }
     KeychainPlatformApi.setUp(binding.binaryMessenger, this)
