@@ -25,18 +25,17 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
         _creationService = creationService,
         _keychain = keychain,
         super(const KeychainRestoreNotLoaded()) {
-    on<_Init>(_init);
+    on<Init>(_init);
     on<WalletToggled>(_onWalletToggled, transformer: sequential());
     on<RestoreInitiated>(_onRestoreInitiated, transformer: droppable());
     on<WalletOpenSelected>(_onWalletOpenSelected, transformer: droppable());
-    add(const _Init());
   }
 
   final CwKeychain _keychain;
   final WalletSwitchService _walletSwitchService;
   final WalletCreationService _creationService;
 
-  Future<void> _init(_Init event, Emitter<KeychainRestoreState> emit) async {
+  Future<void> _init(Init event, Emitter<KeychainRestoreState> emit) async {
     if (!(await _keychain.available())) {
       emit(const KeychainRestoreUnavailable());
       return;

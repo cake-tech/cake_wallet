@@ -5,8 +5,8 @@ sealed class KeychainRestoreEvent {
   const KeychainRestoreEvent();
 }
 
-final class _Init extends KeychainRestoreEvent {
-  const _Init();
+final class Init extends KeychainRestoreEvent {
+  const Init();
 }
 
 final class WalletToggled extends KeychainRestoreEvent {

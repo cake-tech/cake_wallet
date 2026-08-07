@@ -21,27 +21,39 @@ class KeychainRestorePageParams {
   final bool isInitial;
 }
 
-class KeychainRestorePage extends StatelessWidget {
+class KeychainRestorePage extends StatefulWidget {
   const KeychainRestorePage({required this.bloc, required this.isInitial, super.key});
 
   final bool isInitial;
   final KeychainRestoreBloc bloc;
 
   @override
+  State<KeychainRestorePage> createState() => _KeychainRestorePageState();
+}
+
+class _KeychainRestorePageState extends State<KeychainRestorePage> {
+
+  @override
+  void initState() {
+    super.initState();
+    widget.bloc.add(const Init());
+  }
+
+  @override
   Widget build(BuildContext context) => Material(
         color: Theme.of(context).colorScheme.surface,
         child: SafeArea(
           child: BlocPresentationListener<KeychainRestoreBloc, KeychainRestorePresentationEvent>(
-            bloc: bloc,
+            bloc: widget.bloc,
             listener: (context, event) {
               if (event is WalletOpened) {
                 Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
               }
             },
             child: BlocConsumer<KeychainRestoreBloc, KeychainRestoreState>(
-              bloc: bloc,
+              bloc: widget.bloc,
               listener: (context, state) {
-                if (isInitial &&
+                if (widget.isInitial &&
                     (state is KeychainRestoreNoWallets || state is KeychainRestoreUnavailable)) {
                   navigateToWelcome(context);
                 }
@@ -59,19 +71,19 @@ class KeychainRestorePage extends StatelessWidget {
                     ),
                   );
                 }
-          
+
                 return Column(
                   children: [
                     ModalTopBar(
                       title: S.of(context).restore_existing,
-                      leadingWidget: isInitial
+                      leadingWidget: widget.isInitial
                           ? const SizedBox(
                               height: 52,
                             )
                           : null,
-                      leadingIcon: isInitial ? null : const Icon(Icons.arrow_back_ios_new),
-                      onLeadingPressed: isInitial ? () {} : Navigator.of(context).pop,
-                      leadingSemanticLabel: isInitial ? null : S.of(context).seed_alert_back,
+                      leadingIcon: widget.isInitial ? null : const Icon(Icons.arrow_back_ios_new),
+                      onLeadingPressed: widget.isInitial ? () {} : Navigator.of(context).pop,
+                      leadingSemanticLabel: widget.isInitial ? null : S.of(context).seed_alert_back,
                     ),
                     Expanded(
                       child: Column(
@@ -111,7 +123,7 @@ class KeychainRestorePage extends StatelessWidget {
                                               showArrow: state is KeychainRestoreComplete,
                                               trailingWidget:
                                                   trailingWidgetForItem(context, item, state),
-                                              onTap: () => bloc.add(
+                                              onTap: () => widget.bloc.add(
                                                 state is KeychainRestoreComplete
                                                     ? WalletOpenSelected(
                                                         state.walletsAvailable.indexOf(item))
@@ -135,7 +147,7 @@ class KeychainRestorePage extends StatelessWidget {
                       child: Column(
                         spacing: 12,
                         children: [
-                          if (isInitial && state is KeychainRestoreSelection)
+                          if (widget.isInitial && state is KeychainRestoreSelection)
                             NewPrimaryButton(
                               onPressed: () => navigateToWelcome(context),
                               text: S.of(context).skip,
@@ -144,12 +156,12 @@ class KeychainRestorePage extends StatelessWidget {
                             ),
                           if (state is KeychainRestoreSelection)
                             NewPrimaryButton(
-                              onPressed: () => bloc.add(const RestoreInitiated()),
+                              onPressed: () => widget.bloc.add(const RestoreInitiated()),
                               text: S.of(context).continue_text,
                               color: Theme.of(context).colorScheme.primary,
                               textColor: Theme.of(context).colorScheme.onPrimary,
                             ),
-                          if (!isInitial && state is KeychainRestoreNoWallets)
+                          if (!widget.isInitial && state is KeychainRestoreNoWallets)
                             NewPrimaryButton(
                               onPressed: Navigator.of(context).pop,
                               text: S.of(context).close,
@@ -199,7 +211,7 @@ class KeychainRestorePage extends StatelessWidget {
 
   String getDescriptionText(Type stateType) => switch (stateType) {
         KeychainRestoreSelection =>
-          isInitial ? S.current.restore_existing_desc : S.current.restore_existing_desc_non_initial,
+          widget.isInitial ? S.current.restore_existing_desc : S.current.restore_existing_desc_non_initial,
         KeychainRestoring => "${S.current.restoring_your_wallets}...",
         KeychainRestoreComplete => S.current.restore_complete_select_wallet,
         KeychainRestoreNoWallets => S.current.no_wallets_found_to_restore,
