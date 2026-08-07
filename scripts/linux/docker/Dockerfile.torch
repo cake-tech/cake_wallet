@@ -3,7 +3,8 @@ ARG BASE_IMAGE
 FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 
 COPY scripts/prepare_torch.sh /w/scripts/prepare_torch.sh
-COPY scripts/android/build_torch.sh /w/scripts/android/build_torch.sh
+COPY scripts/linux/build_torch.sh /w/scripts/linux/build_torch.sh
+
 ARG UID=10001
 ARG GID=10001
 ARG USER=builder
@@ -13,7 +14,7 @@ RUN groupadd -g "$GID" "$USER" && \
 RUN sudo chown $UID:$GID -R /w /root
 USER builder
 
-RUN /w/scripts/android/build_torch.sh && rm -rf /w/scripts/torch_dart/simplybs
+RUN /w/scripts/prepare_torch.sh
 
 FROM --platform=linux/amd64 alpine
 COPY --from=build /w /w
