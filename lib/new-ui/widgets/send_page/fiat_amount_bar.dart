@@ -45,13 +45,20 @@ class FiatAmountBar extends StatelessWidget {
                   svgPath: "assets/new-ui/switch.svg",
                   iconSize: 18,
                   onPressed: onSwitchButtonPressed,
+                  semanticLabel: S.of(context).switch_input_currency,
                 ),
-                GestureDetector(
-                  onTap: onSwitchButtonPressed,
-                  child: MoneyText(
-                    fiatInputMode ? cryptoAmount : fiatAmount!,
-                    trimZeros: fiatInputMode,
-                    style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                Semantics(
+                  label: fiatInputMode
+                      ? cryptoAmount.toStringWithSymbol()
+                      : fiatAmount!.toStringWithSymbol(),
+                  excludeSemantics: true,
+                  child: GestureDetector(
+                    onTap: onSwitchButtonPressed,
+                    child: MoneyText(
+                      fiatInputMode ? cryptoAmount : fiatAmount!,
+                      trimZeros: fiatInputMode,
+                      style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                    ),
                   ),
                 ),
               ],
@@ -62,9 +69,11 @@ class FiatAmountBar extends StatelessWidget {
             Row(
               spacing: 8,
               children: [
-                Text(
-                  "${S.of(context).max}.",
-                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                ExcludeSemantics(
+                  child: Text(
+                    "${S.of(context).max}.",
+                    style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                  ),
                 ),
                 Container(
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(999999)),
@@ -73,17 +82,25 @@ class FiatAmountBar extends StatelessWidget {
                         foregroundElementColor ??
                         Theme.of(context).colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(99999),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(99999),
+                    child: Semantics(
+                      button: true,
+                      enabled: onAllButtonPressed != null,
+                      label: S.of(context).max,
+                      value: allAmount!.toStringWithSymbol(),
                       onTap: onAllButtonPressed,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: MoneyText(
-                          allAmount!,
-                          fractionalDigits: 8,
-                          showSymbol: false,
-                          style: TextStyle(
-                            color: allAmountTextColor ?? Theme.of(context).colorScheme.primary,
+                      excludeSemantics: true,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(99999),
+                        onTap: onAllButtonPressed,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: MoneyText(
+                            allAmount!,
+                            fractionalDigits: 8,
+                            showSymbol: false,
+                            style: TextStyle(
+                              color: allAmountTextColor ?? Theme.of(context).colorScheme.primary,
+                            ),
                           ),
                         ),
                       ),

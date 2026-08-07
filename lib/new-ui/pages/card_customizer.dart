@@ -82,6 +82,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     ModalTopBar(
                       title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                       leadingIcon: Icon(Icons.close),
+                      leadingSemanticLabel: S.of(context).close,
                       // trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
                       onLeadingPressed: () => Navigator.of(context).maybePop(),
                       // onTrailingPressed: () {},

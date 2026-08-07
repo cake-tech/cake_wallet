@@ -73,6 +73,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                 leadingWidget: SwapModalHeader(
                     fromIconPath: widget.from.iconPath ?? "", toIconPath: widget.to.iconPath ?? ""),
                 trailingIcon: Icon(Icons.close),
+                trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).pop,
               ),
               Padding(
@@ -217,6 +218,10 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                       child: Icon(
                                         copied ? Icons.check : Icons.copy,
                                         key: ValueKey(copied),
+                                        // Only the icon changes here, so label
+                                        // the copied state for CopyWrapper's
+                                        // live region to announce.
+                                        semanticLabel: copied ? S.of(context).copied : null,
                                         size: 18,
                                         color: Theme.of(context).colorScheme.primary,
                                       ),

@@ -35,6 +35,15 @@ class HistorySection extends StatelessWidget {
   final bool roundedTopSection;
   final bool detailsAsPage;
 
+  /// A history row is a single button node: every text inside it (direction,
+  /// date, amounts) merges into one label.
+  Widget _historyRow({required VoidCallback onTap, required Widget child}) => MergeSemantics(
+        child: Semantics(
+          button: true,
+          child: GestureDetector(onTap: onTap, child: child),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) => SliverPadding(
         padding: EdgeInsets.only(left: 16.0, right: 16, top: short && roundedTopSection ? 18 : 0),
@@ -88,7 +97,7 @@ class HistorySection extends StatelessWidget {
                             else
                               asset = item.assetOfTransaction;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () {
                                 final page =
                                     getIt.get<TransactionDetailsModal>(param1: transaction);
@@ -121,7 +130,7 @@ class HistorySection extends StatelessWidget {
                           } else if (item is TradeListItem) {
                             final trade = item.trade;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.tradeDetails, arguments: trade),
                               child: HistoryTradeTile(
@@ -157,7 +166,7 @@ class HistorySection extends StatelessWidget {
                             ),
                           );
                         } else if (item is OrderListItem) {
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.orderDetails, arguments: item.order),
                               child: HistoryOrderTile(
@@ -171,7 +180,7 @@ class HistorySection extends StatelessWidget {
                           } else if (item is PayjoinTransactionListItem) {
                             final session = item.session;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context).pushNamed(
                                 Routes.payjoinDetails,
                                 arguments: [item.sessionId, item.transaction],
@@ -190,7 +199,7 @@ class HistorySection extends StatelessWidget {
                           } else if (item is AnonpayTransactionListItem) {
                             final transactionInfo = item.transaction;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context).pushNamed(
                                 Routes.anonPayDetailsPage,
                                 arguments: transactionInfo,

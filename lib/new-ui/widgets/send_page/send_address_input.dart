@@ -86,22 +86,27 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                   Expanded(
                     child: Stack(
                       children: [
-                        TextField(
-                          focusNode: widget.focusNode,
-                          autocorrect: false,
-                          enableSuggestions: false,
-                          onSubmitted: (val) => FocusScope.of(context).unfocus(),
-                          onChanged: state.didChange,
-                          onEditingComplete: () {
-                            widget.onEditingComplete();
-                          },
-                          onTapOutside: (_) {
-                            widget.onEditingComplete();
-                          },
-                          controller: widget.addressController,
-                          decoration: InputDecoration(
-                            hintText: widget.hintText ?? S.of(context).search_or_enter,
-                            errorMaxLines: 3,
+                        MergeSemantics(
+                          child: Semantics(
+                            label: _fieldSemanticsLabel(context),
+                            child: TextField(
+                              focusNode: widget.focusNode,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              onSubmitted: (val) => FocusScope.of(context).unfocus(),
+                              onChanged: state.didChange,
+                              onEditingComplete: () {
+                                widget.onEditingComplete();
+                              },
+                              onTapOutside: (_) {
+                                widget.onEditingComplete();
+                              },
+                              controller: widget.addressController,
+                              decoration: InputDecoration(
+                                hintText: widget.hintText ?? S.of(context).search_or_enter,
+                                errorMaxLines: 3,
+                              ),
+                            ),
                           ),
                         ),
                         Positioned.fill(
@@ -113,9 +118,13 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                                         widget.addressController.text.isEmpty)
                                     ? 0
                                     : 1,
-                                child: SendAddressOverlay(
-                                  address: widget.addressController.text,
-                                  displayName: widget.displayName,
+                                // Purely visual copy of the field content; announcing it again
+                                // would read the address twice.
+                                child: ExcludeSemantics(
+                                  child: SendAddressOverlay(
+                                    address: widget.addressController.text,
+                                    displayName: widget.displayName,
+                                  ),
                                 )),
                           ),
                         ),
@@ -150,15 +159,34 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
             if (state.hasError)
               Padding(
                 padding: EdgeInsets.only(top: 6, left: 8),
-                child: Text(
-                  state.errorText!,
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                child: Semantics(
+                  container: true,
+                  liveRegion: true,
+                  label: "${S.of(context).address_or_alias}, ${state.errorText!}",
+                  excludeSemantics: true,
+                  child: Text(
+                    state.errorText!,
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                  ),
                 ),
               )
           ],
         ),
       ),
     );
+  }
+
+  String _fieldSemanticsLabel(BuildContext context) {
+    final label = S.of(context).address_or_alias;
+    final displayName = widget.displayName;
+
+    if (displayName == null ||
+        displayName.isEmpty ||
+        displayName == widget.addressController.text) {
+      return label;
+    }
+
+    return "$label, $displayName";
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {

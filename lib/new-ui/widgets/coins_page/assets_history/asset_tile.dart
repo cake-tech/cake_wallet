@@ -43,131 +43,137 @@ class AssetTile extends StatelessWidget {
     final fiatAmount =
         showSecondary ? balance.fiatSecondAvailableBalanceRaw : balance.fiatAvailableBalanceRaw;
 
-    return GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (context) => AssetDetailsModal(
-            showSwap: showSwap,
-            showBridgeButton: showBridgeButton,
-            asset: balance.asset,
-            title: title ?? balance.asset.fullName ?? balance.asset.name,
-            chainTitle: "",
-            subtitle: trailingText ?? _getChainTitle(),
-            amount: showSecondary
-                ? balance.raw.secondAvailable ?? Money.zero(balance.raw.available.currency)
-                : balance.raw.available,
-            fiatAmount: fiatAmount,
-            iconPath: balance.asset.iconPath ?? "",
-            chainIconPath: chainIconPath,
-            mode: modalMode,
-            wallet: wallet,
-          ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        child: Container(
-          width: double.infinity,
-          height: 72,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.vertical(
-              top: isFirst ? const Radius.circular(18) : Radius.zero,
-              bottom: isLast ? const Radius.circular(18) : Radius.zero,
+    return MergeSemantics(
+        child: Semantics(
+      button: true,
+      child: GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (context) => AssetDetailsModal(
+              showSwap: showSwap,
+              showBridgeButton: showBridgeButton,
+              asset: balance.asset,
+              title: title ?? balance.asset.fullName ?? balance.asset.name,
+              chainTitle: "",
+              subtitle: trailingText ?? _getChainTitle(),
+              amount: showSecondary
+                  ? balance.raw.secondAvailable ?? Money.zero(balance.raw.available.currency)
+                  : balance.raw.available,
+              fiatAmount: fiatAmount,
+              iconPath: balance.asset.iconPath ?? "",
+              chainIconPath: chainIconPath,
+              mode: modalMode,
+              wallet: wallet,
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      iconPath.isNotEmpty
-                          ? TokenImageWidget(
-                              imageUrl: iconPath,
-                              size: 36,
-                            )
-                          : Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  balance.asset.name.safeSubString(0, 2),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Theme.of(context).colorScheme.onPrimary,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Container(
+            width: double.infinity,
+            height: 72,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.vertical(
+                top: isFirst ? const Radius.circular(18) : Radius.zero,
+                bottom: isLast ? const Radius.circular(18) : Radius.zero,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ExcludeSemantics(
+                          child: iconPath.isNotEmpty
+                              ? TokenImageWidget(
+                                  imageUrl: iconPath,
+                                  size: 36,
+                                )
+                              : Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    shape: BoxShape.circle,
                                   ),
-                                ),
-                              ),
-                            ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          spacing: 4,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 4,
-                              children: [
-                                Text(
-                                  title ?? balance.asset.fullName ?? balance.asset.name,
-                                  style: const TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                                if (trailingText != null)
-                                  Text(
-                                    trailingText!,
-                                    style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  child: Center(
+                                    child: Text(
+                                      balance.asset.name.safeSubString(0, 2),
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                      ),
                                     ),
                                   ),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 4),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
-                                child: MoneyText(
-                                  showSecondary
-                                      ? balance.raw.secondAvailable ??
-                                          Money.zero(balance.secondAsset)
-                                      : balance.raw.available,
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            spacing: 4,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                spacing: 4,
+                                children: [
+                                  Text(
+                                    title ?? balance.asset.fullName ?? balance.asset.name,
+                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                  if (trailingText != null)
+                                    Text(
+                                      trailingText!,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: MoneyText(
+                                    showSecondary
+                                        ? balance.raw.secondAvailable ??
+                                            Money.zero(balance.secondAsset)
+                                        : balance.raw.available,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                if (fiatAmount != null)
-                  MoneyText(
-                    fiatAmount,
-                    trimZeros: false,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  ),
-              ],
+                  if (fiatAmount != null)
+                    MoneyText(
+                      fiatAmount,
+                      trimZeros: false,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
+    ));
   }
 
   String _getChainTitle() => walletTypeToDisplayName(wallet.type);

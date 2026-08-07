@@ -22,14 +22,17 @@ class ReceiveAmountDisplay extends StatelessWidget {
           curve: Curves.easeOutCubic,
           heightFactor: largeQrMode || walletAddressListViewModel.displayAmount == null ? 0 : 1,
           alignment: Alignment.topCenter,
-          child: Container(
-            width: double.infinity,
-            child: Row(
-              spacing: 4,
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (walletAddressListViewModel.displayAmount != null)
+          // Amount, currency symbol and fiat equivalent describe one value, so
+          // they are announced as a single node.
+          child: MergeSemantics(
+            child: Container(
+              width: double.infinity,
+              child: Row(
+                spacing: 4,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (walletAddressListViewModel.displayAmount != null)
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
@@ -48,11 +51,11 @@ class ReceiveAmountDisplay extends StatelessWidget {
                     ),
                   ),
                 if (!walletAddressListViewModel.isFiatDisabled && walletAddressListViewModel.fiatAmount != null)
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: MoneyText(
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: MoneyText(
                       walletAddressListViewModel.fiatAmount!,
-                      trimZeros: false,
+                        trimZeros: false,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 16,
@@ -60,7 +63,7 @@ class ReceiveAmountDisplay extends StatelessWidget {
                       ),
                     ),
                   )
-              ],
+              ],),
             ),
           ),
         ),

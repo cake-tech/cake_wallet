@@ -421,6 +421,12 @@ class CWMonero extends Monero {
   }
 
   @override
+  bool hasUnknownKeyImages(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.hasUnknownKeyImages();
+  }
+
+  @override
   void monerocCheck() => checkIfMoneroCIsFine();
 
   @override
