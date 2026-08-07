@@ -521,10 +521,10 @@ abstract class ZcashWalletBase
 
   static const _dispPhrase = "Received to disposable address";
 
-  bool _hasExternalOutputs(final ZkoolTx tx) =>
-      tx.outputsWithAddress.any((final o) => !_addressBelongsToWallet(o.address));
+  bool _hasExternalOutputs(final ZkoolTx tx, final Set<String> ownedAddresses) =>
+      tx.outputsWithAddress.any((final o) => !_isOwnedAddress(o.address, ownedAddresses));
 
-  bool _isIronwoodMigrationTx(final ZkoolTx tx) {
+  bool _isIronwoodMigrationTx(final ZkoolTx tx, final Set<String> ownedAddresses) {
     // zkool classifies migration as selfTransfer with fee-sized net value.
     if (tx.type != TxType.selfTransfer) {
       return false;
@@ -540,7 +540,7 @@ abstract class ZcashWalletBase
       return true;
     }
     // Orchard → Orchard split step (SD notes created, all outputs are ours).
-    if (tx.orchardReceived > BigInt.zero && !_hasExternalOutputs(tx)) {
+    if (tx.orchardReceived > BigInt.zero && !_hasExternalOutputs(tx, ownedAddresses)) {
       return true;
     }
     // Orchard → Ironwood before the IW note is attached to tx details.
@@ -577,10 +577,7 @@ abstract class ZcashWalletBase
         .whereType<String>()
         .where((final m) => m.isNotEmpty)
         .firstOrNull;
-    final recipientAddresses = _recipientAddresses(
-      accountNotes.map((final n) => n.address).whereType<String>(),
-      direction,
-    );
+    final recipientAddresses = const <String>[];
 
     final info = ZcashTransactionInfo(
       id: txHash,
@@ -608,17 +605,20 @@ abstract class ZcashWalletBase
     final bool isShieldAction = false,
     final TransactionDirection? directionOverride,
     final BigInt? amountOverride,
+    required final Set<String> ownedAddresses,
   }) {
     final confirmations = tx.height > 0 && currentHeight >= tx.height
         ? currentHeight - tx.height + 1
         : 0;
     final memo = extraMemo != null ? "${tx.memo ?? ''}\n$extraMemo".trim() : tx.memo;
-    final isMigration = directionOverride == null && _isIronwoodMigrationTx(tx);
+    final isMigration = directionOverride == null && _isIronwoodMigrationTx(tx, ownedAddresses);
     final direction = directionOverride ??
         (isMigration ? TransactionDirection.outgoing : tx.direction);
-    final recipientAddresses = _recipientAddresses(_paymentOutputAddresses(tx), direction);
     final amount = amountOverride ??
         (isMigration ? _migrationDisplayAmount(tx) : tx.value);
+    final recipientAddresses = direction == TransactionDirection.outgoing
+        ? _outgoingRecipientAddresses(tx, ownedAddresses: ownedAddresses)
+        : const <String>[];
     final info = ZcashTransactionInfo(
       id: tx.txHash,
       amount: Money(amount, currency),
@@ -641,14 +641,18 @@ abstract class ZcashWalletBase
     return info;
   }
 
-  bool _isShieldActionTx(final ZkoolTx tx, {required final Set<String> rotationSweepHashes}) {
+  bool _isShieldActionTx(
+    final ZkoolTx tx, {
+    required final Set<String> rotationSweepHashes,
+    required final Set<String> ownedAddresses,
+  }) {
     if (ZcashWalletService.isAutoshieldTx(tx.txHash)) {
       return true;
     }
     if (rotationSweepHashes.contains(tx.txHash)) {
       return true;
     }
-    if (_isPayToSelfAutoshield(tx)) {
+    if (_isPayToSelfAutoshield(tx, ownedAddresses)) {
       return true;
     }
     if (tx.direction == TransactionDirection.outgoing &&
@@ -658,7 +662,7 @@ abstract class ZcashWalletBase
     return false;
   }
 
-  bool _isPayToSelfAutoshield(final ZkoolTx tx) {
+  bool _isPayToSelfAutoshield(final ZkoolTx tx, final Set<String> ownedAddresses) {
     if (tx.type != TxType.shield && tx.type != TxType.transparentSelfTransfer) {
       return false;
     }
@@ -669,18 +673,23 @@ abstract class ZcashWalletBase
       return false;
     }
     for (final dest in tx.outputAddresses) {
-      if (_addressBelongsToWallet(dest)) {
+      if (_isOwnedAddress(dest, ownedAddresses)) {
         return true;
       }
     }
     return tx.orchardReceived > BigInt.zero;
   }
 
-  bool _shouldSplitAutoshieldTx(final ZkoolTx tx, {required final bool isShield}) {
+  bool _shouldSplitAutoshieldTx(
+    final ZkoolTx tx, {
+    required final bool isShield,
+    required final Set<String> ownedAddresses,
+  }) {
     if (!isShield) {
       return false;
     }
-    if (ZcashWalletService.isAutoshieldTx(tx.txHash) || _isPayToSelfAutoshield(tx)) {
+    if (ZcashWalletService.isAutoshieldTx(tx.txHash) ||
+        _isPayToSelfAutoshield(tx, ownedAddresses)) {
       return tx.transparentOrSaplingSpent > BigInt.zero && tx.orchardReceived > BigInt.zero;
     }
     return false;
@@ -724,104 +733,57 @@ abstract class ZcashWalletBase
     }
   }
 
-  bool _addressBelongsToWallet(final String addr) {
-    final addrs = walletAddresses;
-    if (addrs.containsAddress(addr) ||
-        addrs.hiddenAddresses.contains(addr) ||
-        addrs.usedAddresses.contains(addr)) {
-      return true;
-    }
-    for (final infos in addrs.addressInfos.values) {
-      for (final info in infos) {
-        if (info.address == addr) {
-          return true;
-        }
-      }
-    }
-    for (final own in [
-      addrs.orchardAddress,
-      addrs.unifiedAddress,
-      addrs.saplingAddress,
-      addrs.transparentAddress,
-      addrs.address,
-    ]) {
-      if (own == null || own.isEmpty || own.startsWith('unknown ')) {
+  Future<Set<String>> _ownedAddressSet(final zkool_coin.Coin coin) async {
+    final owned = <String>{};
+    for (final address in await zkool_account.listOwnedAddresses(c: coin)) {
+      if (address.isEmpty) {
         continue;
       }
-      if (addr == own || addr.startsWith(own) || own.startsWith(addr)) {
-        return true;
+      owned.add(address);
+      if (address.startsWith('u')) {
+        owned.addAll(_uaReceivers(address));
       }
     }
-    return false;
-  }
-
-  List<String> _paymentOutputAddresses(final ZkoolTx tx) {
-    final all = tx.outputsWithAddress.toList();
-    final external = all.where((final o) => !_addressBelongsToWallet(o.address)).toList();
-    final outputs = external.isNotEmpty ? external : all;
-    final transparent = outputs.where((final o) => o.pool == NotePool.transparent.index).toList();
-    if (transparent.length >= 2) {
-      return transparent.map((final o) => o.address).toList();
+    final addrs = walletAddresses;
+    for (final infos in addrs.addressInfos.values) {
+      for (final info in infos) {
+        owned.add(info.address);
+      }
     }
-    return outputs.map((final o) => o.address).toList();
+    owned.addAll(addrs.hiddenAddresses);
+    owned.addAll(addrs.usedAddresses);
+    return owned;
   }
 
-  List<String> _recipientAddresses(
-    final Iterable<String> raw,
-    final TransactionDirection direction,
-  ) {
+  bool _isOwnedAddress(final String addr, final Set<String> ownedAddresses) =>
+      ownedAddresses.contains(addr);
+
+  List<String> _outgoingRecipientAddresses(
+    final ZkoolTx tx, {
+    required final Set<String> ownedAddresses,
+  }) {
+    var outputs = tx.outputsWithAddress
+        .where((final o) => !_isOwnedAddress(o.address, ownedAddresses))
+        .toList();
+    if (outputs.isEmpty) {
+      return [];
+    }
+
+    final transparent =
+        outputs.where((final o) => o.pool == NotePool.transparent.index).toList();
+    if (transparent.length >= 2) {
+      outputs = transparent;
+    }
+
+    return _dedupeAddresses(outputs.map((final o) => o.address));
+  }
+
+  List<String> _dedupeAddresses(final Iterable<String> raw) {
     final seen = <String>{};
-    final addresses = [
+    return [
       for (final address in raw)
         if (address.trim().isNotEmpty && seen.add(address.trim())) address.trim(),
     ];
-    if (addresses.isEmpty) {
-      return [];
-    }
-
-    final external = direction == TransactionDirection.incoming
-        ? addresses
-        : [
-            for (final address in addresses)
-              if (!_addressBelongsToWallet(address)) address,
-          ];
-    final list = external.isNotEmpty ? external : addresses;
-    if (list.isEmpty) {
-      return [];
-    }
-
-    final embedded = {
-      for (final address in list)
-        if (address.startsWith('u')) ..._uaReceivers(address),
-    };
-    var result = embedded.isEmpty
-        ? list
-        : [
-            for (final address in list)
-              if (address.startsWith('u') || !embedded.contains(address)) address,
-          ];
-    if (result.isEmpty) {
-      result = list;
-    }
-
-    final standalone = [
-      for (final address in result)
-        if (!address.startsWith('u') && !embedded.contains(address)) address,
-    ];
-    if (standalone.length >= 2) {
-      result = standalone;
-    }
-
-    if (direction == TransactionDirection.incoming) {
-      return [
-        result.firstWhere(
-          (final a) => a.startsWith('u'),
-          orElse: () =>
-              result.firstWhere((final a) => a.startsWith('z'), orElse: () => result.first),
-        ),
-      ];
-    }
-    return result;
   }
 
   Set<String> _uaReceivers(final String ua) {
@@ -839,9 +801,10 @@ abstract class ZcashWalletBase
   @override
   Future<Map<String, ZcashTransactionInfo>> fetchTransactions() async {
     await ZcashWalletService.loadShieldTxs();
-    final (txs, currentHeight) = await runWithCoin(
+    final (txs, currentHeight, ownedAddresses) = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
+        final owned = await _ownedAddressSet(coin);
         final txsI = await zkool_account.listTxHistory(c: coin);
         final txsA = await Future.wait(
           txsI.map((final tx) => zkool_account.getTxDetails(idTx: tx.id, c: coin)),
@@ -857,7 +820,7 @@ abstract class ZcashWalletBase
         } catch (e) {
           printV("failed to get height: $e");
         }
-        return (txs, currentHeight);
+        return (txs, currentHeight, owned);
       },
     );
     final Map<String, ZcashTransactionInfo> byHash = {};
@@ -871,11 +834,25 @@ abstract class ZcashWalletBase
       if (tx.direction == TransactionDirection.incoming) {
         _offerTx(
           byHash,
-          _zcashInfoFromZkoolTx(tx, currentHeight, extraMemo: _dispPhrase, isRotationReceive: true),
+          _zcashInfoFromZkoolTx(
+            tx,
+            currentHeight,
+            extraMemo: _dispPhrase,
+            isRotationReceive: true,
+            ownedAddresses: ownedAddresses,
+          ),
         );
         continue;
       }
-      _offerTx(byHash, _zcashInfoFromZkoolTx(tx, currentHeight, isShieldAction: true));
+      _offerTx(
+        byHash,
+        _zcashInfoFromZkoolTx(
+          tx,
+          currentHeight,
+          isShieldAction: true,
+          ownedAddresses: ownedAddresses,
+        ),
+      );
     }
 
     final Map<String, ZcashTransactionInfo> splitEntries = {};
@@ -884,8 +861,12 @@ abstract class ZcashWalletBase
       if (tx.height > 0) {
         ZcashMempoolService.instance.removeTx(tx.txHash);
       }
-      final isShield = _isShieldActionTx(tx, rotationSweepHashes: rotationSweepHashes);
-      if (_shouldSplitAutoshieldTx(tx, isShield: isShield)) {
+      final isShield = _isShieldActionTx(
+        tx,
+        rotationSweepHashes: rotationSweepHashes,
+        ownedAddresses: ownedAddresses,
+      );
+      if (_shouldSplitAutoshieldTx(tx, isShield: isShield, ownedAddresses: ownedAddresses)) {
         byHash.remove(tx.txHash);
         splitEntries[_txResultKey(tx.txHash, suffix: '_shield')] = _zcashInfoFromZkoolTx(
           tx,
@@ -893,16 +874,26 @@ abstract class ZcashWalletBase
           isShieldAction: true,
           directionOverride: TransactionDirection.outgoing,
           amountOverride: tx.transparentOrSaplingSpent,
+          ownedAddresses: ownedAddresses,
         );
         splitEntries[_txResultKey(tx.txHash, suffix: '_recv')] = _zcashInfoFromZkoolTx(
           tx,
           currentHeight,
           directionOverride: TransactionDirection.incoming,
           amountOverride: tx.orchardReceived,
+          ownedAddresses: ownedAddresses,
         );
         continue;
       }
-      _offerTx(byHash, _zcashInfoFromZkoolTx(tx, currentHeight, isShieldAction: isShield));
+      _offerTx(
+        byHash,
+        _zcashInfoFromZkoolTx(
+          tx,
+          currentHeight,
+          isShieldAction: isShield,
+          ownedAddresses: ownedAddresses,
+        ),
+      );
     }
 
     final knownHashes = {
