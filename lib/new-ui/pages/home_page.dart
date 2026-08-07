@@ -250,8 +250,8 @@ class _NewHomePageState extends State<NewHomePage> {
         return ModalNavigator(
             parentContext: context,
             heightMode: ModalHeightModes.fullScreen,
-            rootPage: BlocProvider(
-              create: (context) => bloc,
+            rootPage: BlocProvider.value(
+              value: bloc,
               child: Material(
                   child: CardCustomizer(
                 cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??

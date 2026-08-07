@@ -331,8 +331,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             lightningMode: false, amountDisplayMode: null, canHide: _items.length > 1,),);
 
     Navigator.of(context).push(CupertinoPageRoute(
-      builder: (context) => BlocProvider(
-          create: (context) => bloc,
+      builder: (context) => BlocProvider.value(
+          value: bloc,
           child: Material(
             child: CardCustomizer(
               cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
