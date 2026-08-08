@@ -1600,14 +1600,24 @@ abstract class ElectrumWalletBase
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {
             transactionHistory.transactions.values.forEach((tx) {
-              tx.unspents?.removeWhere(
-                  (unspent) => estimatedTx.utxos.any((e) => e.utxo.txHash == unspent.hash));
+              tx.unspents?.removeWhere((unspent) => estimatedTx.utxos.any(
+                    (input) => matchesUnspentOutpoint(
+                      unspent,
+                      transactionHash: input.utxo.txHash,
+                      outputIndex: input.utxo.vout,
+                    ),
+                  ));
               transactionHistory.addOne(tx);
             });
           }
 
-          unspentCoins
-              .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
+          unspentCoins.removeWhere((unspent) => estimatedTx.utxos.any(
+                (input) => matchesUnspentOutpoint(
+                  unspent,
+                  transactionHash: input.utxo.txHash,
+                  outputIndex: input.utxo.vout,
+                ),
+              ));
 
           await updateBalance();
           await updateAllUnspents();
