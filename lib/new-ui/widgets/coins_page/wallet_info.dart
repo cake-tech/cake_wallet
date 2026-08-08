@@ -7,66 +7,54 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletInfoBar extends StatelessWidget {
-  const WalletInfoBar({super.key, required this.name, required this.hardwareWalletType});
+  const WalletInfoBar({required this.name, required this.hardwareWalletType, super.key});
 
   final String name;
   final HardwareWalletType? hardwareWalletType;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AnimatedSwitcher(
-          duration: Duration(milliseconds: 150),
-          transitionBuilder: (child, animation) {
-            return SizeTransition(
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            transitionBuilder: (child, animation) => SizeTransition(
               axis: Axis.horizontal,
               sizeFactor: animation,
               child: FadeTransition(opacity: animation, child: child),
-            );
-          },
-          child: hardwareWalletIcon == null
-              ? const SizedBox.shrink(key: ValueKey("empty"))
-              : Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: CakeImageWidget(
-                    imageUrl: hardwareWalletIcon!,
-                    key: ValueKey("hardware_wallet_icon"),
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onSurfaceVariant,
-                      BlendMode.srcIn,
+            ),
+            child: hardwareWalletIcon == null
+                ? const SizedBox.shrink(key: ValueKey("empty"))
+                : Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: CakeImageWidget(
+                      imageUrl: hardwareWalletIcon!,
+                      key: const ValueKey("hardware_wallet_icon"),
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.onSurfaceVariant,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
+            // if (hasCustomize) ...[
+            //   SizedBox(width: 8),
+            //   ModernButton.svg(
+            //     size: 24,
+            //     onPressed: () {
+            //       if (hasCustomize) {
+            //         onCustomizeButtonTap();
+            //         HapticFeedback.mediumImpact();
+            //       }
+            //     },
+            //     svgPath: "assets/new-ui/icon-accounts.svg",
+            //     semanticLabel: S.of(context).wallet_accounts,
+            //   )
           ),
-          Text(
-            name,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
-          ),
-          if (hasCustomize) ...[
-            SizedBox(width: 8),
-            ModernButton.svg(
-              size: 24,
-              onPressed: () {
-                if (hasCustomize) {
-                  onCustomizeButtonTap();
-                  HapticFeedback.mediumImpact();
-                }
-              },
-              svgPath: "assets/new-ui/icon-accounts.svg",
-              semanticLabel: S.of(context).wallet_accounts,
-            )
-          ]
         ],
-      ),
-    );
-  }
+      );
 
   String? get hardwareWalletIcon {
     switch (hardwareWalletType) {
