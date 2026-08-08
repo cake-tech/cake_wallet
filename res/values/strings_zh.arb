@@ -1207,6 +1207,7 @@
   "token_decimal": "代币小数位数（例如：USDT）",
   "token_name": "代币名称（例如：Tether）",
   "token_symbol": "代币符号（例如：USDT）",
+  "token_verified_on_jupiter": "该令牌已在 Jupiter 上验证",
   "tokenID": "ID",
   "tokens": "代币",
   "tokens_strong_warning": "切勿将代币发送到此地址！",

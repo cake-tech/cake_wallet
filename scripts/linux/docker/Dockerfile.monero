@@ -1,0 +1,22 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+ARG UID=10001
+ARG GID=10001
+ARG USER=builder
+RUN groupadd -g "$GID" "$USER" && \
+    useradd  -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
+
+RUN sudo chown $UID:$GID -R /w /root
+USER builder
+RUN mkdir -p /w/scripts/linux
+COPY scripts/prepare_moneroc.sh /w/scripts/prepare_moneroc.sh
+COPY scripts/linux/build_monero_all.sh /w/scripts/linux/build_monero_all.sh
+COPY scripts/functions.sh /w/scripts/functions.sh
+RUN /w/scripts/linux/build_monero_all.sh \
+    && rm -rf /w/scripts/monero_c/contrib/depends/simplybs \
+    /w/scripts/monero_c/monero_libwallet2_api_c/build \
+    /w/scripts/monero_c/wownero_libwallet2_api_c/build
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w
