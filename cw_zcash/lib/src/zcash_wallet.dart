@@ -622,7 +622,10 @@ abstract class ZcashWalletBase
     final info = ZcashTransactionInfo(
       id: tx.txHash,
       amount: Money(amount, currency),
-      fee: Money.zero(currency),
+      fee: Money(
+        direction == TransactionDirection.outgoing ? tx.fee : BigInt.zero,
+        currency,
+      ),
       direction: direction,
       isPending: tx.height == 0,
       date: tx.time,
