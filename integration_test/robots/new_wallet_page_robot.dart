@@ -1,4 +1,6 @@
 import "package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
 
@@ -16,6 +18,14 @@ class NewWalletPageRobot extends BaseRobot {
 
   Future<void> generateWalletName() async {
     await tapByKey("new_wallet_page_wallet_name_textformfield_generate_name_button_key");
+  }
+
+  // A name already in use has to be refused on the form, two wallets answering to the same
+  // name is how someone sends from the wrong one.
+  Future<void> expectNameRejected() async {
+    await pumpUntilFound(find.byType(AlertWithOneAction));
+
+    hasType<NewWalletPage>();
   }
 
   Future<void> onNextButtonPressed() async {

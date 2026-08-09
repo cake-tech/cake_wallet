@@ -73,6 +73,14 @@ class OnboardingFlows {
   Future<void> createAdditionalWalletFromWalletList(WalletType type) async {
     tester.printToConsole("Creating ${type.name} wallet");
 
+    await startCreatingWalletFromWalletList(type);
+
+    await _completeWalletCreationSteps(type);
+  }
+
+  // Stops on the naming form instead of going through with it, for suites that care about
+  // what the form does rather than the wallet it would have made.
+  Future<void> startCreatingWalletFromWalletList(WalletType type) async {
     await _walletListPageRobot.navigateToCreateNewWalletPage();
 
     await _selectWalletType(type);
@@ -82,7 +90,7 @@ class OnboardingFlows {
       await _walletGroupDescriptionPageRobot.navigateToCreateNewSeedPage();
     }
 
-    await _completeWalletCreationSteps(type);
+    await _newWalletPageRobot.isDisplayed();
   }
 
   Future<void> restoreFirstWalletFromSeed(WalletType type, {String? seed, List<int>? pin}) async {
