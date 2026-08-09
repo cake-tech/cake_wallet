@@ -44,9 +44,6 @@ class NewSendPageRobot extends BaseRobot {
     await pumpUntilFound(find.byType(TransactionCommittedScreenActionButton), timeout: timeout);
   }
 
-  // The swiper is the point of no return, it is only built once the wallet has produced a
-  // real transaction. Waiting for it and requiring it never to arrive is the assertion that
-  // holds whatever the screen does meanwhile, still syncing, still building, or given up.
   Future<void> expectNoTransactionBuilt({
     Duration window = const Duration(seconds: 15),
   }) async {
@@ -62,8 +59,6 @@ class NewSendPageRobot extends BaseRobot {
     );
   }
 
-  // The positive form: the swiper on screen means the wallet priced the fee, checked the
-  // balance and produced a transaction that is ready to go out.
   Future<void> confirmTransactionBuilt({
     Duration timeout = const Duration(seconds: 90),
   }) async {
@@ -81,7 +76,6 @@ class NewSendPageRobot extends BaseRobot {
   }
 
   Future<void> _enterTextInInput(String inputKey, String text) async {
-    // The keys sit on the input wrapper widgets, the editable field is a descendant.
     final inputFinder = find.byKey(ValueKey(inputKey));
 
     await pumpUntilFound(inputFinder);

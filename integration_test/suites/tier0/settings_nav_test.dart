@@ -25,7 +25,6 @@ void main() {
     final homePageRobot = HomePageRobot(tester);
     final settingsRobot = NewSettingsPageRobot(tester);
 
-    // Rows behind the auth gate are covered by the show keys auth suite instead.
     final rowsUnderTest = <String, Type>{
       Routes.manageNodes: ManageNodesPage,
       Routes.privacyPage: PrivacyPage,

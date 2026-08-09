@@ -20,8 +20,6 @@ class NewWalletPageRobot extends BaseRobot {
     await tapByKey("new_wallet_page_wallet_name_textformfield_generate_name_button_key");
   }
 
-  // A name already in use has to be refused on the form, two wallets answering to the same
-  // name is how someone sends from the wrong one.
   Future<void> expectNameRejected() async {
     await pumpUntilFound(find.byType(AlertWithOneAction));
 

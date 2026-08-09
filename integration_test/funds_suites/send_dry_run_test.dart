@@ -13,10 +13,7 @@ import "../robots/new_send_page_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // Everything the send flow does except the swipe. Reaching the swiper means the wallet
-  // priced the fee, checked the balance and built a real transaction, which is the part that
-  // breaks. Broadcasting is what send_funds_test is for, this one costs nothing and can be
-  // run as often as you like.
+  // Everything the send flow does except the swipe
   integrationTest("Every funded chain can build a transaction without sending it", (tester) async {
     final appLauncher = AppLauncher(tester);
     final fundsFlows = FundsFlows(tester);
@@ -60,7 +57,7 @@ void main() {
         await sendRobot.enterAmount(TestConfig.fundsSendAmountFor(type));
         await sendRobot.tapSendButton();
 
-        // Stops here on purpose. The swiper being on screen is the assertion.
+        // Stops here on purpose. The swiper being on screen is the assertion
         await sendRobot.confirmTransactionBuilt();
 
         tester.printToConsole("${type.name} built a transaction, leaving it unsent");
@@ -74,8 +71,6 @@ void main() {
           await sendRobot.dismissModal();
           await homePageRobot.isDisplayed();
         } catch (e) {
-          // The chain's own failure is already recorded, this is only about getting back to
-          // a known screen for the next chain.
           tester.printToConsole("Recovery for ${type.name} failed: $e");
         }
       }

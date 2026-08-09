@@ -17,6 +17,8 @@ import "../robots/restore_options_page_robot.dart";
 import "../robots/seed_verification_page_robot.dart";
 import "../robots/setup_pin_code_robot.dart";
 import "../robots/wallet_group_description_page_robot.dart";
+import "../robots/wallet_group_existing_seed_page_robot.dart";
+import "../robots/wallet_groups_display_page_robot.dart";
 import "../robots/wallet_list_page_robot.dart";
 import "../robots/wallet_seed_page_robot.dart";
 import "../robots/welcome_page_robot.dart";
@@ -35,7 +37,9 @@ class OnboardingFlows {
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(tester),
         _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(tester),
         _lightningUsernamePageRobot = LightningUsernamePageRobot(tester),
-        _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(tester);
+        _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(tester),
+        _walletGroupsDisplayPageRobot = WalletGroupsDisplayPageRobot(tester),
+        _walletGroupExistingSeedPageRobot = WalletGroupExistingSeedPageRobot(tester);
 
   final WidgetTester tester;
 
@@ -52,6 +56,8 @@ class OnboardingFlows {
   final RestoreFromSeedOrKeysPageRobot _restoreFromSeedOrKeysPageRobot;
   final LightningUsernamePageRobot _lightningUsernamePageRobot;
   final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
+  final WalletGroupsDisplayPageRobot _walletGroupsDisplayPageRobot;
+  final WalletGroupExistingSeedPageRobot _walletGroupExistingSeedPageRobot;
 
   Future<void> createFirstWallet(WalletType type, {List<int>? pin}) async {
     await _createPinWelcomePageRobot.tapSetAPinButton();
@@ -76,6 +82,31 @@ class OnboardingFlows {
     await startCreatingWalletFromWalletList(type);
 
     await _completeWalletCreationSteps(type);
+  }
+
+  // Adds a wallet to the seed an existing wallet already uses, which is what the app calls a
+  // wallet group. A child wallet skips the seed and verification screens, it is shown a page
+  // explaining it shares a seed instead, so this cannot reuse the normal creation steps.
+  Future<void> createWalletInGroupOf(WalletType type, String existingWalletName) async {
+    tester.printToConsole("Adding a ${type.name} wallet to the seed of $existingWalletName");
+
+    await _walletListPageRobot.navigateToCreateNewWalletPage();
+
+    await _selectWalletType(type);
+
+    await _walletGroupDescriptionPageRobot.isDisplayed();
+    await _walletGroupDescriptionPageRobot.navigateToChooseWalletGroup();
+
+    await _walletGroupsDisplayPageRobot.isDisplayed();
+    await _walletGroupsDisplayPageRobot.selectWallet(existingWalletName);
+    await _walletGroupsDisplayPageRobot.continueWithSelectedSeed();
+
+    await _newWalletPageRobot.isDisplayed();
+    await _newWalletPageRobot.generateWalletName();
+    await _newWalletPageRobot.onNextButtonPressed();
+
+    await _walletGroupExistingSeedPageRobot.isDisplayed();
+    await _walletGroupExistingSeedPageRobot.openWallet();
   }
 
   // Stops on the naming form instead of going through with it, for suites that care about

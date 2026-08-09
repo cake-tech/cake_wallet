@@ -12,10 +12,7 @@ import "../robots/new_swap_page_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // Deliberately stops before the swap button. Creating a trade registers an order with the
-  // provider, which is a side effect that outlives the test even though no funds move, so
-  // this goes as far as a live quote against a wallet that could actually cover it and then
-  // walks away. swap_funds_test is the one that commits.
+  // We test for everything up to the point of creating the swap
   integrationTest("Swap prices a real deposit without creating a trade", (tester) async {
     final appLauncher = AppLauncher(tester);
     final fundsFlows = FundsFlows(tester);
@@ -35,8 +32,6 @@ void main() {
 
     final appStore = getIt.get<AppStore>();
 
-    // The deposit comes off the first funded chain, the same one swap_funds_test uses, so a
-    // quote here is evidence that suite would have something to spend.
     final type = walletTypes.first;
 
     final opened = await fundsFlows.openFundedWallet(type);

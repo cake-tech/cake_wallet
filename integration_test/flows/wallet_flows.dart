@@ -44,7 +44,6 @@ class WalletFlows {
     await tester.tap(walletFinder.first, warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 500));
 
-    // Switching re-authenticates unless the pin timeout window is still open.
     await _authFlows.authenticateWithPinIfPrompted();
 
     // The row does nothing at all when that wallet is already the open one, and the load

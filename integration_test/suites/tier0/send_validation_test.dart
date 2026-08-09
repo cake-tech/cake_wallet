@@ -22,8 +22,6 @@ void main() {
 
     await appLauncher.launchApp(testKey: "send_validation_test_app_key");
 
-    // A wallet created here has never held anything, which is the point, nothing this suite
-    // does can move funds even if an assertion is wrong.
     await onboardingFlows.createFirstWallet(walletType);
 
     await dashboardRobot.isDisplayed();
@@ -32,9 +30,7 @@ void main() {
     await homePageRobot.openSendSheet();
     await sendRobot.isDisplayed();
 
-    // Nothing filled in. The form validator rejects it before the screen builds anything, and
-    // with a single recipient it says so on the field rather than in a dialog, so what
-    // matters here is that no transaction comes out of it.
+    // test that nothing happens when there's no address or amount filled in
     await sendRobot.tapSendButton();
     await sendRobot.expectNoTransactionBuilt();
 
@@ -45,8 +41,7 @@ void main() {
 
     await sendRobot.expectNoTransactionBuilt();
 
-    // Nothing has ever been in this wallet. Whether it is still counting or has counted and
-    // come up short, the screen has to stop here and say which.
+    // test that no transaction is built even if the address is valid but no balance
     await sendRobot.enterAddress(TestWallets.receiveAddressFor(walletType));
     await sendRobot.enterAmount("0.0001");
     await sendRobot.tapSendButton();
