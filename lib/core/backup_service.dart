@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cake_wallet/core/backup_archive_path.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -52,11 +53,13 @@ class $BackupService {
 
       if (file.isFile) {
         final content = file.content as List<int>;
-        File('${appDir.path}/' + filename)
+        final path = resolveSafeArchivePath(appDir.path, filename);
+        File(path)
           ..createSync(recursive: true)
           ..writeAsBytesSync(content, flush: true);
       } else {
-        Directory('${appDir.path}/' + filename)..create(recursive: true);
+        final path = resolveSafeArchivePath(appDir.path, filename);
+        Directory(path)..create(recursive: true);
       }
     }
     ;
@@ -90,13 +93,14 @@ class $BackupService {
         }
       }
       printV("restoring: $filename");
+      final path = resolveSafeArchivePath(appDir.path, filename);
       if (file.isFile) {
         final content = file.content as List<int>;
-        File('${appDir.path}/' + filename)
+        File(path)
           ..createSync(recursive: true)
           ..writeAsBytesSync(content, flush: true);
       } else {
-        final dir = Directory('${appDir.path}/' + filename);
+        final dir = Directory(path);
         if (!dir.existsSync()) {
           dir.createSync(recursive: true);
         }
