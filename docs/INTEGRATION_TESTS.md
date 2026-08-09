@@ -63,6 +63,11 @@ Prerequisites, one time:
 If the build sits at 0% CPU for minutes, close Android Studio or stop its Gradle daemon,
 two daemons on this project deadlock on the same locks.
 
+Re-run steps 2 to 4 after every merge from dev. The chain proxies in `lib/<chain>/<chain>.dart`
+are generated and gitignored, so a merge that adds a call like `bitcoin!.hasSelectedLightning`
+leaves them behind and the build fails on a method that looks like it should exist. Step 2
+also rewrites `android/app.properties` with the real app id, so redo step 3 alongside it.
+
 Run one suite against a booted emulator:
 
 ```
