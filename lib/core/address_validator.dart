@@ -6,6 +6,8 @@ import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
 
 const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
@@ -66,10 +68,20 @@ class AddressValidator extends TextValidator {
   ];
 
   static String? getPattern(CryptoCurrency type, {bool isTestnet = false, String? network}) {
-    var pattern = "";
+    // Custom token instances never match the native enum cases below and fall
+    // through to `default: return ''` (an empty pattern accepts everything),
+    // so their chain patterns must be returned before the switch.
     if (type is Erc20Token) {
-      pattern = '0x[0-9a-zA-Z]+';
+      return '$BEFORE_REGEX(0x[0-9a-fA-F]{40})$AFTER_REGEX';
     }
+    if (type is SPLToken) {
+      return '$BEFORE_REGEX([1-9A-HJ-NP-Za-km-z]{32,44})$AFTER_REGEX';
+    }
+    if (type is TronToken) {
+      return '$BEFORE_REGEX(T[1-9A-HJ-NP-Za-km-z]{33})$AFTER_REGEX';
+    }
+
+    var pattern = "";
     switch (type) {
       case CryptoCurrency.xmr:
         pattern = '4[0-9a-zA-Z]{94}|8[0-9a-zA-Z]{94}|[0-9a-zA-Z]{106}';
@@ -110,6 +122,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.usdcEPoly:
       case CryptoCurrency.ape:
       case CryptoCurrency.avaxc:
+      case CryptoCurrency.bnb:
       case CryptoCurrency.eth:
       case CryptoCurrency.baseEth:
       case CryptoCurrency.arbEth:
@@ -141,7 +154,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dydx:
       case CryptoCurrency.steth:
       case CryptoCurrency.shib:
-        pattern = '0x[0-9a-zA-Z]+';
+        pattern = '0x[0-9a-fA-F]{40}';
       case CryptoCurrency.xrp:
         pattern = '[0-9a-zA-Z]{34}|[0-9a-zA-Z]{33}|X[0-9a-zA-Z]{46}';
       case CryptoCurrency.xhv:
@@ -162,7 +175,6 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.usdt:
       case CryptoCurrency.usdterc20:
       case CryptoCurrency.xlm:
-      case CryptoCurrency.trx:
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
@@ -207,6 +219,13 @@ class AddressValidator extends TextValidator {
         pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.doge:
         pattern = r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}';
+      case CryptoCurrency.sol:
+      case CryptoCurrency.usdtSol:
+      case CryptoCurrency.usdcsol:
+        pattern = '[1-9A-HJ-NP-Za-km-z]{32,44}';
+      case CryptoCurrency.trx:
+      case CryptoCurrency.usdttrc20:
+        pattern = 'T[1-9A-HJ-NP-Za-km-z]{33}';
       default:
         return '';
     }

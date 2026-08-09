@@ -1190,6 +1190,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         receiveAddress = await getBolt11FromLightingAddress(receiveAddress) ?? receiveAddress;
       }
 
+
       // snapshot of providers to avoid concurrent modification issues
       final providersSnapshot = providers.values.toList();
       final ratesSnapshot = providers.keys.toList();
@@ -1226,23 +1227,53 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
         await changeDepositAmount(amount: _depositAmount.toString(), isCanonical: true);
 
+        // Snapshot every request input together after the last intentional
+        // mutation. No await can interleave these reads.
+        final validatedDepositCurrency = depositCurrency;
+        final validatedReceiveCurrency = receiveCurrency;
+        final validatedDepositAddress = depositAddress;
+        final validatedReceiveAddress = receiveAddress;
+        final validatedReceiveAddressExtraId = receiveAddressExtraId.trim();
+        final validatedDepositAmount = _depositAmount.toString();
+        final validatedReceiveAmount = _receiveAmount.toString();
+        final validatedIsFixedRate = isFixedRateMode;
+        final validatedIsSendAll = isSendAllEnabled;
+
+        final addressValidationError = validateSwapAddresses(
+          depositCurrency: validatedDepositCurrency,
+          receiveCurrency: validatedReceiveCurrency,
+          depositAddress: validatedDepositAddress,
+          receiveAddress: validatedReceiveAddress,
+          validateDepositAddress: !useSameWalletAddress(validatedDepositCurrency) ||
+              validatedDepositAddress != wallet.walletAddresses.addressForExchange,
+          validateReceiveAddress: !useSameWalletAddress(validatedReceiveCurrency) ||
+              validatedReceiveAddress != wallet.walletAddresses.addressForExchange,
+        );
+        if (addressValidationError != null) {
+          tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: addressValidationError,
+          );
+          return;
+        }
+
         final request = TradeRequest(
-          fromCurrency: depositCurrency,
-          toCurrency: receiveCurrency,
-          fromAmount: _depositAmount.toString(),
-          toAmount: _receiveAmount.toString(),
-          refundAddress: depositAddress,
-          toAddress: receiveAddress,
-          toAddressExtraId: receiveAddressExtraId.trim(),
-          isFixedRate: isFixedRateMode,
+          fromCurrency: validatedDepositCurrency,
+          toCurrency: validatedReceiveCurrency,
+          fromAmount: validatedDepositAmount,
+          toAmount: validatedReceiveAmount,
+          refundAddress: validatedDepositAddress,
+          toAddress: validatedReceiveAddress,
+          toAddressExtraId: validatedReceiveAddressExtraId,
+          isFixedRate: validatedIsFixedRate,
         );
 
         if (hideAddressAfterExchange) {
-          wallet.walletAddresses.hiddenAddresses.add(depositAddress);
+          wallet.walletAddresses.hiddenAddresses.add(validatedDepositAddress);
           await wallet.walletAddresses.saveAddressesInBox();
         }
 
-        var amount = isFixedRateMode ? _receiveAmount.toString() : _depositAmount.toString();
+        var amount = validatedIsFixedRate ? validatedReceiveAmount : validatedDepositAmount;
 
         if (limitsState is LimitsLoadedSuccessfully) {
           if (double.tryParse(amount) == null) {
@@ -1259,17 +1290,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               tradeState = TradeIsCreating();
               final trade = await provider.createTrade(
                 request: request,
-                isFixedRateMode: isFixedRateMode,
-                isSendAll: isSendAllEnabled,
+                isFixedRateMode: validatedIsFixedRate,
+                isSendAll: validatedIsSendAll,
               );
               trade.walletId = wallet.id;
               trade.chainId = wallet.chainId;
               trade.fromWalletAddress = wallet.walletAddresses.address;
               if (trade.from == null) {
-                trade.from = depositCurrency;
+                trade.from = validatedDepositCurrency;
               }
               if (trade.to == null) {
-                trade.to = receiveCurrency;
+                trade.to = validatedReceiveCurrency;
               }
 
               final canCreateTrade = await isCanCreateTrade(trade);
@@ -1279,10 +1310,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                   function: 'createTrade',
                   error: canCreateTrade.errorMessage ?? 'isCanCreateTrade returned false',
                   requestData: {
-                    'from': depositCurrency.title,
-                    'to': receiveCurrency.title,
-                    'fromAmount': _depositAmount,
-                    'toAmount': _receiveAmount,
+                    'from': validatedDepositCurrency.title,
+                    'to': validatedReceiveCurrency.title,
+                    'fromAmount': validatedDepositAmount,
+                    'toAmount': validatedReceiveAmount,
                   },
                 );
                 continue;
@@ -1301,12 +1332,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                 error: e,
                 stackTrace: s,
                 requestData: {
-                  'from': depositCurrency.title,
-                  'to': receiveCurrency.title,
-                  'fromAmount': _depositAmount,
-                  'toAmount': _receiveAmount,
-                  'toAddress': receiveAddress,
-                  'refundAddress': depositAddress,
+                  'from': validatedDepositCurrency.title,
+                  'to': validatedReceiveCurrency.title,
+                  'fromAmount': validatedDepositAmount,
+                  'toAmount': validatedReceiveAmount,
+                  'toAddress': validatedReceiveAddress,
+                  'refundAddress': validatedDepositAddress,
                 },
               );
               continue;
@@ -1590,7 +1621,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
   }
 
-  String? _addressTypeValidation(String refundAddress, String receiveAddress) {
+  static String? _addressTypeValidation(String refundAddress, String receiveAddress) {
     final isRefundAddressSP =
         RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(refundAddress);
     if (isRefundAddressSP) return 'Silent Payment ${S.current.address_not_allowed_as_refund}';
@@ -1605,6 +1636,88 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final isReceiveAddressMWEB =
         RegExp(AddressValidator.mWebAddressPattern).hasMatch(receiveAddress);
     if (isReceiveAddressMWEB) return 'MWEB ${S.current.address_not_allowed_as_receive}';
+    return null;
+  }
+
+  /// Final currency-aware address guard for swap creation, run from
+  /// [createTrade] after every post-form address mutation (lightning invoice
+  /// substitution, address-book selection, parsed URI) and before any provider
+  /// request is constructed or sent.
+  ///
+  /// Enforces, in order, returning the first error found:
+  ///  1. Silent Payments / MWEB addresses are rejected as refund or receive
+  ///     address ([_addressTypeValidation]) - providers cannot pay them out.
+  ///  2. An externally supplied receive address must be non-empty and a valid
+  ///     [receiveCurrency] address ([AddressValidator]; on top of it, Lightning
+  ///     network semantics are enforced - see [_validateExternalAddressNetwork]).
+  ///  3. An externally supplied deposit/refund address must be non-empty and a
+  ///     valid [depositCurrency] address ([AddressValidator], same network
+  ///     tightening as the receive address).
+  ///
+  /// Addresses that are not validated ([validateReceiveAddress] /
+  /// [validateDepositAddress] false) are the internal wallet-generated
+  /// exchange addresses; they are never rejected, even when empty, so
+  /// deliberate provider flows that fill the address themselves keep working.
+  static String? validateSwapAddresses({
+    required CryptoCurrency depositCurrency,
+    required CryptoCurrency receiveCurrency,
+    required String depositAddress,
+    required String receiveAddress,
+    required bool validateDepositAddress,
+    required bool validateReceiveAddress,
+  }) {
+    final typeValidationError = _addressTypeValidation(depositAddress, receiveAddress);
+    if (typeValidationError != null) return typeValidationError;
+
+    if (validateReceiveAddress) {
+      final receiveAddressError = _validateExternalAddress(receiveAddress, receiveCurrency);
+      if (receiveAddressError != null) return receiveAddressError;
+    }
+
+    if (validateDepositAddress) {
+      final depositAddressError = _validateExternalAddress(depositAddress, depositCurrency);
+      if (depositAddressError != null) return depositAddressError;
+    }
+
+    return null;
+  }
+
+  static String? _validateExternalAddress(String address, CryptoCurrency currency) {
+    if (address.isEmpty) return S.current.error_text_address;
+
+    final validator = AddressValidator(type: currency);
+    if (!validator.isValid(address)) return validator.errorMessage;
+
+    return _validateExternalAddressNetwork(address, currency);
+  }
+
+  /// Tightens the shared [AddressValidator] where it is deliberately permissive
+  /// for swap-critical currency/network semantics:
+  ///  * [CryptoCurrency.btcln] accepts only mainnet lightning invoices for
+  ///    swaps - lntb (testnet), lnbcrt (regtest) and lnbs (signet) are not
+  ///    mainnet, and lnurl is not a payable invoice and the swap flow has no
+  ///    lnurl handling.
+  ///  * [CryptoCurrency.btc]/[CryptoCurrency.ltc] accept on-chain addresses
+  ///    only - lightning invoices/offers/lnurl are not refundable deposit or
+  ///    receive addresses for an on-chain swap, even though
+  ///    [AddressValidator] accepts them.
+  static String? _validateExternalAddressNetwork(String address, CryptoCurrency currency) {
+    if (currency == CryptoCurrency.btcln) {
+      final isNonMainnetOrLnurl = RegExp(
+        r'^(lightning:)?(lntb|lnbcrt|lnbs|lnurl)[a-z0-9]+$',
+        caseSensitive: false,
+      ).hasMatch(address);
+      if (isNonMainnetOrLnurl) return S.current.error_text_address;
+    } else if (currency == CryptoCurrency.btc || currency == CryptoCurrency.ltc) {
+      final isLightningNotOnChain = RegExp(
+        AddressValidator.bolt11InvoiceMatcher,
+        caseSensitive: false,
+      ).hasMatch(address) ||
+          RegExp(AddressValidator.bolt12OfferMatcher, caseSensitive: false).hasMatch(address) ||
+          RegExp(AddressValidator.lnurlMatcher, caseSensitive: false).hasMatch(address);
+      if (isLightningNotOnChain) return S.current.error_text_address;
+    }
+
     return null;
   }
 

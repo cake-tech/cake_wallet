@@ -18,7 +18,7 @@ void main() {
       test('returns correct pattern for Ethereum', () {
         final pattern = AddressValidator.getPattern(CryptoCurrency.eth);
         expect(pattern, isNotEmpty);
-        expect(pattern, contains('0x[0-9a-zA-Z]+'));
+        expect(pattern, contains('0x[0-9a-fA-F]{40}'));
       });
 
       test('returns correct pattern for Monero', () {
