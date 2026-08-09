@@ -313,7 +313,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
     } else if (item is MoneroSeedType) {
       itemName = item.title;
     } else {
-      itemName = '';
+      // Anything else, language codes among them, used to come back empty, which gave every
+      // row in the list the same key.
+      itemName = item.toString();
     }
 
     return itemName;
