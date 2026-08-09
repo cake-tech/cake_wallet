@@ -427,6 +427,7 @@
   "error_text_node_port": "노드 포트는 0~65535 사이의 숫자만 입력할 수 있습니다.",
   "error_text_node_proxy_address": "<IPv4 주소>:<포트> 형식으로 입력해 주세요. 예: 127.0.0.1:9050",
   "error_text_payment_id": "결제 ID는 16진수 문자로 16~64자만 포함할 수 있습니다.",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "하위 주소 이름에는 ` , ' \" 기호를 포함할 수 없으며\n길이는 1~20자여야 합니다.",
   "error_text_template": "템플릿 이름과 주소에는 ` , ' \" 기호를 포함할 수 없으며\n길이는 1~106자여야 합니다.",
   "error_text_wallet_name": "지갑 이름은 문자, 숫자, _ - 기호만 포함할 수 있으며\n길이는 1~33자여야 합니다.",

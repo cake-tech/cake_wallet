@@ -427,6 +427,7 @@
   "error_text_node_port": "Port čvora može sadržavati samo brojeve između 0 i 65535",
   "error_text_node_proxy_address": "Unesite <IPv4 adresu>:<port>, na primjer 127.0.0.1:9050",
   "error_text_payment_id": "ID plaćanja može sadržavati samo 16 do 64 heksadecimalna znaka",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Naziv podadrese ne smije sadržavati simbole ` , ' \"\ni mora imati između 1 i 20 znakova",
   "error_text_template": "Naziv predloška i adresa ne smiju sadržavati simbole ` , ' \"\ni moraju imati između 1 i 106 znakova",
   "error_text_wallet_name": "Naziv novčanika može sadržavati samo slova, brojeve i simbole _ - \ni mora biti duljine između 1 i 33 znaka",

@@ -427,6 +427,7 @@
   "error_text_node_port": "Порт ноды может содержать только числа от 0 до 65535",
   "error_text_node_proxy_address": "Пожалуйста, введите <IPv4-адрес>:<порт>, например 127.0.0.1:9050",
   "error_text_payment_id": "Идентификатор платежа может содержать только от 16 до 64 символов в шестнадцатеричном формате",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Имя субадреса не может содержать символы ` , ' \"\nи должно быть длиной от 1 до 20 символов",
   "error_text_template": "Имя и адрес шаблона не могут содержать символы ` , ' \"\nи должны быть длиной от 1 до 106 символов",
   "error_text_wallet_name": "Имя кошелька может содержать только буквы, цифры и символы _ -\nи должно быть длиной от 1 до 33 символов",

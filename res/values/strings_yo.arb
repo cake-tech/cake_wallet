@@ -428,6 +428,7 @@
   "error_text_node_port": "Pọ́ọ̀tì nódù lè ní àwọn nọ́mbà nìkan láàárín 0 àti 65535",
   "error_text_node_proxy_address": "Jọwọ tẹ <adirẹsi IPv4>:<port>, fún àpẹẹrẹ 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID lè ní àárín ohun kikọ 16 sí 64 nínú hex nìkan",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Orúkọ subaddress kò gbọ́dọ̀ ní àwọn àmi ` , ' \" \nó sì gbọ́dọ̀ jẹ́ láàárín ohun kikọ 1 sí 20 ní gígùn",
   "error_text_template": "Orúkọ àwòṣe àti àdírẹ́sì kò lè ní àwọn àmì ` , ' \"\nàti pé ó gbọ́dọ̀ jẹ́ láàárín 1 àti 106 ẹyọ ọ̀rọ̀ ní gígùn",
   "error_text_wallet_name": "Orúkọ àpamọ́wọ́ lè ní àwọn lẹ́tà, àwọn nọ́mbà, àti àmì _ - nìkan \nó sì gbọ́dọ̀ jẹ́ láàárín àwọn àmì-ẹ̀yà 1 sí 33 ní gígùn",

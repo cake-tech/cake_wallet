@@ -427,6 +427,7 @@
   "error_text_node_port": "Tashar node na iya ƙunsar lambobi tsakanin 0 da 65535 kawai",
   "error_text_node_proxy_address": "Da fatan za a shigar da <IPv4 address>:<port>, misali 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID zai iya ƙunsar haruffa 16 zuwa 64 kawai a tsarin hex",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Sunan subaddress ba zai iya ƙunsar alamomin `, ', \" ba\nkuma dole ne ya kasance tsakanin haruffa 1 zuwa 20",
   "error_text_template": "Sunan samfuri da adireshi ba za su iya ƙunsar ` , ' \" alamomi ba\nkuma dole ne su kasance tsakanin haruffa 1 zuwa 106",
   "error_text_wallet_name": "Sunan walat zai iya ƙunsar haruffa, lambobi, da alamomin _ - kawai \nkuma dole ne ya kasance tsakanin haruffa 1 zuwa 33",

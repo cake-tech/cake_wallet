@@ -427,6 +427,7 @@
   "error_text_node_port": "Nodepoort kan alleen nummers tussen 0 en 65535 bevatten",
   "error_text_node_proxy_address": "Voer <IPv4-adres>:<poort> in, bijvoorbeeld 127.0.0.1:9050",
   "error_text_payment_id": "Betalings-ID kan alleen 16 tot 64 tekens bevatten in hexadecimale volgorde",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Naam subadres mag geen ` , ' \" symbolen bevatten\nen moet tussen de 1 en 20 tekens lang zijn",
   "error_text_template": "Sjabloonnaam en -adres mogen geen ` , ' \" symbolen bevatten\nen moet tussen de 1 en 106 tekens lang zijn",
   "error_text_wallet_name": "Naam wallet kan alleen letters, cijfers , _ - symbolen bevatten\nen moet tussen de 1 en 33 tekens lang zijn",

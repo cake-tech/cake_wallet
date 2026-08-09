@@ -427,6 +427,7 @@
   "error_text_node_port": "نوڈ پورٹ میں صرف 0 اور 65535 کے درمیان اعداد ہو سکتے ہیں۔",
   "error_text_node_proxy_address": "براہ کرم <IPv4 ایڈریس>:<پورٹ> درج کریں، مثال کے طور پر 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID ہیکس میں صرف 16 سے 64 حروف پر مشتمل ہو سکتی ہے۔",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "ذیلی پتے کے نام میں ` , ' \" علامتیں شامل نہیں ہو سکتیں\nاور اس کی لمبائی 1 سے 20 حروف کے درمیان ہونی چاہیے",
   "error_text_template": "ٹیمپلیٹ کا نام اور پتہ ` , ' \" علامتوں پر مشتمل نہیں ہو سکتے\nاور ان کی لمبائی 1 سے 106 حروف کے درمیان ہونی چاہیے",
   "error_text_wallet_name": "والیٹ کے نام میں صرف حروف، اعداد، _ - علامتیں شامل ہو سکتی ہیں\nاور اس کی لمبائی 1 سے 33 حروف کے درمیان ہونی چاہیے",

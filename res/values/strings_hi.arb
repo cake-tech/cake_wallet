@@ -427,6 +427,7 @@
   "error_text_node_port": "नोड पोर्ट में केवल 0 से 65535 के बीच की संख्याएँ हो सकती हैं",
   "error_text_node_proxy_address": "कृपया <IPv4 पता>:<पोर्ट> दर्ज करें, उदाहरण के लिए 127.0.0.1:9050",
   "error_text_payment_id": "पेमेंट आईडी में केवल हेक्स में 16 से 64 अक्षर हो सकते हैं",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "सबएड्रेस नाम में ` , ' \" प्रतीक शामिल नहीं हो सकते\nऔर यह 1 से 20 वर्णों के बीच होना चाहिए",
   "error_text_template": "टेम्प्लेट का नाम और पता ` , ' \" प्रतीक शामिल नहीं कर सकते\nऔर 1 से 106 वर्णों के बीच होने चाहिए",
   "error_text_wallet_name": "वॉलेट नाम में केवल अक्षर, संख्याएँ, _ - प्रतीक हो सकते हैं\nऔर यह 1 से 33 वर्णों के बीच होना चाहिए",

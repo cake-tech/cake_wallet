@@ -429,6 +429,7 @@
   "error_text_node_port": "Pe puerto nodo rehegua ikatu oguereko hag̃ua papapy añoite 0 ha 65535 mbytépe",
   "error_text_node_proxy_address": "Emoinge <dirección IPv4>:<puerto>, techapyrã ramo 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID-pe ikatu oĩnte 16 guive 64 peve tai hexadecimal",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Subdirección réra ndaikatúi oguereko umi símbolo ` , ' \" \nha oimeva'erã 1 ha 20 tai ipukukue",
   "error_text_template": "Pe téra ha dirección plantilla rehegua ndaikatúi oguereko umi símbolo ` , ' \"\nha oguerekova’erã 1 guive 106 peve tai ipukukue",
   "error_text_wallet_name": "Pe billetera réra ikatu oguereko tai, papapy ha umi ta’ãnga _ - añoite\nha oĩva’erã 1 ha 33 tai pukukue",

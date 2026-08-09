@@ -427,6 +427,7 @@
   "error_text_node_port": "پورت نود فقط می‌تواند شامل عددی بین ۰ تا ۶۵۵۳۵ باشد",
   "error_text_node_proxy_address": "لطفاً <IPv4 address>:<port> را وارد کنید، برای مثال 127.0.0.1:9050",
   "error_text_payment_id": "شناسه پرداخت فقط می‌تواند شامل ۱۶ تا ۶۴ کاراکتر به صورت هگز باشد",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "نام زیرآدرس نمی‌تواند شامل نمادهای ` , ' \" باشد\nو باید بین ۱ تا ۲۰ کاراکتر باشد",
   "error_text_template": "نام قالب و آدرس نمی‌توانند شامل نمادهای ` , ' \" باشند\nو باید بین ۱ تا ۱۰۶ کاراکتر باشند",
   "error_text_wallet_name": "نام کیف پول فقط می‌تواند شامل حروف، اعداد و نمادهای _ - باشد\nو باید بین ۱ تا ۳۳ کاراکتر طول داشته باشد",

@@ -427,6 +427,7 @@
   "error_text_node_port": "El puerto del nodo solo puede contener números entre 0 y 65535",
   "error_text_node_proxy_address": "Por favor, introduzca <dirección IPv4>:<puerto>, por ejemplo 127.0.0.1:9050",
   "error_text_payment_id": "El ID de pago solo puede contener entre 16 y 64 caracteres hexadecimales",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "El nombre de la subdirección no puede contener los símbolos `, ' y \"\ny debe tener entre 1 y 20 caracteres",
   "error_text_template": "El nombre y la dirección de la plantilla no pueden contener los símbolos ` , ' \"\ny deben tener entre 1 y 106 caracteres",
   "error_text_wallet_name": "El nombre de la billetera solo puede contener letras, números y los símbolos _ y -\ny debe tener entre 1 y 33 caracteres",

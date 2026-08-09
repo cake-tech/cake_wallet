@@ -67,6 +67,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_monero/exceptions/monero_multiple_destinations_payment_id_exception.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -1635,6 +1636,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     if (error is TransactionInputNotSupported) {
       return S.current.tx_invalid_input;
+    }
+
+    if (error is MoneroMultipleDestinationsPaymentIdException) {
+      return S.current.error_text_payment_id_multiple_recipients;
     }
 
     if (wallet.type == WalletType.bitcoin) {

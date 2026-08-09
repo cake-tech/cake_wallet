@@ -427,6 +427,7 @@
   "error_text_node_port": "พอร์ตโหนดต้องเป็นตัวเลขระหว่าง 0 ถึง 65535 เท่านั้น",
   "error_text_node_proxy_address": "โปรดป้อน <ที่อยู่ IPv4>:<พอร์ต> ตัวอย่างเช่น 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID สามารถมีได้เฉพาะอักขระฐานสิบหก (hex) จำนวน 16 ถึง 64 ตัว",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "ชื่อ Subaddress ต้องไม่มีสัญลักษณ์ ` , ' \"\nและต้องมีความยาวระหว่าง 1 ถึง 20 ตัวอักษร",
   "error_text_template": "ชื่อแม่แบบและที่อยู่ต้องไม่มีสัญลักษณ์ ` , ' \"\nและต้องมีความยาวระหว่าง 1 ถึง 106 ตัวอักษร",
   "error_text_wallet_name": "ชื่อวอลเล็ตสามารถมีได้เฉพาะตัวอักษร ตัวเลข และสัญลักษณ์ _ - เท่านั้น \nและต้องมีความยาวระหว่าง 1 ถึง 33 ตัวอักษร",
