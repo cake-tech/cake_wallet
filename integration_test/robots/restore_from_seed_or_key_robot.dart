@@ -98,6 +98,15 @@ class RestoreFromSeedOrKeysPageRobot extends BaseRobot {
     await settle();
   }
 
+  Future<void> expectRestoreRefused({Duration window = const Duration(seconds: 10)}) async {
+    final left = await pumpUntil(
+      () => !tester.any(find.byType(WalletRestorePage)),
+      timeout: window,
+    );
+
+    expect(left, false, reason: "A seed the wallet cannot parse still restored something");
+  }
+
   Future<void> onRestoreWalletButtonPressed() async {
     await tapByKey("wallet_restore_seed_or_key_restore_button_key");
   }

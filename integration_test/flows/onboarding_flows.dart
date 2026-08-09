@@ -94,6 +94,14 @@ class OnboardingFlows {
   }
 
   Future<void> restoreFirstWalletFromSeed(WalletType type, {String? seed, List<int>? pin}) async {
+    await startRestoringFirstWallet(type, pin: pin);
+
+    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
+  }
+
+  // Stops on the restore form, for suites that care about what it accepts rather than the
+  // wallet it would have restored.
+  Future<void> startRestoringFirstWallet(WalletType type, {List<int>? pin}) async {
     await _createPinWelcomePageRobot.tapSetAPinButton();
 
     await setupPinCode(pin ?? TestConfig.pin);
@@ -107,7 +115,7 @@ class OnboardingFlows {
 
     await _selectWalletType(type);
 
-    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
+    await _restoreFromSeedOrKeysPageRobot.isDisplayed();
   }
 
   Future<void> restoreAdditionalWalletFromWalletList(WalletType type, {String? seed}) async {
