@@ -260,6 +260,7 @@ abstract class ElectrumWalletBase
   static const int batchTestHashesCount = 2;
 
   static const bool useBatchForHistory = true;
+  static const List<BitcoinAddressType> accountProbeAddressTypes = [SegwitAddresType.p2wpkh];
 
   static ElectrumBalance _zeroBalance(CryptoCurrency currency) => ElectrumBalance(
         confirmed: Money.zero(currency),
@@ -2720,9 +2721,8 @@ abstract class ElectrumWalletBase
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     try {
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
-      ;
 
-      printV('[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchFetching');
+      printV("[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchFetching");
 
       if (type == WalletType.bitcoin) {
         if (isBitcoinBip39InitialRestoreSync) {
@@ -3154,21 +3154,28 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchBitcoinTransactionsForInitialRestore(
-    Map<String, ElectrumTransactionInfo> historiesWithDetails,
-  ) async {
+      Map<String, ElectrumTransactionInfo> historiesWithDetails,
+      ) async {
     int accountIndex = 0;
 
     while (true) {
+      final isAccountProbe = accountIndex > 0;
+
       if (!mainHdByTypeAndAccount.containsKey(accountIndex)) {
         _prepareHdForAccount(accountIndex, currency);
       }
 
       if (!walletAddresses.accountIndexes.contains(accountIndex)) {
         walletAddresses.accountIndexes.add(accountIndex);
-        await walletAddresses.prepareAccountAddresses(accountIndex);
+        await walletAddresses.prepareAccountAddresses(
+          accountIndex,
+          types: isAccountProbe ? accountProbeAddressTypes : null,
+        );
       }
 
-      for (final addressType in BITCOIN_ADDRESS_TYPES) {
+      final probeTypes = isAccountProbe ? accountProbeAddressTypes : BITCOIN_ADDRESS_TYPES;
+
+      for (final addressType in probeTypes) {
         if (shouldUseBatchFetching) {
           await fetchTransactionsForAddressTypeBatch(
             historiesWithDetails,
@@ -3193,18 +3200,45 @@ abstract class ElectrumWalletBase
         final isUserAccount =
         persistedAccounts.any((account) => account.accountIndex == accountIndex);
 
-        if (accountIndex > 0 && !isUserAccount) {
+        if (isAccountProbe && !isUserAccount) {
           walletAddresses.accountIndexes.remove(accountIndex);
           walletAddresses.removeAddressesForAccount(accountIndex);
         }
         break;
       }
 
+      // The probe only generated and scanned accountProbeAddressTypes.
+      // The account is real, so fill in the remaining types.
+      if (isAccountProbe) {
+        printV('[ACCOUNT_DISCOVERY] account $accountIndex, '
+            'probe=${isAccountProbe}, types=${probeTypes.length}');
+        await walletAddresses.prepareAccountAddresses(accountIndex);
+
+        final remainingTypes =
+        BITCOIN_ADDRESS_TYPES.where((t) => !accountProbeAddressTypes.contains(t));
+
+        for (final addressType in remainingTypes) {
+          if (shouldUseBatchFetching) {
+            await fetchTransactionsForAddressTypeBatch(
+              historiesWithDetails,
+              addressType,
+              accountIndex: accountIndex,
+            );
+          } else {
+            await fetchTransactionsForAddressType(
+              historiesWithDetails,
+              addressType,
+              accountIndex: accountIndex,
+            );
+          }
+        }
+      }
+
       // If the account has history, add it to the wallet (if it's not the first account).
-      if (accountIndex > 0) {
+      if (isAccountProbe) {
         await walletInfo.addAccount(
           accountIndex: accountIndex,
-          label: 'Account $accountIndex',
+          label: "Account $accountIndex",
         );
       }
       // Move on to the next account index

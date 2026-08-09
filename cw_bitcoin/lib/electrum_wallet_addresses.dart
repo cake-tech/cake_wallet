@@ -485,8 +485,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return labels;
   }
 
-  Future<void> prepareAccountAddresses(int accountIndex) async {
-    for (final type in BITCOIN_ADDRESS_TYPES) {
+  Future<void> prepareAccountAddresses(int accountIndex, {List<BitcoinAddressType>? types}) async {
+    for (final type in types ?? BITCOIN_ADDRESS_TYPES) {
       final shouldSkipHardwareWalletType = isHardwareWallet && type != SegwitAddresType.p2wpkh;
 
       if (shouldSkipHardwareWalletType) continue;
