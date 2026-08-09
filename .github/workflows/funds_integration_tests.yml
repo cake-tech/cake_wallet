@@ -10,14 +10,15 @@ on:
   workflow_dispatch:
     inputs:
       flows:
-        description: "Which flows to run"
+        description: "Which flows to run. dry-run moves no funds and creates no trades"
         required: true
         type: choice
         options:
           - all
           - send
           - swap
-        default: all
+          - dry-run
+        default: dry-run
       chains:
         description: "auto discovers every funded chain, or a comma separated list of wallet type names"
         required: true

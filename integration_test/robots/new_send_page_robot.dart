@@ -62,6 +62,14 @@ class NewSendPageRobot extends BaseRobot {
     );
   }
 
+  // The positive form: the swiper on screen means the wallet priced the fee, checked the
+  // balance and produced a transaction that is ready to go out.
+  Future<void> confirmTransactionBuilt({
+    Duration timeout = const Duration(seconds: 90),
+  }) async {
+    await pumpUntilFound(find.byType(ConfirmSwiper), timeout: timeout);
+  }
+
   Future<void> expectSendFailed({Duration timeout = const Duration(seconds: 90)}) async {
     await pumpUntilFound(find.byType(TransactionErrorActions), timeout: timeout);
 
