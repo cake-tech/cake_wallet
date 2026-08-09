@@ -57,7 +57,7 @@ void main() {
 
       await walletKeysRobot.isDisplayed();
       await walletKeysRobot.confirmWalletCredentials(type);
-      
+
       await settingsRobot.goBack();
       await settingsRobot.dismissModal();
 
