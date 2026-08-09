@@ -44,15 +44,7 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     Navigator.of(context).maybePop();
   }
 
-  late final Map<String, CurrencyPickerBalance> _balanceByKey = {
-    for (final e
-        in (_args.balanceByAsset ?? const <CryptoCurrency, CurrencyPickerBalance>{}).entries)
-      _assetKey(e.key): e.value,
-  };
-
-  String _assetKey(CryptoCurrency c) => c.title.toUpperCase();
-
-  CurrencyPickerBalance? _balanceFor(CryptoCurrency c) => _balanceByKey[_assetKey(c)];
+  CurrencyPickerBalance? _balanceFor(CryptoCurrency c) => balanceForAsset(_args.balanceByAsset, c);
 
   double _fiatValueFor(CryptoCurrency c) => _balanceFor(c)?.fiatValue ?? 0;
 

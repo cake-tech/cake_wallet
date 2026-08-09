@@ -40,6 +40,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
@@ -255,6 +256,18 @@ class _NewSendPageState extends State<NewSendPage> {
             if (!mounted) {
               return;
             }
+            final token = await TokenUtilities.findTokenByAddress(
+              walletType: widget.sendViewModel.wallet.type,
+              address: contractAddress,
+            );
+            if (!mounted) {
+              return;
+            }
+
+            if (token == null) {
+              _showUnsupportedTokenAlert();
+              return;
+            }
             await widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
             if (!mounted) {
               return;
@@ -278,7 +291,7 @@ class _NewSendPageState extends State<NewSendPage> {
                   address: paymentRequest.address,
                   amount: paymentRequest.amount,
                   contractAddress: paymentRequest.contractAddress,
-                  chainId: paymentRequest.chainId ?? 1,
+                  chainId: paymentRequest.chainId ?? _currentEvmChainIdOrMainnet(),
                 ).toString();
               } else {
                 final amount =
@@ -1058,13 +1071,25 @@ class _NewSendPageState extends State<NewSendPage> {
   int? _evmTargetChainId(PaymentRequest req) {
     final scheme = req.scheme.toLowerCase();
     if (scheme == "ethereum") {
-      return req.chainId ?? 1;
+      if (req.chainId != null) {
+        return req.chainId;
+      }
+
+      return _currentEvmChainIdOrMainnet();
     }
     try {
       return getChainIdByCryptoCurrency(CryptoCurrency.fromString(scheme));
     } catch (_) {
       return null;
     }
+  }
+
+  int _currentEvmChainIdOrMainnet() {
+    final currentType = widget.sendViewModel.wallet.type;
+    if (evm != null && isEVMCompatibleChain(currentType)) {
+      return evm!.getChainIdByWalletType(currentType);
+    }
+    return 1;
   }
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
@@ -1314,6 +1339,18 @@ class _NewSendPageState extends State<NewSendPage> {
   ) async {
     final contract = paymentRequest.contractAddress;
     if (contract != null && contract.isNotEmpty) {
+      final token = await TokenUtilities.findTokenByAddress(
+        walletType: widget.sendViewModel.wallet.type,
+        address: contract,
+      );
+      if (!mounted) {
+        return;
+      }
+
+      if (token == null) {
+        _showUnsupportedTokenAlert();
+        return;
+      }
       await widget.sendViewModel.fetchTokenForContractAddress(contract);
     } else if (fallbackCurrency != null) {
       widget.sendViewModel.setSelectedCryptoCurrency(fallbackCurrency.title);
@@ -1331,7 +1368,11 @@ class _NewSendPageState extends State<NewSendPage> {
   ) async {
     widget.walletSwitcherViewModel.selectWallet(wallet);
     final success = await widget.walletSwitcherViewModel.switchToSelectedWallet();
-    if (!success || !mounted) {
+    if (!success) {
+      _showNetworkSwitchFailedAlert();
+      return;
+    }
+    if (!mounted) {
       return;
     }
 
@@ -1358,6 +1399,7 @@ class _NewSendPageState extends State<NewSendPage> {
       );
     });
 
+    bool chainSwitchFailed = false;
     try {
       if (evm != null &&
           isEVMCompatibleChain(widget.sendViewModel.wallet.type) &&
@@ -1367,25 +1409,71 @@ class _NewSendPageState extends State<NewSendPage> {
             .getCurrentNode(widget.sendViewModel.wallet.type, chainId: result.chainId);
         await evm!.selectChain(widget.sendViewModel.wallet, result.chainId!, node: node);
       }
-      await widget.sendViewModel.wallet.updateBalance();
     } catch (e, s) {
+      chainSwitchFailed = true;
       printV("completeWalletSwitch failed: $e\n$s");
-    } finally {
-      completedFlow = true;
-      if (loadingBottomSheetContext != null &&
-          loadingBottomSheetContext!.mounted &&
-          Navigator.canPop(loadingBottomSheetContext!)) {
-        Navigator.of(loadingBottomSheetContext!).pop();
-      }
-      loadingBottomSheetContext = null;
     }
+
+    if (!chainSwitchFailed) {
+      try {
+        await widget.sendViewModel.wallet.updateBalance();
+      } catch (e) {
+        printV("balance refresh after network switch failed: $e");
+      }
+    }
+
+    completedFlow = true;
+    if (loadingBottomSheetContext != null &&
+        loadingBottomSheetContext!.mounted &&
+        Navigator.canPop(loadingBottomSheetContext!)) {
+      Navigator.of(loadingBottomSheetContext!).pop();
+    }
+    loadingBottomSheetContext = null;
 
     if (!mounted) {
       return;
     }
+
+    if (chainSwitchFailed) {
+      _showNetworkSwitchFailedAlert();
+      return;
+    }
+
     await _applyPaymentSelectingCurrency(
       paymentRequest,
       result.addressDetectionResult?.detectedCurrency,
+    );
+  }
+
+  void _showNetworkSwitchFailedAlert() {
+    if (!mounted) {
+      return;
+    }
+
+    showPopUp<void>(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).error,
+        alertContent: S.of(context).network_switch_failed,
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  void _showUnsupportedTokenAlert() {
+    if (!mounted) {
+      return;
+    }
+
+    showPopUp<void>(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).error,
+        alertContent: S.of(context).unsupported_token_requested,
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(context).pop(),
+      ),
     );
   }
 
@@ -1514,6 +1602,11 @@ class _NewSendPageState extends State<NewSendPage> {
       );
     }
     if (!mounted || !presentContext.mounted) {
+      return;
+    }
+
+    if (contract != null && contract.isNotEmpty && resolvedToken == null) {
+      _showUnsupportedTokenAlert();
       return;
     }
 

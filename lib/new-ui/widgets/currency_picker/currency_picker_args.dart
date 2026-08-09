@@ -1,13 +1,18 @@
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/currency_groups.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cake_wallet/evm/evm.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/currency_groups.dart";
+import "package:cw_core/erc20_token.dart";
+import "package:cw_core/spl_token.dart";
+import "package:cw_core/tron_token.dart";
+import "package:cw_core/wallet_type.dart";
 
 String chainNameForCurrency(CryptoCurrency c) {
-  if (c == CryptoCurrency.btcln) return 'Lightning';
+  if (c == CryptoCurrency.btcln) {
+    return "Lightning";
+  }
   final wt = cryptoCurrencyOrTokenToWalletType(c);
-  return wt != null ? walletTypeToString(wt) : (c.tag ?? '');
+  return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
 }
 
 final Set<String> _stablecoinSymbols = {
@@ -27,19 +32,25 @@ const _kEvmDefaultTokenNatives = <CryptoCurrency>[
 ];
 
 void appendEvmDefaultTokens(List<CryptoCurrency> into) {
-  if (evm == null) return;
+  if (evm == null) {
+    return;
+  }
   String keyFor(CryptoCurrency c) {
     final wt = cryptoCurrencyOrTokenToWalletType(c);
-    final chain = wt?.toString() ?? (c.tag ?? '').toUpperCase();
-    return '${c.title.toUpperCase()}|$chain';
+    final chain = wt?.toString() ?? (c.tag ?? "").toUpperCase();
+    return "${c.title.toUpperCase()}|$chain";
   }
 
   final seen = <String>{for (final c in into) keyFor(c)};
   for (final native in _kEvmDefaultTokenNatives) {
     final chainId = getChainIdByCryptoCurrency(native);
-    if (chainId == null) continue;
+    if (chainId == null) {
+      continue;
+    }
     for (final t in evm!.getDefaultTokensByChainId(chainId)) {
-      if (seen.add(keyFor(t))) into.add(t);
+      if (seen.add(keyFor(t))) {
+        into.add(t);
+      }
     }
   }
 }
@@ -50,6 +61,55 @@ class CurrencyPickerBalance {
   final String amount;
   final String? fiat;
   final double? fiatValue;
+}
+
+String? _assetAddressKey(CryptoCurrency c) {
+  if (c is Erc20Token) {
+    return c.contractAddress.toLowerCase();
+  }
+  if (c is TronToken) {
+    return c.contractAddress.toLowerCase();
+  }
+  if (c is SPLToken) {
+    return c.mintAddress.toLowerCase();
+  }
+  return null;
+}
+
+CurrencyPickerBalance? balanceForAsset(
+  Map<CryptoCurrency, CurrencyPickerBalance>? balances,
+  CryptoCurrency asset,
+) {
+  if (balances == null || balances.isEmpty) {
+    return null;
+  }
+
+  final direct = balances[asset];
+  if (direct != null) {
+    return direct;
+  }
+
+  final addressKey = _assetAddressKey(asset);
+  if (addressKey != null) {
+    for (final entry in balances.entries) {
+      if (_assetAddressKey(entry.key) == addressKey) {
+        return entry.value;
+      }
+    }
+    return null;
+  }
+
+  final title = asset.title.toUpperCase();
+  CurrencyPickerBalance? byTitle;
+  for (final entry in balances.entries) {
+    if (entry.key.title.toUpperCase() == title) {
+      if (byTitle != null) {
+        return null;
+      }
+      byTitle = entry.value;
+    }
+  }
+  return byTitle;
 }
 
 enum RecentsSource { none, trades, orders }

@@ -71,11 +71,12 @@ class PaymentRequest {
 
       if (scheme == "ethereum") {
         final paymentUri = ERC681URI.fromUri(uri);
+        final hasExplicitChainId = uri.path.contains("@");
 
         address = paymentUri.address;
         amount = paymentUri.amount;
         contractAddress = paymentUri.contractAddress;
-        chainId = paymentUri.chainId;
+        chainId = hasExplicitChainId ? paymentUri.chainId : null;
       } else if (scheme == "tron") {
         final token = uri.queryParameters['token'];
         if (token != null && token.isNotEmpty) {

@@ -649,6 +649,8 @@
   "network": "Rede",
   "network_address_detected": "Endereço ${network} detectado",
   "network_prefix_on": "na",
+  "network_switch_failed": "Falha ao mudar para a rede solicitada. O pagamento não foi aplicado, tente novamente.",
+  "unsupported_token_requested": "Este pedido de pagamento é para um token que não conseguimos identificar na rede selecionada.",
   "new_first_wallet_text": "Manter sua cripto segura é moleza",
   "new_node_testing": "Teste de novo nó",
   "new_subaddress_create": "Criar",
