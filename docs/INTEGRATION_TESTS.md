@@ -82,6 +82,12 @@ Run a whole tier through the runner:
 TEST_TIER=tier0 FLUTTER_DEVICE=<device-id> ./integration_test_runner.sh
 ```
 
+`SUITE_DIR` also takes a single file, which is what you want while iterating on one suite:
+
+```bash
+SUITE_DIR=integration_test/suites/tier0/fiat_currency_test.dart ./integration_test_runner.sh
+```
+
 Runner knobs (environment variables): `SUITE_DIR`, `TEST_TIER` (tier0, tier1, all),
 `PLATFORM` (android, linux, auto), `FLUTTER_DEVICE`, `RETRY_COUNT`, `EXTRA_DART_DEFINES`,
 `REMOVE_DATA_DIRECTORY=N` to keep app data between suites.
@@ -99,6 +105,58 @@ a comma separated list of type names runs just those, unset runs the representat
 tier0 blocks merges. tier1 runs on every PR but reports without blocking until it has a
 stable history. funds_suites run only from the manual funds workflow.
 
+## What is covered today
+
+Twenty six suites. Add a line here when you add one.
+
+### tier0, no network needed
+
+| Suite | What it proves |
+| --- | --- |
+| `onboarding_create_test` | A wallet can be created for every configured type, and the app lands on the dashboard with that wallet open |
+| `onboarding_restore_test` | A wallet restores from seed for every configured type, and the restored wallet reports the seed it was given |
+| `invalid_seed_test` | A seed the wallet cannot parse leaves the user on the restore screen with nothing created |
+| `duplicate_wallet_name_test` | A name already taken is refused instead of quietly overwriting the wallet holding it |
+| `wallet_group_test` | A wallet added to an existing seed shares that seed, and both wallets stay reachable through the group |
+| `wallet_switching_test` | Picking another wallet in the list actually loads it, down to the balance and address on screen |
+| `receive_address_test` | The receive sheet shows an address the opened wallet owns, not a leftover from the previous one |
+| `seed_confirmation_test` | The seed and keys the app displays are the ones the opened wallet holds |
+| `show_keys_auth_test` | The seed and keys page turns away a wrong pin and opens for the right one |
+| `change_pin_test` | A changed pin is the one that opens what the old pin used to guard |
+| `send_validation_test` | The send screen refuses an empty address, a malformed one, an empty amount and more than the balance |
+| `address_book_test` | A saved contact keeps the address it was given |
+| `send_from_address_book_test` | A contact picked on the send screen fills in the address that was saved for it |
+| `settings_nav_test` | Every settings row opens its page and backs out of it |
+| `language_test` | Changing the language changes what the settings screen shows |
+| `fiat_currency_test` | Turning the fiat api off hides the currency setting, turning it back on returns it and the currency can be changed |
+
+### tier1, needs a node or a provider
+
+| Suite | What it proves |
+| --- | --- |
+| `sync_status_test` | A restored wallet reaches a node and starts syncing rather than sitting at connecting |
+| `node_switching_test` | Confirming another node repoints the wallet at it |
+| `transaction_history_test` | A wallet with known transactions renders them, both in the home preview and the full list |
+| `transaction_details_test` | Tapping a transaction opens the details of that transaction and not another one |
+| `swap_quote_test` | The swap sheet reaches a provider and returns a real quote, no trade is created |
+| `monero_legacy_seed_test` | A 25 word monero seed restores through the legacy path, which takes a seed type and a restore height the polyseed path never asks for |
+
+### funds_suites, manual workflow only
+
+| Suite | What it proves |
+| --- | --- |
+| `send_dry_run_test` | Every funded chain builds and signs a transaction, then throws it away without broadcasting |
+| `send_funds_test` | A real self transaction is broadcast on every funded chain |
+| `swap_dry_run_test` | A real deposit is priced end to end, stopping before the trade is created |
+| `swap_funds_test` | A swap is created and its deposit broadcast |
+
+The two dry runs need funded seeds because a quote and a signed transaction both depend on a
+real balance, but neither spends anything. `SPEND=true` is what lets the two that do spend
+past their guard.
+
+Still uncovered, both because the screens behind them carry no keys yet: renaming a wallet
+and deleting one.
+
 ## Adding a test for your feature
 
 1. Give the widgets your test touches stable keys, inline in the widget:
@@ -112,6 +170,7 @@ stable history. funds_suites run only from the manual funds workflow.
    tier directory, rename it to `<feature>_test.dart` and fill it in. The runner only
    picks up files ending in `_test.dart`.
 5. Run it twice locally against an emulator before pushing.
+6. Add it to the table above.
 
 ## Harness rules
 
@@ -197,3 +256,10 @@ file and regenerates the bindings itself. And `assets/images` svgs need compilin
   timeouts rather than retries.
 - A suite that fails once in CI retries once with wiped app data. A red gate means the
   same suite failed twice in a row.
+- `wallet_switching_test` fails intermittently, roughly one run in three locally. The first
+  thing thrown is `entry.currentState == _RouteLifecycle.popping` out of the navigator, from
+  the flushbar the wallet list uses as its loading bar being taken off the navigator twice.
+  Every `!_debugLocked` after that is the fallout, including the one during teardown that
+  actually fails the suite. The bar is a route of its own and another_flushbar documents
+  that dismissing one that is not the top route is unsupported, so the fix belongs in how
+  the wallet list shows loading progress rather than in the suite.

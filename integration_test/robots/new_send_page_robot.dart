@@ -23,6 +23,37 @@ class NewSendPageRobot extends BaseRobot {
     await _enterTextInInput("send_page_amount_input_key", amount);
   }
 
+  Future<void> pickContactFromAddressBook(String contactName) async {
+    await tapByKey("send_page_address_book_button_key");
+
+    // The picker opens on the wallets tab, saved contacts are on the one after it.
+    final tabs = find.byType(Tab);
+
+    await pumpUntilFound(tabs);
+
+    await tester.tap(tabs.at(1));
+
+    await settle();
+
+    // Opened from send the list is not editable, so a tap picks the contact instead of
+    // opening it for editing.
+    final contactFinder = find.byKey(ValueKey(contactName));
+
+    await pumpUntilFound(contactFinder);
+
+    await tester.tap(contactFinder.first);
+
+    await pumpUntilGone(contactFinder);
+  }
+
+  String enteredAddress() {
+    final inputFinder = find.byKey(const ValueKey("send_page_address_input_key"));
+
+    final field = find.descendant(of: inputFinder, matching: find.byType(EditableText));
+
+    return tester.widget<EditableText>(field.first).controller.text;
+  }
+
   Future<void> tapSendButton() async {
     await tapByKey("send_page_send_button_key");
   }

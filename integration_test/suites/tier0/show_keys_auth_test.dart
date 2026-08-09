@@ -37,7 +37,6 @@ void main() {
     await homePageRobot.openSettingsSheet();
     await settingsRobot.isDisplayed();
 
-    // The seed and keys row always re-authenticates regardless of the pin timeout window.
     await settingsRobot.openRow(Routes.showKeys);
 
     await authFlows.authenticateWithPin(pin: wrongPin);

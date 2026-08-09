@@ -1,5 +1,6 @@
 import "package:cake_wallet/new-ui/pages/home_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -99,6 +100,45 @@ class HomePageRobot extends BaseRobot {
 
     expect(find.byType(HistoryTile), findsWidgets);
   }
+
+  // Tiles are keyed on the transaction behind them, which is the only way to tell from the
+  // outside which one a tap should have opened.
+  String firstTransactionIdInAllView() {
+    final tile = tester.widgetList<HistoryTile>(_allViewTiles).first;
+    final key = tile.key! as ValueKey<String>;
+
+    return key.value.substring("home_page_transaction_".length, key.value.length - "_key".length);
+  }
+
+  Future<void> openFirstTransactionDetails() async {
+    await pumpUntilFound(_allViewTiles);
+
+    await tester.tap(_allViewTiles.first);
+
+    await pumpUntilFound(find.byType(TransactionDetailsModal));
+
+    await settle();
+  }
+
+  String openedTransactionId() {
+    final modal = tester.widget<TransactionDetailsModal>(find.byType(TransactionDetailsModal));
+
+    return modal.transactionDetailsViewModel.transactionInfo.txHash;
+  }
+
+  void hasTransactionIdRow() {
+    expect(
+      find.byKey(const ValueKey("standard_list_item_transaction_details_id_key")),
+      findsOneWidget,
+      reason: "The details opened without showing the transaction id",
+    );
+  }
+
+  // The home preview stays mounted underneath the modal, so its tiles have to be left out.
+  Finder get _allViewTiles => find.descendant(
+        of: find.byKey(const ValueKey("history_modal_key")),
+        matching: find.byType(HistoryTile),
+      );
 
   Future<void> confirmSyncIndicatorShown(Type statusType) async {
     final shown = await pumpUntil(

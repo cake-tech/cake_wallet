@@ -93,6 +93,7 @@ class TestWallets {
     }
   }
 
-  // Only the legacy 25 word monero seed needs a restore height.
+  static String get moneroLegacySeed => secrets.moneroLegacyTestWalletSeeds;
+
   static String get moneroRestoreBlockHeight => secrets.moneroTestWalletBlockHeight;
 }

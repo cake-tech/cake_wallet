@@ -146,6 +146,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                             _presentQRScanner(context);
                           }),
                       FloatingIconButton(
+                          key: ValueKey("send_page_address_book_button_key"),
                           iconPath: "assets/new-ui/contacts_outlined.svg",
                           onPressed: () {
                             _presetAddressBookPicker(context);

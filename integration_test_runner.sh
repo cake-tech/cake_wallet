@@ -3,7 +3,8 @@
 set -euo pipefail
 
 # Runner knobs, all overridable from the environment:
-#   SUITE_DIR             directory to collect *_test.dart suites from (default integration_test/suites)
+#   SUITE_DIR             directory to collect *_test.dart suites from, or a single suite file
+#                         (default integration_test/suites)
 #   TEST_TIER             tier0, tier1 or all, narrows SUITE_DIR to a tier subdirectory
 #   PLATFORM              android, linux or auto, picks the between-suite data reset
 #   ANDROID_APP_ID        package cleared between suites on android (default read from android/app.properties)
@@ -301,7 +302,9 @@ main() {
         search_dir="$SUITE_DIR/$TEST_TIER"
     fi
 
-    if [[ ! -d "$search_dir" ]]; then
+    if [[ -f "$SUITE_DIR" ]]; then
+        search_dir="$SUITE_DIR"
+    elif [[ ! -d "$search_dir" ]]; then
         error "Suite directory not found: $search_dir"
         exit 1
     fi
@@ -313,9 +316,13 @@ main() {
     log "Configuration: SUITE_DIR=$search_dir PLATFORM=$PLATFORM RETRY_COUNT=$RETRY_COUNT"
 
     # Only *_test.dart files are runnable suites, helpers and templates are never picked up
-    while IFS= read -r -d $'\0' file; do
-        targets+=("$file")
-    done < <(find "$search_dir" -name "*_test.dart" -type f -print0 | sort -z)
+    if [[ -f "$search_dir" ]]; then
+        targets+=("$search_dir")
+    else
+        while IFS= read -r -d $'\0' file; do
+            targets+=("$file")
+        done < <(find "$search_dir" -name "*_test.dart" -type f -print0 | sort -z)
+    fi
 
     if (( ${#targets[@]} == 0 )); then
         error "No test files found in $search_dir"

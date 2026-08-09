@@ -12,8 +12,7 @@ import "../../robots/new_settings_page_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  integrationTest("Changing the language changes what the settings screen shows",
-      (tester) async {
+  integrationTest("Changing the language changes what the settings screen shows", (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);
     final dashboardRobot = NewDashboardRobot(tester);
