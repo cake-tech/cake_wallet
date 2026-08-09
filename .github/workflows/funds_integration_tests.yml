@@ -10,20 +10,24 @@ on:
   workflow_dispatch:
     inputs:
       flows:
-        description: "Which flows to run. dry-run moves no funds and creates no trades"
+        description: "Which flows to run"
         required: true
         type: choice
         options:
           - all
           - send
           - swap
-          - dry-run
-        default: dry-run
+        default: all
       chains:
         description: "auto discovers every funded chain, or a comma separated list of wallet type names"
         required: true
         type: string
         default: auto
+      spend:
+        description: "Actually broadcast and create trades. Off runs the dry runs only"
+        required: true
+        type: boolean
+        default: false
       record_screen:
         description: "Record the emulator screen, uploaded GPG encrypted"
         required: true
@@ -45,7 +49,7 @@ jobs:
       write_funds_secrets: true
       record_screen: ${{ inputs.record_screen }}
       timeout_minutes: 120
-      extra_dart_defines: "FLOWS=${{ inputs.flows }};CHAINS=${{ inputs.chains }}"
+      extra_dart_defines: "FLOWS=${{ inputs.flows }};CHAINS=${{ inputs.chains }};SPEND=${{ inputs.spend }}"
     secrets: inherit
 
   notify:

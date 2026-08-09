@@ -38,14 +38,13 @@ class TestConfig {
 
   static bool shouldRunFundsFlow(String flow) => _fundsFlows == "all" || _fundsFlows == flow;
 
-  // dry-run exercises everything the funds suites do except the parts that cost something,
-  // no broadcast and no trade registered with a provider. It is the safe way to prove the
-  // funded wallets, fees and quotes all still work before running the real thing.
-  static bool get isDryRun => _fundsFlows == "dry-run";
+  // Moving funds has to be asked for on its own, separately from picking a flow, so nothing
+  // spends unless someone deliberately said to.
+  static const String _spend = String.fromEnvironment("SPEND", defaultValue: "false");
 
-  static bool shouldSpend(String flow) => !isDryRun && shouldRunFundsFlow(flow);
+  static bool shouldSpend(String flow) => _spend == "true" && shouldRunFundsFlow(flow);
 
-  static bool shouldDryRun(String flow) => isDryRun || shouldRunFundsFlow(flow);
+  static bool shouldDryRun(String flow) => shouldRunFundsFlow(flow);
 
   static List<WalletType> get fundedWalletTypesUnderTest {
     if (_fundedChainsOverride == "auto") {
