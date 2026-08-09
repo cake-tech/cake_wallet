@@ -11,10 +11,14 @@ import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_section_header.dart";
 import "package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
@@ -36,13 +40,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart" as mobx;
-import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
-
-import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
-import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
-import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
-import "package:cake_wallet/new-ui/widgets/swap_page/swap_section_header.dart";
 
 class NewSwapPage extends StatefulWidget {
   NewSwapPage(
@@ -88,7 +86,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
   final _receiveAddressFocus = FocusNode();
   final _receiveAmountDebounce = Debounce(const Duration(milliseconds: 500));
   Debounce _depositAmountDebounce = Debounce(const Duration(milliseconds: 500));
-  final List<ReactionDisposer> _disposers = [];
+  final List<mobx.ReactionDisposer> _disposers = [];
 
   bool get _shouldWaitTillSynced =>
       [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.ltc]
@@ -129,7 +127,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
       final depositFiatAmountController = depositKey.currentState!.fiatAmountController;
       final receiveFiatAmountController = receiveKey.currentState!.fiatAmountController;
 
-      ReactionDisposer reaction<T>(T Function(Reaction) fn, void Function(T) effect) {
+      mobx.ReactionDisposer reaction<T>(T Function(mobx.Reaction) fn, void Function(T) effect) {
         final disposer = mobx.reaction<T>(fn, effect);
         _disposers.add(disposer);
         return disposer;

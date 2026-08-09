@@ -1001,8 +1001,9 @@ class _NewSendPageState extends State<NewSendPage> {
     } catch (_) {}
   }
 
+  static final RegExp _evmAddressRegExp = RegExp(r"^0x[0-9a-fA-F]{40}$");
+
   bool _hasEvmRecipient(Output output) {
-    final _evmAddressRegExp = RegExp(r"^0x[0-9a-fA-F]{40}$");
     final address = output.isParsedAddress ? output.extractedAddress : output.address;
     return _evmAddressRegExp.hasMatch(address.trim());
   }
@@ -1140,10 +1141,11 @@ class _NewSendPageState extends State<NewSendPage> {
             return;
           }
 
-          final targetChain =
-              paymentRequest.scheme.isNotEmpty && result.chainId != null && evm != null
-                  ? evm!.getChainInfoByChainId(result.chainId!)
-                  : null;
+          final targetChainId =
+              paymentRequest.scheme.isNotEmpty ? _evmTargetChainId(paymentRequest) : null;
+          final targetChain = targetChainId != null && evm != null
+              ? evm!.getChainInfoByChainId(targetChainId)
+              : null;
           final currentChainId =
               evm != null && isEVMCompatibleChain(widget.sendViewModel.wallet.type)
                   ? evm!.getChainIdByWalletType(widget.sendViewModel.wallet.type)
@@ -1516,6 +1518,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
     final targetType = evm!.getWalletTypeByChainId(target.chainId);
     if (targetType == null) {
+      _showUnsupportedNetworkAlert(target.chainId);
       return;
     }
 

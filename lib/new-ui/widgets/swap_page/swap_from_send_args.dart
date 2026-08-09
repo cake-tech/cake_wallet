@@ -1,5 +1,4 @@
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
-import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
 

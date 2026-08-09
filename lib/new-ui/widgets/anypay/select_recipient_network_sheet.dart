@@ -1,8 +1,8 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:flutter/material.dart";
 
 class RecipientNetworkItem {
   const RecipientNetworkItem({
@@ -71,13 +71,13 @@ class SelectRecipientNetworkSheet extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
-              title: '',
+              title: "",
               trailingIcon: const Icon(Icons.close),
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 32),
             CakeImageWidget(
-              imageUrl: 'assets/new-ui/network_cube.svg',
+              imageUrl: "assets/new-ui/network_cube.svg",
               width: 75,
               height: 75,
               colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),

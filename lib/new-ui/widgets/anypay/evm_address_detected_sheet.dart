@@ -1,8 +1,8 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:flutter/material.dart";
 
 class EvmAddressDetectedSheet extends StatelessWidget {
   const EvmAddressDetectedSheet({super.key, required this.networks});
@@ -35,7 +35,7 @@ class EvmAddressDetectedSheet extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
-              title: '',
+              title: "",
               trailingIcon: const Icon(Icons.close),
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),

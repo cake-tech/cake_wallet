@@ -24,15 +24,16 @@ class SwitchNetworkWalletPage extends StatelessWidget {
     required String networkName,
     required String targetIconPath,
     required List<WalletInfo> wallets,
-  }) => Navigator.of(context).push<WalletInfo>(
-      CupertinoPageRoute(
-        builder: (_) => SwitchNetworkWalletPage(
-          networkName: networkName,
-          destinationIconPath: targetIconPath,
-          wallets: wallets,
+  }) =>
+      Navigator.of(context).push<WalletInfo>(
+        CupertinoPageRoute(
+          builder: (_) => SwitchNetworkWalletPage(
+            networkName: networkName,
+            destinationIconPath: targetIconPath,
+            wallets: wallets,
+          ),
         ),
-      ),
-    );
+      );
 
   @override
   Widget build(BuildContext context) {

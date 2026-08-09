@@ -1,9 +1,9 @@
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:flutter/material.dart";
 
 class RecipientNetworkSelector extends StatelessWidget {
   const RecipientNetworkSelector({
@@ -25,7 +25,7 @@ class RecipientNetworkSelector extends StatelessWidget {
 
     return _RecipientNetworkRow(
       networkName: currentChain.name,
-      networkIconPath: symbolIconPathForWalletType(wallet.type) ?? '',
+      networkIconPath: symbolIconPathForWalletType(wallet.type) ?? "",
       onTap: () => onTap(currentChain),
     );
   }
