@@ -151,6 +151,12 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
     }
     if (oldVersion <= 9) {
       await _createWalletInfoAccountTable(db);
+      await _addColumnIfNotExists(
+        db,
+        table: 'WalletInfo',
+        column: 'accountDiscoveryLimit',
+        definition: 'INTEGER DEFAULT NULL',
+      );
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -178,7 +184,8 @@ CREATE TABLE WalletInfo (
   sortOrder INTEGER DEFAULT (0) NOT NULL,
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
-  favoriteTokenAddress TEXT DEFAULT NULL
+  favoriteTokenAddress TEXT DEFAULT NULL,
+  accountDiscoveryLimit INTEGER DEFAULT NULL
 );
 ''');
 

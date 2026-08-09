@@ -684,6 +684,7 @@ class WalletInfo {
 
   String? addressPageType;
   String? network;
+  int? accountDiscoveryLimit;
   int derivationInfoId;
   DerivationInfo? _derivationInfo;
 
@@ -767,6 +768,7 @@ class WalletInfo {
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
         "favoriteTokenAddress": favoriteTokenAddress,
         "network": network,
+        "accountDiscoveryLimit": accountDiscoveryLimit,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -797,6 +799,7 @@ class WalletInfo {
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null);
     info.network = json['network'] as String?;
+    info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
     return info;
   }
 
@@ -841,6 +844,10 @@ class WalletInfo {
 
   Future<void> updateRestoreHeight(int height) async {
     restoreHeight = height;
+    await save();
+  }
+  Future<void> setAccountDiscoveryLimit(int limit) async {
+    accountDiscoveryLimit = limit;
     await save();
   }
 }

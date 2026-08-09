@@ -261,6 +261,7 @@ abstract class ElectrumWalletBase
 
   static const bool useBatchForHistory = true;
   static const List<BitcoinAddressType> accountProbeAddressTypes = [SegwitAddresType.p2wpkh];
+  static const int maxProbAccounts = 3;
 
   static ElectrumBalance _zeroBalance(CryptoCurrency currency) => ElectrumBalance(
         confirmed: Money.zero(currency),
@@ -519,6 +520,22 @@ abstract class ElectrumWalletBase
 
     unawaited(() async {
       try {
+        if (isNewAccount && !_isSyncing) {
+          final histories = <String, ElectrumTransactionInfo>{};
+
+          for (final addressType in BITCOIN_ADDRESS_TYPES) {
+            if (shouldUseBatchFetching) {
+              await fetchTransactionsForAddressTypeBatch(histories, addressType,
+                  accountIndex: accountIndex);
+            } else {
+              await fetchTransactionsForAddressType(histories, addressType,
+                  accountIndex: accountIndex);
+            }
+          }
+
+          await resolveQueuedTransactionDetails();
+        }
+
         await updateAllUnspents();
       } catch (e) {
         printV('setCurrentAccount balance update failed: $e');
@@ -532,6 +549,7 @@ abstract class ElectrumWalletBase
       type == WalletType.bitcoin &&
           derivationInfo.derivationType == DerivationType.bip39 &&
           walletInfo.isRecovery &&
+          (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts &&
           !_didRunAccountDiscovery;
 
   @override
@@ -3158,7 +3176,7 @@ abstract class ElectrumWalletBase
       ) async {
     int accountIndex = 0;
 
-    while (true) {
+    while (accountIndex < maxProbAccounts) {
       final isAccountProbe = accountIndex > 0;
 
       if (!mainHdByTypeAndAccount.containsKey(accountIndex)) {
@@ -3244,7 +3262,10 @@ abstract class ElectrumWalletBase
       // Move on to the next account index
       accountIndex++;
     }
-    _didRunAccountDiscovery = true;
+    if (electrumClient.isConnected) {
+      _didRunAccountDiscovery = true;
+      await walletInfo.setAccountDiscoveryLimit(maxProbAccounts);
+    }
   }
 
   Future<void> fetchTransactionsForAddressTypeBatch(
@@ -3371,157 +3392,6 @@ abstract class ElectrumWalletBase
       if (addresses[i].isUsed) return i;
     }
     return -1;
-  }
-
-  Future<Map<String, ElectrumTransactionInfo>> _fetchBatchAddressHistory(
-      List<BitcoinAddressRecord> addressRecords, int? currentHeight, int historyChunkSize) async {
-    String lastTxId = '';
-    bool didUpdateHistory = false;
-
-    try {
-      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
-
-      // List of script hashes for the given address records
-      final scriptHashes = addressRecords.map((a) => a.getScriptHash(network)).toList();
-
-      final historyByScriptHash =
-          await _processChunksToMap<String, String, List<Map<String, dynamic>>>(
-              items: scriptHashes, chunkSize: historyChunkSize, processChunk: _getHistoryBatch);
-
-      // Map scriptHash -> addressRecord
-      final byScriptHash = <String, BitcoinAddressRecord>{};
-      for (final a in addressRecords) {
-        byScriptHash[a.getScriptHash(network)] = a;
-      }
-
-      // Split into already-known txs vs missing txs
-      final missingHistoryItems = <Map<String, dynamic>>[];
-
-      for (final entry in historyByScriptHash.entries) {
-        final sh = entry.key;
-        final addressRecord = byScriptHash[sh];
-        if (addressRecord == null) continue;
-
-        final history = entry.value;
-        if (history.isEmpty) continue;
-
-        addressRecord.setAsUsed();
-        walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
-
-        //removes transactions no longer returned by the api, presumed replaced/invalid.
-        if (this is BitcoinWallet) {
-          final beforeLen = transactionHistory.transactions.length;
-          transactionHistory.transactions.removeWhere((hash, tx) {
-            return tx.outputAddresses != null &&
-                tx.outputAddresses!.contains(addressRecord.address) &&
-                !history.any((h) => h['tx_hash'] == hash);
-          });
-          if (transactionHistory.transactions.length != beforeLen) {
-            didUpdateHistory = true;
-          }
-        }
-
-        // For each transaction in the history, check if we already have it in our transaction history. If we do, update its details if necessary. If we don't, add it to the list of missing history items to fetch later.
-        for (final item in history) {
-          final txid = item['tx_hash'] as String?;
-          final height = item['height'] as int? ?? 0;
-          if (txid == null || txid.isEmpty) continue;
-
-          lastTxId = txid;
-
-          final storedTx = transactionHistory.transactions[txid];
-          final needsAccount =
-              type == WalletType.bitcoin && storedTx != null && storedTx.accountIndex == null;
-
-          if (storedTx != null && !needsAccount) {
-            if (height > 0) {
-              final oldHeight = storedTx.height;
-              final oldConfs = storedTx.confirmations;
-              final oldPending = storedTx.isPending;
-
-              storedTx.height = height;
-
-              if ((currentHeight ?? 0) > 0) {
-                storedTx.confirmations = currentHeight! - height + 1;
-              }
-
-              storedTx.isPending = storedTx.confirmations == 0;
-
-              if (storedTx.height != oldHeight ||
-                  storedTx.confirmations != oldConfs ||
-                  storedTx.isPending != oldPending) {
-                transactionHistory.addOne(storedTx);
-                didUpdateHistory = true;
-              }
-            }
-
-            historiesWithDetails[txid] = storedTx;
-          } else {
-            missingHistoryItems.add({
-              'tx_hash': txid,
-              'height': height,
-              'script_hash': sh,
-              'address': addressRecord.address,
-            });
-          }
-        }
-      }
-
-      // Batch fetch missing tx verbose details
-      if (missingHistoryItems.isEmpty) {
-        if (didUpdateHistory) await transactionHistory.save();
-        return historiesWithDetails;
-      }
-
-      for (var i = 0; i < missingHistoryItems.length; i += historyChunkSize) {
-        final end = (i + historyChunkSize < missingHistoryItems.length)
-            ? i + historyChunkSize
-            : missingHistoryItems.length;
-        final chunkHistory = missingHistoryItems.sublist(i, end);
-
-        final hashes = chunkHistory
-            .map((e) => (e['tx_hash'] as String).trim())
-            .where((h) => h.isNotEmpty)
-            .toList(growable: false);
-
-        final heightsByHash = <String, int?>{
-          for (final e in chunkHistory) (e['tx_hash'] as String): (e['height'] as int?),
-        };
-
-        final infosByHash = await fetchTransactionInfoBatch(
-          hashes: hashes,
-          heightsByHash: heightsByHash,
-          retryOnFailure: true,
-          retryDelay: const Duration(seconds: 1),
-        );
-
-        for (final txid in hashes) {
-          final tx = infosByHash[txid];
-          if (tx == null) continue;
-
-          historiesWithDetails[tx.id] = tx;
-
-          _applyLitecoinPegOutTag(tx);
-
-          transactionHistory.addOne(tx);
-          didUpdateHistory = true;
-        }
-      }
-
-      if (didUpdateHistory) {
-        await transactionHistory.save();
-      }
-
-      return historiesWithDetails;
-    } catch (e, stacktrace) {
-      final prefix = lastTxId.isNotEmpty ? '$lastTxId - ' : '';
-      _onError?.call(FlutterErrorDetails(
-        exception: '$prefix$e',
-        stack: stacktrace,
-        library: runtimeType.toString(),
-      ));
-      return {};
-    }
   }
 
   Future<Map<String, Map<String, dynamic>>> _getTransactionVerboseBatch(List<String> hashes) {
