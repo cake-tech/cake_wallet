@@ -240,7 +240,16 @@ class _NewSendPageState extends State<NewSendPage> {
         widget.sendViewModel.walletCurrencyName ==
             widget.initialPaymentRequest!.scheme.toLowerCase()) {
       _addressControllers[0].text = widget.initialPaymentRequest!.address;
-      _amountControllers[0].text = widget.initialPaymentRequest!.amount;
+      if (widget.initialPaymentRequest!.amount.isNotEmpty) {
+        try {
+          widget.sendViewModel.outputs[0].isFiatEntry = false;
+          _amountControllers[0].text =
+              widget.sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
+            widget.initialPaymentRequest!.amount,
+            widget.sendViewModel.selectedCryptoCurrency,
+          );
+        } catch (e) {}
+      }
       // _memoControllers[0].text = widget.initialPaymentRequest!.note;
       _applyNote(widget.initialPaymentRequest!.note, 0);
 
@@ -1314,6 +1323,7 @@ class _NewSendPageState extends State<NewSendPage> {
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
       try {
+        widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = false;
         _amountControllers[_selectedOutput].text =
             widget.sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
           paymentRequest.amount,
