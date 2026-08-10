@@ -28,6 +28,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -1034,6 +1035,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         if (provider == ExchangeProviderDescription.swapsXyz) {
           registerSwapsXyzTransaction(_currentTrade!);
         }
+        if (provider == ExchangeProviderDescription.pegaRoute) {
+          registerPegaRouteTxHash(_currentTrade!);
+        }
       }
 
       await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
@@ -1706,6 +1710,32 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
     } catch (e) {
       printV('registerSwapsXyzTransaction error: $e');
+    }
+  }
+
+  Future<void> registerPegaRouteTxHash(Trade trade) async {
+    try {
+      final txHash =
+          pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? trade.txId ?? '';
+
+      if (txHash.isEmpty) {
+        printV('PegaRoute: txHash submission: skipped (txHash empty)');
+        return;
+      }
+
+      printV('PegaRoute: attempting to submit txHash: tradeId = ${trade.id}, txHash = $txHash');
+
+      final submitted = await PegaRouteExchangeProvider.submitTxHash(id: trade.id, txHash: txHash);
+
+      if (submitted) {
+        trade.txId = txHash;
+        await trade.save();
+        printV('PegaRoute: txHash submission: success');
+      } else {
+        printV('PegaRoute: txHash submission: failed');
+      }
+    } catch (e) {
+      printV('registerPegaRouteTxHash error: $e');
     }
   }
 

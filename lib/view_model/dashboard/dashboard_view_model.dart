@@ -352,6 +352,11 @@ abstract class DashboardViewModelBase with Store {
           value: () => tradeFilterStore.displayNearIntents,
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.pegaRoute,
+          value: () => tradeFilterStore.displayPegaRoute,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.pegaRoute)),
     ];
   }
 

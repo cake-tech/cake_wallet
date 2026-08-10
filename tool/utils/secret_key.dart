@@ -94,6 +94,7 @@ class SecretKey {
     SecretKey('nearIntentsBearerToken', () => ''),
     SecretKey('nearIntentsAppFee', () => ''),
     SecretKey('nearIntentsAppFeeRecipient', () => ''),
+    SecretKey('pegaRouteApiKey', () => ''),
   ];
 
   static final evmChainsSecrets = [

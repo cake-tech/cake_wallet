@@ -95,6 +95,11 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       raw: 16,
       image: 'assets/new-ui/trade_providers/jupiter.svg',
       isCentralized: false);
+  static const pegaRoute = ExchangeProviderDescription(
+      title: 'PegaRoute',
+      raw: 17,
+      image: 'assets/new-ui/trade_providers/pegaroute.svg',
+      isCentralized: false);
 
   static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
@@ -132,6 +137,8 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
         return nearIntents;
       case 16:
         return jupiter;
+      case 17:
+        return pegaRoute;
       default:
         throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }

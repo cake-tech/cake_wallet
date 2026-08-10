@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -68,6 +69,8 @@ class TradeMonitor {
         return JupiterExchangeProvider();
       case ExchangeProviderDescription.nearIntents:
         return NearIntentsExchangeProvider();
+      case ExchangeProviderDescription.pegaRoute:
+        return PegaRouteExchangeProvider();
     }
     return null;
   }
