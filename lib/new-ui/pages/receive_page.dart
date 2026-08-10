@@ -97,6 +97,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
     ) as WalletAddressListItem?;
 
     reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
+      // The infobox depends on the selected address type, so the page has to be
+      // rebuilt when it changes.
+      if (mounted) setState(() {});
+
       if (widget.dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
@@ -179,6 +183,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
       autoGenerateSubaddressStatus: widget.lightningMode
           ? AutoGenerateSubaddressStatus.disabled
           : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus,
+      addressRotates: _selectedAddressRotates,
     );
 
     return Container(
@@ -201,6 +206,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
             ModalTopBar(
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
@@ -223,6 +229,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               : widget.addressListViewModel.isRotatingAddress
                                   ? const CupertinoActivityIndicator()
                                   : const Icon(Icons.refresh),
+                          semanticLabel: _largeQrMode
+                              ? S.of(context).share_address
+                              : S.of(context).rotate_address,
                           onPressed: () {
                             if (_largeQrMode) {
                               ShareUtil.share(
@@ -271,11 +280,23 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   ReceiveAddressWidget(
                     addressListViewModel: widget.addressListViewModel,
                   ),
-                  GestureDetector(
-                    onTap: _showLabelModal,
-                    child: ReceiveLabelWidget(
-                      name: _addressItemWithLabel?.name ?? "",
-                      largeQrMode: _largeQrMode,
+                  // The label chip animates to zero height when there is no
+                  // label (or in large QR mode); keep it out of the semantics
+                  // tree entirely while it is collapsed.
+                  ExcludeSemantics(
+                    excluding: _largeQrMode || !hasLabel,
+                    child: MergeSemantics(
+                      child: Semantics(
+                        button: true,
+                        hint: S.of(context).set_label,
+                        child: GestureDetector(
+                          onTap: _showLabelModal,
+                          child: ReceiveLabelWidget(
+                            name: _addressItemWithLabel?.name ?? "",
+                            largeQrMode: _largeQrMode,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   Observer(
@@ -349,6 +370,13 @@ class _NewReceivePageState extends State<NewReceivePage> {
       ),
     );
   }
+
+  /// Zcash is the only wallet type that also offers static address types, so
+  /// the rotation notice must not be shown for it unless the disposable
+  /// transparent type is the one currently selected.
+  bool get _selectedAddressRotates =>
+      widget.addressListViewModel.type != WalletType.zcash ||
+      zcash!.isRotatingAddressOption(widget.receiveOptionViewModel.selectedReceiveOption);
 
   void _showLabelModal() {
     showMaterialModalBottomSheet(

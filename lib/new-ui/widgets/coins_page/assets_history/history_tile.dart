@@ -142,7 +142,8 @@ class HistoryTile extends StatelessWidget {
       date: date,
       amount: amount,
       amountFiat: amountFiat,
-      leadingIcon: _getLeadingIcon(context),
+      // Decorative: `title` already reads out sent/received/pending.
+      leadingIcon: ExcludeSemantics(child: _getLeadingIcon(context)),
       primaryTextColor: _getPrimaryTextColor(),
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,
