@@ -141,6 +141,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsLNUrl,
       required this.usePayjoin,
       required this.showPayjoinCard,
+      required this.pinRequiredForTransactions,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.mwebAlwaysScan,
@@ -770,6 +771,9 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => zcashMigrationModalViewed,
         (val) => _sharedPreferences.setBool(PreferencesKey.zcashMigrationModalViewed, val));
 
+    reaction((_) => pinRequiredForTransactions,
+        (val) => _sharedPreferences.setBool(PreferencesKey.pinRequiredForTransactions, val));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -927,6 +931,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   PinCodeRequiredDuration pinTimeOutDuration;
+
+  @observable
+  bool pinRequiredForTransactions;
 
   @observable
   SeedPhraseLength seedPhraseLength;
@@ -1652,6 +1659,9 @@ abstract class SettingsStoreBase with Store {
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
+    final pinRequiredForTransactions =
+        sharedPreferences.getBool(PreferencesKey.pinRequiredForTransactions) ?? false;
+
     return SettingsStore(
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
@@ -1664,6 +1674,7 @@ abstract class SettingsStoreBase with Store {
       deviceName: deviceName,
       displayAmountsInSatoshi: displayAmountsInSatoshi,
       isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+      pinRequiredForTransactions: pinRequiredForTransactions,
       initialFiatCurrency: currentFiatCurrency,
       initialCakePayCountry: currentCakePayCountry,
       initialBalanceDisplayMode: currentBalanceDisplayMode,

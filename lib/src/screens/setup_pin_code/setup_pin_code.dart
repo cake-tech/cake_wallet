@@ -48,7 +48,21 @@ class SetupPinCodePage extends BasePage {
         try {
           await pinCodeViewModel.setupPinCode();
 
-          await showPopUp<void>(
+          if(!isDuressPin) {
+            if(await pinCodeViewModel.isBiometricAuthenticated()) {
+              pinCodeViewModel.enableBiometricAuth();
+              Navigator.of(context).pop();
+              if (pinCodeStateKey.currentState != null) {
+                onSuccessfulPinSetup?.call(pinCodeStateKey.currentState!, pin);
+              }
+
+              state.reset();
+            }
+          }
+
+
+          if(isDuressPin) {
+            await showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
@@ -69,6 +83,7 @@ class SetupPinCodePage extends BasePage {
                   alertBarrierDismissible: false,
                 );
               });
+          }
         } catch (e) {
           await showPopUp<void>(
               context: context,

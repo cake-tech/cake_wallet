@@ -146,4 +146,5 @@ class PreferencesKey {
   static const mwebAdDismissed = "mweb_ad_dismissed";
   static const balanceHideCounter = "balance_hide_counter";
   static const zcashMigrationModalViewed = "zcash_migration_modal_viewed";
+  static const pinRequiredForTransactions = "pin_required_for_transactions";
 }

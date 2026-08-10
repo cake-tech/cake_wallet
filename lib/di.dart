@@ -622,8 +622,10 @@ Future<void> setup({
     ),
   );
 
+  getIt.registerSingleton<BiometricAuth>(BiometricAuth());
+
   getIt.registerFactory<AuthViewModel>(() => AuthViewModel(getIt.get<AuthService>(),
-      getIt.get<SharedPreferences>(), getIt.get<SettingsStore>(), BiometricAuth()));
+      getIt.get<SharedPreferences>(), getIt.get<SettingsStore>(), getIt.get<BiometricAuth>()));
 
   getIt.registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
       (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
@@ -1071,7 +1073,8 @@ Future<void> setup({
       getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, getIt.get<SendViewModel>()));
 
   getIt.registerFactory(
-      () => SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
+          () => SecuritySettingsViewModel(
+      getIt.get<SettingsStore>(), getIt.get<AuthService>(), getIt.get<BiometricAuth>()));
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
@@ -1350,6 +1353,7 @@ Future<void> setup({
       getIt.get<AuthService>(),
       getIt.get<SettingsStore>(),
       isDuressPin: isDuressPin ?? false,
+      biometricAuth: getIt.get<BiometricAuth>(),
     ),
   );
 
