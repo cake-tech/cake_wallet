@@ -57,7 +57,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
   }
 
   String _fiatAmount(AccountListItem item) =>
-      (double.tryParse(item.balance ?? "0") ?? 0 * widget.dashboardViewModel.balanceViewModel.price)
+      ((double.tryParse(item.balance ?? "0") ?? 0) * widget.dashboardViewModel.balanceViewModel.price)
           .toStringAsFixed(2);
 
   Future<void> unhideCard(AccountListItem acc) async {
