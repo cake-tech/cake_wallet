@@ -187,50 +187,56 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                           ? iconHorizontalPadding / 100
                                           : 0),
                                   curve: Curves.easeOutCubic,
-                                  child: InkWell(
-                                    splashFactory: NoSplash.splashFactory,
-                                    splashColor: Colors.transparent,
-                                    borderRadius: BorderRadius.circular(pillBorderRadius),
-                                    onTap: () => _onItemTap(i),
-                                    child: AnimatedContainer(
-                                      duration:
-                                          _firstFrame ? Duration.zero : inactiveIconMoveDuration,
-                                      curve: Curves.easeOutCubic,
-                                      width: i == widget.selectedIndex ? pillWidth : iconBoxWidth,
-                                      alignment: Alignment.center,
-                                      child: AnimatedAlign(
-                                        duration: inactiveIconFadeDuration,
+                                  child: Semantics(
+                                    button: true,
+                                    selected: i == widget.selectedIndex,
+                                    inMutuallyExclusiveGroup: true,
+                                    label: visibleActions[i].name(context),
+                                    child: InkWell(
+                                      splashFactory: NoSplash.splashFactory,
+                                      splashColor: Colors.transparent,
+                                      borderRadius: BorderRadius.circular(pillBorderRadius),
+                                      onTap: () => _onItemTap(i),
+                                      child: AnimatedContainer(
+                                        duration:
+                                            _firstFrame ? Duration.zero : inactiveIconMoveDuration,
                                         curve: Curves.easeOutCubic,
+                                        width: i == widget.selectedIndex ? pillWidth : iconBoxWidth,
                                         alignment: Alignment.center,
-                                        child: AnimatedScale(
-                                          duration: inactiveIconAppearDuration,
+                                        child: AnimatedAlign(
+                                          duration: inactiveIconFadeDuration,
                                           curve: Curves.easeOutCubic,
-                                          scale: (i == widget.selectedIndex) ? 0.857 : 1.0,
-                                          child: TweenAnimationBuilder<Color?>(
-                                              tween: ColorTween(
-                                                begin: (i == widget.selectedIndex)
-                                                    ? inactiveColor
-                                                    : activeColor,
-                                                end: (i == widget.selectedIndex)
-                                                    ? activeColor
-                                                    : inactiveColor,
-                                              ),
-                                              duration: iconColorChangeDuration,
-                                              builder: (context, value, child) {
-                                                return Container(
-                                                  height: NewMainNavBar.barHeight,
-                                                  child: CakeImageWidget(
-                                                    imageUrl: visibleActions[i].image,
-                                                    width: iconWidth,
-                                                    height: iconHeight,
-                                                    //fit: BoxFit.scaleDown,
-                                                    colorFilter: ColorFilter.mode(
-                                                      value ?? inactiveColor,
-                                                      BlendMode.srcIn,
+                                          alignment: Alignment.center,
+                                          child: AnimatedScale(
+                                            duration: inactiveIconAppearDuration,
+                                            curve: Curves.easeOutCubic,
+                                            scale: (i == widget.selectedIndex) ? 0.857 : 1.0,
+                                            child: TweenAnimationBuilder<Color?>(
+                                                tween: ColorTween(
+                                                  begin: (i == widget.selectedIndex)
+                                                      ? inactiveColor
+                                                      : activeColor,
+                                                  end: (i == widget.selectedIndex)
+                                                      ? activeColor
+                                                      : inactiveColor,
+                                                ),
+                                                duration: iconColorChangeDuration,
+                                                builder: (context, value, child) {
+                                                  return Container(
+                                                    height: NewMainNavBar.barHeight,
+                                                    child: CakeImageWidget(
+                                                      imageUrl: visibleActions[i].image,
+                                                      width: iconWidth,
+                                                      height: iconHeight,
+                                                      //fit: BoxFit.scaleDown,
+                                                      colorFilter: ColorFilter.mode(
+                                                        value ?? inactiveColor,
+                                                        BlendMode.srcIn,
+                                                      ),
                                                     ),
-                                                  ),
-                                                );
-                                              }),
+                                                  );
+                                                }),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -306,11 +312,15 @@ class AnimatedPill extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.only(left: pillIconWidth + 2),
-                  child: Text(
-                    currentAction.name(context),
-                    style: pillTextStyle.copyWith(color: contentColor),
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
+                  // The selected tab's InkWell already announces this name, so the
+                  // pill text must not become a second stop for screen readers.
+                  child: ExcludeSemantics(
+                    child: Text(
+                      currentAction.name(context),
+                      style: pillTextStyle.copyWith(color: contentColor),
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                    ),
                   ),
                 ),
               ],

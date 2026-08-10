@@ -659,6 +659,7 @@ abstract class ElectrumWalletBase
       privateKey: privateKey ?? '',
       publicKey: publicKey ?? '',
       xpub: xpub,
+      masterFingerprint: _masterHD?.fingerPrint.toHex() ?? '',
     );
   }
 

@@ -66,54 +66,68 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                   spacing: 12,
                   children: [
                     if (widget.walletAddressListViewModel.hasTokensList) ...[
-                      Text("Token"),
-                      GestureDetector(
-                          onTap: () {
-                            _presentTokenCurrencyPicker(context);
-                          },
-                          child: Observer(
-                            builder: (_) => Container(
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      spacing: 8,
-                                      children: [
-                                        TokenImageWidget(
-                                          imageUrl: widget.walletAddressListViewModel.tokenCurrency
-                                                  ?.iconPath ??
-                                              widget.walletAddressListViewModel.currencies.first
-                                                  .iconPath ??
-                                              "",
-                                          size: 32,
-                                        ),
-                                        Text((widget.walletAddressListViewModel.tokenCurrency ??
-                                                widget.walletAddressListViewModel.currencies.first
-                                                    as CryptoCurrency)
-                                            .title
-                                            .toUpperCase())
-                                      ],
-                                    ),
-                                    RotatedBox(
-                                        quarterTurns: 2,
-                                        child: CakeImageWidget(
-                                            imageUrl: "assets/new-ui/dropdown_arrow.svg"))
-                                  ],
+                      // The caption is reused as the picker's semantics label,
+                      // so it must not be announced as a separate node.
+                      ExcludeSemantics(child: Text(S.of(context).token)),
+                      MergeSemantics(
+                        child: Semantics(
+                          button: true,
+                          label: S.of(context).select_token,
+                          child: GestureDetector(
+                            onTap: () {
+                              _presentTokenCurrencyPicker(context);
+                            },
+                            child: Observer(
+                              builder: (_) => Container(
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        spacing: 8,
+                                        children: [
+                                          ExcludeSemantics(
+                                            child: TokenImageWidget(
+                                              imageUrl: widget.walletAddressListViewModel
+                                                      .tokenCurrency?.iconPath ??
+                                                  widget.walletAddressListViewModel.currencies.first
+                                                      .iconPath ??
+                                                  "",
+                                              size: 32,
+                                            ),
+                                          ),
+                                          Text((widget.walletAddressListViewModel.tokenCurrency ??
+                                                  widget.walletAddressListViewModel.currencies.first
+                                                      as CryptoCurrency)
+                                              .title
+                                              .toUpperCase())
+                                        ],
+                                      ),
+                                      ExcludeSemantics(
+                                        child: RotatedBox(
+                                            quarterTurns: 2,
+                                            child: CakeImageWidget(
+                                                imageUrl: "assets/new-ui/dropdown_arrow.svg")),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                     ],
                     SizedBox(),
-                    Text(S.of(context).amount),
+                    // The caption is reused as the field's semantics label.
+                    ExcludeSemantics(child: Text(S.of(context).amount)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -133,74 +147,91 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 width: 2,
                               ),
                             ),
-                            child: TextField(
-                              textAlign: TextAlign.left,
-                              textAlignVertical: TextAlignVertical.center,
-                              controller: _amountController,
-                              keyboardType: TextInputType.numberWithOptions(
-                                signed: false,
-                                decimal:
-                                    widget.walletAddressListViewModel.selectedCurrencyDecimals > 0,
-                              ),
-                              inputFormatters: [
-                                DecimalInputFormatter(
-                                  maxDecimals:
-                                      widget.walletAddressListViewModel.selectedCurrencyDecimals,
-                                ),
-                              ],
-                              decoration: InputDecoration(
-                                hint: Text(
-                                  widget.walletAddressListViewModel.useSatoshi ? "0" : "0.00000000",
+                            child: MergeSemantics(
+                              child: Semantics(
+                                label: S.of(context).amount,
+                                child: TextField(
                                   textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                                  textAlignVertical: TextAlignVertical.center,
+                                  controller: _amountController,
+                                  keyboardType: TextInputType.numberWithOptions(
+                                    signed: false,
+                                    decimal:
+                                        widget.walletAddressListViewModel.selectedCurrencyDecimals >
+                                            0,
                                   ),
+                                  inputFormatters: [
+                                    DecimalInputFormatter(
+                                      maxDecimals:
+                                          widget.walletAddressListViewModel.selectedCurrencyDecimals,
+                                    ),
+                                  ],
+                                  decoration: InputDecoration(
+                                    hint: Text(
+                                      widget.walletAddressListViewModel.useSatoshi
+                                          ? "0"
+                                          : "0.00000000",
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                    border: InputBorder.none,
+                                    filled: true,
+                                    fillColor: Colors.transparent,
+                                  ),
+                                  style:
+                                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 ),
-                                border: InputBorder.none,
-                                filled: true,
-                                fillColor: Colors.transparent,
                               ),
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                             ),
                           ),
                         ),
                         Expanded(
                           flex: 25,
-                          child: GestureDetector(
-                            onTap: () {
-                              _presentFiatCurrencyPicker(context);
-                            },
-                            child: Container(
-                              height: 60,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(0),
-                                  bottomLeft: Radius.circular(0),
-                                  topRight: Radius.circular(18),
-                                  bottomRight: Radius.circular(18),
-                                ),
-                                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 4.0,
-                                children: [
-                                  Observer(
-                                    builder: (_) => Text(
-                                      widget.walletAddressListViewModel.selectedCurrencySymbol,
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                      ),
+                          child: MergeSemantics(
+                            child: Semantics(
+                              button: true,
+                              label: S.of(context).select_fiat_currency_title,
+                              child: GestureDetector(
+                                onTap: () {
+                                  _presentFiatCurrencyPicker(context);
+                                },
+                                child: Container(
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(0),
+                                      bottomLeft: Radius.circular(0),
+                                      topRight: Radius.circular(18),
+                                      bottomRight: Radius.circular(18),
                                     ),
+                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                                   ),
-                                  Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: Theme.of(context).colorScheme.primary,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    spacing: 4.0,
+                                    children: [
+                                      Observer(
+                                        builder: (_) => Text(
+                                          widget.walletAddressListViewModel.selectedCurrencySymbol,
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                        ),
+                                      ),
+                                      ExcludeSemantics(
+                                        child: Icon(
+                                          Icons.keyboard_arrow_down,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           ),

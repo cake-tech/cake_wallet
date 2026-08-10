@@ -32,9 +32,9 @@ class AccountCustomizerListItem {
 class WalletAccountsPage extends StatefulWidget {
   const WalletAccountsPage(
       {super.key,
-      required this.accountListViewModel,
-      required this.accountEditOrCreateViewModel,
-      required this.dashboardViewModel});
+        required this.accountListViewModel,
+        required this.accountEditOrCreateViewModel,
+        required this.dashboardViewModel});
 
   final WalletAccountListViewModel accountListViewModel;
   final WalletAccountEditOrCreateViewModel accountEditOrCreateViewModel;
@@ -45,7 +45,6 @@ class WalletAccountsPage extends StatefulWidget {
 }
 
 class _WalletAccountsPageState extends State<WalletAccountsPage> {
-  static const double _kStackVisibleFactor = 0.2;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.9;
 
   final List<AccountCustomizerListItem> _items = [];
@@ -170,31 +169,36 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                               padding: const EdgeInsets.symmetric(horizontal: 24.0),
                               child: Material(
                                 color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(999999),
-                                  onTap: _showAddAccountModal,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.surfaceContainer,
-                                        borderRadius: BorderRadius.circular(999999)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 18.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        spacing: 8,
-                                        children: [
-                                          Icon(
-                                            Icons.add,
-                                            size: 28,
-                                            color: Theme.of(context).colorScheme.primary,
-                                          ),
-                                          Text(
-                                            S.of(context).add_account,
-                                            style: TextStyle(
+                                child: MergeSemantics(
+                                  child: Semantics(
+                                    button: true,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(999999),
+                                      onTap: _showAddAccountModal,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.surfaceContainer,
+                                            borderRadius: BorderRadius.circular(999999)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            spacing: 8,
+                                            children: [
+                                              Icon(
+                                                Icons.add,
+                                                size: 28,
                                                 color: Theme.of(context).colorScheme.primary,
-                                                fontWeight: FontWeight.w500),
-                                          )
-                                        ],
+                                              ),
+                                              Text(
+                                                S.of(context).add_account,
+                                                style: TextStyle(
+                                                    color: Theme.of(context).colorScheme.primary,
+                                                    fontWeight: FontWeight.w500),
+                                              )
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -320,10 +324,10 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       printV("${item.accountListItem.id}: $orderIndex");
 
       await BalanceCardStyleSettings.fromCardDesign(
-              walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
-              accountIndex: item.accountListItem.id,
-              cardOrder: orderIndex,
-              design: item.card.design)
+          walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
+          accountIndex: item.accountListItem.id,
+          cardOrder: orderIndex,
+          design: item.card.design)
           .insert();
     }
   }

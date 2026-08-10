@@ -132,6 +132,34 @@ class _CardsViewState extends State<CardsView> {
 
     final left = (parentWidth - effectiveCardWidth) / 2.0;
 
+    final isSelected = _selectedIndex == visualIndex;
+    final accounts = accountListViewModel?.accounts;
+    final cardLabel = (accounts != null && realIndex < accounts.length)
+        ? accounts[realIndex].label
+        : S.of(context).balance;
+
+    void onCardTap() {
+      if (compactMode && visualIndex != 0) {
+        widget.onCompactModeBackgroundCardsTapped();
+      } else if (!compactMode) {
+        setState(() {
+          _selectedIndex = visualIndex;
+          if (!widget.lightningMode &&
+              accountListViewModel != null &&
+              realIndex < accountListViewModel.accounts.length) {
+            accountListViewModel.select(accountListViewModel.accounts[realIndex]);
+          }
+        });
+      }
+    }
+
+    void onCardLongPress() {
+      if (_selectedIndex == visualIndex) {
+        widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
+      }
+      HapticFeedback.heavyImpact();
+    }
+
     return AnimatedPositioned(
       key: ValueKey("$visualIndex $realIndex"),
       duration: animDuration,
@@ -142,90 +170,86 @@ class _CardsViewState extends State<CardsView> {
         duration: animDuration,
         curve: Curves.easeOut,
         scale: scale,
-        child: GestureDetector(
-          onTap: () {
-            if (compactMode && visualIndex != 0) {
-              widget.onCompactModeBackgroundCardsTapped();
-            } else if (!compactMode) {
-              setState(() {
-                _selectedIndex = visualIndex;
-                if (!widget.lightningMode &&
-                    accountListViewModel != null &&
-                    realIndex < accountListViewModel.accounts.length) {
-                  accountListViewModel.select(accountListViewModel.accounts[realIndex]);
-                }
-              });
-            }
-          },
-          onLongPress: () {
-            if (_selectedIndex == visualIndex) {
-              widget.dashboardViewModel.balanceViewModel.switchBalanceValue();
-            }
-            ;
-            HapticFeedback.heavyImpact();
-          },
-          child: Observer(builder: (_) {
-            if (!widget.lightningMode &&
-                realIndex >= (accountListViewModel?.accounts.length ?? 1)) {
-              return Container();
-            }
-            final account =
-                !widget.lightningMode && realIndex < (accountListViewModel?.accounts.length ?? 0)
-                    ? accountListViewModel?.accounts[realIndex]
-                    : null;
-
-            // The second balance should always be the lightning balance
-            // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
-            final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
-                .getMainBalanceRecord(widget.lightningMode);
-
-            late final String walletBalance;
-            late final String walletFiatBalance;
-            if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-              if (widget.dashboardViewModel.balanceViewModel.displayMode ==
-                  BalanceDisplayMode.hiddenBalance) {
-                walletBalance = '●●●●●●';
-                walletFiatBalance = '●●●●●●';
-              } else {
-                walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
-                walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+        // The card is the tap target; the balances and the card's own buttons stay
+        // reachable as children of this node.
+        child: Semantics(
+          button: true,
+          selected: isSelected,
+          label: cardLabel,
+          hint: isSelected
+              ? (widget.dashboardViewModel.balanceViewModel.displayMode ==
+              BalanceDisplayMode.hiddenBalance
+              ? S.of(context).long_press_show_balance
+              : S.of(context).long_press_hide_balance)
+              : null,
+          onTap: onCardTap,
+          onLongPress: isSelected ? onCardLongPress : null,
+          child: GestureDetector(
+            excludeFromSemantics: true,
+            onTap: onCardTap,
+            onLongPress: onCardLongPress,
+            child: Observer(builder: (_) {
+              if (!widget.lightningMode &&
+                  realIndex >= (accountListViewModel?.accounts.length ?? 1)) {
+                return Container();
               }
-            } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
-              walletBalance = "";
-              walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
-            } else {
-              walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-              walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
-            }
 
-            // the card designs is empty if widget gets built before it loads.
-            // should get populated before user sees anything
-            final CardDesign cardDesign;
-            if (widget.dashboardViewModel.cardDesigns.isEmpty) {
-              cardDesign = CardDesign.genericDefault;
-            } else if (widget.lightningMode) {
-              cardDesign = widget.dashboardViewModel.cardDesigns.last;
-            } else if (realIndex >= widget.dashboardViewModel.cardDesigns.length) {
-              cardDesign = CardDesign.genericDefault;
-            } else {
-              cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
-            }
+              final account = !widget.lightningMode &&
+                  realIndex < (accountListViewModel?.accounts.length ?? 0)
+                  ? accountListViewModel?.accounts[realIndex]
+                  : null;
 
-            final String accountName;
-            final String accountBalance;
-            if (account == null) {
-              accountName = "";
-              accountBalance = "";
-            } else {
-              accountName = account.label;
-              accountBalance = account.balance ?? "0.00";
-            }
+              // The second balance should always be the lightning balance
+              final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
+                  .getMainBalanceRecord(widget.lightningMode);
 
-            final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
-                ? ""
-                : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
+              late final String walletBalance;
+              late final String walletFiatBalance;
+              if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
+                if (widget.dashboardViewModel.balanceViewModel.displayMode ==
+                    BalanceDisplayMode.hiddenBalance) {
+                  walletBalance = '●●●●●●';
+                  walletFiatBalance = '●●●●●●';
+                } else {
+                  walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
+                  walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+                }
+              } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
+                walletBalance = "";
+                walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
+              } else {
+                walletBalance = walletBalanceRecord?.availableBalance ?? "0";
+                walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
+              }
 
-            return BalanceCard(
+              // the card designs is empty if widget gets built before it loads.
+              // should get populated before user sees anything
+              final CardDesign cardDesign;
+              if (widget.dashboardViewModel.cardDesigns.isEmpty) {
+                cardDesign = CardDesign.genericDefault;
+              } else if (widget.lightningMode) {
+                cardDesign = widget.dashboardViewModel.cardDesigns.last;
+              } else if (realIndex >= widget.dashboardViewModel.cardDesigns.length) {
+                cardDesign = CardDesign.genericDefault;
+              } else {
+                cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
+              }
+
+              final String accountName;
+              final String accountBalance;
+              if (account == null) {
+                accountName = "";
+                accountBalance = "";
+              } else {
+                accountName = account.label;
+                accountBalance = account.balance ?? "0.00";
+              }
+
+              final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
+                  ? ""
+                  : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
+
+              return BalanceCard(
                 width: effectiveCardWidth,
                 accountName: accountName,
                 accountBalance: accountBalance,
@@ -238,11 +262,13 @@ class _CardsViewState extends State<CardsView> {
                     widget.dashboardViewModel.settingsStore.fiatCurrency.title,
                 fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
                 fiatBalance: walletFiatBalance,
-                selected: _selectedIndex == visualIndex,
-                onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
+                selected: isSelected,
+                onCustomizeTapped: isSelected ? widget.onCustomizeTapped : null,
                 design: cardDesign,
-                actions: widget.actions ?? []);
-          }),
+                actions: widget.actions ?? [],
+              );
+            }),
+          ),
         ),
       ),
     );
