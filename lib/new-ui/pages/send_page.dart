@@ -1065,7 +1065,7 @@ class _NewSendPageState extends State<NewSendPage> {
     if (evm != null && isEVMCompatibleChain(currentType)) {
       final targetChainId = _evmTargetChainId(req);
       if (targetChainId != null) {
-        return targetChainId == evm!.getChainIdByWalletType(currentType);
+        return targetChainId == _currentEvmChainIdOrMainnet();
       }
     }
     return widget.sendViewModel.walletCurrencyName == req.scheme.toLowerCase();
@@ -1088,9 +1088,9 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   int _currentEvmChainIdOrMainnet() {
-    final currentType = widget.sendViewModel.wallet.type;
-    if (evm != null && isEVMCompatibleChain(currentType)) {
-      return evm!.getChainIdByWalletType(currentType);
+    final wallet = widget.sendViewModel.wallet;
+    if (evm != null && isEVMCompatibleChain(wallet.type)) {
+      return evm!.getSelectedChainId(wallet) ?? evm!.getChainIdByWalletType(wallet.type);
     }
     return 1;
   }
@@ -1150,7 +1150,7 @@ class _NewSendPageState extends State<NewSendPage> {
               : null;
           final currentChainId =
               evm != null && isEVMCompatibleChain(widget.sendViewModel.wallet.type)
-                  ? evm!.getChainIdByWalletType(widget.sendViewModel.wallet.type)
+                  ? _currentEvmChainIdOrMainnet()
                   : null;
           final isCrossChain = targetChain != null && targetChain.chainId != currentChainId;
 
@@ -1227,9 +1227,8 @@ class _NewSendPageState extends State<NewSendPage> {
     final destinationNetworkIcon = symbolIconPathForWalletType(destinationType) ?? "";
 
     final currentType = widget.sendViewModel.wallet.type;
-    final currentChainId = isEVMCompatibleChain(currentType) && evm != null
-        ? evm!.getChainIdByWalletType(currentType)
-        : null;
+    final currentChainId =
+        isEVMCompatibleChain(currentType) && evm != null ? _currentEvmChainIdOrMainnet() : null;
     final currentNetworkName = _networkDisplayName(currentType, currentChainId);
     final currentNetworkIcon = symbolIconPathForWalletType(currentType) ?? "";
 
@@ -1539,8 +1538,7 @@ class _NewSendPageState extends State<NewSendPage> {
     widget.paymentViewModel.applyManualEvmSelection(detection);
 
     final currentType = widget.sendViewModel.wallet.type;
-    final currentChainId =
-        isEVMCompatibleChain(currentType) ? evm!.getChainIdByWalletType(currentType) : null;
+    final currentChainId = isEVMCompatibleChain(currentType) ? _currentEvmChainIdOrMainnet() : null;
     if (currentChainId != null && target.chainId == currentChainId) {
       await _applyPaymentSelectingCurrency(paymentRequest, target.currency);
       return;

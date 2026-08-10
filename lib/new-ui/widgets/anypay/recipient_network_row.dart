@@ -19,7 +19,8 @@ class RecipientNetworkSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     if (evm == null) return const SizedBox.shrink();
 
-    final currentChainId = evm!.getChainIdByWalletType(wallet.type);
+    final currentChainId =
+        evm!.getSelectedChainId(wallet) ?? evm!.getChainIdByWalletType(wallet.type);
     final currentChain = evm!.getChainInfoByChainId(currentChainId);
     if (currentChain == null) return const SizedBox.shrink();
 
