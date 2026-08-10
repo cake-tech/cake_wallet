@@ -1136,22 +1136,18 @@ class _NewSendPageState extends State<NewSendPage> {
           );
           break;
         case PaymentFlowType.evmNetworkSelection:
-          if (result.chainId != null &&
-              evm != null &&
-              evm!.getChainInfoByChainId(result.chainId!) == null) {
+          if (result.chainId != null && evm!.getChainInfoByChainId(result.chainId!) == null) {
             _showUnsupportedNetworkAlert(result.chainId!);
             return;
           }
 
           final targetChainId =
               paymentRequest.scheme.isNotEmpty ? _evmTargetChainId(paymentRequest) : null;
-          final targetChain = targetChainId != null && evm != null
-              ? evm!.getChainInfoByChainId(targetChainId)
+          final targetChain =
+              targetChainId != null ? evm!.getChainInfoByChainId(targetChainId) : null;
+          final currentChainId = isEVMCompatibleChain(widget.sendViewModel.wallet.type)
+              ? _currentEvmChainIdOrMainnet()
               : null;
-          final currentChainId =
-              evm != null && isEVMCompatibleChain(widget.sendViewModel.wallet.type)
-                  ? _currentEvmChainIdOrMainnet()
-                  : null;
           final isCrossChain = targetChain != null && targetChain.chainId != currentChainId;
 
           if (isCrossChain) {
@@ -1199,17 +1195,6 @@ class _NewSendPageState extends State<NewSendPage> {
     );
   }
 
-  String _networkDisplayName(WalletType type, int? chainId) {
-    if (evm != null && isEVMCompatibleChain(type)) {
-      final id = chainId ?? evm!.getChainIdByWalletType(type);
-      final info = evm!.getChainInfoByChainId(id);
-      if (info != null) {
-        return info.name;
-      }
-    }
-    return walletTypeToString(type);
-  }
-
   Future<void> _showPaymentConfirmation(
     PaymentViewModel paymentViewModel,
     WalletSwitcherViewModel walletSwitcherViewModel,
@@ -1223,13 +1208,13 @@ class _NewSendPageState extends State<NewSendPage> {
     final destinationType = result.walletType!;
     final isEvmTarget = isEVMCompatibleChain(destinationType);
     final destinationChainId = result.chainId;
-    final destinationNetworkName = _networkDisplayName(destinationType, destinationChainId);
+    final destinationNetworkName = networkDisplayName(destinationType, destinationChainId);
     final destinationNetworkIcon = symbolIconPathForWalletType(destinationType) ?? "";
 
     final currentType = widget.sendViewModel.wallet.type;
     final currentChainId =
         isEVMCompatibleChain(currentType) && evm != null ? _currentEvmChainIdOrMainnet() : null;
-    final currentNetworkName = _networkDisplayName(currentType, currentChainId);
+    final currentNetworkName = networkDisplayName(currentType, currentChainId);
     final currentNetworkIcon = symbolIconPathForWalletType(currentType) ?? "";
 
     final hasSingleWallet =
@@ -1620,9 +1605,11 @@ class _NewSendPageState extends State<NewSendPage> {
         result.detectedCurrency ??
         walletTypeToCryptoCurrency(destWalletType, chainId: result.chainId);
 
-    final receiveAmount = resolvedToken != null
+    final receiveAmountValue = resolvedToken != null
         ? paymentRequest.resolveTokenAmount(resolvedToken)
         : (paymentRequest.amount.isNotEmpty ? paymentRequest.amount : null);
+    final receiveAmount =
+        receiveAmountValue != null ? Money.tryParse(receiveAmountValue, receiveCurrency) : null;
 
     final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
     final depositBalanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
@@ -1648,12 +1635,13 @@ class _NewSendPageState extends State<NewSendPage> {
         receiveAmount: receiveAmount,
       ),
     );
-    await showModalBottomSheet<void>(
-      context: presentContext,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => page,
+    await Navigator.of(presentContext).push<void>(
+      CupertinoPageRoute(
+        builder: (context) => Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: SafeArea(bottom: false, child: page),
+        ),
+      ),
     );
   }
 

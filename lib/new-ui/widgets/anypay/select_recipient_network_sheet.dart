@@ -161,26 +161,28 @@ class NetworkListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final children = <Widget>[];
-    for (var i = 0; i < rows.length; i++) {
-      children.add(rows[i]);
-      if (i != rows.length - 1) {
-        children.add(Divider(
-          height: 1,
-          thickness: 1,
-          color: colors.surfaceContainerHigh,
-          indent: 48,
-          endIndent: 12,
-        ));
-      }
-    }
     return Container(
       decoration: BoxDecoration(
         color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(20),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(mainAxisSize: MainAxisSize.min, children: children),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            rows[i],
+            if (i != rows.length - 1)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: colors.surfaceContainerHigh,
+                indent: 48,
+                endIndent: 12,
+              ),
+          ],
+        ],
+      ),
     );
   }
 }

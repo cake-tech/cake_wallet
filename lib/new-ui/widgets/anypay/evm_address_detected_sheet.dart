@@ -40,7 +40,7 @@ class EvmAddressDetectedSheet extends StatelessWidget {
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 32),
-            _StackedNetworkIcons(iconPaths: networks.map((n) => n.iconPath).toList()),
+            StackedNetworkIcons(iconPaths: networks.map((n) => n.iconPath).toList()),
             const SizedBox(height: 24),
             Text(
               S.of(context).evm_address_detected,
@@ -86,32 +86,35 @@ class EvmAddressDetectedSheet extends StatelessWidget {
   }
 }
 
-class _StackedNetworkIcons extends StatelessWidget {
-  const _StackedNetworkIcons({required this.iconPaths});
+class StackedNetworkIcons extends StatelessWidget {
+  const StackedNetworkIcons({
+    required this.iconPaths,
+    this.size = 50,
+    this.step = 34,
+  });
 
   final List<String> iconPaths;
-
-  static const double _size = 50;
-  static const double _step = 34;
+  final double size;
+  final double step;
 
   @override
   Widget build(BuildContext context) {
     if (iconPaths.isEmpty) return const SizedBox.shrink();
 
     final colors = Theme.of(context).colorScheme;
-    final width = _size + (iconPaths.length - 1) * _step;
+    final width = size + (iconPaths.length - 1) * step;
 
     return SizedBox(
-      height: _size,
+      height: size,
       width: width,
       child: Stack(
         children: [
           for (int i = 0; i < iconPaths.length; i++)
             Positioned(
-              left: i * _step,
+              left: i * step,
               child: Container(
-                width: _size,
-                height: _size,
+                width: size,
+                height: size,
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,

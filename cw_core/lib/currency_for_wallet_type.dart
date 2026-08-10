@@ -113,40 +113,40 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
 }
 
 String? symbolIconPathForWalletType(WalletType type) {
-  const prefix = 'assets/new-ui/card_icons/symbol_icons';
+  const prefix = "assets/new-ui/card_icons/symbol_icons";
   switch (type) {
     case WalletType.monero:
-      return '$prefix/xmr-symbol.svg';
+      return "$prefix/xmr-symbol.svg";
     case WalletType.bitcoin:
-      return '$prefix/btc-symbol.svg';
+      return "$prefix/btc-symbol.svg";
     case WalletType.litecoin:
-      return '$prefix/ltc-symbol.svg';
+      return "$prefix/ltc-symbol.svg";
     case WalletType.ethereum:
-      return '$prefix/eth-symbol.svg';
+      return "$prefix/eth-symbol.svg";
     case WalletType.base:
-      return '$prefix/base-symbol.svg';
+      return "$prefix/base-symbol.svg";
     case WalletType.arbitrum:
-      return '$prefix/arb-symbol.svg';
+      return "$prefix/arb-symbol.svg";
     case WalletType.bsc:
-      return '$prefix/bnb-symbol.svg';
+      return "$prefix/bnb-symbol.svg";
     case WalletType.bitcoinCash:
-      return '$prefix/bch-symbol.svg';
+      return "$prefix/bch-symbol.svg";
     case WalletType.polygon:
-      return '$prefix/pol-symbol.svg';
+      return "$prefix/pol-symbol.svg";
     case WalletType.solana:
-      return '$prefix/sol-symbol.svg';
+      return "$prefix/sol-symbol.svg";
     case WalletType.tron:
-      return '$prefix/trx-symbol.svg';
+      return "$prefix/trx-symbol.svg";
     case WalletType.zano:
-      return '$prefix/zano-symbol.svg';
+      return "$prefix/zano-symbol.svg";
     case WalletType.decred:
-      return '$prefix/dcr-symbol.svg';
+      return "$prefix/dcr-symbol.svg";
     case WalletType.dogecoin:
-      return '$prefix/doge-symbol.svg';
+      return "$prefix/doge-symbol.svg";
     case WalletType.zcash:
-      return '$prefix/zec-symbol.svg';
+      return "$prefix/zec-symbol.svg";
     case WalletType.nano:
-      return '$prefix/xno-symbol.svg';
+      return "$prefix/xno-symbol.svg";
     case WalletType.wownero:
     case WalletType.haven:
     case WalletType.banano:
@@ -155,4 +155,4 @@ String? symbolIconPathForWalletType(WalletType type) {
   }
 }
 
-bool isMonochromeSymbolIcon(String path) => path.contains('/symbol_icons/');
+bool isMonochromeSymbolIcon(String path) => path.contains("/symbol_icons/");

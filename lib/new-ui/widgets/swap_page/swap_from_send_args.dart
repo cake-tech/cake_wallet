@@ -1,4 +1,5 @@
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
 
@@ -15,5 +16,5 @@ class SwapFromSendArgs {
   final CryptoCurrency receiveCurrency;
   final WalletType targetWalletType;
   final Map<CryptoCurrency, CurrencyPickerBalance>? depositBalanceByAsset;
-  final String? receiveAmount;
+  final Money? receiveAmount;
 }

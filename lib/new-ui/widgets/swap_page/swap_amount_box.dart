@@ -45,7 +45,6 @@ class SwapAmountBox extends StatefulWidget {
     this.filteredNetwork,
     this.sourceSelectorMode = false,
     this.walletName,
-    this.hideWalletPicker = false,
     this.balanceByAsset,
     this.useSingleNetworkLayout = false,
     super.key,
@@ -70,7 +69,6 @@ class SwapAmountBox extends StatefulWidget {
   final WalletType? filteredNetwork;
   final bool sourceSelectorMode;
   final String? walletName;
-  final bool hideWalletPicker;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final bool useSingleNetworkLayout;
 
@@ -85,19 +83,17 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final amountFocusNode = FocusNode();
   final memoController = TextEditingController();
   mobx.ReactionDisposer? _memoReactionDisposer;
-  VoidCallback? _memoListener;
 
   @override
   void initState() {
     if (widget.isReceiverCard) {
       memoController.text = widget.exchangeViewModel.receiveAddressExtraId;
 
-      _memoListener = () {
+      memoController.addListener(() {
         if (widget.exchangeViewModel.receiveAddressExtraId != memoController.text) {
           widget.exchangeViewModel.receiveAddressExtraId = memoController.text;
         }
-      };
-      memoController.addListener(_memoListener!);
+      });
 
       _memoReactionDisposer =
           mobx.reaction((_) => widget.exchangeViewModel.receiveAddressExtraId, (String value) {
@@ -112,9 +108,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
   @override
   void dispose() {
-    if (_memoListener != null) {
-      memoController.removeListener(_memoListener!);
-    }
     _memoReactionDisposer?.call();
     memoController.dispose();
     addressController.dispose();
@@ -448,122 +441,117 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     );
                   },
                 ),
-                if (!widget.hideWalletPicker)
-                  Observer(
-                    builder: (_) {
-                      final addressEmpty = (widget.isReceiverCard &&
-                              widget.exchangeViewModel.receiveAddress.isEmpty) ||
-                          (!widget.isReceiverCard &&
-                              widget.exchangeViewModel.depositAddress.isEmpty);
-                      final addressPickerText = widget.isReceiverCard
-                          ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
-                          : S.of(context).from;
-                      final addressDescription = widget.isReceiverCard
-                          ? widget.exchangeViewModel.receiveAddressDisplayName ??
-                              _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
-                          : widget.exchangeViewModel.isSendFromExternal
-                              ? S.of(context).external
-                              : widget.exchangeViewModel.wallet.name;
-                      return Row(
-                        spacing: 8,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: _presentWalletPicker,
-                              child: Container(
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: (addressEmpty && widget.isReceiverCard)
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.surfaceContainerHigh,
-                                  borderRadius: BorderRadius.circular(9999),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                                  child: Observer(
-                                    builder: (_) => Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          spacing: 8,
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Text(
-                                              addressPickerText,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: (addressEmpty && widget.isReceiverCard)
-                                                    ? Theme.of(context).colorScheme.onPrimary
-                                                    : Theme.of(context).colorScheme.onSurface,
-                                              ),
-                                            ),
-                                            Text(
-                                              addressDescription,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        RotatedBox(
-                                          quarterTurns: 2,
-                                          child: CakeImageWidget(
-                                            imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                                            colorFilter: ColorFilter.mode(
-                                              (addressEmpty && widget.isReceiverCard)
+                Observer(
+                  builder: (_) {
+                    final addressEmpty = (widget.isReceiverCard &&
+                            widget.exchangeViewModel.receiveAddress.isEmpty) ||
+                        (!widget.isReceiverCard && widget.exchangeViewModel.depositAddress.isEmpty);
+                    final addressPickerText = widget.isReceiverCard
+                        ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
+                        : S.of(context).from;
+                    final addressDescription = widget.isReceiverCard
+                        ? widget.exchangeViewModel.receiveAddressDisplayName ??
+                            _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
+                        : widget.exchangeViewModel.isSendFromExternal
+                            ? S.of(context).external
+                            : widget.exchangeViewModel.wallet.name;
+                    return Row(
+                      spacing: 8,
+                      children: [
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: _presentWalletPicker,
+                            child: Container(
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: (addressEmpty && widget.isReceiverCard)
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(9999),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                child: Observer(
+                                  builder: (_) => Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        spacing: 8,
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Text(
+                                            addressPickerText,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: (addressEmpty && widget.isReceiverCard)
                                                   ? Theme.of(context).colorScheme.onPrimary
                                                   : Theme.of(context).colorScheme.onSurface,
-                                              BlendMode.srcIn,
                                             ),
                                           ),
+                                          Text(
+                                            addressDescription,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context).colorScheme.primary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      RotatedBox(
+                                        quarterTurns: 2,
+                                        child: CakeImageWidget(
+                                          imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                          colorFilter: ColorFilter.mode(
+                                            (addressEmpty && widget.isReceiverCard)
+                                                ? Theme.of(context).colorScheme.onPrimary
+                                                : Theme.of(context).colorScheme.onSurface,
+                                            BlendMode.srcIn,
+                                          ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                          if (!widget.isReceiverCard &&
-                              widget.exchangeViewModel.isSendFromExternal &&
-                              widget.exchangeViewModel.depositAddress.isEmpty)
-                            ModernButton.svg(
-                              svgPath: "assets/new-ui/refund_address.svg",
-                              onPressed: askForRefundAddress,
-                              size: 36,
-                              iconSize: 18,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.surfaceContainerHighest,
-                              semanticLabel: S.of(context).refund_address,
-                            ),
-                          if (widget.isReceiverCard &&
-                              widget.exchangeViewModel.receiveAddress.isEmpty) ...[
-                            ModernButton.svg(
-                              svgPath: "assets/new-ui/paste.svg",
-                              onPressed: () => widget.onPushPasteButton?.call(context),
-                              size: 36,
-                              iconSize: 20,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.surfaceContainerHighest,
-                              semanticLabel: S.of(context).paste,
-                            ),
-                            ModernButton.svg(
-                              svgPath: "assets/new-ui/scan.svg",
-                              onPressed: () => _presentQRScanner(context),
-                              size: 36,
-                              iconSize: 20,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.surfaceContainerHighest,
-                              semanticLabel: S.of(context).scan,
-                            ),
-                          ],
+                        ),
+                        if (!widget.isReceiverCard &&
+                            widget.exchangeViewModel.isSendFromExternal &&
+                            widget.exchangeViewModel.depositAddress.isEmpty)
+                          ModernButton.svg(
+                            svgPath: "assets/new-ui/refund_address.svg",
+                            onPressed: askForRefundAddress,
+                            size: 36,
+                            iconSize: 18,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            semanticLabel: S.of(context).refund_address,
+                          ),
+                        if (widget.isReceiverCard &&
+                            widget.exchangeViewModel.receiveAddress.isEmpty) ...[
+                          ModernButton.svg(
+                            svgPath: "assets/new-ui/paste.svg",
+                            onPressed: () => widget.onPushPasteButton?.call(context),
+                            size: 36,
+                            iconSize: 20,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            semanticLabel: S.of(context).paste,
+                          ),
+                          ModernButton.svg(
+                            svgPath: "assets/new-ui/scan.svg",
+                            onPressed: () => _presentQRScanner(context),
+                            size: 36,
+                            iconSize: 20,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            semanticLabel: S.of(context).scan,
+                          ),
                         ],
-                      );
-                    },
-                  ),
+                      ],
+                    );
+                  },
+                ),
                 if (widget.isReceiverCard)
                   Observer(
                     builder: (_) {

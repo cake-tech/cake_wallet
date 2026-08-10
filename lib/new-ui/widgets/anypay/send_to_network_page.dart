@@ -34,8 +34,10 @@ class SendToNetworkPage extends StatelessWidget {
             ModalTopBar(
               title: "",
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: () => Navigator.of(context).maybePop(),
               trailingIcon: const Icon(Icons.close),
+              trailingSemanticLabel: S.of(context).close,
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
             Expanded(

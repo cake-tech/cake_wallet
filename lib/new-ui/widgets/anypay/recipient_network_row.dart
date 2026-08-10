@@ -2,6 +2,7 @@ import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:flutter/material.dart";
 
@@ -22,7 +23,10 @@ class RecipientNetworkSelector extends StatelessWidget {
     final currentChainId =
         evm!.getSelectedChainId(wallet) ?? evm!.getChainIdByWalletType(wallet.type);
     final currentChain = evm!.getChainInfoByChainId(currentChainId);
-    if (currentChain == null) return const SizedBox.shrink();
+    if (currentChain == null) {
+      printV("RecipientNetworkSelector: no chain info for chainId $currentChainId");
+      return const SizedBox.shrink();
+    }
 
     return _RecipientNetworkRow(
       networkName: currentChain.name,

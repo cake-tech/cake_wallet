@@ -39,7 +39,7 @@ import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
-import "package:mobx/mobx.dart" as mobx;
+import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class NewSwapPage extends StatefulWidget {
@@ -86,7 +86,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
   final _receiveAddressFocus = FocusNode();
   final _receiveAmountDebounce = Debounce(const Duration(milliseconds: 500));
   Debounce _depositAmountDebounce = Debounce(const Duration(milliseconds: 500));
-  final List<mobx.ReactionDisposer> _disposers = [];
+  final List<ReactionDisposer> _disposers = [];
 
   bool get _shouldWaitTillSynced =>
       [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.ltc]
@@ -126,12 +126,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
       final receiveAmountController = receiveKey.currentState!.amountController;
       final depositFiatAmountController = depositKey.currentState!.fiatAmountController;
       final receiveFiatAmountController = receiveKey.currentState!.fiatAmountController;
-
-      mobx.ReactionDisposer reaction<T>(T Function(mobx.Reaction) fn, void Function(T) effect) {
-        final disposer = mobx.reaction<T>(fn, effect);
-        _disposers.add(disposer);
-        return disposer;
-      }
 
       depositFiatAmountController.addListener(() {
         if (!depositKey.currentState!.amountFocusNode.hasFocus) {
@@ -173,7 +167,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           }
         });
       });
-      reaction((_) => widget.exchangeViewModel.isFixedRateMode, (val) {
+      _disposers.add(reaction((_) => widget.exchangeViewModel.isFixedRateMode, (val) {
         Future.delayed(const Duration(seconds: 3)).then((_) {
           if (val) {
             if (depositKey.currentState?.mounted == true) {
@@ -185,9 +179,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
             }
           }
         });
-      });
+      }));
 
-      reaction((_) => widget.exchangeViewModel.depositAmount, (String amount) {
+      _disposers.add(reaction((_) => widget.exchangeViewModel.depositAmount, (String amount) {
         if (depositKey.currentState!.amountFocusNode.hasFocus) {
           return;
         }
@@ -197,7 +191,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         } else if (depositAmountController.text != amount && amount != S.of(context).all) {
           depositAmountController.text = amount;
         }
-      });
+      }));
 
       _onCurrencyChange(
         widget.exchangeViewModel.receiveCurrency,
@@ -210,60 +204,62 @@ class _NewSwapPageState extends State<NewSwapPage> {
         depositKey,
       );
 
-      reaction(
+      _disposers.add(reaction(
         (_) => widget.exchangeViewModel.wallet.name,
         (_) => _onWalletNameChange(
           widget.exchangeViewModel,
           widget.exchangeViewModel.receiveCurrency,
           receiveKey,
         ),
-      );
+      ));
 
-      reaction(
+      _disposers.add(reaction(
         (_) => widget.exchangeViewModel.wallet.name,
         (_) => _onWalletNameChange(
           widget.exchangeViewModel,
           widget.exchangeViewModel.depositCurrency,
           depositKey,
         ),
-      );
+      ));
 
-      reaction(
+      _disposers.add(reaction(
         (_) => widget.exchangeViewModel.receiveCurrency,
         (currency) => _onCurrencyChange(currency, widget.exchangeViewModel, receiveKey),
-      );
+      ));
 
-      reaction(
+      _disposers.add(reaction(
         (_) => widget.exchangeViewModel.depositCurrency,
         (currency) => _onCurrencyChange(currency, widget.exchangeViewModel, depositKey),
-      );
+      ));
 
-      reaction((_) => widget.exchangeViewModel.depositAddress, (String address) {
+      _disposers.add(reaction((_) => widget.exchangeViewModel.depositAddress, (String address) {
         if (depositKey.currentState!.addressController.text != address) {
           depositKey.currentState!.addressController.text = address;
         }
-      });
+      }));
 
-      reaction((_) => widget.exchangeViewModel.isDepositAddressEnabled, (isEnabled) {});
+      _disposers
+          .add(reaction((_) => widget.exchangeViewModel.isDepositAddressEnabled, (isEnabled) {}));
 
-      reaction((_) => widget.exchangeViewModel.receiveAmount, (String amount) {
+      _disposers.add(reaction((_) => widget.exchangeViewModel.receiveAmount, (String amount) {
         if (receiveKey.currentState!.amountController.text != amount) {
           receiveKey.currentState!.amountController.text = amount;
         }
-      });
+      }));
 
-      reaction((_) => widget.exchangeViewModel.receiveAddress, (String address) {
+      _disposers.add(reaction((_) => widget.exchangeViewModel.receiveAddress, (String address) {
         if (receiveKey.currentState!.addressController.text != address) {
           receiveKey.currentState!.addressController.text = address;
         }
-      });
+      }));
 
-      reaction(
+      _disposers.add(reaction(
         (_) => widget.exchangeViewModel.isReceiveAmountEditable,
         (bool isReceiveAmountEditable) {},
-      );
+      ));
 
-      reaction((_) => widget.exchangeViewModel.tradeState, (ExchangeTradeState state) {
+      _disposers
+          .add(reaction((_) => widget.exchangeViewModel.tradeState, (ExchangeTradeState state) {
         if (state is TradeIsCreatedFailure) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
@@ -308,9 +304,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
             backgroundColor: Colors.transparent,
           );
         }
-      });
+      }));
 
-      reaction((_) => widget.exchangeViewModel.bestRate, (double rate) {
+      _disposers.add(reaction((_) => widget.exchangeViewModel.bestRate, (double rate) {
         if (widget.exchangeViewModel.isFixedRateMode) {
           widget.exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
         } else {
@@ -324,9 +320,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           }
         }
-      });
+      }));
 
-      reaction((_) => widget.exchangeViewModel.forcedProviderRate, (double rate) {
+      _disposers.add(reaction((_) => widget.exchangeViewModel.forcedProviderRate, (double rate) {
         if (widget.exchangeViewModel.forcedProvider != null && rate == 0) {
           return;
         }
@@ -336,7 +332,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
             depositAmountController.text != S.current.all) {
           widget.exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
         }
-      });
+      }));
 
       depositAddressController.addListener(
         () => widget.exchangeViewModel.depositAddress = depositAddressController.text,
@@ -389,8 +385,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
         }
       });
 
-      reaction((_) => widget.exchangeViewModel.wallet.walletAddresses.addressForExchange,
-          (String address) {
+      _disposers.add(
+          reaction((_) => widget.exchangeViewModel.wallet.walletAddresses.addressForExchange,
+              (String address) {
         if (widget.exchangeViewModel.depositCurrency == CryptoCurrency.xmr) {
           depositKey.currentState!.changeAddress(address: address);
         }
@@ -398,7 +395,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         // if (widget.exchangeViewModel.receiveCurrency == CryptoCurrency.xmr) {
         //   receiveKey.currentState!.changeAddress(address: address);
         // }
-      });
+      }));
 
       _depositAddressFocus.addListener(() async {
         if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
@@ -448,8 +445,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
             widget.exchangeViewModel.wallet.walletAddresses.addressForExchange;
         widget.exchangeViewModel.enableFixedRateMode();
         final receiveAmount = widget.fromSend!.receiveAmount;
-        if (receiveAmount != null && receiveAmount.isNotEmpty) {
-          widget.exchangeViewModel.setCanonicalReceiveAmount(receiveAmount);
+        if (receiveAmount != null) {
+          widget.exchangeViewModel.setCanonicalReceiveAmount(receiveAmount.toString());
         }
         widget.exchangeViewModel.calculateBestRate();
       }
@@ -461,7 +458,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
     for (final disposer in _disposers) {
       disposer();
     }
-    _disposers.clear();
     _receiveAmountDebounce.cancel();
     _depositAmountDebounce.cancel();
     _depositAmountFocus.dispose();
