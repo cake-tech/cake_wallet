@@ -17,7 +17,7 @@ enum TxType {
   transparentSelfTransfer, // 12
 }
 
-enum NotePool { transparent, sapling, orchard, unknown }
+enum NotePool { transparent, sapling, orchard, ironwood }
 
 class ZkoolTx {
   ZkoolTx(final zkool_account.Tx tx, final zkool_account.TxAccount txAccount)
@@ -71,6 +71,22 @@ class ZkoolTx {
         .where((final o) => o.pool == NotePool.orchard.index)
         .fold(BigInt.zero, (final a, final o) => a + o.value);
   }
+
+  BigInt get ironwoodReceived {
+    final fromNotes = _txAccount.notes
+        .where((final n) => n.pool == NotePool.ironwood.index)
+        .fold(BigInt.zero, (final a, final n) => a + n.value);
+    if (fromNotes > BigInt.zero) {
+      return fromNotes;
+    }
+    return _txAccount.outputs
+        .where((final o) => o.pool == NotePool.ironwood.index)
+        .fold(BigInt.zero, (final a, final o) => a + o.value);
+  }
+
+  BigInt get orchardSpent => _txAccount.spends
+      .where((final s) => s.pool == NotePool.orchard.index)
+      .fold(BigInt.zero, (final a, final s) => a + s.value);
 
   String get txHash {
     final reversed = Uint8List.fromList(_txAccount.txid.reversed.toList());
@@ -222,6 +238,13 @@ class ZkoolTx {
   }
 
   static Uint8List _txidFromJson(final dynamic raw) {
+    return _bytesFromJson(raw, fieldName: "txid");
+  }
+
+  static Uint8List _bytesFromJson(final dynamic raw, {required final String fieldName}) {
+    if (raw == null) {
+      return Uint8List(0);
+    }
     if (raw is Uint8List) {
       return raw;
     }
@@ -231,7 +254,7 @@ class ZkoolTx {
     if (raw is String) {
       return base64.decode(raw);
     }
-    throw FormatException("Invalid txid in ZkoolTx json: $raw");
+    throw FormatException("Invalid $fieldName in ZkoolTx json: $raw");
   }
 
   static List<T> _listFromJson<T>(final dynamic raw, final T Function(Map<String, dynamic>) parse) {
@@ -257,6 +280,7 @@ class ZkoolTx {
         tpe: txJson["tpe"] == null ? null : _asInt(txJson["tpe"]),
         zsaValue: _asInt(txJson["zsaValue"]),
         assetDisplay: txJson["assetDisplay"] as String? ?? "",
+        isUserMemo: txJson["isUserMemo"] as bool? ?? false,
       ),
       zkool_account.TxAccount(
         id: _asInt(txAccountJson["id"]),
@@ -304,6 +328,7 @@ class ZkoolTx {
             pool: _asInt(a["pool"]),
             output: a["output"] == null ? null : _asInt(a["output"]),
             memo: a["memo"] as String?,
+            memoBytes: _bytesFromJson(a["memoBytes"], fieldName: "memoBytes"),
           ),
         ),
       ),

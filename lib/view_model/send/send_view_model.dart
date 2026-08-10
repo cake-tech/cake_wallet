@@ -190,7 +190,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     // Check if the address is valid for the current currency (except for Zano, which can use handles as addresses)
     if (selectedCryptoCurrency != CryptoCurrency.zano) {
-      final isValidAddress = AddressValidator(type: selectedCryptoCurrency).isValid(query);
+      final isValidAddress = AddressValidator(
+        type: selectedCryptoCurrency,
+        network: wallet.walletInfo.network,
+      ).isValid(query);
       if (isValidAddress) return null;
     }
 
@@ -317,8 +320,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator<String> get addressValidator =>
-      AddressValidator(type: selectedCryptoCurrency, isTestnet: wallet.isTestnet);
+  Validator<String> get addressValidator => AddressValidator(
+        type: selectedCryptoCurrency,
+        isTestnet: wallet.isTestnet,
+        network: wallet.walletInfo.network,
+      );
 
   Validator<String> get textValidator => TextValidator();
 

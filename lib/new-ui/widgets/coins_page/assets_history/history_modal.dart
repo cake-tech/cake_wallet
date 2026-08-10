@@ -25,11 +25,13 @@ class HistoryModal extends StatelessWidget {
           ModalTopBar(
             title: S.of(context).history,
             leadingIcon: Icon(Icons.close),
+            leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: Navigator.of(context).maybePop,
             trailingIcon: CakeImageWidget(
               imageUrl: "assets/new-ui/tx_export.svg",
               colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
             ),
+            trailingSemanticLabel: S.of(context).export_csv,
             onTrailingPressed: () =>
                 CsvExportService().exportToCsv(dashboardViewModel.items, context),
           ),

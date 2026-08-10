@@ -96,6 +96,7 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
+        isMigratingToIronwood = false,
         filterItems = [],
         exchangeFilterItems = [],
         subname = '',
@@ -250,6 +251,8 @@ abstract class DashboardViewModelBase with Store {
 
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
 
+    addZcashMigrationReaction();
+
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
@@ -372,6 +375,22 @@ abstract class DashboardViewModelBase with Store {
         ),
       ),
     );
+  }
+
+  @observable
+  ReactionDisposer? zcashMigrationReactionDisposer;
+
+  @action
+  void addZcashMigrationReaction()  {
+    zcashMigrationReactionDisposer?.reaction.dispose();
+    zcashMigrationReactionDisposer = null;
+
+    if (wallet.type == WalletType.zcash) {
+      zcashMigrationReactionDisposer = reaction((_) => wallet.balance.values.first, (_) async {
+        isMigratingToIronwood =
+            wallet.type == WalletType.zcash && await zcash!.hasOrchardMigratableBalance(wallet);
+      });
+    }
   }
 
   @computed
@@ -538,10 +557,16 @@ abstract class DashboardViewModelBase with Store {
           .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
           .toSet();
 
-      transactions.removeWhere(
-        (item) => newKeys
-            .contains(_txIdentityString(item.transaction.txHash, item.transaction.direction)),
-      );
+      transactions.removeWhere((item) {
+        if (wallet.type == WalletType.zcash) {
+          return newTransactions.any(
+            (n) => n.transaction.txHash == item.transaction.txHash,
+          );
+        }
+        return newKeys.contains(
+          _txIdentityString(item.transaction.txHash, item.transaction.direction),
+        );
+      });
 
       transactions.addAll(newTransactions);
       // transactions.clear();
@@ -1264,6 +1289,8 @@ abstract class DashboardViewModelBase with Store {
     name = wallet.name;
     loadFilterItems();
 
+    addZcashMigrationReaction();
+
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
 
@@ -1544,6 +1571,9 @@ abstract class DashboardViewModelBase with Store {
       return ServicesResponse([], false, '');
     }
   }
+
+  @observable
+  bool isMigratingToIronwood;
 
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {

@@ -117,6 +117,12 @@ class CWSolana extends Solana {
   }
 
   @override
+  Future<bool?> isTokenVerifiedOnJupiter(WalletBase wallet, String mintAddress) {
+    final solanaWallet = wallet as SolanaWallet;
+    return solanaWallet.isTokenVerifiedOnJupiter(mintAddress);
+  }
+
+  @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     if (transaction.amount.currency.symbol == CryptoCurrency.sol.symbol) {
       return CryptoCurrency.sol;
