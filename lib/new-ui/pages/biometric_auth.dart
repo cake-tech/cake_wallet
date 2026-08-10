@@ -1,4 +1,3 @@
-import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modal_header.dart";
@@ -20,7 +19,7 @@ class BiometricAuthPage extends StatelessWidget {
           final displayName = _securitySettingsViewModel.biometricDisplayType?.displayName ?? "";
           final iconPath = _securitySettingsViewModel.biometricDisplayType?.iconPath ?? "";
 
-          return Container(
+          return ColoredBox(
             color: Theme.of(context).colorScheme.surface,
             child: Column(
               children: [
@@ -31,17 +30,19 @@ class BiometricAuthPage extends StatelessWidget {
                   leadingSemanticLabel: S.of(context).seed_alert_back,
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Column(
                     spacing: 24,
                     children: [
                       ModalHeader(
-                          title: displayName,
-                          message: S.of(context).configure_biometric_authentication,
-                          iconPath: iconPath),
-                      NewListSections(sections: {
-                        "": [
-                          ListItemToggle(
+                        title: displayName,
+                        message: S.of(context).configure_biometric_authentication,
+                        iconPath: iconPath,
+                      ),
+                      NewListSections(
+                        sections: {
+                          "": [
+                            ListItemToggle(
                               keyValue: "use bio",
                               label: "${S.of(context).use} ${displayName}",
                               value: _securitySettingsViewModel.allowBiometricalAuthentication,
@@ -55,12 +56,14 @@ class BiometricAuthPage extends StatelessWidget {
                                             .biometricAuthenticated()) {
                                           _securitySettingsViewModel
                                               .setAllowBiometricalAuthentication(
-                                                  isAuthenticatedSuccessfully);
+                                            isAuthenticatedSuccessfully,
+                                          );
                                         }
                                       } else {
                                         _securitySettingsViewModel
                                             .setAllowBiometricalAuthentication(
-                                                isAuthenticatedSuccessfully);
+                                          isAuthenticatedSuccessfully,
+                                        );
                                       }
                                     },
                                     conditionToDetermineIfToUse2FA: _securitySettingsViewModel
@@ -70,33 +73,32 @@ class BiometricAuthPage extends StatelessWidget {
                                   _securitySettingsViewModel
                                       .setAllowBiometricalAuthentication(value);
                                 }
-                              }),
-                          ListItemToggle(
+                              },
+                            ),
+                            ListItemToggle(
                               keyValue: "require pin",
                               label: S.of(context).require_pin_for_transactions,
                               value: _securitySettingsViewModel.pinRequiredForTransactions,
                               onChanged: (value) {
-                                if (value) {
-                                  _securitySettingsViewModel.authService.authenticateAction(
-                                    context,
-                                    onAuthSuccess: (isAuthenticatedSuccessfully) {
-                                      if (isAuthenticatedSuccessfully) {
-                                        _securitySettingsViewModel.pinRequiredForTransactions =
-                                            value;
-                                      }
-                                    },
-                                    conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                                        .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                                  );
-                                } else {
-                                  _securitySettingsViewModel.pinRequiredForTransactions = false;
-                                }
-                              })
-                        ]
-                      })
+                                _securitySettingsViewModel.authService.authenticateAction(
+                                  context,
+                                  isTransaction: true,
+                                  onAuthSuccess: (isAuthenticatedSuccessfully) {
+                                    if (isAuthenticatedSuccessfully) {
+                                      _securitySettingsViewModel.pinRequiredForTransactions = value;
+                                    }
+                                  },
+                                  conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                                      .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                                );
+                              },
+                            ),
+                          ],
+                        },
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           );
