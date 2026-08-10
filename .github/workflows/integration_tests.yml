@@ -25,4 +25,5 @@ jobs:
       ref: ${{ github.event.pull_request.head.sha || github.sha }}
       suite_dir: integration_test/suites
       test_tier: tier0
+      slack_notify: true
     secrets: inherit

@@ -38,6 +38,10 @@ on:
         required: false
         type: number
         default: 180
+      slack_notify:
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -308,6 +312,7 @@ jobs:
             TEST_TIMEOUT=600 \
             RETRY_COUNT=$RETRIES \
             PLATFORM=android \
+            SUMMARY_FILE="${TIER}_summary.txt" \
             ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log"
           TEST_EXIT_CODE=$?
           set -e
@@ -406,6 +411,135 @@ jobs:
           path: |
             ${{ github.workspace }}/tier1_run.log
             ${{ github.workspace }}/tier1_logcat.txt
+
+      # Superseded runs are cancelled on purpose, reporting those would be noise
+      - name: Report the run to slack
+        if: ${{ !cancelled() && inputs.slack_notify }}
+        continue-on-error: true
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_TESTS_CHANNEL }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
+            echo "::notice::No slack token or channel configured, skipping the report"
+            exit 0
+          fi
+
+          fmt() {
+            printf '%dm %02ds' $(( $1 / 60 )) $(( $1 % 60 ))
+          }
+
+          field() {
+            awk -F= -v key="$2" '$1 == key { print $2; exit }' "$1"
+          }
+
+          # A tier with no summary never got as far as writing one, which is worth saying
+          # rather than leaving out of the report
+          tier_block() {
+            local file="$1" label="$2" suffix="$3"
+
+            if [[ ! -f "$file" ]]; then
+              printf '%-6s did not run' "$label"
+              return
+            fi
+
+            printf '%-6s %s/%s passed in %s%s' \
+              "$label" "$(field "$file" passed)" "$(field "$file" total)" \
+              "$(fmt "$(field "$file" duration)")" "$suffix"
+
+            while IFS= read -r entry; do
+              [[ -n "$entry" ]] || continue
+              printf '\n       FAIL  %s (%s)' "${entry%%|*}" "$(fmt "${entry##*|}")"
+            done < <(sed -n 's/^fail=//p' "$file")
+          }
+
+          pass_block() {
+            local file="$1" label="$2"
+
+            [[ -f "$file" ]] || return 0
+
+            printf '%s passed (%s)' "$label" "$(field "$file" passed)"
+
+            while IFS= read -r entry; do
+              [[ -n "$entry" ]] || continue
+              printf '\n  %s (%s)' "${entry%%|*}" "$(fmt "${entry##*|}")"
+            done < <(sed -n 's/^pass=//p' "$file")
+          }
+
+          tier0_failed=1
+          tier1_failed=0
+          total_passed=0
+
+          if [[ -f tier0_summary.txt ]]; then
+            tier0_failed=$(field tier0_summary.txt failed)
+          fi
+
+          if [[ -f tier1_summary.txt ]]; then
+            tier1_failed=$(field tier1_summary.txt failed)
+          fi
+
+          for file in tier0_summary.txt tier1_summary.txt; do
+            [[ -f "$file" ]] || continue
+            total_passed=$(( total_passed + $(field "$file" passed) ))
+          done
+
+          # tier0 is the gate, tier1 runs non-blocking, so they do not mean the same thing
+          if (( tier0_failed > 0 )); then
+            headline=":x: Integration tests failed"
+          elif (( tier1_failed > 0 )); then
+            headline=":warning: Integration tests passed, tier1 has failures"
+          else
+            headline=":white_check_mark: Integration tests passed"
+          fi
+
+          where="$BRANCH"
+          if [[ -n "$PR_NUMBER" ]]; then
+            where="$where (PR #$PR_NUMBER)"
+          fi
+
+          message=$(
+            printf '%s\n%s\n\n```\n%s\n%s\n```\n%s by %s\n%s' \
+              "$headline" "$where" \
+              "$(tier_block tier0_summary.txt tier0 '')" \
+              "$(tier_block tier1_summary.txt tier1 ' (non-blocking)')" \
+              "${COMMIT:0:8}" "$ACTOR" "$RUN_URL"
+          )
+
+          response=$(curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-type: application/json; charset=utf-8" \
+            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$message" \
+              '{channel: $channel, text: $text}')")
+
+          if [[ "$(jq -r '.ok' <<< "$response")" != "true" ]]; then
+            echo "::warning::Slack rejected the report: $(jq -r '.error // "unknown"' <<< "$response")"
+            exit 0
+          fi
+
+          thread_ts=$(jq -r '.ts // empty' <<< "$response")
+
+          if [[ -z "$thread_ts" ]] || (( total_passed == 0 )); then
+            exit 0
+          fi
+
+          # Everything that passed goes in a reply, so the channel keeps the short version
+          # and the full list stays one click away
+          passed=$(
+            printf '```\n%s\n\n%s\n```' \
+              "$(pass_block tier0_summary.txt tier0)" \
+              "$(pass_block tier1_summary.txt tier1)"
+          )
+
+          curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-type: application/json; charset=utf-8" \
+            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg ts "$thread_ts" --arg text "$passed" \
+              '{channel: $channel, thread_ts: $ts, text: $text}')" > /dev/null
 
       - name: Post-test cleanup
         if: always()

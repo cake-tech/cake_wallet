@@ -195,6 +195,9 @@ Test wallet seeds and receive addresses live in `lib/.secrets.g.dart` under name
 Adding a new test secret means adding it in `tool/utils/secret_key.dart`, mapping it in
 `TestWallets` and asking the team lead to add the value to the CI secret.
 
+The slack report uses two more repository secrets, `SLACK_APP_TOKEN` (already there for the
+apk uploads) and `SLACK_TESTS_CHANNEL`, which is a channel id rather than a webhook.
+
 ## Funds suites
 
 `funds_suites/` restore funded wallets and move real funds: a small self send on every
@@ -237,6 +240,13 @@ tier0 and tier1 each get their own emulator step and upload their logs separatel
 runner that dies during tier1 cannot take the gate's own results with it. The gradle heap
 is capped before the test phase because the daemon and the emulator together were
 exhausting the runner.
+
+Every run posts to slack. The message names each tier's counts, its duration and any suite
+that failed, and the full list of what passed goes in a reply on the same message so the
+channel keeps the short version. It needs `SLACK_APP_TOKEN` and `SLACK_TESTS_CHANNEL`, and
+without either the step logs a notice and skips rather than failing the gate. Cancelled
+runs stay quiet, since superseded runs are cancelled on purpose. The report is built from
+the `SUMMARY_FILE` each tier writes, so anything the runner counts is available to it.
 
 Two environment quirks are worth knowing when a build fails in CI but not locally: the
 deps docker image regenerates the mweb ffi bindings with an ffigen too old for the current

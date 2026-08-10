@@ -17,6 +17,7 @@ set -euo pipefail
 #   MAX_VOID_ATTEMPTS     extra attempts when the driver never attached (default 2)
 #   MAX_TOTAL_VOID_ATTEMPTS  give up on the whole run after this many, the environment is broken (default 4)
 #   REMOVE_DATA_DIRECTORY set to N to keep app data between suites (default wipes it)
+#   SUMMARY_FILE          path to write a key=value summary of the run to, for reporting
 
 SUITE_DIR=${SUITE_DIR:-integration_test/suites}
 TEST_TIER=${TEST_TIER:-all}
@@ -27,6 +28,7 @@ MAX_VOID_ATTEMPTS=${MAX_VOID_ATTEMPTS:-2}
 MAX_TOTAL_VOID_ATTEMPTS=${MAX_TOTAL_VOID_ATTEMPTS:-4}
 REMOVE_DATA_DIRECTORY=${REMOVE_DATA_DIRECTORY:-Y}
 EXTRA_DART_DEFINES=${EXTRA_DART_DEFINES:-}
+SUMMARY_FILE=${SUMMARY_FILE:-}
 PREBUILT_APK=${PREBUILT_APK:-}
 
 # Linux desktop data directories to wipe between suites
@@ -294,6 +296,28 @@ write_github_summary() {
     } >> "$GITHUB_STEP_SUMMARY"
 }
 
+# Machine readable counterpart to the github summary, for whoever has to build a message
+# out of the run rather than read it.
+write_summary_file() {
+    if [[ -z "$SUMMARY_FILE" ]]; then
+        return
+    fi
+
+    {
+        echo "tier=$TEST_TIER"
+        echo "total=${#targets[@]}"
+        echo "passed=${#passed_tests[@]}"
+        echo "failed=${#failed_tests[@]}"
+        echo "duration=$1"
+        for entry in "${passed_tests[@]+"${passed_tests[@]}"}"; do
+            echo "pass=$entry"
+        done
+        for entry in "${failed_tests[@]+"${failed_tests[@]}"}"; do
+            echo "fail=$entry"
+        done
+    } > "$SUMMARY_FILE"
+}
+
 main() {
     log "Starting integration test runner"
 
@@ -354,6 +378,7 @@ main() {
     fi
 
     write_github_summary
+    write_summary_file "$total_duration"
 
     if (( ${#failed_tests[@]} > 0 )); then
         echo -e "\nFailed Tests:"
