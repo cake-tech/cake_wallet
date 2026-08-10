@@ -68,7 +68,6 @@ class OnboardingFlows {
 
     await _selectWalletType(type);
 
-    // BIP39 chains land on the wallet group description page before naming the wallet.
     if (_welcomePageRobot.hasNewSingleSeedButton()) {
       await _welcomePageRobot.tapNewSingleSeed();
     }
@@ -84,9 +83,6 @@ class OnboardingFlows {
     await _completeWalletCreationSteps(type);
   }
 
-  // Adds a wallet to the seed an existing wallet already uses, which is what the app calls a
-  // wallet group. A child wallet skips the seed and verification screens, it is shown a page
-  // explaining it shares a seed instead, so this cannot reuse the normal creation steps.
   Future<void> createWalletInGroupOf(WalletType type, String existingWalletName) async {
     tester.printToConsole("Adding a ${type.name} wallet to the seed of $existingWalletName");
 
@@ -109,8 +105,6 @@ class OnboardingFlows {
     await _walletGroupExistingSeedPageRobot.openWallet();
   }
 
-  // Stops on the naming form instead of going through with it, for suites that care about
-  // what the form does rather than the wallet it would have made.
   Future<void> startCreatingWalletFromWalletList(WalletType type) async {
     await _walletListPageRobot.navigateToCreateNewWalletPage();
 
@@ -130,8 +124,6 @@ class OnboardingFlows {
     await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
   }
 
-  // Stops on the restore form, for suites that care about what it accepts rather than the
-  // wallet it would have restored.
   Future<void> startRestoringFirstWallet(WalletType type, {List<int>? pin}) async {
     await _createPinWelcomePageRobot.tapSetAPinButton();
 

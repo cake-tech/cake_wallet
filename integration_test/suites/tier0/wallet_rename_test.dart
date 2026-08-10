@@ -35,8 +35,6 @@ void main() {
     final appStore = getIt.get<AppStore>();
     final renamedWallet = appStore.wallet!.name;
 
-    // The wallet you are in has no edit button, so a second wallet has to be opened before
-    // the first one can be edited at all.
     await dashboardRobot.openWalletsTab();
     await onboardingFlows.createAdditionalWalletFromWalletList(WalletType.ethereum);
 
@@ -52,8 +50,6 @@ void main() {
     await walletListRobot.openEditFor(renamedWallet);
     await walletEditRobot.isDisplayed();
 
-    // Two wallets under one name is what the check exists to stop, since the name is how
-    // every screen after this tells them apart.
     await walletEditRobot.enterName(openWallet);
     await walletEditRobot.save();
 

@@ -12,7 +12,7 @@ import "../robots/new_swap_page_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // We test for everything up to the point of creating the swap
+  // tests everything up to the point of creating the trade
   integrationTest("Swap prices a real deposit without creating a trade", (tester) async {
     final appLauncher = AppLauncher(tester);
     final fundsFlows = FundsFlows(tester);

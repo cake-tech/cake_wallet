@@ -46,8 +46,6 @@ void main() {
     await settingsRobot.openRow(Routes.securityBackupPage);
     await securityRobot.isDisplayed();
 
-    // Changing the pin asks for the current one first, so a stranger holding the phone cannot
-    // lock the owner out of it.
     await securityRobot.openChangePin();
     await authFlows.authenticateWithPin();
 
@@ -58,8 +56,6 @@ void main() {
 
     await securityRobot.isDisplayed();
 
-    // The only thing that proves the change took is the new pin opening something the old one
-    // used to guard.
     await securityRobot.goBack();
     await settingsRobot.isDisplayed();
 

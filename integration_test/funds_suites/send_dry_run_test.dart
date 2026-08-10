@@ -57,7 +57,6 @@ void main() {
         await sendRobot.enterAmount(TestConfig.fundsSendAmountFor(type));
         await sendRobot.tapSendButton();
 
-        // Stops here on purpose. The swiper being on screen is the assertion
         await sendRobot.confirmTransactionBuilt();
 
         tester.printToConsole("${type.name} built a transaction, leaving it unsent");

@@ -16,8 +16,6 @@ class ConnectionSyncPageRobot extends BaseRobot {
   Future<void> setFiatApiMode(FiatApiMode mode) async {
     await tapByKey("fiat_api");
 
-    // The mode already in use is drawn by a different branch of the picker, so it carries a
-    // key of its own.
     final unselected = find.byKey(ValueKey("picker_items_index_${mode.title}_button_key"));
     final selected =
         find.byKey(ValueKey("picker_items_index_${mode.title}_selected_item_button_key"));

@@ -13,8 +13,6 @@ import "../../robots/new_settings_page_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // tier1 because the node list is speed tested against the live nodes as soon as the page
-  // opens, so this needs the network even though switching itself is local.
   integrationTest("Switching nodes changes which one the wallet is pointed at", (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);
@@ -42,8 +40,6 @@ void main() {
 
     await nodesRobot.switchToAnotherNode();
 
-    // Which node a wallet talks to decides what it sees, so a switch that quietly does not
-    // take leaves the user on a node they think they left.
     expect(
       nodesRobot.currentNodeUri(),
       isNot(before),

@@ -50,8 +50,6 @@ void main() {
 
     await sendRobot.pickContactFromAddressBook(contactName);
 
-    // The whole point of saving a contact is not having to retype an address, so a picker
-    // that fills in anything other than what was saved is worse than no picker at all.
     expect(
       sendRobot.enteredAddress(),
       contactAddress,

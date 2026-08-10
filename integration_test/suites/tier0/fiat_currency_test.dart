@@ -48,8 +48,6 @@ void main() {
     await homePageRobot.openSettingsSheet();
     await settingsRobot.isDisplayed();
 
-    // The fiat api is on out of the box, and turning it off is what puts the app in the state
-    // this test is about, where prices are not fetched at all.
     if (settingsStore.fiatApiMode != FiatApiMode.disabled) {
       await settingsRobot.openRow(Routes.connectionSync);
       await connectionRobot.isDisplayed();

@@ -29,7 +29,6 @@ void main() {
 
     await swapRobot.enterDepositAmount("1");
 
-    // A rate arriving proves the provider round trip, the flow stops before any trade.
     await swapRobot.confirmQuoteReceived();
 
     await swapRobot.dismissModal();

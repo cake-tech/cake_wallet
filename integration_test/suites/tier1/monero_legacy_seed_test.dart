@@ -13,8 +13,6 @@ import "../../robots/new_dashboard_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // tier1 because a legacy restore takes a block height and starts scanning from it, so it
-  // wants a node. The polyseed path the other monero tests use never goes through any of this.
   integrationTest("A 25 word monero seed restores through the legacy path", (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);
@@ -31,8 +29,6 @@ void main() {
 
     await appLauncher.launchApp(testKey: "monero_legacy_seed_test_app_key");
 
-    // Choosing the legacy seed type and entering the restore height are both part of this,
-    // and neither happens for a polyseed.
     await onboardingFlows.restoreFirstWalletFromSeed(WalletType.monero, seed: legacySeed);
 
     await dashboardRobot.isDisplayed();

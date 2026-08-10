@@ -10,7 +10,6 @@ import "../../robots/new_dashboard_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // tier1 because it needs a wallet with a history, which only comes back from a node.
   integrationTest("Tapping a transaction opens the details of that transaction", (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);

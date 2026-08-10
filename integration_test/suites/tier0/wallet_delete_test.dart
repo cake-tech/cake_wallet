@@ -35,8 +35,6 @@ void main() {
     final appStore = getIt.get<AppStore>();
     final deletedWallet = appStore.wallet!.name;
 
-    // Deleting is only offered for a wallet that is not open, so a second one has to be
-    // created and left open before the first can be removed.
     await dashboardRobot.openWalletsTab();
     await onboardingFlows.createAdditionalWalletFromWalletList(WalletType.ethereum);
 
@@ -52,8 +50,6 @@ void main() {
     await walletListRobot.openEditFor(deletedWallet);
     await walletEditRobot.isDisplayed();
 
-    // Deleting asks for the pin first, since anyone holding an unlocked phone could
-    // otherwise wipe a wallet the owner still has funds in.
     await walletEditRobot.tapDelete();
     await authFlows.authenticateWithPinIfPrompted();
 
@@ -74,8 +70,6 @@ void main() {
       reason: "Deleting $deletedWallet took $keptWallet with it",
     );
 
-    // A wallet still on disk after the user deleted it is the failure that matters here,
-    // the list having stopped drawing it is not enough.
     final stored = await WalletInfo.getAll();
     final names = stored.map((wallet) => wallet.name).toList();
 

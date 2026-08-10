@@ -21,8 +21,6 @@ void main() {
     final dashboardRobot = NewDashboardRobot(tester);
     final homePageRobot = HomePageRobot(tester);
 
-    // A group is one seed across different chains. The page deliberately hides wallets of the
-    // type being created, since the same seed cannot back two wallets of one type.
     const firstType = WalletType.solana;
     const secondType = WalletType.ethereum;
 
@@ -56,16 +54,12 @@ void main() {
 
     expect(appStore.wallet?.type, secondType);
 
-    // Sharing the seed is what makes it a group rather than two unrelated wallets, and it is
-    // the part that would silently be wrong if the wrong mnemonic were passed along.
     expect(
       appStore.wallet!.seed,
       sharedSeed,
       reason: "The wallet added to the group derived its own seed instead of sharing one",
     );
 
-    // Both are now under one group in the list, so the first is only reachable by opening
-    // that group. This is the path a wallet outside a group never exercises.
     await walletFlows.switchToWallet(firstWalletName);
 
     await homePageRobot.isDisplayed();

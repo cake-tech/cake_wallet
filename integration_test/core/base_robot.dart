@@ -153,7 +153,6 @@ abstract class BaseRobot {
     return false;
   }
 
-  // The deepest navigator is the one closest to what is on screen.
   Future<void> goBack() async {
     final navigator = tester.state<NavigatorState>(find.byType(Navigator).last);
     navigator.pop();
@@ -161,7 +160,6 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  // Modal sheets are pushed onto the root navigator.
   Future<void> dismissModal() async {
     final navigator = tester.state<NavigatorState>(find.byType(Navigator).first);
     navigator.pop();
@@ -224,7 +222,6 @@ abstract class BaseRobot {
     return tester.widget<Text>(finder.first).data;
   }
 
-  // Screenshots are diagnostics, a failed one must never be what fails the test.
   Future<void> takeScreenshot(String name) async {
     try {
       final binding = tester.binding;

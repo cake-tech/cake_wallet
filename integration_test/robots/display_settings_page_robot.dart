@@ -16,8 +16,6 @@ class DisplaySettingsPageRobot extends BaseRobot {
     await isSpecificPage<DisplaySettingsPage>();
   }
 
-  // The language row is always there. The currency row next to it is only built when the
-  // fiat api mode is on, so it cannot be reached without turning that on first.
   Future<void> openLanguagePicker() async {
     await tapByKey("display_settings_language");
   }
@@ -39,8 +37,6 @@ class DisplaySettingsPageRobot extends BaseRobot {
     await pumpUntilFound(find.byType(FiatCurrencyPickerSheet));
   }
 
-  // The full list is long enough that the wanted currency is usually off screen, so the
-  // search field is the way in rather than scrolling to it.
   Future<void> chooseFiatCurrency(FiatCurrency currency) async {
     final searchField = find.descendant(
       of: find.byType(CurrencyPickerSearchField),

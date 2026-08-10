@@ -12,7 +12,6 @@ class WalletEditPageRobot extends BaseRobot {
     await isSpecificPage<WalletEditPage>();
   }
 
-  // The field starts out holding the current name, entering text replaces all of it.
   Future<void> enterName(String name) async {
     final input = find.byKey(const ValueKey("wallet_edit_page_name_input_key"));
 

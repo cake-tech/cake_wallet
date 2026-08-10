@@ -23,8 +23,6 @@ class ContactRobot extends BaseRobot {
     await enterTextByKey("contact_page_name_textfield_key", name);
   }
 
-  // The currency has to be chosen before the address field is built at all, the form has no
-  // way to validate an address until it knows which chain it is for.
   Future<void> chooseCurrency(String currencyName) async {
     await tapByKey("contact_page_currency_picker_button_key");
 
@@ -44,9 +42,6 @@ class ContactRobot extends BaseRobot {
     await tester.pump(const Duration(milliseconds: 300));
   }
 
-  // Saving pops the form, so the form going away is what says the save was accepted. The
-  // button sits disabled until the view model has a name, a currency and an address, so a tap
-  // that changes nothing leaves us here.
   Future<void> save() async {
     await tapByKey("contact_page_save_button_key");
 
@@ -55,9 +50,6 @@ class ContactRobot extends BaseRobot {
     await settle();
   }
 
-  // Asserts against the saved records rather than the rows, the list filters what it shows by
-  // the currency in play. What matters is that the book kept the address it was handed, since
-  // the whole point is pasting an address once and trusting it afterwards.
   void expectContactSaved(String name, String address) {
     final page = tester.widget<ContactListPage>(find.byType(ContactListPage));
 

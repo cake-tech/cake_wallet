@@ -19,8 +19,6 @@ class ManageNodesPageRobot extends BaseRobot {
     return page.nodeListViewModel.currentNode.uriRaw;
   }
 
-  // The current node is drawn above the list, so the rows after the first are the ones that
-  // can be switched to. Changing asks for confirmation, which is the point of the dialog.
   Future<void> switchToAnotherNode() async {
     final rows = find.byType(NodeListRow);
 
