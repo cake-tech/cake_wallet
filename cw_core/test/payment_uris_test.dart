@@ -111,6 +111,39 @@ void main() {
       expect(parsed.address, recipient);
       expect(parsed.contractAddress, contract);
       expect(parsed.chainId, 1);
+      expect(parsed.rawTokenAmount, "1000000");
+      expect(parsed.amount, "");
+    });
+
+    test("keeps the uint256 raw so the caller can apply the token decimals", () {
+      final parsed = ERC681URI.fromUri(
+        Uri.parse(
+          "ethereum:0xdAC17F958D2ee523a2206206994597C13D831ec7@1/transfer?address=$recipient&uint256=1000000",
+        ),
+      );
+
+      expect(parsed.rawTokenAmount, "1000000");
+      expect(parsed.amount, "");
+    });
+
+    test("prefers the amount param over the uint256 when both are present", () {
+      final parsed = ERC681URI.fromUri(
+        Uri.parse(
+          "ethereum:$contract@1/transfer?address=$recipient&uint256=1000000000000000000&amount=1",
+        ),
+      );
+
+      expect(parsed.amount, "1");
+      expect(parsed.rawTokenAmount, "1000000000000000000");
+    });
+
+    test("treats a uint256 with a decimal point as a display amount", () {
+      final parsed = ERC681URI.fromUri(
+        Uri.parse("ethereum:$contract@1/transfer?address=$recipient&uint256=1.5"),
+      );
+
+      expect(parsed.amount, "1.5");
+      expect(parsed.rawTokenAmount, null);
     });
 
     test("parses a native transfer with chainId", () {
@@ -124,15 +157,39 @@ void main() {
       expect(parsed.amount, "2");
     });
 
-    test("emits the uint256 for a token transfer with an amount", () {
+    test("emits the uint256 and the amount param for an 18 decimal token", () {
       final uri =
           ERC681URI(chainId: 137, address: recipient, amount: "1", contractAddress: contract);
 
-      // The emitted uint256 assumes 18 decimals, mirroring the parse side.
       expect(
         uri.toString(),
-        "ethereum:$contract@137/transfer?address=$recipient&uint256=1000000000000000000",
+        "ethereum:$contract@137/transfer?address=$recipient&uint256=1000000000000000000&amount=1",
       );
+    });
+
+    test("omits the uint256 for tokens that do not use 18 decimals", () {
+      final uri = ERC681URI(
+        chainId: 137,
+        address: recipient,
+        amount: "1.5",
+        contractAddress: contract,
+        tokenDecimals: 6,
+      );
+
+      expect(uri.toString(), "ethereum:$contract@137/transfer?address=$recipient&amount=1.5");
+    });
+
+    test("emits a stored raw token amount verbatim", () {
+      final uri = ERC681URI(
+        chainId: 1,
+        address: recipient,
+        amount: "",
+        contractAddress: contract,
+        tokenDecimals: 6,
+        rawTokenAmount: "1000000",
+      );
+
+      expect(uri.toString(), "ethereum:$contract/transfer?address=$recipient&uint256=1000000");
     });
 
     test("parses a scientific notation value", () {

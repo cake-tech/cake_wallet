@@ -502,6 +502,7 @@ abstract class ExchangeTradeViewModelBase with Store {
           address: address,
           amount: amount,
           contractAddress: erc20Token.contractAddress,
+          tokenDecimals: erc20Token.decimal,
         );
       }
       return null;

@@ -272,7 +272,8 @@ class _NewSendPageState extends State<NewSendPage> {
             if (!mounted) {
               return;
             }
-            _amountControllers[0].text = widget.initialPaymentRequest!.amount;
+            _amountControllers[0].text =
+                widget.initialPaymentRequest!.resolveTokenAmount(token) ?? "";
           });
         } else {
           _amountControllers[0].text = widget.initialPaymentRequest!.amount;
@@ -292,6 +293,7 @@ class _NewSendPageState extends State<NewSendPage> {
                   amount: paymentRequest.amount,
                   contractAddress: paymentRequest.contractAddress,
                   chainId: paymentRequest.chainId ?? _currentEvmChainIdOrMainnet(),
+                  rawTokenAmount: paymentRequest.rawTokenAmount,
                 ).toString();
               } else {
                 final amount =
@@ -1339,6 +1341,7 @@ class _NewSendPageState extends State<NewSendPage> {
     PaymentRequest paymentRequest,
     CryptoCurrency? fallbackCurrency,
   ) async {
+    String? amountOverride;
     final contract = paymentRequest.contractAddress;
     if (contract != null && contract.isNotEmpty) {
       final token = await TokenUtilities.findTokenByAddress(
@@ -1354,13 +1357,14 @@ class _NewSendPageState extends State<NewSendPage> {
         return;
       }
       await widget.sendViewModel.fetchTokenForContractAddress(contract);
+      amountOverride = paymentRequest.resolveTokenAmount(token);
     } else if (fallbackCurrency != null) {
       widget.sendViewModel.setSelectedCryptoCurrency(fallbackCurrency.title);
     }
     if (!mounted) {
       return;
     }
-    _applyPaymentRequest(paymentRequest);
+    _applyPaymentRequest(paymentRequest, amountOverride: amountOverride);
   }
 
   Future<void> _completeWalletSwitch(
@@ -1561,20 +1565,21 @@ class _NewSendPageState extends State<NewSendPage> {
     );
   }
 
-  void _applyPaymentRequest(PaymentRequest paymentRequest) {
+  void _applyPaymentRequest(PaymentRequest paymentRequest, {String? amountOverride}) {
     if (widget.sendViewModel.usePayjoin) {
       widget.sendViewModel.payjoinUri = paymentRequest.pjUri;
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
-    if (paymentRequest.amount.isNotEmpty) {
+    final amountToApply = amountOverride ?? paymentRequest.amount;
+    if (amountToApply.isNotEmpty) {
       try {
         _amountControllers[_selectedOutput].text =
             widget.sendViewModel.amountParsingProxy.getDisplayCryptoAmount(
-          paymentRequest.amount,
+          amountToApply,
           widget.sendViewModel.selectedCryptoCurrency,
         );
       } catch (e) {
-        printV('applyPaymentRequest: failed to parse amount "${paymentRequest.amount}": $e');
+        printV('applyPaymentRequest: failed to parse amount "$amountToApply": $e');
       }
     }
     // _memoControllers[_selectedOutput].text = paymentRequest.note;
@@ -1617,7 +1622,9 @@ class _NewSendPageState extends State<NewSendPage> {
         result.detectedCurrency ??
         walletTypeToCryptoCurrency(destWalletType, chainId: result.chainId);
 
-    final receiveAmount = paymentRequest.amount.isNotEmpty ? paymentRequest.amount : null;
+    final receiveAmount = resolvedToken != null
+        ? paymentRequest.resolveTokenAmount(resolvedToken)
+        : (paymentRequest.amount.isNotEmpty ? paymentRequest.amount : null);
 
     final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
     final depositBalanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
