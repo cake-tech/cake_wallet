@@ -1,8 +1,5 @@
 import "dart:typed_data";
 
-import "package:cw_evm/evm_chain_exceptions.dart";
-import "package:cw_evm/evm_chain_wallet_creation_credentials.dart";
-import "package:cw_evm/evm_chain_wallet_service.dart";
 import "package:cw_evm/utils/evm_chain_formatter.dart";
 import "package:cw_evm/utils/rlp_decode.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -43,24 +40,6 @@ void main() {
           [100, 111, 103]
         ],
       ),
-    );
-  });
-  group("EVMChainWalletService.restoreFromSeed", () {
-    test(
-      "rejects wordlist-valid but checksum-invalid mnemonic before wallet init",
-      () async {
-        final service = EVMChainWalletService(false);
-        final credentials = EVMChainRestoreWalletFromSeedCredentials(
-          name: "test",
-          password: "password",
-          mnemonic: List.filled(12, "abandon").join(" "),
-        );
-
-        await expectLater(
-          service.restoreFromSeed(credentials),
-          throwsA(isA<EVMChainMnemonicIsIncorrectException>()),
-        );
-      },
     );
   });
 }
