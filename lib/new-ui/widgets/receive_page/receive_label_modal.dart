@@ -92,27 +92,32 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
                             return SizedBox(width: 8);
                           },
                           itemBuilder: (context, index) {
-                            return Container(
-                              height: 36,
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                  borderRadius: BorderRadius.circular(999)),
-                              child: Material(
-                                color: Colors.transparent,
-                                borderRadius: BorderRadius.circular(999),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(999),
-                                  onTap: () {
-                                    _controller.text = defaultLabels[index];
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                    child: Center(
-                                      child: Text(
-                                        defaultLabels[index],
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            color: Theme.of(context).colorScheme.primary),
+                            return MergeSemantics(
+                              child: Semantics(
+                                button: true,
+                                child: Container(
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                      borderRadius: BorderRadius.circular(999)),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    borderRadius: BorderRadius.circular(999),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(999),
+                                      onTap: () {
+                                        _controller.text = defaultLabels[index];
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                        child: Center(
+                                          child: Text(
+                                            defaultLabels[index],
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                color: Theme.of(context).colorScheme.primary),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),

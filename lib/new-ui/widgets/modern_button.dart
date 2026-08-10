@@ -28,9 +28,7 @@ class ModernButton extends StatelessWidget {
       this.backgroundColor,
       this.label,
       this.semanticLabel})
-      : svgPath = null,
-        assert(semanticLabel != null || (label != null && label != ""),
-            "ModernButton needs a semanticLabel when it has no visible label");
+      : svgPath = null;
 
   const ModernButton.svg(
       {super.key,
@@ -42,9 +40,7 @@ class ModernButton extends StatelessWidget {
       this.backgroundColor,
       this.label,
       this.semanticLabel})
-      : icon = null,
-        assert(semanticLabel != null || (label != null && label != ""),
-            "ModernButton needs a semanticLabel when it has no visible label");
+      : icon = null;
 
   @override
   Widget build(BuildContext context) {

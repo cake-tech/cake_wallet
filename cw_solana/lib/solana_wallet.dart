@@ -902,6 +902,9 @@ abstract class SolanaWalletBase
     }
   }
 
+  Future<bool?> isTokenVerifiedOnJupiter(String mintAddress) =>
+      _client.isTokenVerifiedOnJupiter(mintAddress);
+
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {
       _transactionsUpdateTimer!.cancel();
