@@ -60,7 +60,7 @@ jobs:
       - name: Post result to slack
         continue-on-error: true
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TESTS_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.SLACK_TESTS_CHANNEL }}
           RESULT: ${{ needs.funds-tests.result }}
           FLOWS: ${{ inputs.flows }}

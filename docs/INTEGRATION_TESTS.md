@@ -195,12 +195,15 @@ Test wallet seeds and receive addresses live in `lib/.secrets.g.dart` under name
 Adding a new test secret means adding it in `tool/utils/secret_key.dart`, mapping it in
 `TestWallets` and asking the team lead to add the value to the CI secret.
 
-The slack report uses two more repository secrets, `SLACK_APP_TOKEN` (already there for the
-apk uploads) and `SLACK_TESTS_CHANNEL`, which is a channel id rather than a webhook. Both
-the PR gate and the funds workflow report to that one channel, the apk channel stays for
-builds. The token needs the `chat:write` scope on top of the file scopes the apk uploads
-use, and the app has to be reinstalled after adding it or the posts come back with
-`missing_scope`.
+The slack report uses two more repository secrets, `SLACK_TESTS_TOKEN` and
+`SLACK_TESTS_CHANNEL`, which is a channel id rather than a webhook. Both the PR gate and
+the funds workflow report through them, so every test result lands in one channel.
+
+That is a separate slack app from the one behind `SLACK_APP_TOKEN`, which uploads apks to
+the builds channel. They are split so each token carries only what it needs, `chat:write`
+for this one and the file scopes for that one, and so the name on a message says which of
+the two sent it. A post coming back `missing_scope` means the app is short the
+`chat:write` scope or was never reinstalled after it was added.
 
 ## Funds suites
 

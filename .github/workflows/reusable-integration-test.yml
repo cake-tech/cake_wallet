@@ -417,7 +417,7 @@ jobs:
         if: ${{ !cancelled() && inputs.slack_notify }}
         continue-on-error: true
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TESTS_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.SLACK_TESTS_CHANNEL }}
           BRANCH: ${{ github.head_ref || github.ref_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
