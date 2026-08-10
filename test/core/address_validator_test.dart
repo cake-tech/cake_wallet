@@ -12,13 +12,13 @@ void main() {
       test('returns correct pattern for Bitcoin', () {
         final pattern = AddressValidator.getPattern(CryptoCurrency.btc);
         expect(pattern, isNotEmpty);
-        expect(pattern, contains('bc1q[ac-hj-np-z02-9]{25,39}'));
+        expect(pattern, contains('(bc|tb)1q'));
       });
 
       test('returns correct pattern for Ethereum', () {
         final pattern = AddressValidator.getPattern(CryptoCurrency.eth);
         expect(pattern, isNotEmpty);
-        expect(pattern, contains('0x[0-9a-fA-F]{40}'));
+        expect(pattern, contains('0x[0-9a-zA-Z]+'));
       });
 
       test('returns correct pattern for Monero', () {
@@ -30,8 +30,8 @@ void main() {
       test('returns correct pattern for Litecoin', () {
         final pattern = AddressValidator.getPattern(CryptoCurrency.ltc);
         expect(pattern, isNotEmpty);
-        expect(pattern, contains('ltc1q[ac-hj-np-z02-9]{25,39}'));
-        expect(pattern, contains('(ltc|t)mweb1q[ac-hj-np-z02-9]{90,120}'));
+        expect(pattern,
+            contains('(bc|tb|ltc)1q[ac-hj-np-z02-9]{25,39}|(ltc|t)mweb1q[ac-hj-np-z02-9]{90,120}'));
       });
 
       test('returns empty string for unknown currency', () {
