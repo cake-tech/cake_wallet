@@ -517,7 +517,17 @@ jobs:
               '{channel: $channel, text: $text}')")
 
           if [[ "$(jq -r '.ok' <<< "$response")" != "true" ]]; then
-            echo "::warning::Slack rejected the report: $(jq -r '.error // "unknown"' <<< "$response")"
+            error=$(jq -r '.error // "unknown"' <<< "$response")
+            # A scope or channel rejection names what it wanted in a field of its own, which
+            # is the part that says what to go and change
+            needed=$(jq -r '.needed // empty' <<< "$response")
+
+            if [[ -n "$needed" ]]; then
+              echo "::warning::Slack rejected the report: $error, it wants the $needed scope"
+            else
+              echo "::warning::Slack rejected the report: $error"
+            fi
+
             exit 0
           fi
 
