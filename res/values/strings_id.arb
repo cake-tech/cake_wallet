@@ -1167,6 +1167,7 @@
   "sync_status_syncronizing": "MENYINKRONKAN",
   "sync_status_timed_out": "WAKTU HABIS",
   "sync_status_unsupported": "NODE TIDAK DIDUKUNG",
+  "sync_synced": "Disinkronkan",
   "sync_syncing": "Menyinkronkan",
   "sync_timed_out": "Sinkronisasi Habis Waktu",
   "sync_unsupported_node": "Node tidak didukung",

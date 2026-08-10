@@ -1165,6 +1165,7 @@
   "sync_status_syncronizing": "СИНХРОНІЗУЄТЬСЯ",
   "sync_status_timed_out": "ЧАС ВИЙШОВ",
   "sync_status_unsupported": "НЕПІДТРИМУВАНИЙ ВУЗОЛ",
+  "sync_synced": "Синхронізовано",
   "sync_syncing": "Синхронізація",
   "sync_timed_out": "Час очікування синхронізації вичерпано",
   "sync_unsupported_node": "Непідтримуваний вузол",

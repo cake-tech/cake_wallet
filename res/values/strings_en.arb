@@ -1197,6 +1197,7 @@
   "sync_status_syncronizing": "SYNCHRONIZING",
   "sync_status_timed_out": "TIMED OUT",
   "sync_status_unsupported": "UNSUPPORTED NODE",
+  "sync_synced": "Synced",
   "sync_syncing": "Syncing",
   "sync_timed_out": "Sync Timed Out",
   "sync_unsupported_node": "Unsupported node",

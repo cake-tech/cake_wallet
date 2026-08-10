@@ -1164,6 +1164,7 @@
   "sync_status_syncronizing": "جارٍ المزامنة",
   "sync_status_timed_out": "انتهت المهلة",
   "sync_status_unsupported": "عقدة غير مدعومة",
+  "sync_synced": "تمت المزامنة",
   "sync_syncing": "جارٍ المزامنة",
   "sync_timed_out": "انتهت مهلة المزامنة",
   "sync_unsupported_node": "عقدة غير مدعومة",

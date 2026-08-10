@@ -1164,6 +1164,7 @@
   "sync_status_syncronizing": "NAGSI-SYNC",
   "sync_status_timed_out": "NAG-TIMEOUT",
   "sync_status_unsupported": "HINDI SUPORTADONG NODE",
+  "sync_synced": "Naka-sync",
   "sync_syncing": "Nagsi-sync",
   "sync_timed_out": "Nag-time out ang Sync",
   "sync_unsupported_node": "Hindi suportadong node",

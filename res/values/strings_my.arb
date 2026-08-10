@@ -1164,6 +1164,7 @@
   "sync_status_syncronizing": "ထပ်တူချိန်ညှိနေသည်",
   "sync_status_timed_out": "အချိန်ကုန်သွားသည်",
   "sync_status_unsupported": "မထောက်ပံ့သော Node",
+  "sync_synced": "ထပ်တူပြုထားသည်။",
   "sync_syncing": "စင့်ခ်လုပ်နေသည်",
   "sync_timed_out": "စင့်ခ်ချိန်ကုန်သွားပါပြီ",
   "sync_unsupported_node": "မပံ့ပိုးထားသော node",

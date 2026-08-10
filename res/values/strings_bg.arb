@@ -1164,6 +1164,7 @@
   "sync_status_syncronizing": "СИНХРОНИЗИРАНЕ",
   "sync_status_timed_out": "ИЗТЕЧЕ ВРЕМЕТО",
   "sync_status_unsupported": "НЕПОДДЪРЖАН ВЪЗЕЛ",
+  "sync_synced": "Синхронизирано",
   "sync_syncing": "Синхронизиране",
   "sync_timed_out": "Времето за синхронизиране изтече",
   "sync_unsupported_node": "Неподдържан възел",

@@ -1165,6 +1165,7 @@
   "sync_status_syncronizing": "SINCRONIZZAZIONE IN CORSO",
   "sync_status_timed_out": "TEMPO SCADUTO",
   "sync_status_unsupported": "NODO NON SUPPORTATO",
+  "sync_synced": "Sincronizzato",
   "sync_syncing": "Sincronizzazione in corso",
   "sync_timed_out": "Sincronizzazione scaduta",
   "sync_unsupported_node": "Nodo non supportato",

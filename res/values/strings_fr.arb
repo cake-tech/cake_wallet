@@ -1164,6 +1164,7 @@
   "sync_status_syncronizing": "SYNCHRONISATION",
   "sync_status_timed_out": "DÉLAI DÉPASSÉ",
   "sync_status_unsupported": "NŒUD NON PRIS EN CHARGE",
+  "sync_synced": "Synchronisé",
   "sync_syncing": "Synchronisation en cours",
   "sync_timed_out": "Délai de synchronisation dépassé",
   "sync_unsupported_node": "Nœud non pris en charge",

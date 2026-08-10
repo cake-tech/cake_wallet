@@ -1164,6 +1164,7 @@
   "sync_status_syncronizing": "SINKRONIZIRANJE",
   "sync_status_timed_out": "ISTEKLO VRIJEME",
   "sync_status_unsupported": "NEPODRŽANI ČVOR",
+  "sync_synced": "Sinkronizirano",
   "sync_syncing": "Sinkroniziranje",
   "sync_timed_out": "Sinkronizacija je istekla",
   "sync_unsupported_node": "Nepodržani čvor",

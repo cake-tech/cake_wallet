@@ -1164,6 +1164,7 @@
   "sync_status_syncronizing": "SENKRONİZE EDİLİYOR",
   "sync_status_timed_out": "ZAMAN AŞIMINA UĞRADI",
   "sync_status_unsupported": "DESTEKLENMEYEN DÜĞÜM",
+  "sync_synced": "Senkronize edildi",
   "sync_syncing": "Senkronize ediliyor",
   "sync_timed_out": "Senkronizasyon zaman aşımına uğradı",
   "sync_unsupported_node": "Desteklenmeyen düğüm",

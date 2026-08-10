@@ -1166,6 +1166,7 @@
   "sync_status_syncronizing": "ہم آہنگ ہو رہا ہے",
   "sync_status_timed_out": "وقت ختم ہو گیا",
   "sync_status_unsupported": "غیر معاون نوڈ",
+  "sync_synced": "مطابقت پذیر",
   "sync_syncing": "ہم آہنگ ہو رہا ہے",
   "sync_timed_out": "سنک کا وقت ختم ہو گیا",
   "sync_unsupported_node": "غیر معاون نوڈ",

@@ -1166,6 +1166,7 @@
   "sync_status_syncronizing": "SINCRONIZANDO",
   "sync_status_timed_out": "TIEMPO DE ESPERA AGOTADO",
   "sync_status_unsupported": "NODO NO COMPATIBLE",
+  "sync_synced": "Sincronizado",
   "sync_syncing": "Sincronizando",
   "sync_timed_out": "Tiempo de espera de sincronización agotado",
   "sync_unsupported_node": "Nodo no compatible",
