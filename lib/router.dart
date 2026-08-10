@@ -527,11 +527,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => SettingsStoreBase.walletPasswordDirectInput
               ? getIt.get<WalletUnlockPage>(
                   param1: WalletUnlockArguments(
-                      callback: settings.arguments as OnAuthenticationFinished),
+                      callback: (settings.arguments as AuthPageArgs).onAuthenticationFinished),
                   instanceName: 'wallet_unlock_verifiable',
                   param2: true)
-              : getIt.get<AuthPage>(
-                  param1: settings.arguments as OnAuthenticationFinished, param2: true));
+              : getIt.get<AuthPage>(param1: settings.arguments as AuthPageArgs));
 
     case Routes.totpAuthCodePage:
       final args = settings.arguments as TotpAuthArgumentsModel;

@@ -681,6 +681,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             final check =
                                                 widget.exchangeViewModel.shouldDisplayTOTP();
                                             widget.authService.authenticateAction(
+                                              isTransaction: true,
                                               context,
                                               conditionToDetermineIfToUse2FA: check,
                                               onAuthSuccess: (value) {

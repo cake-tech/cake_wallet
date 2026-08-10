@@ -866,6 +866,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
     final check = widget.sendViewModel.shouldDisplayTotp();
     widget.authService.authenticateAction(
+      isTransaction: true,
       navigatorKey.currentContext ?? context,
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {

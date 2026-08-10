@@ -148,6 +148,7 @@ class AuthService with Store {
       {Function(bool)? onAuthSuccess,
       String? route,
       Object? arguments,
+        bool isTransaction = false,
       required bool conditionToDetermineIfToUse2FA}) async {
     assert(route != null || onAuthSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
@@ -168,39 +169,42 @@ class AuthService with Store {
 
     if (context.mounted) {
       Navigator.of(context).pushNamed(Routes.auth,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-        if (!isAuthenticatedSuccessfully) {
-          onAuthSuccess?.call(false);
-          return;
-        } else {
-          if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
-            auth.close(
-              route: Routes.totpAuthCodePage,
-              arguments: TotpAuthArgumentsModel(
-                isForSetup: !settingsStore.useTOTP2FA,
-                onTotpAuthenticationFinished:
-                    (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
-                  if (!isAuthenticatedSuccessfully) {
-                    onAuthSuccess?.call(false);
-                    return;
-                  }
-                  if (onAuthSuccess != null) {
-                    totpAuth.close().then((value) => onAuthSuccess.call(true));
-                  } else {
-                    totpAuth.close(route: route, arguments: arguments);
-                  }
-                },
-              ),
-            );
-          } else {
-            if (onAuthSuccess != null) {
-              auth.close().then((value) => onAuthSuccess.call(true));
+          arguments: AuthPageArgs(
+              biometryAllowed: !isTransaction || !settingsStore.pinRequiredForTransactions,
+              onAuthenticationFinished:
+                  (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+                if (!isAuthenticatedSuccessfully) {
+              onAuthSuccess?.call(false);
+              return;
             } else {
-              auth.close(route: route, arguments: arguments);
+              if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
+                auth.close(
+                  route: Routes.totpAuthCodePage,
+                  arguments: TotpAuthArgumentsModel(
+                    isForSetup: !settingsStore.useTOTP2FA,
+                    onTotpAuthenticationFinished:
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
+                      if (!isAuthenticatedSuccessfully) {
+                        onAuthSuccess?.call(false);
+                        return;
+                      }
+                      if (onAuthSuccess != null) {
+                        totpAuth.close().then((value) => onAuthSuccess.call(true));
+                      } else {
+                        totpAuth.close(route: route, arguments: arguments);
+                      }
+                    },
+                  ),
+                );
+              } else {
+                if (onAuthSuccess != null) {
+                  auth.close().then((value) => onAuthSuccess.call(true));
+                } else {
+                  auth.close(route: route, arguments: arguments);
+                }
+              }
             }
-          }
-        }
-      });
+          }));
     }
   }
 }
