@@ -58,14 +58,47 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Post result to slack
+        continue-on-error: true
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_TESTS_CHANNEL }}
+          RESULT: ${{ needs.funds-tests.result }}
+          FLOWS: ${{ inputs.flows }}
+          CHAINS: ${{ inputs.chains }}
+          SPEND: ${{ inputs.spend }}
+          BRANCH: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          curl -sS -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer ${{ secrets.SLACK_APP_TOKEN }}" \
+          if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
+            echo "::notice::No slack token or channel configured, skipping the report"
+            exit 0
+          fi
+
+          if [[ "$RESULT" == "success" ]]; then
+            headline=":white_check_mark: Funds integration tests passed"
+          else
+            headline=":x: Funds integration tests $RESULT"
+          fi
+
+          # spend is the one that says whether this moved real money or only priced it
+          message=$(
+            printf '%s\n%s\n\nflows: %s, chains: %s, spend: %s\n%s' \
+              "$headline" "$BRANCH" "$FLOWS" "$CHAINS" "$SPEND" "$RUN_URL"
+          )
+
+          response=$(curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-type: application/json; charset=utf-8" \
-            -d "$(cat <<EOF
-          {
-            "channel": "${{ secrets.SLACK_APK_CHANNEL }}",
-            "text": "Funds integration tests: ${{ needs.funds-tests.result }} (flows: ${{ inputs.flows }}, chains: ${{ inputs.chains }}) on ${{ github.ref_name }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }
-          EOF
-          )"
+            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$message" \
+              '{channel: $channel, text: $text}')")
+
+          if [[ "$(jq -r '.ok' <<< "$response")" != "true" ]]; then
+            error=$(jq -r '.error // "unknown"' <<< "$response")
+            needed=$(jq -r '.needed // empty' <<< "$response")
+
+            if [[ -n "$needed" ]]; then
+              echo "::warning::Slack rejected the report: $error, it wants the $needed scope"
+            else
+              echo "::warning::Slack rejected the report: $error"
+            fi
+          fi

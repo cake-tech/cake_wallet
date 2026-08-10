@@ -196,7 +196,11 @@ Adding a new test secret means adding it in `tool/utils/secret_key.dart`, mappin
 `TestWallets` and asking the team lead to add the value to the CI secret.
 
 The slack report uses two more repository secrets, `SLACK_APP_TOKEN` (already there for the
-apk uploads) and `SLACK_TESTS_CHANNEL`, which is a channel id rather than a webhook.
+apk uploads) and `SLACK_TESTS_CHANNEL`, which is a channel id rather than a webhook. Both
+the PR gate and the funds workflow report to that one channel, the apk channel stays for
+builds. The token needs the `chat:write` scope on top of the file scopes the apk uploads
+use, and the app has to be reinstalled after adding it or the posts come back with
+`missing_scope`.
 
 ## Funds suites
 
