@@ -149,6 +149,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -245,6 +246,7 @@ abstract class Bitcoin {
   ReceivePageOption getLitecoinMwebReceivePageOption();
   bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
+  bool hasSelectedLightning(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
