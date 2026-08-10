@@ -107,7 +107,7 @@ stable history. funds_suites run only from the manual funds workflow.
 
 ## What is covered today
 
-Twenty six suites. Add a line here when you add one.
+Twenty eight suites. Add a line here when you add one.
 
 ### tier0, no network needed
 
@@ -119,6 +119,8 @@ Twenty six suites. Add a line here when you add one.
 | `duplicate_wallet_name_test` | A name already taken is refused instead of quietly overwriting the wallet holding it |
 | `wallet_group_test` | A wallet added to an existing seed shares that seed, and both wallets stay reachable through the group |
 | `wallet_switching_test` | Picking another wallet in the list actually loads it, down to the balance and address on screen |
+| `wallet_rename_test` | A wallet can be renamed, and cannot be renamed onto a name another wallet already holds |
+| `wallet_delete_test` | Deleting a wallet takes it off the list and out of storage, and leaves the others alone |
 | `receive_address_test` | The receive sheet shows an address the opened wallet owns, not a leftover from the previous one |
 | `seed_confirmation_test` | The seed and keys the app displays are the ones the opened wallet holds |
 | `show_keys_auth_test` | The seed and keys page turns away a wrong pin and opens for the right one |
@@ -153,9 +155,6 @@ Twenty six suites. Add a line here when you add one.
 The two dry runs need funded seeds because a quote and a signed transaction both depend on a
 real balance, but neither spends anything. `SPEND=true` is what lets the two that do spend
 past their guard.
-
-Still uncovered, both because the screens behind them carry no keys yet: renaming a wallet
-and deleting one.
 
 ## Adding a test for your feature
 
