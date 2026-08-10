@@ -893,6 +893,7 @@
   "require_for_sends_to_non_contacts": "Require for sends to non-contacts",
   "require_pin_after": "Require PIN after",
   "require_pin_for_transactions": "Require PIN for transactions",
+  "require_pin_for_transactions_desc": "Require your PIN to send a transaction, even when biometric authentication is enabled.",
   "required_passphrase": "Passphrase",
   "rescan": "Rescan",
   "resend_code": "Please resend it",

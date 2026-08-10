@@ -39,63 +39,70 @@ class BiometricAuthPage extends StatelessWidget {
                         message: S.of(context).configure_biometric_authentication,
                         iconPath: iconPath,
                       ),
-                      NewListSections(
-                        sections: {
-                          "": [
-                            ListItemToggle(
-                              keyValue: "use bio",
-                              label: "${S.of(context).use} ${displayName}",
-                              value: _securitySettingsViewModel.allowBiometricalAuthentication,
-                              onChanged: (value) {
-                                if (value) {
-                                  _securitySettingsViewModel.authService.authenticateAction(
-                                    context,
-                                    onAuthSuccess: (isAuthenticatedSuccessfully) async {
-                                      if (isAuthenticatedSuccessfully) {
-                                        if (await _securitySettingsViewModel
-                                            .biometricAuthenticated()) {
+                      Column(spacing: 4, children: [
+                        NewListSections(
+                          sections: {
+                            "": [
+                              ListItemToggle(
+                                keyValue: "use bio",
+                                label: "${S.of(context).use} ${displayName}",
+                                value: _securitySettingsViewModel.allowBiometricalAuthentication,
+                                onChanged: (value) {
+                                  if (value) {
+                                    _securitySettingsViewModel.authService.authenticateAction(
+                                      context,
+                                      onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                                        if (isAuthenticatedSuccessfully) {
+                                          if (await _securitySettingsViewModel
+                                              .biometricAuthenticated()) {
+                                            _securitySettingsViewModel
+                                                .setAllowBiometricalAuthentication(
+                                              isAuthenticatedSuccessfully,
+                                            );
+                                          }
+                                        } else {
                                           _securitySettingsViewModel
                                               .setAllowBiometricalAuthentication(
                                             isAuthenticatedSuccessfully,
                                           );
                                         }
-                                      } else {
-                                        _securitySettingsViewModel
-                                            .setAllowBiometricalAuthentication(
-                                          isAuthenticatedSuccessfully,
-                                        );
+                                      },
+                                      conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                                          .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                                    );
+                                  } else {
+                                    _securitySettingsViewModel
+                                        .setAllowBiometricalAuthentication(value);
+                                  }
+                                },
+                              ),
+                              ListItemToggle(
+                                keyValue: "require pin",
+                                label: S.of(context).require_pin_for_transactions,
+                                value: _securitySettingsViewModel.pinRequiredForTransactions,
+                                onChanged: (value) {
+                                  _securitySettingsViewModel.authService.authenticateAction(
+                                    context,
+                                    isTransaction: true,
+                                    onAuthSuccess: (isAuthenticatedSuccessfully) {
+                                      if (isAuthenticatedSuccessfully) {
+                                        _securitySettingsViewModel.pinRequiredForTransactions =
+                                            value;
                                       }
                                     },
                                     conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                                         .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                                   );
-                                } else {
-                                  _securitySettingsViewModel
-                                      .setAllowBiometricalAuthentication(value);
-                                }
-                              },
-                            ),
-                            ListItemToggle(
-                              keyValue: "require pin",
-                              label: S.of(context).require_pin_for_transactions,
-                              value: _securitySettingsViewModel.pinRequiredForTransactions,
-                              onChanged: (value) {
-                                _securitySettingsViewModel.authService.authenticateAction(
-                                  context,
-                                  isTransaction: true,
-                                  onAuthSuccess: (isAuthenticatedSuccessfully) {
-                                    if (isAuthenticatedSuccessfully) {
-                                      _securitySettingsViewModel.pinRequiredForTransactions = value;
-                                    }
-                                  },
-                                  conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                                      .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                                );
-                              },
-                            ),
-                          ],
-                        },
-                      ),
+                                },
+                              ),
+                            ],
+                          },
+                        ),
+                        Text(S.of(context).require_pin_for_transactions_desc,
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 12,),),
+                      ],),
                     ],
                   ),
                 ),
