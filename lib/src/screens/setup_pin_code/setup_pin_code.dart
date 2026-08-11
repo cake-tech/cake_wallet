@@ -51,13 +51,13 @@ class SetupPinCodePage extends BasePage {
           if(!isDuressPin) {
             if(await pinCodeViewModel.isBiometricAuthenticated()) {
               pinCodeViewModel.enableBiometricAuth();
-              Navigator.of(context).pop();
-              if (pinCodeStateKey.currentState != null) {
-                onSuccessfulPinSetup?.call(pinCodeStateKey.currentState!, pin);
-              }
 
-              state.reset();
             }
+            Navigator.of(context).pop();
+            if (pinCodeStateKey.currentState != null) {
+              onSuccessfulPinSetup?.call(pinCodeStateKey.currentState!, pin);
+            }
+            state.reset();
           }
 
 
