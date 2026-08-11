@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# Runner knobs, all overridable from the environment:
+# Runner params/knobs, all overridable from the environment:
 #   SUITE_DIR             directory to collect *_test.dart suites from, or a single suite file
 #                         (default integration_test/suites)
 #   TEST_TIER             tier0, tier1 or all, narrows SUITE_DIR to a tier subdirectory
