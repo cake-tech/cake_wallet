@@ -36,25 +36,37 @@ class _TopBarState extends State<TopBar> {
 
   bool showSyncedMessage = false;
   Timer? syncedMessageTimer;
+  late final ReactionDisposer? _statusReactionDisposer;
 
   @override
   void initState() {
     super.initState();
 
-    reaction(
+    _statusReactionDisposer = reaction(
       (_) => widget.dashboardViewModel.status.runtimeType,
       (status) {
         syncedMessageTimer?.cancel();
 
         if (status == SyncedSyncStatus) {
-          setState(() => showSyncedMessage = true);
+          if(mounted) {
+            setState(() => showSyncedMessage = true);
+          }
           syncedMessageTimer =
               Timer(syncedMessageDuration, () => setState(() => showSyncedMessage = false));
         } else {
-          setState(() => showSyncedMessage = false);
+          if(mounted) {
+            setState(() => showSyncedMessage = false);
+          }
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    syncedMessageTimer?.cancel();
+    _statusReactionDisposer?.reaction.dispose();
+    super.dispose();
   }
 
   @override
