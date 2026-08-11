@@ -8,9 +8,11 @@ import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_provider_page.dart";
 import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/floating_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/token_chain_display.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
@@ -18,6 +20,7 @@ import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -107,7 +110,8 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                       currentAmount: widget.buySellViewModel.fiatAmount,
                       hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
                       onCurrencySelectorPressed: () => selectCryptoCurrency(context),
-                      cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
+                onFiatSelectorPressed: () => selectFiatCurrency(context),
+                            cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
                       isLoading: _isLoadingPaymentMethods,
                       mode: widget.buySellViewModel.mode,
                       onSelected: (amount) async {
@@ -140,6 +144,11 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
         onSelected: (item) => widget.buySellViewModel.changeCryptoCurrency(currency: item),
         symbolResolver: widget.buySellViewModel.amountParsingProxy.getCryptoSymbol,
       ),);
+
+  void selectFiatCurrency(BuildContext context) => FiatCurrencyPickerSheet.show(
+      context: context,
+      selected: widget.buySellViewModel.fiatCurrency,
+      onSelected: (item) => widget.buySellViewModel.changeFiatCurrency(currency: item));
 
   String get _pageTitle => widget.buySellViewModel.mode == BuySellPageMode.buy
       ? S.current.buy
@@ -230,10 +239,6 @@ class BuySellCustomAmountInput extends StatelessWidget {
           Column(
             spacing: 8,
             children: [
-              if (hasCurrencySelector) ...[
-                BuySellCurrencyPickerPill(curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
-                const SizedBox.shrink(),
-              ],
               FloatingAmountInput(
                 currency: fiatCurrency,
                 focusNode: focusNode,
@@ -268,7 +273,7 @@ class BuySellCustomAmountInput extends StatelessWidget {
 
 class BuySellDefaultAmountSelector extends StatelessWidget {
   const BuySellDefaultAmountSelector(
-      {required this.defaultAmounts, required this.fiatCurrency, required this.mode, required this.onSelected, required this.isLoading, required this.hasCurrencySelector, required this.onCurrencySelectorPressed, required this.cryptoCurrency, super.key,
+      {required this.onFiatSelectorPressed, required this.defaultAmounts, required this.fiatCurrency, required this.mode, required this.onSelected, required this.isLoading, required this.hasCurrencySelector, required this.onCurrencySelectorPressed, required this.cryptoCurrency, super.key,
       this.currentAmount,});
 
   final List<String> defaultAmounts;
@@ -276,27 +281,31 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
   final bool isLoading;
   final bool hasCurrencySelector;
   final VoidCallback onCurrencySelectorPressed;
+  final VoidCallback onFiatSelectorPressed;
   final CryptoCurrency cryptoCurrency;
   final FiatCurrency fiatCurrency;
   final BuySellPageMode mode;
   final Function(String?) onSelected;
 
   @override
-  Widget build(BuildContext context) => Column(
-      spacing: 24,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (hasCurrencySelector)
-          BuySellCurrencyPickerPill(curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
-        Text(
-          mode == BuySellPageMode.sell
-              ? S.of(context).choose_amount_to_sell
-              : S.of(context).choose_amount_to_buy,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          child: GridView.builder(
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 18),
+    child: Column(
+        spacing: 24,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasCurrencySelector)
+            BuySellCurrencyPickerPill(title: mode == BuySellPageMode.sell ? S.of(context).sell : S.of(context).buy,curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
+          BuySellCurrencyPickerPill(title: mode == BuySellPageMode.sell ? S.of(context).sell : S.of(context).buy,curr: fiatCurrency, onTap: onFiatSelectorPressed),
+
+          Text(
+            mode == BuySellPageMode.sell
+                ? S.of(context).choose_amount_to_sell
+                : S.of(context).choose_amount_to_buy,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+          GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               // +1 for "custom" option
@@ -312,9 +321,9 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
                   onTap: () => onSelected(item),
                 );
               },),
-        ),
-      ],
-    );
+        ],
+      ),
+  );
 }
 
 class BuySellAmountPill extends StatelessWidget {
@@ -386,47 +395,73 @@ class BuySellAmountPill extends StatelessWidget {
 }
 
 class BuySellCurrencyPickerPill extends StatelessWidget {
-  const BuySellCurrencyPickerPill({required this.curr, required this.onTap, super.key});
+  const BuySellCurrencyPickerPill({required this.title, required this.curr, required this.onTap, super.key});
 
-  final CryptoCurrency curr;
+  final String title;
+  final Currency curr;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(999999999),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 10,
-            children: [
-              CakeImageWidget(
-                imageUrl: curr.iconPath,
-                width: 30,
-                height: 30,
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    spacing: 12,
+    children: [
+      Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),),
+      GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: MediaQuery.sizeOf(context).width,
+            height: 62,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                children: [
+                  Row(spacing:12, children: [
+                    if(curr is CryptoCurrency)
+                    TokenChainDisplay(size: 30, asset: curr as CryptoCurrency)
+                    else if(curr is FiatCurrency)
+                      SizedBox(width: 30, child: Text((curr as FiatCurrency).emoji, style: const TextStyle(fontSize: 24),)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 2,
+                      children: [
+                        Text(
+                          curr.fullName ?? curr.symbol,
+                        ),
+                        Text(
+                          curr.symbol,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],),
+
+                  RotatedBox(
+                    quarterTurns: 2,
+                    child: CakeImageWidget(
+                      imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                      width: 8,
+                      height: 8,
+                      colorFilter:
+                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                curr.fullName ?? curr.title,
-                style: const TextStyle(fontSize: 16),
-              ),
-              RotatedBox(
-                quarterTurns: 2,
-                child: CakeImageWidget(
-                  imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                  width: 8,
-                  height: 8,
-                  colorFilter:
-                      ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
-    );
+    ],
+  );
 }
