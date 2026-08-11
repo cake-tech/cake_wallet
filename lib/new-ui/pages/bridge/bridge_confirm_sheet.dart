@@ -218,6 +218,7 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                       bridgeViewModel.executeBridge();
                     },
                     swiperText: S.of(context).swipe_to_bridge,
+                    accessibleNavigationModeButtonText: S.of(context).confirm,
                   );
                 },
               ),
