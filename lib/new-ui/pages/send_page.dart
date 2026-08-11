@@ -247,35 +247,17 @@ class _NewSendPageState extends State<NewSendPage> {
 
     if (widget.initialPaymentRequest != null) {
       if (_isInitialRequestTypeSameAsCurrentWallet()) {
-        _addressControllers[0].text = widget.initialPaymentRequest!.address;
-        // _memoControllers[0].text = widget.initialPaymentRequest!.note;
-        _applyNote(widget.initialPaymentRequest!.note, 0);
         final contractAddress = widget.initialPaymentRequest!.contractAddress;
         if (contractAddress != null && contractAddress.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (!mounted) {
               return;
             }
-            final token = await TokenUtilities.findTokenByAddress(
-              walletType: widget.sendViewModel.wallet.type,
-              address: contractAddress,
-            );
-            if (!mounted) {
-              return;
-            }
-
-            if (token == null) {
-              _showUnsupportedTokenAlert();
-              return;
-            }
-            await widget.sendViewModel.fetchTokenForContractAddress(contractAddress);
-            if (!mounted) {
-              return;
-            }
-            _amountControllers[0].text =
-                widget.initialPaymentRequest!.resolveTokenAmount(token) ?? "";
+            await _applyPaymentSelectingCurrency(widget.initialPaymentRequest!, null);
           });
         } else {
+          _addressControllers[0].text = widget.initialPaymentRequest!.address;
+          _applyNote(widget.initialPaymentRequest!.note, 0);
           _amountControllers[0].text = widget.initialPaymentRequest!.amount;
         }
       } else {
@@ -1153,7 +1135,7 @@ class _NewSendPageState extends State<NewSendPage> {
           if (isCrossChain) {
             await _handleEvmNetworkFlow(targetChain, paymentRequest);
           } else if (widget.sendViewModel.isEVMWallet) {
-            _applyPaymentRequest(paymentRequest);
+            await _applyPaymentSelectingCurrency(paymentRequest, null);
           } else {
             await _showEvmNetworkPicker(paymentRequest, result.walletType);
           }
@@ -1328,8 +1310,12 @@ class _NewSendPageState extends State<NewSendPage> {
     String? amountOverride;
     final contract = paymentRequest.contractAddress;
     if (contract != null && contract.isNotEmpty) {
+      final walletType = widget.sendViewModel.wallet.type;
+      final lookupType = evm != null && isEVMCompatibleChain(walletType)
+          ? (evm!.getWalletTypeByChainId(_currentEvmChainIdOrMainnet()) ?? walletType)
+          : walletType;
       final token = await TokenUtilities.findTokenByAddress(
-        walletType: widget.sendViewModel.wallet.type,
+        walletType: lookupType,
         address: contract,
       );
       if (!mounted) {
@@ -1337,10 +1323,14 @@ class _NewSendPageState extends State<NewSendPage> {
       }
 
       if (token == null) {
+        final rerouted = await _rerouteChainlessContractPayment(paymentRequest);
+        if (rerouted || !mounted) {
+          return;
+        }
         _showUnsupportedTokenAlert();
         return;
       }
-      await widget.sendViewModel.fetchTokenForContractAddress(contract);
+      await widget.sendViewModel.fetchTokenForContractAddress(contract, walletType: lookupType);
       amountOverride = paymentRequest.resolveTokenAmount(token);
     } else if (fallbackCurrency != null) {
       widget.sendViewModel.setSelectedCryptoCurrency(fallbackCurrency.title);
@@ -1349,6 +1339,44 @@ class _NewSendPageState extends State<NewSendPage> {
       return;
     }
     _applyPaymentRequest(paymentRequest, amountOverride: amountOverride);
+  }
+
+  Future<bool> _rerouteChainlessContractPayment(PaymentRequest paymentRequest) async {
+    if (evm == null || paymentRequest.chainId != null) {
+      return false;
+    }
+
+    if (paymentRequest.scheme.toLowerCase() != "ethereum") {
+      return false;
+    }
+
+    final contract = paymentRequest.contractAddress;
+    if (contract == null || contract.isEmpty) {
+      return false;
+    }
+
+    final currentChainId = isEVMCompatibleChain(widget.sendViewModel.wallet.type)
+        ? _currentEvmChainIdOrMainnet()
+        : null;
+
+    // QRs from old app versions omit the chainId on mainnet, so a contract the current
+    // network does not know may still belong to another EVM network
+    final chainId = await TokenUtilities.findEvmChainIdForContract(
+      contract,
+      excludingChainId: currentChainId,
+    );
+    if (chainId == null || !mounted) {
+      return false;
+    }
+
+    final targetChain = evm!.getChainInfoByChainId(chainId);
+    if (targetChain == null) {
+      return false;
+    }
+
+    printV("chainless contract payment rerouted to chainId $chainId");
+    await _handleEvmNetworkFlow(targetChain, paymentRequest);
+    return true;
   }
 
   Future<void> _completeWalletSwitch(

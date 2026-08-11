@@ -313,9 +313,7 @@ class ERC681URI extends PaymentURI {
     final targetAddress = contractAddress ?? address;
     uri += targetAddress;
 
-    if (chainId != 1) {
-      uri += "@$chainId";
-    }
+    uri += "@$chainId";
 
     if (contractAddress != null) {
       uri += "/transfer";
