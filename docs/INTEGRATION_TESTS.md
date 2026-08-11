@@ -90,7 +90,8 @@ SUITE_DIR=integration_test/suites/tier0/fiat_currency_test.dart ./integration_te
 
 Runner knobs (environment variables): `SUITE_DIR`, `TEST_TIER` (tier0, tier1, all),
 `PLATFORM` (android, linux, auto), `FLUTTER_DEVICE`, `RETRY_COUNT`, `EXTRA_DART_DEFINES`,
-`REMOVE_DATA_DIRECTORY=N` to keep app data between suites.
+`REMOVE_DATA_DIRECTORY=N` to keep app data between suites, `VOID_GRACE` for how long a
+driver that cannot attach is given to recover.
 
 Test knobs (dart defines): `TEST_WALLET_TYPES=all` runs every available wallet type,
 a comma separated list of type names runs just those, unset runs the representative set
@@ -272,6 +273,10 @@ file and regenerates the bindings itself. And `assets/images` svgs need compilin
   filters those too. Any other FlutterError fails the test, that is intentional.
 - Monero and wownero load native libraries on first open, give their steps generous
   timeouts rather than retries.
+- A driver that cannot attach is watched rather than waited out. Once flutter drive says
+  it is struggling, the attempt gets `VOID_GRACE` seconds (120 by default) to come back and
+  is then ended so the retry can start, instead of sitting there for the rest of
+  `TEST_TIMEOUT`. Run 31364715120 lost 20 minutes to two attempts that did exactly that.
 - A suite that fails once in CI retries once with wiped app data. A red gate means the
   same suite failed twice in a row.
 - `wallet_switching_test` fails intermittently, roughly one run in three locally. The first

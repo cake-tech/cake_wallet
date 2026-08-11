@@ -18,6 +18,8 @@ set -euo pipefail
 #   MAX_TOTAL_VOID_ATTEMPTS  give up on the whole run after this many, the environment is broken (default 4)
 #   REMOVE_DATA_DIRECTORY set to N to keep app data between suites (default wipes it)
 #   SUMMARY_FILE          path to write a key=value summary of the run to, for reporting
+#   VOID_GRACE            seconds to let a driver that cannot attach recover before the
+#                         attempt is ended early (default 120)
 
 SUITE_DIR=${SUITE_DIR:-integration_test/suites}
 TEST_TIER=${TEST_TIER:-all}
@@ -29,6 +31,11 @@ MAX_TOTAL_VOID_ATTEMPTS=${MAX_TOTAL_VOID_ATTEMPTS:-4}
 REMOVE_DATA_DIRECTORY=${REMOVE_DATA_DIRECTORY:-Y}
 EXTRA_DART_DEFINES=${EXTRA_DART_DEFINES:-}
 SUMMARY_FILE=${SUMMARY_FILE:-}
+VOID_GRACE=${VOID_GRACE:-120}
+
+# flutter drive words this differently depending on how far the attach got, so match every
+# wording we have actually seen fail this way
+VOID_MARKERS="unusually long time to connect to the VM|taking unusually long time to initialize|Service has disappeared|Flutter Driver extension is taking a long time to become available"
 PREBUILT_APK=${PREBUILT_APK:-}
 
 # Linux desktop data directories to wipe between suites
@@ -201,6 +208,33 @@ build_drive_command() {
     fi
 }
 
+# Once the driver says it cannot attach the attempt is almost always already dead, and
+# sitting out the rest of TEST_TIMEOUT only burns the job. Give it a short grace period to
+# come back and otherwise end it so the retry can start on a fresh app.
+watch_for_dead_driver() {
+    local log_file="$1" drive_pid="$2"
+    local marker_seen=0
+
+    while kill -0 "$drive_pid" 2>/dev/null; do
+        if (( marker_seen == 0 )) && grep -qE "$VOID_MARKERS" "$log_file" 2>/dev/null; then
+            marker_seen=$(date +%s)
+            log "Driver is struggling to attach, giving it ${VOID_GRACE}s to recover"
+        fi
+
+        if (( marker_seen > 0 )) && (( $(date +%s) - marker_seen >= VOID_GRACE )); then
+            log "Driver never attached within ${VOID_GRACE}s, ending this attempt early"
+
+            kill -TERM "$drive_pid" 2>/dev/null || true
+            sleep 5
+            kill -KILL "$drive_pid" 2>/dev/null || true
+
+            return 0
+        fi
+
+        sleep 5
+    done
+}
+
 run_test() {
     local test_file="$1"
     local test_name=$(basename "$test_file" .dart)
@@ -217,7 +251,21 @@ run_test() {
         local attempt_log
         attempt_log=$(mktemp)
 
-        if "${drive_command[@]}" --target="$test_file" 2>&1 | tee "$attempt_log"; then
+        # Backgrounded through a tee so the job log still gets the output as it happens
+        # while the watchdog holds the pid of the drive itself
+        "${drive_command[@]}" --target="$test_file" > >(tee "$attempt_log") 2>&1 &
+        local drive_pid=$!
+
+        watch_for_dead_driver "$attempt_log" "$drive_pid" &
+        local watchdog_pid=$!
+        disown "$watchdog_pid" 2>/dev/null || true
+
+        local attempt_status=0
+        wait "$drive_pid" 2>/dev/null || attempt_status=$?
+
+        kill "$watchdog_pid" 2>/dev/null || true
+
+        if (( attempt_status == 0 )); then
             local duration=$(( $(date +%s) - start_time ))
 
             log "PASS: $test_name ($(format_duration $duration))"
@@ -229,10 +277,8 @@ run_test() {
 
             # A driver that never attaches never ran the test, that is an environment
             # problem rather than a test failure so it does not consume the real retry
-            # flutter drive words this differently depending on how far the attach got,
-            # so match every wording we have actually seen fail this way
             local attempt_was_void=N
-            if grep -qE "unusually long time to connect to the VM|taking unusually long time to initialize|Service has disappeared|Flutter Driver extension is taking a long time to become available" "$attempt_log"; then
+            if grep -qE "$VOID_MARKERS" "$attempt_log"; then
                 attempt_was_void=Y
             fi
 
