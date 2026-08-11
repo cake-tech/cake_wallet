@@ -274,9 +274,12 @@ file and regenerates the bindings itself. And `assets/images` svgs need compilin
 - Monero and wownero load native libraries on first open, give their steps generous
   timeouts rather than retries.
 - A driver that cannot attach is watched rather than waited out. Once flutter drive says
-  it is struggling, the attempt gets `VOID_GRACE` seconds (120 by default) to come back and
+  it is struggling, the attempt gets `VOID_GRACE` seconds (60 by default) to come back and
   is then ended so the retry can start, instead of sitting there for the rest of
   `TEST_TIMEOUT`. Run 31364715120 lost 20 minutes to two attempts that did exactly that.
+  60 is well clear of a healthy attach, which took under a second on all 19 attempts that
+  worked in that same run, against 5 seconds for the warning to appear on the two that
+  did not.
 - A suite that fails once in CI retries once with wiped app data. A red gate means the
   same suite failed twice in a row.
 - `wallet_switching_test` fails intermittently, roughly one run in three locally. The first

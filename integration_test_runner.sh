@@ -19,7 +19,7 @@ set -euo pipefail
 #   REMOVE_DATA_DIRECTORY set to N to keep app data between suites (default wipes it)
 #   SUMMARY_FILE          path to write a key=value summary of the run to, for reporting
 #   VOID_GRACE            seconds to let a driver that cannot attach recover before the
-#                         attempt is ended early (default 120)
+#                         attempt is ended early (default 60)
 
 SUITE_DIR=${SUITE_DIR:-integration_test/suites}
 TEST_TIER=${TEST_TIER:-all}
@@ -31,7 +31,7 @@ MAX_TOTAL_VOID_ATTEMPTS=${MAX_TOTAL_VOID_ATTEMPTS:-4}
 REMOVE_DATA_DIRECTORY=${REMOVE_DATA_DIRECTORY:-Y}
 EXTRA_DART_DEFINES=${EXTRA_DART_DEFINES:-}
 SUMMARY_FILE=${SUMMARY_FILE:-}
-VOID_GRACE=${VOID_GRACE:-120}
+VOID_GRACE=${VOID_GRACE:-60}
 
 # flutter drive words this differently depending on how far the attach got, so match every
 # wording we have actually seen fail this way
@@ -211,6 +211,19 @@ build_drive_command() {
 # Once the driver says it cannot attach the attempt is almost always already dead, and
 # sitting out the rest of TEST_TIMEOUT only burns the job. Give it a short grace period to
 # come back and otherwise end it so the retry can start on a fresh app.
+# On linux the drive runs under a timeout wrapper, and a KILL to the wrapper cannot be
+# forwarded, so a stray drive would be left holding the device when the retry starts
+end_process_tree() {
+    local root="$1" signal="$2"
+    local child
+
+    for child in $(pgrep -P "$root" 2>/dev/null); do
+        end_process_tree "$child" "$signal"
+    done
+
+    kill "-$signal" "$root" 2>/dev/null || true
+}
+
 watch_for_dead_driver() {
     local log_file="$1" drive_pid="$2"
     local marker_seen=0
@@ -224,9 +237,9 @@ watch_for_dead_driver() {
         if (( marker_seen > 0 )) && (( $(date +%s) - marker_seen >= VOID_GRACE )); then
             log "Driver never attached within ${VOID_GRACE}s, ending this attempt early"
 
-            kill -TERM "$drive_pid" 2>/dev/null || true
+            end_process_tree "$drive_pid" TERM
             sleep 5
-            kill -KILL "$drive_pid" 2>/dev/null || true
+            end_process_tree "$drive_pid" KILL
 
             return 0
         fi
