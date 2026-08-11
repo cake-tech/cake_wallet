@@ -66,7 +66,7 @@ class LetsExchangeInfoRequest {
   @JsonKey(name: "network_to", includeIfNull: false)
   final String? networkTo;
   @JsonKey(name: "amount")
-  final String amount;
+  final double amount;
   @JsonKey(name: "affiliate_id")
   final String affiliateId;
   @JsonKey(name: "float", includeIfNull: false)

@@ -56,7 +56,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       to: to.title,
       networkFrom: _getNetworkType(from),
       networkTo: _getNetworkType(to),
-      amount: "1",
+      amount: 1,
       affiliateId: _affiliateId,
     );
 
@@ -80,7 +80,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       to: to.title,
       networkFrom: _getNetworkType(from.currency as CryptoCurrency),
       networkTo: _getNetworkType(to),
-      amount: from.toString(),
+      amount: from.toDouble(),
       affiliateId: _affiliateId,
     );
 
@@ -106,7 +106,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       to: request.payoutAmount.currency.title,
       networkFrom: networkFrom,
       networkTo: networkTo,
-      amount: request.depositAmount.toString(),
+      amount: request.depositAmount.cryptoAmount.toDouble(),
       affiliateId: _affiliateId,
       float: !request.isFixedRate,
     );
