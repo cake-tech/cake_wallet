@@ -137,7 +137,6 @@ class SettingsMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     List<ListItem> buildItems(SettingsSectionData section) => section.items
         .map((item) => item.condition(dashboardViewModel)
-            // Routes make stable row keys, titles change with the locale.
             ? ListItemRegularRow(
                 keyValue: item.route,
                 label: item.title,

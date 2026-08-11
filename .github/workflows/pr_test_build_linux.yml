@@ -120,7 +120,7 @@ jobs:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
           name: cakewallet_linux
 
-      # Integration tests moved to the Android emulator gate in integration_tests.yml
+      # Integration tests moved to integration_tests.yml
       - name: Test [cw_core]
         timeout-minutes: 15
         run: cd cw_core && flutter test

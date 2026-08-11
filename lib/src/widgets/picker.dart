@@ -316,8 +316,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
     } else if (item is EnumerableItem) {
       itemName = item.title;
     } else {
-      // Anything else, language codes among them, used to come back empty, which gave every
-      // row in the list the same key.
       itemName = item.toString();
     }
 

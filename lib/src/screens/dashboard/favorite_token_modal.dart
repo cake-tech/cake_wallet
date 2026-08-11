@@ -38,7 +38,6 @@ class FavoriteTokenModal extends StatelessWidget {
                       child: SingleChildScrollView(
                         child: NewListSections(
                           sections: {
-                            // User added tokens can share a symbol, the index keeps row keys unique.
                             "": tokens
                                 .asMap()
                                 .entries
