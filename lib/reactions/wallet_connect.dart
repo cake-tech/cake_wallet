@@ -21,6 +21,17 @@ String walletConnectCompatibleChainsLabel() {
   return '$head, and ${names.last}';
 }
 
+String networkDisplayName(WalletType type, int? chainId) {
+  if (evm != null && isEVMCompatibleChain(type)) {
+    final id = chainId ?? evm!.getChainIdByWalletType(type);
+    final info = evm!.getChainInfoByChainId(id);
+    if (info != null) {
+      return info.name;
+    }
+  }
+  return walletTypeToString(type);
+}
+
 bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:

@@ -448,9 +448,17 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.bsc:
         return _createERC681URI(fromCurrency, inputAddress, amount);
       case WalletType.solana:
-        return SolanaURI(amount: amount, address: inputAddress);
+        return SolanaURI(
+          amount: amount,
+          address: inputAddress,
+          contractAddress: TokenUtilities.findSolanaTokenMint(fromCurrency),
+        );
       case WalletType.tron:
-        return TronURI(amount: amount, address: inputAddress);
+        return TronURI(
+          amount: amount,
+          address: inputAddress,
+          contractAddress: TokenUtilities.findTronTokenContract(fromCurrency),
+        );
       case WalletType.monero:
         return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.wownero:
@@ -494,6 +502,7 @@ abstract class ExchangeTradeViewModelBase with Store {
           address: address,
           amount: amount,
           contractAddress: erc20Token.contractAddress,
+          tokenDecimals: erc20Token.decimal,
         );
       }
       return null;
