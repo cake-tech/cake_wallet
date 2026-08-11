@@ -35,6 +35,7 @@ import "package:cake_wallet/entities/wallet_list_order_types.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/settings/sync_mode.dart";
@@ -49,8 +50,10 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/tor/disabled.dart';
+import "package:mobx/mobx.dart";
 import "package:mobx/src/api/observable_collections.dart";
 import "package:mobx/src/core.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Entry point
@@ -138,7 +141,7 @@ class FakeSettingsStore implements SettingsStore {
   late ObservableSet<int> evmHiddenChainIds;
 
   @override
-  late ExchangeApiMode exchangeStatus;
+  late ExchangeApiMode exchangeStatus = ExchangeApiMode.enabled;
 
   @override
   late FiatApiMode fiatApiMode;
@@ -321,7 +324,30 @@ class FakeSettingsStore implements SettingsStore {
   late String totpSecretKey;
 
   @override
-  late ObservableMap<String, bool> trocadorProviderStates;
+  late ObservableMap<String, bool> trocadorProviderStates = {
+    "Swapter": true,
+    "StealthEx": true,
+    "Simpleswap": true,
+    "Swapuz": true,
+    "ChangeNow": true,
+    "Changehero": true,
+    "FixedFloat": true,
+    "LetsExchange": true,
+    "Exolix": true,
+    "Godex": true,
+    "Exch": true,
+    "CoinCraddle": true,
+    "Alfacash": true,
+    "LocalMonero": true,
+    "XChange": true,
+    "NeroSwap": true,
+    "Changee": true,
+    "BitcoinVN": true,
+    "EasyBit": true,
+    "WizardSwap": true,
+    "Quantex": true,
+    "SwapSpace": true
+  }.asObservable();
 
   @override
   late bool useArbiScan;
@@ -429,6 +455,111 @@ class FakeSettingsStore implements SettingsStore {
   }
 }
 
+class FakeSharedPreferences implements SharedPreferences {
+  @override
+  Future<bool> clear() {
+    // TODO: implement clear
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> commit() {
+    // TODO: implement commit
+    throw UnimplementedError();
+  }
+
+  @override
+  bool containsKey(String key) {
+    // TODO: implement containsKey
+    throw UnimplementedError();
+  }
+
+  @override
+  Object? get(String key) {
+    // TODO: implement get
+    throw UnimplementedError();
+  }
+
+  @override
+  bool? getBool(String key) {
+    // TODO: implement getBool
+    throw UnimplementedError();
+  }
+
+  @override
+  double? getDouble(String key) {
+    // TODO: implement getDouble
+    throw UnimplementedError();
+  }
+
+  @override
+  int? getInt(String key) {
+    // TODO: implement getInt
+    throw UnimplementedError();
+  }
+
+  @override
+  Set<String> getKeys() {
+    // TODO: implement getKeys
+    throw UnimplementedError();
+  }
+
+  @override
+  String? getString(String key) {
+    // TODO: implement getString
+    throw UnimplementedError();
+  }
+
+  @override
+  List<String>? getStringList(String key) {
+    // TODO: implement getStringList
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> reload() {
+    // TODO: implement reload
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> remove(String key) {
+    // TODO: implement remove
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> setBool(String key, bool value) {
+    // TODO: implement setBool
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> setDouble(String key, double value) {
+    // TODO: implement setDouble
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> setInt(String key, int value) {
+    // TODO: implement setInt
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> setString(String key, String value) {
+    // TODO: implement setString
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> setStringList(String key, List<String> value) {
+    // TODO: implement setStringList
+    throw UnimplementedError();
+  }
+
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = null; // undo flutter_test's HTTP interception
@@ -439,12 +570,8 @@ void main() {
     // ChangeNOW uses the .withAppVersion() seam already added to production
     // code (avoids needing a full SettingsStore, which createTrade() never
     // actually used beyond reading .appVersion).
-    final providers = <ExchangeProvider>[
-      ChangeNowExchangeProvider(settingsStore: FakeSettingsStore()),
-      LetsExchangeExchangeProvider(),
-      TrocadorExchangeProvider(),
-    ];
-
+    final registry = ExchangeProviderRegistry(sharedPreferences: FakeSharedPreferences(), settingsStore: FakeSettingsStore());
+    final providers = registry.allProviders.map(registry.getProvider).toList();
     // Explicit pairs only — each direction is independent. BTC is used as
     // the hub currency here, paired both ways with every currency we have
     // a real placeholder address for above. Add more pairs as needed —
@@ -685,7 +812,7 @@ Future<TradeResult> checkProvider(ExchangeProvider provider, Money from, CryptoC
       tradeId: trade.id,
       durationMs: sw.elapsedMilliseconds,
     );
-  } catch (e) {
+  } catch (e, st) {
     return TradeResult(
       provider: provider.title,
       from: from,
