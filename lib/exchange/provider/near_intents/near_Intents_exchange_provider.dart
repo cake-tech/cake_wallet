@@ -338,10 +338,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return NearIntentsQuoteResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-  String? _normalizeTagToNearBlockchain(String? tag) => switch (tag) {
+  String _normalizeTagToNearBlockchain(String tag) => switch (tag) {
     "TRX" => "tron",
     "AVAXC" => "avax",
-    _ => tag?.toLowerCase(),
+    "ADA" => "cardano",
+    "XLM" => "stellar",
+    _ => tag.toLowerCase(),
   };
 
   String? _normalizeNearBlockchainToTag(String? blockchain) => switch (blockchain) {
@@ -358,14 +360,15 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       return null;
     }
 
+    // TODO(malik): check with original integration author if this fix makes sense
     final symbol = currency.title.toUpperCase();
-    final blockchain = _normalizeTagToNearBlockchain(currency.tag);
+    final blockchain = _normalizeTagToNearBlockchain(currency.tag ?? currency.title);
 
     // Native asset (no contract)
     final native = supported.firstWhereOrNull(
       (t) =>
           t.symbol.toUpperCase() == symbol &&
-          (blockchain == null || t.blockchain.toLowerCase() == blockchain) &&
+          (t.blockchain.toLowerCase() == blockchain) &&
           t.contractAddress == null,
     );
 
@@ -374,9 +377,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     }
 
     final token = supported.firstWhereOrNull(
-      (t) =>
-          t.symbol.toUpperCase() == symbol &&
-          (blockchain == null || t.blockchain.toLowerCase() == blockchain),
+      (t) => t.symbol.toUpperCase() == symbol && t.blockchain.toLowerCase() == blockchain,
     );
 
     return token;
