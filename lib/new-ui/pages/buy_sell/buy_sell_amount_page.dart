@@ -76,6 +76,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                   ? null
                   : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
             ),
           ),
@@ -119,7 +120,9 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                           customInputFocusNode.requestFocus();
                         } else {
                           await widget.buySellViewModel.changeFiatAmount(amount: amount);
-                          await navigateToProviders(context);
+                          if(context.mounted) {
+                            await navigateToProviders(context);
+                          }
                         }
                       },
                     ),
@@ -159,13 +162,15 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
           .contains(widget.buySellViewModel.paymentMethodState.runtimeType),);
 
       if (widget.buySellViewModel.paymentMethodState is PaymentMethodFailed) {
-        await showPopUp(
+        if(context.mounted) {
+          await showPopUp(
             context: context,
             builder: (context) => AlertWithOneAction(
-                alertTitle: S.of(context).failed_to_load_payment_methods,
-                alertContent: S.of(context).please_try_again_later,
-                buttonText: "OK",
-                buttonAction: Navigator.of(context).pop,),);
+              alertTitle: S.of(context).failed_to_load_payment_methods,
+              alertContent: S.of(context).please_try_again_later,
+              buttonText: "OK",
+              buttonAction: Navigator.of(context).pop,),);
+        }
         return;
       }
 
@@ -176,8 +181,11 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
       unawaited(widget.buySellViewModel.calculateBestRate());
 
       final page = BuySellProviderPage(buySellViewModel: widget.buySellViewModel);
-      Navigator.of(context).push(CupertinoPageRoute(
-          builder: (context) => Material(color: Colors.transparent, child: page),),);
+      if(context.mounted) {
+        unawaited(Navigator.of(context).push(CupertinoPageRoute(
+          builder: (context) => Material(color: Colors.transparent, child: page),),));
+      }
+
     } finally {
       setState(() {
         _isLoadingPaymentMethods = false;
@@ -187,8 +195,19 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
 }
 
 class BuySellCustomAmountInput extends StatelessWidget {
-  const BuySellCustomAmountInput(
-      {required this.fiatCurrency, required this.cryptoCurrency, required this.cryptoAmount, required this.controller, required this.onContinuePressed, required this.isLoading, required this.onChanged, required this.focusNode, required this.hasCurrencySelector, required this.onCurrencySelectorPressed, super.key,});
+  const BuySellCustomAmountInput({
+    required this.fiatCurrency,
+    required this.cryptoCurrency,
+    required this.cryptoAmount,
+    required this.controller,
+    required this.onContinuePressed,
+    required this.isLoading,
+    required this.onChanged,
+    required this.focusNode,
+    required this.hasCurrencySelector,
+    required this.onCurrencySelectorPressed,
+    super.key,
+  });
 
   final FiatCurrency fiatCurrency;
   final CryptoCurrency cryptoCurrency;
