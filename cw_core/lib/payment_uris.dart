@@ -283,8 +283,8 @@ class ERC681URI extends PaymentURI {
     } else {
       final valueParam = uri.queryParameters["value"];
       if (valueParam != null) {
-        final normalized = _normalizeToIntegerWei(valueParam);
-        formatedAmount = formatFixed(BigInt.parse(normalized), 18);
+        final normalized = BigInt.tryParse(_normalizeToIntegerWei(valueParam));
+        formatedAmount = normalized != null ? formatFixed(normalized, 18) : "";
       } else {
         formatedAmount = uri.queryParameters["amount"] ?? "";
       }
@@ -362,14 +362,18 @@ class ERC681URI extends PaymentURI {
     }
   }
 
-  static int _getChainID(String path) => int.parse(
+  static int _getChainID(String path) =>
+      int.tryParse(
         RegExp(r"@\d*").firstMatch(path)?.group(0)?.replaceAll("@", "") ?? "1",
-      );
+      ) ??
+      1;
 
   static (bool, String) _getTargetAddress(String path) {
-    final targetAddress =
-        RegExp(r"^(0x)?[0-9a-f]{40}", caseSensitive: false).firstMatch(path)!.group(0)!;
-    return (path.contains("/"), targetAddress);
+    // I saw in the schema (thanks Konsti) that EIP-681 allows an optional "pay-" prefix before the target address, so adding a check for it here
+    final cleaned = path.startsWith("pay-") ? path.substring(4) : path;
+    final match = RegExp(r"^(0x)?[0-9a-f]{40}", caseSensitive: false).firstMatch(cleaned);
+    final targetAddress = match?.group(0) ?? cleaned.split("@").first.split("/").first;
+    return (cleaned.contains("/"), targetAddress);
   }
 
   /// Normalize an input amount into an integer wei string.

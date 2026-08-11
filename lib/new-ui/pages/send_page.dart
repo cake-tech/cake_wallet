@@ -64,6 +64,7 @@ import "package:cw_core/amount/amount_sanitizer.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/erc20_token.dart";
 import "package:cw_core/lnurl.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/transaction_priority.dart";
@@ -1031,8 +1032,9 @@ class _NewSendPageState extends State<NewSendPage> {
 
   Future<void> _handleManualNetworkSelection(ChainInfo target) async {
     final address = _addressControllers[_selectedOutput].text.trim();
-    final amount = _amountControllers[_selectedOutput].text;
     final note = _memoControllers[_selectedOutput].text;
+    final isTokenSelected = widget.sendViewModel.selectedCryptoCurrency is Erc20Token;
+    final amount = isTokenSelected ? "" : _amountControllers[_selectedOutput].text;
     final paymentRequest = PaymentRequest(address, amount, note, "", null);
     await _handleEvmNetworkFlow(target, paymentRequest);
   }
@@ -1334,6 +1336,10 @@ class _NewSendPageState extends State<NewSendPage> {
       amountOverride = paymentRequest.resolveTokenAmount(token);
     } else if (fallbackCurrency != null) {
       widget.sendViewModel.setSelectedCryptoCurrency(fallbackCurrency.title);
+      if (paymentRequest.amount.isEmpty) {
+        widget.sendViewModel.outputs[_selectedOutput].setCryptoAmount("");
+        _amountControllers[_selectedOutput].clear();
+      }
     }
     if (!mounted) {
       return;
