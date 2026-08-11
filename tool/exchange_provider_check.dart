@@ -16,6 +16,10 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:cw_core/utils/proxy_logger/abstract.dart';
+import 'package:http/http.dart' as http;
 
 import "package:cake_wallet/entities/action_list_display_mode.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
@@ -36,6 +40,7 @@ import "package:cake_wallet/exchange/provider/changenow/changenow_exchange_provi
 import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/settings/sync_mode.dart";
@@ -560,10 +565,43 @@ class FakeSharedPreferences implements SharedPreferences {
 
 }
 
+/// Records every HTTP exchange the providers make, so a failure can be
+/// reported with the actual request/response that produced it instead of
+/// just a hand-written exception string. Hooks the seam ProxyWrapper
+/// already exposes — no provider code is touched.
+class WireLog implements ProxyLogger {
+  final List<Map<String, String>> entries = [];
+
+  @override
+  void log({
+    required Uri? uri,
+    required RequestMethod method,
+    required Uint8List body,
+    required http.Response? response,
+    required RequestNetwork network,
+    required String? error,
+  }) {
+    entries.add({
+      "uri": uri?.toString() ?? "",
+      "request": body.isEmpty ? "" : utf8.decode(body, allowMalformed: true),
+      "status": response?.statusCode.toString() ?? "",
+      "response": _clip(response?.body ?? ""),
+      if (error != null) "error": error,
+    });
+  }
+
+  void clear() => entries.clear();
+
+  static String _clip(String s) => s.length > 1200 ? "${s.substring(0, 1200)}…[clipped]" : s;
+}
+
+final wire = WireLog();
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = null; // undo flutter_test's HTTP interception
   CakeTor.instance = CakeTorDisabled();
+  ProxyWrapper.logger = wire;
 
   test('exchange provider trade-creation check', () async {
     // Real provider instances — completely unmodified real classes, except
@@ -617,17 +655,40 @@ void main() {
       (CryptoCurrency.near, CryptoCurrency.btc),
     ];
 
-    final testAmounts = <double>[250];
+    // Optional filters so a single provider / pair can be re-run quickly while
+    // chasing one bug: ONLY=Trocador,ChangeNOW  PAIR=BTC-LTC
+    final only = Platform.environment["ONLY"]
+        ?.split(",")
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty)
+        .toSet();
+    // PAIR accepts a comma-separated list: PAIR=BTC-LTC,USDT-BTC
+    final pairFilter = Platform.environment["PAIR"]
+        ?.toUpperCase()
+        .split(",")
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toSet();
+
+    final selectedProviders = only == null
+        ? providers
+        : providers.where((p) => only.contains(p.title.toLowerCase())).toList();
+    final selectedPairs = pairFilter == null
+        ? testPairs
+        : testPairs
+              .where((p) => pairFilter.contains("${p.$1.title}-${p.$2.title}".toUpperCase()))
+              .toList();
 
     final results = <TradeResult>[];
-    for (final pair in testPairs) {
-      for (final amount in testAmounts) {
-        for (final provider in providers) {
-          final r = await checkProvider(provider, Money.parse(amount, pair.$1), pair.$2);
-          results.add(r);
-          print(summaryLine(r));
-          await Future.delayed(const Duration(milliseconds: 400));
-        }
+    for (final pair in selectedPairs) {
+      for (final provider in selectedProviders) {
+        final r = await checkProvider(provider, baselineAmount(pair.$1), pair.$2);
+        results.add(r);
+        print(summaryLine(r));
+        // Written every iteration so a long run can be inspected (or killed)
+        // without losing what it already found.
+        writeJsonReport(results, 'exchange_provider_check_report.json');
+        await Future.delayed(const Duration(milliseconds: 400));
       }
     }
 
@@ -637,7 +698,7 @@ void main() {
     print('\n$ok / ${results.length} succeeded');
 
     expect(results, isNotEmpty);
-  }, timeout: const Timeout(Duration(minutes: 15)));
+  }, timeout: const Timeout(Duration(minutes: 90)));
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -655,6 +716,7 @@ class TradeResult {
     this.confirmedReceiveAmount,
     this.errorMessage,
     this.durationMs,
+    this.wireLog = const [],
   });
 
   final String provider;
@@ -670,6 +732,10 @@ class TradeResult {
   final String? errorMessage;
   final int? durationMs;
 
+  /// The actual HTTP exchanges behind this result — the only reliable way to
+  /// tell a provider-side rejection from a bug in our request.
+  final List<Map<String, String>> wireLog;
+
   Map<String, dynamic> toJson() => {
     "provider": provider,
     "from": from.serialized,
@@ -681,6 +747,7 @@ class TradeResult {
     "duration_ms": durationMs,
     // Only include diagnostic detail when something actually went wrong.
     if (!success) "error": errorMessage,
+    if (!success) "wire": wireLog,
   };
 }
 
@@ -691,6 +758,57 @@ String displayName(CryptoCurrency c) => c.tag != null ? "${c.title} (${c.tag})" 
 
 String cleanAmount(double amount) =>
     amount == amount.truncateToDouble() ? amount.toInt().toString() : amount.toString();
+
+/// Roughly $250 worth of each currency. Testing a flat "250 units" of
+/// everything is meaningless — 250 BTC is ~$25M (always over every
+/// provider's max) while 250 DOGE is ~$50 (under most minimums), so nearly
+/// every result was really just an out-of-range rejection. Prices are
+/// order-of-magnitude only; [checkProvider] then corrects the amount into
+/// whatever range the provider itself reports.
+const _approxUsdPrice = <String, double>{
+  "BTC": 100000,
+  "ETH": 4000,
+  "BNB": 900,
+  "LTC": 120,
+  "XRP": 2.5,
+  "TRX": 0.3,
+  "SOL": 200,
+  "XMR": 250,
+  "XNO": 1,
+  "NANO": 1,
+  "BCH": 600,
+  "DOGE": 0.2,
+  "ADA": 0.9,
+  "ZEC": 60,
+  "DCR": 20,
+  "XLM": 0.4,
+  "TON": 3,
+  "NEAR": 4,
+  "USDT": 1,
+  "USDC": 1,
+  "POL": 0.4,
+  "MATIC": 0.4,
+  "ZANO": 2,
+};
+
+Money baselineAmount(CryptoCurrency c) {
+  // AMOUNT=250 forces a literal unit amount for every currency, bypassing the
+  // USD estimate — useful when reproducing a specific out-of-range report.
+  final override = Platform.environment["AMOUNT"];
+  if (override != null) {
+    return Money.parse(override, c);
+  }
+
+  const targetUsd = 250.0;
+  final price = _approxUsdPrice[c.title.toUpperCase()] ?? 1.0;
+  final units = targetUsd / price;
+
+  // Keep it to a sane number of decimals — some providers reject amounts with
+  // more precision than the asset actually has.
+  final decimals = units >= 100 ? 0 : (units >= 1 ? 3 : 6);
+
+  return Money.parse(units.toStringAsFixed(decimals), c);
+}
 
 /// Well-known public / test addresses only — never used to hold real funds.
 String placeholderAddress(CryptoCurrency c) {
@@ -709,12 +827,12 @@ String placeholderAddress(CryptoCurrency c) {
   const bchAddress = "bitcoincash:qp3wjpa3tjlj042z2wv7hahsldgwhwy0rq9sywjpyy";
   const dogeAddress = "DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L";
   const adaAddress =
-      "addr1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp";
-  const zecAddress =
-      "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya";
+      "addr1qyu79rkw3ka62yepygnjw4gdu3kmr5h594kr4tnecplk40pln7kc8vu04g8y0d0nflz54qvclf3umm65hd6scg6wlrys77armh";
+  // Transparent (t1), not shielded — most exchanges reject zs1… payouts.
+  const zecAddress = "t1Kct6a5dkPGEAU9VpwwqBFFHLusvv94cwn";
   const dcrAddress = "DsUZxxoHJSty8DCfwfartwTYbuhmVct7tJu";
   const xlmAddress = "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
-  const tonAddress = "UQD4FPq-PRDieyQKkizsMkhnRPSelJ_RmpVGBssFNnfbKnAy";
+  const tonAddress = "UQBIulOf9HyaNPy41KGkGpvRBXZ_0yR76iEUFjc3MM3QIKyR";
   const nearAddress = "test.near";
   const zanoAddress = "z1q9w0g5x7v8y6r4t3s2u1p0n9m8l7k6j5h4g3f2e1d0c9b8a7s6d5f4g3h2j1k0";
 
@@ -771,14 +889,32 @@ String summaryLine(TradeResult r) {
 // Generic runner — works against any real ExchangeProvider, unmodified
 // ─────────────────────────────────────────────────────────────────────────
 
-Future<TradeResult> checkProvider(ExchangeProvider provider, Money from, CryptoCurrency to) async {
+Future<TradeResult> checkProvider(
+  ExchangeProvider provider,
+  Money baseline,
+  CryptoCurrency to,
+) async {
   final sw = Stopwatch()..start();
+  wire.clear();
+  var from = baseline;
   try {
     // Mirrors the real app flow: a rate is always fetched before the user
     // can confirm a trade. This is also a hard requirement for some
     // providers internally (e.g. Trocador populates its enabled-provider
     // list only inside fetchRate).
-    final rate = await provider.fetchRate(from: from, to: to, isFixedRate: false);
+    var rate = await provider.fetchRate(from: from, to: to, isFixedRate: false);
+
+    // Our baseline is a rough USD guess, so it can easily land outside a
+    // provider's accepted range. Being out of range is expected behavior,
+    // not a bug — so retry once inside the range the provider just told us
+    // about, and only then judge the result.
+    final corrected = Platform.environment["NOCORRECT"] == null
+        ? amountWithinLimits(from, rate.limits)
+        : null;
+    if (corrected != null) {
+      from = corrected;
+      rate = await provider.fetchRate(from: from, to: to, isFixedRate: false);
+    }
 
     if (rate.rate.quote.isZero || rate.rate.quote.isNegative) {
       return TradeResult(
@@ -788,6 +924,7 @@ Future<TradeResult> checkProvider(ExchangeProvider provider, Money from, CryptoC
         success: false,
         errorMessage: "fetchRate returned $rate — no usable quote for this pair",
         durationMs: sw.elapsedMilliseconds,
+        wireLog: List.of(wire.entries),
       );
     }
 
@@ -797,7 +934,7 @@ Future<TradeResult> checkProvider(ExchangeProvider provider, Money from, CryptoC
       depositAmount: SwapAmount(cryptoAmount: from, fiatAmount: Money.zero(FiatCurrency.usd)),
       isFixedRate: false,
       payoutAmount: SwapAmount(
-        cryptoAmount: rate.rate.quote,
+        cryptoAmount: rate.rate.convert(from),
         fiatAmount: Money.zero(FiatCurrency.usd),
       ),
     );
@@ -810,9 +947,11 @@ Future<TradeResult> checkProvider(ExchangeProvider provider, Money from, CryptoC
       to: to,
       success: true,
       tradeId: trade.id,
+      confirmedAmount: trade.depositAmount.toStringWithSymbol(),
+      confirmedReceiveAmount: trade.payoutAmount.toStringWithSymbol(),
       durationMs: sw.elapsedMilliseconds,
     );
-  } catch (e, st) {
+  } catch (e) {
     return TradeResult(
       provider: provider.title,
       from: from,
@@ -820,6 +959,28 @@ Future<TradeResult> checkProvider(ExchangeProvider provider, Money from, CryptoC
       success: false,
       errorMessage: e.toString(),
       durationMs: sw.elapsedMilliseconds,
+      wireLog: List.of(wire.entries),
     );
   }
+}
+
+/// Returns an amount comfortably inside [limits], or null when [amount]
+/// already fits (or the provider reported no usable limits). Backs off the
+/// edges because several providers reject an amount exactly equal to their
+/// own stated min/max.
+Money? amountWithinLimits(Money amount, ExchangeLimits limits) {
+  final min = limits.min;
+  final max = limits.max;
+
+  if (min != null && min.currency == amount.currency && amount <= min) {
+    final bumped = min + (min / BigInt.from(5)); // min * 1.2
+    return (max != null && bumped >= max) ? null : bumped;
+  }
+
+  if (max != null && max.currency == amount.currency && amount >= max) {
+    final reduced = max / BigInt.from(2);
+    return (min != null && reduced <= min) ? null : reduced;
+  }
+
+  return null;
 }
