@@ -1181,6 +1181,7 @@
   "sync_status_syncronizing": "SYNCHRONISEREN",
   "sync_status_timed_out": "TIME-OUT",
   "sync_status_unsupported": "NIET-ONDERSTEUNDE NODE",
+  "sync_synced": "Gesynchroniseerd",
   "sync_syncing": "Synchroniseren",
   "sync_timed_out": "Synchronisatie time-out",
   "sync_unsupported_node": "Niet-ondersteunde node",

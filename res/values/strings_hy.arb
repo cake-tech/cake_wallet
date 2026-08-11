@@ -1181,6 +1181,7 @@
   "sync_status_syncronizing": "ՀԱՄԱԺԱՄԱՆԱԿԵՑՎՈՒՄ Է",
   "sync_status_timed_out": "ԺԱՄԱՆԱԿԸ ՍՊԱՌՎԵՑ",
   "sync_status_unsupported": "ՉԱՋԱԿՑՎՈՂ ՀԱՆԳՈՒՅՑ",
+  "sync_synced": "Համաժամեցված է",
   "sync_syncing": "Համաժամեցում",
   "sync_timed_out": "Համաժամացման ժամանակը սպառվել է",
   "sync_unsupported_node": "Չաջակցվող հանգույց",

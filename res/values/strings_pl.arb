@@ -1181,6 +1181,7 @@
   "sync_status_syncronizing": "SYNCHRONIZOWANIE",
   "sync_status_timed_out": "PRZEKROCZONO LIMIT CZASU",
   "sync_status_unsupported": "NIEOBSŁUGIWANY WĘZEŁ",
+  "sync_synced": "Zsynchronizowane",
   "sync_syncing": "Synchronizowanie",
   "sync_timed_out": "Przekroczono limit czasu synchronizacji",
   "sync_unsupported_node": "Nieobsługiwany węzeł",
