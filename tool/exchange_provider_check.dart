@@ -896,13 +896,15 @@ Future<TradeResult> checkProvider(
 ) async {
   final sw = Stopwatch()..start();
   wire.clear();
+  // FIXED=1 exercises the fixed-rate path, which is otherwise never covered.
+  final isFixedRate = Platform.environment["FIXED"] != null;
   var from = baseline;
   try {
     // Mirrors the real app flow: a rate is always fetched before the user
     // can confirm a trade. This is also a hard requirement for some
     // providers internally (e.g. Trocador populates its enabled-provider
     // list only inside fetchRate).
-    var rate = await provider.fetchRate(from: from, to: to, isFixedRate: false);
+    var rate = await provider.fetchRate(from: from, to: to, isFixedRate: isFixedRate);
 
     // Our baseline is a rough USD guess, so it can easily land outside a
     // provider's accepted range. Being out of range is expected behavior,
@@ -913,7 +915,7 @@ Future<TradeResult> checkProvider(
         : null;
     if (corrected != null) {
       from = corrected;
-      rate = await provider.fetchRate(from: from, to: to, isFixedRate: false);
+      rate = await provider.fetchRate(from: from, to: to, isFixedRate: isFixedRate);
     }
 
     if (rate.rate.quote.isZero || rate.rate.quote.isNegative) {
@@ -932,7 +934,7 @@ Future<TradeResult> checkProvider(
       refundAddress: placeholderAddress(from.currency as CryptoCurrency),
       payoutAddress: placeholderAddress(to),
       depositAmount: SwapAmount(cryptoAmount: from, fiatAmount: Money.zero(FiatCurrency.usd)),
-      isFixedRate: false,
+      isFixedRate: isFixedRate,
       payoutAmount: SwapAmount(
         cryptoAmount: rate.rate.convert(from),
         fiatAmount: Money.zero(FiatCurrency.usd),
