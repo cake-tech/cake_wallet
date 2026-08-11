@@ -72,14 +72,22 @@ class NewSendPageRobot extends BaseRobot {
     await tapSendButton();
   }
 
+  // Tapping send pops the send page and opens the confirm sheet in its place, so whichever
+  // of the two is up is the one holding the view model
   SendViewModel? _sendViewModel() {
-    final finder = find.byType(NewSendPage);
+    final sheet = find.byType(SendConfirmSheet);
 
-    if (!tester.any(finder)) {
-      return null;
+    if (tester.any(sheet)) {
+      return tester.widget<SendConfirmSheet>(sheet.first).sendViewModel;
     }
 
-    return tester.widget<NewSendPage>(finder.first).sendViewModel;
+    final page = find.byType(NewSendPage);
+
+    if (tester.any(page)) {
+      return tester.widget<NewSendPage>(page.first).sendViewModel;
+    }
+
+    return null;
   }
 
   Future<void> swipeToConfirm({Duration timeout = const Duration(seconds: 90)}) async {
@@ -117,7 +125,43 @@ class NewSendPageRobot extends BaseRobot {
   Future<void> confirmTransactionBuilt({
     Duration timeout = const Duration(seconds: 90),
   }) async {
-    await pumpUntilFound(find.byType(ConfirmSwiper), timeout: timeout);
+    final built = await pumpUntil(() => tester.any(find.byType(ConfirmSwiper)), timeout: timeout);
+
+    if (built) {
+      return;
+    }
+
+    final model = _sendViewModel();
+    final available = model?.wallet.balance.values
+        .map((balance) => balance.available)
+        .where((amount) => amount.sign > 0)
+        .join(", ");
+
+    // A build that failed swaps the swiper for the error, which carries the only wording
+    // that says what the chain actually objected to
+    final errorFinder = find.byType(TransactionErrorActions);
+    final buildError = tester.any(errorFinder)
+        ? tester.widget<TransactionErrorActions>(errorFinder.first).errorText
+        : null;
+
+    fail(
+      "No confirm sheet after ${timeout.inSeconds}s. "
+      "state=${model?.state.runtimeType}, "
+      "wallet holds ${available == null || available.isEmpty ? "nothing" : available}"
+      "${buildError == null ? "" : ", the build failed with: $buildError"}",
+    );
+  }
+
+  String enteredAmount() {
+    final inputFinder = find.byKey(const ValueKey("send_page_amount_input_key"));
+
+    if (!tester.any(inputFinder)) {
+      return "unknown";
+    }
+
+    final field = find.descendant(of: inputFinder, matching: find.byType(EditableText));
+
+    return tester.widget<EditableText>(field.first).controller.text;
   }
 
   Future<void> expectSendFailed({Duration timeout = const Duration(seconds: 90)}) async {

@@ -3,6 +3,7 @@ import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/sync_status.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:flutter/material.dart";
 
 import "../core/test_wallets.dart";
 import "../robots/home_page_robot.dart";
@@ -49,6 +50,26 @@ class FundsFlows {
     }
 
     return false;
+  }
+
+  Future<bool> returnToHome({int maxPops = 6}) async {
+    for (int attempt = 0; attempt <= maxPops; attempt++) {
+      if (await _homePageRobot.pumpUntil(
+        () => tester.any(find.byKey(const ValueKey("home_page_wallet_name_text_key"))),
+        timeout: const Duration(seconds: 3),
+      )) {
+        return true;
+      }
+
+      try {
+        await _homePageRobot.dismissModal();
+      } catch (e) {
+        tester.printToConsole("Nothing left to pop while returning home: $e");
+        break;
+      }
+    }
+
+    return tester.any(find.byKey(const ValueKey("home_page_wallet_name_text_key")));
   }
 
   // A wallet that finishes syncing and still shows nothing counts as drained, waiting out

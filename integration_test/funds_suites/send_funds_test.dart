@@ -73,11 +73,10 @@ void main() {
         failures.add("${type.name}: $e");
         tester.printToConsole("FUNDS_SEND_FAIL: ${type.name}: $e");
 
-        try {
-          await sendRobot.dismissModal();
-          await homePageRobot.isDisplayed();
-        } catch (e) {
-          tester.printToConsole("Recovery for ${type.name} failed: $e");
+        if (!await fundsFlows.returnToHome()) {
+          failures.add("${type.name}: could not get back to the home page, "
+              "the chains after this one never ran");
+          break;
         }
       }
     }
