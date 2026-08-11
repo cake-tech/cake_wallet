@@ -18,8 +18,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     this.useTorOnly = false,
     this.providerStates = const {},
     super.proxyWrapper,
-  }) : _lastUsedRateId = "",
-       _provider = [];
+  });
 
   bool useTorOnly;
   Map<String, bool> providerStates;
@@ -61,8 +60,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   static const coinPath = "/coin";
   static const providersListPath = "/exchanges";
 
-  String _lastUsedRateId;
-  List<String> _provider;
 
   @override
   String get title => "Trocador";
@@ -122,48 +119,20 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRate,
   }) async {
-    final params = TrocadorNewRateRequest(
-      tickerFrom: _normalizeCurrency(from.currency as CryptoCurrency),
-      networkFrom: _networkFor(from.currency as CryptoCurrency),
-      tickerTo: _normalizeCurrency(to),
-      networkTo: _networkFor(to),
-      amountFrom: isFixedRate ? null : from.toString(),
-      amountTo: isFixedRate ? from.toString() : null,
-      payment: isFixedRate,
-      minKycrating: .c,
-      markup: markup,
+    final rate = await _getRate(
+      from: from.currency as CryptoCurrency,
+      to: to,
+      amount: from,
+      isFixedRate: isFixedRate,
     );
 
-    final uri = await _getUri(newRatePath, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: {"API-Key": apiKey});
 
-
-    if(response.statusCode > 299 || response.statusCode < 200) {
-      throw Exception("unknown status code: ${response.statusCode}\n${response.body}");
-    }
-
-    final responseJSON = TrocadorRate.fromJson(json.decode(response.body) as Map<String, dynamic>);
-    if (responseJSON.quotes == null || responseJSON.quotes!.quotes == null) {
-      throw Exception("no quotes received");
-    }
-    _provider = responseJSON.quotes!.quotes!
-        .where((quote) => providerStates[quote.provider] != false)
-        .map((quote) => quote.provider)
-        .toList();
-
-    if (_provider.isEmpty) {
-      throw Exception("No enabled providers found for the selected trade.");
-    }
-
-    if (responseJSON.tradeId.isNotEmpty) {
-      _lastUsedRateId = responseJSON.tradeId;
-    }
 
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.safeParse(responseJSON.amountFrom, from.currency),
-        Money.safeParse(responseJSON.amountTo, to),
+        Money.safeParse(rate.amountFrom, from.currency),
+        Money.safeParse(rate.amountTo, to),
       ),
       limits: await fetchLimits(
         from: from.currency as CryptoCurrency,
@@ -175,22 +144,32 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    if (request.isFixedRate) {
-      await fetchRate(
-        to: request.payoutCurrency,
-        from: request.payoutAmount.cryptoAmount,
-        isFixedRate: true,
-      );
+    final rate = await _getRate(
+      from: request.depositCurrency,
+      to: request.payoutCurrency,
+      amount: request.isFixedRate
+          ? request.payoutAmount.cryptoAmount
+          : request.depositAmount.cryptoAmount,
+      isFixedRate: request.isFixedRate,
+    );
+
+    final provider = rate.quotes!.quotes!
+        .where((quote) => providerStates[quote.provider] != false)
+        .map((quote) => quote.provider)
+        .firstOrNull;
+
+    if (provider == null) {
+      throw Exception("No enabled providers found for the selected trade.");
     }
 
     final params = TrocadorNewTradeRequest(
-      id: request.isFixedRate ? _lastUsedRateId : null,
+      id: request.isFixedRate ? rate.tradeId : null,
       tickerFrom: _normalizeCurrency(request.depositCurrency),
       networkFrom: _networkFor(request.depositCurrency),
       tickerTo: _normalizeCurrency(request.payoutCurrency),
       networkTo: _networkFor(request.payoutCurrency),
       address: request.payoutAddress,
-      provider: _provider.first,
+      provider: provider,
       fixed: request.isFixedRate,
       payment: request.isFixedRate,
       minKycrating: .c,
@@ -213,7 +192,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
-      print(response.body);
       throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
     }
 
@@ -243,6 +221,42 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     );
   }
 
+  Future<TrocadorRate> _getRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required Money amount,
+    required bool isFixedRate,
+  }) async {
+    final params = TrocadorNewRateRequest(
+      tickerFrom: _normalizeCurrency(from),
+      networkFrom: _networkFor(from),
+      tickerTo: _normalizeCurrency(to),
+      networkTo: _networkFor(to),
+      amountFrom: isFixedRate ? null : amount.toString(),
+      amountTo: isFixedRate ? amount.toString() : null,
+      payment: isFixedRate,
+      minKycrating: .c,
+      markup: markup,
+    );
+
+    final uri = await _getUri(newRatePath, params.toJson());
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: {"API-Key": apiKey});
+
+    if (response.statusCode > 299 || response.statusCode < 200) {
+      throw Exception("unknown status code: ${response.statusCode}\n${response.body}");
+    }
+
+    final rate = TrocadorRate.fromJson(json.decode(response.body) as Map<String, dynamic>);
+
+    if (rate.quotes == null ||
+        rate.quotes!.quotes == null ||
+        rate.quotes!.quotes!.where((quote) => providerStates[quote.provider] != false).isEmpty) {
+      throw Exception("no providers");
+    }
+
+    return rate;
+  }
+
   @override
   Future<Trade> findTradeById({required String id}) async {
     final uri = await _getUri(tradePath, {"id": id});
@@ -253,16 +267,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       final responseListJson = json.decode(response.body) as List;
       final responseData = TrocadorTrade.fromJson(responseListJson.first as Map<String, dynamic>);
-      // final id = _safeString(responseJSON, 'trade_id');
-      // final payoutAddress = _safeString(responseJSON, 'address_user');
-      // final refundAddress = _safeString(responseJSON, 'refund_address');
-      // final inputAddress = _safeString(responseJSON, 'address_provider');
-      // final fromAmount = responseJSON['amount_from']?.toString() ?? '0';
-      // final password = _safeString(responseJSON, 'password');
-      // final providerId = _safeString(responseJSON, 'id_provider');
-      // final providerName = _safeString(responseJSON, 'provider');
-      // final memoVal = _safeString(responseJSON, 'address_provider_memo');
-      // final addressProviderMemo = memoVal.isEmpty ? null : memoVal;
 
       final _normalizedFromNetwork = _normalizeNetworkType(responseData.networkFrom);
       final fromTag =
