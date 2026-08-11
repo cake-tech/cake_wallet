@@ -213,6 +213,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200) {
+      print(response.body);
       throw Exception("Unexpected http status: ${response.statusCode}");
     }
 
@@ -292,6 +293,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         createdAt: responseData.date?.toLocal(),
         state: responseData.status,
         payoutAddress: responseData.addressUser,
+        providerName: responseData.provider,
         password: responseData.password,
         providerId: responseData.idProvider,
         extraId: responseData.addressProviderMemo,
