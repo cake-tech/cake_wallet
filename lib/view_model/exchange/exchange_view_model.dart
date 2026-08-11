@@ -1185,6 +1185,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
       }
 
+      if (receiveCurrency == CryptoCurrency.zec &&
+          selectedAddressBookWallet?.type == WalletType.zcash) {
+        if (wallet.type == WalletType.zcash && wallet.name == selectedAddressBookWallet!.name) {
+          receiveAddress = wallet.walletAddresses.addressForExchange;
+        } else {
+          receiveAddress = (await selectedAddressBookWallet!.getAddresses())
+                  .entries
+                  .firstWhereOrNull((e) => e.value == 'transparent')
+                  ?.key ??
+              receiveAddress;
+        }
+      }
+
       // parse Lightning address to bolt11 invoice
       if (receiveAddress.contains("@")) {
         receiveAddress = await getBolt11FromLightingAddress(receiveAddress) ?? receiveAddress;
