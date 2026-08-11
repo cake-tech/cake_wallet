@@ -2,6 +2,7 @@ import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/widgets/confirm_swiper.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
+import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -56,6 +57,29 @@ class NewSendPageRobot extends BaseRobot {
 
   Future<void> tapSendButton() async {
     await tapByKey("send_page_send_button_key");
+  }
+
+  Future<void> tapSendButtonWhenReady({Duration timeout = const Duration(minutes: 10)}) async {
+    final ready = await pumpUntil(() => _sendViewModel()?.isReadyForSend ?? false, timeout: timeout);
+
+    expect(
+      ready,
+      true,
+      reason: "The wallet never became ready to send within ${timeout.inMinutes}m, "
+          "so the send button stayed disabled",
+    );
+
+    await tapSendButton();
+  }
+
+  SendViewModel? _sendViewModel() {
+    final finder = find.byType(NewSendPage);
+
+    if (!tester.any(finder)) {
+      return null;
+    }
+
+    return tester.widget<NewSendPage>(finder.first).sendViewModel;
   }
 
   Future<void> swipeToConfirm({Duration timeout = const Duration(seconds: 90)}) async {

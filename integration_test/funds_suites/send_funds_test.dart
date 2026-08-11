@@ -58,7 +58,7 @@ void main() {
 
         await sendRobot.enterAddress(ownAddress);
         await sendRobot.enterAmount(TestConfig.fundsSendAmountFor(type));
-        await sendRobot.tapSendButton();
+        await sendRobot.tapSendButtonWhenReady();
 
         await authFlows.authenticateWithPinIfPrompted();
 
