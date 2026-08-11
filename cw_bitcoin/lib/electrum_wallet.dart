@@ -106,8 +106,8 @@ abstract class ElectrumWalletBase
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
     _balanceDisplayedForAccount = currentAccountIndex;
-    _prepareHdForAccount(currentAccountIndex,
-        currency); // Probably not needed as init will be called right after creating the wallet.
+    // Probably not needed as init will be called right after creating the wallet.
+    _prepareHdForAccount(currentAccountIndex, currency);
   }
 
   int _purposeForType(BitcoinAddressType type) {
@@ -251,15 +251,11 @@ abstract class ElectrumWalletBase
   static const int transactionChunkSize = 150;
   static const int inputTransactionChunkSize = 150;
   static const int discoveryHistoryChunkSize = 20;
-
-  static const int maxAddressTypeRescanDepth = 5;
-
   static const int transactionBatchTimeoutMs = 15000;
-
   static const int batchTestTimeoutMs = 4000;
   static const int batchTestHashesCount = 2;
-
   static const bool useBatchForHistory = true;
+
   static const List<BitcoinAddressType> accountProbeAddressTypes = [SegwitAddresType.p2wpkh];
   static const int maxProbAccounts = 3;
 
@@ -317,8 +313,7 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
-  bool _hasLoadedUnspents = false;
-  bool _didRunAccountDiscovery = false;
+  bool _hasCompleteUnspentSet = false;
   bool _isSyncing = false;
 
   int? _balanceDisplayedForAccount;
@@ -369,7 +364,7 @@ abstract class ElectrumWalletBase
   }
 
   void _updateAccountBalancesFromUnspents() {
-    if (!_hasLoadedUnspents) return;
+    if (!_hasCompleteUnspentSet) return;
     final newBalances = <int, ElectrumBalance>{};
 
     for (final coin in unspentCoins) {
@@ -418,8 +413,7 @@ abstract class ElectrumWalletBase
     final newBalance = accountBalances[targetAccountIndex];
 
     if (newBalance == null) {
-      printV('_updateCurrentAccountBalance: no balance for account '
-          '$targetAccountIndex, keeping existing');
+      printV("no balance for account $targetAccountIndex, keeping existing");
       return;
     }
 
@@ -473,10 +467,9 @@ abstract class ElectrumWalletBase
       .map((addr) => addr.address)
       .toSet();
 
-  List<String> get scriptHashes => walletAddresses.allAddresses
-      .where((addr) => addr.type != SegwitAddresType.mweb)
+  List<String> get scriptHashes => walletAddresses.addressesByReceiveType
       .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
-      .map((addr) => addr.getScriptHash(network))
+      .map((addr) => (addr as BitcoinAddressRecord).getScriptHash(network))
       .toList();
 
   List<String> get publicScriptHashes => walletAddresses.allAddresses
@@ -491,7 +484,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
-    walletInfo.selectedAccount = accountIndex;
 
     final isNewAccount = !walletAddresses.accountIndexes.contains(accountIndex);
     if (isNewAccount) {
@@ -499,8 +491,6 @@ abstract class ElectrumWalletBase
 
       accountBalances[accountIndex] = _zeroBalance(currency);
     }
-
-    _updateCurrentAccountBalance(accountIndex: accountIndex);
 
     await walletInfo.setSelectedAccount(accountIndex);
 
@@ -545,12 +535,11 @@ abstract class ElectrumWalletBase
 
   bool get shouldUseBatchFetching => useBatchForHistory && _isBatchSupported == true;
 
-  bool get isBitcoinBip39InitialRestoreSync =>
+  bool get isInitialBitcoinAccountsSync =>
       type == WalletType.bitcoin &&
           derivationInfo.derivationType == DerivationType.bip39 &&
           walletInfo.isRecovery &&
-          (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts &&
-          !_didRunAccountDiscovery;
+          (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
 
   @override
   String? get seed => _mnemonic;
@@ -577,6 +566,9 @@ abstract class ElectrumWalletBase
   bool _isTryingToConnect = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
+  DateTime? _syncStartedAt;
+
+  static const Duration maxSyncDuration = Duration(minutes: 3);
 
   Completer<SharedPreferences> sharedPrefs = Completer();
 
@@ -677,7 +669,9 @@ abstract class ElectrumWalletBase
 
   final Map<String, Map<String, dynamic>> _missingHistoryQueue = {};
 
-  bool _isResolvingMissingHistory = false;
+  Future<void>? _resolveMissingHistoryFuture;
+  final Map<String, int> _unresolvedAccountRetryCount = {};
+  static const int _maxUnresolvedAccountRetries = 3;
 
   void Function(FlutterErrorDetails)? _onError;
   Timer? _autoSaveTimer;
@@ -875,15 +869,18 @@ abstract class ElectrumWalletBase
   @override
   Future<void> startSync() async {
     if (_isSyncing) {
-      printV('startSync: already syncing, skipping');
-      return;
-    }
-
-    if (syncStatus is SyncronizingSyncStatus) {
-      return;
+      final startedAt = _syncStartedAt;
+      if (startedAt != null && DateTime.now().difference(startedAt) > maxSyncDuration) {
+        printV('startSync: previous sync appears stuck, allowing a new one');
+        _isSyncing = false;
+      } else {
+        printV('startSync: already syncing, skipping');
+        return;
+      }
     }
 
     _isSyncing = true;
+    _syncStartedAt = DateTime.now();
     try {
       if (_syncBenchmarkStartTime == null) {
         _syncBenchmarkStartTime = DateTime.now();
@@ -891,7 +888,6 @@ abstract class ElectrumWalletBase
       }
 
       syncStatus = SyncronizingSyncStatus();
-      _isSyncing = true;
 
       if (hasSilentPaymentsScanning) {
         silentPaymentsScanningActive = alwaysScan ?? false;
@@ -1972,6 +1968,7 @@ abstract class ElectrumWalletBase
   @override
   Future<void> close({bool shouldCleanup = false}) async {
     _missingHistoryQueue.clear();
+    _unresolvedAccountRetryCount.clear();
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
@@ -2026,7 +2023,7 @@ abstract class ElectrumWalletBase
         updatedUnspentCoins.addAll(result!);
       }
       unspentCoins = updatedUnspentCoins;
-      _hasLoadedUnspents = true;
+      _hasCompleteUnspentSet = true;
     } else {
       if (updatedUnspentCoins.isEmpty) {
         unspentCoins = handleFailedUtxoFetch(
@@ -2744,7 +2741,7 @@ abstract class ElectrumWalletBase
       printV("[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchFetching");
 
       if (type == WalletType.bitcoin) {
-        if (isBitcoinBip39InitialRestoreSync) {
+        if (isInitialBitcoinAccountsSync) {
           await fetchBitcoinTransactionsForInitialRestore(historiesWithDetails);
         } else {
           await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
@@ -2797,7 +2794,6 @@ abstract class ElectrumWalletBase
       Map<String, ElectrumTransactionInfo> historiesWithDetails,
       BitcoinAddressType type, {
         int? accountIndex,
-        int rescanDepth = 0,
       }) async {
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
@@ -2821,8 +2817,6 @@ abstract class ElectrumWalletBase
         .addAll(addressesByType.where((addr) => addr.isHidden).map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
-    var shouldRescan = false;
-
     await Future.wait(addressesByType.map((addressRecord) async {
       final result = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
 
@@ -2837,7 +2831,6 @@ abstract class ElectrumWalletBase
                     : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
 
         if (isUsedAddressAboveGap) {
-          final prevLength = _addressCountFor(type, addressRecord.accountIndex);
 
           // Discover new addresses for the same address type until the gap limit is respected
           await walletAddresses.discoverAddresses(
@@ -2853,29 +2846,10 @@ abstract class ElectrumWalletBase
             accountIndex: addressRecord.accountIndex,
           );
 
-          final newLength = _addressCountFor(type, addressRecord.accountIndex);
-
-          if (newLength > prevLength) {
-            shouldRescan = true;
-          }
         }
       }
-    }));
-
-    if (shouldRescan && rescanDepth < maxAddressTypeRescanDepth) {
-      await fetchTransactionsForAddressType(
-        historiesWithDetails,
-        type,
-        accountIndex: accountIndex,
-        rescanDepth: rescanDepth + 1,
-      );
-    }
+    }),);
   }
-
-  int _addressCountFor(BitcoinAddressType type, int? accountIndex) => walletAddresses.allAddresses
-      .where((addr) => addr.type == type)
-      .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
-      .length;
 
   Future<AddressHistoryResult> _fetchAddressHistory(
       BitcoinAddressRecord addressRecord, int? currentHeight) =>
@@ -2901,12 +2875,19 @@ abstract class ElectrumWalletBase
       _missingHistoryQueue.putIfAbsent(txid, () => item);
     }
   }
+  
+  Future<void> resolveQueuedTransactionDetails() {
+    final inProgress = _resolveMissingHistoryFuture;
+    if (inProgress != null) return inProgress;
 
-  Future<void> resolveQueuedTransactionDetails() async {
-    if (_isResolvingMissingHistory) return;
-    if (_missingHistoryQueue.isEmpty) return;
+    if (_missingHistoryQueue.isEmpty) return Future.value();
 
-    _isResolvingMissingHistory = true;
+    final future = _drainMissingHistoryQueue();
+    _resolveMissingHistoryFuture = future;
+    return future.whenComplete(() => _resolveMissingHistoryFuture = null);
+  }
+
+  Future<void> _drainMissingHistoryQueue() async {
     final watch = Stopwatch()..start();
     var resolvedCount = 0;
     try {
@@ -2919,7 +2900,6 @@ abstract class ElectrumWalletBase
         resolvedCount += resolved.length;
       }
     } finally {
-      _isResolvingMissingHistory = false;
       printV(
           '[QUICK_SYNC] resolved $resolvedCount deferred transactions in ${watch.elapsedMilliseconds} ms');
     }
@@ -3017,8 +2997,17 @@ abstract class ElectrumWalletBase
           lastTxId = txid;
 
           final storedTx = transactionHistory.transactions[txid];
-          final needsAccount =
-              type == WalletType.bitcoin && storedTx != null && storedTx.accountIndex == null;
+          // If we've already tried resolving this tx's account owner
+          // several times and it still can't be determined, stop treating it
+          // as "missing" every scan - otherwise we'd refetch its full raw tx
+          // (and all its inputs' raw txs) forever with no chance of ever
+          // converging.
+          final hasExhaustedAccountRetries =
+              (_unresolvedAccountRetryCount[txid] ?? 0) >= _maxUnresolvedAccountRetries;
+          final needsAccount = type == WalletType.bitcoin &&
+              storedTx != null &&
+              storedTx.accountIndex == null &&
+              !hasExhaustedAccountRetries;
 
           if (storedTx != null && !needsAccount) {
             if (height > 0) {
@@ -3081,6 +3070,19 @@ abstract class ElectrumWalletBase
     }
   }
 
+  // Tracks how many times we've resolved a tx and still couldn't determine
+  // its owning account. Used by `_markUsedAndSplitHistory` to stop
+  // requeueing a tx forever when its account can never be determined.
+  void _trackAccountResolution(ElectrumTransactionInfo tx) {
+    if (type != WalletType.bitcoin) return;
+
+    if (tx.accountIndex == null) {
+      _unresolvedAccountRetryCount.update(tx.id, (count) => count + 1, ifAbsent: () => 1);
+    } else {
+      _unresolvedAccountRetryCount.remove(tx.id);
+    }
+  }
+
   Future<Map<String, ElectrumTransactionInfo>> _resolveTransactions(
       List<Map<String, dynamic>> missingHistoryItems, int historyChunkSize) async {
     final Map<String, ElectrumTransactionInfo> resolved = {};
@@ -3102,6 +3104,8 @@ abstract class ElectrumWalletBase
           if (tx == null) return;
 
           resolved[tx.id] = tx;
+
+          _trackAccountResolution(tx);
 
           _applyLitecoinPegOutTag(tx);
 
@@ -3149,6 +3153,8 @@ abstract class ElectrumWalletBase
           if (tx == null) continue;
 
           resolved[tx.id] = tx;
+
+          _trackAccountResolution(tx);
 
           _applyLitecoinPegOutTag(tx);
 
@@ -3264,7 +3270,6 @@ abstract class ElectrumWalletBase
       accountIndex++;
     }
     if (electrumClient.isConnected) {
-      _didRunAccountDiscovery = true;
       await walletInfo.setAccountDiscoveryLimit(maxProbAccounts);
     }
   }
