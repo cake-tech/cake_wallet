@@ -35,6 +35,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   String get latestAddress {
     var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    if (addressIndex < 1) addressIndex = 1;
     var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address)) {
       addressIndex++;
@@ -47,6 +48,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   String get addressForExchange {
     var addressIndex = subaddress_list.numSubaddresses(account?.id ?? 0) - 1;
+    if (addressIndex < 1) addressIndex = 1;
     var address = getAddress(accountIndex: account?.id ?? 0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address) ||
         manualAddresses.contains(address) ||
@@ -151,13 +153,15 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         accountIndex: accountIndex,
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
-    subaddress = (subaddressList.subaddresses.isEmpty)
-        ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0)
-        : subaddressList.subaddresses.last;
-    if (num.tryParse(subaddress!.balance ?? '0') != 0) {
-      getAddress(accountIndex: accountIndex, addressIndex: (subaddress?.id ?? 0) + 1);
+    final candidates = subaddressList.subaddresses.where((item) => item.id != 0).toList();
+    candidates.sort((a, b) => a.id.compareTo(b.id));
+    if (candidates.isEmpty) return;
+    final selected = candidates.last;
+    subaddress = selected;
+    if (num.tryParse(selected.balance ?? '0') != 0) {
+      getAddress(accountIndex: accountIndex, addressIndex: selected.id + 1);
     }
-    address = subaddress!.address;
+    address = selected.address;
   }
 
   @override
