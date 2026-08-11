@@ -249,7 +249,7 @@ run_test() {
                 # give up early instead of spending the whole job on dead attempts
                 if (( total_void_attempts > MAX_TOTAL_VOID_ATTEMPTS )); then
                     error "The flutter driver failed to attach $total_void_attempts times, the emulator or adb is broken"
-                    failed_tests+=("$test_name|$duration")
+                    failed_tests+=("$test_name|$duration|void")
                     return 1
                 fi
             fi
@@ -260,7 +260,7 @@ run_test() {
 
                 if ! restart_adb; then
                     error "Could not bring adb back, aborting this suite"
-                    failed_tests+=("$test_name|$duration")
+                    failed_tests+=("$test_name|$duration|void")
                     return 1
                 fi
 
@@ -270,7 +270,11 @@ run_test() {
                 retry_count=$((retry_count + 1))
                 sleep 5
             else
-                failed_tests+=("$test_name|$duration")
+                # void means the driver never attached, so the suite never actually ran
+                local fail_reason="test"
+                [[ "$attempt_was_void" == "Y" ]] && fail_reason="void"
+
+                failed_tests+=("$test_name|$duration|$fail_reason")
                 return 1
             fi
         fi
@@ -291,7 +295,8 @@ write_github_summary() {
             echo "| ${entry%%|*} | pass | $(format_duration "${entry##*|}") |"
         done
         for entry in "${failed_tests[@]+"${failed_tests[@]}"}"; do
-            echo "| ${entry%%|*} | fail | $(format_duration "${entry##*|}") |"
+            local rest="${entry#*|}"
+            echo "| ${entry%%|*} | ${rest#*|} | $(format_duration "${rest%%|*}") |"
         done
     } >> "$GITHUB_STEP_SUMMARY"
 }
@@ -382,8 +387,10 @@ main() {
 
     if (( ${#failed_tests[@]} > 0 )); then
         echo -e "\nFailed Tests:"
+        local rest
         for entry in "${failed_tests[@]}"; do
-            echo "  - ${entry%%|*} ($(format_duration "${entry##*|}"))"
+            rest="${entry#*|}"
+            echo "  - ${entry%%|*} ($(format_duration "${rest%%|*}"), ${rest#*|})"
         done
         exit 1
     fi

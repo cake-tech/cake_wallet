@@ -250,7 +250,9 @@ exhausting the runner.
 
 Every run posts to slack. The message names each tier's counts, its duration and any suite
 that failed, and the full list of what passed goes in a reply on the same message so the
-channel keeps the short version. It needs `SLACK_APP_TOKEN` and `SLACK_TESTS_CHANNEL`, and
+channel keeps the short version. A suite that failed because the driver never attached is
+labelled as such rather than reported as a failing test, since in that case the suite never
+ran at all. It needs `SLACK_APP_TOKEN` and `SLACK_TESTS_CHANNEL`, and
 without either the step logs a notice and skips rather than failing the gate. Cancelled
 runs stay quiet, since superseded runs are cancelled on purpose. The report is built from
 the `SUMMARY_FILE` each tier writes, so anything the runner counts is available to it.

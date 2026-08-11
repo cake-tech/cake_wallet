@@ -421,8 +421,10 @@ jobs:
           SLACK_CHANNEL: ${{ secrets.SLACK_TESTS_CHANNEL }}
           BRANCH: ${{ github.head_ref || github.ref_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
           COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           ACTOR: ${{ github.actor }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
@@ -438,36 +440,55 @@ jobs:
             awk -F= -v key="$2" '$1 == key { print $2; exit }' "$1"
           }
 
-          # A tier with no summary never got as far as writing one, which is worth saying
-          # rather than leaving out of the report
-          tier_block() {
-            local file="$1" label="$2" suffix="$3"
+          # tier0 gates the merge, tier1 reports without blocking, and a tier with no
+          # summary never got far enough to write one
+          tier_line() {
+            local file="$1" label="$2" note="$3"
 
             if [[ ! -f "$file" ]]; then
-              printf '%-6s did not run' "$label"
+              printf '*%s*\n%s' "$label" "$note"
               return
             fi
 
-            printf '%-6s %s/%s passed in %s%s' \
-              "$label" "$(field "$file" passed)" "$(field "$file" total)" \
-              "$(fmt "$(field "$file" duration)")" "$suffix"
-
-            while IFS= read -r entry; do
-              [[ -n "$entry" ]] || continue
-              printf '\n       FAIL  %s (%s)' "${entry%%|*}" "$(fmt "${entry##*|}")"
-            done < <(sed -n 's/^fail=//p' "$file")
+            printf '*%s*\n%s/%s passed in %s' "$label" \
+              "$(field "$file" passed)" "$(field "$file" total)" \
+              "$(fmt "$(field "$file" duration)")"
           }
 
-          pass_block() {
+          # A suite whose driver never attached never ran, calling that a failing test
+          # sends whoever reads this looking for a bug that is not there
+          failure_lines() {
             local file="$1" label="$2"
 
             [[ -f "$file" ]] || return 0
 
-            printf '%s passed (%s)' "$label" "$(field "$file" passed)"
+            while IFS= read -r entry; do
+              [[ -n "$entry" ]] || continue
+
+              local rest="${entry#*|}"
+              local name="${entry%%|*}"
+              local duration="${rest%%|*}"
+              local reason="${rest#*|}"
+
+              if [[ "$reason" == "void" ]]; then
+                printf '\n• `%s` (%s) _%s, driver never attached, the suite did not run_' \
+                  "$name" "$(fmt "$duration")" "$label"
+              else
+                printf '\n• `%s` (%s) _%s_' "$name" "$(fmt "$duration")" "$label"
+              fi
+            done < <(sed -n 's/^fail=//p' "$file")
+          }
+
+          pass_names() {
+            local file="$1" label="$2"
+
+            [[ -f "$file" ]] || return 0
+
+            printf '*%s* (%s)' "$label" "$(field "$file" passed)"
 
             while IFS= read -r entry; do
               [[ -n "$entry" ]] || continue
-              printf '\n  %s (%s)' "${entry%%|*}" "$(fmt "${entry##*|}")"
+              printf '\n• %s _%s_' "${entry%%|*}" "$(fmt "${entry##*|}")"
             done < <(sed -n 's/^pass=//p' "$file")
           }
 
@@ -475,51 +496,79 @@ jobs:
           tier1_failed=0
           total_passed=0
 
-          if [[ -f tier0_summary.txt ]]; then
-            tier0_failed=$(field tier0_summary.txt failed)
-          fi
-
-          if [[ -f tier1_summary.txt ]]; then
-            tier1_failed=$(field tier1_summary.txt failed)
-          fi
+          [[ -f tier0_summary.txt ]] && tier0_failed=$(field tier0_summary.txt failed)
+          [[ -f tier1_summary.txt ]] && tier1_failed=$(field tier1_summary.txt failed)
 
           for file in tier0_summary.txt tier1_summary.txt; do
             [[ -f "$file" ]] || continue
             total_passed=$(( total_passed + $(field "$file" passed) ))
           done
 
-          # tier0 is the gate, tier1 runs non-blocking, so they do not mean the same thing
           if (( tier0_failed > 0 )); then
-            headline=":x: Integration tests failed"
+            headline=":x:  Integration tests failed"
           elif (( tier1_failed > 0 )); then
-            headline=":warning: Integration tests passed, tier1 has failures"
+            headline=":warning:  Gate passed, tier1 has failures"
           else
-            headline=":white_check_mark: Integration tests passed"
+            headline=":white_check_mark:  Integration tests passed"
           fi
 
-          where="$BRANCH"
+          if (( tier0_failed > 0 )); then
+            tier1_note="_skipped, tier0 failed_"
+          else
+            tier1_note="_did not run_"
+          fi
+
+          where="<$REPO_URL/tree/$BRANCH|$BRANCH>"
           if [[ -n "$PR_NUMBER" ]]; then
-            where="$where (PR #$PR_NUMBER)"
+            where="$where  ·  <$REPO_URL/pull/$PR_NUMBER|#$PR_NUMBER ${PR_TITLE:-}>"
           fi
 
-          message=$(
-            printf '%s\n%s\n\n```\n%s\n%s\n```\n%s by %s\n%s' \
-              "$headline" "$where" \
-              "$(tier_block tier0_summary.txt tier0 '')" \
-              "$(tier_block tier1_summary.txt tier1 ' (non-blocking)')" \
-              "${COMMIT:0:8}" "$ACTOR" "$RUN_URL"
-          )
+          failures=$(printf '%s%s' \
+            "$(failure_lines tier0_summary.txt tier0)" \
+            "$(failure_lines tier1_summary.txt tier1)")
+
+          blocks=$(jq -n \
+            --arg headline "$headline" \
+            --arg where "$where" \
+            --arg tier0 "$(tier_line tier0_summary.txt tier0 '_did not run_')" \
+            --arg tier1 "$(tier_line tier1_summary.txt tier1 "$tier1_note")" \
+            --arg failures "$failures" \
+            --arg commit "${COMMIT:0:8}" \
+            --arg actor "$ACTOR" \
+            --arg repo "$REPO_URL" \
+            --arg run "$RUN_URL" \
+            '[
+              { type: "header", text: { type: "plain_text", text: $headline, emoji: true } },
+              { type: "section", text: { type: "mrkdwn", text: $where } },
+              { type: "section", fields: [
+                  { type: "mrkdwn", text: $tier0 },
+                  { type: "mrkdwn", text: $tier1 }
+              ] }
+            ]
+            + (if $failures == "" then [] else
+                [ { type: "section", text: { type: "mrkdwn",
+                    text: ("*Did not pass*" + $failures) } } ]
+              end)
+            + [
+              { type: "context", elements: [
+                  { type: "mrkdwn",
+                    text: ("<" + $repo + "/commit/" + $commit + "|" + $commit + ">  ·  " + $actor) }
+              ] },
+              { type: "actions", elements: [
+                  { type: "button", url: $run,
+                    text: { type: "plain_text", text: "View run", emoji: false } }
+              ] }
+            ]')
 
           response=$(curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-type: application/json; charset=utf-8" \
-            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$message" \
-              '{channel: $channel, text: $text}')")
+            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$headline" \
+              --argjson blocks "$blocks" \
+              '{channel: $channel, text: $text, blocks: $blocks}')")
 
           if [[ "$(jq -r '.ok' <<< "$response")" != "true" ]]; then
             error=$(jq -r '.error // "unknown"' <<< "$response")
-            # A scope or channel rejection names what it wanted in a field of its own, which
-            # is the part that says what to go and change
             needed=$(jq -r '.needed // empty' <<< "$response")
 
             if [[ -n "$needed" ]]; then
@@ -539,11 +588,8 @@ jobs:
 
           # Everything that passed goes in a reply, so the channel keeps the short version
           # and the full list stays one click away
-          passed=$(
-            printf '```\n%s\n\n%s\n```' \
-              "$(pass_block tier0_summary.txt tier0)" \
-              "$(pass_block tier1_summary.txt tier1)"
-          )
+          passed=$(printf '%s\n\n%s' \
+            "$(pass_names tier0_summary.txt tier0)" "$(pass_names tier1_summary.txt tier1)")
 
           curl -sS -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_TOKEN" \
