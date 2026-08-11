@@ -93,16 +93,28 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       children: [
                         leadingIcon!,
                         Positioned(
-                          right: -3,
-                          bottom: -3,
-                          child: CakeImageWidget(
-                            imageUrl: badgeIconPath!,
-                            width: badgeIconSize ?? 10,
-                            height: badgeIconSize ?? 10,
-                            errorWidget: leadingIconErrorWidget,
-                            colorFilter: iconColor == null
-                                ? null
-                                : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+                          right: -2,
+                          bottom: -2,
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: theme.colorScheme.surfaceContainerHigh,
+                                width: 2,
+                              ),
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            padding: const EdgeInsets.all(2),
+                            child: CakeImageWidget(
+                              imageUrl: badgeIconPath!,
+                              width: badgeIconSize ?? 12,
+                              height: badgeIconSize ?? 12,
+                              fit: BoxFit.cover,
+                              color: theme.colorScheme.surface,
+                              errorWidget: leadingIconErrorWidget,
+                            ),
                           ),
                         ),
                       ],

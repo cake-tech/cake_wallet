@@ -222,6 +222,24 @@ class TokenUtilities {
     return null;
   }
 
+  static String? findSolanaTokenMint(CryptoCurrency currency) {
+    if (currency is SPLToken) return currency.mintAddress;
+
+    for (final token in loadDefaultSolTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token.mintAddress;
+    }
+    return null;
+  }
+
+  static String? findTronTokenContract(CryptoCurrency currency) {
+    if (currency is TronToken) return currency.contractAddress;
+
+    for (final token in loadDefaultTronTokensForSwap()) {
+      if (_matchesCurrency(token, currency)) return token.contractAddress;
+    }
+    return null;
+  }
+
   static bool isNativeToken(CryptoCurrency currency) {
     final title = currency.title.toLowerCase();
     final tag = currency.tag?.toLowerCase();
@@ -289,9 +307,7 @@ class TokenUtilities {
     final allTokens = <CryptoCurrency>[baseCurrency];
     final addedAddresses = <String>{};
 
-    // Handle EVM networks
     if (isEVMCompatibleChain(network)) {
-      // First, collect all user tokens
       final userTokens = await _getUserTokensForNetwork(baseCurrency);
       for (final token in userTokens) {
         if (token is Erc20Token) {
@@ -302,7 +318,17 @@ class TokenUtilities {
         }
       }
 
-      // Then add tokens from CryptoCurrency.all that don't duplicate user tokens
+      if (evm != null) {
+        final chainId = evm!.getChainIdByWalletType(network);
+        for (final token in evm!.getDefaultTokensByChainId(chainId)) {
+          final address = token.contractAddress.toLowerCase();
+          if (addedAddresses.add(address)) {
+            allTokens.add(token);
+          }
+        }
+      }
+
+      // Add tokens from CryptoCurrency.all that don't duplicate user tokens
       for (final currency in CryptoCurrency.all) {
         // Match by tag for POL/BASE, match by title==tag for ETH
         final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
@@ -320,12 +346,16 @@ class TokenUtilities {
           }
         }
       }
-    }
-
-    // Handle Solana network
-    else if (network == WalletType.solana) {
+    } else if (network == WalletType.solana) {
       final userSolTokens = await loadAllUniqueSolTokens();
       for (final token in userSolTokens) {
+        final mintAddress = token.mintAddress.toLowerCase();
+        if (addedAddresses.add(mintAddress)) {
+          allTokens.add(token);
+        }
+      }
+
+      for (final token in loadDefaultSolTokensForSwap()) {
         final mintAddress = token.mintAddress.toLowerCase();
         if (addedAddresses.add(mintAddress)) {
           allTokens.add(token);
@@ -350,6 +380,13 @@ class TokenUtilities {
     else if (network == WalletType.tron) {
       final userTronTokens = await loadAllUniqueTronTokens();
       for (final token in userTronTokens) {
+        final contractAddress = token.contractAddress.toLowerCase();
+        if (addedAddresses.add(contractAddress)) {
+          allTokens.add(token);
+        }
+      }
+
+      for (final token in loadDefaultTronTokensForSwap()) {
         final contractAddress = token.contractAddress.toLowerCase();
         if (addedAddresses.add(contractAddress)) {
           allTokens.add(token);

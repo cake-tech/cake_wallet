@@ -16,10 +16,15 @@ class ReceiveInfoBox extends StatelessWidget {
       required this.onDismissed,
       this.bottomWidget});
 
+  /// [addressRotates] tells whether the address type currently selected on the
+  /// receive page actually rotates. Most wallet types only ever expose rotating
+  /// address types, so it defaults to true; Zcash also offers static types, for
+  /// which the rotation notice would be wrong.
   static ReceiveInfoBox? forWalletType(WalletType type,
       {required VoidCallback onDismissed,
       required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus,
-      List<CryptoCurrency>? supportedCurrencies}) {
+      List<CryptoCurrency>? supportedCurrencies,
+      bool addressRotates = true}) {
     switch (type) {
       case WalletType.nano:
         return null;
@@ -43,6 +48,7 @@ class ReceiveInfoBox extends StatelessWidget {
             ));
       default:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
+        if (!addressRotates) return null;
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
           message: S.current.infobox_auto_address,
