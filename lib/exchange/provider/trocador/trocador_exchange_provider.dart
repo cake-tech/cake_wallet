@@ -97,7 +97,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final response = await proxyWrapper.get(clearnetUri: uri, headers: {"API-Key": apiKey});
 
     if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
+      throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
     }
 
     final responseJSON = (json.decode(response.body) as List<dynamic>).map(
@@ -139,7 +139,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
 
     if(response.statusCode > 299 || response.statusCode < 200) {
-      throw Exception("unknown status code: ${response.statusCode}");
+      throw Exception("unknown status code: ${response.statusCode}\n${response.body}");
     }
 
     final responseJSON = TrocadorRate.fromJson(json.decode(response.body) as Map<String, dynamic>);
@@ -214,7 +214,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode != 200) {
       print(response.body);
-      throw Exception("Unexpected http status: ${response.statusCode}");
+      throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
     }
 
     final responseData = TrocadorTrade.fromJson(json.decode(response.body) as Map<String, dynamic>);
@@ -248,7 +248,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final uri = await _getUri(tradePath, {"id": id});
     return proxyWrapper.get(clearnetUri: uri, headers: {"API-Key": apiKey}).then((response) {
       if (response.statusCode != 200) {
-        throw Exception("Unexpected http status: ${response.statusCode}");
+        throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
       }
 
       final responseListJson = json.decode(response.body) as List;
@@ -309,7 +309,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final response = await proxyWrapper.get(clearnetUri: uri);
 
     if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
+      throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
