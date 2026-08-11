@@ -1183,6 +1183,7 @@
   "sync_status_syncronizing": "ANA DAIDAITAWA",
   "sync_status_timed_out": "LOKACI YA WUCE",
   "sync_status_unsupported": "NODE MARA GOYON BAYA",
+  "sync_synced": "An daidaita",
   "sync_syncing": "Ana aiki tare",
   "sync_timed_out": "Lokacin aiki tare ya ƙare",
   "sync_unsupported_node": "Node da ba a tallafa ba",

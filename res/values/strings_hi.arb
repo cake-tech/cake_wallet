@@ -1183,6 +1183,7 @@
   "sync_status_syncronizing": "सिंक्रनाइज़ हो रहा है",
   "sync_status_timed_out": "समय समाप्त",
   "sync_status_unsupported": "असमर्थित नोड",
+  "sync_synced": "सिंक किया गया",
   "sync_syncing": "सिंक हो रहा है",
   "sync_timed_out": "सिंक का समय समाप्त हो गया",
   "sync_unsupported_node": "असमर्थित नोड",
