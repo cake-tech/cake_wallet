@@ -220,6 +220,13 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     };
     await _syncRotationHiddenAddresses();
     await _applyAddressForCurrentType();
+    await _persistAddressForExchange();
+  }
+
+  Future<void> _persistAddressForExchange() async {
+    final addr = addressForExchange;
+    if (isPlaceholderAddress(addr)) return;
+    await walletInfo.setAddresses({addr: 'transparent'});
   }
 
   Future<void> _applyAddressForCurrentType() async {
@@ -253,6 +260,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
         walletInfo.address = address;
       }
       await walletInfo.setAddresses({});
+      await _persistAddressForExchange();
       await walletInfo.setAddressInfos(addressInfos);
       await walletInfo.setUsedAddresses(usedAddresses.toList());
       await walletInfo.setHiddenAddresses(hiddenAddresses.toList());
