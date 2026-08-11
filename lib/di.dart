@@ -108,8 +108,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_s
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
@@ -1037,25 +1035,7 @@ Future<void> setup({
   });
 
   getIt.registerFactory(
-      () => MoneroAccountListPage(accountListViewModel: getIt.get<MoneroAccountListViewModel>()));
-
-  getIt.registerFactory(
       () => NanoAccountListPage(accountListViewModel: getIt.get<NanoAccountListViewModel>()));
-
-  /*getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
-
-    if (wallet is MoneroWallet) {
-      return MoneroAccountEditOrCreateViewModel(wallet.accountList);
-    }
-
-    // FIXME: throw exception.
-    return null;
-  });
-
-  getIt.registerFactory(() => MoneroAccountEditOrCreatePage(
-      moneroAccountCreationViewModel:
-          getIt.get<MoneroAccountEditOrCreateViewModel>()));*/
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
       (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
@@ -1070,11 +1050,6 @@ Future<void> setup({
       accountListItem: account,
     ),
   );
-
-  getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem?, void>(
-      (AccountListItem? account, _) => MoneroAccountEditOrCreatePage(
-          moneroAccountCreationViewModel:
-              getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactoryParam<NanoAccountEditOrCreateViewModel, NanoAccount?, void>(
       (NanoAccount? account, _) =>

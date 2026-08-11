@@ -68,7 +68,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_s
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_display_page.dart';
@@ -653,11 +652,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final page = getIt.get<PowNodeCreateOrEditPage>(
           param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(builder: (_) => page);
-
-    case Routes.accountCreation:
-      return CupertinoPageRoute<String>(
-          builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
-              param1: settings.arguments as AccountListItem?));
 
     case Routes.nanoAccountCreation:
       return CupertinoPageRoute<String>(

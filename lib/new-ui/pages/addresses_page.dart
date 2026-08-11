@@ -120,6 +120,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         child: Column(
                           spacing: 16,
                           children: [
+                            // TODO: add Bitcoin support for this header
                             if (widget.dashboardViewModel.type == WalletType.monero ||
                                 widget.dashboardViewModel.type == WalletType.wownero)
                               Observer(
