@@ -622,7 +622,10 @@ abstract class ZcashWalletBase
     final info = ZcashTransactionInfo(
       id: tx.txHash,
       amount: Money(amount, currency),
-      fee: Money.zero(currency),
+      fee: Money(
+        direction == TransactionDirection.outgoing ? tx.fee : BigInt.zero,
+        currency,
+      ),
       direction: direction,
       isPending: tx.height == 0,
       date: tx.time,
@@ -1021,7 +1024,50 @@ abstract class ZcashWalletBase
   @override
   @action
   Future<void> rescan({required final int height}) async {
-    await zkool_sync.rewindSync(height: height, account: accountId, c: c);
+    syncStatus = StartingScanSyncStatus(height);
+    try {
+      await zkool_sync.cancelSync();
+      isSyncing = false;
+
+      await runWithCoin(
+        accountId: accountId,
+        func: (final coin) async {
+          await zkool_account.updateAccount(
+            update: zkool_account.AccountUpdate(
+              coin: coin.coin,
+              id: accountId,
+              birth: height,
+              folder: 0,
+            ),
+            c: coin,
+          );
+
+          final accounts = await zkool_account.listAccounts(c: coin);
+          final updated =
+              accounts.where((final a) => a.id == accountId).firstOrNull;
+          if (updated == null) {
+            throw Exception('account $accountId not found after update');
+          }
+          if (updated.birth != height) {
+            throw Exception(
+              'birth height did not persist: wanted $height, '
+              'database still has ${updated.birth}',
+            );
+          }
+
+          await zkool_account.resetSync(id: accountId, c: coin);
+        },
+      );
+
+      lastKnownRestoreHeight = height;
+      await save();
+
+      syncStatus = ConnectedSyncStatus();
+      unawaited(startSync());
+    } catch (e) {
+      printV('Zcash rescan failed: $e');
+      syncStatus = FailedSyncStatus(error: e.toString());
+    }
     // try {
     //   syncStatus = StartingScanSyncStatus(height);
     //   printV("rescanning from: $height");
