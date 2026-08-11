@@ -115,6 +115,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
 
     final rate = responseBody.data?.price;
+
+    if(rate == null) {
+      throw Exception("rate is null\n${response.body}");
+    }
+
     return ProviderRate(
       provider: description,
       rate: ExchangeRate(
